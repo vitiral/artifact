@@ -1,0 +1,95 @@
+
+[settings]
+test = true
+
+[localvars]
+req = "REQ-artifacts"
+
+["{req}-link"]
+text = """
+The artifacts **shall** be allowed to link as defined in this REQ
+"""
+extra = """
+# link definition and interactions
+
+A link is defined as a dependent relationship. Y linking to Z implies that
+Z depends on Y for testing or implementation.
+
+loc (of code) has the reverse dependency. An artifact setting loc
+means it depends on that code.
+
+This allows dependency trees to be made much more easily by the writter.
+
+## Example:
+```
+[REQ-foo]
+text = 'foo req'
+
+[SPC-foo]
+text = 'foo spec'
+links = 'REQ-foo'
+loc = '{src}/lib/foo.rs:LOC-foo'
+
+[TST-foo]
+text = 'foo test'
+links = 'SPC-foo'
+loc = '{src}/tests/foo.rs:LOC-foo'
+```
+
+Note that:
+- TST-foo depends on tests/foo.rs:LOC-foo for implementation
+- SPC-foo depends on lib/foo.rs:LOC-foo for implementation AND TST-foo for testing
+- REQ-foo depends on SPC-foo for implementation AND testing
+
+# Interaction chart
+The interaction chart **will** look like this:
+```
+REQ<----SPC<----RSK<+
+^       ^       |  |
+|       |       |  |
++---------------+  |
+|       |          |
+|       |          |
+-------TST---------+
+```
+
+where an arrow points (-->) to a valid link.
+"""
+test = false
+
+["{req}-link-method"]
+text = """The linking method must follow these requirements"""
+test = false
+
+["{req}-link-method-1"]
+text = """
+The artifacts REQ, RSK, SPC and TST **shall** be allowed to link using the
+'link' variable defined in $REQ-format-link
+"""
+link = "REQ-format-structure-link"
+
+["{req}-link-method-2"]
+text = """
+The artifact LOC **shall** be allowed to link using the
+'loc' variable defined in $REQ-format-loc
+"""
+link = "REQ-format-structure-loc"
+
+["{req}-link-req"]
+text = "REQ **shall only** be allowed to link to REQ"
+
+["{req}-link-rsk"]
+text = "RSK **shall only** be allowed to link to REQ, RSK, and SPC"
+
+["{req}-link-spc"]
+text = "SPC **shall only** be allowed to link to SPC and REQ"
+
+["{req}-link-tst"]
+text = "TST **shall only** be allowed to link to REQ, RSK, SPC and TST"
+
+["{req}-link-loc"]
+text = """
+LOC **shall only** be allowed to link to SPC and TST
+
+> Note: LOC is the only artifact that **cannot** link to itself
+"""

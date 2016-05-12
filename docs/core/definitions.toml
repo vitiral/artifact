@@ -1,0 +1,64 @@
+
+[defaults]
+active = true
+test = false
+
+[REQ-definitions-statments]
+text = """
+The following terms **will** be used according to the
+following definition:
+- shall: the statement must be implemented and it's
+    implementation verified.
+- will: statement of fact, not subject to verification.
+    i.e. "The X system will have timing as defined in ICD 1234"
+- should: goals, non-mandatory provisions. Statements using "should"
+    **should** be verified if possible, but verification is not mandatory if
+    not possible. Should is a statement of intent
+"""
+
+[REQ-categories]
+text = """
+There **shall** be 4 types of categories, known as **artifacts**:
+- REQ: software requriement
+- RSK: Requirements Risks -- risks related to the software requirements
+- SPC: High Level Software Design Spec
+- TST: high level test design
+- LOC: location of code implementation
+"""
+
+[REQ-categories-req]
+text = """
+The prefix and name of 'REQ' **will** specifiy the software requirements.
+
+Generally these should be the high level requirements specified in the format of
+$REQ-definitions-statements
+"""
+
+[REQ-categories-rsk]
+text = """
+The prefix and name of 'RSK' **will** specify the risks associated with either
+a requirement (REQ) or a design-specification (SPC)
+"""
+
+[REQ-categories-spc]
+text = """
+The prefix and name of 'SPC' **will** specify a design specification linked to
+a requirement.
+
+In addition, the design specification can have a path associated with the
+code implementation.
+"""
+
+[REQ-categories-tst]
+text = """
+The prefix and name of 'TST' **will** specify a test that can test either a
+requirement (REQ), risk (RSK), or design-specification (SPC).
+
+In addtion, the test can have a path associated with the code implementation.
+"""
+
+[REQ-categories-loc]
+text = """
+The prefix and name of 'LOC' **will** specify the location of code that implements
+either a specification (SPC) or a test (TST)
+"""
