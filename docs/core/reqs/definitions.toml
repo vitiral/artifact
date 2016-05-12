@@ -1,7 +1,7 @@
 
 [defaults]
-active = true
-test = false
+ignore = true
+done = false
 
 [REQ-definitions-statments]
 text = """
@@ -16,9 +16,9 @@ following definition:
     not possible. Should is a statement of intent
 """
 
-[REQ-categories]
+[REQ-definitions-categories]
 text = """
-There **shall** be 4 types of categories, known as **artifacts**:
+There **will** be 4 types of categories, known as **artifacts**:
 - REQ: software requriement
 - RSK: Requirements Risks -- risks related to the software requirements
 - SPC: High Level Software Design Spec
@@ -26,7 +26,7 @@ There **shall** be 4 types of categories, known as **artifacts**:
 - LOC: location of code implementation
 """
 
-[REQ-categories-req]
+[REQ-definitions-categories-req]
 text = """
 The prefix and name of 'REQ' **will** specifiy the software requirements.
 
@@ -34,13 +34,13 @@ Generally these should be the high level requirements specified in the format of
 $REQ-definitions-statements
 """
 
-[REQ-categories-rsk]
+[REQ-definitions-categories-rsk]
 text = """
 The prefix and name of 'RSK' **will** specify the risks associated with either
 a requirement (REQ) or a design-specification (SPC)
 """
 
-[REQ-categories-spc]
+[REQ-definitions-categories-spc]
 text = """
 The prefix and name of 'SPC' **will** specify a design specification linked to
 a requirement.
@@ -49,7 +49,7 @@ In addition, the design specification can have a path associated with the
 code implementation.
 """
 
-[REQ-categories-tst]
+[REQ-definitions-categories-tst]
 text = """
 The prefix and name of 'TST' **will** specify a test that can test either a
 requirement (REQ), risk (RSK), or design-specification (SPC).
@@ -57,8 +57,25 @@ requirement (REQ), risk (RSK), or design-specification (SPC).
 In addtion, the test can have a path associated with the code implementation.
 """
 
-[REQ-categories-loc]
+[REQ-definitions-categories-loc]
 text = """
 The prefix and name of 'LOC' **will** specify the location of code that implements
 either a specification (SPC) or a test (TST)
 """
+
+[REQ-definitions-link]
+text = """
+There **will** be 2 types of links:
+- loc: link to code implementation
+- partof: dependency link
+"""
+
+[REQ-definitions-link-part]
+text = '''
+the **partof** term **will** be used to list artifacts which an artifact is
+"a part of". If artifact A is "a part of" artifact B then B **will** depend
+on A.
+
+the **parts** term **will** be used to list artifact which an artifact depends on.
+If artifact B "has a part" A, then B **will** depend on A
+'''

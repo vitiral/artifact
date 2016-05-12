@@ -1,0 +1,57 @@
+[defaults]
+ignore = true
+
+[REQ-purpose-1]
+text = '''
+The primary purpose of the **rsk** utility **will** be to provide a
+fast, simple text-based interface to requirements tracking of risks,
+tests, design and implementation.
+'''
+
+[REQ-purpose-2]
+text = '''
+**rsk** **will** use a simple text format such as json, ini or toml
+to structure it's files.
+
+- json: decent but too open for the purpose (nesting is unnecssary)
+    also, no way to line-comment making it almost useless for a tracking
+    tool
+- ini/toml: both are decent formats, prefer toml as it is a little bit
+    simpler
+'''
+
+[REQ-purpose-3]
+text = '''
+linking **will** be an easy to understand format
+
+# Link basics
+when a link is specified in an artifact the artifact listed depends on
+the artifact that is listing
+
+```
+[foo] # foo depends on bar for completeness
+text = "foo"
+
+[bar]
+text = "bar"
+link = "foo"
+```
+
+# Key choice
+So in verb tense:
+- Y link Z
+- Y is needed for Z
+- Y gives Z (meaning)
+- Y is a dependency of Z
+- Y fulfills Z
+- Y part of Z
+- Y is in (dependencies of) Z
+- Y inpart Z
+
+inpart is short and gives the right idea -- Y **inparts** to Z some of
+it's meaning. It is also "in the parts" of Z's spec/req/etc. However,
+the meaning is kind of vague.
+
+partof is very clean and clear, much more understandable. Also it is a
+plural/singular verb, which is nice
+'''

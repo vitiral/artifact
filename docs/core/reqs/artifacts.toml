@@ -1,0 +1,91 @@
+["REQ-artifacts-link"]
+test = false
+text = '''
+The artifacts **shall** be allowed to link as defined in this REQ
+'''
+extra = '''
+# link definition and interactions
+
+A link is defined as a dependent relationship. Y linking to Z implies that
+Z depends on Y for testing or implementation.
+
+This allows dependency trees to be made much more easily by the writter.
+
+## field
+Because of this dependency interaction, 'link' will be referred to as
+'partof'. So
+- Y links Z
+- Y partof Z
+- Y is part of the dependencies of Z for testing and implementation analysis
+
+## Example:
+```
+[REQ-foo]
+text = 'foo req'
+
+[SPC-foo]
+text = 'foo spec'
+partof = 'REQ-foo'
+loc = '{src}/lib/foo.rs:LOC-foo'
+
+[TST-foo]
+text = 'foo test'
+partof = 'SPC-foo'
+loc = '{src}/tests/foo.rs:LOC-foo'
+```
+
+Note that:
+- TST-foo depends on tests/foo.rs:LOC-foo for implementation
+- SPC-foo depends on lib/foo.rs:LOC-foo for implementation AND TST-foo for testing
+- REQ-foo depends on SPC-foo for implementation AND testing
+
+# Interaction chart
+The interaction chart **will** look like this:
+```
+          LOC <---\
+           ^       \
+           |       |
+  REQ <-- SPC <-- TST
+   ^               |
+   \               /
+    \---- RSK <---/
+```
+
+where an arrow points (-->) to a valid partof link (i.e. SPC is partof REQ)
+'''
+
+["REQ-artifacts-link-method"]
+text = "The linking method must follow these requirements"
+
+["REQ-artifacts-link-method-1"]
+text = '''
+The artifacts REQ, RSK, SPC and TST **shall** be allowed to link using the
+'partof' variable defined in $REQ-format-artifacts-partof
+'''
+partof = "REQ-format-structure-artifacts-partof"
+
+["REQ-artifacts-link-method-2"]
+text = '''
+The artifact LOC **shall** be allowed to link using the
+'loc' variable defined in $REQ-format-artifacts-loc
+'''
+link = "REQ-format-structure-artifacts-loc"
+
+["REQ-artifacts-link-req"]
+text = "REQ **shall only** be allowed to be partof REQ"
+
+["REQ-artifacts-link-rsk"]
+text = "RSK **shall only** be allowed to be partof REQ, RSK, and SPC"
+
+["REQ-artifacts-link-spc"]
+text = "SPC **shall only** be allowed to be partof SPC and REQ"
+
+["REQ-artifacts-link-tst"]
+text = "TST **shall only** be allowed to be partof RSK, SPC and TST"
+
+["REQ-artifacts-link-loc"]
+text = '''
+LOC **shall only** be allowed to link from SPC and TST
+
+> Note: LOC is the only artifact that **cannot** link to itself
+'''

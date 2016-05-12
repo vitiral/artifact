@@ -1,0 +1,45 @@
+
+[REQ-links]
+doc = '''
+This requirement details how linking **will** operate
+'''
+partof = "REQ-definitions-link"
+
+[REQ-links-partof]
+partof = "REQ-definitions-link-part"
+
+[REQ-links-partof-parts]
+text = '''
+An artifact **shall** have two attributes pertaining to **part**:
+- **parts**: these are the depenencies of the artifact
+- **partof**: these are the artifacts that depend on the artifact
+'''
+
+[REQ-links-partof-prefix]
+text = '''
+- All artifacts with the same whole-prefix **shall** automatically be considered partof
+the whole-prefix artifact
+- If a whole-prefix artifact does not exist, it **shall** automatically be created empty
+
+> definition: whole-prefix=set of characters in groups between "-" character
+> Example: foo-bar-baz-1 has whole-prefixes:
+>    "foo", "foo-bar", "foo-bar-baz" and "foo-bar-baz-1"
+'''
+extra = '''
+Example:
+- REQ-foo
+- REQ-foo-1
+- REQ-foo-1-a
+- REQ-foo-baz
+
+Dependencies are:
+- REQ-foo-1 and REQ-foo-baz is partof REQ-foo
+- REQ-foo-1-a is partof REQ-foo-1
+'''
+
+[REQ-links-loc-artifact]
+text = '''
+An artifact **shall** have a **loc** atribute that specifies the location
+in code where the artifact is implemneted
+'''
+partof = "REQ-definitions-link-loc"

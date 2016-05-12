@@ -1,0 +1,10 @@
+[package]
+name = "rsk"
+version = "0.1.0"
+authors = ["Garrett Berg <vitiral@gmail.com>"]
+
+[dependencies]
+toml = "0.1"
+walkdir = "0.1"
+regex = "0.1"
+lazy_static = "0.1.*"

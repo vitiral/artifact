@@ -1,0 +1,35 @@
+# document detailing how coverage is detected
+
+[REQ-coverage]
+text = "Requirements pertaining to analyzing code and test coverage"
+
+[REQ-coverage-percent-definition]
+text = '''
+percentage completion **shall** be calculated by a weighted average of the
+percent completed (tested or implemented) of each direct part of the artifact,
+as defined in REQ-links-partof
+'''
+
+[REQ-coverage-implementation-1]
+text = '''
+Both TST and SPC components **shall** be considered 100% implemented if the "code" field is set
+to a valid path and `done` is not set.
+'''
+
+[REQ-coverage-implementation-2]
+text = '''
+Any component **shall** be considered 100% implemented if `done == true`
+as defined in REQ-format-structure-artifacts-done
+'''
+partof = "REQ-format-structure-artifacts-done"
+
+[REQ-coverage-implementation-3]
+text = '''
+RSK artifacts **shall** be ignored when calculating implementation percent
+'''
+
+[REQ-coverage-test-1]
+text = '''
+A TST component's tested percent **shall** equal it's implemented percent
+'''
+partof = "REQ-coverage-implementation"
