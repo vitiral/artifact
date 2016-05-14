@@ -1,0 +1,144 @@
+[REQ-purpose]
+text = '''
+The primary purpose of the **rsk** utility **will** be to provide a
+fast, simple and text-based interface for tracking of
+requirements, design, risks, tests, and implementation.
+'''
+
+[REQ-purpose-definitions]
+text = '''
+rsk **will** use defined definitions for all potentially confusing terms
+'''
+
+[REQ-purpose-core-coverage]
+text = '''
+rsk **will** provide a simple but useful mechanism for calculating
+and displaying implementation and test coverage / completeness
+'''
+
+[REQ-purpose-core-artifacts]
+text = '''
+rsk **will** support 5 types of artifacts that can be tracked
+- REQ: software requirement
+- RSK: risks related to requirements or design specifications
+- SPC: High Level Software Design Specificaion based on requirements
+- TST: high level test design of a risk or specification
+- LOC: location of code implementation of a specification or test
+'''
+
+[REQ-purpose-core-artifacts]
+text = '''
+artifacts **will** have simple attributes that can be set
+'''
+
+[REQ-purpose-core-format]
+text = '''
+**rsk** **will** use a simple text format to structure it's files
+
+Possible choices:
+- json: decent but too general for the purpose (nesting is unnecessary)
+    also, no way to line-comment making it almost useless for a tracking
+    tool. Also, not readable enough.
+- ini/toml: both are decent formats, prefer toml as it is a little bit
+    simpler
+- yaml: too complex for what is needed, not as readable as ini. Very
+    enjoyable general purpose format.
+- html/xml/etc: aboslutely not. Needlessly complex.
+'''
+
+[REQ-purpose-core-linking]
+text = '''
+linking **will** be in an easy to understand format.
+
+linking should be possible:
+- between artifacts
+- with source code or other implementation
+'''
+
+[REQ-purpose-core-variables]
+text = '''
+there **will** be a method of setting global and local variables
+for use in text and paths
+'''
+
+[REQ-purpose-ui]
+text = '''
+rsk **will** provide simple methods to interact and view it's data
+'''
+
+[REQ-purpose-ui-cmdline]
+text = '''
+rsk **will** provide cmd line utilities to view summaries and specific
+artifacts
+
+rsk's primarily purpose **should** be to support text based and cmdline
+workflows
+'''
+
+[REQ-purpose-ui-filtering]
+text = '''
+rsk's various ui methods **will** provide methods to filter by:
+- percent completed
+- percent tested
+'''
+
+[REQ-purpose-ui-markdown]
+text = '''
+when displaying to the user, all text **will** be processed
+as a simple markdown format
+'''
+
+[REQ-purpose-ui-link]
+text = '''
+rsk's various ui methods **will** provide simple methods to
+navigate and view linked components
+'''
+
+[REQ-purpose-ui-html]
+text = '''
+rsk **will** provide the ability to export to static-html for web-broswing
+of information
+'''
+
+[REQ-purpose-interop]
+text = '''
+rsk **will** provide simple methods for other tools to interact with
+it's data
+'''
+
+[REQ-purpose-interop-json]
+text = '''
+rsk **will** provide json export utility for other tools to utilize.
+
+rsk **will** not utilize the exported json.
+'''
+
+[REQ-purpose-interop-sql]
+text = '''
+Later impleemntations of rsk **will** utilize an sql database to improve
+speed and interopability with external tooling.
+
+This database will probably be sqlite to meet with rsk's simplicity
+of requirements and **will** be optional for users.
+'''
+
+[REQ-purpose-etc-language]
+text = '''
+rsk **will** be written entirely in the rust programming language
+for the purposes of:
+- speed: rust is as fast as C++ (or faster)
+- cross compilation: rust can be compiled on any platform
+- safety: it is impossible to segfault in rust
+- static checking: rust is one of the most powerful static type checking
+languages in existence
+- scale-out: single threaded code can easily be made highly concurrent 
+- fun: rust is a fun language to write in.
+'''
+
+[REQ-purpose-etc-modules]
+text = '''
+rsk **should** have decoupled modules that depend on eachother as little
+as possible.
+
+Roughly, they **should** be broken up according to these requirements.
+'''

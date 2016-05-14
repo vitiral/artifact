@@ -1,35 +1,61 @@
-# document detailing how coverage is detected
-
-[REQ-coverage]
-text = "Requirements pertaining to analyzing code and test coverage"
-
-[REQ-coverage-percent-definition]
+[REQ-core-coverage]
+partof = "REQ-purpose-core-coverage"
 text = '''
-percentage completion **shall** be calculated by a weighted average of the
-percent completed (tested or implemented) of each direct part of the artifact,
-as defined in REQ-links-partof
+How coverage is calculated.
+
+In summary:
+- percent done is equal to the average percentage done of the parts
+- percentage tested is equal to the average percentage tested of the parts
+- setting "done=true" for TST or SPC forces their %done == 100%
+- for TST: %completed == %tested
 '''
 
-[REQ-coverage-implementation-1]
+[REQ-core-coverage-done]
 text = '''
-Both TST and SPC components **shall** be considered 100% implemented if the "code" field is set
-to a valid path and `done` is not set.
+"done" **shall** specify whether an artifact has been implemented.
+
+"done" **shall** have three valid values:
+- true: set the artifact to 100% done (regardless of it's parts)
+- false: set the artifact to %done of it's parts
+
+the default value of "done" **shall** be false
 '''
 
-[REQ-coverage-implementation-2]
+[REQ-core-coverage-done-invalid]
 text = '''
-Any component **shall** be considered 100% implemented if `done == true`
-as defined in REQ-format-structure-artifacts-done
-'''
-partof = "REQ-format-structure-artifacts-done"
-
-[REQ-coverage-implementation-3]
-text = '''
-RSK artifacts **shall** be ignored when calculating implementation percent
+REQ, RSK and LOC artifacts with a "done" value == true **shall** cause a warning
+and will be ignored
 '''
 
-[REQ-coverage-test-1]
+[REQ-core-coverage-done-spc]
 text = '''
-A TST component's tested percent **shall** equal it's implemented percent
+The SPC component **shall** be considered 100% implemented if it's "done" field is set
 '''
-partof = "REQ-coverage-implementation"
+
+[REQ-core-coverage-done-tst]
+text = '''
+The TST component **shall** be considered 100% done if it's "done" field is set
+'''
+
+[REQ-core-coverage-tested-tst]
+text = '''
+The TST component's tested percent **shall** always be equal it's done percent
+'''
+
+[REQ-core-coverage-percent-done]
+text = '''
+an artifact's percentage done **shall** be calculated by the average
+percent completion of all of it's REQ and SPC parts
+
+LOC components **shall** be ignored in this analysis (they cannot be done)
+'''
+
+[REQ-core-coverage-percent-tested]
+text = '''
+an artifact's percentage tested **shall** be calculated by the average
+percentage tested of all of it's REQ, SPC, RSK and TST parts
+
+LOC components **shall** be ignored in this analysis (they cannot be tested)
+'''
+
+

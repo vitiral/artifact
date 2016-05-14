@@ -1,18 +1,13 @@
 
 [REQ-links]
-doc = '''
-This requirement details how linking **will** operate
-'''
-partof = "REQ-definitions-link"
+partof = "REQ-purpose-core-linking"
 
 [REQ-links-partof]
-partof = "REQ-definitions-link-part"
-
-[REQ-links-partof-parts]
 text = '''
-An artifact **shall** have two attributes pertaining to **part**:
-- **parts**: these are the depenencies of the artifact
-- **partof**: these are the artifacts that depend on the artifact
+the "partof" attribute of an artifact **shall** be used to detail
+the artifacts that *depend on it*
+
+it **shall** be invalid to have any artifact be "partof" a LOC artifact
 '''
 
 [REQ-links-partof-prefix]
@@ -21,9 +16,9 @@ text = '''
 the whole-prefix artifact
 - If a whole-prefix artifact does not exist, it **shall** automatically be created empty
 
-> definition: whole-prefix=set of characters in groups between "-" character
-> Example: foo-bar-baz-1 has whole-prefixes:
->    "foo", "foo-bar", "foo-bar-baz" and "foo-bar-baz-1"
+definition of whole-prefix: set of characters in groups between "-" character
+> Example: `foo-bar-baz-1` has whole-prefixes:
+>    `foo`, `foo-bar`, `foo-bar-baz` and `foo-bar-baz-1`
 '''
 extra = '''
 Example:
@@ -37,9 +32,24 @@ Dependencies are:
 - REQ-foo-1-a is partof REQ-foo-1
 '''
 
-[REQ-links-loc-artifact]
+[REQ-links-parts]
 text = '''
-An artifact **shall** have a **loc** atribute that specifies the location
-in code where the artifact is implemneted
+the **arts** attribute of an artifact shall be used to detail the
+artifacts that it *depends on* (opposite of partof)
 '''
-partof = "REQ-definitions-link-loc"
+
+[REQ-links-loc]
+text = '''
+An artifact **shall** have a **loc** atribute which specifies the LOC artifact
+which implements the artifact and (optionally) the path to find it in source
+
+> LOC-2: {src}/path/to/loc
+'''
+
+[REQ-links-loc-invalid]
+text = '''
+It **shall** be invalid for a LOC artifact to be linked to by more than one artifact.
+
+> note: in other words, an artifact can only have one implementation
+'''
+

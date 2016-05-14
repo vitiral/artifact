@@ -1,136 +1,105 @@
 
-[REQ-format-file]
+[REQ-core-format-file]
+partof = "REQ-purpose-core-format"
 text = '''
 requirements **shall** be stored in the toml format defined at
 https://github.com/toml-lang/toml
 '''
 
-[REQ-format-structure]
-ignore = true
-text = '''
-The structure of the requirements format **shall** follow this specification
-'''
-
-[REQ-format-structure-special]
-text = "special items in the document"
-
-[REQ-format-structure-special-defaults]
+[REQ-core-format-structure-special-defaults]
+partof = "REQ-core-defaults"
 text = '''
 There **shall** be an optional item with key 'defaults' that specifies defaults for
-all artifact items.
+all artifact attributes in the file.
 
-The artifact items within the document **shall** addopt these defaults
-if they are not specified.
+The artifact attributes within the document **shall** addopt these defaults
+if they are not explicitly specified.
 '''
 
-[REQ-format-structure-special-local]
+[REQ-core-format-structure-special-global]
+partof = "REQ-core-variables-global"
 text = '''
-There **shall** be an optional item with key "local" that can be accessed by
-any text block in the document using the "{}" brackets within any string (including keys)
-
-'localvars' **shall** override any defined global vars defined in REQ-format-structure-globalvars
+There **shall** be an optional item with key 'global' which sets global
+variables which can be used throughout all requirements
 '''
 
-[REQ-format-structure-special-global]
-text = '''
-There **shall** be an optional item with key 'global' that can be accessed by
-any text block in the project using the "{}" brackets within any string (including keys)
+[REQ-core-format-structure-attrs]
+partof = "REQ-definitions-artifacts-attrs"
 
-The parser **shall** throw a useful exception upon finding global vars that overlap,
-detailing in which files both definitions occur
- - **should** detail the line numbers as well
-
-> global vars are used primarily for setting directory paths for source code
-'''
-
-[REQ-format-structure-artifacts]
-text = '''
-All items in the document with keys not defined in REQ-format-structure-special
-**will** be interpretted as artifacts with a structure defined in this spec.
-
-The attributes **will** be:
-- text
-- extra
-- active
-- done
-- ignore
-- partof
-- loc
-'''
-partof = "REQ-format-structure-special"
-
-[REQ-format-structure-artifacts-text]
-text = "the text field"
-
-[REQ-format-structure-artifacts-text-1]
+[REQ-core-format-structure-attrs-text]
+partof = "REQ-definitions-artifacts-attrs"
 text = '''
 The `text` field **shall** specify the text associated with the artifact
+
+default = ""
 '''
 
-[REQ-format-structure-artifacts-text-2]
+[REQ-core-format-structure-attrs-text-md]
+partof = "REQ-purpose-ui-markdown"
 text = '''
 The `text` field **shall** be interpreted in the
 [markdown](https://en.wikipedia.org/wiki/Markdown) format when converted into
 readable text.
 '''
 
-[REQ-format-structure-artifacts-extra]
-[REQ-format-structure-artifacts-extra-1]
+[REQ-core-format-structure-attrs-extra]
+partof = "REQ-definitions-artifacts-attrs"
 text = '''
 The `extra` field **shall** specify extra text associated with the artifact
 
-default = ERROR if not present
+default = ""
 '''
 
-[REQ-format-structure-artifacts-extra-2]
+[REQ-core-format-structure-attrs-extra-md]
 text = '''
 The `extra` field **shall** be interpreted in the
 [markdown](https://en.wikipedia.org/wiki/Markdown) format when converted into
 readable text and **should** be made into a collapsable box when possible.
 '''
 
-[REQ-format-structure-artifacts-active]
+[REQ-core-format-structure-attrs-references]
+partof = "REQ-definitions-artifacts-attrs"
+references = "REQ-core-format-structure-attrs-partof-format"
 text = '''
-The `active` field **shall** be a boolean value. If false, the artifact
-**shall** be ignored.
+the `references` field **shall** be a string value with the same
+format as the partof field.
 
-default = True
+It will be used to list references to artifacts for documentation
+purposes only
+'''
+
+[REQ-core-format-structure-attrs-skip]
+partof = "REQ-definitions-artifacts-attrs"
+text = '''
+The `skip` field **shall** be a boolean value. If true, the artifact
+**shall** be skipped during processing.
+
+default = true
 
 > Note: this is generally used to write down requirements before they
-> have been approved
+> have been approved or to temporarily diable one
 '''
 
-[REQ-format-structure-artifacts-done]
+[REQ-core-format-structure-attrs-done]
+partof = "REQ-definitions-artifacts-attrs, REQ-core-coverage-done"
 text = '''
-The `done` field **shall** be a boolean value. If false, the artifact
-**shall** be ignored when determining implementation coverage analysis.
-
-This value **shall** be ignored for all artifacts except SPC and TST
-
-default = nil
-
-> Note: this is generally used for definitions and other unimplementable
->   requirements.
+The `done` field **shall** be a boolean value specifying whether
+the artifact is implemented / completed
 '''
-partof = "REQ-coverage-implementation"
 
-[REQ-format-structure-artifacts-ignore]
+[REQ-core-format-structure-attrs-partof]
+partof = "REQ-definitions-artifacts-attrs, REQ-links-partof"
+
+[REQ-core-format-structure-attrs-partof-field]
+references = "REQ-links-partof"
 text = '''
-The `test` field **shall** be a boolean value. If false, the item
-**shall** be ignored for test and implementation coverage analysis
-(but the artifacts it depends on will not be ignored).
+The `partof` field **shall** be a string specifying which artifacts
+the artifact item is a part of
 
-> Note: this can be used as a sort of "artifact folder" where you won't
-> be explicitly implementing the artifact. Also, it can be used for
-> "documentation requirements".
-
-default = False
+default = ""
 '''
 
-[REQ-format-structure-artifacts-partof]
-text = '''The `partof` field must follow this spec'''
-
-[REQ-format-structure-artifacts-partof-format]
+[REQ-core-format-structure-attrs-partof-format]
 text = '''
 The partof field **shall** follow the following spec for specifying multiple artifacts
 - `[]` **will** denote a set of artifacts related to the prevoius characters
@@ -144,21 +113,20 @@ Both of these are the same set of artifacts:
 - `foo-a, foo-b, foo-c, foo-e, bar-d1, bar-d2, bar-d3`
 '''
 
-[REQ-format-structure-artifacts-partof-field]
+[REQ-core-format-structure-attrs-loc]
+partof = "REQ-definitions-artifacts-attrs, REQ-core-links-loc"
 text = '''
-The `partof` field **shall** be used to determine which artifacts the
-listed artifact is a part of as defined in REQ-links-partof
+The `loc` field **shall** be a string detailing the location of implementation
+
+default = ""
+
+The format **shall** be: `\{artifact\}:\{path\}`
+
+both items are optional, but the ":" must be provided (or the string must be empty)
 '''
-partof = "REQ-links-partof"
-
-[REQ-format-structure-artifacts-loc-field]
-text = '''
-The `loc` field **shall** be a string detailing the location of code
-this artifact is dependent on for implementation of the format:
-{path}:{artifact}
-
+extra = '''
 # Examples:
-loc = "{src}/core/foo.rs:LOC-foo-impl"
-loc = "{src}/tests/test_foo.rs:LOC-foo-test-1"
+loc = "LOC-foo-impl-1:{src}/core/foo.rs"
+loc = "LOC-foo-test-1:{src}/tests/test_foo.rs"
 '''
-partof = "REQ-links-loc-artifact"
+
