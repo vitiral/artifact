@@ -80,13 +80,6 @@ default = true
 > have been approved or to temporarily diable one
 '''
 
-[REQ-core-format-structure-attrs-done]
-partof = "REQ-definitions-artifacts-attrs, REQ-core-coverage-done"
-text = '''
-The `done` field **shall** be a boolean value specifying whether
-the artifact is implemented / completed
-'''
-
 [REQ-core-format-structure-attrs-partof]
 partof = "REQ-definitions-artifacts-attrs, REQ-links-partof"
 

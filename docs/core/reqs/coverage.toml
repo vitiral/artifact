@@ -10,31 +10,27 @@ In summary:
 - for TST: %completed == %tested
 '''
 
-[REQ-core-coverage-done]
+[REQ-core-coverage-loc]
 text = '''
-"done" **shall** specify whether an artifact has been implemented.
+the `loc` attr **shall** specify where an artifact has been implemented.
 
-"done" **shall** have three valid values:
-- true: set the artifact to 100% done (regardless of it's parts)
-- false: set the artifact to %done of it's parts
-
-the default value of "done" **shall** be false
+the default value of "loc" **shall** Be ""
 '''
 
-[REQ-core-coverage-done-invalid]
+[REQ-core-coverage-loc-invalid]
 text = '''
-REQ, RSK and LOC artifacts with a "done" value == true **shall** cause a warning
-and will be ignored
+REQ, RSK and LOC artifacts with a `loc` value set shall be ignored and cause
+a warning to be issued
 '''
 
-[REQ-core-coverage-done-spc]
+[REQ-core-coverage-loc-spc]
 text = '''
-The SPC component **shall** be considered 100% implemented if it's "done" field is set
+The SPC component **shall** be considered 100% done if the `loc` field is set
 '''
 
-[REQ-core-coverage-done-tst]
+[REQ-core-coverage-loc-tst]
 text = '''
-The TST component **shall** be considered 100% done if it's "done" field is set
+The TST component **shall** be considered 100% done if the `loc` field is set
 '''
 
 [REQ-core-coverage-tested-tst]
@@ -42,12 +38,13 @@ text = '''
 The TST component's tested percent **shall** always be equal it's done percent
 '''
 
-[REQ-core-coverage-percent-done]
+[REQ-core-coverage-percent-loc]
 text = '''
 an artifact's percentage done **shall** be calculated by the average
 percent completion of all of it's REQ and SPC parts
 
-LOC components **shall** be ignored in this analysis (they cannot be done)
+LOC components **shall** be ignored in this analysis (they cannot be "done"
+since they define done!)
 '''
 
 [REQ-core-coverage-percent-tested]

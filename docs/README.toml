@@ -1,9 +1,5 @@
 [REQ-purpose]
-text = '''
-The primary purpose of the **rsk** utility **will** be to provide a
-fast, simple and text-based interface for tracking of
-requirements, design, risks, tests, and implementation.
-'''
+loc = ":{project}/README.md"
 
 [REQ-purpose-definitions]
 text = '''
@@ -20,10 +16,23 @@ and displaying implementation and test coverage / completeness
 text = '''
 rsk **will** support 5 types of artifacts that can be tracked
 - REQ: software requirement
-- RSK: risks related to requirements or design specifications
-- SPC: High Level Software Design Specificaion based on requirements
-- TST: high level test design of a risk or specification
+- RSK: risks related to requirements
+- SPC: software design specificaion based on one or more requirements
+- TST: test design of a risk or specification
 - LOC: location of code implementation of a specification or test
+The valid links **will** look like this:
+```
+  REQ <-- SPC* <-- TST*
+   ^                |
+    \---- RSK <-----/
+
+* SPC and TST can be implemented at a LOC
+```
+
+In other words, you can design a spec (SPC) based on
+a requirement (REQ). A requirement can have a risk (RSK)
+associated with it. Tests can test to either a spec (SPC)
+or to a risk (RSK)
 '''
 
 [REQ-purpose-core-artifacts]
@@ -52,7 +61,7 @@ linking **will** be in an easy to understand format.
 
 linking should be possible:
 - between artifacts
-- with source code or other implementation
+- with the location of implementation
 '''
 
 [REQ-purpose-core-variables]
