@@ -102,16 +102,33 @@ either a specification (SPC) or a test (TST)
 text = '''
 All artifacts **will** have the following attributes:
 The attributes **will** be:
+- disabled: whether the artifact should be skipped during processing
 - text: description of the artifact
 - extra: extra description of the artifact
 - references: attr to list references for documentation purposes only
-- disabled: whether the artifact is disabled. If true,
-    it will be skipped during processing
-- done: a boolean which indicates whether the artifact has been completed
-- loc: the location of the implementation
 - partof: a string containing artifacts which the artifact is a part of
+- loc: the location of the implementation
 '''
 
+[REQ-definitions-artifacts-attrs-loc]
+text = '''
+The loc field **shall** be used to specify the location where a
+SPC or TST artifact is implemented.
+
+artifacts with valid loc set are considered done, regardless of the completion
+of their sub-artifacts.
+
+This allows for sub SPC/TSTs to detail how a SPC/TST will be implemented, without
+actually having to link to the specific code implementation (code implementaiton
+linking is optional)
+
+This also means that rsk will not enforce that you have completed all your
+sub requirements -- if you link an implementation and all that implementation's
+TSTs are implemented, then that implementation is considered completed and tested.
+
+With great power comes great responsibility, but the combination of TSTs and SPCs
+should help prevent artifacts that aren't done from being considered done.
+'''
 
 [REQ-definitions-link]
 text = '''

@@ -1,5 +1,6 @@
 extern crate regex;
 extern crate walkdir;
+// $LOC-core-loading-toml
 extern crate toml;
 
 #[macro_use]

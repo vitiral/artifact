@@ -48,6 +48,7 @@ macro_rules! get_attr {
     }
 }
 
+/// LOC-core-load-table-check:<check the type to make sure it matches>
 macro_rules! check_type {
     ($value: expr, $attr: expr, $name: expr) => {
         match $value {
@@ -61,7 +62,7 @@ macro_rules! check_type {
     }
 }
 
-/// load a table from toml
+/// LOC-core-load-table:<load a table from toml>
 pub fn load_table(artifacts: &mut Artifacts, ftable: &mut Table, path: &Path) -> LoadResult<u64> {
     // let &mut artifacs = Vec::new();
     let invalid_type = |name: &str, attr: &str| -> ParseFileError{
@@ -155,6 +156,8 @@ pub fn load_text(artifacts: &mut Artifacts, text: &str, path: &Path) -> LoadResu
 }
 
 /// given a file path load the artifacts
+///
+/// $LOC-core-load-file
 pub fn load_file(artifacts: &mut Artifacts, load_path: &Path) -> LoadResult<u64> {
     // let mut text: Vec<u8> = Vec::new();
 
@@ -166,7 +169,7 @@ pub fn load_file(artifacts: &mut Artifacts, load_path: &Path) -> LoadResult<u64>
     load_text(artifacts, &text, load_path)
 }
 
-/// given a path load the raw artifacts from files recursively
+/// LOC-core-load-recursive:<given a path load the raw artifacts from files recursively>
 pub fn recursive_raw_load<P: AsRef<Path>>(load_path: P) -> LoadResult<Artifacts> {
     // TDOO: if load_path.is_dir()
     let mut error = false;
@@ -237,31 +240,34 @@ fn test_get_attr() {
     let defaults = Some(get_table(&tbl_good, "defaults"));
     let empty = Some(Table::new());
 
-    // # test foo
-    let test = get_attr!(tbl_good, "REQ-foo", Table::new(), defaults, Table).unwrap();
-    // Test valid types
-    assert!(get_attr!(&test, "done", false, empty, Boolean).unwrap() == false);
-    assert!(get_attr!(&test, "done", true, empty, Boolean).unwrap());
-    assert!(get_attr!(&test, "done", false, defaults, Boolean).unwrap());
-    assert!(get_attr!(&test, "text", "".to_string(), empty, String).unwrap() == "");
-    assert!(get_attr!(&test, "text", "".to_string(), defaults, String).unwrap() == "foo");
-
-    // Test invalid types
-    assert!(get_attr!(&test, "done", "".to_string(), defaults, String).is_none());
-    assert!(get_attr!(&test, "text", false, defaults, Boolean).is_none());
-
-
-    // # test bar -- neither default ever overrides it
     let test = get_attr!(tbl_good, "REQ-bar", Table::new(), defaults, Table).unwrap();
+    // LOC-tst-core-load-unit-1:<Test loading valid existing types>
     assert!(get_attr!(&test, "done", false, defaults, Boolean).unwrap() == false);
     assert!(get_attr!(&test, "done", false, empty, Boolean).unwrap() == false);
     assert!(get_attr!(&test, "done", true, defaults, Boolean).unwrap() == false);
     assert!(get_attr!(&test, "done", true, empty, Boolean).unwrap() == false);
     assert!(get_attr!(&test, "text", "".to_string(), defaults, String).unwrap() == "bar");
     assert!(get_attr!(&test, "text", "".to_string(), empty, String).unwrap() == "bar");
+
+    // LOC-tst-core-load-unit-2:<Test loading invalid existing types>
+    assert!(get_attr!(&test, "done", "".to_string(), defaults, String).is_none());
+    assert!(get_attr!(&test, "text", false, empty, Boolean).is_none());
+
+    // LOC-tst-core-load-unit-3:<Test loading valid default types>
+    let test = get_attr!(tbl_good, "REQ-foo", Table::new(), defaults, Table).unwrap();
+    assert!(get_attr!(&test, "done", false, empty, Boolean).unwrap() == false);
+    assert!(get_attr!(&test, "done", true, empty, Boolean).unwrap());
+    assert!(get_attr!(&test, "done", false, defaults, Boolean).unwrap());
+    assert!(get_attr!(&test, "text", "".to_string(), empty, String).unwrap() == "");
+    assert!(get_attr!(&test, "text", "".to_string(), defaults, String).unwrap() == "foo");
+
+    // LOC-tst-core-load-unit-4:<Test loading invalid default types>
+    assert!(get_attr!(&test, "done", "".to_string(), defaults, String).is_none());
+    assert!(get_attr!(&test, "text", false, defaults, Boolean).is_none());
 }
 
 #[test]
+/// LOC-tst-core-load-text-1:<Test loading raw text>
 fn test_load_text() {
     let path = Path::new("");
     let mut artifacts: HashMap<String, Artifact> = HashMap::new();
