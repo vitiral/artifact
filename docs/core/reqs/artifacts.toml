@@ -1,5 +1,6 @@
-["REQ-artifacts-link"]
-test = false
+[REQ-core-artifact]
+
+[REQ-artifacts-link]
 text = '''
 The artifacts **shall** be allowed to link as defined in this REQ
 '''

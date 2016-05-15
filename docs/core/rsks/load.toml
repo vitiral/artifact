@@ -1,0 +1,10 @@
+
+[RSK-core-load]
+partof = "REQ-purpose-core-format"
+text = '''
+weight = 20
+
+loading is a **critical** component. There is a **low** likelyhood that
+it will be a **boulder**.
+'''
+

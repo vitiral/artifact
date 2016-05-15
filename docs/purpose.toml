@@ -20,6 +20,7 @@ rsk **will** support 5 types of artifacts that can be tracked
 - SPC: software design specificaion based on one or more requirements
 - TST: test design of a risk or specification
 - LOC: location of code implementation of a specification or test
+
 The valid links **will** look like this:
 ```
   REQ <-- SPC* <-- TST*
@@ -33,11 +34,6 @@ In other words, you can design a spec (SPC) based on
 a requirement (REQ). A requirement can have a risk (RSK)
 associated with it. Tests can test to either a spec (SPC)
 or to a risk (RSK)
-'''
-
-[REQ-purpose-core-artifacts]
-text = '''
-artifacts **will** have simple attributes that can be set
 '''
 
 [REQ-purpose-core-format]
@@ -62,6 +58,20 @@ linking **will** be in an easy to understand format.
 linking should be possible:
 - between artifacts
 - with the location of implementation
+
+It is recognized that there are two main concerns:
+- ease of writing links
+- ease of reading links
+
+Ease of writing links is considered the most important, as reading
+links can be accomplished automatically through the ui interface.
+
+For this reason, **rsk** uses the "partof" nomenclature for linking.
+This allows the user to think "what requirement does this fulfill"
+or "what requirement is this a risk for" and link things one at a time.
+
+**rsk** does not provide the "parts" nomenclature, as having both would
+add needless complexity.
 '''
 
 [REQ-purpose-core-variables]

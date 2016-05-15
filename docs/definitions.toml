@@ -104,7 +104,6 @@ All artifacts **will** have the following attributes:
 The attributes **will** be:
 - disabled: whether the artifact should be skipped during processing
 - text: description of the artifact
-- extra: extra description of the artifact
 - references: attr to list references for documentation purposes only
 - partof: a string containing artifacts which the artifact is a part of
 - loc: the location of the implementation
@@ -128,6 +127,21 @@ TSTs are implemented, then that implementation is considered completed and teste
 
 With great power comes great responsibility, but the combination of TSTs and SPCs
 should help prevent artifacts that aren't done from being considered done.
+'''
+
+[REQ-definitions-artifacts-attrs-references]
+text = '''
+the `references` field is a list of strings:
+- if the string looks like an artifact (it has REQ, SPC, etc at the beginning)
+    it will be linked as one.
+- else if the string is a valid file path, it will be linked to the relevant code
+    repository
+- else if it looks like a url (http://, www., *.com/org/etc), it will be treated
+    like one
+- else it will be interpreted as markdown
+
+is highly advised that you do not put newline characters in any of
+the items in `references`
 '''
 
 [REQ-definitions-link]
