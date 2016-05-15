@@ -1,0 +1,57 @@
+[REQ-core-vars]
+text = '''
+There **shall** be a method to set various variables in each file.
+
+variables can be used in any text block using the `{key}` syntax.
+
+variables in the same scope are never allowed to overlap and must cause
+a useful error message if they do.
+'''
+
+[REQ-core-vars-globals]
+text = '''
+There **shall** be a `globals` variable that sets variables project wide.
+
+There **shall** be the following pre-existing global variables:
+- `{cwd}`: the full path for the "current working directory" of the current file
+- `{repo}`: the full path for the directory of the current repository
+'''
+
+[REQ-core-vars-globals-cwd]
+text = '''
+The `{cwd}` variable **shall** always be replaced by the full resolved path the
+file being loaded is.
+
+# Example:
+In this example, `loc` == "LOC-foo: /home/usr/foo/foo.rs"
+```
+# path to this file: /home/usr/foo/req.toml
+
+[REQ-foo]
+loc = "LOC-foo: {cwd}/foo.rs"
+```
+'''
+
+[REQ-core-vars-globals-repo]
+refs = ["REQ-core-vars-settings-repo_names"]
+text = '''
+The `{repo}` variable **shall** always be replaced by the full resolved path the
+current repo is in.
+
+**rsk** finds the "current repository" by looking in the directory of the file for
+a repository folder (as defined in `repo_names` setting).
+
+If it cannot find one in the current directory, it goes down one direcory and looks
+again. It continues to do this until it finds one or it hit's the root directory,
+at which point it will throw an error.
+
+# Example:
+In this example, `loc` == "LOC-foo: /home/usr/foo/src/foo.rs"
+```
+# path to this file: /home/usr/foo/reqs/req.toml
+# path to repo:      /home/usr/foo/.git
+
+[REQ-foo]
+loc = "LOC-foo: {repo}/src/foo.rs"
+```
+'''

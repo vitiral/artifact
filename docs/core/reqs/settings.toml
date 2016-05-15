@@ -25,12 +25,12 @@ will not be displayed in a ui under any circumstance.
 '''
 
 [REQ-core-settings-paths]
-refs = ["REQ-core-variables-globals-[cwd,repo]"]
+refs = ["REQ-core-vars-globals-[cwd,repo]"]
 text = '''
-There **shall** be a `paths` setting that points to the locations of additional
-directories to load.
+There **shall** be a `paths` setting that is a string array with items that
+point to the location of additional directories to load.
 
-The `paths` setting **shall only** be able to use the following global variables:
+The `paths` items **shall only** be able to use the following global variables:
 - `{cwd}`
 - `{repo}`
 
@@ -38,7 +38,7 @@ There **shall** be a useful error message if other variables are attempted.
 '''
 
 [REQ-core-settings-repo_names]
-refs = ["REQ-core-variables-global-repo"]
+refs = ["REQ-core-vars-global-repo"]
 text = '''
 There **shall** be a `repo_names` setting that overrides the default valid
 repository names.
@@ -50,62 +50,4 @@ default = [".git", ".hg", ".svn"]
 > **Note:** the values will be **overriden**, not appened to. Therefore,if you need
 > to support ".git" *and* ".example" you would need to set
 > `repo_names = [".git", ".example"]`
-'''
-
-[REQ-core-variables]
-text = '''
-There **shall** be a method to set various variables in each file.
-
-variables can be used in any text block using the `{key}` syntax.
-
-variables in the same scope are never allowed to overlap and must cause
-a useful error message if they do.
-'''
-
-[REQ-core-variables-globals]
-text = '''
-There **shall** be a `globals` variable that sets variables project wide.
-
-There **shall** be the following pre-existing global variables:
-- `{cwd}`: the full path for the "current working directory" of the current file
-- `{repo}`: the full path for the directory of the current repository
-'''
-
-[REQ-core-variables-globals-cwd]
-text = '''
-The `{cwd}` variable **shall** always be replaced by the full resolved path the
-file being loaded is.
-
-# Example:
-In this example, `loc` == "LOC-foo: /home/usr/foo/foo.rs"
-```
-# path to this file: /home/usr/foo/req.toml
-
-[REQ-foo]
-loc = "LOC-foo: {cwd}/foo.rs"
-```
-'''
-
-[REQ-core-variables-globals-repo]
-refs = ["REQ-core-variables-settings-repo_names"]
-text = '''
-The `{repo}` variable **shall** always be replaced by the full resolved path the
-current repo is in.
-
-**rsk** finds the "current repository" by looking in the directory of the file for
-a repository folder (as defined in `repo_names` setting).
-
-If it cannot find one in the current directory, it goes down one direcory and looks
-again. It continues to do this until it finds one or it hit's the root directory,
-at which point it will throw an error.
-
-# Example:
-In this example, `loc` == "LOC-foo: /home/usr/foo/src/foo.rs"
-```
-# path to this file: /home/usr/foo/reqs/req.toml
-# path to repo:      /home/usr/foo/.git
-
-[REQ-foo]
-loc = "LOC-foo: {repo}/src/foo.rs"
-```
 '''

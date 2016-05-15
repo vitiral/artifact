@@ -1,20 +1,27 @@
 [SPC-core-load]
+partof = "REQ-purpose-format, REQ-core-load"
+
+[SPC-core-load-scope]
 partof = "REQ-purpose-format"
+refs = ["REQ-core-[vars-globals, settings], SPC-core-vars"]
+text = '''
+The load module **shall** encapsulate:
+- resolving the *default* global variables using
+    the vars module
+- following paths to artifact directories
+- loading artifacts from files
+- validating name-collisions
+- validating attribute types
+- loading settings correctly
+
+The load module **shall not** deal with:
+- validating `partof` or `loc` links
+- resolving user-set global variables
+'''
+
 
 ##################################################
 # Risks related to loading in general
-[RSK-core-load-invalid]
-partof = "REQ-purpose-format"
-text = '''
-weight = 20
-
-Type checking and validity, and failing on invalid data is essential
-for the functionality of rsk and the reporting of errors to the user.
-
-loading is a **critical** component. There is a **low** likelyhood that
-this issue will be a **boulder**
-'''
-
 [RSK-core-load-stable]
 partof = "REQ-purpose-format, REQ-purpose-versioning"
 text = '''
@@ -29,10 +36,37 @@ the stability of the format is a **critical** component as it could directly
 impact users. There is a **low** likelyhood that this issue will be an **avalanche**
 '''
 
+[RSK-core-load-invalid]
+partof = "REQ-purpose-format"
+text = '''
+weight = 20
+
+Type checking and validity, and failing on invalid data is essential
+for the functionality of rsk and the reporting of errors to the user.
+
+loading is a **critical** component. There is a **low** likelyhood that
+this issue will be a **boulder**
+'''
+
+[RSK-core-load-infinite_loop]
+text = '''
+weight = 15
+
+loading is a **critical** component. Without proper care and testing, there is a
+**low** likelyhood that requirements could try to load infinitely causing a
+**rock** of a problem.
+
+There are several safeguards:
+- directories that are loaded are stored. If loading is attempted again,
+    they will not be loaded.
+- testing can create situations that may cause recursive loads and validate that they
+    don't.```
+- recusrive directory loads should always execute completely before the next path
+    is processed
 ##################################################
 # toml spec
 [SPC-core-load-toml]
-partof = "REQ-core-format-file"
+partof = "REQ-core-load"
 loc = "LOC-core-load-toml: {src}/main.rs"
 text = '''
 The rust library [toml-rs](https://github.com/alexcrichton/toml-rs)
@@ -49,8 +83,8 @@ and load them recursively
 
 [TST-core-load-paths]
 text = '''
-have a file and unreachable rsks. Have the file have a path to the unreachable
-rsks and validate that they are loaded correctly.
+have a paths-file and unreachable .rsk files. Have the file point to the unreachable
+.rsk file's directory and validate that they are loaded correctly.
 '''
 
 ##################################################

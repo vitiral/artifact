@@ -1,12 +1,20 @@
 [REQ-core-artifacts]
 partof = "REQ-purpose-artifacts"
 
-[REQ-core-artifacts-prefix]
+[REQ-core-artifacts-name]
 text = '''
-All artifact names **will** begin with a valid prefix [REQ, SPC, RSK, TST, LOC]
-or they will not be considered an artifact.
+All artifact names **will** be composed of only the characters in the set:
+`a-zA-Z0-9_-`
 
-The case will be ignored, but upper is suggested to the user.
+In other words, that is all alpha-numeric characters as well as "_" and "-".
+
+Also:
+- case will be ignored ("a" == "A")
+- spaces will be ignored ("a b" == "ab")
+- other characters will cause an error to be raised
+- "-" has a special meaning as defined in REQ-core-links-prefix
+- the artifact name cannot end with "-"
+- the artifact name must begin with a valid artifact (REQ, SPC, RSK, TST, or LOC)
 '''
 
 [REQ-core-artifacts-req]

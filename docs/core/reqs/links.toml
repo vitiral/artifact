@@ -79,7 +79,8 @@ It **shall** be invalid for a LOC artifact to be linked to by more than one arti
 > note: in other words, an artifact can only have one implementation
 '''
 
-[REQ-core-links-name-prefix]
+[REQ-core-links-prefix]
+partof = "REQ-core-artifacts-name"
 text = '''
 - All artifacts with the same whole-prefix **shall** automatically be considered partof
 the whole-prefix artifact
