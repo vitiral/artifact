@@ -17,7 +17,7 @@ Also:
 - the artifact name must begin with a valid artifact (REQ, SPC, RSK, TST, or LOC)
 '''
 
-[REQ-core-artifacts-req]
+[REQ-core-artifacts-types-req]
 refs = ["REQ-definitions-assertions"]
 text = '''
 The prefix and name of 'REQ' **will** specifiy the software requirements.
@@ -26,7 +26,16 @@ Generally these should be the high level requirements in a specified format
 such as REQ-definitions-assertions
 '''
 
-[REQ-core-artifacts-rsk]
+[REQ-core-artifacts-types-spc]
+text = '''
+The prefix and name of 'SPC' **will** specify a design specification linked to
+a requirement.
+
+In addition, the design specification can have a path associated with the
+code implementation (LOC).
+'''
+
+[REQ-core-artifacts-types-rsk]
 refs = ["REQ-definitions-risks"]
 text = '''
 text = '''
@@ -37,21 +46,21 @@ Generally these should be specified in defined format similar to
 REQ-definitions-risks
 '''
 
-[REQ-core-artifacts-spc]
-text = '''
-The prefix and name of 'SPC' **will** specify a design specification linked to
-a requirement.
-
-In addition, the design specification can have a path associated with the
-code implementation (LOC).
-'''
-
-[REQ-core-artifacts-tst]
+[REQ-core-artifacts-types-tst]
 text = '''
 The prefix and name of 'TST' **will** specify a test.
 The test can link to either a design-specification (SPC) or risk (RSK).
 
 In addtion, the test can have a path associated with the code implementation (LOC).
+'''
+
+[REQ-core-artifacts-types-loc]
+text = '''
+The prefix and name of 'LOC' **will** specify a location.
+
+LOC artifacts can be specified to identify that the artifact has been implemented
+outside of code. Use the `refs` attribute in the LOC artifact as well as the documentation
+to specify.
 '''
 
 [REQ-core-artifacts-attrs]

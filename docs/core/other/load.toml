@@ -1,6 +1,13 @@
 [SPC-core-load]
 partof = "REQ-purpose-format, REQ-core-load"
 
+[SPC-core-load-error]
+loc = "LOC-core-load-error: {core}/types.rs"
+text = '''
+Any error during loading **shall** result in a LoadError with
+a useful description
+'''
+
 [SPC-core-load-scope]
 partof = "REQ-purpose-format"
 refs = ["REQ-core-[vars-globals, settings], SPC-core-vars"]

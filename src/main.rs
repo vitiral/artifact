@@ -10,8 +10,8 @@ pub mod core;
 
 fn main() {
     println!("importing");
-    match core::load::recursive_raw_load("docs") {
-        Ok(_) => println!("success"),
-        Err(err) => println!("error: {}", err),
-    }
+    // match core::load::recursive_raw_load("docs") {
+    //     Ok(_) => println!("success"),
+    //     Err(err) => println!("error: {}", err),
+    // }
 }
