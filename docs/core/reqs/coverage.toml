@@ -1,5 +1,6 @@
 [REQ-core-coverage]
-partof = "REQ-purpose-core-coverage"
+partof = "REQ-purpose-coverage"
+refs = ["REQ-core-artifacts-attrs-[parts, partof]"]
 text = '''
 How coverage is calculated.
 
@@ -9,50 +10,20 @@ In summary:
 - setting "done=true" for TST or SPC forces their %done == 100%
 - for TST: %completed == %tested
 '''
-
-[REQ-core-coverage-loc]
+[REQ-core-coverage-percent-done]
+partof = "REQ-core-artifacts-attrs-loc"
 text = '''
-the `loc` attr **shall** specify where an artifact has been implemented.
+# For REQ, SPC, RSK, TST
+the percentage done **shall** be 100% if `loc` is set *or* will be calculated
+by the average percent completion of all of it's parts
 
-the default value of "loc" **shall** Be ""
-'''
-
-[REQ-core-coverage-loc-invalid]
-text = '''
-REQ, RSK and LOC artifacts with a `loc` value set shall be ignored and cause
-a warning to be issued
-'''
-
-[REQ-core-coverage-loc-spc]
-text = '''
-The SPC component **shall** be considered 100% done if the `loc` field is set
-'''
-
-[REQ-core-coverage-loc-tst]
-text = '''
-The TST component **shall** be considered 100% done if the `loc` field is set
-'''
-
-[REQ-core-coverage-tested-tst]
-text = '''
-The TST component's tested percent **shall** always be equal it's done percent
-'''
-
-[REQ-core-coverage-percent-loc]
-text = '''
-an artifact's percentage done **shall** be calculated by the average
-percent completion of all of it's REQ and SPC parts
-
-LOC components **shall** be ignored in this analysis (they cannot be "done"
-since they define done!)
+> note: it is an error to set `loc` for REQ, RSK or LOC components
 '''
 
 [REQ-core-coverage-percent-tested]
 text = '''
 an artifact's percentage tested **shall** be calculated by the average
 percentage tested of all of it's REQ, SPC, RSK and TST parts
-
-LOC components **shall** be ignored in this analysis (they cannot be tested)
 '''
 
 

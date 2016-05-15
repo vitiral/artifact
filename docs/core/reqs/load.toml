@@ -1,0 +1,60 @@
+
+[REQ-core-load]
+partof = "REQ-purpose-format"
+text = '''
+All rsk configuration and artifacts **will** be stored in files using
+[toml](https://github.com/toml-lang/toml) format with the `.rsk` extention.
+
+Artifacts **will** be items with keys denoted by their prefix (REQ, RSK, etc.).
+In addition, there **shall** be the following special items:
+
+- `settings`: stores various configuration settings of the whole project
+- `globals`: stores global variables that can be used in any text field
+'''
+
+[REQ-core-load-recursive]
+text = '''
+**rst** shall recursively load all directories given to it in the `paths` setting.
+
+**recursively** is defined as "load until there is a directory with no `.rsk` files".
+
+
+Example:
+**rsk** will try to load /foo and /foo/src but will not try to load
+/foo/src/bar as there were no `.rsk` files in /foo/src
+```
+/foo/foo.rsk
+/foo/src/foo.rs
+/foo/src/bar/bar.rs
+```
+'''
+
+[REQ-core-load-items]
+partof = "REQ-core-settings, REQ-core-variables-globals, REQ-core-artifacts"
+Artifacts **will** be items with keys denoted with a valid prefix defined in
+REQ-purpose-artifacts
+- `globals`: see REQ-core-variables-globals
+text = '''
+Valid items in a `.rsk` file are the following:
+- `settings`: see REQ-core-settings
+- `globals`: see REQ-core-variables-globals
+- artifacts: see REQ-core-artifacts for prefix and attrs
+'''
+
+[REQ-core-format-structure-attrs-loc]
+partof = "REQ-core-artifacts-attrs, REQ-core-links-loc"
+text = '''
+The `loc` field **shall** be a string detailing the location of implementation
+
+default = ""
+
+The format **shall** be: `\{artifact\}:\{path\}`
+
+both items are optional, but the ":" must be provided (or the string must be empty)
+'''
+extra = '''
+# Examples:
+loc = "LOC-foo-impl-1:{src}/core/foo.rs"
+loc = "LOC-foo-test-1:{src}/tests/test_foo.rs"
+'''
+

@@ -1,55 +1,106 @@
-
-[REQ-links]
-partof = "REQ-purpose-core-linking"
-
-[REQ-links-partof]
+[REQ-core-links]
+partof = "REQ-purpose-linking"
+refs = ["REQ-core-artifacts-attrs-partof"]
 text = '''
-the "partof" attribute of an artifact **shall** be used to detail
-the artifacts that *depend on it*
+The artifacts **shall** be allowed to link as defined in this REQ
 
-it **shall** be invalid to have any artifact be "partof" a LOC artifact
+# link definition and interactions
+
+A link is defined as a dependent relationship. Y linking to Z implies that
+Z depends on Y for testing or implementation.
+
+This allows dependency trees to be made much more easily by the writter.
+
+## field
+Because of this dependency interaction, 'link' will be referred to as 'partof'. So:
+- Y links Z
+- Y partof Z
+- Y is "part of" the dependencies of Z for testing and implementation analysis
+
+## Example:
+```
+[REQ-foo]
+text = 'foo req'
+
+[SPC-foo]
+text = 'foo spec'
+partof = 'REQ-foo'
+loc = '{src}/lib/foo.rs:LOC-foo'
+
+[TST-foo]
+text = 'foo test'
+partof = 'SPC-foo'
+loc = '{src}/tests/foo.rs:LOC-foo'
+```
+
+Note that:
+- TST-foo depends on tests/foo.rs:LOC-foo for implementation
+- SPC-foo depends on lib/foo.rs:LOC-foo for implementation AND TST-foo for testing
+- REQ-foo depends on SPC-foo for implementation AND testing
+
+# Interaction chart
+The interaction chart **will** look like this:
+```
+          LOC <---\
+           ^       \
+           |       |
+  REQ <-- SPC <-- TST
+   ^               |
+   \               /
+    \---- RSK <---/
+```
+
+where an arrow points (-->) to a valid partof link (i.e. SPC is partof REQ)
 '''
 
-[REQ-links-partof-prefix]
+[REQ-core-links-valid-req]
+text = "REQ **shall only** be allowed to be partof REQ"
+
+[REQ-core-links-valid-rsk]
+text = "RSK **shall only** be allowed to be partof REQ, RSK, and SPC"
+
+[REQ-core-links-valid-spc]
+text = "SPC **shall only** be allowed to be partof SPC and REQ"
+
+[REQ-core-links-valid-tst]
+text = "TST **shall only** be allowed to be partof RSK, SPC and TST"
+
+[REQ-core-links-valid-loc]
 text = '''
-- All artifacts with the same whole-prefix **shall** automatically be considered partof
-the whole-prefix artifact
-- If a whole-prefix artifact does not exist, it **shall** automatically be created empty
+LOC **shall only** be allowed to link from SPC and TST
 
-definition of whole-prefix: set of characters in groups between "-" character
-> Example: `foo-bar-baz-1` has whole-prefixes:
->    `foo`, `foo-bar`, `foo-bar-baz` and `foo-bar-baz-1`
-'''
-extra = '''
-Example:
-- REQ-foo
-- REQ-foo-1
-- REQ-foo-1-a
-- REQ-foo-baz
-
-Dependencies are:
-- REQ-foo-1 and REQ-foo-baz is partof REQ-foo
-- REQ-foo-1-a is partof REQ-foo-1
+> Note: LOC is the only artifact that **cannot** link to itself
 '''
 
-[REQ-links-parts]
-text = '''
-the **arts** attribute of an artifact shall be used to detail the
-artifacts that it *depends on* (opposite of partof)
-'''
-
-[REQ-links-loc]
-text = '''
-An artifact **shall** have a **loc** atribute which specifies the LOC artifact
-which implements the artifact and (optionally) the path to find it in source
-
-> LOC-2: {src}/path/to/loc
-'''
-
-[REQ-links-loc-invalid]
+[REQ-core-links-invalid-loc]
 text = '''
 It **shall** be invalid for a LOC artifact to be linked to by more than one artifact.
 
 > note: in other words, an artifact can only have one implementation
 '''
 
+[REQ-core-links-name-prefix]
+text = '''
+- All artifacts with the same whole-prefix **shall** automatically be considered partof
+the whole-prefix artifact
+- If a whole-prefix artifact does not exist, it **shall** automatically be created empty
+
+definition of whole-prefix: set of characters in groups between "-" character
+
+# Examples
+Example:
+
+`foo-bar-baz-1` has whole-prefixes:
+
+`foo`, `foo-bar`, `foo-bar-baz` and `foo-bar-baz-1`
+
+Example:
+- REQ-foo
+- REQ-foo-1
+- REQ-foo-1-a
+- REQ-foo-baz
+
+Parts are:
+- REQ-foo-1 and REQ-foo-baz is partof REQ-foo
+- REQ-foo-1-a is partof REQ-foo-1
+'''

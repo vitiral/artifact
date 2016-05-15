@@ -6,11 +6,7 @@ ignore = true
 text = "definitions for the rsk project"
 partof = "REQ-purpose-core-definitions"
 
-[REQ-definitions-terms
-text = '''
-
-
-[REQ-definitions-terms-assertions]
+[REQ-definitions-assertions]
 text = '''
 Assertions **will** be used throughout the artifacts to mean:
 - shall: the statement must be implemented and it's
@@ -22,7 +18,7 @@ Assertions **will** be used throughout the artifacts to mean:
     not possible. Should is a statement of intent
 '''
 
-[REQ-definitions-terms-risks]
+[REQ-definitions-risks]
 text = '''
 Risks are to be written with three sets of terms in mind:
 - likelyhood
@@ -54,137 +50,4 @@ determine the weight to assign to the risk.
 >
 > You definitely need to watch out for boulders and prevent
 > avalanches whenever possible
-'''
-
-[REQ-definitions-artifacts]
-partof = "REQ-purpose-core-artifacts"
-
-[REQ-definitions-artifacts-req]
-text = '''
-The prefix and name of 'REQ' **will** specifiy the software requirements.
-
-Generally these should be the high level requirements specified in the format of
-$REQ-definitions-statements
-'''
-
-[REQ-definitions-artifacts-rsk]
-text = '''
-The prefix and name of 'RSK' **will** specify the risks associated with either
-a requirement (REQ) or a design-specification (SPC).
-
-Generally these should be the 
-'''
-
-[REQ-definitions-artifacts-spc]
-text = '''
-The prefix and name of 'SPC' **will** specify a design specification linked to
-a requirement.
-
-In addition, the design specification can have a path associated with the
-code implementation.
-'''
-
-[REQ-definitions-artifacts-tst]
-text = '''
-The prefix and name of 'TST' **will** specify a test that can test either a
-requirement (REQ), risk (RSK), or design-specification (SPC).
-
-In addtion, the test can have a path associated with the code implementation.
-'''
-
-[REQ-definitions-artifacts-loc]
-text = '''
-The prefix and name of 'LOC' **will** specify the location of code that implements
-either a specification (SPC) or a test (TST)
-'''
-
-[REQ-definitions-artifacts-attrs]
-text = '''
-All artifacts **will** have the following attributes:
-The attributes **will** be:
-- disabled: whether the artifact should be skipped during processing
-- text: description of the artifact
-- references: attr to list references for documentation purposes only
-- partof: a string containing artifacts which the artifact is a part of
-- loc: the location of the implementation
-'''
-
-[REQ-definitions-artifacts-attrs-loc]
-text = '''
-The loc field **shall** be used to specify the location where a
-SPC or TST artifact is implemented.
-
-artifacts with valid loc set are considered done, regardless of the completion
-of their sub-artifacts.
-
-This allows for sub SPC/TSTs to detail how a SPC/TST will be implemented, without
-actually having to link to the specific code implementation (code implementaiton
-linking is optional)
-
-This also means that rsk will not enforce that you have completed all your
-sub requirements -- if you link an implementation and all that implementation's
-TSTs are implemented, then that implementation is considered completed and tested.
-
-With great power comes great responsibility, but the combination of TSTs and SPCs
-should help prevent artifacts that aren't done from being considered done.
-'''
-
-[REQ-definitions-artifacts-attrs-references]
-text = '''
-the `references` field is a list of strings:
-- if the string looks like an artifact (it has REQ, SPC, etc at the beginning)
-    it will be linked as one.
-- else if the string is a valid file path, it will be linked to the relevant code
-    repository
-- else if it looks like a url (http://, www., *.com/org/etc), it will be treated
-    like one
-- else it will be interpreted as markdown
-
-is highly advised that you do not put newline characters in any of
-the items in `references`
-'''
-
-[REQ-definitions-link]
-text = '''
-There **will** be 2 types of links:
-- loc: link to code implementation
-- partof: dependency link
-'''
-
-[REQ-definitions-link-part]
-text = '''
-the "partof" term **will** be used to list artifacts which an artifact is
-"a part of". If artifact A is "a part of" artifact B then B **will** depend
-on A.
-
-the **parts** term **will** be used to list artifact which an artifact depends on.
-If artifact B "has a part" A, then B **will** depend on A
-
-# Rationale
-```
-[foo] # foo depends on bar for completeness
-text = "foo"
-
-[bar]
-text = "bar"
-link = "foo"
-```
-
-# Key choice
-So in verb tense:
-- Y link Z
-- Y is needed for Z
-- Y gives Z (meaning)
-- Y is a dependency of Z
-- Y fulfills Z
-- Y part of Z
-- Y is in (dependencies of) Z
-- Y inpart Z
-
-inpart is short and gives the right idea -- Y **inparts** to Z some of
-it's meaning. It is also "in the parts" of Z's spec/req/etc. However,
-the meaning is kind of vague.
-
-partof is very clean and clear, much more understandable. Also it is a
-plural/singular verb, which is nice
 '''

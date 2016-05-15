@@ -1,5 +1,11 @@
 [REQ-purpose]
-loc = ":{project}/README.md"
+refs = ["{project}/README.md"]
+
+[REQ-purpose-scale]
+text = '''
+rsk **will** be able to handle scale from very small projects with a single
+design document to enourmous multi-project multi-folder projects.
+'''
 
 [REQ-purpose-definitions]
 text = '''
@@ -12,7 +18,7 @@ rsk **will** provide a simple but useful mechanism for calculating
 and displaying implementation and test coverage / completeness
 '''
 
-[REQ-purpose-core-artifacts]
+[REQ-purpose-artifacts]
 text = '''
 rsk **will** support 5 types of artifacts that can be tracked
 - REQ: software requirement
@@ -34,9 +40,12 @@ In other words, you can design a spec (SPC) based on
 a requirement (REQ). A requirement can have a risk (RSK)
 associated with it. Tests can test to either a spec (SPC)
 or to a risk (RSK)
+
+The artifacts **will** have simple orthoganl variables that accomplish
+the purposes defined in REQ-purpose.
 '''
 
-[REQ-purpose-core-format]
+[REQ-purpose-format]
 text = '''
 **rsk** **will** use a simple text format to structure it's files
 
@@ -51,7 +60,7 @@ Possible choices:
 - html/xml/etc: aboslutely not. Needlessly complex.
 '''
 
-[REQ-purpose-core-linking]
+[REQ-purpose-linking]
 text = '''
 linking **will** be in an easy to understand format.
 
@@ -74,7 +83,7 @@ or "what requirement is this a risk for" and link things one at a time.
 add needless complexity.
 '''
 
-[REQ-purpose-core-variables]
+[REQ-purpose-variables]
 text = '''
 there **will** be a method of setting global and local variables
 for use in text and paths
@@ -160,4 +169,14 @@ rsk **should** have decoupled modules that depend on eachother as little
 as possible.
 
 Roughly, they **should** be broken up according to these requirements.
+'''
+
+[REQ-purpose-versioning]
+text = '''
+rsk **should** never make a breaking change once a version has been
+declared stable.
+
+In the event a breaking change is necessary, rsk **shall** not make the
+change until a major version release and shall attempt whatever backwards
+compatibility is possible.
 '''

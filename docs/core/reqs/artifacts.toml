@@ -1,92 +1,176 @@
-[REQ-core-artifact]
+[REQ-core-artifacts]
+partof = "REQ-purpose-artifacts"
 
-[REQ-artifacts-link]
+[REQ-core-artifacts-prefix]
 text = '''
-The artifacts **shall** be allowed to link as defined in this REQ
-'''
-extra = '''
-# link definition and interactions
+All artifact names **will** begin with a valid prefix [REQ, SPC, RSK, TST, LOC]
+or they will not be considered an artifact.
 
-A link is defined as a dependent relationship. Y linking to Z implies that
-Z depends on Y for testing or implementation.
-
-This allows dependency trees to be made much more easily by the writter.
-
-## field
-Because of this dependency interaction, 'link' will be referred to as
-'partof'. So
-- Y links Z
-- Y partof Z
-- Y is part of the dependencies of Z for testing and implementation analysis
-
-## Example:
-```
-[REQ-foo]
-text = 'foo req'
-
-[SPC-foo]
-text = 'foo spec'
-partof = 'REQ-foo'
-loc = '{src}/lib/foo.rs:LOC-foo'
-
-[TST-foo]
-text = 'foo test'
-partof = 'SPC-foo'
-loc = '{src}/tests/foo.rs:LOC-foo'
-```
-
-Note that:
-- TST-foo depends on tests/foo.rs:LOC-foo for implementation
-- SPC-foo depends on lib/foo.rs:LOC-foo for implementation AND TST-foo for testing
-- REQ-foo depends on SPC-foo for implementation AND testing
-
-# Interaction chart
-The interaction chart **will** look like this:
-```
-          LOC <---\
-           ^       \
-           |       |
-  REQ <-- SPC <-- TST
-   ^               |
-   \               /
-    \---- RSK <---/
-```
-
-where an arrow points (-->) to a valid partof link (i.e. SPC is partof REQ)
+The case will be ignored, but upper is suggested to the user.
 '''
 
-["REQ-artifacts-link-method"]
-text = "The linking method must follow these requirements"
-
-["REQ-artifacts-link-method-1"]
+[REQ-core-artifacts-req]
+refs = ["REQ-definitions-assertions"]
 text = '''
-The artifacts REQ, RSK, SPC and TST **shall** be allowed to link using the
-'partof' variable defined in $REQ-format-artifacts-partof
+The prefix and name of 'REQ' **will** specifiy the software requirements.
+
+Generally these should be the high level requirements in a specified format
+such as REQ-definitions-assertions
 '''
-partof = "REQ-format-structure-artifacts-partof"
 
-["REQ-artifacts-link-method-2"]
+[REQ-core-artifacts-rsk]
+refs = ["REQ-definitions-risks"]
 text = '''
-The artifact LOC **shall** be allowed to link using the
-'loc' variable defined in $REQ-format-artifacts-loc
+text = '''
+The prefix and name of 'RSK' **will** specify the risks associated with either
+a requirement (REQ) or a design-specification (SPC).
+
+Generally these should be specified in defined format similar to
+REQ-definitions-risks
 '''
-link = "REQ-format-structure-artifacts-loc"
 
-["REQ-artifacts-link-req"]
-text = "REQ **shall only** be allowed to be partof REQ"
-
-["REQ-artifacts-link-rsk"]
-text = "RSK **shall only** be allowed to be partof REQ, RSK, and SPC"
-
-["REQ-artifacts-link-spc"]
-text = "SPC **shall only** be allowed to be partof SPC and REQ"
-
-["REQ-artifacts-link-tst"]
-text = "TST **shall only** be allowed to be partof RSK, SPC and TST"
-
-["REQ-artifacts-link-loc"]
+[REQ-core-artifacts-spc]
 text = '''
-LOC **shall only** be allowed to link from SPC and TST
+The prefix and name of 'SPC' **will** specify a design specification linked to
+a requirement.
 
-> Note: LOC is the only artifact that **cannot** link to itself
+In addition, the design specification can have a path associated with the
+code implementation (LOC).
+'''
+
+[REQ-core-artifacts-tst]
+text = '''
+The prefix and name of 'TST' **will** specify a test.
+The test can link to either a design-specification (SPC) or risk (RSK).
+
+In addtion, the test can have a path associated with the code implementation (LOC).
+'''
+
+[REQ-core-artifacts-attrs]
+text = '''
+All artifacts **will** have the following attributes:
+- disabled: whether the artifact should be skipped during analysis
+- text: description of the artifact
+- refs: attr to list references for documentation purposes only
+- partof: a string containing artifacts which the artifact is a part of
+
+'''
+
+[REQ-core-artifacts-attrs-disabled]
+text = '''
+All artifacts with `disabled` set **shall** be ignored during processing *except*
+artifact name collisions **shall** result in an error
+
+> default = false
+'''
+
+[REQ-core-artifacts-attrs-text]
+text = '''
+The `text` field **shall** specify the text associated with the artifact
+
+> default = ""
+'''
+
+[REQ-core-artifacts-attrs-refs]
+refs = ["REQ-core-artifacts-attrs-partof"]
+text = '''
+the `refs` field **will** be a list of strings that **shall** provide documentation to:
+- if the string looks like artifacts (i.e. REQ, SPC, etc are at the beginning)
+    it **shall** be linked as one in the format of REQ-core-artifacts-attrs-partof
+- else if the string is a valid file path, it **shall** be linked to the relevant code
+    repository
+- else if the string looks like a url (http://, www., *.com/org/etc), it **shall** be
+linked as one
+- else it **shall** be interpreted as markdown
+
+> note: is highly advised that you do not put newline characters in any of
+> the items in `refs`
+
+> default = None
+'''
+
+[REQ-core-artifacts-attrs-partof]
+text = '''
+the `partof` field **shall** be a string specifying which artifacts the artifact item
+is a part of (which artifacts depend on it)
+
+The format for specifying multiple artifacts is in REQ-core-artifacts-attrs-partof-fmt
+
+default = ""
+'''
+
+[REQ-core-artifacts-attrs-partof-fmt]
+refs = ["REQ-core-artifacts-attrs-loc"]
+text = '''
+The partof field **shall** follow the following spec for specifying multiple artifacts
+- `[]` **will** denote a set of artifacts related to the prevoius characters
+- `,` **will** denote separate requirements
+- `:` **will** denote a range of numerical values (inclusive)
+
+# Example:
+Both of these are the same set of artifacts:
+- `foo-[1:3, dab], bar-d[1,2,3]`
+- `foo-1, foo-2, foo-3, foo-dab, bar-d1, bar-d2, bar-d3`
+
+# invalid inputs
+Note: spaces ` ` are always ignored
+- `,` and `:` characters are **only** permitted inside of brackets
+- after a closing bracket `]`, **only** the `,` or `]` character is permitted
+    - i.e. `REQ-[foo, bar]-baz` is invalid
+- it is an error for a `LOC` artifact to be in `partof` (use `loc`)
+
+# valid inputs
+Some interesting valid use cases are:
+- `REQ-[foo, bar-[1:3, 6], baz]` evaluates to `REQ-foo, REQ-bar-[1:3, 6], REQ-baz`
+    which evaluates to `REQ-foo, REQ-bar-1, REQ-bar-2, REQ-bar-3, REQ-bar-6, REQ-baz`
+
+The reasons for these rules are:
+- without the avility to do ranges or re-use a prefix, it can be very annoying to
+    list the requirements in an easy to understand way
+- however, the use cases for wanting to do something like [a,b]-[1,2,3] are poor.
+    The names and purpose of sub-categories should rarely (if ever) be
+    connected, and trying to maintain structures like that would likely cause
+    the developer more harm than good.
+- the parser is much easier to implement, and it is easier to see "under the hood"
+    at what the parser is actually doing if it only uses simple recursion rather than
+    having to go backwards in the parsing.
+'''
+
+[REQ-core-artifacts-attrs-parts]
+text = '''
+the `parts` attribute of an artifact shall be used to detail the
+artifacts that it *depends on* (opposite of partof)
+
+`parts` **shall not** be available in the file format (only in the user interfaces)
+'''
+
+[REQ-core-artifacts-attrs-loc]
+refs = ["REQ-core-coverage-loc"]
+text = '''
+The loc field **shall** be a string which specifies the location where a
+SPC or TST artifact is implemented.
+
+artifacts with valid loc set are considered done, regardless of the completion
+of their sub-artifacts.
+
+This allows for sub SPC/TSTs to detail how a SPC/TST will be implemented, without
+actually having to link to the specific code implementation (code implementaiton
+linking is optional)
+
+This also means that rsk will not enforce that you have completed all your
+sub requirements -- if you link an implementation and all that implementation's
+TSTs are implemented, then that implementation is considered completed and tested.
+
+With great power comes great responsibility, but the combination of TSTs and SPCs
+should help prevent artifacts that aren't done from being considered done.
+
+default = ""
+
+It is an error to set `loc` for REQ, RSK and LOC components
+'''
+
+[REQ-core-artifacts-attrs-loc-invalid]
+text = '''
+REQ, RSK or LOC artifacts with a `loc` value set **shall** be ignored and cause
+a warning to be issued
 '''

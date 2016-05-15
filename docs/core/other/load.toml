@@ -1,0 +1,151 @@
+[SPC-core-load]
+partof = "REQ-purpose-format"
+
+##################################################
+# Risks related to loading in general
+[RSK-core-load-invalid]
+partof = "REQ-purpose-format"
+text = '''
+weight = 20
+
+Type checking and validity, and failing on invalid data is essential
+for the functionality of rsk and the reporting of errors to the user.
+
+loading is a **critical** component. There is a **low** likelyhood that
+this issue will be a **boulder**
+'''
+
+[RSK-core-load-stable]
+partof = "REQ-purpose-format, REQ-purpose-versioning"
+text = '''
+weight = 25
+
+The **toml** library used is currently not stable. To prevent user impact
+to changes in the toml library (or at least able to inform users of breaking
+changes), extensive unit testsing must be in place that checks for
+breaking changes.
+
+the stability of the format is a **critical** component as it could directly
+impact users. There is a **low** likelyhood that this issue will be an **avalanche**
+'''
+
+##################################################
+# toml spec
+[SPC-core-load-toml]
+partof = "REQ-core-format-file"
+loc = "LOC-core-load-toml: {src}/main.rs"
+text = '''
+The rust library [toml-rs](https://github.com/alexcrichton/toml-rs)
+shall be used to load raw toml files
+'''
+
+##################################################
+# load paths-file function
+[SPC-core-load-paths]
+text = '''
+There **shall** be a function which can read a list of paths from a file
+and load them recursively
+'''
+
+[TST-core-load-paths]
+text = '''
+have a file and unreachable rsks. Have the file have a path to the unreachable
+rsks and validate that they are loaded correctly.
+'''
+
+##################################################
+# load dir function
+[SPC-core-load-dir]
+loc = "LOC-core-load-recursive: {core}/load.rs"
+text = '''
+There **shall** be a function which can load all artifacts from a
+directory recursively (as defined in LOC-core-load-recursive)
+'''
+
+[TST-core-load-dir-unit]
+partof = "SPC-core-load-dir"
+[TST-core-load-dir-unit-1]
+text = '''
+load a folder with a [file folder[file]] and make sure all values
+are present
+'''
+[TST-core-load-dir-unit-2]
+text = "load a [file] with an invalid attribute an make sure it errors"
+[TST-core-load-dir-unit-3]
+text = "load two files with the same key and make sure it errors"
+[TST-core-load-dir-unit-4]
+text = '''
+load a structure like so:
+```
+/foo/foo.rsk
+/foo/bar/baz/unreachable.rsk
+```
+and make sure that `unreachable.rsk` does **not** get loaded
+'''
+[TST-core-load-dir-unit-5]
+text = '''
+load a structure like so:
+```
+/foo/foo.rsk
+/foo/bar/bar.rsk
+/foo/bar/baz/baz.rsk
+```
+and make sure that all three rsk files are loaded
+'''
+
+##################################################
+# load file function
+[SPC-core-load-file]
+text = '''
+There **shall** be a function which can load all artifacts from a
+file given a path
+'''
+
+[TST-core-load-valid]
+partof = "SPC-core-load-file, RSK-core-load-invalid"
+text = "load a valid toml file and verify it's artifacts and settings"
+[TST-core-load-invalid]
+partof = "SPC-core-load-file, RSK-core-load-invalid"
+text = '''
+load separate toml files suffering the issues listed below and ensure
+they do not load.
+
+- trying to input a json-like table `{}`
+- trying to have multiple types in an array `[1, "hello", 3]`
+- name collisions at the [] level
+- name collisions at the base level
+'''
+[TST-core-load-text]
+loc = "LOC-tst-core-load-text-1: {core}/load.rs"
+
+##################################################
+# load table function
+[SPC-core-load-table]
+loc = "LOC-core-load-table: {core}/load.rs"
+text = '''
+There **shall** be a function which loads artifacts from a toml Table
+'''
+[TST-core-load-table-check]
+partof = "SPC-core-load-table, RSK-core-load-invalid"
+loc = "LOC-core-load-table-check: {core}/load.rs"
+text = '''
+The rust langauge **will** guarantee that every return value / error is addressed.
+
+The loading algorithm **shall** perform tests for every eventuality and explitly
+address them, returning Err immediately on any value that is the incorrect type.
+'''
+
+[TST-core-load-table-unit]
+partof = "SPC-core-load-table, RSK-core-load"
+text = '''
+There **will** be extensive unit tests on the Table loading mechanism to ensure
+the type is loaded with proper type checking
+'''
+[TST-core-load-table-unit-1]
+loc = "LOC-tst-core-load-unit-1: {core}/load.rs"
+[TST-core-load-table-unit-2]
+loc = "LOC-tst-core-load-unit-2: {core}/load.rs"
+[TST-core-load-table-unit-3]
+loc = "LOC-tst-core-load-unit-3: {core}/load.rs"
+[TST-core-load-table-unit-4]
+loc = "LOC-tst-core-load-unit-4: {core}/load.rs"
