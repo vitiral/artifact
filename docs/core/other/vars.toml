@@ -1,0 +1,44 @@
+
+[SPC-core-vars]
+partof = "REQ-core-vars-[locals, globals]"
+refs = ["REQ-core-vars-globals-[cwd, repo]"]
+text = '''
+variables **shall** be loaded in the following manner:
+- default globals will allways be loaded on a per-file basis
+    and their text will be interpreted for the defaults
+    immediately.
+- user and local globals will be interpreted at a later time,
+    when all artifacts have been loaded
+
+The following fields **will** have variables applied:
+- settings fields:
+    - paths: **only** the default globals will be interpreted, see
+        REQ-core-vars-globals-[cwd, repo]
+- artifact fields:
+    - text: useful for documenting paths, links, etc.
+    - refs: not recommended for artifact strings, but supported
+    - loc: one of the primary purposes of variables is to be able
+        to do something like `loc = "LOC-foo: {core}/foo.rs"`
+        so it is definitely supported! It is recommended (but not
+        enforced) to not use variables before the ":" token.
+
+The following **will not** have variables applied:
+- settings fields:
+    - disabled: not a string
+    - repo_names: not useful for it's purpose
+- artifact fields:
+    - key fields: you cannot use vars in the key fields (i.e. `[key]`)
+        as these are processed before variables are ever processed
+        and it would make it more difficult to read your documents.
+    - partof: for much the same reason, you cannot use them in partof.
+        partof already provides useful ways to abbreviate artifact names,
+        having variables as well would only add to the confusion.
+'''
+
+[SPC-core-vars-lib]
+partof = "REQ-core-vars-fmt"
+text = '''
+the rust library [strfmt](https://github.com/vitiral/strfmt)
+**will** be used to accomplish the heavy lifting of actually
+formatting strings.
+'''
