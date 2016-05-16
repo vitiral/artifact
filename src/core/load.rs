@@ -40,75 +40,138 @@ fn test_name() {
                      "SPC-foo", "RSK-foo", "TST-foo", "LOC-foo"] {
         assert!(artifact_name_valid(name));
     }
-
     for name in vec!["REQ-foo*", "REQ-foo\n", "REQ-foo-"] {
         assert!(!artifact_name_valid(name))
     }
-
-    // spaces
-    assert!(fix_artifact_name("   R E Q    -    f   o  o") == "REQ-foo");
+    // remove spaces
+    assert!(fix_artifact_name("   R E Q    -    f   o  o   ") == "REQ-foo");
 }
 
-// macro_rules! get_attr {
-//     ($tbl: expr, $attr: expr, $default: expr, $defaults: expr,
-//      $ty: ident) => {
-//         match $tbl.get($attr) {
-//             // If the value is in the table, return the value
-//             Some(&Value::$ty(ref v)) => Some(v.clone()),
-//             // otherwise, get from the defaults
-//             None => {
-//                 match $defaults {
-//                     None => Some($default),  // there are no defaults
-//                     Some(ref d) => {
-//                         match d.get($attr) {
-//                             Some(&Value::$ty(ref v)) => Some(v.clone()),  // got from defaults
-//                             None => Some($default),
-//                             _ => None, // invalid type
-//                         }
-//                     },
-//                 }
-//             },
-//             _ => None, // invalid type
-//         }
-//     }
+macro_rules! get_attr {
+    ($tbl: expr, $attr: expr, $default: expr, $ty: ident) => {
+        match $tbl.get($attr) {
+            // If the value is in the table, return the value
+            Some(&Value::$ty(ref v)) => Some(v.clone()),
+            // otherwise return the default
+            None => Some($default.clone()),
+            // If it's the wrong type, return None (Err)
+            _ => None,
+        }
+    }
+}
+
+/// only one type is in an array, so make this custom
+fn get_vecstr(tbl: &Table, attr: &str, default: &Vec<String>)
+              -> Option<Vec<String>> {
+    match tbl.get(attr) {
+        // if the value is in the table, try to get it's elements
+        Some(&Value::Array(ref a)) => {
+            let mut out: Vec<String> = Vec::with_capacity(a.len());
+            for v in a {
+                match v {
+                    &Value::String(ref s) => out.push(s.clone()),
+                    _ => return None,  // error: invalid type
+                }
+            }
+            Some(out)
+        }
+        None => Some(default.clone()), // value doesn't exist, return default
+        _ => None,  // error: invalid type
+    }
+}
+
+#[test]
+fn test_get_attr() {
+    let tbl_good = parse_text(TOML_GOOD);
+    let df_str = "".to_string();
+    let df_tbl = Table::new();
+    let ref df_vec: Vec<String> = Vec::new();
+
+    // LOC-tst-core-load-attrs-unit-1:<Test loading valid existing types>
+    let test = get_attr!(tbl_good, "REQ-bar", df_tbl, Table).unwrap();
+    assert!(get_attr!(&test, "disabled", false, Boolean).unwrap() == false);
+    assert!(get_attr!(&test, "disabled", true, Boolean).unwrap() == false);
+    assert!(get_attr!(&test, "text", df_str, String).unwrap() == "bar");
+    assert!(get_attr!(&test, "text", df_str, String).unwrap() == "bar");
+    assert!(get_vecstr(&test, "refs", df_vec).unwrap() == ["hello", "ref"]);
+
+    // LOC-tst-core-load-attrs-unit-2:<Test loading invalid existing types>
+    assert!(get_attr!(&test, "disabled", df_str, String).is_none());
+    assert!(get_attr!(&test, "text", false, Boolean).is_none());
+    assert!(get_vecstr(&test, "text", df_vec).is_none());
+    let test = get_attr!(tbl_good, "SPC-foo", Table::new(), Table).unwrap();
+    assert!(get_vecstr(&test, "refs", df_vec).is_none());
+
+    // LOC-tst-core-load-attrs-unit-3:<Test loading valid default types>
+    let test = get_attr!(tbl_good, "REQ-foo", Table::new(), Table).unwrap();
+    assert!(get_attr!(&test, "disabled", false, Boolean).unwrap() == false);
+    assert!(get_attr!(&test, "text", df_str, String).unwrap() == "");
+}
+
+
+/// LOC-core-load-table-check:<check the type to make sure it matches>
+macro_rules! check_type {
+    ($value: expr, $attr: expr, $name: expr) => {
+        match $value {
+            Some(v) => v,
+            None => {
+                let mut msg = Vec::new();
+                write!(&mut msg, "{} has invalid attribute: {}", $name, $attr).unwrap();
+                return Err(LoadError::new(String::from_utf8(msg).unwrap()));
+            }
+        }
+    }
+}
+
+#[test]
+fn test_check_type() {
+    let tbl_good = parse_text(TOML_GOOD);
+    let df_tbl = Table::new();
+
+    let test = get_attr!(tbl_good, "REQ-bar", df_tbl, Table).unwrap();
+    // LOC-tst-core-load-attrs-unit-1:<Test loading valid type>
+    fn check_valid(test: &Table) -> LoadResult<Vec<String>> {
+        Ok(check_type!(get_vecstr(test, "refs", &Vec::new()), "refs", "name"))
+    }
+    assert!(check_valid(&test).is_ok());
+
+    let test = get_attr!(tbl_good, "SPC-foo", df_tbl, Table).unwrap();
+    fn check_invalid(test: &Table) -> LoadResult<Vec<String>> {
+        Ok(check_type!(get_vecstr(test, "refs", &Vec::new()), "refs", "name"))
+    }
+    assert!(check_invalid(&test).is_err());
+}
+
+// pub fn load_settings(settings: &Table, cwd: &str, repo: &str) -> LoadResult<Settings> {
 // }
 
-// /// LOC-core-load-table-check:<check the type to make sure it matches>
-// macro_rules! check_type {
-//     ($value: expr, $attr: expr, $name: expr) => {
-//         match $value {
-//             Some(v) => v,
-//             None => {
-//                 let mut msg = Vec::new();
-//                 write!(&mut msg, "{} has invalid attribute: {}", $name, $attr).unwrap();
-//                 return Err(LoadError::new(String::from_utf8(msg).unwrap()));
-//             }
-//         }
-//     }
-// }
-
-// /// LOC-core-load-table:<load a table from toml>
+/// LOC-core-load-table:<load a table from toml>
 // pub fn load_table(artifacts: &mut Artifacts, ftable: &mut Table, path: &Path) -> LoadResult<u64> {
-//     // let &mut artifacs = Vec::new();
-//     let invalid_type = |name: &str, attr: &str| -> LoadError{
-//         let mut msg = Vec::new();
-//         write!(&mut msg, "{} has invalid attribute: {}", name, attr).unwrap();
-//         LoadError::new(String::from_utf8(msg).unwrap())
-//     };
-
-//     let defaults = match ftable.remove("defaults") {
-//         Some(Value::Table(t)) => Some(t),
-//         None => None,
-//         _ => return Err(invalid_type(&"defaults".to_string(), "defaults")),
-//     };
 //     let mut msg: Vec<u8> = Vec::new();
 //     let mut num_loaded: u64 = 0;
+
+//     // defaults
+//     let df_str = String::new();
+//     let ref df_vec: Vec<String> = Vec::new();
+
+//     // TODO: handle settings
+//     let local_settings = match ftable.remove("settings") {
+//         Some(Value::Table(t)) => Some(t),
+//         None => None,
+//         _ => return Err(LoadError("settings must be a Table".to_string())),
+//     };
+//     // TODO: if settings.disabled == True just quit now
+//     // TODO: append the paths from settings onto project settings.paths
+//     // TODO: append repo_names onto project repo_names
+
 //     for (name, value) in ftable.iter() {
-//         // check that the artifact's name is valid
+//         // REQ-core-artifacts-name: strip spaces, ensure valid chars
+//         let name = fix_artifact_name(name);
 //         if !artifact_name_valid(&name) {
 //             write!(&mut msg, "invalid name: {}", name).unwrap();
 //             return Err(LoadError::new(String::from_utf8(msg).unwrap()));
 //         }
+
 //         // get the artifact table
 //         let art_tbl: &Table = match value {
 //             &Value::Table(ref t) => t,
@@ -125,7 +188,7 @@ fn test_name() {
 //         }
 //         // check if artifact is active
 //         if !check_type!(get_attr!(
-//                 art_tbl, "active", true, defaults, Boolean), 
+//                 art_tbl, "active", true, defaults, Boolean),
 //                              "active", name) {
 //             continue
 //         }
@@ -228,18 +291,25 @@ fn test_name() {
 //     }
 // }
 
+// ##################################################
+// functions for tests
 #[cfg(test)]
 static TOML_GOOD: &'static str = "
-[defaults]
-done = true
-text = 'foo'
+[settings]
+disabled = false
+paths = ['test']
+repo_names = ['.test']
+
 [REQ-foo]
+disabled = false
 [SPC-foo]
+refs = [1, 2]
 [RSK-foo]
 [TST-foo]
 [REQ-bar]
 text = 'bar'
-done = false
+disabled = false
+refs = [\"hello\", \"ref\"]
 ";
 
 static TOML_BAD: &'static str = "[REQ-bad]\ndone = '100%'";
@@ -259,37 +329,11 @@ fn get_table<'a>(tbl: &'a Table, attr: &str) -> &'a Table {
     }
 }
 
-// #[test]
-// fn test_get_attr() {
-//     let tbl_good = parse_text(TOML_GOOD);
-//     let defaults = Some(get_table(&tbl_good, "defaults"));
-//     let empty = Some(Table::new());
+#[test]
+/// LOC-tst-core-artifacts-types:<test loading and checking of enum types>
+fn test_types() {
 
-//     let test = get_attr!(tbl_good, "REQ-bar", Table::new(), defaults, Table).unwrap();
-//     // LOC-tst-core-load-unit-1:<Test loading valid existing types>
-//     assert!(get_attr!(&test, "done", false, defaults, Boolean).unwrap() == false);
-//     assert!(get_attr!(&test, "done", false, empty, Boolean).unwrap() == false);
-//     assert!(get_attr!(&test, "done", true, defaults, Boolean).unwrap() == false);
-//     assert!(get_attr!(&test, "done", true, empty, Boolean).unwrap() == false);
-//     assert!(get_attr!(&test, "text", "".to_string(), defaults, String).unwrap() == "bar");
-//     assert!(get_attr!(&test, "text", "".to_string(), empty, String).unwrap() == "bar");
-
-//     // LOC-tst-core-load-unit-2:<Test loading invalid existing types>
-//     assert!(get_attr!(&test, "done", "".to_string(), defaults, String).is_none());
-//     assert!(get_attr!(&test, "text", false, empty, Boolean).is_none());
-
-//     // LOC-tst-core-load-unit-3:<Test loading valid default types>
-//     let test = get_attr!(tbl_good, "REQ-foo", Table::new(), defaults, Table).unwrap();
-//     assert!(get_attr!(&test, "done", false, empty, Boolean).unwrap() == false);
-//     assert!(get_attr!(&test, "done", true, empty, Boolean).unwrap());
-//     assert!(get_attr!(&test, "done", false, defaults, Boolean).unwrap());
-//     assert!(get_attr!(&test, "text", "".to_string(), empty, String).unwrap() == "");
-//     assert!(get_attr!(&test, "text", "".to_string(), defaults, String).unwrap() == "foo");
-
-//     // LOC-tst-core-load-unit-4:<Test loading invalid default types>
-//     assert!(get_attr!(&test, "done", "".to_string(), defaults, String).is_none());
-//     assert!(get_attr!(&test, "text", false, defaults, Boolean).is_none());
-// }
+}
 
 // #[test]
 // /// LOC-tst-core-load-text-1:<Test loading raw text>

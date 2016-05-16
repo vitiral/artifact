@@ -9,7 +9,7 @@ pub type LoadResult<T> = Result<T, LoadError>;
 pub type Artifacts = HashMap<ArtName, Artifact>;
 
 #[derive(Debug)]
-/// LOC-core-artifact-types:<valid artifact types>
+/// LOC-core-artifacts-enum:<valid artifact types>
 pub enum ArtTypes {
     REQ,
     SPC,
@@ -49,6 +49,12 @@ pub struct Artifact {
     pub ignore: bool,
 }
 
+// #[derive(Debug)]
+// pub struct Settings {
+//     pub disabled: bool,
+//     pub paths: Vec<PathBuf>,
+//     pub repo_names: HashSet<String>,
+// }
 
 /// Error for parsing files into artifacts
 /// LOC-core-load-error: <load file error>

@@ -40,10 +40,10 @@ There **shall** be a useful error message if other variables are attempted.
 [REQ-core-settings-repo_names]
 refs = ["REQ-core-vars-global-repo"]
 text = '''
-There **shall** be a `repo_names` setting that overrides the default valid
-repository names.
+There **shall** be a `repo_names` setting that appends user defined repository
+directory names onto the default ones.
 
-Repository names are used in the `{repo}` global variable.
+Repository names are used to determine the `{repo}` global variable.
 
 default = [".git", ".hg", ".svn"]
 

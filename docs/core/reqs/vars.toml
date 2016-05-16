@@ -1,9 +1,16 @@
 [REQ-core-vars]
 text = '''
-There **shall** be a method to set various variables in each file.
+The main reason to support variables is to have a general method of supporting
+paths and urls. Therefore, support which is not geared towards these goals
+are very secondary to the purpose of variables.
 
-variables can be used in any text block using the `{key}` syntax.
+variables **shall** be supported by using standard rust/python formatting
+techniques. All variable substiution **shall** follow the rust's
+[std::fmt](https://doc.rust-lang.org/std/fmt/) as it pertains to strings
+'''
 
+[REQ-core-vars-collisions]
+text = '''
 variables in the same scope are never allowed to overlap and must cause
 a useful error message if they do.
 '''

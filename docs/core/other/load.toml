@@ -73,8 +73,8 @@ There are several safeguards:
 ##################################################
 # toml spec
 [SPC-core-load-toml]
-partof = "REQ-core-load"
 loc = "LOC-core-load-toml: {src}/main.rs"
+partof = "REQ-core-load"
 text = '''
 The rust library [toml-rs](https://github.com/alexcrichton/toml-rs)
 shall be used to load raw toml files
@@ -176,17 +176,17 @@ The loading algorithm **shall** perform tests for every eventuality and explitly
 address them, returning Err immediately on any value that is the incorrect type.
 '''
 
-[TST-core-load-table-unit]
+##################################################
+# load attrs function
+[TST-core-load-attrs-unit]
 partof = "SPC-core-load-table, RSK-core-load"
 text = '''
-There **will** be extensive unit tests on the Table loading mechanism to ensure
+There **will** be extensive unit tests on the attrs loading mechanism to ensure
 the type is loaded with proper type checking
 '''
-[TST-core-load-table-unit-1]
-loc = "LOC-tst-core-load-unit-1: {core}/load.rs"
-[TST-core-load-table-unit-2]
-loc = "LOC-tst-core-load-unit-2: {core}/load.rs"
-[TST-core-load-table-unit-3]
-loc = "LOC-tst-core-load-unit-3: {core}/load.rs"
-[TST-core-load-table-unit-4]
-loc = "LOC-tst-core-load-unit-4: {core}/load.rs"
+[TST-core-load-attrs-unit-1]
+loc = "LOC-tst-core-load-attrs-unit-1: {core}/load.rs"
+[TST-core-load-attrs-unit-2]
+loc = "LOC-tst-core-load-attrs-unit-2: {core}/load.rs"
+[TST-core-load-attrs-unit-3]
+loc = "LOC-tst-core-load-attrs-unit-3: {core}/load.rs"

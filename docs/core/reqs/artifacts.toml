@@ -70,7 +70,6 @@ All artifacts **will** have the following attributes:
 - text: description of the artifact
 - refs: attr to list references for documentation purposes only
 - partof: a string containing artifacts which the artifact is a part of
-
 '''
 
 [REQ-core-artifacts-attrs-disabled]
