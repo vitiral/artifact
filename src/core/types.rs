@@ -9,16 +9,17 @@ use std::ascii::AsciiExt;
 use std::hash::{Hash, Hasher};
 use std::cmp::PartialEq;
 
+use regex::Regex;
+
 pub type LoadResult<T> = Result<T, LoadError>;
 pub type Artifacts = HashMap<ArtName, Artifact>;
 pub type Variables = HashMap<String, String>;
 
-#[derive(Debug, PartialEq)]
-enum Align {
-    Left,
-    Center,
-    Right,
-    None,
+lazy_static!{
+    // must start with artifact type, followed by "-", followed by at least 1 valid character
+    // cannot end with "-"
+    pub static ref ART_VALID: Regex = Regex::new(
+        r"(REQ|SPC|RSK|TST|LOC)-[A-Z0-9_-]*[A-Z0-9_]\z").unwrap();
 }
 
 #[derive(Debug)]
@@ -42,8 +43,8 @@ impl Loc {
     /// return Loc
     /// the path is not checked for validity yet
     pub fn from_str(s: &str) -> LoadResult<Loc> {
-        let mut loc;
-        let mut path;
+        let loc;
+        let path;
         let split = s.find(':');
         match split {
             None => {
@@ -76,12 +77,13 @@ pub struct ArtName {
 
 impl ArtName {
     fn find_type_maybe(&self) -> LoadResult<ArtType> {
-        let name = self.value.get(0).unwrap();
-        match name.as_str() {
+        let ty = self.value.get(0).unwrap();
+        match ty.as_str() {
             "REQ" => Ok(ArtType::REQ),
             "SPC" => Ok(ArtType::SPC),
             "RSK" => Ok(ArtType::RSK),
             "TST" => Ok(ArtType::TST),
+            "LOC" => Ok(ArtType::LOC),
             _ => {
                 Err(LoadError::new("Artifact name is invalid, must start with REQ, SPC, etc:"
                                        .to_string() +
@@ -95,6 +97,11 @@ impl ArtName {
     }
 
     pub fn from_str(s: &str) -> LoadResult<ArtName> {
+        // REQ-core-artifacts-name: strip spaces, ensure valid chars
+        let value = s.to_ascii_uppercase().replace(" ", "");
+        if !ART_VALID.is_match(&value) {
+            return Err(LoadError::new("invalid artifact name: ".to_string() + s));
+        }
         let out = ArtName {
             raw: s.to_string(),
             value: s.to_ascii_uppercase().split("-").map(|s| s.to_string()).collect(),

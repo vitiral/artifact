@@ -13,19 +13,11 @@ use std::io::{Read, Write};
 use std::fmt::Write as WriteStr;
 use std::iter::FromIterator;
 
-use regex::Regex;
 use walkdir::WalkDir;
 use toml::{Parser, Value, Table};
 use strfmt::strfmt;
 
 use core::types::*;
-
-lazy_static!{
-    // must start with artifact type, followed by "-", followed by at least 1 valid character
-    // cannot end with "-"
-    pub static ref ART_VALID: Regex = Regex::new(
-        r"(REQ|SPC|RSK|TST|LOC)-[A-Z0-9_-]*[A-Z0-9_]\z").unwrap();
-}
 
 /// LOC-name-check:<check that name is valid>
 fn artifact_name_valid(name: &str) -> bool {
@@ -258,16 +250,15 @@ fn test_parse_partof() {
 }
 
 impl Artifact {
-    fn from_table(name: &str, path: &Path, tbl: &Table) -> LoadResult<Artifact> {
+    fn from_table(name: &ArtName, path: &Path, tbl: &Table) -> LoadResult<Artifact> {
         let df_str = "".to_string();
         let df_vec: Vec<String> = vec![];
 
-        let name = try!(ArtName::from_str(name));
         let partof_str = check_type!(get_attr!(tbl, "partof", df_str, String),
                                     "partof", name);
         let loc_str = check_type!(get_attr!(tbl, "loc", df_str, String),
                                  "loc", name);
-        let mut loc = match loc_str.as_str() {
+        let loc = match loc_str.as_str() {
             "" => None,
             _ => Some(try!(Loc::from_str(loc_str.as_str()))),
         };
@@ -290,74 +281,71 @@ impl Artifact {
     }
 }
 
-// /// LOC-core-load-table:<load a table from toml>
-// /// artifacts: place to put the loaded artifacts
-// /// settings: place to put the loaded settings
-// /// globals: place to put the loaded global variables
-// /// ftable: file-table
-// /// default_globals: default global variables
-// pub fn load_table(artifacts: &mut Artifacts, settings: &mut Settings,
-//                   ftable: &mut Table, path: &Path,
-//                   default_globals: &Variables)
-//                   -> LoadResult<u64> {
-//     let mut msg: Vec<u8> = Vec::new();
-//     let mut num_loaded: u64 = 0;
+/// LOC-core-load-table:<load a table from toml>
+/// inputs:
+///     artifacts: place to put the loaded artifacts
+///     settings: place to put the loaded settings
+///     variables: place to put the loaded variables
+///     ftable: file-table
+///     default_globals: default global variables
+pub fn load_table(artifacts: &mut Artifacts, settings: &mut Settings,
+                  ftable: &mut Table, path: &Path,
+                  default_globals: &Variables)
+                  -> LoadResult<u64> {
+    let mut msg: Vec<u8> = Vec::new();
+    let mut num_loaded: u64 = 0;
 
-//     // defaults
-//     let df_str = String::new();
-//     let ref df_vec: Vec<String> = Vec::new();
+    match ftable.remove("settings") {
+        Some(Value::Table(t)) => {
+            let lset = try!(Settings::from_table(&t, default_globals));
+            if lset.disabled {
+                return Ok(0);
+            }
+            for p in lset.paths {
+                if settings.paths.contains(&p) {
+                    return Err(LoadError::new(
+                        "Cannot have a path listed twice".to_string() + &p.to_string_lossy()));
+                }
+                if !p.exists() {
+                    return Err(LoadError::new(
+                        "path in settings['path'] does not exist: ".to_string() +
+                            &p.to_string_lossy()));
+                }
+                settings.paths.push(p.clone());
+            }
+            settings.repo_names.extend(lset.repo_names);
+        }
+        None => {},
+        _ => return Err(LoadError::new("settings must be a Table".to_string())),
+    }
 
-//     match ftable.remove("settings") {
-//         Some(Value::Table(t)) => {
-//             let lset = try!(Settings::from_table(&t, default_globals));
-//             if lset.disabled {
-//                 return Ok(0);
-//             }
-//             for p in lset.paths {
-//                 if settings.paths.contains(&p) {
-//                     return Err(LoadError::new(
-//                         "Cannot have a path listed twice".to_string() + &p.to_string_lossy()));
-//                 }
-//                 settings.paths.push(p.clone());
-//             }
-//             settings.repo_names.extend(lset.repo_names);
-//         }
-//         None => {},
-//         _ => return Err(LoadError::new("settings must be a Table".to_string())),
-//     }
-
-//     // for (name, value) in ftable.iter() {
-//     //     // REQ-core-artifacts-name: strip spaces, ensure valid chars
-//     //     let name = fix_artifact_name(name);
-//     //     if !artifact_name_valid(&name) {
-//     //         write!(&mut msg, "invalid name: {}", name).unwrap();
-//     //         return Err(LoadError::new(String::from_utf8(msg).unwrap()));
-//     //     }
-
-//     //     // get the artifact table
-//     //     let art_tbl: &Table = match value {
-//     //         &Value::Table(ref t) => t,
-//     //         _ => {
-//     //             write!(&mut msg, "All top-level values must be a table: {}", name).unwrap();
-//     //             return Err(LoadError::new(String::from_utf8(msg).unwrap()));
-//     //         }
-//     //     };
-//     //     // check for overlap
-//     //     if artifacts.contains_key(name) {
-//     //         write!(&mut msg, "Overlapping key found <{}> other key at: {}",
-//     //                name, artifacts.get(name).unwrap().path.display()).unwrap();
-//     //         return Err(LoadError::new(String::from_utf8(msg).unwrap()));
-//     //     }
-//     //     // check if artifact is active
-//     //     if !check_type!(get_attr!(
-//     //             art_tbl, "active", true, defaults, Boolean),
-//     //                          "active", name) {
-//     //         continue
-//     //     }
-//     //     num_loaded += 1;
-//     // }
-//     return Ok(num_loaded);
-// }
+    for (name, value) in ftable.iter() {
+        let aname = try!(ArtName::from_str(name));
+        // get the artifact table
+        let art_tbl: &Table = match value {
+            &Value::Table(ref t) => t,
+            _ => {
+                write!(&mut msg, "All top-level values must be a table: {}", name).unwrap();
+                return Err(LoadError::new(String::from_utf8(msg).unwrap()));
+            }
+        };
+        // check for overlap
+        if let Some(overlap) = artifacts.get(&aname) {
+            write!(&mut msg, "Overlapping key found <{}> other key at: {}",
+                name, overlap.path.display()).unwrap();
+            return Err(LoadError::new(String::from_utf8(msg).unwrap()));
+        }
+        // check if artifact is active
+        if check_type!(get_attr!(art_tbl, "disabled", false, Boolean),
+                       "disabled", name) {
+            continue
+        }
+        let artifact = try!(Artifact::from_table(&aname, path, art_tbl));
+        artifacts.insert(aname, artifact);
+        num_loaded += 1;
+    }
+    return Ok(num_loaded);
+}
 
 // /// Given text load the artifacts
 // pub fn load_text(artifacts: &mut Artifacts, text: &str, path: &Path) -> LoadResult<u64> {
