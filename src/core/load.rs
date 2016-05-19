@@ -189,7 +189,7 @@ fn test_settings() {
     assert!(set.repo_names == expected);
 }
 
-fn parse_partof<I>(raw: &mut I, in_brackets: bool) -> LoadResult<Vec<String>>
+fn _parse_partof<I>(raw: &mut I, in_brackets: bool) -> LoadResult<Vec<String>>
     where I: Iterator<Item = char>
 {
     // hello-[there, you-[are, great]]
@@ -214,7 +214,7 @@ fn parse_partof<I>(raw: &mut I, in_brackets: bool) -> LoadResult<Vec<String>>
                     return Err(LoadError::new("cannot have '[' after characters ',' or ']' \
                                                or at start of string".to_string()));
                 }
-                for p in try!(parse_partof(raw, true)) {
+                for p in try!(_parse_partof(raw, true)) {
                     strout.write_str(&current).unwrap();
                     strout.write_str(&p).unwrap();
                     strout.push(',');
@@ -234,17 +234,27 @@ fn parse_partof<I>(raw: &mut I, in_brackets: bool) -> LoadResult<Vec<String>>
     Ok(strout.split(",").filter(|s| s != &"").map(|s| s.to_string()).collect())
 }
 
+fn parse_partof(partof_str: &str) -> LoadResult<HashSet<ArtName>> {
+    let strs = try!(_parse_partof(&mut partof_str.chars(), false));
+    let mut out = HashSet::new();
+    for s in strs {
+        let n = try!(ArtName::from_str(s.as_str()));
+        out.insert(n);
+    }
+    Ok(out)
+}
+
 #[test]
 fn test_parse_partof() {
-    assert_eq!(parse_partof(&mut "hi, ho".chars(), false).unwrap(), ["hi", "ho"]);
-    assert_eq!(parse_partof(&mut "hi-[ho, he]".chars(), false).unwrap(), ["hi-ho", "hi-he"]);
-    assert_eq!(parse_partof(
+    assert_eq!(_parse_partof(&mut "hi, ho".chars(), false).unwrap(), ["hi", "ho"]);
+    assert_eq!(_parse_partof(&mut "hi-[ho, he]".chars(), false).unwrap(), ["hi-ho", "hi-he"]);
+    assert_eq!(_parse_partof(
         &mut "hi-[ho, he], he-[ho, hi, ha-[ha, he]]".chars(), false).unwrap(),
         ["hi-ho", "hi-he", "he-ho", "he-hi", "he-ha-ha", "he-ha-he"]);
-    assert!(parse_partof(&mut "[]".chars(), false).is_err());
-    assert!(parse_partof(&mut "[hi]".chars(), false).is_err());
-    assert!(parse_partof(&mut "hi-[ho, [he]]".chars(), false).is_err());
-    assert!(parse_partof(&mut "hi-[ho, he".chars(), false).is_err());
+    assert!(_parse_partof(&mut "[]".chars(), false).is_err());
+    assert!(_parse_partof(&mut "[hi]".chars(), false).is_err());
+    assert!(_parse_partof(&mut "hi-[ho, [he]]".chars(), false).is_err());
+    assert!(_parse_partof(&mut "hi-[ho, he".chars(), false).is_err());
 }
 
 impl Artifact {
@@ -252,35 +262,25 @@ impl Artifact {
         let df_str = "".to_string();
         let df_vec: Vec<String> = vec![];
 
-        let artifact_type = {
-            if      name.starts_with("REQ") {ArtTypes::REQ}
-            else if name.starts_with("SPC") {ArtTypes::SPC}
-            else if name.starts_with("RSK") {ArtTypes::RSK}
-            else if name.starts_with("TST") {ArtTypes::TST}
-            else {unreachable!()}
-        };
-
-        // TODO: partof parser needs to be done first..
-        let name = ArtName::from(name);
+        let name = try!(ArtName::from_str(name));
         let partof_str = check_type!(get_attr!(tbl, "partof", df_str, String),
                                     "partof", name);
-        let partof = HashSet::from_iter(
-            try!(parse_partof(&mut partof_str.chars(), false))
-            .iter().map(|p| ArtName::from(p.as_str())));
-
-
         let loc_str = check_type!(get_attr!(tbl, "loc", df_str, String),
                                  "loc", name);
+        let mut loc = match loc_str.as_str() {
+            "" => None,
+            _ => Some(try!(Loc::from_str(loc_str.as_str()))),
+        };
 
-        Ok(Artifact {
+        Ok(Artifact{
             // loaded vars
-            ty: artifact_type,
+            ty: name.get_type(),
             path: path.to_path_buf(),
             text: check_type!(get_attr!(tbl, "text", df_str, String),
                               "text", name),
             refs: check_type!(get_vecstr(tbl, "refs", &df_vec), "refs", name),
-            partof: partof,
-            loc: Loc::from(loc_str.as_str()),
+            partof: try!(parse_partof(&partof_str)),
+            loc: loc,
 
             // calculated vars
             parts: HashSet::new(),

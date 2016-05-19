@@ -5,6 +5,9 @@ use std::error;
 use std::convert::From;
 use std::option::Option;
 use std::collections::{HashMap, HashSet};
+use std::ascii::AsciiExt;
+use std::hash::{Hash, Hasher};
+use std::cmp::PartialEq;
 
 pub type LoadResult<T> = Result<T, LoadError>;
 pub type Artifacts = HashMap<ArtName, Artifact>;
@@ -20,7 +23,7 @@ enum Align {
 
 #[derive(Debug)]
 /// LOC-core-artifacts-enum:<valid artifact types>
-pub enum ArtTypes {
+pub enum ArtType {
     REQ,
     SPC,
     RSK,
@@ -35,10 +38,10 @@ pub struct Loc {
     path: path::PathBuf,
 }
 
-impl<'a> From<&'a str> for Loc {
-    /// return a naive version of the Loc object.
-    /// which is not checked for validity
-    fn from(s: &'a str) -> Loc {
+impl Loc {
+    /// return Loc
+    /// the path is not checked for validity yet
+    pub fn from_str(s: &str) -> LoadResult<Loc> {
         let mut loc;
         let mut path;
         let split = s.find(':');
@@ -47,34 +50,83 @@ impl<'a> From<&'a str> for Loc {
                 loc = s;
                 path = "";
             }
-            Some(_) => {
-                let (l, p) = s.split_at(split.unwrap());
+            Some(split) => {
+                let (l, p) = s.split_at(split);
                 loc = l;
                 path = p;
             }
         }
-        Loc {
-            loc: ArtName::from(loc),
+        Ok(Loc {
+            loc: try!(ArtName::from_str(loc)),
             path: path::PathBuf::from(path),
-        }
+        })
     }
 }
 
 /// LOC-core-artifact-name:<storage of the artifact's name>
-#[derive(Debug, PartialEq, Eq, Hash)]
-pub struct ArtName(Vec<String>);
+/// also contains logic for finding the artifact's type
+/// (as it is based on the name)
+// TODO: Hash and Eq have to be defined to ONLY care about
+// value. raw is simply for displaying on the ui
+#[derive(Debug)]
+pub struct ArtName {
+    raw: String,
+    value: Vec<String>,
+}
 
-impl<'a> From<&'a str> for ArtName {
-    fn from(n: &str) -> ArtName {
-        ArtName(n.split("-").map(|s| s.to_string()).collect())
+impl ArtName {
+    fn find_type_maybe(&self) -> LoadResult<ArtType> {
+        let name = self.value.get(0).unwrap();
+        match name.as_str() {
+            "REQ" => Ok(ArtType::REQ),
+            "SPC" => Ok(ArtType::SPC),
+            "RSK" => Ok(ArtType::RSK),
+            "TST" => Ok(ArtType::TST),
+            _ => {
+                Err(LoadError::new("Artifact name is invalid, must start with REQ, SPC, etc:"
+                                       .to_string() +
+                                   self.raw.as_str()))
+            }
+        }
+    }
+
+    pub fn get_type(&self) -> ArtType {
+        return self.find_type_maybe().unwrap();
+    }
+
+    pub fn from_str(s: &str) -> LoadResult<ArtName> {
+        let out = ArtName {
+            raw: s.to_string(),
+            value: s.to_ascii_uppercase().split("-").map(|s| s.to_string()).collect(),
+        };
+        try!(out.find_type_maybe()); // ensure the type is valid
+        Ok(out)
     }
 }
 
 impl fmt::Display for ArtName {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.0.join("-"))
+        write!(f, "{}", self.raw)
     }
 }
+
+impl Hash for ArtName {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.value.hash(state);
+    }
+}
+
+impl PartialEq for ArtName {
+    fn eq(&self, other: &ArtName) -> bool {
+        self.value == other.value
+    }
+
+    fn ne(&self, other: &ArtName) -> bool {
+        self.value != other.value
+    }
+}
+
+impl Eq for ArtName {}
 
 /// LOC-core-artifact:<artifact definition>
 /// The Artifact type. This encapsulates
@@ -83,13 +135,13 @@ impl fmt::Display for ArtName {
 #[derive(Debug)]
 pub struct Artifact {
     // directly loaded types
-    pub ty: ArtTypes,
+    pub ty: ArtType,
     pub path: path::PathBuf,
     pub text: String,
     pub refs: Vec<String>,
     pub partof: HashSet<ArtName>,
     pub parts: HashSet<ArtName>,
-    pub loc: Loc,
+    pub loc: Option<Loc>,
     pub completed: Option<f32>, // completed percent (calculated)
     pub tested: Option<f32>, // tested percent (calculated)
 }
