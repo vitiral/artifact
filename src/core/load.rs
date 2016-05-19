@@ -4,16 +4,21 @@
 use std::ascii::AsciiExt;
 use std::fs;
 use std::clone::Clone;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::convert::AsRef;
+use std::collections::{HashMap, HashSet};
+
+// Traits
 use std::io::{Read, Write};
-use std::collections::HashMap;
+use std::fmt::Write as WriteStr;
+use std::iter::FromIterator;
 
 use regex::Regex;
 use walkdir::WalkDir;
 use toml::{Parser, Value, Table};
+use strfmt::strfmt;
 
-use core::types::{Artifact, Artifacts, ArtTypes, LoadError, LoadResult};
+use core::types::*;
 
 lazy_static!{
     // must start with artifact type, followed by "-", followed by at least 1 valid character
@@ -142,11 +147,159 @@ fn test_check_type() {
     assert!(check_invalid(&test).is_err());
 }
 
-// pub fn load_settings(settings: &Table, cwd: &str, repo: &str) -> LoadResult<Settings> {
-// }
 
-/// LOC-core-load-table:<load a table from toml>
-// pub fn load_table(artifacts: &mut Artifacts, ftable: &mut Table, path: &Path) -> LoadResult<u64> {
+impl Settings {
+    fn from_table(tbl: &Table, globals: &Variables) -> LoadResult<Settings> {
+        let df_vec = Vec::new();
+        let str_paths: Vec<String> = check_type!(
+            get_vecstr(tbl, "paths", &df_vec), "paths", "settings");
+        let mut paths = vec![];
+
+        for p in str_paths {
+            let p = match strfmt(&p, globals) {
+                Ok(p) => p,
+                Err(err) => return Err(LoadError::new(err.to_string())),
+            };
+            paths.push(PathBuf::from(p));
+        }
+        Ok(Settings {
+            disabled: check_type!(get_attr!(tbl, "disabled", false, Boolean),
+                                  "disabled", "settings"),
+            paths: paths,
+            repo_names: HashSet::from_iter(check_type!(
+                get_vecstr(tbl, "repo_names", &df_vec), "repo_names", "settings")),
+        })
+    }
+}
+
+#[test]
+fn test_settings() {
+    let tbl_good = parse_text(TOML_GOOD);
+    let df_tbl = Table::new();
+    let mut vars = HashMap::new();
+
+    vars.insert("repo".to_string(), "testrepo".to_string());
+    vars.insert("cwd".to_string(), "curdir".to_string());
+    let set = Settings::from_table(
+        &get_attr!(tbl_good, "settings", df_tbl, Table).unwrap(), &vars).unwrap();
+    assert!(set.paths == [PathBuf::from("curdir/test"), PathBuf::from("testrepo/test")]);
+    assert!(set.disabled == false);
+    let mut expected = HashSet::new();
+    expected.insert(".test".to_string());
+    assert!(set.repo_names == expected);
+}
+
+fn parse_partof<I>(raw: &mut I, in_brackets: bool) -> LoadResult<Vec<String>>
+    where I: Iterator<Item = char>
+{
+    // hello-[there, you-[are, great]]
+    // hello-there, hello-you-are, hello-you-great
+    let mut strout = String::new();
+    let mut current = String::new();
+    loop {
+        let c = match raw.next() {
+            Some(c) => c,
+            None => {
+                if in_brackets {
+                    return Err(LoadError::new("brackets are not closed".to_string()));
+                }
+                break;
+            }
+        };
+        println!("{:?}", c);
+        match c {
+            ' ' => {}, // ignore whitespace
+            '[' => {
+                if current == "" {
+                    return Err(LoadError::new("cannot have '[' after characters ',' or ']' \
+                                               or at start of string".to_string()));
+                }
+                for p in try!(parse_partof(raw, true)) {
+                    strout.write_str(&current).unwrap();
+                    strout.write_str(&p).unwrap();
+                    strout.push(',');
+                }
+                current.clear();
+            }
+            ']' => break,
+            ',' => {
+                strout.write_str(&current).unwrap();
+                strout.push(',');
+                current.clear();
+            }
+            _ => current.push(c),
+        }
+    }
+    strout.write_str(&current).unwrap();
+    Ok(strout.split(",").filter(|s| s != &"").map(|s| s.to_string()).collect())
+}
+
+#[test]
+fn test_parse_partof() {
+    assert_eq!(parse_partof(&mut "hi, ho".chars(), false).unwrap(), ["hi", "ho"]);
+    assert_eq!(parse_partof(&mut "hi-[ho, he]".chars(), false).unwrap(), ["hi-ho", "hi-he"]);
+    assert_eq!(parse_partof(
+        &mut "hi-[ho, he], he-[ho, hi, ha-[ha, he]]".chars(), false).unwrap(),
+        ["hi-ho", "hi-he", "he-ho", "he-hi", "he-ha-ha", "he-ha-he"]);
+    assert!(parse_partof(&mut "[]".chars(), false).is_err());
+    assert!(parse_partof(&mut "[hi]".chars(), false).is_err());
+    assert!(parse_partof(&mut "hi-[ho, [he]]".chars(), false).is_err());
+    assert!(parse_partof(&mut "hi-[ho, he".chars(), false).is_err());
+}
+
+impl Artifact {
+    fn from_table(name: &str, path: &Path, tbl: &Table) -> LoadResult<Artifact> {
+        let df_str = "".to_string();
+        let df_vec: Vec<String> = vec![];
+
+        let artifact_type = {
+            if      name.starts_with("REQ") {ArtTypes::REQ}
+            else if name.starts_with("SPC") {ArtTypes::SPC}
+            else if name.starts_with("RSK") {ArtTypes::RSK}
+            else if name.starts_with("TST") {ArtTypes::TST}
+            else {unreachable!()}
+        };
+
+        // TODO: partof parser needs to be done first..
+        let name = ArtName::from(name);
+        let partof_str = check_type!(get_attr!(tbl, "partof", df_str, String),
+                                    "partof", name);
+        let partof = HashSet::from_iter(
+            try!(parse_partof(&mut partof_str.chars(), false))
+            .iter().map(|p| ArtName::from(p.as_str())));
+
+
+        let loc_str = check_type!(get_attr!(tbl, "loc", df_str, String),
+                                 "loc", name);
+
+        Ok(Artifact {
+            // loaded vars
+            ty: artifact_type,
+            path: path.to_path_buf(),
+            text: check_type!(get_attr!(tbl, "text", df_str, String),
+                              "text", name),
+            refs: check_type!(get_vecstr(tbl, "refs", &df_vec), "refs", name),
+            partof: partof,
+            loc: Loc::from(loc_str.as_str()),
+
+            // calculated vars
+            parts: HashSet::new(),
+            completed: None,
+            tested: None,
+        })
+    }
+}
+
+// /// LOC-core-load-table:<load a table from toml>
+// /// artifacts: place to put the loaded artifacts
+// /// settings: place to put the loaded settings
+// /// globals: place to put the loaded global variables
+// /// ftable: file-table
+// /// default_globals: default global variables
+// pub fn load_table(artifacts: &mut Artifacts, settings: &mut Settings,
+//                   ftable: &mut Table, path: &Path,
+//                   default_globals: &Variables)
+//                   -> LoadResult<u64> {
 //     let mut msg: Vec<u8> = Vec::new();
 //     let mut num_loaded: u64 = 0;
 
@@ -154,77 +307,55 @@ fn test_check_type() {
 //     let df_str = String::new();
 //     let ref df_vec: Vec<String> = Vec::new();
 
-//     // TODO: handle settings
-//     let local_settings = match ftable.remove("settings") {
-//         Some(Value::Table(t)) => Some(t),
-//         None => None,
-//         _ => return Err(LoadError("settings must be a Table".to_string())),
-//     };
-//     // TODO: if settings.disabled == True just quit now
-//     // TODO: append the paths from settings onto project settings.paths
-//     // TODO: append repo_names onto project repo_names
-
-//     for (name, value) in ftable.iter() {
-//         // REQ-core-artifacts-name: strip spaces, ensure valid chars
-//         let name = fix_artifact_name(name);
-//         if !artifact_name_valid(&name) {
-//             write!(&mut msg, "invalid name: {}", name).unwrap();
-//             return Err(LoadError::new(String::from_utf8(msg).unwrap()));
-//         }
-
-//         // get the artifact table
-//         let art_tbl: &Table = match value {
-//             &Value::Table(ref t) => t,
-//             _ => {
-//                 write!(&mut msg, "All top-level values must be a table: {}", name).unwrap();
-//                 return Err(LoadError::new(String::from_utf8(msg).unwrap()));
+//     match ftable.remove("settings") {
+//         Some(Value::Table(t)) => {
+//             let lset = try!(Settings::from_table(&t, default_globals));
+//             if lset.disabled {
+//                 return Ok(0);
 //             }
-//         };
-//         // check for overlap
-//         if artifacts.contains_key(name) {
-//             write!(&mut msg, "Overlapping key found <{}> other key at: {}",
-//                    name, artifacts.get(name).unwrap().path.display()).unwrap();
-//             return Err(LoadError::new(String::from_utf8(msg).unwrap()));
+//             for p in lset.paths {
+//                 if settings.paths.contains(&p) {
+//                     return Err(LoadError::new(
+//                         "Cannot have a path listed twice".to_string() + &p.to_string_lossy()));
+//                 }
+//                 settings.paths.push(p.clone());
+//             }
+//             settings.repo_names.extend(lset.repo_names);
 //         }
-//         // check if artifact is active
-//         if !check_type!(get_attr!(
-//                 art_tbl, "active", true, defaults, Boolean),
-//                              "active", name) {
-//             continue
-//         }
-//         let artifact_type = {
-//             if      name.starts_with("REQ") {ArtTypes::REQ}
-//             else if name.starts_with("SPC") {ArtTypes::SPC}
-//             else if name.starts_with("RSK") {ArtTypes::RSK}
-//             else if name.starts_with("TST") {ArtTypes::TST}
-//             else {unreachable!()}
-//         };
-
-//         artifacts.insert(name.clone(), Artifact{
-//             // loaded vars
-//             ty: artifact_type,
-//             name: name.clone(),
-//             path: path.to_path_buf(),
-//             text: check_type!(get_attr!(art_tbl, "text", "".to_string(), defaults, String),
-//                               "text", name),
-//             extra: check_type!(get_attr!(art_tbl, "extra", "".to_string(), defaults, String),
-//                                "exta", name),
-//             partof_str: check_type!(get_attr!(art_tbl, "partof", "".to_string(), defaults, String),
-//                                     "partof", name),
-//             loc_str: check_type!(get_attr!(art_tbl, "loc", "".to_string(), defaults, String),
-//                                  "loc", name),
-//             done: check_type!(get_attr!(art_tbl, "done", false, defaults, Boolean),
-//                               "done", name),
-//             ignore: check_type!(get_attr!(art_tbl, "ignore", false, defaults, Boolean),
-//                                 "ignore", name),
-
-//             // calculated vars
-//             partof: Vec::new(),
-//             parts: Vec::new(),
-//             loc: None,
-//         });
-//         num_loaded += 1;
+//         None => {},
+//         _ => return Err(LoadError::new("settings must be a Table".to_string())),
 //     }
+
+//     // for (name, value) in ftable.iter() {
+//     //     // REQ-core-artifacts-name: strip spaces, ensure valid chars
+//     //     let name = fix_artifact_name(name);
+//     //     if !artifact_name_valid(&name) {
+//     //         write!(&mut msg, "invalid name: {}", name).unwrap();
+//     //         return Err(LoadError::new(String::from_utf8(msg).unwrap()));
+//     //     }
+
+//     //     // get the artifact table
+//     //     let art_tbl: &Table = match value {
+//     //         &Value::Table(ref t) => t,
+//     //         _ => {
+//     //             write!(&mut msg, "All top-level values must be a table: {}", name).unwrap();
+//     //             return Err(LoadError::new(String::from_utf8(msg).unwrap()));
+//     //         }
+//     //     };
+//     //     // check for overlap
+//     //     if artifacts.contains_key(name) {
+//     //         write!(&mut msg, "Overlapping key found <{}> other key at: {}",
+//     //                name, artifacts.get(name).unwrap().path.display()).unwrap();
+//     //         return Err(LoadError::new(String::from_utf8(msg).unwrap()));
+//     //     }
+//     //     // check if artifact is active
+//     //     if !check_type!(get_attr!(
+//     //             art_tbl, "active", true, defaults, Boolean),
+//     //                          "active", name) {
+//     //         continue
+//     //     }
+//     //     num_loaded += 1;
+//     // }
 //     return Ok(num_loaded);
 // }
 
@@ -250,7 +381,7 @@ fn test_check_type() {
 //     // let mut text: Vec<u8> = Vec::new();
 
 //     // read the text
-//     let mut text = String::new();
+
 //     let mut fp = fs::File::open(load_path).unwrap();
 //     try!(fp.read_to_string(&mut text).or_else(
 //         |err| Err(LoadError::new(err.to_string()))));
@@ -297,7 +428,7 @@ fn test_check_type() {
 static TOML_GOOD: &'static str = "
 [settings]
 disabled = false
-paths = ['test']
+paths = ['{cwd}/test', '{repo}/test']
 repo_names = ['.test']
 
 [REQ-foo]

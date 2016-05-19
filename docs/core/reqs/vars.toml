@@ -3,8 +3,10 @@ text = '''
 The main reason to support variables is to have a general method of supporting
 paths and urls. Therefore, support which is not geared towards these goals
 are very secondary to the purpose of variables.
+'''
 
-variables **shall** be supported by using standard rust/python formatting
+[REQ-core-vars-fmt]
+text = '''variables **shall** be supported by using standard rust/python formatting
 techniques. All variable substiution **shall** follow the rust's
 [std::fmt](https://doc.rust-lang.org/std/fmt/) as it pertains to strings
 '''

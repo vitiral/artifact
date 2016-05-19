@@ -2,6 +2,7 @@ extern crate regex;
 extern crate walkdir;
 // $LOC-core-loading-toml
 extern crate toml;
+extern crate strfmt;
 
 #[macro_use]
 extern crate lazy_static;

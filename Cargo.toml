@@ -4,6 +4,7 @@ version = "0.1.0"
 authors = ["Garrett Berg <vitiral@gmail.com>"]
 
 [dependencies]
+strfmt = "0.1"
 toml = "0.1"
 walkdir = "0.1"
 regex = "0.1"
