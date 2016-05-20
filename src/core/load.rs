@@ -222,8 +222,8 @@ impl Artifact {
 ///     variables: place to put the loaded variables
 ///     ftable: file-table
 ///     default_globals: default global variables
-pub fn load_table(artifacts: &mut Artifacts, settings: &mut Settings,
-                  ftable: &mut Table, path: &Path,
+pub fn load_table(ftable: &mut Table, path: &Path,
+                  artifacts: &mut Artifacts, settings: &mut Settings,
                   default_globals: &Variables)
                   -> LoadResult<u64> {
     let mut msg: Vec<u8> = Vec::new();
@@ -281,20 +281,23 @@ pub fn load_table(artifacts: &mut Artifacts, settings: &mut Settings,
     return Ok(num_loaded);
 }
 
-// /// Given text load the artifacts
-// pub fn load_text(artifacts: &mut Artifacts, text: &str, path: &Path) -> LoadResult<u64> {
-//     // parse the text
-//     let mut parser = Parser::new(text);
-//     let mut table = match parser.parse() {
-//         Some(table) => table,
-//         None => {
-//             let mut desc = String::new();
-//             desc.extend(parser.errors.iter().map(|e| e.to_string()));
-//             return Err(LoadError::new(desc));
-//         },
-//     };
-//     load_table(artifacts, &mut table, path)
-// }
+/// Given text load the artifacts
+pub fn load_text(path: &Path, text: &str,
+                 artifacts: &mut Artifacts, settings: &mut Settings,
+                 default_globals: &Variables)
+                 -> LoadResult<u64> {
+    // parse the text
+    let mut parser = Parser::new(text);
+    let mut table = match parser.parse() {
+        Some(table) => table,
+        None => {
+            let mut desc = String::new();
+            desc.extend(parser.errors.iter().map(|e| e.to_string()));
+            return Err(LoadError::new(desc));
+        },
+    };
+    load_table(&mut table, path, artifacts, settings, default_globals)
+}
 
 // /// given a file path load the artifacts
 // ///

@@ -2,10 +2,28 @@ use super::super::load::*;
 
 // Data and helpers
 
-static TOML_GOOD: &'static str = "
+static TOML_TEST: &'static str = "
 [settings]
 disabled = false
 paths = ['{cwd}/test', '{repo}/test']
+repo_names = ['.test']
+
+[REQ-foo]
+disabled = false
+[SPC-foo]
+refs = [1, 2]
+[RSK-foo]
+[TST-foo]
+[REQ-bar]
+text = 'bar'
+disabled = false
+refs = [\"hello\", \"ref\"]
+";
+
+static TOML_GOOD: &'static str = "
+[settings]
+disabled = false
+paths = ['{cwd}/data/empty']
 repo_names = ['.test']
 
 [REQ-foo]
@@ -38,7 +56,7 @@ fn get_table<'a>(tbl: &'a Table, attr: &str) -> &'a Table {
 
 #[test]
 fn test_get_attr() {
-    let tbl_good = parse_text(TOML_GOOD);
+    let tbl_good = parse_text(TOML_TEST);
     let df_str = "".to_string();
     let df_tbl = Table::new();
     let ref df_vec: Vec<String> = Vec::new();
@@ -66,7 +84,7 @@ fn test_get_attr() {
 
 #[test]
 fn test_check_type() {
-    let tbl_good = parse_text(TOML_GOOD);
+    let tbl_good = parse_text(TOML_TEST);
     let df_tbl = Table::new();
 
     let test = get_attr!(tbl_good, "REQ-bar", df_tbl, Table).unwrap();
@@ -85,7 +103,7 @@ fn test_check_type() {
 
 #[test]
 fn test_settings() {
-    let tbl_good = parse_text(TOML_GOOD);
+    let tbl_good = parse_text(TOML_TEST);
     let df_tbl = Table::new();
     let mut vars = HashMap::new();
 
@@ -99,3 +117,4 @@ fn test_settings() {
     expected.insert(".test".to_string());
     assert!(set.repo_names == expected);
 }
+
