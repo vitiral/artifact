@@ -52,12 +52,23 @@ refs = ['1', '2']
 [RSK-foo]
 [TST-foo]
 [REQ-bar]
-text = 'bar'
 disabled = false
+partof = 'REQ-[foo, bar-[1,2]], TST-foo'
 refs = [\"hello\", \"ref\"]
+text = 'bar'
+loc = 'LOC-foo: {core}/foo.rs'
 ";
 
-static TOML_BAD: &'static str = "[REQ-bad]\ndone = '100%'";
+static TOML_RSK2: &'static str = "
+[settings]
+paths = ['test/path']
+repo_names = ['.tst']
+[REQ-baz]
+[RSK-foo-2]
+[TST-foo-2]
+";
+
+static TOML_BAD: &'static str = "[REQ-bad]\nrefs = 'REQ-foo'";  // invalid type
 static TOML_OVERLAP: &'static str = "[REQ-foo]\n";
 
 fn parse_text(t: &str) -> Table {
@@ -142,7 +153,58 @@ fn test_load_toml() {
 
     let path = PathBuf::from("hi/there");
 
+    assert!(load_toml(&path, TOML_BAD, &mut artifacts, &mut settings, &mut variables).is_err());
+
     let num = load_toml(&path, TOML_RSK, &mut artifacts, &mut settings, &mut variables).unwrap();
     assert_eq!(num, 5);
     assert!(artifacts.contains_key(&ArtName::from_str("REQ-foo").unwrap()));
+    assert!(artifacts.contains_key(&ArtName::from_str("SPC-foo").unwrap()));
+    assert!(artifacts.contains_key(&ArtName::from_str("RSK-foo").unwrap()));
+    assert!(artifacts.contains_key(&ArtName::from_str("TST-foo").unwrap()));
+    assert!(artifacts.contains_key(&ArtName::from_str("REQ-bar").unwrap()));
+
+    // will be loaded later
+    assert!(!artifacts.contains_key(&ArtName::from_str("REQ-baz").unwrap()));
+    assert!(!artifacts.contains_key(&ArtName::from_str("RSK-foo-2").unwrap()));
+    assert!(!artifacts.contains_key(&ArtName::from_str("TST-foo-2").unwrap()));
+
+    {
+        // test defaults
+        let art = artifacts.get(&ArtName::from_str("RSK-foo").unwrap()).unwrap();
+        assert_eq!(art.ty, ArtType::RSK);
+        assert_eq!(art.path, path);
+        assert_eq!(art.text, "");
+        let expected: Vec<String> = Vec::new();
+        assert_eq!(art.refs, expected);
+        let expected: HashSet<ArtName> = HashSet::new();
+        assert_eq!(art.partof, expected);
+        assert_eq!(art.loc, None);
+        assert_eq!(art.completed, None);
+        assert_eq!(art.tested, None);
+
+        // test non-defaults
+        let art = artifacts.get(&ArtName::from_str("REQ-bar").unwrap()).unwrap();
+        assert_eq!(art.ty, ArtType::REQ);
+        assert_eq!(art.path, path);
+        assert_eq!(art.text, "bar");
+        assert_eq!(art.refs, ["hello", "ref"]);
+        let expected = ["REQ-Foo", "REQ-Bar-1", "REQ-Bar-2", "tst-foo"]
+            .iter().map(|n| ArtName::from_str(n).unwrap()).collect();
+        assert_eq!(art.partof, expected);
+        let expected = Loc{
+            loc: ArtName::from_str("LOC-Foo").unwrap(),
+            path: PathBuf::from("{core}/foo.rs")};
+        assert_eq!(art.loc.as_ref().unwrap(), &expected);
+        assert_eq!(art.completed, None);
+        assert_eq!(art.tested, None);
+    }
+
+    // REQ-foo already exists, so this must throw an error
+    assert!(load_toml(&path, TOML_OVERLAP, &mut artifacts, &mut settings, &mut variables).is_err());
+
+    let num = load_toml(&path, TOML_RSK2, &mut artifacts, &mut settings, &mut variables).unwrap();
+    assert_eq!(num, 3);
+    assert!(artifacts.contains_key(&ArtName::from_str("REQ-baz").unwrap()));
+    assert!(artifacts.contains_key(&ArtName::from_str("RSK-foo-2").unwrap()));
+    assert!(artifacts.contains_key(&ArtName::from_str("TST-foo-2").unwrap()));
 }

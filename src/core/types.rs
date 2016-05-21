@@ -22,7 +22,7 @@ lazy_static!{
         r"(REQ|SPC|RSK|TST|LOC)-[A-Z0-9_-]*[A-Z0-9_]\z").unwrap();
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Eq, PartialEq)]
 /// LOC-core-artifacts-enum:<valid artifact types>
 pub enum ArtType {
     REQ,
@@ -33,10 +33,10 @@ pub enum ArtType {
 }
 
 /// Location data type
-#[derive(Debug)]
+#[derive(Debug, Clone, Eq, PartialEq)]
 pub struct Loc {
-    loc: ArtName,
-    path: path::PathBuf,
+    pub loc: ArtName,
+    pub path: path::PathBuf,
 }
 
 impl Loc {
@@ -54,7 +54,8 @@ impl Loc {
             Some(split) => {
                 let (l, p) = s.split_at(split);
                 loc = l;
-                path = p;
+                let (_, p) = p.split_at(1); // throw away ':'
+                path = p.trim();
             }
         }
         Ok(Loc {
@@ -64,12 +65,19 @@ impl Loc {
     }
 }
 
+#[test]
+fn test_loc() {
+    let result = Loc::from_str("LOC-bar: path/is/cool").unwrap();
+    assert_eq!(result.loc, ArtName::from_str("loc-BAR").unwrap());
+    assert_eq!(result.path, path::PathBuf::from("path/is/cool"));
+}
+
 /// LOC-core-artifact-name:<storage of the artifact's name>
 /// also contains logic for finding the artifact's type
 /// (as it is based on the name)
 // TODO: Hash and Eq have to be defined to ONLY care about
 // value. raw is simply for displaying on the ui
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct ArtName {
     raw: String,
     value: Vec<String>,
