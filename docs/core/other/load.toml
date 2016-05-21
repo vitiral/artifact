@@ -81,14 +81,64 @@ shall be used to load raw toml files
 '''
 
 ##################################################
+# loading parts
+[SPC-core-load-parts]
+text = '''
+This details the high level loading proceedure of rsk
+
+The loading of the project files shall occur in 5 stages:
+ 1. loading and validation of raw data from all settings.paths recursively
+ 2. validating variables
+ 3. resolving of variables in text fields
+ 4. auto-creation of missing prefix artifacts
+ 5. linking of artifacts (parts, partof)
+
+The only locations where critical failure is possible are in steps 1 and 2.
+
+Critical failure shall occur if:
+- invalid toml
+- artifact errors (invalid name, extra attr, invalid attr type, etc)
+- invalid partof string (artifact names)
+- invalid path
+
+Failures in further steps will simply cause warnings and will display on the
+ui as missing links or None completion (etc)
+'''
+
+[SPC-core-load-parts-1]
+text = '''
+Loading and basic validation of raw text **shall** be accomplished mostly by
+the type implementations themselves in a `from*` method.
+
+settings.paths shall be resolved after a directory is fully loaded, as
+the repos won't be known until then.
+
+each directory that is loaded will store the directory path on a
+HashMap<Path, Path> where the key is the cwd and the value is
+the calculated repo
+
+If a directory already exists in this Map, it will not be loaded.
+(it has already been loaded)
+'''
+
+[SPC-core-load-vars]
+text = '''
+variables shall be applied in two parts:
+- resolve settings.paths after full recursive directory load
+- resolve all other variables after entire project load
+'''
+
+##################################################
 # load paths-file function
 [SPC-core-load-paths]
+partof = "SPC-core-load-parts-1"
 text = '''
 There **shall** be a function which can read a list of paths from a file
 and load them recursively
 '''
 
 [TST-core-load-paths]
+partof = "SPC-core-load-paths"
 text = '''
 have a paths-file and unreachable .rsk files. Have the file point to the unreachable
 .rsk file's directory and validate that they are loaded correctly.
@@ -97,6 +147,7 @@ have a paths-file and unreachable .rsk files. Have the file point to the unreach
 ##################################################
 # load dir function
 [SPC-core-load-dir]
+partof = "SPC-core-load-parts-1"
 loc = "LOC-core-load-recursive: {core}/load.rs"
 text = '''
 There **shall** be a function which can load all artifacts from a
@@ -137,6 +188,7 @@ and make sure that all three rsk files are loaded
 ##################################################
 # load file function
 [SPC-core-load-file]
+partof = "SPC-core-load-parts-1"
 text = '''
 There **shall** be a function which can load all artifacts from a
 file given a path
@@ -162,6 +214,7 @@ loc = "LOC-tst-core-load-text-1: {core}/load.rs"
 ##################################################
 # load table function
 [SPC-core-load-table]
+partof = "SPC-core-load-parts-1"
 loc = "LOC-core-load-table: {core}/load.rs"
 text = '''
 There **shall** be a function which loads artifacts from a toml Table

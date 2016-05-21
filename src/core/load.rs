@@ -92,23 +92,22 @@ macro_rules! check_type {
 }
 
 impl Settings {
-    fn from_table(tbl: &Table, globals: &Variables) -> LoadResult<Settings> {
+    fn from_table(tbl: &Table) -> LoadResult<Settings> {
         let df_vec = Vec::new();
         let str_paths: Vec<String> = check_type!(
             get_vecstr(tbl, "paths", &df_vec), "paths", "settings");
-        let mut paths = vec![];
-
-        for p in str_paths {
-            let p = match strfmt(&p, globals) {
-                Ok(p) => p,
-                Err(err) => return Err(LoadError::new(err.to_string())),
-            };
-            paths.push(PathBuf::from(p));
-        }
+        // let mut paths = vec![];
+        // for p in str_paths {
+        //     let p = match strfmt(&p, globals) {
+        //         Ok(p) => p,
+        //         Err(err) => return Err(LoadError::new(err.to_string())),
+        //     };
+        //     paths.push(PathBuf::from(p));
+        // }
         Ok(Settings {
             disabled: check_type!(get_attr!(tbl, "disabled", false, Boolean),
                                   "disabled", "settings"),
-            paths: paths,
+            paths: str_paths.iter().map(|s| PathBuf::from(s)).collect(),
             repo_names: HashSet::from_iter(check_type!(
                 get_vecstr(tbl, "repo_names", &df_vec), "repo_names", "settings")),
         })
@@ -217,41 +216,32 @@ impl Artifact {
 
 /// LOC-core-load-table:<load a table from toml>
 /// inputs:
+///     ftable: file-table
+///     path: path to this file
 ///     artifacts: place to put the loaded artifacts
 ///     settings: place to put the loaded settings
 ///     variables: place to put the loaded variables
-///     ftable: file-table
-///     default_globals: default global variables
 pub fn load_table(ftable: &mut Table, path: &Path,
-                  artifacts: &mut Artifacts, settings: &mut Settings,
-                  default_globals: &Variables)
+                  artifacts: &mut Artifacts,
+                  settings: &mut Vec<(PathBuf, Settings)>,
+                  variables: &mut Vec<(PathBuf, Variables)>)
                   -> LoadResult<u64> {
     let mut msg: Vec<u8> = Vec::new();
     let mut num_loaded: u64 = 0;
 
     match ftable.remove("settings") {
         Some(Value::Table(t)) => {
-            let lset = try!(Settings::from_table(&t, default_globals));
+            let lset = try!(Settings::from_table(&t));
             if lset.disabled {
                 return Ok(0);
             }
-            for p in lset.paths {
-                if settings.paths.contains(&p) {
-                    return Err(LoadError::new(
-                        "Cannot have a path listed twice".to_string() + &p.to_string_lossy()));
-                }
-                if !p.exists() {
-                    return Err(LoadError::new(
-                        "path in settings['path'] does not exist: ".to_string() +
-                            &p.to_string_lossy()));
-                }
-                settings.paths.push(p.clone());
-            }
-            settings.repo_names.extend(lset.repo_names);
+            settings.push((path.to_path_buf(), lset));
         }
         None => {},
         _ => return Err(LoadError::new("settings must be a Table".to_string())),
     }
+
+    // TODO: load variables
 
     for (name, value) in ftable.iter() {
         let aname = try!(ArtName::from_str(name));
@@ -282,9 +272,10 @@ pub fn load_table(ftable: &mut Table, path: &Path,
 }
 
 /// Given text load the artifacts
-pub fn load_text(path: &Path, text: &str,
-                 artifacts: &mut Artifacts, settings: &mut Settings,
-                 default_globals: &Variables)
+pub fn load_toml(path: &Path, text: &str,
+                 artifacts: &mut Artifacts,
+                 settings: &mut Vec<(PathBuf, Settings)>,
+                 variables: &mut Vec<(PathBuf, Variables)>)
                  -> LoadResult<u64> {
     // parse the text
     let mut parser = Parser::new(text);
@@ -296,7 +287,7 @@ pub fn load_text(path: &Path, text: &str,
             return Err(LoadError::new(desc));
         },
     };
-    load_table(&mut table, path, artifacts, settings, default_globals)
+    load_table(&mut table, path, artifacts, settings, variables)
 }
 
 // /// given a file path load the artifacts
