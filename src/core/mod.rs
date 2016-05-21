@@ -1,7 +1,9 @@
 
-pub mod load;
+#[macro_use] mod load;
 mod types;
 mod link;
 
-#[cfg(tests)]
+// pub use load::recursive_raw_load;
+
+#[cfg(test)]
 mod tests;
