@@ -477,7 +477,8 @@ fn resolve_settings(settings: &mut Settings,
 
 
 /// given a valid path, load all paths
-pub fn load_path(path: &Path) -> LoadResult<(Artifacts, Settings, Variables)>{
+pub fn load_path(path: &Path) -> LoadResult<(Artifacts, Settings, Variables,
+                                             HashMap<PathBuf, PathBuf>)>{
     let mut artifacts = Artifacts::new();
     let mut settings = Settings::new();
     let mut variables = Variables::new();
@@ -507,5 +508,5 @@ pub fn load_path(path: &Path) -> LoadResult<(Artifacts, Settings, Variables)>{
         resolve_settings(&mut settings, &mut repo_map, &loaded_settings);
     }
 
-    Err(LoadError::new("".to_string()))
+    Ok((artifacts, settings, variables, repo_map))
 }
