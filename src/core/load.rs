@@ -290,214 +290,145 @@ pub fn load_toml(path: &Path, text: &str,
     load_table(&mut table, path, artifacts, settings, variables)
 }
 
-// /// given a file path load the artifacts
-// ///
-// /// $LOC-core-load-file
-// pub fn load_file(artifacts: &mut Artifacts, load_path: &Path) -> LoadResult<u64> {
-//     // let mut text: Vec<u8> = Vec::new();
+/// given a file path load the artifacts
+///
+/// $LOC-core-load-file
+pub fn load_file(path: &Path,
+                 artifacts: &mut Artifacts,
+                 settings: &mut Vec<(PathBuf, Settings)>,
+                 variables: &mut Vec<(PathBuf, Variables)>)
+                 -> LoadResult<u64> {
+    // let mut text: Vec<u8> = Vec::new();
 
-//     // read the text
-
-//     let mut fp = fs::File::open(load_path).unwrap();
-//     try!(fp.read_to_string(&mut text).or_else(
-//         |err| Err(LoadError::new(err.to_string()))));
-//     load_text(artifacts, &text, load_path)
-// }
-
-// /// LOC-core-load-recursive:<given a path load the raw artifacts from files recursively>
-// pub fn recursive_raw_load<P: AsRef<Path>>(load_path: P) -> LoadResult<Artifacts> {
-//     // TDOO: if load_path.is_dir()
-//     let mut error = false;
-//     let mut artifacts: HashMap<String, Artifact> = HashMap::new();
-//     for entry in WalkDir::new(&load_path).into_iter().filter_map(|e| e.ok()) {
-//         let ftype = entry.file_type();
-//         if ftype.is_dir() {
-//             continue
-//         }
-//         let path = entry.path();
-//         let ext = match path.extension() {
-//             None => continue,
-//             Some(ext) => ext,
-//         };
-//         if ext != "toml" {
-//             continue
-//         }
-//         match load_file(&mut artifacts, path) {
-//             Ok(n) => println!("PASS {:<6} loaded from <{}>", n, path.display()),
-//             Err(err) => {
-//                 println!("FAIL while loading from <{}>: {}", path.display(), err);
-//                 error = true;
-//             }
-//         };
-//     };
-//     if error {
-//         return Err(LoadError::new("ERROR: some files failed to load".to_string()));
-//     }
-//     else {
-//         Ok(artifacts)
-//     }
-// }
-
-// ##################################################
-// functions for tests
-
-#[cfg(test)]
-
-#[cfg(test)]
-
-#[test]
-/// LOC-tst-core-artifacts-types:<test loading and checking of enum types>
-fn test_types() {
-
+    // read the text
+    let mut text = String::new();
+    let mut fp = fs::File::open(path).unwrap();
+    try!(fp.read_to_string(&mut text).or_else(
+         |err| Err(LoadError::new(err.to_string()))));
+    load_toml(path, &text, artifacts, settings, variables)
 }
 
-// #[test]
-// /// LOC-tst-core-load-text-1:<Test loading raw text>
-// fn test_load_text() {
-//     let path = Path::new("");
-//     let mut artifacts: HashMap<String, Artifact> = HashMap::new();
-//     load_text(&mut artifacts, TOML_GOOD, &path).unwrap();
-//     assert!(load_text(&mut artifacts, TOML_OVERLAP, &path).is_err());
-//     assert!(load_text(&mut artifacts, TOML_BAD, &path).is_err());
-// }
+/// LOC-core-load-recursive:<given a path load the raw artifacts from files recursively>
+pub fn load_dir(path: &Path,
+                loaded_dirs: &mut HashSet<PathBuf>,
+                artifacts: &mut Artifacts,
+                settings: &mut Vec<(PathBuf, Settings)>,
+                variables: &mut Vec<(PathBuf, Variables)>)
+                -> LoadResult<u64> {
+    // TDOO: if load_path.is_dir()
+    let mut num_loaded: u64 = 0;
+    let mut error = false;
+    // for entry in WalkDir::new(&path).into_iter().filter_map(|e| e.ok()) {
+    let mut dirs_to_load: Vec<PathBuf> = Vec::new(); // TODO: references should be possible here...
+    let read_dir = match fs::read_dir(path) {
+        Ok(d) => d,
+        Err(err) => return Err(LoadError::new(err.to_string())),
+    };
+    for entry in read_dir.filter_map(|e| e.ok()) {
+        let fpath = entry.path();
+        let ftype = match entry.file_type() {
+            Ok(f) => f,
+            Err(err) => {
+                println!("FAIL while loading from <{}>: {}", fpath.display(), err);
+                error = true;
+                continue;
+            }
+        };
+        if ftype.is_dir() {
+            if loaded_dirs.contains(fpath.as_path()) {
+                continue;
+            }
+            loaded_dirs.insert(fpath.to_path_buf());
+            dirs_to_load.push(fpath.clone());
+        } else if ftype.is_file() {
+            let ext = match fpath.extension() {
+                None => continue,
+                Some(ext) => ext,
+            };
+            if ext != "rsk" {
+                continue
+            }
+            match load_file(fpath.as_path(), artifacts, settings, variables) {
+                Ok(n) => {
+                    println!("PASS {:<6} loaded from <{}>", n, fpath.display());
+                    num_loaded += n;
+                }
+                Err(err) => {
+                    println!("FAIL while loading from <{}>: {}", fpath.display(), err);
+                    error = true;
+                }
+            };
+        }
+    };
+    for dir in dirs_to_load {
+        match load_dir(dir.as_path(), loaded_dirs, artifacts, settings, variables) {
+            Ok(n) => num_loaded += n,
+            Err(_) => error = true,
+        }
+    }
+    if error {
+        return Err(LoadError::new("ERROR: some files failed to load".to_string()));
+    } else {
+        Ok(num_loaded)
+    }
+}
 
+pub fn find_repo<'a>(dir: &'a Path, repo_names: &HashSet<String>) -> Option<&'a Path> {
+    let mut dir = dir;
+    assert!(dir.is_dir());
+    loop {
+        let mut read_dir = match fs::read_dir(dir) {
+            Ok(d) => d,
+            Err(_) => return None,
+        };
+        if read_dir.any(|e|
+            match e {
+                Err(_) => false,
+                Ok(e) => {
+                    let p = e.path();
+                    let fname = p.file_name().unwrap().to_str().unwrap();
+                    repo_names.contains(fname) && p.is_dir()
+                }
+            }) {
+            return Some(dir);
+        }
+        dir = match dir.parent() {
+            Some(d) => d,
+            None => return None,
+        };
+    }
+}
 
-
-
-
-
-
-
-////// DELETE
-
-// // Data and helpers
-
-// static TOML_TEST: &'static str = "
-// [settings]
-// disabled = false
-// paths = ['{cwd}/test', '{repo}/test']
-// repo_names = ['.test']
-
-// [REQ-foo]
-// disabled = false
-// [SPC-foo]
-// refs = [1, 2]
-// [RSK-foo]
-// [TST-foo]
-// [REQ-bar]
-// text = 'bar'
-// disabled = false
-// refs = [\"hello\", \"ref\"]
-// ";
-
-// static TOML_GOOD: &'static str = "
-// [settings]
-// disabled = false
-// paths = ['{cwd}/data/empty']
-// repo_names = ['.test']
-
-// [REQ-foo]
-// disabled = false
-// [SPC-foo]
-// refs = [1, 2]
-// [RSK-foo]
-// [TST-foo]
-// [REQ-bar]
-// text = 'bar'
-// disabled = false
-// refs = [\"hello\", \"ref\"]
-// ";
-
-// static TOML_BAD: &'static str = "[REQ-bad]\ndone = '100%'";
-// static TOML_OVERLAP: &'static str = "[REQ-foo]\n";
-
-// fn parse_text(t: &str) -> Table {
-//     Parser::new(t).parse().unwrap()
-// }
-
-// fn get_table<'a>(tbl: &'a Table, attr: &str) -> &'a Table {
-//     match tbl.get(attr).unwrap() {
-//         &Value::Table(ref t) => t,
-//         _ => unreachable!()
+// fn resolve_settings(settings: &mut Settings,
+//                     loaded_settings: &mut Vec<(PathBuf, Settings)>,
+//                     repo_map: &mut HashMap<PathBuf, PathBuf>)
+//                     -> LoadResult<Vec<PathBuf>> {
+//     for (path, s) in loaded_settings {
 //     }
 // }
 
-// // Tests
-
-// #[test]
-// fn test_get_attr() {
-//     let tbl_good = parse_text(TOML_TEST);
-//     let df_str = "".to_string();
-//     let df_tbl = Table::new();
-//     let ref df_vec: Vec<String> = Vec::new();
-
-//     // LOC-tst-core-load-attrs-unit-1:<Test loading valid existing types>
-//     let test = get_attr!(tbl_good, "REQ-bar", df_tbl, Table).unwrap();
-//     assert!(get_attr!(&test, "disabled", false, Boolean).unwrap() == false);
-//     assert!(get_attr!(&test, "disabled", true, Boolean).unwrap() == false);
-//     assert!(get_attr!(&test, "text", df_str, String).unwrap() == "bar");
-//     assert!(get_attr!(&test, "text", df_str, String).unwrap() == "bar");
-//     assert!(get_vecstr(&test, "refs", df_vec).unwrap() == ["hello", "ref"]);
-
-//     // LOC-tst-core-load-attrs-unit-2:<Test loading invalid existing types>
-//     assert!(get_attr!(&test, "disabled", df_str, String).is_none());
-//     assert!(get_attr!(&test, "text", false, Boolean).is_none());
-//     assert!(get_vecstr(&test, "text", df_vec).is_none());
-//     let test = get_attr!(tbl_good, "SPC-foo", Table::new(), Table).unwrap();
-//     assert!(get_vecstr(&test, "refs", df_vec).is_none());
-
-//     // LOC-tst-core-load-attrs-unit-3:<Test loading valid default types>
-//     let test = get_attr!(tbl_good, "REQ-foo", Table::new(), Table).unwrap();
-//     assert!(get_attr!(&test, "disabled", false, Boolean).unwrap() == false);
-//     assert!(get_attr!(&test, "text", df_str, String).unwrap() == "");
-// }
-
-// #[test]
-// fn test_check_type() {
-//     let tbl_good = parse_text(TOML_TEST);
-//     let df_tbl = Table::new();
-
-//     let test = get_attr!(tbl_good, "REQ-bar", df_tbl, Table).unwrap();
-//     // LOC-tst-core-load-attrs-unit-1:<Test loading valid type>
-//     fn check_valid(test: &Table) -> LoadResult<Vec<String>> {
-//         Ok(check_type!(get_vecstr(test, "refs", &Vec::new()), "refs", "name"))
-//     }
-//     assert!(check_valid(&test).is_ok());
-
-//     let test = get_attr!(tbl_good, "SPC-foo", df_tbl, Table).unwrap();
-//     fn check_invalid(test: &Table) -> LoadResult<Vec<String>> {
-//         Ok(check_type!(get_vecstr(test, "refs", &Vec::new()), "refs", "name"))
-//     }
-//     assert!(check_invalid(&test).is_err());
-// }
-
-// #[test]
-// fn test_settings() {
-//     let tbl_good = parse_text(TOML_TEST);
-//     let df_tbl = Table::new();
-//     let mut vars = HashMap::new();
-
-//     vars.insert("repo".to_string(), "testrepo".to_string());
-//     vars.insert("cwd".to_string(), "curdir".to_string());
-//     let set = Settings::from_table(
-//         &get_attr!(tbl_good, "settings", df_tbl, Table).unwrap(), &vars).unwrap();
-//     assert!(set.paths == [PathBuf::from("curdir/test"), PathBuf::from("testrepo/test")]);
-//     assert!(set.disabled == false);
-//     let mut expected = HashSet::new();
-//     expected.insert(".test".to_string());
-//     assert!(set.repo_names == expected);
-// }
 
 
-// #[test]
-// fn test_load_toml() {
-//     let mut artifacts = Artifacts::new();
-//     let mut settings: Vec<Settings> = Vec::new();
-//     let mut variables: Vec<Variables> = Vec::new();
+/// given a valid path, load all paths
+pub fn load_path(path: &Path) -> LoadResult<(Artifacts, Settings, Variables)>{
+    let mut artifacts = Artifacts::new();
+    let mut settings = Settings::new();
+    let mut variables = Variables::new();
+    let mut loaded_dirs: HashSet<PathBuf> = HashSet::new();
+    let mut loaded_settings: Vec<(PathBuf, Settings)> = Vec::new();
+    let mut loaded_variables: Vec<(PathBuf, Variables)> = Vec::new();
+    let mut dirs_to_load: Vec<PathBuf> = Vec::new();
+    let mut num_loaded: u64 = 0;
 
-//     let path = Path::from("hi/there");
+    if path.is_file() {
+        num_loaded += try!(load_file(path, &mut artifacts, &mut loaded_settings,
+                                     &mut loaded_variables));
+    } else if path.is_dir() {
+        dirs_to_load.push(path.to_path_buf());
+    } else {
+        return Err(LoadError::new("File is not valid type: ".to_string() +
+                                  path.to_string_lossy().as_ref()));
+    }
 
-//     let num = load_toml(&path, TOML_TEST, &mut Artifacts, &mut settings, &mut variables);
-//     assert_eq!(num, 5);
-//     assert!(artifacts.contains(&ArtName::from_str("REQ-foo")));
-// }
+    Err(LoadError::new("".to_string()))
+}

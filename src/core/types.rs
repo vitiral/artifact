@@ -168,6 +168,16 @@ pub struct Settings {
     pub repo_names: HashSet<String>,
 }
 
+impl Settings {
+    pub fn new() -> Settings {
+        Settings {
+            disabled: false,
+            paths: Vec::new(),
+            repo_names: HashSet::new(),
+        }
+    }
+}
+
 /// Error for parsing files into artifacts
 /// LOC-core-load-error: <load file error>
 #[derive(Debug)]
