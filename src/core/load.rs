@@ -360,10 +360,12 @@ pub fn load_dir(path: &Path,
             };
         }
     };
-    for dir in dirs_to_load {
-        match load_dir(dir.as_path(), loaded_dirs, artifacts, settings, variables) {
-            Ok(n) => num_loaded += n,
-            Err(_) => error = true,
+    if num_loaded > 0 {
+        for dir in dirs_to_load {
+            match load_dir(dir.as_path(), loaded_dirs, artifacts, settings, variables) {
+                Ok(n) => num_loaded += n,
+                Err(_) => error = true,
+            }
         }
     }
     if error {
@@ -399,13 +401,78 @@ pub fn find_repo<'a>(dir: &'a Path, repo_names: &HashSet<String>) -> Option<&'a 
     }
 }
 
-// fn resolve_settings(settings: &mut Settings,
-//                     loaded_settings: &mut Vec<(PathBuf, Settings)>,
-//                     repo_map: &mut HashMap<PathBuf, PathBuf>)
-//                     -> LoadResult<Vec<PathBuf>> {
-//     for (path, s) in loaded_settings {
-//     }
-// }
+
+fn get_path_str<'a>(path: &'a Path) -> LoadResult<&'a str> {
+    match path.to_str() {
+        Some(p) => Ok(p),
+        None => Err(LoadError::new(
+            "detected invalid unicode in path name: ".to_string() +
+            path.to_string_lossy().as_ref())),
+    }
+}
+
+fn resolve_settings(settings: &mut Settings,
+                    repo_map: &mut HashMap<PathBuf, PathBuf>,
+                    loaded_settings: &Vec<(PathBuf, Settings)>)
+                    -> LoadResult<()> {
+    // first pull out all of the repo_names
+    for ps in loaded_settings.iter() {
+        let ref s: &Settings = &ps.1;
+        for rn in &s.repo_names {
+            settings.repo_names.insert(rn.clone());
+        }
+    }
+
+    // now resolve all path names
+    let mut vars: HashMap<String, String> = HashMap::new();
+    for ps in loaded_settings.iter() {
+        let ref settings_item: &Settings = &ps.1;
+
+        // load the default global variables {cwd} and {repo}
+        let fpath = ps.0.clone();
+        let dir = fpath.parent().unwrap();
+        let dir_str = try!(get_path_str(dir));
+
+        // TODO: for full windows compatibility you will probably want to support OsStr
+        // here... I just don't want to
+        vars.insert("cwd".to_string(), dir_str.to_string());
+        let mut must_insert = false;
+        let repo = match repo_map.get(dir) {
+            Some(r) => r.to_path_buf(),
+            None => {
+                let r = match find_repo(dir, &settings.repo_names) {
+                    Some(r) => r,
+                    None => return Err(LoadError::new("dir is not part of a repo: ".to_string() +
+                                                      dir_str)),
+                };
+                // can't do this here because of borrowing rules... have to use must_insert
+                // repo_map.insert(dir.to_path_buf(), r.to_path_buf());
+                must_insert = true;
+                r.to_path_buf()
+            }
+        };
+        if must_insert {
+            repo_map.insert(dir.to_path_buf(), repo.clone());
+        }
+
+        vars.insert("repo".to_string(), try!(get_path_str(repo.as_path())).to_string());
+
+        // push resolved paths
+        for p in settings_item.paths.iter() {
+            let p = match strfmt(p.to_str().unwrap(), &vars) {
+                Ok(p) => p,
+                Err(e) => {
+                    let mut msg = String::new();
+                    write!(msg, "ERROR at {}: {}", fpath.to_string_lossy().as_ref(), e.to_string());
+                    return Err(LoadError::new(msg));
+                }
+            };
+            settings.paths.push_back(PathBuf::from(p));
+        }
+    }
+
+    Ok(())
+}
 
 
 
@@ -417,17 +484,27 @@ pub fn load_path(path: &Path) -> LoadResult<(Artifacts, Settings, Variables)>{
     let mut loaded_dirs: HashSet<PathBuf> = HashSet::new();
     let mut loaded_settings: Vec<(PathBuf, Settings)> = Vec::new();
     let mut loaded_variables: Vec<(PathBuf, Variables)> = Vec::new();
-    let mut dirs_to_load: Vec<PathBuf> = Vec::new();
+    let mut repo_map: HashMap<PathBuf, PathBuf> = HashMap::new();
     let mut num_loaded: u64 = 0;
 
     if path.is_file() {
         num_loaded += try!(load_file(path, &mut artifacts, &mut loaded_settings,
                                      &mut loaded_variables));
+        try!(resolve_settings(&mut settings, &mut repo_map, &loaded_settings));
     } else if path.is_dir() {
-        dirs_to_load.push(path.to_path_buf());
+        settings.paths.push_back(path.to_path_buf());
     } else {
         return Err(LoadError::new("File is not valid type: ".to_string() +
                                   path.to_string_lossy().as_ref()));
+    }
+
+    while settings.paths.len() > 0 {
+        loaded_settings.clear();
+        loaded_variables.clear();
+        let dir = settings.paths.pop_front().unwrap(); // it has len, it better pop!
+        num_loaded += try!(load_file(path, &mut artifacts, &mut loaded_settings,
+                                     &mut loaded_variables));
+        resolve_settings(&mut settings, &mut repo_map, &loaded_settings);
     }
 
     Err(LoadError::new("".to_string()))

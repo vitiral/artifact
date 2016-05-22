@@ -4,7 +4,7 @@ use std::fmt;
 use std::error;
 use std::convert::From;
 use std::option::Option;
-use std::collections::{HashMap, HashSet};
+use std::collections::{HashMap, HashSet, VecDeque};
 use std::ascii::AsciiExt;
 use std::hash::{Hash, Hasher};
 use std::cmp::PartialEq;
@@ -164,7 +164,7 @@ pub struct Artifact {
 #[derive(Debug)]
 pub struct Settings {
     pub disabled: bool,
-    pub paths: Vec<path::PathBuf>,
+    pub paths: VecDeque<path::PathBuf>,
     pub repo_names: HashSet<String>,
 }
 
@@ -172,7 +172,7 @@ impl Settings {
     pub fn new() -> Settings {
         Settings {
             disabled: false,
-            paths: Vec::new(),
+            paths: VecDeque::new(),
             repo_names: HashSet::new(),
         }
     }

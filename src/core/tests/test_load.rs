@@ -4,7 +4,7 @@ use std::fs;
 use std::clone::Clone;
 use std::path::{Path, PathBuf};
 use std::convert::AsRef;
-use std::collections::{HashMap, HashSet};
+use std::collections::{HashMap, HashSet, VecDeque};
 
 // Traits
 use std::io::{Read, Write};
@@ -139,7 +139,8 @@ fn test_settings() {
     let df_tbl = Table::new();
     let set = Settings::from_table(
         &get_attr!(tbl_good, "settings", df_tbl, Table).unwrap()).unwrap();
-    assert!(set.paths == [PathBuf::from("{cwd}/test"), PathBuf::from("{repo}/test")]);
+    assert!(set.paths ==
+            VecDeque::from_iter(vec![PathBuf::from("{cwd}/test"), PathBuf::from("{repo}/test")]));
     assert!(set.disabled == false);
     let mut expected = HashSet::new();
     expected.insert(".test".to_string());
