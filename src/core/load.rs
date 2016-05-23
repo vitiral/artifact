@@ -19,6 +19,11 @@ use strfmt::strfmt;
 
 use core::types::*;
 
+lazy_static!{
+    pub static ref DEFAULT_GLOBALS: HashSet<String> = HashSet::from_iter(
+        ["repo", "globals"].iter().map(|s| s.to_string()));
+}
+
 /// LOC-name-check:<check that name is valid>
 fn artifact_name_valid(name: &str) -> bool {
     let check = name.to_ascii_uppercase();
@@ -240,7 +245,22 @@ pub fn load_table(ftable: &mut Table, path: &Path,
         _ => return Err(LoadError::new("settings must be a Table".to_string())),
     }
 
-    // TODO: load variables
+    match ftable.remove("globals") {
+        Some(Value::Table(t)) => {
+            println!("*** found globals");
+            let mut lvars = Variables::new();
+            for (k, v) in t {
+                lvars.insert(k.clone(), match v {
+                    Value::String(s) => s.to_string(),
+                    _ => return Err(LoadError::new(
+                        k.to_string() + " global var must be of type str")),
+                });
+            }
+            variables.push((path.to_path_buf(), lvars));
+        }
+        None => {},
+        _ => return Err(LoadError::new("globals must be a Table".to_string())),
+    }
 
     for (name, value) in ftable.iter() {
         let aname = try!(ArtName::from_str(name));
@@ -508,7 +528,6 @@ pub fn load_path(path: &Path) -> LoadResult<(Artifacts, Settings, Variables,
     // LOC-core-load-parts-1:<load and validate all paths recursively>
     while settings.paths.len() > 0 {
         loaded_settings.clear();
-        loaded_variables.clear();
         let dir = settings.paths.pop_front().unwrap(); // it has len, it better pop!
 
         println!(" - Loading: {:?}", dir);
@@ -531,10 +550,60 @@ pub fn load_path(path: &Path) -> LoadResult<(Artifacts, Settings, Variables,
         try!(resolve_settings(&mut settings, &mut repo_map, &loaded_settings));
     }
 
-    // TODO: LOC-core-load-parts-2:<load and validate global variables>
-    // LOC-core-load-parts-3:<resolve variables in text fields>
-    // LOC-core-load-parts-4:<auto-creation of missing prefix artifacts>
-    // LOC-core-load-parts-5:<linking of artifacts>
+    let mut error = false;
+    let mut var_paths: HashMap<String, PathBuf> = HashMap::new();
+    for pv in loaded_variables.drain(0..) {
+        let p = pv.0;
+        let vars = pv.1;
+        for (k, v) in vars {
+            match variables.insert(k.clone(), v) {
+                Some(_) => {
+                    println!("ERROR: global var {:?} exists twice, one at {:?}", k, p);
+                    error = true;
+                }
+                None => {}
+            }
+            var_paths.insert(k, p.clone());
+        }
+    }
+    if error {
+        return Err(LoadError::new("Error while processing variables".to_string()));
+    }
+
+    // keep resolving variables until all are resolved
+    // - done if no vars are resolved an no errors
+    // - error if no vars are resolved and errors
+    let keys: Vec<String> = variables.keys().map(|s| s.clone()).collect();
+    loop {
+        let mut num_changed = 0;
+        let mut errors = Vec::new();
+        for k in &keys {
+            let var = variables.remove(k.as_str()).unwrap();
+            match strfmt(var.as_str(), &variables) {
+                Ok(s) => {
+                    num_changed += 1;
+                    variables.insert(k.clone(), s);
+                }
+                Err(_) => {
+                    // TODO: strfmt should give two types of error,
+                    // FmtError or NameError
+                    // we should fail immediately on fmterror
+                    // with a beter error msg
+                    errors.push(k.clone());
+                    variables.insert(k.clone(), var);
+                }
+            }
+        }
+        if num_changed == 0 {  // no items changed, we are either done or failed
+            if errors.len() == 0 {
+                break;
+            } else {
+                let mut msg = String::new();
+                write!(msg, "Could not resolve some globals: {:?}", errors);
+                return Err(LoadError::new(msg));
+            }
+        }
+    }
 
     Ok((artifacts, settings, variables, repo_map))
 }

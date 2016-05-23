@@ -241,4 +241,6 @@ fn test_load_path() {
     assert!(artifacts.contains_key(&ArtName::from_str("REQ-deep").unwrap()));
     assert!(artifacts.contains_key(&ArtName::from_str("SPC-deep").unwrap()));
 
+    // variables
+    assert_eq!(variables.get("lvl_1").unwrap(), "{repo}/lvl_1")
 }
