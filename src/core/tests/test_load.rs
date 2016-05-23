@@ -1,3 +1,6 @@
+#![allow(dead_code, unused_imports, unused_variables)]
+
+
 use std::env;
 use std::ascii::AsciiExt;
 use std::fs;
@@ -215,7 +218,6 @@ fn test_load_toml() {
 #[test]
 fn test_find_repo() {
     let mut repo_names = HashSet::new();
-    println!("dir: {:?}", TSIMPLE_DIR.as_path());
     repo_names.insert(String::from(".tst_repo_name"));
     assert_eq!(find_repo(TSIMPLE_DIR.as_path(), &repo_names).unwrap(),
                TSIMPLE_DIR.as_path());
@@ -228,6 +230,8 @@ fn test_find_repo() {
 fn test_load_path() {
     let (artifacts, settings) = load_path(TSIMPLE_DIR.as_path()).unwrap();
     assert!(artifacts.contains_key(&ArtName::from_str("REQ-purpose").unwrap()));
+
+    let req_purpose = artifacts.get(&ArtName::from_str("REQ-purpose").unwrap()).unwrap();
 
     // load all artifacts that should exist
     let req_lvl1 = artifacts.get(&ArtName::from_str("REQ-lvl-1").unwrap()).unwrap();
@@ -244,9 +248,11 @@ fn test_load_path() {
     let scp_deep = artifacts.get(&ArtName::from_str("SPC-deep").unwrap()).unwrap();
 
     let simple_dir_str = TSIMPLE_DIR.as_path().to_str().unwrap().to_string();
+    let extra_dir = TSIMPLE_DIR.join(PathBuf::from("extra"));
     let lvl1_dir = TSIMPLE_DIR.join(PathBuf::from("lvl_1"));
     let lvl1_dir_str = lvl1_dir.as_path().to_str().unwrap().to_string();
 
+    assert_eq!(req_purpose.refs, [extra_dir.join(PathBuf::from("README.md")).to_str().unwrap()]);
     assert_eq!(spc_lvl1.text, "level one does FOO");
     assert_eq!(spc_lvl1.loc.as_ref().unwrap().path, lvl1_dir.join(PathBuf::from("lvl_1.rs")));
     // TODO: more validation

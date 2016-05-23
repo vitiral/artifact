@@ -3,6 +3,7 @@ extern crate walkdir;
 // $LOC-core-loading-toml
 extern crate toml;
 extern crate strfmt;
+extern crate time;
 
 #[macro_use]
 extern crate lazy_static;

@@ -7,6 +7,8 @@ repo_names = [".tst_repo_name"]
 foo = "FOO"
 lvl_1 = "{repo}/lvl_1"
 lvl_2 = "{lvl_1}/lvl_2"
+extra = "{cwd}/extra"
 
 [REQ-purpose]
 text = "used to test basic functionality"
+refs = ["{extra}/README.md"]
