@@ -574,11 +574,16 @@ pub fn load_path(path: &Path) -> LoadResult<(Artifacts, Settings, Variables,
     // - done if no vars are resolved an no errors
     // - error if no vars are resolved and errors
     let keys: Vec<String> = variables.keys().map(|s| s.clone()).collect();
+    let mut errors = Vec::new();
+    let mut num_changed = 0;
     loop {
-        let mut num_changed = 0;
-        let mut errors = Vec::new();
+        num_changed = 0;
+        errors.clear();
         for k in &keys {
             let var = variables.remove(k.as_str()).unwrap();
+            let cwd = var_paths.get(k).unwrap().parent().unwrap();
+            variables.insert("cwd".to_string(), cwd.to_str().unwrap().to_string());
+            variables.insert("repo".to_string(), repo_map.get(cwd).unwrap().to_str().unwrap().to_string());
             match strfmt(var.as_str(), &variables) {
                 Ok(s) => {
                     num_changed += 1;
@@ -590,6 +595,7 @@ pub fn load_path(path: &Path) -> LoadResult<(Artifacts, Settings, Variables,
                     // we should fail immediately on fmterror
                     // with a beter error msg
                     errors.push(k.clone());
+                    // reinsert original value
                     variables.insert(k.clone(), var);
                 }
             }
