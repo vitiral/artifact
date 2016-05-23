@@ -131,7 +131,6 @@ fn _parse_partof<I>(raw: &mut I, in_brackets: bool) -> LoadResult<Vec<String>>
                 break;
             }
         };
-        println!("{:?}", c);
         match c {
             ' ' => {}, // ignore whitespace
             '[' => {
@@ -304,7 +303,11 @@ pub fn load_file(path: &Path,
     let mut text = String::new();
     let mut fp = fs::File::open(path).unwrap();
     try!(fp.read_to_string(&mut text).or_else(
-         |err| Err(LoadError::new(err.to_string()))));
+        |err| {
+            let mut msg = String::new();
+            write!(msg, "Error loading path {:?}: {}", path, err);
+            Err(LoadError::new(msg))
+         }));
     load_toml(path, &text, artifacts, settings, variables)
 }
 
@@ -322,10 +325,11 @@ pub fn load_dir(path: &Path,
     let mut dirs_to_load: Vec<PathBuf> = Vec::new(); // TODO: references should be possible here...
     let read_dir = match fs::read_dir(path) {
         Ok(d) => d,
-        Err(err) => return Err(LoadError::new(err.to_string())),
+        Err(err) => return Err(LoadError::new("E001: ".to_string() + &err.to_string())),
     };
     for entry in read_dir.filter_map(|e| e.ok()) {
         let fpath = entry.path();
+        println!("   - possibly loading: {:?}", fpath);
         let ftype = match entry.file_type() {
             Ok(f) => f,
             Err(err) => {
@@ -335,10 +339,6 @@ pub fn load_dir(path: &Path,
             }
         };
         if ftype.is_dir() {
-            if loaded_dirs.contains(fpath.as_path()) {
-                continue;
-            }
-            loaded_dirs.insert(fpath.to_path_buf());
             dirs_to_load.push(fpath.clone());
         } else if ftype.is_file() {
             let ext = match fpath.extension() {
@@ -362,6 +362,10 @@ pub fn load_dir(path: &Path,
     };
     if num_loaded > 0 {
         for dir in dirs_to_load {
+            if loaded_dirs.contains(dir.as_path()) {
+                continue;
+            }
+            loaded_dirs.insert(dir.to_path_buf());
             match load_dir(dir.as_path(), loaded_dirs, artifacts, settings, variables) {
                 Ok(n) => num_loaded += n,
                 Err(_) => error = true,
@@ -499,14 +503,38 @@ pub fn load_path(path: &Path) -> LoadResult<(Artifacts, Settings, Variables,
                                   path.to_string_lossy().as_ref()));
     }
 
+    println!(" - Started loading: {:?}", path);
+
+    // LOC-core-load-parts-1:<load and validate all paths recursively>
     while settings.paths.len() > 0 {
         loaded_settings.clear();
         loaded_variables.clear();
         let dir = settings.paths.pop_front().unwrap(); // it has len, it better pop!
-        num_loaded += try!(load_file(path, &mut artifacts, &mut loaded_settings,
-                                     &mut loaded_variables));
-        resolve_settings(&mut settings, &mut repo_map, &loaded_settings);
+
+        println!(" - Loading: {:?}", dir);
+        // load the files
+        if loaded_dirs.contains(&dir) {
+            continue
+        }
+        loaded_dirs.insert(dir.to_path_buf());
+        num_loaded += match load_dir(dir.as_path(), &mut loaded_dirs,
+                                     &mut artifacts, &mut loaded_settings,
+                                     &mut loaded_variables) {
+            Ok(n) => n,
+            Err(err) => {
+                let mut msg = String::new();
+                write!(msg, "Error loading <{}>: {}", dir.to_string_lossy().as_ref(), err);
+                return Err(LoadError::new(msg));
+            }
+        };
+        // resolve the project-level settings (paths, repo_names, etc)
+        try!(resolve_settings(&mut settings, &mut repo_map, &loaded_settings));
     }
+
+    // TODO: LOC-core-load-parts-2:<load and validate global variables>
+    // LOC-core-load-parts-3:<resolve variables in text fields>
+    // LOC-core-load-parts-4:<auto-creation of missing prefix artifacts>
+    // LOC-core-load-parts-5:<linking of artifacts>
 
     Ok((artifacts, settings, variables, repo_map))
 }

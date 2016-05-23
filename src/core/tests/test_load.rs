@@ -223,3 +223,22 @@ fn test_find_repo() {
                TSIMPLE_DIR.as_path());
     assert!(find_repo(env::temp_dir().as_path(), &repo_names).is_none());
 }
+
+#[test]
+fn test_load_path() {
+    let (artifacts, settings, variables, repo_map) = load_path(TSIMPLE_DIR.as_path()).unwrap();
+    assert!(artifacts.contains_key(&ArtName::from_str("REQ-purpose").unwrap()));
+
+    // lvl loaded
+    assert!(artifacts.contains_key(&ArtName::from_str("REQ-lvl-1").unwrap()));
+    assert!(artifacts.contains_key(&ArtName::from_str("REQ-lvl-2").unwrap()));
+    assert!(artifacts.contains_key(&ArtName::from_str("SPC-lvl-2").unwrap()));
+    assert!(artifacts.contains_key(&ArtName::from_str("TST-lvl-2").unwrap()));
+    assert!(artifacts.contains_key(&ArtName::from_str("LOC-lvl-2").unwrap()));
+    assert!(artifacts.contains_key(&ArtName::from_str("LOC-tst-lvl-2").unwrap()));
+
+    // deep loading
+    assert!(artifacts.contains_key(&ArtName::from_str("REQ-deep").unwrap()));
+    assert!(artifacts.contains_key(&ArtName::from_str("SPC-deep").unwrap()));
+
+}

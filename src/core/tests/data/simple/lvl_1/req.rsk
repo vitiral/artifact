@@ -1,0 +1,4 @@
+
+[REQ-lvl-1]
+partof = "REQ-purpose"
+text = "one level deep in a recursive dir"

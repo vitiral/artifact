@@ -1,0 +1,7 @@
+
+[settings]
+paths = ["{repo}/deep/reqs", "{cwd}/deep/spcs"]
+repo_names = [".tst_repo_name"]
+
+[REQ-purpose]
+text = "used to test basic functionality"

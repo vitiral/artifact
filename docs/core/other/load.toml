@@ -88,7 +88,7 @@ This details the high level loading proceedure of rsk
 
 The loading of the project files shall occur in 5 stages:
  1. loading and validation of raw data from all settings.paths recursively
- 2. validating variables
+ 2. load and validate variables
  3. resolving of variables in text fields
  4. auto-creation of missing prefix artifacts
  5. linking of artifacts (parts, partof)
@@ -106,6 +106,7 @@ ui as missing links or None completion (etc)
 '''
 
 [SPC-core-load-parts-1]
+loc = "LOC-core-load-parts-1: {core}/load.rs"
 text = '''
 Loading and basic validation of raw text **shall** be accomplished mostly by
 the type implementations themselves in a `from*` method.
