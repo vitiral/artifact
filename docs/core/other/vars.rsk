@@ -3,13 +3,6 @@
 partof = "REQ-core-vars-[locals, globals]"
 refs = ["REQ-core-vars-globals-[cwd, repo]"]
 text = '''
-variables **shall** be loaded in the following manner:
-- default globals will allways be loaded on a per-file basis
-    and their text will be interpreted for the defaults
-    immediately.
-- user and local globals will be interpreted at a later time,
-    when all artifacts have been loaded
-
 The following fields **will** have variables applied:
 - settings fields:
     - paths: **only** the default globals will be interpreted, see
@@ -35,7 +28,27 @@ The following **will not** have variables applied:
         having variables as well would only add to the confusion.
 '''
 
+[SPC-core-vars-struct]
+loc = "LOC-core-vars-struct: {core}/types.rs"
+text = '''
+There shall be a struct which is used to return variables
+'''
+
+[SPC-core-vars-resolve]
+loc = "LOC-core-vars-resolve: {core}/load.rs"
+text = '''
+variables **shall** be loaded in the following manner:
+- default globals will always be loaded on a per-file basis
+    and their text will be interpreted for the defaults
+    immediately.
+- global variables will be interpreted at a later time,
+    after all artifacts have been loaded
+- global variabes can use eachother in their definition,
+    as long as the definition isn't recursive
+'''
+
 [SPC-core-vars-lib]
+loc = "LOC-core-vars-lib: {src}/main.rs"
 partof = "REQ-core-vars-fmt"
 text = '''
 the rust library [strfmt](https://github.com/vitiral/strfmt)

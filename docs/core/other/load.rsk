@@ -1,20 +1,10 @@
-[SPC-core-load]
-partof = "REQ-purpose-format, REQ-core-load"
-
-[SPC-core-load-error]
-loc = "LOC-core-load-error: {core}/types.rs"
-text = '''
-Any error during loading **shall** result in a LoadError with
-a useful description
-'''
-
 [SPC-core-load-scope]
 partof = "REQ-purpose-format"
 refs = ["REQ-core-[vars-globals, settings], SPC-core-vars"]
 text = '''
 The load module **shall** encapsulate:
 - resolving the *default* global variables using
-    the vars module
+the vars module
 - following paths to artifact directories
 - loading artifacts from files
 - validating name-collisions
@@ -26,6 +16,15 @@ The load module **shall not** deal with:
 - resolving user-set global variables
 '''
 
+[SPC-core-load]
+partof = "REQ-purpose-format, REQ-core-load, SPC-core-load-scope"
+
+[SPC-core-load-error]
+loc = "LOC-core-load-error: {core}/types.rs"
+text = '''
+Any error during loading **shall** result in a LoadError with
+a useful description
+'''
 
 ##################################################
 # Risks related to loading in general
@@ -67,9 +66,11 @@ There are several safeguards:
 - directories that are loaded are stored. If loading is attempted again,
     they will not be loaded.
 - testing can create situations that may cause recursive loads and validate that they
-    don't.```
+    don't.
 - recusrive directory loads should always execute completely before the next path
     is processed
+```
+
 ##################################################
 # toml spec
 [SPC-core-load-toml]
@@ -122,23 +123,53 @@ If a directory already exists in this Map, it will not be loaded.
 (it has already been loaded)
 '''
 
+[SPC-core-load-settings-from_table]
+loc = "LOC-core-settings-from_table: {core}/load.rs"
+text = '''
+Settings **shall** have a `from_table` method to load them directly from a toml
+Table. This will only load the raw settings, returning an Err on an invalid type.
+'''
+
+[SPC-core-load-settings-resolve]
+loc = "LOC-load-settings-resolve: {core}/load.rs"
+partof = ["SPC-core-load-parts-1"]
+text = '''
+Settings are resolved only after a recursive directory tree has been loaded.
+This is to allow `repo_names` to resolve before the `repo` variable is applied
+to `settings.paths`
+
+Because settings must be handled before variables are resolved,
+the only variables allowed are `repo` and `cwd`. However,
+these variables must be resolved at the same time that
+settings is resolved.
+'''
+
 [SPC-core-load-vars]
+loc = "LOC-core-load-vars-resolve-other: {core}/load.rs"
+partof = ["SPC-core-load-parts-1"]
 text = '''
 variables shall be applied in two parts:
 - resolve settings.paths after full recursive directory load
 - resolve all other variables after entire project load
 '''
 
+[SPC-core-load-vars]
+loc = "LOC-load-settings-paths"
+partof = ["SPC-core-load-parts-1"]
+text = "resolve settings.paths"
+
 ##################################################
 # load paths-file function
-[SPC-core-load-paths]
+[SPC-core-load-path]
+loc = "SPC-core-load-path"
 partof = "SPC-core-load-parts-1"
 text = '''
 There **shall** be a function which can read a list of paths from a file
-and load them recursively
+and load them recursively **or** can just load a directory path.
 '''
 
-[TST-core-load-paths]
+[TST-core-load-path]
+loc = "LOC-tst-core-deep: {core}/tests/test_load.rs"
 partof = "SPC-core-load-paths"
 text = '''
 have a paths-file and unreachable .rsk files. Have the file point to the unreachable
@@ -149,7 +180,7 @@ have a paths-file and unreachable .rsk files. Have the file point to the unreach
 # load dir function
 [SPC-core-load-dir]
 partof = "SPC-core-load-parts-1"
-loc = "LOC-core-load-recursive: {core}/load.rs"
+loc = "LOC-core-load-dir: {core}/load.rs"
 text = '''
 There **shall** be a function which can load all artifacts from a
 directory recursively (as defined in LOC-core-load-recursive)
@@ -158,6 +189,7 @@ directory recursively (as defined in LOC-core-load-recursive)
 [TST-core-load-dir-unit]
 partof = "SPC-core-load-dir"
 [TST-core-load-dir-unit-1]
+loc = "LOC-core-load-dir-unit-1"
 text = '''
 load a folder with a [file folder[file]] and make sure all values
 are present
@@ -167,6 +199,7 @@ text = "load a [file] with an invalid attribute an make sure it errors"
 [TST-core-load-dir-unit-3]
 text = "load two files with the same key and make sure it errors"
 [TST-core-load-dir-unit-4]
+loc = "LOC-core-load-dir-unit-4"
 text = '''
 load a structure like so:
 ```
@@ -176,6 +209,7 @@ load a structure like so:
 and make sure that `unreachable.rsk` does **not** get loaded
 '''
 [TST-core-load-dir-unit-5]
+loc = "LOC-core-load-dir-unit-5: {core}/tests/test_load.rs"
 text = '''
 load a structure like so:
 ```
@@ -189,6 +223,7 @@ and make sure that all three rsk files are loaded
 ##################################################
 # load file function
 [SPC-core-load-file]
+loc = "LOC-core-load-file: {core}/load.rs"
 partof = "SPC-core-load-parts-1"
 text = '''
 There **shall** be a function which can load all artifacts from a
@@ -196,9 +231,12 @@ file given a path
 '''
 
 [TST-core-load-valid]
+loc = "LOC-tst-core-load-valid: {core}/tests/test_load.rs"
 partof = "SPC-core-load-file, RSK-core-load-invalid"
 text = "load a valid toml file and verify it's artifacts and settings"
+
 [TST-core-load-invalid]
+loc = "LOC-tst-core-load-invalid: {core}/tests/test_load.rs"
 partof = "SPC-core-load-file, RSK-core-load-invalid"
 text = '''
 load separate toml files suffering the issues listed below and ensure
@@ -209,8 +247,6 @@ they do not load.
 - name collisions at the [] level
 - name collisions at the base level
 '''
-[TST-core-load-text]
-loc = "LOC-tst-core-load-text-1: {core}/load.rs"
 
 ##################################################
 # load table function
@@ -220,6 +256,7 @@ loc = "LOC-core-load-table: {core}/load.rs"
 text = '''
 There **shall** be a function which loads artifacts from a toml Table
 '''
+
 [TST-core-load-table-check]
 partof = "SPC-core-load-table, RSK-core-load-invalid"
 loc = "LOC-core-load-table-check: {core}/load.rs"

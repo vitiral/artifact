@@ -11,18 +11,19 @@ partof = "REQ-core-artifacts-name"
 text = "The name shall be checked to match the requirements"
 
 [TST-artifact-name-check]
-loc = "LOC-tst-name-check: {core}/types.rs"
+loc = "LOC-tst-name-check: {core}/tests/test_load.rs"
 partof = "SPC-core-artifact-name-check"
 
 [SPC-core-artifact-struct]
-partof = "REQ-core-artifacts-attrs"
 loc = "LOC-core-artifact: {core}/types.rs"
+partof = "REQ-core-artifacts-attrs"
 text = '''
 Artifacts will be implemented in code as an Artifact struct with all the relevant
 attributes attached to it
 '''
 
 [SPC-core-artifact-attrs-loc]
+loc = "LOC-core-loc: {core}/types.rs"
 partof = "REQ-core-artifacts-attrs-loc"
 text = '''
 the LOC artifact as an attribute shall be it's own struct with information stored
@@ -36,4 +37,17 @@ Valid artifact types shall be determined through an enum.
 
 Each artifact will not get it's own struct type as they
 are all nearly identical
+'''
+
+[SPC-core-artifacts-types-check]
+loc = "LOC-find-type: {core}/types.rs"
+text = '''
+All artifacts must be a defined type or error
+'''
+
+[SPC-core-artifacts-vars]
+loc = "LOC-artifacts-vars"
+text = '''
+any text attr on an artifact **shall** have it's variable
+fields replaced with global variables or error
 '''

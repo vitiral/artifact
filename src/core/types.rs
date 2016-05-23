@@ -13,6 +13,7 @@ use regex::Regex;
 
 pub type LoadResult<T> = Result<T, LoadError>;
 pub type Artifacts = HashMap<ArtName, Artifact>;
+// LOC-core-vars-sruct
 pub type Variables = HashMap<String, String>;
 
 lazy_static!{
@@ -32,7 +33,7 @@ pub enum ArtType {
     LOC,
 }
 
-/// Location data type
+/// LOC-core-loc<Location data type>
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub struct Loc {
     pub loc: ArtName,
@@ -79,11 +80,12 @@ fn test_loc() {
 // value. raw is simply for displaying on the ui
 #[derive(Debug, Clone)]
 pub struct ArtName {
-    raw: String,
-    value: Vec<String>,
+    pub raw: String,
+    pub value: Vec<String>,
 }
 
 impl ArtName {
+    /// LOC-find-type:<find a valid type or error>
     fn find_type_maybe(&self) -> LoadResult<ArtType> {
         let ty = self.value.get(0).unwrap();
         match ty.as_str() {
@@ -106,13 +108,14 @@ impl ArtName {
 
     pub fn from_str(s: &str) -> LoadResult<ArtName> {
         // REQ-core-artifacts-name: strip spaces, ensure valid chars
-        let value = s.to_ascii_uppercase().replace(" ", "");
+        // LOC-name-check:<make sure name is valid>
+        let value = s.to_ascii_uppercase().replace(' ', "");
         if !ART_VALID.is_match(&value) {
             return Err(LoadError::new("invalid artifact name: ".to_string() + s));
         }
         let out = ArtName {
             raw: s.to_string(),
-            value: s.to_ascii_uppercase().split("-").map(|s| s.to_string()).collect(),
+            value: value.split("-").map(|s| s.to_string()).collect(),
         };
         try!(out.find_type_maybe()); // ensure the type is valid
         Ok(out)
@@ -162,6 +165,7 @@ pub struct Artifact {
 }
 
 #[derive(Debug)]
+/// LOC-core-settings
 pub struct Settings {
     pub disabled: bool,
     pub paths: VecDeque<path::PathBuf>,

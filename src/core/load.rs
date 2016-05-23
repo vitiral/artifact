@@ -1,7 +1,6 @@
 //! loadrs
 //! loading of raw artifacts from files and text
 
-use std::ascii::AsciiExt;
 use std::fs;
 use std::clone::Clone;
 use std::path::{Path, PathBuf};
@@ -24,31 +23,6 @@ use core::types::*;
 lazy_static!{
     pub static ref DEFAULT_GLOBALS: HashSet<String> = HashSet::from_iter(
         ["repo", "globals"].iter().map(|s| s.to_string()));
-}
-
-/// LOC-name-check:<check that name is valid>
-fn artifact_name_valid(name: &str) -> bool {
-    let check = name.to_ascii_uppercase();
-    ART_VALID.is_match(&check)
-}
-
-fn fix_artifact_name(name: &str) -> String {
-    name.replace(" ", "")
-}
-
-#[test]
-/// LOC-tst-name-check: <check that name combinations raise correct errors>
-fn test_name() {
-    // valid names
-    for name in vec!["REQ-foo", "REQ-foo-2", "REQ-foo2", "REQ-foo2", "REQ-foo-bar-2_3",
-                     "SPC-foo", "RSK-foo", "TST-foo", "LOC-foo"] {
-        assert!(artifact_name_valid(name));
-    }
-    for name in vec!["REQ-foo*", "REQ-foo\n", "REQ-foo-"] {
-        assert!(!artifact_name_valid(name))
-    }
-    // remove spaces
-    assert!(fix_artifact_name("   R E Q    -    f   o  o   ") == "REQ-foo");
 }
 
 macro_rules! get_attr {
@@ -99,18 +73,11 @@ macro_rules! check_type {
 }
 
 impl Settings {
+    /// LOC-core-settings-from_table:<load a settings object from a table>
     pub fn from_table(tbl: &Table) -> LoadResult<Settings> {
         let df_vec = Vec::new();
         let str_paths: Vec<String> = check_type!(
             get_vecstr(tbl, "paths", &df_vec), "paths", "settings");
-        // let mut paths = vec![];
-        // for p in str_paths {
-        //     let p = match strfmt(&p, globals) {
-        //         Ok(p) => p,
-        //         Err(err) => return Err(LoadError::new(err.to_string())),
-        //     };
-        //     paths.push(PathBuf::from(p));
-        // }
         Ok(Settings {
             disabled: check_type!(get_attr!(tbl, "disabled", false, Boolean),
                                   "disabled", "settings"),
@@ -315,7 +282,7 @@ pub fn load_toml(path: &Path, text: &str,
 
 /// given a file path load the artifacts
 ///
-/// $LOC-core-load-file
+/// LOC-core-load-file
 pub fn load_file(path: &Path,
                  artifacts: &mut Artifacts,
                  settings: &mut Vec<(PathBuf, Settings)>,
@@ -335,7 +302,7 @@ pub fn load_file(path: &Path,
     load_toml(path, &text, artifacts, settings, variables)
 }
 
-/// LOC-core-load-recursive:<given a path load the raw artifacts from files recursively>
+/// LOC-core-load-dir:<given a path load the raw artifacts from files recursively>
 pub fn load_dir(path: &Path,
                 loaded_dirs: &mut HashSet<PathBuf>,
                 artifacts: &mut Artifacts,
@@ -466,6 +433,7 @@ fn find_and_insert_repo(dir: &Path, repo_map: &mut HashMap<PathBuf, PathBuf>,
     Ok(())
 }
 
+/// LOC-load-settings-resolve:<resolve all informaiton related to settings>
 fn resolve_settings(settings: &mut Settings,
                     repo_map: &mut HashMap<PathBuf, PathBuf>,
                     loaded_settings: &Vec<(PathBuf, Settings)>)
@@ -490,6 +458,7 @@ fn resolve_settings(settings: &mut Settings,
 
         // TODO: for full windows compatibility you will probably want to support OsStr
         // here... I just don't want to
+        // LOC-core-settings-vars
         vars.insert("cwd".to_string(), cwd_str.to_string());
         try!(find_and_insert_repo(cwd, repo_map, &settings.repo_names));
         let repo = repo_map.get(cwd).unwrap();
@@ -517,6 +486,7 @@ fn resolve_settings(settings: &mut Settings,
 /// continues to resolve variables until all are resolved
 /// - done if no vars were resolved in a pass and no errors
 /// - error if no vars were resolved in a pass and there were errors
+/// LOC-core-vars-resolve
 fn resolve_vars(variables: &mut Variables,
                 var_paths: &HashMap<String, PathBuf>,
                 repo_map: &HashMap<PathBuf, PathBuf>)
@@ -571,6 +541,7 @@ fn resolve_vars(variables: &mut Variables,
 }
 
 /// use the variables to fill in the text fields of all artifacts
+/// LOC-artifacts-vars
 fn fill_text_fields(artifacts: &mut Artifacts,
                        settings: &Settings,
                        variables: &mut Variables,
@@ -626,6 +597,7 @@ fn fill_text_fields(artifacts: &mut Artifacts,
 
 /// given a valid path, load all paths
 /// linking does not occur in this step
+/// LOC-core-load-path
 pub fn load_path(path: &Path) -> LoadResult<(Artifacts, Settings)>{
     let mut artifacts = Artifacts::new();
     let mut settings = Settings::new();

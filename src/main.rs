@@ -1,6 +1,6 @@
 extern crate regex;
 extern crate walkdir;
-// $LOC-core-loading-toml
+// LOC-core-loading-toml:<use the toml library>
 extern crate toml;
 extern crate strfmt;
 extern crate time;

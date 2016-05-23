@@ -90,6 +90,21 @@ fn get_table<'a>(tbl: &'a Table, attr: &str) -> &'a Table {
 // // Tests
 
 #[test]
+/// LOC-tst-name-check:<check that name combinations raise correct errors>
+fn test_artifact_name() {
+    // valid names
+    for name in vec!["REQ-foo", "REQ-foo-2", "REQ-foo2", "REQ-foo2", "REQ-foo-bar-2_3",
+                     "SPC-foo", "RSK-foo", "TST-foo", "LOC-foo"] {
+        assert!(ArtName::from_str(name).is_ok());
+    }
+    for name in vec!["REQ-foo*", "REQ-foo\n", "REQ-foo-"] {
+        assert!(ArtName::from_str(name).is_err())
+    }
+    // remove spaces
+    assert_eq!(ArtName::from_str("   R E Q    -    f   o  o   ").unwrap().value, ["REQ", "FOO"]);
+}
+
+#[test]
 fn test_get_attr() {
     let tbl_good = parse_text(TOML_GOOD);
     let df_str = "".to_string();
@@ -152,6 +167,7 @@ fn test_settings() {
 
 
 #[test]
+/// LOC-tst-core-load-valid:<load some valid toml files>
 fn test_load_toml() {
     let mut artifacts = Artifacts::new();
     let mut settings: Vec<(PathBuf, Settings)> = Vec::new();
@@ -159,6 +175,7 @@ fn test_load_toml() {
 
     let path = PathBuf::from("hi/there");
 
+    // LOC-tst-core-load-invalid:<load some invalid toml files>
     assert!(load_toml(&path, TOML_BAD, &mut artifacts, &mut settings, &mut variables).is_err());
 
     let num = load_toml(&path, TOML_RSK, &mut artifacts, &mut settings, &mut variables).unwrap();
@@ -234,6 +251,7 @@ fn test_load_path() {
     let req_purpose = artifacts.get(&ArtName::from_str("REQ-purpose").unwrap()).unwrap();
 
     // load all artifacts that should exist
+    // LOC-core-load-dir-unit-1
     let req_lvl1 = artifacts.get(&ArtName::from_str("REQ-lvl-1").unwrap()).unwrap();
     let spc_lvl1 = artifacts.get(&ArtName::from_str("SPC-lvl-1").unwrap()).unwrap();
 
@@ -244,6 +262,10 @@ fn test_load_path() {
     let loc_tst_lvl2 = artifacts.get(&ArtName::from_str("LOC-tst-lvl-2").unwrap()).unwrap();
 
     // deep loading
+    // LOC-tst-core-deep
+    // LOC-core-load-dir-unit-4
+    assert!(!artifacts.contains_key(&ArtName::from_str("REQ-unreachable").unwrap()));
+
     let req_deep = artifacts.get(&ArtName::from_str("REQ-deep").unwrap()).unwrap();
     let scp_deep = artifacts.get(&ArtName::from_str("SPC-deep").unwrap()).unwrap();
 
@@ -252,6 +274,7 @@ fn test_load_path() {
     let lvl1_dir = TSIMPLE_DIR.join(PathBuf::from("lvl_1"));
     let lvl1_dir_str = lvl1_dir.as_path().to_str().unwrap().to_string();
 
+    // LOC-core-load-dir-unit-5
     assert_eq!(req_purpose.refs, [extra_dir.join(PathBuf::from("README.md")).to_str().unwrap()]);
     assert_eq!(spc_lvl1.text, "level one does FOO");
     assert_eq!(spc_lvl1.loc.as_ref().unwrap().path, lvl1_dir.join(PathBuf::from("lvl_1.rs")));
