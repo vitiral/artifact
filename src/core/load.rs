@@ -512,8 +512,7 @@ fn resolve_settings(settings: &mut Settings,
 
 /// given a valid path, load all paths
 /// linking does not occur in this step
-pub fn load_path(path: &Path) -> LoadResult<(Artifacts, Settings, Variables,
-                                             HashMap<PathBuf, PathBuf>)>{
+pub fn load_path(path: &Path) -> LoadResult<(Artifacts, Settings)>{
     let mut artifacts = Artifacts::new();
     let mut settings = Settings::new();
     let mut variables = Variables::new();
@@ -537,14 +536,14 @@ pub fn load_path(path: &Path) -> LoadResult<(Artifacts, Settings, Variables,
                                   path.to_string_lossy().as_ref()));
     }
 
-    println!(" - Started loading: {:?}", path);
+    // println!(" - Started loading: {:?}", path);
 
     // LOC-core-load-parts-1:<load and validate all paths recursively>
     while settings.paths.len() > 0 {
         loaded_settings.clear();
         let dir = settings.paths.pop_front().unwrap(); // it has len, it better pop!
 
-        println!("   - Loading: {:?}", dir);
+        // println!("   - Loading: {:?}", dir);
         // load the files
         if loaded_dirs.contains(&dir) {
             continue
@@ -563,7 +562,7 @@ pub fn load_path(path: &Path) -> LoadResult<(Artifacts, Settings, Variables,
         try!(resolve_settings(&mut settings, &mut repo_map, &loaded_settings));
     }
 
-    println!(" - loading variables");
+    // println!(" - loading variables");
     let mut error = false;
     let mut var_paths: HashMap<String, PathBuf> = HashMap::new();
     for pv in loaded_variables.drain(0..) {
@@ -586,7 +585,7 @@ pub fn load_path(path: &Path) -> LoadResult<(Artifacts, Settings, Variables,
         return Err(LoadError::new("Error while processing variables".to_string()));
     }
 
-    println!(" - resolving variables");
+    // println!(" - resolving variables");
     // keep resolving variables until all are resolved
     // - done if no vars are resolved an no errors
     // - error if no vars are resolved and errors
@@ -635,7 +634,7 @@ pub fn load_path(path: &Path) -> LoadResult<(Artifacts, Settings, Variables,
         }
     }
 
-    println!(" - resolving text fields");
+    // println!(" - resolving text fields");
     // resolve all text blocks in artifacts
     let mut errors: Vec<(&str, strfmt::FmtError)> = Vec::new();
     for (name, art) in artifacts.iter_mut() {
@@ -679,5 +678,5 @@ pub fn load_path(path: &Path) -> LoadResult<(Artifacts, Settings, Variables,
         return Err(LoadError::new("failure to resolve artifact text fields".to_string()));
     }
 
-    Ok((artifacts, settings, variables, repo_map))
+    Ok((artifacts, settings))
 }

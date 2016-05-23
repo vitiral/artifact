@@ -4,7 +4,9 @@ paths = ["{repo}/deep/reqs", "{cwd}/deep/spcs"]
 repo_names = [".tst_repo_name"]
 
 [globals]
+foo = "FOO"
 lvl_1 = "{repo}/lvl_1"
+lvl_2 = "{lvl_1}/lvl_2"
 
 [REQ-purpose]
 text = "used to test basic functionality"

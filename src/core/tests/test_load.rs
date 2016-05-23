@@ -226,23 +226,28 @@ fn test_find_repo() {
 
 #[test]
 fn test_load_path() {
-    let (artifacts, settings, variables, repo_map) = load_path(TSIMPLE_DIR.as_path()).unwrap();
+    let (artifacts, settings) = load_path(TSIMPLE_DIR.as_path()).unwrap();
     assert!(artifacts.contains_key(&ArtName::from_str("REQ-purpose").unwrap()));
 
-    // lvl loaded
-    assert!(artifacts.contains_key(&ArtName::from_str("REQ-lvl-1").unwrap()));
-    assert!(artifacts.contains_key(&ArtName::from_str("REQ-lvl-2").unwrap()));
-    assert!(artifacts.contains_key(&ArtName::from_str("SPC-lvl-2").unwrap()));
-    assert!(artifacts.contains_key(&ArtName::from_str("TST-lvl-2").unwrap()));
-    assert!(artifacts.contains_key(&ArtName::from_str("LOC-lvl-2").unwrap()));
-    assert!(artifacts.contains_key(&ArtName::from_str("LOC-tst-lvl-2").unwrap()));
+    // load all artifacts that should exist
+    let req_lvl1 = artifacts.get(&ArtName::from_str("REQ-lvl-1").unwrap()).unwrap();
+    let spc_lvl1 = artifacts.get(&ArtName::from_str("SPC-lvl-1").unwrap()).unwrap();
+
+    let req_lvl2 = artifacts.get(&ArtName::from_str("REQ-lvl-2").unwrap()).unwrap();
+    let spc_lvl2 = artifacts.get(&ArtName::from_str("SPC-lvl-2").unwrap()).unwrap();
+    let tst_lvl2 = artifacts.get(&ArtName::from_str("TST-lvl-2").unwrap()).unwrap();
+    let loc_lvl2 = artifacts.get(&ArtName::from_str("LOC-lvl-2").unwrap()).unwrap();
+    let loc_tst_lvl2 = artifacts.get(&ArtName::from_str("LOC-tst-lvl-2").unwrap()).unwrap();
 
     // deep loading
-    assert!(artifacts.contains_key(&ArtName::from_str("REQ-deep").unwrap()));
-    assert!(artifacts.contains_key(&ArtName::from_str("SPC-deep").unwrap()));
+    let req_deep = artifacts.get(&ArtName::from_str("REQ-deep").unwrap()).unwrap();
+    let scp_deep = artifacts.get(&ArtName::from_str("SPC-deep").unwrap()).unwrap();
 
     let simple_dir_str = TSIMPLE_DIR.as_path().to_str().unwrap().to_string();
+    let lvl1_dir = TSIMPLE_DIR.join(PathBuf::from("lvl_1"));
+    let lvl1_dir_str = lvl1_dir.as_path().to_str().unwrap().to_string();
 
-    // variables
-    assert_eq!(variables.get("lvl_1").unwrap(), &(simple_dir_str + "/lvl_1"))
+    assert_eq!(spc_lvl1.text, "level one does FOO");
+    assert_eq!(spc_lvl1.loc.as_ref().unwrap().path, lvl1_dir.join(PathBuf::from("lvl_1.rs")));
+    // TODO: more validation
 }

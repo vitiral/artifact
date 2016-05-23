@@ -2,3 +2,7 @@
 [REQ-lvl-1]
 partof = "REQ-purpose"
 text = "one level deep in a recursive dir"
+
+[SPC-lvl-1]
+loc = "LOC-lvl-1: {lvl_1}/lvl_1.rs"
+text = "level one does {foo}"
