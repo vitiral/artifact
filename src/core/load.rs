@@ -15,7 +15,7 @@ use std::iter::FromIterator;
 
 use walkdir::WalkDir;
 use toml::{Parser, Value, Table};
-use strfmt::strfmt;
+use strfmt;
 
 use core::types::*;
 
@@ -435,6 +435,33 @@ fn get_path_str<'a>(path: &'a Path) -> LoadResult<&'a str> {
     }
 }
 
+fn find_and_insert_repo(dir: &Path, repo_map: &mut HashMap<PathBuf, PathBuf>,
+                        repo_names: &HashSet<String>)
+                        -> LoadResult<()> {
+    let mut must_insert = false;
+    let repo = match repo_map.get(dir) {
+        Some(r) => r.to_path_buf(),
+        None => {
+            let r = match find_repo(&dir, repo_names) {
+                Some(r) => r,
+                None => {
+                    let mut msg = String::new();
+                    write!(msg, "dir is not part of a repo: {}", dir.to_string_lossy().as_ref());
+                    return Err(LoadError::new(msg));
+                }
+            };
+            // can't do this here because of borrowing rules... have to use must_insert
+            // repo_map.insert(dir.to_path_buf(), r.to_path_buf());
+            must_insert = true;
+            r.to_path_buf()
+        },
+    };
+    if must_insert {
+        repo_map.insert(dir.to_path_buf(), repo);
+    }
+    Ok(())
+}
+
 fn resolve_settings(settings: &mut Settings,
                     repo_map: &mut HashMap<PathBuf, PathBuf>,
                     loaded_settings: &Vec<(PathBuf, Settings)>)
@@ -454,36 +481,19 @@ fn resolve_settings(settings: &mut Settings,
 
         // load the default global variables {cwd} and {repo}
         let fpath = ps.0.clone();
-        let dir = fpath.parent().unwrap();
-        let dir_str = try!(get_path_str(dir));
+        let cwd = fpath.parent().unwrap();
+        let cwd_str = try!(get_path_str(cwd));
 
         // TODO: for full windows compatibility you will probably want to support OsStr
         // here... I just don't want to
-        vars.insert("cwd".to_string(), dir_str.to_string());
-        let mut must_insert = false;
-        let repo = match repo_map.get(dir) {
-            Some(r) => r.to_path_buf(),
-            None => {
-                let r = match find_repo(dir, &settings.repo_names) {
-                    Some(r) => r,
-                    None => return Err(LoadError::new("dir is not part of a repo: ".to_string() +
-                                                      dir_str)),
-                };
-                // can't do this here because of borrowing rules... have to use must_insert
-                // repo_map.insert(dir.to_path_buf(), r.to_path_buf());
-                must_insert = true;
-                r.to_path_buf()
-            }
-        };
-        if must_insert {
-            repo_map.insert(dir.to_path_buf(), repo.clone());
-        }
-
+        vars.insert("cwd".to_string(), cwd_str.to_string());
+        try!(find_and_insert_repo(cwd, repo_map, &settings.repo_names));
+        let repo = repo_map.get(cwd).unwrap();
         vars.insert("repo".to_string(), try!(get_path_str(repo.as_path())).to_string());
 
         // push resolved paths
         for p in settings_item.paths.iter() {
-            let p = match strfmt(p.to_str().unwrap(), &vars) {
+            let p = match strfmt::strfmt(p.to_str().unwrap(), &vars) {
                 Ok(p) => p,
                 Err(e) => {
                     let mut msg = String::new();
@@ -501,6 +511,7 @@ fn resolve_settings(settings: &mut Settings,
 
 
 /// given a valid path, load all paths
+/// linking does not occur in this step
 pub fn load_path(path: &Path) -> LoadResult<(Artifacts, Settings, Variables,
                                              HashMap<PathBuf, PathBuf>)>{
     let mut artifacts = Artifacts::new();
@@ -511,11 +522,14 @@ pub fn load_path(path: &Path) -> LoadResult<(Artifacts, Settings, Variables,
     let mut loaded_variables: Vec<(PathBuf, Variables)> = Vec::new();
     let mut repo_map: HashMap<PathBuf, PathBuf> = HashMap::new();
     let mut num_loaded: u64 = 0;
+    let mut msg = String::new();
 
     if path.is_file() {
         num_loaded += try!(load_file(path, &mut artifacts, &mut loaded_settings,
                                      &mut loaded_variables));
         try!(resolve_settings(&mut settings, &mut repo_map, &loaded_settings));
+        let cwd = path.parent().unwrap();
+        try!(find_and_insert_repo(cwd, &mut repo_map, &settings.repo_names));
     } else if path.is_dir() {
         settings.paths.push_back(path.to_path_buf());
     } else {
@@ -530,7 +544,7 @@ pub fn load_path(path: &Path) -> LoadResult<(Artifacts, Settings, Variables,
         loaded_settings.clear();
         let dir = settings.paths.pop_front().unwrap(); // it has len, it better pop!
 
-        println!(" - Loading: {:?}", dir);
+        println!("   - Loading: {:?}", dir);
         // load the files
         if loaded_dirs.contains(&dir) {
             continue
@@ -541,7 +555,6 @@ pub fn load_path(path: &Path) -> LoadResult<(Artifacts, Settings, Variables,
                                      &mut loaded_variables) {
             Ok(n) => n,
             Err(err) => {
-                let mut msg = String::new();
                 write!(msg, "Error loading <{}>: {}", dir.to_string_lossy().as_ref(), err);
                 return Err(LoadError::new(msg));
             }
@@ -550,11 +563,14 @@ pub fn load_path(path: &Path) -> LoadResult<(Artifacts, Settings, Variables,
         try!(resolve_settings(&mut settings, &mut repo_map, &loaded_settings));
     }
 
+    println!(" - loading variables");
     let mut error = false;
     let mut var_paths: HashMap<String, PathBuf> = HashMap::new();
     for pv in loaded_variables.drain(0..) {
         let p = pv.0;
         let vars = pv.1;
+        let cwd = p.parent().unwrap();
+        try!(find_and_insert_repo(cwd, &mut repo_map, &settings.repo_names));
         for (k, v) in vars {
             match variables.insert(k.clone(), v) {
                 Some(_) => {
@@ -570,23 +586,32 @@ pub fn load_path(path: &Path) -> LoadResult<(Artifacts, Settings, Variables,
         return Err(LoadError::new("Error while processing variables".to_string()));
     }
 
+    println!(" - resolving variables");
     // keep resolving variables until all are resolved
     // - done if no vars are resolved an no errors
     // - error if no vars are resolved and errors
-    let keys: Vec<String> = variables.keys().map(|s| s.clone()).collect();
+    let mut keys: Vec<String> = variables.keys().map(|s| s.clone()).collect();
     let mut errors = Vec::new();
     let mut num_changed = 0;
+    let mut remove_keys = HashSet::new();
     loop {
+        keys = keys.iter().filter(|k| !remove_keys.contains(k.as_str()))
+            .map(|s| s.clone()).collect();
         num_changed = 0;
         errors.clear();
+        remove_keys.clear();
         for k in &keys {
             let var = variables.remove(k.as_str()).unwrap();
             let cwd = var_paths.get(k).unwrap().parent().unwrap();
             variables.insert("cwd".to_string(), cwd.to_str().unwrap().to_string());
-            variables.insert("repo".to_string(), repo_map.get(cwd).unwrap().to_str().unwrap().to_string());
-            match strfmt(var.as_str(), &variables) {
+            variables.insert("repo".to_string(), repo_map.get(cwd).unwrap()
+                             .to_str().unwrap().to_string());
+            match strfmt::strfmt(var.as_str(), &variables) {
                 Ok(s) => {
-                    num_changed += 1;
+                    if var != s {
+                        num_changed += 1;
+                    }
+                    remove_keys.insert(k.clone());
                     variables.insert(k.clone(), s);
                 }
                 Err(_) => {
@@ -604,11 +629,54 @@ pub fn load_path(path: &Path) -> LoadResult<(Artifacts, Settings, Variables,
             if errors.len() == 0 {
                 break;
             } else {
-                let mut msg = String::new();
                 write!(msg, "Could not resolve some globals: {:?}", errors);
                 return Err(LoadError::new(msg));
             }
         }
+    }
+
+    println!(" - resolving text fields");
+    // resolve all text blocks in artifacts
+    let mut errors: Vec<(&str, strfmt::FmtError)> = Vec::new();
+    for (name, art) in artifacts.iter_mut() {
+        errors.clear();
+        let cwd = art.path.parent().unwrap().to_path_buf();
+        try!(find_and_insert_repo(&cwd, &mut repo_map, &settings.repo_names));
+        variables.insert("cwd".to_string(), cwd.to_str().unwrap().to_string());
+        variables.insert("repo".to_string(), repo_map.get(&cwd).unwrap()
+                            .to_str().unwrap().to_string());
+
+        // evaluate text
+        match strfmt::strfmt(art.text.as_str(), &variables) {
+            Ok(t) => art.text = t,
+            Err(err) => errors.push(("text field", err)),
+        };
+        let mut refs = Vec::new();
+        for r in &art.refs {
+            match strfmt::strfmt(r.as_str(), &variables) {
+                Ok(r) => refs.push(r),
+                Err(err) => errors.push(("ref", err)),
+            }
+        }
+        let mut set_loc = art.loc.clone();
+        if let Some(ref loc) = art.loc {
+            match strfmt::strfmt(loc.path.to_str().unwrap(), &variables) {
+                Ok(l) => set_loc = Some(Loc {
+                    loc: loc.loc.clone(),
+                    path: PathBuf::from(l.as_str()),
+                }),
+                Err(err) => errors.push(("loc", err)),
+            }
+        }
+        art.loc = set_loc;
+        if errors.len() > 0 {
+            println!("ERROR: resolving variables on {} failed: {:?}", name, errors);
+            error = true;
+        }
+    }
+
+    if error {
+        return Err(LoadError::new("failure to resolve artifact text fields".to_string()));
     }
 
     Ok((artifacts, settings, variables, repo_map))

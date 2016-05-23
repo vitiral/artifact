@@ -241,6 +241,8 @@ fn test_load_path() {
     assert!(artifacts.contains_key(&ArtName::from_str("REQ-deep").unwrap()));
     assert!(artifacts.contains_key(&ArtName::from_str("SPC-deep").unwrap()));
 
+    let simple_dir_str = TSIMPLE_DIR.as_path().to_str().unwrap().to_string();
+
     // variables
-    assert_eq!(variables.get("lvl_1").unwrap(), "{repo}/lvl_1")
+    assert_eq!(variables.get("lvl_1").unwrap(), &(simple_dir_str + "/lvl_1"))
 }
