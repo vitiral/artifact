@@ -1,5 +1,5 @@
 [REQ-purpose]
-refs = ["{project}/README.md"]
+refs = ["{repo}/README.md"]
 
 [REQ-purpose-scale]
 text = '''

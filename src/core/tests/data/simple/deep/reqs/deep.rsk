@@ -1,0 +1,8 @@
+[settings]
+# having paths/repo_names multiple times doesn't do anything
+paths = ["{repo}/deep/reqs"]
+repo_names = [".tst_repo_name"]
+
+[REQ-deep]
+partof = "REQ-purpose"
+text = 'used to test path lookup into "deep" dirs'

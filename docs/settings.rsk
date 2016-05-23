@@ -1,0 +1,3 @@
+[globals]
+src = "{repo}/src"
+core = "{src}/core"

@@ -1,0 +1,19 @@
+
+[REQ-lvl-2]
+partof = "REQ-purpose"
+refs = ["REQ-lvl-1"]
+text = "two levels deep"
+
+[SPC-lvl-2]
+loc = "LOC-lvl-2"
+
+[TST-lvl-2]
+loc = "LOC-tst-lvl-2"
+partof = "SPC-lvl-2"
+text = 'test lvl 2'
+
+[LOC-lvl-2]
+text = "done with lvl 2"
+
+[LOC-tst-lvl-2]
+text = "test lvl 2"
