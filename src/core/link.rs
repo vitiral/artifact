@@ -22,7 +22,7 @@ pub fn create_parents(artifacts: &mut Artifacts) {
                 None => break,
                 Some(p) => p,
             };
-            if create_names.contains(&name) {
+            if artifacts.contains_key(&name) || create_names.contains(&name) {
                 // parent already exists, someone else will make sub-parents
                 // (or sub-parents are already made)
                 break;

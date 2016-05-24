@@ -90,14 +90,20 @@ fn test_link_completed_tested() {
 
     let num = load_toml(&path, TOML_LINK, &mut artifacts, &mut settings, &mut variables).unwrap();
 
+    // just checking that this artifact is good throughout the process
     assert_eq!(artifacts.get(&ArtName::from_str("SPC-core-bob").unwrap()).unwrap().partof,
                HashSet::from_iter(
         ["REQ-core-bob"].iter().map(|n| ArtName::from_str(n).unwrap())));
 
-
     create_parents(&mut artifacts);
     link_parents(&mut artifacts);
     validate_partof(&artifacts).unwrap();
+
+    // just checking that this artifact is good throughout the process
+    assert_eq!(artifacts.get(&ArtName::from_str("SPC-core-bob").unwrap()).unwrap().partof,
+               HashSet::from_iter(
+        ["REQ-core-bob", "SPC-core"].iter().map(|n| ArtName::from_str(n).unwrap())));
+
     assert_eq!(link_parts(&mut artifacts), 0);
     assert_eq!(set_completed(&mut artifacts), 0);
     assert_eq!(set_tested(&mut artifacts), 0);
