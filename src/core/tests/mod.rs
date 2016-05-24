@@ -63,9 +63,11 @@ partof = 'REQ-foo'
 [RSK-foo]
 [TST-foo]
 partof = 'SPC-dne'
-[REQ-bar]
+loc = 'LOC-tst-foo'
+[LOC-tst-foo]
+[SPC-bar]
 disabled = false
-partof = 'REQ-[foo, bar-[1,2]], TST-foo'
+partof = 'REQ-[foo, bar-[1,2]]'
 refs = [\"hello\", \"ref\"]
 text = 'bar'
 loc = 'LOC-foo: {core}/foo.rs'
@@ -88,6 +90,38 @@ repo_names = ['.tst']
 
 // tests specifically made for linking tests
 pub static TOML_LINK: &'static str = "
+[REQ-core]
+
+# bob
+[REQ-core-bob]
+
+[SPC-core-bob]
+partof = 'REQ-core-bob'
+
+# bob 1 (done, partially tested)
+[SPC-core-bob-1]
+loc = 'LOC-core-bob-1'
+
+[TST-core-bob-1-a]
+loc = 'LOC-tst-core-bob-1-a'
+[TST-core-bob-1-b]
+[TST-core-bob-1-b-1]
+[TST-core-bob-1-b-2]
+loc = 'LOC-tst-core-bob-1-b-2'
+
+[LOC-core-bob-1]
+[LOC-tst-core-bob-1-a]
+[LOC-tst-core-bob-1-b-2]
+
+# bob 2 (not done)
+[SPC-core-bob-2]
+[SPC-core-bob-2-a]
+[SPC-core-bob-2-b]
+
+# joe and jane, only requirements
+[REQ-core-joe]
+[REQ-core-jane]
+
 ";
 
 

@@ -110,12 +110,12 @@ fn test_load_toml() {
     assert!(load_toml(&path, TOML_BAD, &mut artifacts, &mut settings, &mut variables).is_err());
 
     let num = load_toml(&path, TOML_RSK, &mut artifacts, &mut settings, &mut variables).unwrap();
-    assert_eq!(num, 9);
+    assert_eq!(num, 10);
     assert!(artifacts.contains_key(&ArtName::from_str("REQ-foo").unwrap()));
     assert!(artifacts.contains_key(&ArtName::from_str("SPC-foo").unwrap()));
     assert!(artifacts.contains_key(&ArtName::from_str("RSK-foo").unwrap()));
     assert!(artifacts.contains_key(&ArtName::from_str("TST-foo").unwrap()));
-    assert!(artifacts.contains_key(&ArtName::from_str("REQ-bar").unwrap()));
+    assert!(artifacts.contains_key(&ArtName::from_str("SPC-bar").unwrap()));
 
     // will be loaded later
     assert!(!artifacts.contains_key(&ArtName::from_str("REQ-baz").unwrap()));
@@ -137,12 +137,12 @@ fn test_load_toml() {
         assert_eq!(art.tested, -1.0);
 
         // test non-defaults
-        let art = artifacts.get(&ArtName::from_str("REQ-bar").unwrap()).unwrap();
-        assert_eq!(art.ty, ArtType::REQ);
+        let art = artifacts.get(&ArtName::from_str("SPC-bar").unwrap()).unwrap();
+        assert_eq!(art.ty, ArtType::SPC);
         assert_eq!(art.path, path);
         assert_eq!(art.text, "bar");
         assert_eq!(art.refs, ["hello", "ref"]);
-        let expected = ["REQ-Foo", "REQ-Bar-1", "REQ-Bar-2", "tst-foo"]
+        let expected = ["REQ-Foo", "REQ-Bar-1", "REQ-Bar-2"]
             .iter().map(|n| ArtName::from_str(n).unwrap()).collect();
         assert_eq!(art.partof, expected);
         let expected = Loc{

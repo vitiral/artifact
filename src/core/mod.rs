@@ -19,7 +19,12 @@ pub use core::types::{
 /// variables, and linking artifacts
 pub fn load_path(path: &Path) -> LoadResult<(Artifacts, Settings)>{
     let (mut artifacts, settings) = try!(load::load_path(path));
-
+    link::create_parents(&mut artifacts);
+    link::link_parents(&mut artifacts);
+    try!(link::validate_partof(&artifacts));
+    link::link_parts(&mut artifacts);
+    link::set_completed(&mut artifacts);
+    link::set_tested(&mut artifacts);
     Ok((artifacts, settings))
 }
 

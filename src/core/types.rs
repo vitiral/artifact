@@ -87,7 +87,7 @@ fn test_loc() {
 /// (as it is based on the name)
 // TODO: Hash and Eq have to be defined to ONLY care about
 // value. raw is simply for displaying on the ui
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct ArtName {
     pub raw: String,
     pub value: Vec<String>,
@@ -156,6 +156,12 @@ fn test_artname_parent() {
 impl fmt::Display for ArtName {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}", self.raw)
+    }
+}
+
+impl fmt::Debug for ArtName {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{:?}", self.value)
     }
 }
 
