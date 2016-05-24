@@ -12,78 +12,11 @@ use std::io::{Read, Write};
 use std::fmt::Write as WriteStr;
 use std::iter::FromIterator;
 
-use walkdir::WalkDir;
 use toml::{Parser, Value, Table};
-use strfmt::strfmt;
 
 use super::*;  // data directory constants
 use super::super::types::*;
 use super::super::load::*;
-
-// Data and helpers
-
-// valid toml, not necessarily all valid artifacts
-static TOML_GOOD: &'static str = "
-[settings]
-disabled = false
-paths = ['{cwd}/test', '{repo}/test']
-repo_names = ['.test']
-
-[REQ-foo]
-disabled = false
-[SPC-foo]
-refs = [1, 2]
-[RSK-foo]
-[TST-foo]
-[REQ-bar]
-text = 'bar'
-disabled = false
-refs = [\"hello\", \"ref\"]
-";
-
-// valid rsk file
-static TOML_RSK: &'static str = "
-[settings]
-disabled = false
-paths = ['{cwd}/data/empty']
-repo_names = ['.test']
-
-[REQ-foo]
-disabled = false
-[SPC-foo]
-refs = ['1', '2']
-[RSK-foo]
-[TST-foo]
-[REQ-bar]
-disabled = false
-partof = 'REQ-[foo, bar-[1,2]], TST-foo'
-refs = [\"hello\", \"ref\"]
-text = 'bar'
-loc = 'LOC-foo: {core}/foo.rs'
-";
-
-static TOML_RSK2: &'static str = "
-[settings]
-paths = ['test/path']
-repo_names = ['.tst']
-[REQ-baz]
-[RSK-foo-2]
-[TST-foo-2]
-";
-
-static TOML_BAD: &'static str = "[REQ-bad]\nrefs = 'REQ-foo'";  // invalid type
-static TOML_OVERLAP: &'static str = "[REQ-foo]\n";
-
-fn parse_text(t: &str) -> Table {
-    Parser::new(t).parse().unwrap()
-}
-
-fn get_table<'a>(tbl: &'a Table, attr: &str) -> &'a Table {
-    match tbl.get(attr).unwrap() {
-        &Value::Table(ref t) => t,
-        _ => unreachable!()
-    }
-}
 
 // // Tests
 
@@ -177,7 +110,7 @@ fn test_load_toml() {
     assert!(load_toml(&path, TOML_BAD, &mut artifacts, &mut settings, &mut variables).is_err());
 
     let num = load_toml(&path, TOML_RSK, &mut artifacts, &mut settings, &mut variables).unwrap();
-    assert_eq!(num, 5);
+    assert_eq!(num, 8);
     assert!(artifacts.contains_key(&ArtName::from_str("REQ-foo").unwrap()));
     assert!(artifacts.contains_key(&ArtName::from_str("SPC-foo").unwrap()));
     assert!(artifacts.contains_key(&ArtName::from_str("RSK-foo").unwrap()));
@@ -200,8 +133,8 @@ fn test_load_toml() {
         let expected: HashSet<ArtName> = HashSet::new();
         assert_eq!(art.partof, expected);
         assert_eq!(art.loc, None);
-        assert_eq!(art.completed, None);
-        assert_eq!(art.tested, None);
+        assert_eq!(art.completed, -1.0);
+        assert_eq!(art.tested, -1.0);
 
         // test non-defaults
         let art = artifacts.get(&ArtName::from_str("REQ-bar").unwrap()).unwrap();
@@ -216,8 +149,8 @@ fn test_load_toml() {
             loc: ArtName::from_str("LOC-Foo").unwrap(),
             path: PathBuf::from("{core}/foo.rs")};
         assert_eq!(art.loc.as_ref().unwrap(), &expected);
-        assert_eq!(art.completed, None);
-        assert_eq!(art.tested, None);
+        assert_eq!(art.completed, -1.0);
+        assert_eq!(art.tested, -1.0);
     }
 
     // REQ-foo already exists, so this must throw an error

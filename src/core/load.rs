@@ -181,8 +181,8 @@ impl Artifact {
 
             // calculated vars
             parts: HashSet::new(),
-            completed: None,
-            tested: None,
+            completed: -1.0,
+            tested: -1.0,
         })
     }
 }

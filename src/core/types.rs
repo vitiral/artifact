@@ -120,6 +120,28 @@ impl ArtName {
         try!(out.find_type_maybe()); // ensure the type is valid
         Ok(out)
     }
+
+    pub fn parent(&self) -> Option<ArtName> {
+        if self.value.len() <= 1 {
+            return None;
+        }
+        let mut value = self.value.clone();
+        value.pop().unwrap();
+        Some(ArtName{raw: value.join("-"), value: value})
+    }
+}
+
+#[test]
+fn test_artname_parent() {
+    let name = ArtName::from_str("REQ-foo-bar-b").unwrap();
+    let parent = name.parent().unwrap();
+    assert_eq!(parent, ArtName::from_str("REQ-foo-bar").unwrap());
+    let parent = parent.parent().unwrap();
+    assert_eq!(parent, ArtName::from_str("REQ-foo").unwrap());
+    let parent = parent.parent().unwrap();
+    let req = ArtName::from_str("REQ-2").unwrap().parent().unwrap();
+    assert_eq!(parent, req);
+    assert!(parent.parent().is_none());
 }
 
 impl fmt::Display for ArtName {
@@ -160,8 +182,8 @@ pub struct Artifact {
     pub partof: HashSet<ArtName>,
     pub parts: HashSet<ArtName>,
     pub loc: Option<Loc>,
-    pub completed: Option<f32>, // completed percent (calculated)
-    pub tested: Option<f32>, // tested percent (calculated)
+    pub completed: f32, // completed percent (calculated)
+    pub tested: f32, // tested percent (calculated)
 }
 
 #[derive(Debug)]
