@@ -3,6 +3,7 @@
 use std::path::PathBuf;
 
 mod test_load;
+mod test_vars;
 
 lazy_static!{
     pub static ref TEST_DIR: PathBuf = PathBuf::from(file!()).parent().unwrap().to_path_buf();

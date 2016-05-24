@@ -18,7 +18,6 @@ text = '''
 
 **recursively** is defined as "load until there is a directory with no `.rsk` files".
 
-
 Example:
 **rsk** will try to load /foo and /foo/src but will not try to load
 /foo/src/bar as there were no `.rsk` files in /foo/src

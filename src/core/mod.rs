@@ -2,12 +2,13 @@
 #[macro_use] mod load;
 mod types;
 mod link;
-
-// pub use load::recursive_raw_load;
+mod vars;
 
 #[cfg(test)]
 mod tests;
 
+
+// pub use load::recursive_raw_load;
 
     // TODO: LOC-core-load-parts-2:<load and validate global variables>
     // LOC-core-load-parts-3:<resolve variables in text fields>
