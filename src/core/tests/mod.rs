@@ -56,9 +56,13 @@ repo_names = ['.test']
 [REQ-foo]
 disabled = false
 [SPC-foo]
+loc = 'LOC-foo'
 refs = ['1', '2']
+partof = 'REQ-foo'
+[LOC-foo]
 [RSK-foo]
 [TST-foo]
+partof = 'SPC-dne'
 [REQ-bar]
 disabled = false
 partof = 'REQ-[foo, bar-[1,2]], TST-foo'
@@ -81,6 +85,11 @@ repo_names = ['.tst']
 [RSK-foo-2]
 [TST-foo-2]
 ";
+
+// tests specifically made for linking tests
+pub static TOML_LINK: &'static str = "
+";
+
 
 pub static TOML_BAD: &'static str = "[REQ-bad]\nrefs = 'REQ-foo'";  // invalid type
 pub static TOML_OVERLAP: &'static str = "[REQ-foo]\n";

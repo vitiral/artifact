@@ -36,23 +36,33 @@ fn test_basic_link() {
 
     // test linking
     link_parents(&mut artifacts);
-    link_parts(&mut artifacts);
-    {
-        let req = artifacts.get(&req_name).unwrap();
-        let req_parts = artifacts.get(&ArtName::from_str("REQ-parts").unwrap()).unwrap();
-        let req_parts_p1 = artifacts.get(&ArtName::from_str("REQ-parts-p1").unwrap()).unwrap();
-        let req_parts_p1_a = artifacts.get(&ArtName::from_str("REQ-parts-p1-a").unwrap()).unwrap();
+    assert_eq!(link_parts(&mut artifacts), 4);
+    set_completed(&mut artifacts);
 
-        assert_eq!(req.partof, HashSet::new());
-        assert_eq!(req.parts, HashSet::from_iter(
-            ["REQ-parts", "REQ-foo", "REQ-bar"].iter().map(|n| ArtName::from_str(n).unwrap())));
+    let req = artifacts.get(&req_name).unwrap();
+    let req_parts = artifacts.get(&ArtName::from_str("REQ-parts").unwrap()).unwrap();
+    let req_parts_p1 = artifacts.get(&ArtName::from_str("REQ-parts-p1").unwrap()).unwrap();
+    let req_parts_p1_a = artifacts.get(&ArtName::from_str("REQ-parts-p1-a").unwrap()).unwrap();
+    let spc_foo = artifacts.get(&ArtName::from_str("SPC-foo").unwrap()).unwrap();
+    let req_foo = artifacts.get(&ArtName::from_str("REQ-foo").unwrap()).unwrap();
 
-        assert_eq!(req_parts.partof, HashSet::from_iter(vec![req_name.clone()]));
-        assert_eq!(req_parts.parts, HashSet::from_iter(
-            ["REQ-parts-p1", "REQ-parts-p2"].iter().map(|n| ArtName::from_str(n).unwrap())));
+    // test parts
+    assert_eq!(req.partof, HashSet::new());
+    assert_eq!(req.parts, HashSet::from_iter(
+        ["REQ-parts", "REQ-foo", "REQ-bar"].iter().map(|n| ArtName::from_str(n).unwrap())));
 
-        assert_eq!(req_parts_p1_a.partof, HashSet::from_iter(
-            ["REQ-parts-p1"].iter().map(|n| ArtName::from_str(n).unwrap())));
-        assert_eq!(req_parts_p1_a.parts, HashSet::new());
-    }
+    assert_eq!(req_parts.partof, HashSet::from_iter(vec![req_name.clone()]));
+    assert_eq!(req_parts.parts, HashSet::from_iter(
+        ["REQ-parts-p1", "REQ-parts-p2"].iter().map(|n| ArtName::from_str(n).unwrap())));
+
+    assert_eq!(req_parts_p1_a.partof, HashSet::from_iter(
+        ["REQ-parts-p1"].iter().map(|n| ArtName::from_str(n).unwrap())));
+    assert_eq!(req_parts_p1_a.parts, HashSet::new());
+
+    // test completeness
+    assert_eq!(spc_foo.completed, 100.0);
+    assert_eq!(req_foo.completed, 50.0);
+    assert_eq!(req_parts.completed, 0.0);
+    assert_eq!(req_parts_p1.completed, 0.0);
+    assert_eq!(req_parts_p1_a.completed, 0.0);
 }

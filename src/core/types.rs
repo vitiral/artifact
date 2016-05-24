@@ -64,6 +64,15 @@ impl Loc {
             path: path::PathBuf::from(path),
         })
     }
+
+    pub fn valid(&self) -> bool {
+        if self.path.exists() {
+            // TODO: also check to make sure the name exists in the file
+            true
+        } else {
+            false
+        }
+    }
 }
 
 #[test]
