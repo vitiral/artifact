@@ -65,19 +65,19 @@ fn test_basic_link() {
     assert_eq!(req_parts_p1_a.parts, HashSet::new());
 
     // test completed %
-    assert_eq!(spc_foo.completed, 100.0);
-    assert_eq!(req_foo.completed, 100.0);
-    assert_eq!(req_parts.completed, 0.0);
-    assert_eq!(req_parts_p1.completed, 0.0);
-    assert_eq!(req_parts_p1_a.completed, 0.0);
+    assert_eq!(spc_foo.completed, 1.);
+    assert_eq!(req_foo.completed, 1.);
+    assert_eq!(req_parts.completed, 0.);
+    assert_eq!(req_parts_p1.completed, 0.);
+    assert_eq!(req_parts_p1_a.completed, 0.);
 
     // test tested %
-    assert_eq!(tst_foo.tested, 100.0);
-    assert_eq!(spc_foo.tested, 0.0);
-    assert_eq!(req_foo.tested, 0.0);
-    assert_eq!(req_parts.tested, 0.0);
-    assert_eq!(req_parts_p1.tested, 0.0);
-    assert_eq!(req_parts_p1_a.tested, 0.0);
+    assert_eq!(tst_foo.tested, 1.);
+    assert_eq!(spc_foo.tested, 0.);
+    assert_eq!(req_foo.tested, 0.);
+    assert_eq!(req_parts.tested, 0.);
+    assert_eq!(req_parts_p1.tested, 0.);
+    assert_eq!(req_parts_p1_a.tested, 0.);
 }
 
 #[test]
@@ -116,13 +116,18 @@ fn test_link_completed_tested() {
 
     // bob 1
     let spc_bob_1      = artifacts.get(&ArtName::from_str("SPC-core-bob-1").unwrap()).unwrap();
+    let tst_bob_1      = artifacts.get(&ArtName::from_str("TST-core-bob-1").unwrap()).unwrap();
     let tst_bob_1_a    = artifacts.get(&ArtName::from_str("TST-core-bob-1-a").unwrap()).unwrap();
     let tst_bob_1_b    = artifacts.get(&ArtName::from_str("TST-core-bob-1-b").unwrap()).unwrap();
+    let tst_bob_1_b_1  = artifacts.get(&ArtName::from_str("TST-core-bob-1-b-1").unwrap()).unwrap();
+    let tst_bob_1_b_2  = artifacts.get(&ArtName::from_str("TST-core-bob-1-b-2").unwrap()).unwrap();
 
     // bob 2
     let spc_bob_2      = artifacts.get(&ArtName::from_str("SPC-core-bob-2").unwrap()).unwrap();
     let spc_bob_2_a    = artifacts.get(&ArtName::from_str("SPC-core-bob-2-a").unwrap()).unwrap();
     let spc_bob_2_b    = artifacts.get(&ArtName::from_str("SPC-core-bob-2-b").unwrap()).unwrap();
+
+    assert_eq!(tst_bob_1_b_2.tested,    1.);
 
     // jane and joe
     let spc_bob_2_a    = artifacts.get(&ArtName::from_str("REQ-core-joe").unwrap()).unwrap();
@@ -135,11 +140,26 @@ fn test_link_completed_tested() {
         ["SPC-core", "REQ-core-bob"].iter().map(|n| ArtName::from_str(n).unwrap())));
     assert_eq!(req_bob.parts, HashSet::from_iter(
         ["SPC-core-bob"].iter().map(|n| ArtName::from_str(n).unwrap())));
+    assert_eq!(spc_bob_1.parts, HashSet::from_iter(
+        ["TST-core-bob-1"].iter().map(|n| ArtName::from_str(n).unwrap())));
 
     // assert completed
-    assert_eq!(spc_bob_1.completed,     100.0);
-    assert_eq!(spc_bob.completed,       50.0);
-    assert_eq!(req_bob.completed,       50.0);
-    assert_eq!(req.completed, (0.5 + 0. + 0.) * 100.0 / 3.0);
+    let bob_complete = (1. + (1.+0.)/2.) / 2.;
+    assert_eq!(spc_bob_1.completed,     1.);
+    assert_eq!(spc_bob.completed,       bob_complete);
+    assert_eq!(req_bob.completed,       bob_complete);
+    assert_eq!(req.completed, (bob_complete + 0. + 0.) / 3.0);
 
+    // assert tested
+    assert_eq!(tst_bob_1_a.tested,      1.);
+    assert_eq!(tst_bob_1_b_2.tested,    1.);
+    assert_eq!(tst_bob_1_b.tested,      0.5);
+    let bob_1_tested = (1. + 0.5) / 2.;
+    assert_eq!(tst_bob_1.tested,        bob_1_tested);
+    assert_eq!(spc_bob_1.tested,        bob_1_tested);
+    assert_eq!(spc_bob_2.tested,        0.5);
+    let bob_tested = (0.5 + bob_1_tested) / 2.;
+    assert_eq!(spc_bob.tested,          bob_tested);
+    assert_eq!(req_bob.tested,          bob_tested);
+    assert_eq!(req.tested,              (bob_tested + 0. + 0.) / 3.);
 }

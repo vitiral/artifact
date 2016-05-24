@@ -150,14 +150,23 @@ pub fn set_completed(artifacts: &mut Artifacts) -> usize {
             // resolve artifact completeness
             match got_it {
                 3 => artifacts.get_mut(&name).unwrap().completed = 0.0,
-                2 => artifacts.get_mut(&name).unwrap().completed = 100.0,
+                2 => artifacts.get_mut(&name).unwrap().completed = 1.0,
                 1 => artifacts.get_mut(&name).unwrap().completed = {
-                    // equal to sum of it's parts
                     let artifact = artifacts.get(&name).unwrap();
-                    let out = artifact.parts.iter()
-                        .map(|n| artifacts.get(n).unwrap().completed)
-                        .fold(0.0, |sum, x| sum + x) / artifact.parts.len() as f32;
-                    out
+                    // get the completed values, ignoring TSTs that are part of SPCs
+                    let completed: Vec<f32> = if artifact.ty == ArtType::SPC {
+                        artifact.parts.iter()
+                            .filter(|n| artifacts.get(n).unwrap().ty != ArtType::TST)
+                            .map(|n| artifacts.get(n).unwrap().completed).collect()
+                    } else {
+                        artifact.parts.iter()
+                            .map(|n| artifacts.get(n).unwrap().completed).collect()
+                    };
+                    // now completed is just the sum of it's valid parts
+                    match completed.len() {
+                        0 => 0.0,
+                        _ => completed.iter().fold(0.0, |sum, x| sum + x) / completed.len() as f32,
+                    }
                 },
                 0 => {},
                 _ => unreachable!(),

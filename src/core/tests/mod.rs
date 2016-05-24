@@ -102,6 +102,8 @@ partof = 'REQ-core-bob'
 [SPC-core-bob-1]
 loc = 'LOC-core-bob-1'
 
+[TST-core-bob-1]
+partof = 'SPC-core-bob-1'
 [TST-core-bob-1-a]
 loc = 'LOC-tst-core-bob-1-a'
 [TST-core-bob-1-b]
@@ -117,6 +119,16 @@ loc = 'LOC-tst-core-bob-1-b-2'
 [SPC-core-bob-2]
 [SPC-core-bob-2-a]
 [SPC-core-bob-2-b]
+loc = 'LOC-core-bob-2-b'
+
+[TST-core-bob-2-a] # tested but not implemented, possible in TDD
+partof = 'SPC-core-bob-2-a'
+loc = 'LOC-tst-core-bob-2-a'
+[TST-core-bob-2-b] # implemented but not tested
+partof = 'SPC-core-bob-2-b'
+
+[LOC-core-bob-2-b]
+[LOC-tst-core-bob-2-a]
 
 # joe and jane, only requirements
 [REQ-core-joe]
