@@ -14,12 +14,11 @@ use std::iter::FromIterator;
 
 // crates
 use toml::{Parser, Value, Table};
-use strfmt;
 use time;
 
 // modules
 use core::types::*;
-use core::vars::{find_and_insert_repo, resolve_vars, fill_text_fields};
+use core::vars::{resolve_vars, resolve_settings, fill_text_fields};
 
 lazy_static!{
     pub static ref DEFAULT_GLOBALS: HashSet<String> = HashSet::from_iter(
@@ -368,64 +367,6 @@ pub fn load_dir(path: &Path,
     }
 }
 
-fn get_path_str<'a>(path: &'a Path) -> LoadResult<&'a str> {
-    match path.to_str() {
-        Some(p) => Ok(p),
-        None => Err(LoadError::new(
-            "detected invalid unicode in path name: ".to_string() +
-            path.to_string_lossy().as_ref())),
-    }
-}
-
-/// LOC-load-settings-resolve:<resolve all informaiton related to settings>
-fn resolve_settings(settings: &mut Settings,
-                    repo_map: &mut HashMap<PathBuf, PathBuf>,
-                    loaded_settings: &Vec<(PathBuf, Settings)>)
-                    -> LoadResult<()> {
-    // first pull out all of the repo_names
-    for ps in loaded_settings.iter() {
-        let ref s: &Settings = &ps.1;
-        for rn in &s.repo_names {
-            settings.repo_names.insert(rn.clone());
-        }
-    }
-
-    // now resolve all path names
-    let mut vars: HashMap<String, String> = HashMap::new();
-    for ps in loaded_settings.iter() {
-        let ref settings_item: &Settings = &ps.1;
-
-        // load the default global variables {cwd} and {repo}
-        let fpath = ps.0.clone();
-        let cwd = fpath.parent().unwrap();
-        let cwd_str = try!(get_path_str(cwd));
-
-        // TODO: for full windows compatibility you will probably want to support OsStr
-        // here... I just don't want to
-        // LOC-core-settings-vars
-        vars.insert("cwd".to_string(), cwd_str.to_string());
-        try!(find_and_insert_repo(cwd, repo_map, &settings.repo_names));
-        let repo = repo_map.get(cwd).unwrap();
-        vars.insert("repo".to_string(), try!(get_path_str(repo.as_path())).to_string());
-
-        // push resolved paths
-        for p in settings_item.paths.iter() {
-            let p = match strfmt::strfmt(p.to_str().unwrap(), &vars) {
-                Ok(p) => p,
-                Err(e) => {
-                    let mut msg = String::new();
-                    write!(msg, "ERROR at {}: {}", fpath.to_string_lossy().as_ref(), e.to_string())
-                        .unwrap();
-                    return Err(LoadError::new(msg));
-                }
-            };
-            settings.paths.push_back(PathBuf::from(p));
-        }
-    }
-    Ok(())
-}
-
-
 /// given a valid path, load all paths
 /// linking does not occur in this step
 /// LOC-core-load-path
@@ -446,8 +387,6 @@ pub fn load_path(path: &Path) -> LoadResult<(Artifacts, Settings)>{
         num_loaded += try!(load_file(path, &mut artifacts, &mut loaded_settings,
                                      &mut loaded_variables));
         try!(resolve_settings(&mut settings, &mut repo_map, &loaded_settings));
-        let cwd = path.parent().unwrap();
-        try!(find_and_insert_repo(cwd, &mut repo_map, &settings.repo_names));
     } else if path.is_dir() {
         settings.paths.push_back(path.to_path_buf());
     } else {
@@ -475,7 +414,7 @@ pub fn load_path(path: &Path) -> LoadResult<(Artifacts, Settings)>{
                 return Err(LoadError::new(msg));
             }
         };
-        // resolve the project-level settings (paths, repo_names, etc)
+        // resolve the project-level settings after each directory is recursively loaded
         try!(resolve_settings(&mut settings, &mut repo_map, &loaded_settings));
     }
 
@@ -486,8 +425,6 @@ pub fn load_path(path: &Path) -> LoadResult<(Artifacts, Settings)>{
     for pv in loaded_variables.drain(0..) {
         let p = pv.0;
         let vars = pv.1;
-        let cwd = p.parent().unwrap();
-        try!(find_and_insert_repo(cwd, &mut repo_map, &settings.repo_names));
         for (k, v) in vars {
             match variables.insert(k.clone(), v) {
                 Some(_) => {
@@ -504,7 +441,7 @@ pub fn load_path(path: &Path) -> LoadResult<(Artifacts, Settings)>{
     }
 
     println!(" * Resolving variables...");
-    try!(resolve_vars(&mut variables, &var_paths, &repo_map));
+    try!(resolve_vars(&mut variables, &var_paths, &mut repo_map, &settings.repo_names));
 
     println!(" * Filling in variables for text fields...");
     try!(fill_text_fields(&mut artifacts, &settings, &mut variables, &mut repo_map));

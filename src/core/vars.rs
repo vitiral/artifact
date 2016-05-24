@@ -1,5 +1,6 @@
 //! vars module
-//! used by the load module to resolve variables
+//! used by the load module to resolve and apply loaded variables
+//! also contains settings resolution because it is similar
 
 use std::fs;
 use std::clone::Clone;
@@ -43,6 +44,53 @@ pub fn find_repo<'a>(dir: &'a Path, repo_names: &HashSet<String>) -> Option<&'a 
     }
 }
 
+/// LOC-load-settings-resolve:<resolve all informaiton related to settings>
+pub fn resolve_settings(settings: &mut Settings,
+                        repo_map: &mut HashMap<PathBuf, PathBuf>,
+                        loaded_settings: &Vec<(PathBuf, Settings)>)
+                        -> LoadResult<()> {
+    // first pull out all of the repo_names
+    for ps in loaded_settings.iter() {
+        let ref s: &Settings = &ps.1;
+        for rn in &s.repo_names {
+            settings.repo_names.insert(rn.clone());
+        }
+    }
+
+    // now resolve all path names
+    let mut vars: HashMap<String, String> = HashMap::new();
+    for ps in loaded_settings.iter() {
+        let ref settings_item: &Settings = &ps.1;
+
+        // load the default global variables {cwd} and {repo}
+        let fpath = ps.0.clone();
+        let cwd = fpath.parent().unwrap();
+        let cwd_str = try!(get_path_str(cwd));
+
+        // TODO: for full windows compatibility you will probably want to support OsStr
+        // here... I just don't want to
+        // LOC-core-settings-vars
+        vars.insert("cwd".to_string(), cwd_str.to_string());
+        try!(find_and_insert_repo(cwd, repo_map, &settings.repo_names));
+        let repo = repo_map.get(cwd).unwrap();
+        vars.insert("repo".to_string(), try!(get_path_str(repo.as_path())).to_string());
+
+        // push resolved paths
+        for p in settings_item.paths.iter() {
+            let p = match strfmt::strfmt(p.to_str().unwrap(), &vars) {
+                Ok(p) => p,
+                Err(e) => {
+                    let mut msg = String::new();
+                    write!(msg, "ERROR at {}: {}", fpath.to_string_lossy().as_ref(), e.to_string())
+                        .unwrap();
+                    return Err(LoadError::new(msg));
+                }
+            };
+            settings.paths.push_back(PathBuf::from(p));
+        }
+    }
+    Ok(())
+}
 
 /// LOC-find-repo:<given a path, find the closest dir with the repo identifier
 ///     and keep track of it>
@@ -80,9 +128,11 @@ pub fn find_and_insert_repo(dir: &Path, repo_map: &mut HashMap<PathBuf, PathBuf>
 /// - error if no vars were resolved in a pass and there were errors
 /// LOC-core-vars-resolve
 pub fn resolve_vars(variables: &mut Variables,
-                var_paths: &HashMap<String, PathBuf>,
-                repo_map: &HashMap<PathBuf, PathBuf>)
-                -> LoadResult<()> {
+                    var_paths: &HashMap<String, PathBuf>,
+                    repo_map: &mut HashMap<PathBuf, PathBuf>,
+                    repo_names: &HashSet<String>,
+                    )
+                    -> LoadResult<()> {
     // keep resolving variables until all are resolved
     let mut msg = String::new();
     let mut keys: Vec<String> = variables.keys().map(|s| s.clone()).collect();
@@ -99,6 +149,7 @@ pub fn resolve_vars(variables: &mut Variables,
             let var = variables.remove(k.as_str()).unwrap();
             let cwd = var_paths.get(k).unwrap().parent().unwrap();
             variables.insert("cwd".to_string(), cwd.to_str().unwrap().to_string());
+            try!(find_and_insert_repo(&cwd, repo_map, repo_names));
             variables.insert("repo".to_string(), repo_map.get(cwd).unwrap()
                              .to_str().unwrap().to_string());
             match strfmt::strfmt(var.as_str(), &variables) {
@@ -184,4 +235,13 @@ pub fn fill_text_fields(artifacts: &mut Artifacts,
         return Err(LoadError::new("failure to resolve artifact text fields".to_string()));
     }
     Ok(())
+}
+
+fn get_path_str<'a>(path: &'a Path) -> LoadResult<&'a str> {
+    match path.to_str() {
+        Some(p) => Ok(p),
+        None => Err(LoadError::new(
+            "detected invalid unicode in path name: ".to_string() +
+            path.to_string_lossy().as_ref())),
+    }
 }
