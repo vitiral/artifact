@@ -90,6 +90,10 @@ fn test_link_completed_tested() {
 
     let num = load_toml(&path, TOML_LINK, &mut artifacts, &mut settings, &mut variables).unwrap();
 
+    assert_eq!(artifacts.get(&ArtName::from_str("SPC-core-bob").unwrap()).unwrap().partof,
+               HashSet::from_iter(
+        ["REQ-core-bob"].iter().map(|n| ArtName::from_str(n).unwrap())));
+
 
     create_parents(&mut artifacts);
     link_parents(&mut artifacts);
@@ -121,6 +125,8 @@ fn test_link_completed_tested() {
     // assert parts make some sense
     assert_eq!(req.parts, HashSet::from_iter(
         ["REQ-core"].iter().map(|n| ArtName::from_str(n).unwrap())));
+    assert_eq!(spc_bob.partof, HashSet::from_iter(
+        ["SPC-core", "REQ-core-bob"].iter().map(|n| ArtName::from_str(n).unwrap())));
     assert_eq!(req_bob.parts, HashSet::from_iter(
         ["SPC-core-bob"].iter().map(|n| ArtName::from_str(n).unwrap())));
 

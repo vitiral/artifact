@@ -94,7 +94,6 @@ pub fn link_parts(artifacts: &mut Artifacts) -> u64 {
     // get all the parts, linked by name
     let mut warnings: u64 = 0;
     let mut artifact_parts: HashMap<ArtName, HashSet<ArtName>> = HashMap::new();
-    let mut artifact_remove_parts: HashMap<ArtName, HashSet<ArtName>> = HashMap::new();
     for (name, artifact) in artifacts.iter() {
         // get the artifacts this is a `partof`, this artifact should be in all of their `parts`
         for partof in artifact.partof.iter() {
@@ -111,6 +110,7 @@ pub fn link_parts(artifacts: &mut Artifacts) -> u64 {
     }
     // insert the parts
     for (name, parts) in artifact_parts.drain() {
+        println!("* {} has parts {:?}", name, parts);
         artifacts.get_mut(&name).unwrap().parts = parts;
     }
     warnings
