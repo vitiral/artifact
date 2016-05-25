@@ -235,7 +235,7 @@ pub fn fill_text_fields(artifacts: &mut Artifacts,
         }
         art.loc = set_loc;
         if errors.len() > 0 {
-            println!("ERROR: resolving variables on [{:?}] {} failed: {:?}", art.path, name, errors);
+            error!(" resolving variables on [{:?}] {} failed: {:?}", art.path, name, errors);
             error = true;
         }
     }

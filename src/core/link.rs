@@ -3,6 +3,7 @@
 use std::path;
 use std::collections::{HashMap, HashSet};
 use std::iter::FromIterator;
+use itertools::Itertools;
 
 use core::types::{
     LoadResult, LoadError,
@@ -75,7 +76,7 @@ pub fn validate_partof(artifacts: &Artifacts) -> LoadResult<()> {
                 (&ArtType::TST, &ArtType::TST) | (&ArtType::TST, &ArtType::RSK)
                     | (&ArtType::TST, &ArtType::SPC) => {},
                 (_, _) => {
-                    println!("ERROR: [{:?}:{}]: {:?} can not be a partof {:?}",
+                    error!("[{:?}:{}]: {:?} can not be a partof {:?}",
                                 artifact.path, name, p_type, n_type);
                     error = true;
                 }
@@ -98,7 +99,7 @@ pub fn link_parts(artifacts: &mut Artifacts) -> u64 {
         // get the artifacts this is a `partof`, this artifact should be in all of their `parts`
         for partof in artifact.partof.iter() {
             if !artifacts.contains_key(&partof) {
-                println!("WARN: [{:?}] {} has invalid partof={}", artifact.path, name, partof);
+                warn!("[{:?}] {} has invalid partof = {}", artifact.path, name, partof);
                 warnings += 1;
                 continue;
             }
@@ -110,7 +111,7 @@ pub fn link_parts(artifacts: &mut Artifacts) -> u64 {
     }
     // insert the parts
     for (name, parts) in artifact_parts.drain() {
-        println!("* {} has parts {:?}", name, parts);
+        // trace!("* {} has parts {:?}", name, parts);
         artifacts.get_mut(&name).unwrap().parts = parts;
     }
     warnings
@@ -134,7 +135,7 @@ pub fn set_completed(artifacts: &mut Artifacts) -> usize {
                         if artifacts.contains_key(&l.loc) || l.valid() {
                             got_it = 2; // it is 100% completed by definition
                         } else if !l.valid() {
-                            println!("WARN: [{:?}:{}] has non-existant loc", artifact.path, name);
+                            warn!("[{:?}:{}] has non-existant loc", artifact.path, name);
                             got_it = 3; // it is 0% completed by definition
                         }
                     }
@@ -172,7 +173,7 @@ pub fn set_completed(artifacts: &mut Artifacts) -> usize {
                 _ => unreachable!(),
             }
             if got_it != 0 {
-                println!(" *** resolved {} at {}", name, artifacts.get(name).unwrap().completed);
+                // trace!("resolved {} at {}", name, artifacts.get(name).unwrap().completed);
                 found.insert(name.clone());
                 known.insert(name.clone());
             }
@@ -185,7 +186,8 @@ pub fn set_completed(artifacts: &mut Artifacts) -> usize {
         }
     }
     if names.len() != 0 {
-        println!("WARN: could not resolve completed % for: {:?}", names);
+        warn!("could not resolve completed % for: [{}]", names.iter().map(|n| n.raw.clone())
+              .join(", "));
     }
     names.len()
 }
@@ -238,7 +240,8 @@ pub fn set_tested(artifacts: &mut Artifacts) -> usize {
         }
     }
     if names.len() != 0 {
-        println!("WARN: could not resolve tested % for: {:?}", names);
+        warn!("could not resolve tested % for: [{}]", names.iter().map(|n| n.raw.clone())
+              .join(", "));
     }
     names.len()
 }
