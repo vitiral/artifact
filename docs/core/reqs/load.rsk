@@ -44,7 +44,7 @@ The `loc` field **shall** be a string detailing the location of implementation
 
 default = ""
 
-The format **shall** be: `\{artifact\}:\{path\}`
+The format **shall** be: `<artifact>:<path>`
 
 both items are optional, but the ":" must be provided (or the string must be empty)
 '''

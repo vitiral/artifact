@@ -4,7 +4,7 @@ text = '''
 There **shall** be a method of setting variables.
 
 These variables can be accessed in any **string** type block by using the
-"{}" brackets suronding the variable name
+"{{}}" brackets suronding the variable name
 
 '''
 

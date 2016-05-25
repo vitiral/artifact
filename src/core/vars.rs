@@ -3,6 +3,7 @@
 //! also contains settings resolution because it is similar
 
 use std::fs;
+use std::env;
 use std::clone::Clone;
 use std::path::{Path, PathBuf};
 use std::convert::AsRef;
@@ -18,9 +19,14 @@ use strfmt;
 use core::types::*;
 
 /// finds the closest repo dir given a directory
-pub fn find_repo<'a>(dir: &'a Path, repo_names: &HashSet<String>) -> Option<&'a Path> {
-    let mut dir = dir;
+pub fn find_repo(dir: &Path, repo_names: &HashSet<String>) -> Option<PathBuf> {
+    // trace!("start dir: {:?}", dir);
+    let dir = env::current_dir().unwrap().join(dir);
+    // trace!("abs dir: {:?}", dir);
     assert!(dir.is_dir());
+
+    let mut dir = dir.as_path();
+
     loop {
         let mut read_dir = match fs::read_dir(dir) {
             Ok(d) => d,
@@ -32,15 +38,17 @@ pub fn find_repo<'a>(dir: &'a Path, repo_names: &HashSet<String>) -> Option<&'a 
                 Ok(e) => {
                     let p = e.path();
                     let fname = p.file_name().unwrap().to_str().unwrap();
+                    // trace!("fname: {:?}", fname);
                     repo_names.contains(fname) && p.is_dir()
                 }
             }) {
-            return Some(dir);
+            return Some(dir.to_path_buf());
         }
         dir = match dir.parent() {
             Some(d) => d,
             None => return None,
         };
+        // trace!("dir: {:?}", dir);
     }
 }
 
@@ -133,6 +141,7 @@ pub fn resolve_vars(variables: &mut Variables,
                     repo_names: &HashSet<String>,
                     )
                     -> LoadResult<()> {
+    trace!("repo names: {:?}", repo_names);
     // keep resolving variables until all are resolved
     let mut msg = String::new();
     let mut keys: Vec<String> = variables.keys().map(|s| s.clone()).collect();
@@ -226,7 +235,7 @@ pub fn fill_text_fields(artifacts: &mut Artifacts,
         }
         art.loc = set_loc;
         if errors.len() > 0 {
-            println!("ERROR: resolving variables on {} failed: {:?}", name, errors);
+            println!("ERROR: resolving variables on [{:?}] {} failed: {:?}", art.path, name, errors);
             error = true;
         }
     }

@@ -329,7 +329,7 @@ pub fn load_dir(path: &Path,
         let ftype = match entry.file_type() {
             Ok(f) => f,
             Err(err) => {
-                println!("FAIL while loading from <{}>: {}", fpath.display(), err);
+                error!("while loading from <{}>: {}", fpath.display(), err);
                 error = true;
                 continue;
             }
@@ -347,7 +347,7 @@ pub fn load_dir(path: &Path,
             match load_file(fpath.as_path(), artifacts, settings, variables) {
                 Ok(n) => num_loaded += n,
                 Err(err) => {
-                    println!("ERROR while loading from <{}>: {}", fpath.display(), err);
+                    error!("while loading from <{}>: {}", fpath.display(), err);
                     error = true;
                 }
             };
@@ -396,7 +396,7 @@ pub fn load_path(path: &Path) -> LoadResult<(Artifacts, Settings)>{
     let mut msg = String::new();
 
     let start = time::get_time();
-    println!("Loading artifact files:");
+    info!("Loading artifact files:");
     if path.is_file() {
         num_loaded += try!(load_file(path, &mut artifacts, &mut loaded_settings,
                                      &mut loaded_variables));
@@ -413,7 +413,7 @@ pub fn load_path(path: &Path) -> LoadResult<(Artifacts, Settings)>{
         loaded_settings.clear();
         let dir = settings.paths.pop_front().unwrap(); // it has len, it better pop!
 
-        // println!("   - Loading: {:?}", dir);
+        debug!("Loading: {:?}", dir);
         // load the files
         if loaded_dirs.contains(&dir) {
             continue
@@ -432,7 +432,7 @@ pub fn load_path(path: &Path) -> LoadResult<(Artifacts, Settings)>{
         try!(resolve_settings(&mut settings, &mut repo_map, &loaded_settings));
     }
 
-    println!(" * Organizing variables...");
+    info!("Organizing variables...");
 
     let mut error = false;
     let mut var_paths: HashMap<String, PathBuf> = HashMap::new();
@@ -442,7 +442,7 @@ pub fn load_path(path: &Path) -> LoadResult<(Artifacts, Settings)>{
         for (k, v) in vars {
             match variables.insert(k.clone(), v) {
                 Some(_) => {
-                    println!("ERROR: global var {:?} exists twice, one at {:?}", k, p);
+                    error!("global var {:?} exists twice, one at {:?}", k, p);
                     error = true;
                 }
                 None => {}
@@ -454,15 +454,15 @@ pub fn load_path(path: &Path) -> LoadResult<(Artifacts, Settings)>{
         return Err(LoadError::new("Error while organizing variables".to_string()));
     }
 
-    println!(" * Resolving variables...");
+    info!("Resolving variables...");
     try!(resolve_vars(&mut variables, &var_paths, &mut repo_map, &settings.repo_names));
 
-    println!(" * Filling in variables for text fields...");
+    info!("Filling in variables for text fields...");
     try!(fill_text_fields(&mut artifacts, &settings, &mut variables, &mut repo_map));
 
     let total = time::get_time() - start;
-    println!(" * Done loading: {} artifacts loaded successfullly in {:.3} seconds",
-             num_loaded, total.num_milliseconds() as f64 * 1e-3);
+    info!("Done loading: {} artifacts loaded successfullly in {:.3} seconds",
+          num_loaded, total.num_milliseconds() as f64 * 1e-3);
 
     Ok((artifacts, settings))
 }
