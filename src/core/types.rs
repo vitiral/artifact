@@ -75,6 +75,12 @@ impl Loc {
     }
 }
 
+impl fmt::Display for Loc {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}: {}", self.path.to_string_lossy().as_ref(), self.loc)
+    }
+}
+
 #[test]
 fn test_loc() {
     let result = Loc::from_str("LOC-bar: path/is/cool").unwrap();

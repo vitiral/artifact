@@ -6,4 +6,3 @@
 //! as well as functions which map easily to cmdline methods
 //! that the user may want to execute
 
-

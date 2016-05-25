@@ -8,6 +8,7 @@ use std::clone::Clone;
 use std::path::{Path, PathBuf};
 use std::convert::AsRef;
 use std::collections::{HashMap, HashSet};
+use std::iter::FromIterator;
 
 // Traits
 use std::io::{Write};
@@ -17,6 +18,11 @@ use std::fmt::Write as WriteStr;
 use strfmt;
 
 use core::types::*;
+
+lazy_static!{
+    pub static ref DEFAULT_GLOBALS: HashSet<String> = HashSet::from_iter(
+        ["repo", "cwd"].iter().map(|s| s.to_string()));
+}
 
 /// finds the closest repo dir given a directory
 pub fn find_repo(dir: &Path, repo_names: &HashSet<String>) -> Option<PathBuf> {
@@ -130,7 +136,6 @@ pub fn find_and_insert_repo(dir: &Path, repo_map: &mut HashMap<PathBuf, PathBuf>
     Ok(())
 }
 
-
 /// continues to resolve variables until all are resolved
 /// - done if no vars were resolved in a pass and no errors
 /// - error if no vars were resolved in a pass and there were errors
@@ -141,13 +146,12 @@ pub fn resolve_vars(variables: &mut Variables,
                     repo_names: &HashSet<String>,
                     )
                     -> LoadResult<()> {
-    trace!("repo names: {:?}", repo_names);
     // keep resolving variables until all are resolved
     let mut msg = String::new();
     let mut keys: Vec<String> = variables.keys().map(|s| s.clone()).collect();
     let mut errors = Vec::new();
     let mut num_changed;
-    let mut remove_keys = HashSet::new();
+    let mut remove_keys = DEFAULT_GLOBALS.clone();
     loop {
         keys = keys.iter().filter(|k| !remove_keys.contains(k.as_str()))
             .map(|s| s.clone()).collect();
@@ -156,17 +160,22 @@ pub fn resolve_vars(variables: &mut Variables,
         remove_keys.clear();
         for k in &keys {
             let var = variables.remove(k.as_str()).unwrap();
-            let cwd = var_paths.get(k).unwrap().parent().unwrap();
+            let int_cwd = var_paths.get(k).unwrap();
+            let cwd = int_cwd.parent().unwrap();
+            // let cwd = var_paths.get(k).unwrap().parent().unwrap();
             variables.insert("cwd".to_string(), cwd.to_str().unwrap().to_string());
             try!(find_and_insert_repo(&cwd, repo_map, repo_names));
             variables.insert("repo".to_string(), repo_map.get(cwd).unwrap()
                              .to_str().unwrap().to_string());
             match strfmt::strfmt(var.as_str(), &variables) {
                 Ok(s) => {
+                    // TODO: being able to know whether changes were made would be
+                    // very helpful here
                     if var != s {
                         num_changed += 1;
+                    } else {
+                        remove_keys.insert(k.clone());
                     }
-                    remove_keys.insert(k.clone());
                     variables.insert(k.clone(), s);
                 }
                 Err(_) => {
@@ -203,6 +212,7 @@ pub fn fill_text_fields(artifacts: &mut Artifacts,
     let mut error = false;
     let mut errors: Vec<(&str, strfmt::FmtError)> = Vec::new();
     for (name, art) in artifacts.iter_mut() {
+        trace!("filling in {}", name);
         errors.clear();
         let cwd = art.path.parent().unwrap().to_path_buf();
         try!(find_and_insert_repo(&cwd, repo_map, &settings.repo_names));
@@ -226,10 +236,14 @@ pub fn fill_text_fields(artifacts: &mut Artifacts,
         let mut set_loc = art.loc.clone();
         if let Some(ref loc) = art.loc {
             match strfmt::strfmt(loc.path.to_str().unwrap(), &variables) {
-                Ok(l) => set_loc = Some(Loc {
-                    loc: loc.loc.clone(),
-                    path: PathBuf::from(l.as_str()),
-                }),
+                Ok(l) => {
+                    trace!("loc path set to: {}", l);
+                    trace!("using variables: {:?}", variables);
+                    set_loc = Some(Loc {
+                        loc: loc.loc.clone(),
+                        path: PathBuf::from(l.as_str()),
+                    });
+                }
                 Err(err) => errors.push(("loc", err)),
             }
         }

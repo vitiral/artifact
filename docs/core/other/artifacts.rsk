@@ -44,10 +44,3 @@ loc = "LOC-find-type: {core}/types.rs"
 text = '''
 All artifacts must be a defined type or error
 '''
-
-[SPC-core-artifacts-vars]
-loc = "LOC-artifacts-vars"
-text = '''
-any text attr on an artifact **shall** have it's variable
-fields replaced with global variables or error
-'''

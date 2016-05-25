@@ -65,14 +65,14 @@ text = "SPC **shall only** be allowed to be partof SPC and REQ"
 [REQ-core-links-valid-tst]
 text = "TST **shall only** be allowed to be partof RSK, SPC and TST"
 
-[REQ-core-links-valid-loc]
+[REQ-core-links-loc-valid]
 text = '''
 LOC **shall only** be allowed to link from SPC and TST
 
 > Note: LOC is the only artifact that **cannot** link to itself
 '''
 
-[REQ-core-links-invalid-loc]
+[REQ-core-links-loc-invalid]
 text = '''
 It **shall** be invalid for a LOC artifact to be linked to by more than one artifact.
 

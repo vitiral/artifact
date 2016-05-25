@@ -135,7 +135,8 @@ pub fn set_completed(artifacts: &mut Artifacts) -> usize {
                         if artifacts.contains_key(&l.loc) || l.valid() {
                             got_it = 2; // it is 100% completed by definition
                         } else if !l.valid() {
-                            warn!("[{:?}:{}] has non-existant loc", artifact.path, name);
+                            warn!("[{:?}:{}] has non-existant loc of {}",
+                                  artifact.path, name, l);
                             got_it = 3; // it is 0% completed by definition
                         }
                     }

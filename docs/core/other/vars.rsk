@@ -1,6 +1,6 @@
 
 [SPC-core-vars]
-partof = "REQ-core-vars-[locals, globals]"
+partof = "REQ-core-vars-globals"
 refs = ["REQ-core-vars-globals-[cwd, repo]"]
 text = '''
 The following fields **will** have variables applied:

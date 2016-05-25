@@ -18,12 +18,7 @@ use time;
 
 // modules
 use core::types::*;
-use core::vars::{resolve_vars, resolve_settings, fill_text_fields};
-
-lazy_static!{
-    pub static ref DEFAULT_GLOBALS: HashSet<String> = HashSet::from_iter(
-        ["repo", "globals"].iter().map(|s| s.to_string()));
-}
+use core::vars::{resolve_vars, resolve_settings, fill_text_fields, DEFAULT_GLOBALS};
 
 macro_rules! get_attr {
     ($tbl: expr, $attr: expr, $default: expr, $ty: ident) => {

@@ -12,7 +12,7 @@ text = '''
 rsk **will** use defined definitions for all potentially confusing terms
 '''
 
-[REQ-purpose-core-coverage]
+[REQ-purpose-coverage]
 text = '''
 rsk **will** provide a simple but useful mechanism for calculating
 and displaying implementation and test coverage / completeness

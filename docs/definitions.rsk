@@ -1,6 +1,6 @@
 [REQ-definitions]
 text = "definitions for the rsk project"
-partof = "REQ-purpose-core-definitions"
+partof = "REQ-purpose-definitions"
 
 [REQ-definitions-assertions]
 text = '''
