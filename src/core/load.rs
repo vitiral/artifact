@@ -5,7 +5,7 @@ use std::fs;
 use std::clone::Clone;
 use std::path::{Path, PathBuf};
 use std::convert::AsRef;
-use std::collections::{HashMap, HashSet};
+use std::collections::{HashMap, HashSet, VecDeque};
 
 // Traits
 use std::io::{Read, Write};
@@ -272,9 +272,14 @@ pub fn load_toml(path: &Path, text: &str,
     let mut table = match parser.parse() {
         Some(table) => table,
         None => {
-            let mut desc = String::new();
-            desc.extend(parser.errors.iter().map(|e| e.to_string()));
-            return Err(LoadError::new(desc));
+            let mut msg = String::new();
+            for e in &parser.errors {
+                let (line, col) = parser.to_linecol(e.lo);
+                write!(msg, "[{}:{}] {}, ", line, col, e.desc).unwrap();
+            }
+            // write!(msg, "Could not parse []: {}", parser.errors);
+            // desc.extend(parser.errors.iter().map(|e| e.to_string()));
+            return Err(LoadError::new(msg));
         },
     };
     load_table(&mut table, path, artifacts, settings, variables)
@@ -371,8 +376,13 @@ pub fn load_dir(path: &Path,
 /// linking does not occur in this step
 /// LOC-core-load-path
 pub fn load_path(path: &Path) -> LoadResult<(Artifacts, Settings)>{
+    let mut repo_names: HashSet<String> = HashSet::new();
+    repo_names.insert(".git".to_string());
+    repo_names.insert(".hg".to_string());
+    repo_names.insert(".svn".to_string());
+
     let mut artifacts = Artifacts::new();
-    let mut settings = Settings::new();
+    let mut settings = Settings{disabled: false, paths:VecDeque::new(), repo_names: repo_names};
     let mut variables = Variables::new();
     let mut loaded_dirs: HashSet<PathBuf> = HashSet::new();
     let mut loaded_settings: Vec<(PathBuf, Settings)> = Vec::new();

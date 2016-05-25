@@ -30,9 +30,6 @@ Example:
 
 [REQ-core-load-items]
 partof = "REQ-core-settings, REQ-core-variables-globals, REQ-core-artifacts"
-Artifacts **will** be items with keys denoted with a valid prefix defined in
-REQ-purpose-artifacts
-- `globals`: see REQ-core-variables-globals
 text = '''
 Valid items in a `.rsk` file are the following:
 - `settings`: see REQ-core-settings

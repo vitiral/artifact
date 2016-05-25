@@ -235,7 +235,7 @@ impl LoadError {
 
 impl fmt::Display for LoadError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "ParseError({:?})", self.desc)
+        write!(f, "Parse Errors: {}", self.desc)
     }
 }
 

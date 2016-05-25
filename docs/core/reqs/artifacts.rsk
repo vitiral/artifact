@@ -38,7 +38,6 @@ code implementation (LOC).
 [REQ-core-artifacts-types-rsk]
 refs = ["REQ-definitions-risks"]
 text = '''
-text = '''
 The prefix and name of 'RSK' **will** specify the risks associated with either
 a requirement (REQ) or a design-specification (SPC).
 

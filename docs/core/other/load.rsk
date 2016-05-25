@@ -73,13 +73,13 @@ There are several safeguards:
 
 ##################################################
 # toml spec
-[SPC-core-load-toml]
-loc = "LOC-core-load-toml: {src}/main.rs"
-partof = "REQ-core-load"
-text = '''
-The rust library [toml-rs](https://github.com/alexcrichton/toml-rs)
-shall be used to load raw toml files
-'''
+# [SPC-core-load-toml]
+# loc = "LOC-core-load-toml: {src}/main.rs"
+# partof = "REQ-core-load"
+# text = '''
+# The rust library `toml-rs`
+# shall be used to load raw toml files
+# '''
 
 ##################################################
 # loading parts
@@ -132,7 +132,7 @@ Table. This will only load the raw settings, returning an Err on an invalid type
 
 [SPC-core-load-settings-resolve]
 loc = "LOC-load-settings-resolve: {core}/load.rs"
-partof = ["SPC-core-load-parts-1"]
+partof = "SPC-core-load-parts-1"
 text = '''
 Settings are resolved only after a recursive directory tree has been loaded.
 This is to allow `repo_names` to resolve before the `repo` variable is applied
@@ -146,138 +146,140 @@ settings is resolved.
 
 [SPC-core-load-vars]
 loc = "LOC-core-load-vars-resolve-other: {core}/load.rs"
-partof = ["SPC-core-load-parts-1"]
+partof = "SPC-core-load-parts-1"
 text = '''
 variables shall be applied in two parts:
 - resolve settings.paths after full recursive directory load
 - resolve all other variables after entire project load
 '''
 
-[SPC-core-load-vars]
-loc = "LOC-load-settings-paths"
-partof = ["SPC-core-load-parts-1"]
-text = "resolve settings.paths"
+####
 
-##################################################
-# load paths-file function
-[SPC-core-load-path]
-loc = "SPC-core-load-path"
-partof = "SPC-core-load-parts-1"
-text = '''
-There **shall** be a function which can read a list of paths from a file
-and load them recursively **or** can just load a directory path.
-'''
+# [SPC-core-load-vars]
+# loc = "LOC-load-settings-paths"
+# partof = ["SPC-core-load-parts-1"]
+# text = "resolve settings.paths"
 
-[TST-core-load-path]
-loc = "LOC-tst-core-deep: {core}/tests/test_load.rs"
-partof = "SPC-core-load-paths"
-text = '''
-have a paths-file and unreachable .rsk files. Have the file point to the unreachable
-.rsk file's directory and validate that they are loaded correctly.
-'''
+# ##################################################
+# # load paths-file function
+# [SPC-core-load-path]
+# loc = "SPC-core-load-path"
+# partof = "SPC-core-load-parts-1"
+# text = '''
+# There **shall** be a function which can read a list of paths from a file
+# and load them recursively **or** can just load a directory path.
+# '''
 
-##################################################
-# load dir function
-[SPC-core-load-dir]
-partof = "SPC-core-load-parts-1"
-loc = "LOC-core-load-dir: {core}/load.rs"
-text = '''
-There **shall** be a function which can load all artifacts from a
-directory recursively (as defined in LOC-core-load-recursive)
-'''
+# [TST-core-load-path]
+# loc = "LOC-tst-core-deep: {core}/tests/test_load.rs"
+# partof = "SPC-core-load-paths"
+# text = '''
+# have a paths-file and unreachable .rsk files. Have the file point to the unreachable
+# .rsk file's directory and validate that they are loaded correctly.
+# '''
 
-[TST-core-load-dir-unit]
-partof = "SPC-core-load-dir"
-[TST-core-load-dir-unit-1]
-loc = "LOC-core-load-dir-unit-1"
-text = '''
-load a folder with a [file folder[file]] and make sure all values
-are present
-'''
-[TST-core-load-dir-unit-2]
-text = "load a [file] with an invalid attribute an make sure it errors"
-[TST-core-load-dir-unit-3]
-text = "load two files with the same key and make sure it errors"
-[TST-core-load-dir-unit-4]
-loc = "LOC-core-load-dir-unit-4"
-text = '''
-load a structure like so:
-```
-/foo/foo.rsk
-/foo/bar/baz/unreachable.rsk
-```
-and make sure that `unreachable.rsk` does **not** get loaded
-'''
-[TST-core-load-dir-unit-5]
-loc = "LOC-core-load-dir-unit-5: {core}/tests/test_load.rs"
-text = '''
-load a structure like so:
-```
-/foo/foo.rsk
-/foo/bar/bar.rsk
-/foo/bar/baz/baz.rsk
-```
-and make sure that all three rsk files are loaded
-'''
+# ##################################################
+# # load dir function
+# [SPC-core-load-dir]
+# partof = "SPC-core-load-parts-1"
+# loc = "LOC-core-load-dir: {core}/load.rs"
+# text = '''
+# There **shall** be a function which can load all artifacts from a
+# directory recursively (as defined in LOC-core-load-recursive)
+# '''
 
-##################################################
-# load file function
-[SPC-core-load-file]
-loc = "LOC-core-load-file: {core}/load.rs"
-partof = "SPC-core-load-parts-1"
-text = '''
-There **shall** be a function which can load all artifacts from a
-file given a path
-'''
+# [TST-core-load-dir-unit]
+# partof = "SPC-core-load-dir"
+# [TST-core-load-dir-unit-1]
+# loc = "LOC-core-load-dir-unit-1"
+# text = '''
+# load a folder with a [file folder[file]] and make sure all values
+# are present
+# '''
+# [TST-core-load-dir-unit-2]
+# text = "load a [file] with an invalid attribute an make sure it errors"
+# [TST-core-load-dir-unit-3]
+# text = "load two files with the same key and make sure it errors"
+# [TST-core-load-dir-unit-4]
+# loc = "LOC-core-load-dir-unit-4"
+# text = '''
+# load a structure like so:
+# ```
+# /foo/foo.rsk
+# /foo/bar/baz/unreachable.rsk
+# ```
+# and make sure that `unreachable.rsk` does **not** get loaded
+# '''
+# [TST-core-load-dir-unit-5]
+# loc = "LOC-core-load-dir-unit-5: {core}/tests/test_load.rs"
+# text = '''
+# load a structure like so:
+# ```
+# /foo/foo.rsk
+# /foo/bar/bar.rsk
+# /foo/bar/baz/baz.rsk
+# ```
+# and make sure that all three rsk files are loaded
+# '''
 
-[TST-core-load-valid]
-loc = "LOC-tst-core-load-valid: {core}/tests/test_load.rs"
-partof = "SPC-core-load-file, RSK-core-load-invalid"
-text = "load a valid toml file and verify it's artifacts and settings"
+# ##################################################
+# # load file function
+# [SPC-core-load-file]
+# loc = "LOC-core-load-file: {core}/load.rs"
+# partof = "SPC-core-load-parts-1"
+# text = '''
+# There **shall** be a function which can load all artifacts from a
+# file given a path
+# '''
 
-[TST-core-load-invalid]
-loc = "LOC-tst-core-load-invalid: {core}/tests/test_load.rs"
-partof = "SPC-core-load-file, RSK-core-load-invalid"
-text = '''
-load separate toml files suffering the issues listed below and ensure
-they do not load.
+# [TST-core-load-valid]
+# loc = "LOC-tst-core-load-valid: {core}/tests/test_load.rs"
+# partof = "SPC-core-load-file, RSK-core-load-invalid"
+# text = "load a valid toml file and verify it's artifacts and settings"
 
-- trying to input a json-like table `{}`
-- trying to have multiple types in an array `[1, "hello", 3]`
-- name collisions at the [] level
-- name collisions at the base level
-'''
+# [TST-core-load-invalid]
+# loc = "LOC-tst-core-load-invalid: {core}/tests/test_load.rs"
+# partof = "SPC-core-load-file, RSK-core-load-invalid"
+# text = '''
+# load separate toml files suffering the issues listed below and ensure
+# they do not load.
 
-##################################################
-# load table function
-[SPC-core-load-table]
-partof = "SPC-core-load-parts-1"
-loc = "LOC-core-load-table: {core}/load.rs"
-text = '''
-There **shall** be a function which loads artifacts from a toml Table
-'''
+# - trying to input a json-like table `{}`
+# - trying to have multiple types in an array `[1, "hello", 3]`
+# - name collisions at the [] level
+# - name collisions at the base level
+# '''
 
-[TST-core-load-table-check]
-partof = "SPC-core-load-table, RSK-core-load-invalid"
-loc = "LOC-core-load-table-check: {core}/load.rs"
-text = '''
-The rust langauge **will** guarantee that every return value / error is addressed.
+# ##################################################
+# # load table function
+# [SPC-core-load-table]
+# partof = "SPC-core-load-parts-1"
+# loc = "LOC-core-load-table: {core}/load.rs"
+# text = '''
+# There **shall** be a function which loads artifacts from a toml Table
+# '''
 
-The loading algorithm **shall** perform tests for every eventuality and explitly
-address them, returning Err immediately on any value that is the incorrect type.
-'''
+# [TST-core-load-table-check]
+# partof = "SPC-core-load-table, RSK-core-load-invalid"
+# loc = "LOC-core-load-table-check: {core}/load.rs"
+# text = '''
+# The rust langauge **will** guarantee that every return value / error is addressed.
 
-##################################################
-# load attrs function
-[TST-core-load-attrs-unit]
-partof = "SPC-core-load-table, RSK-core-load"
-text = '''
-There **will** be extensive unit tests on the attrs loading mechanism to ensure
-the type is loaded with proper type checking
-'''
-[TST-core-load-attrs-unit-1]
-loc = "LOC-tst-core-load-attrs-unit-1: {core}/load.rs"
-[TST-core-load-attrs-unit-2]
-loc = "LOC-tst-core-load-attrs-unit-2: {core}/load.rs"
-[TST-core-load-attrs-unit-3]
-loc = "LOC-tst-core-load-attrs-unit-3: {core}/load.rs"
+# The loading algorithm **shall** perform tests for every eventuality and explitly
+# address them, returning Err immediately on any value that is the incorrect type.
+# '''
+
+# ##################################################
+# # load attrs function
+# [TST-core-load-attrs-unit]
+# partof = "SPC-core-load-table, RSK-core-load"
+# text = '''
+# There **will** be extensive unit tests on the attrs loading mechanism to ensure
+# the type is loaded with proper type checking
+# '''
+# [TST-core-load-attrs-unit-1]
+# loc = "LOC-tst-core-load-attrs-unit-1: {core}/load.rs"
+# [TST-core-load-attrs-unit-2]
+# loc = "LOC-tst-core-load-attrs-unit-2: {core}/load.rs"
+# [TST-core-load-attrs-unit-3]
+# loc = "LOC-tst-core-load-attrs-unit-3: {core}/load.rs"

@@ -4,9 +4,17 @@ version = "0.1.0"
 authors = ["Garrett Berg <vitiral@gmail.com>"]
 
 [dependencies]
-strfmt = "0.1"
-toml = "0.1"
-walkdir = "0.1"
-regex = "0.1"
+# general
 lazy_static = "0.1.*"
+log = "0.3.6"
+fern = "0.3.5"
+
+# core
+regex = "0.1"
+strfmt = "0.1"
 time = "0.1"
+toml = "0.1"
+
+# ui-cmdline
+clap = "2.5"
+
