@@ -372,17 +372,21 @@ pub fn load_dir(path: &Path,
     }
 }
 
-/// given a valid path, load all paths
-/// linking does not occur in this step
-/// LOC-core-load-path
-pub fn load_path(path: &Path) -> LoadResult<(Artifacts, Settings)>{
+fn default_repo_names() -> HashSet<String> {
     let mut repo_names: HashSet<String> = HashSet::new();
     repo_names.insert(".git".to_string());
     repo_names.insert(".hg".to_string());
     repo_names.insert(".svn".to_string());
+    repo_names
+}
 
+/// given a valid path, load all paths
+/// linking does not occur in this step
+/// LOC-core-load-path
+pub fn load_path(path: &Path) -> LoadResult<(Artifacts, Settings)>{
     let mut artifacts = Artifacts::new();
-    let mut settings = Settings{disabled: false, paths:VecDeque::new(), repo_names: repo_names};
+    let mut settings = Settings{disabled: false, paths:VecDeque::new(),
+                                repo_names: default_repo_names()};
     let mut variables = Variables::new();
     let mut loaded_dirs: HashSet<PathBuf> = HashSet::new();
     let mut loaded_settings: Vec<(PathBuf, Settings)> = Vec::new();
