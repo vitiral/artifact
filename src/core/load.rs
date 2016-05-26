@@ -14,7 +14,6 @@ use std::iter::FromIterator;
 
 // crates
 use toml::{Parser, Value, Table};
-use time;
 
 // modules
 use core::types::*;
@@ -390,7 +389,6 @@ pub fn load_path(path: &Path) -> LoadResult<(Artifacts, Settings)>{
     let mut num_loaded: u64 = 0;
     let mut msg = String::new();
 
-    let start = time::get_time();
     info!("Loading artifact files:");
     if path.is_file() {
         num_loaded += try!(load_file(path, &mut artifacts, &mut loaded_settings,
@@ -454,10 +452,6 @@ pub fn load_path(path: &Path) -> LoadResult<(Artifacts, Settings)>{
 
     info!("Filling in variables for text fields...");
     try!(fill_text_fields(&mut artifacts, &settings, &mut variables, &mut repo_map));
-
-    let total = time::get_time() - start;
-    info!("Done loading: {} artifacts loaded successfullly in {:.3} seconds",
-          num_loaded, total.num_milliseconds() as f64 * 1e-3);
 
     Ok((artifacts, settings))
 }

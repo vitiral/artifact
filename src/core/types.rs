@@ -7,12 +7,13 @@ use std::option::Option;
 use std::collections::{HashMap, HashSet, VecDeque};
 use std::ascii::AsciiExt;
 use std::hash::{Hash, Hasher};
-use std::cmp::PartialEq;
+use std::cmp::{PartialEq, Ord, PartialOrd, Ordering};
 
 use regex::Regex;
 
 pub type LoadResult<T> = Result<T, LoadError>;
 pub type Artifacts = HashMap<ArtName, Artifact>;
+
 // LOC-core-vars-sruct
 pub type Variables = HashMap<String, String>;
 
@@ -188,6 +189,18 @@ impl PartialEq for ArtName {
 }
 
 impl Eq for ArtName {}
+
+impl Ord  for ArtName {
+    fn cmp(&self, other: &Self) -> Ordering {
+        self.value.cmp(&other.value)
+    }
+}
+
+impl PartialOrd for ArtName {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        self.value.partial_cmp(&other.value)
+    }
+}
 
 /// LOC-core-artifact:<artifact definition>
 /// The Artifact type. This encapsulates

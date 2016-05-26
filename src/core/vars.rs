@@ -169,11 +169,13 @@ pub fn resolve_vars(variables: &mut Variables,
                              .to_str().unwrap().to_string());
             match strfmt::strfmt(var.as_str(), &variables) {
                 Ok(s) => {
-                    // TODO: being able to know whether changes were made would be
-                    // very helpful here
+                    // TODO: being able to know whether changes were made would remove need
+                    // to compare input to output
                     if var != s {
+                        // var was changed, but it still might have {} in it
                         num_changed += 1;
                     } else {
+                        // no errors, but also didn't change. It is done evaluating
                         remove_keys.insert(k.clone());
                     }
                     variables.insert(k.clone(), s);
@@ -193,7 +195,11 @@ pub fn resolve_vars(variables: &mut Variables,
             if errors.len() == 0 {
                 break;
             } else {
-                write!(msg, "Could not resolve some globals: {:?}", errors).unwrap();
+                // unresolved errors
+                keys = keys.iter().filter(|k| !remove_keys.contains(k.as_str()))
+                    .map(|s| s.clone()).collect();
+                write!(msg, "Could not resolve some globals: {:?}\ngot related errors: {:?}",
+                       keys, errors).unwrap();
                 return Err(LoadError::new(msg));
             }
         }

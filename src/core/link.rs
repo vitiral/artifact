@@ -3,11 +3,11 @@
 use std::path;
 use std::collections::{HashMap, HashSet};
 use std::iter::FromIterator;
+use std::fmt::Write;
 use itertools::Itertools;
 
-use core::types::{
-    LoadResult, LoadError,
-    Artifacts, Artifact, ArtType, ArtName};
+use core::types::{LoadResult, LoadError, Artifacts, Artifact, ArtType, ArtName};
+use core::fmt;
 
 /// create parents for all artifacts that have no parents except for
 /// LOC artifacts
@@ -38,7 +38,7 @@ pub fn create_parents(artifacts: &mut Artifacts) {
             ty: name.get_type(),
             path: path::PathBuf::from("PARENT"),
             text: "Auto-created parent artifact".to_string(),
-            refs: vec!(),
+            refs: vec![],
             partof: HashSet::new(),
             parts: HashSet::new(),
             loc: None,
@@ -70,14 +70,18 @@ pub fn validate_partof(artifacts: &Artifacts) -> LoadResult<()> {
             let n_type = name.get_type();
             let p_type = partof.get_type();
             match (&n_type, &p_type) {
-                (&ArtType::REQ, &ArtType::REQ) => {},
-                (&ArtType::RSK, &ArtType::RSK) | (&ArtType::RSK, &ArtType::REQ) => {},
-                (&ArtType::SPC, &ArtType::SPC) | (&ArtType::SPC, &ArtType::REQ) => {},
-                (&ArtType::TST, &ArtType::TST) | (&ArtType::TST, &ArtType::RSK)
-                    | (&ArtType::TST, &ArtType::SPC) => {},
+                (&ArtType::REQ, &ArtType::REQ) => {}
+                (&ArtType::RSK, &ArtType::RSK) | (&ArtType::RSK, &ArtType::REQ) => {}
+                (&ArtType::SPC, &ArtType::SPC) | (&ArtType::SPC, &ArtType::REQ) => {}
+                (&ArtType::TST, &ArtType::TST) |
+                (&ArtType::TST, &ArtType::RSK) |
+                (&ArtType::TST, &ArtType::SPC) => {}
                 (_, _) => {
                     error!("[{:?}:{}]: {:?} can not be a partof {:?}",
-                                artifact.path, name, p_type, n_type);
+                           artifact.path,
+                           name,
+                           p_type,
+                           n_type);
                     error = true;
                 }
             }
@@ -99,7 +103,10 @@ pub fn link_parts(artifacts: &mut Artifacts) -> u64 {
         // get the artifacts this is a `partof`, this artifact should be in all of their `parts`
         for partof in artifact.partof.iter() {
             if !artifacts.contains_key(&partof) {
-                warn!("[{:?}] {} has invalid partof = {}", artifact.path, name, partof);
+                warn!("[{:?}] {} has invalid partof = {}",
+                      artifact.path,
+                      name,
+                      partof);
                 warnings += 1;
                 continue;
             }
@@ -120,14 +127,15 @@ pub fn link_parts(artifacts: &mut Artifacts) -> u64 {
 
 /// discover how complete and how tested all artifacts are (or are not!)
 pub fn set_completed(artifacts: &mut Artifacts) -> usize {
-    let mut names: HashSet<ArtName>  = HashSet::from_iter(artifacts.keys().map(|n| n.clone()));
-    let mut known: HashSet<ArtName>  = HashSet::new();
+    let mut names: HashSet<ArtName> = HashSet::from_iter(artifacts.keys().map(|n| n.clone()));
+    let mut known: HashSet<ArtName> = HashSet::new();
     let mut found: HashSet<ArtName> = HashSet::new();
     while names.len() > 0 {
         for name in names.iter() {
             // 0 means didn't find anything, 1 means calculate, 2 means 100%, 3 means 0%
             let mut got_it = 0;
-            { // scope to use artifacts and modify it later
+            {
+                // scope to use artifacts and modify it later
                 let artifact = artifacts.get(&name).unwrap();
                 // SPC and TST artifacts are done if loc is set
                 match (&artifact.loc, &artifact.ty) {
@@ -136,16 +144,17 @@ pub fn set_completed(artifacts: &mut Artifacts) -> usize {
                             got_it = 2; // it is 100% completed by definition
                         } else if !l.valid() {
                             warn!("[{:?}:{}] has non-existant loc of {}",
-                                  artifact.path, name, l);
+                                  artifact.path,
+                                  name,
+                                  l);
                             got_it = 3; // it is 0% completed by definition
                         }
                     }
-                    _ => {},
+                    _ => {}
                 }
                 if got_it == 0 && artifact.parts.len() == 0 {
                     got_it = 3; // no parts or invalid-loc == 0% complete
-                }
-                else if got_it == 0 && artifact.parts.iter().all(|n| known.contains(&n)) {
+                } else if got_it == 0 && artifact.parts.iter().all(|n| known.contains(&n)) {
                     got_it = 1;
                 }
             }
@@ -153,24 +162,33 @@ pub fn set_completed(artifacts: &mut Artifacts) -> usize {
             match got_it {
                 3 => artifacts.get_mut(&name).unwrap().completed = 0.0,
                 2 => artifacts.get_mut(&name).unwrap().completed = 1.0,
-                1 => artifacts.get_mut(&name).unwrap().completed = {
-                    let artifact = artifacts.get(&name).unwrap();
-                    // get the completed values, ignoring TSTs that are part of SPCs
-                    let completed: Vec<f32> = if artifact.ty == ArtType::SPC {
-                        artifact.parts.iter()
-                            .filter(|n| artifacts.get(n).unwrap().ty != ArtType::TST)
-                            .map(|n| artifacts.get(n).unwrap().completed).collect()
-                    } else {
-                        artifact.parts.iter()
-                            .map(|n| artifacts.get(n).unwrap().completed).collect()
-                    };
-                    // now completed is just the sum of it's valid parts
-                    match completed.len() {
-                        0 => 0.0,
-                        _ => completed.iter().fold(0.0, |sum, x| sum + x) / completed.len() as f32,
+                1 => {
+                    artifacts.get_mut(&name).unwrap().completed = {
+                        let artifact = artifacts.get(&name).unwrap();
+                        // get the completed values, ignoring TSTs that are part of SPCs
+                        let completed: Vec<f32> = if artifact.ty == ArtType::SPC {
+                            artifact.parts
+                                    .iter()
+                                    .filter(|n| artifacts.get(n).unwrap().ty != ArtType::TST)
+                                    .map(|n| artifacts.get(n).unwrap().completed)
+                                    .collect()
+                        } else {
+                            artifact.parts
+                                    .iter()
+                                    .map(|n| artifacts.get(n).unwrap().completed)
+                                    .collect()
+                        };
+                        // now completed is just the sum of it's valid parts
+                        match completed.len() {
+                            0 => 0.0,
+                            _ => {
+                                completed.iter().fold(0.0, |sum, x| sum + x) /
+                                completed.len() as f32
+                            }
+                        }
                     }
-                },
-                0 => {},
+                }
+                0 => {}
                 _ => unreachable!(),
             }
             if got_it != 0 {
@@ -187,16 +205,31 @@ pub fn set_completed(artifacts: &mut Artifacts) -> usize {
         }
     }
     if names.len() != 0 {
-        warn!("could not resolve completed % for: [{}]", names.iter().map(|n| n.raw.clone())
-              .join(", "));
+        let mut ordered = Vec::from_iter(names.iter());
+        ordered.sort();
+
+        // warn!("could not resolve tested % for: [{}]", ordered.iter().map(|n| n.raw.clone())
+        //       .join(", "));
+        warn!("could not resolve completed % for Artifacts:");
+        for name in ordered {
+            let artifact = artifacts.get(name).unwrap();
+            let mut unknown: Vec<_> = artifact.parts
+                                              .iter()
+                                              .filter(|n| !known.contains(n))
+                                              .collect();
+            unknown.sort();
+            warn!(" - {} could not resolve parts: {}",
+                  name,
+                  fmt::names(&unknown));
+        }
     }
     names.len()
 }
 
 /// Find the amount each artifact is tested
 pub fn set_tested(artifacts: &mut Artifacts) -> usize {
-    let mut names: HashSet<ArtName>  = HashSet::from_iter(artifacts.keys().map(|n| n.clone()));
-    let mut known: HashSet<ArtName>  = HashSet::new();
+    let mut names: HashSet<ArtName> = HashSet::from_iter(artifacts.keys().map(|n| n.clone()));
+    let mut known: HashSet<ArtName> = HashSet::new();
     let mut found: HashSet<ArtName> = HashSet::new();
 
     // TST.tested === TST.completed by definition
@@ -225,9 +258,11 @@ pub fn set_tested(artifacts: &mut Artifacts) -> usize {
             if got_it {
                 artifacts.get_mut(&name).unwrap().tested = {
                     let artifact = artifacts.get(&name).unwrap();
-                    artifact.parts.iter()
-                        .map(|n| artifacts.get(n).unwrap().tested)
-                        .fold(0.0, |sum, x| sum + x) / artifact.parts.len() as f32
+                    artifact.parts
+                            .iter()
+                            .map(|n| artifacts.get(n).unwrap().tested)
+                            .fold(0.0, |sum, x| sum + x) /
+                    artifact.parts.len() as f32
                 };
                 found.insert(name.clone());
                 known.insert(name.clone());
@@ -241,9 +276,23 @@ pub fn set_tested(artifacts: &mut Artifacts) -> usize {
         }
     }
     if names.len() != 0 {
-        warn!("could not resolve tested % for: [{}]", names.iter().map(|n| n.raw.clone())
-              .join(", "));
+        let mut ordered = Vec::from_iter(names.iter());
+        ordered.sort();
+
+        // warn!("could not resolve tested % for: [{}]", ordered.iter().map(|n| n.raw.clone())
+        //       .join(", "));
+        warn!("could not resolve tested % for Artifacts:");
+        for name in ordered {
+            let artifact = artifacts.get(name).unwrap();
+            let mut unknown: Vec<_> = artifact.parts
+                                              .iter()
+                                              .filter(|n| !known.contains(n))
+                                              .collect();
+            unknown.sort();
+            warn!(" - {} could not resolve parts: {}",
+                  name,
+                  fmt::names(&unknown));
+        }
     }
     names.len()
 }
-

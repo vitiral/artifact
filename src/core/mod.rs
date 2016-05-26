@@ -1,9 +1,12 @@
 use std::path::Path;
 
+use time;
+
 mod types;
 mod vars;
 #[macro_use] mod load;  // macro use so the macro can be tested
 mod link;
+mod fmt;
 
 #[cfg(test)]
 mod tests;
@@ -18,6 +21,8 @@ pub use core::types::{
 /// includes loading and validating raw data, resolving and applying
 /// variables, and linking artifacts
 pub fn load_path(path: &Path) -> LoadResult<(Artifacts, Settings)>{
+    let start = time::get_time();
+    info!("loading path: {}", path.to_string_lossy().as_ref());
     let (mut artifacts, settings) = try!(load::load_path(path));
     link::create_parents(&mut artifacts);
     link::link_parents(&mut artifacts);
@@ -25,6 +30,9 @@ pub fn load_path(path: &Path) -> LoadResult<(Artifacts, Settings)>{
     link::link_parts(&mut artifacts);
     link::set_completed(&mut artifacts);
     link::set_tested(&mut artifacts);
+    let total = time::get_time() - start;
+    info!("Done loading: {} artifacts loaded successfullly in {:.3} seconds",
+          artifacts.len(), total.num_milliseconds() as f64 * 1e-3);
     Ok((artifacts, settings))
 }
 
