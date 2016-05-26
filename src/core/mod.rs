@@ -6,7 +6,7 @@ mod types;
 mod vars;
 #[macro_use] mod load;  // macro use so the macro can be tested
 mod link;
-mod fmt;
+pub mod fmt;
 
 #[cfg(test)]
 mod tests;

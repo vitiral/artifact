@@ -20,6 +20,7 @@ extern crate clap;
 
 
 use std::path::Path;
+use std::iter::FromIterator;
 
 use clap::{Arg, App, ArgMatches};
 
@@ -94,6 +95,12 @@ fn cmd() {
             return;
         }
     };
+    let mut art_vec = Vec::from_iter(artifacts.iter());
+    art_vec.sort_by_key(|a| a.0);
+    println!("Artifacts:");
+    for (n, a) in art_vec {
+        println!("  {}", core::fmt::artifact_line(&n, &a));
+    }
 }
 
 
