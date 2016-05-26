@@ -19,6 +19,11 @@ use toml::{Parser, Value, Table};
 use core::types::*;
 use core::vars::{resolve_vars, resolve_settings, fill_text_fields, DEFAULT_GLOBALS};
 
+lazy_static!{
+    pub static ref ARTIFACT_ATTRS: HashSet<String> = HashSet::from_iter(
+        ["disabled", "text", "refs", "partof", "loc"].iter().map(|s| s.to_string()));
+}
+
 macro_rules! get_attr {
     ($tbl: expr, $attr: expr, $default: expr, $ty: ident) => {
         match $tbl.get($attr) {
@@ -153,6 +158,14 @@ impl Artifact {
     fn from_table(name: &ArtName, path: &Path, tbl: &Table) -> LoadResult<Artifact> {
         let df_str = "".to_string();
         let df_vec: Vec<String> = vec![];
+
+        let invalid_attrs: Vec<_> = tbl.keys()
+            .filter(|k| !ARTIFACT_ATTRS.contains(k.as_str())).collect();
+        if invalid_attrs.len() > 0 {
+            let mut msg = String::new();
+            write!(msg, "{} has invalid attributes: {:?}", name, invalid_attrs);
+            return Err(LoadError::new(msg));
+        }
 
         let partof_str = check_type!(get_attr!(tbl, "partof", df_str, String),
                                     "partof", name);

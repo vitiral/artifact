@@ -1,0 +1,4 @@
+
+[settings]
+paths = ["{repo}/deep/spcs"]
+repo_names = [".fake_repo"]

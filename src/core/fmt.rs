@@ -26,7 +26,7 @@ pub fn artifact_line(name: &ArtName, artifact: &Artifact) -> String {
         s.push(' ');
         extra -= 1;
     }
-    write!(s, "[{}{}]",
+    write!(s, "|{}{}",
            if artifact.completed >= 1. {"D"} else {"-"},
            if artifact.tested >= 1. {"T"} else {"-"}).unwrap();
 

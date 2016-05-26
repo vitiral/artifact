@@ -1,3 +1,6 @@
+// # test-only crates
+#[cfg(test)]
+extern crate env_logger;
 
 // # general crates
 extern crate itertools;
@@ -5,6 +8,7 @@ extern crate itertools;
 extern crate lazy_static;
 #[macro_use]
 extern crate log;
+#[cfg(not(test))]
 extern crate fern;
 
 // # core crates
@@ -27,6 +31,7 @@ use clap::{Arg, App, ArgMatches};
 pub mod core;
 mod cmdline;
 
+#[cfg(not(test))]
 fn init_logger(quiet: bool, verbosity: u8) {
     let level = if quiet {log::LogLevelFilter::Off } else {
         match verbosity {
@@ -41,11 +46,14 @@ fn init_logger(quiet: bool, verbosity: u8) {
         format: Box::new(|msg: &str, level: &log::LogLevel, _location: &log::LogLocation| {
             format!("{}: {}", level, msg)
         }),
-        output: vec![fern::OutputConfig::stdout()],
+        output: vec![fern::OutputConfig::stderr()],
         level: level,
     };
     fern::init_global_logger(logger_config, log::LogLevelFilter::Trace).unwrap();
 }
+
+#[cfg(test)]
+fn init_logger(quiet: bool, verbosity: u8) {}
 
 fn get_matches<'a>() -> ArgMatches<'a> {
     App::new("rsk")
@@ -98,8 +106,9 @@ fn cmd() {
     let mut art_vec = Vec::from_iter(artifacts.iter());
     art_vec.sort_by_key(|a| a.0);
     println!("Artifacts:");
-    for (n, a) in art_vec {
-        println!("  {}", core::fmt::artifact_line(&n, &a));
+    for (i, value) in art_vec.iter().enumerate() {
+        let (n, a) = *value;
+        println!(" {:<4} | {}", i, core::fmt::artifact_line(&n, &a));
     }
 }
 

@@ -28,6 +28,7 @@ lazy_static!{
     pub static ref TDATA_DIR: PathBuf = TEST_DIR.join(PathBuf::from("data"));
     pub static ref TEMPTY_DIR: PathBuf = TDATA_DIR.join(PathBuf::from("empty"));
     pub static ref TSIMPLE_DIR: PathBuf = TDATA_DIR.join(PathBuf::from("simple"));
+    pub static ref TINVALID_DIR: PathBuf = TDATA_DIR.join(PathBuf::from("invalid"));
 }
 
 // valid toml, not necessarily all valid artifacts

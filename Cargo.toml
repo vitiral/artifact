@@ -19,3 +19,5 @@ toml = "0.1"
 # ui-cmdline
 clap = "2.5"
 
+[dev-dependencies]
+env_logger = "0.3.3"

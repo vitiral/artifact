@@ -85,6 +85,7 @@ shall be used to load raw toml files
 ##################################################
 # loading parts
 [SPC-core-load-parts]
+partof = "REQ-core-load-items"
 text = '''
 This details the high level loading proceedure of rsk
 
@@ -165,10 +166,12 @@ and load them recursively **or** can just load a directory path.
 
 [TST-core-load-path]
 loc = "LOC-tst-core-deep: {core}/tests/test_load.rs"
-partof = "SPC-core-load-paths"
+partof = "SPC-core-load-paths, RSK-core-load-infinite_loop"
 text = '''
 have a paths-file and unreachable .rsk files. Have the file point to the unreachable
 .rsk file's directory and validate that they are loaded correctly.
+
+Also have the file point **back** to the original file, to test for infinite loop
 '''
 
 ##################################################
@@ -181,6 +184,10 @@ There **shall** be a function which can load all artifacts from a
 directory recursively (as defined in LOC-core-load-recursive)
 '''
 
+[TST-core-toml]
+partof = "RSK-core-load-stable"
+text = "tests related to ensuring that toml works as expected"
+
 [TST-core-load-dir-unit]
 partof = "SPC-core-load-dir"
 [TST-core-load-dir-unit-1]
@@ -190,6 +197,7 @@ load a folder with a [file folder[file]] and make sure all values
 are present
 '''
 [TST-core-load-dir-unit-2]
+partof = "RSK-core-load-invalid"
 text = "load a [file] with an invalid attribute an make sure it errors"
 [TST-core-load-dir-unit-3]
 text = "load two files with the same key and make sure it errors"

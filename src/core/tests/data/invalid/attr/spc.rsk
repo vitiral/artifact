@@ -1,0 +1,9 @@
+
+
+[SPC-invalid]
+text = "This has an invalid attribute"
+ref = ["valid refs, invalid name"]
+
+
+[SPC-valid]
+text = "this is actually valid"

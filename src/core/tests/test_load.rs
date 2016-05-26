@@ -13,6 +13,7 @@ use std::fmt::Write as WriteStr;
 use std::iter::FromIterator;
 
 use toml::{Parser, Value, Table};
+use env_logger;
 
 use super::*;  // data directory constants
 use super::super::types::*;
@@ -165,6 +166,16 @@ fn test_load_toml() {
 
 #[test]
 fn test_load_path() {
+    env_logger::init().unwrap();
+    info!("running test_load_path");
+    error!("this is here!");
+    // LOC-core-load-dir-unit-2
+    assert!(load_path(TINVALID_DIR.join(&PathBuf::from("attr")).as_path()).is_err());
+
+    // LOC-core-load-unit-3
+    // assert!(load_path(TINVALID_DIR.join(&PathBuf::from("same_names")).as_path()).is_err());
+    load_path(TINVALID_DIR.join(&PathBuf::from("same_names")).as_path()).unwrap();
+
     let (artifacts, settings) = load_path(TSIMPLE_DIR.as_path()).unwrap();
     assert!(artifacts.contains_key(&ArtName::from_str("REQ-purpose").unwrap()));
 
@@ -198,5 +209,6 @@ fn test_load_path() {
     assert_eq!(req_purpose.refs, [extra_dir.join(PathBuf::from("README.md")).to_str().unwrap()]);
     assert_eq!(spc_lvl1.text, "level one does FOO");
     assert_eq!(spc_lvl1.loc.as_ref().unwrap().path, lvl1_dir.join(PathBuf::from("lvl_1.rs")));
+
     // TODO: more validation
 }
