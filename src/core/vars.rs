@@ -136,16 +136,50 @@ pub fn find_and_insert_repo(dir: &Path, repo_map: &mut HashMap<PathBuf, PathBuf>
     Ok(())
 }
 
+
+/// resolves default vars from a file (cwd and repo)
+/// and inserts into variables
+pub fn resolve_default_vars(vars: &Variables, fpath: &Path,
+                            variables: &mut Variables,
+                            repo_map: &mut HashMap<PathBuf, PathBuf>,
+                            repo_names: &HashSet<String>)
+                            -> LoadResult<()> {
+    let cwd = fpath.parent().unwrap();
+    let mut fmtvars = Variables::new();
+    fmtvars.insert("cwd".to_string(), cwd.to_str().unwrap().to_string());
+    try!(find_and_insert_repo(cwd, repo_map, repo_names));
+    fmtvars.insert("repo".to_string(), repo_map.get(cwd).unwrap()
+                     .to_str().unwrap().to_string());
+    let mut error = false;
+    for (k, v) in vars {
+        // format only the cwd and repo variables
+        let var = match strfmt::strfmt_options(v.as_str(), &fmtvars, true) {
+            Ok(v) => v,
+            Err(e) => {
+                error!("error formatting: {}", e.to_string());
+                error = true;
+                continue;
+            }
+        };
+        match variables.insert(k.clone(), var) {
+            Some(_) => {
+                error!("global var {:?} exists twice, one at {:?}", k, fpath);
+                error = true;
+            }
+            None => {}
+        }
+    }
+    if error {
+        return Err(LoadError::new("errors while resolving default variables".to_string()));
+    }
+    Ok(())
+}
+
 /// continues to resolve variables until all are resolved
 /// - done if no vars were resolved in a pass and no errors
 /// - error if no vars were resolved in a pass and there were errors
 /// LOC-core-vars-resolve
-pub fn resolve_vars(variables: &mut Variables,
-                    var_paths: &HashMap<String, PathBuf>,
-                    repo_map: &mut HashMap<PathBuf, PathBuf>,
-                    repo_names: &HashSet<String>,
-                    )
-                    -> LoadResult<()> {
+pub fn resolve_vars(variables: &mut Variables) -> LoadResult<()> {
     // keep resolving variables until all are resolved
     let mut msg = String::new();
     let mut keys: Vec<String> = variables.keys().map(|s| s.clone()).collect();
@@ -160,13 +194,6 @@ pub fn resolve_vars(variables: &mut Variables,
         remove_keys.clear();
         for k in &keys {
             let var = variables.remove(k.as_str()).unwrap();
-            let int_cwd = var_paths.get(k).unwrap();
-            let cwd = int_cwd.parent().unwrap();
-            // let cwd = var_paths.get(k).unwrap().parent().unwrap();
-            variables.insert("cwd".to_string(), cwd.to_str().unwrap().to_string());
-            try!(find_and_insert_repo(&cwd, repo_map, repo_names));
-            variables.insert("repo".to_string(), repo_map.get(cwd).unwrap()
-                             .to_str().unwrap().to_string());
             match strfmt::strfmt(var.as_str(), &variables) {
                 Ok(s) => {
                     // TODO: being able to know whether changes were made would remove need

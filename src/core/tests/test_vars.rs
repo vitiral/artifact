@@ -24,6 +24,7 @@ fn test_find_repo() {
 fn test_resolve_vars() {
     // we are getting a race condition with variables where sometimes not all
     // variables are resolving. We need to find it and destroy it.
+    let mut loaded_vars: Variables = Variables::new();
     let mut variables: Variables = Variables::new();
     let mut var_paths: HashMap<String, PathBuf> = HashMap::new();
     let mut repo_map: HashMap<PathBuf, PathBuf> = HashMap::new();
@@ -32,17 +33,17 @@ fn test_resolve_vars() {
     println!("simple dir: {:?}", TSIMPLE_DIR.as_path());
     let fpath = TSIMPLE_DIR.join(PathBuf::from("fake.rsk"));
     repo_names.insert(String::from(".tst_repo_name"));
-    var_paths.insert("foo".to_string(), fpath.clone());
-    var_paths.insert("bar".to_string(), fpath.clone());
-    var_paths.insert("bar-2".to_string(), fpath.clone());
 
-    for i in 0..3 {
-        println!("*** run {}", i);
-        variables.insert("foo".to_string(), "{repo}/FOO".to_string());
-        variables.insert("bar".to_string(), "{foo}/BAR".to_string());
-        variables.insert("bar-2".to_string(), "{bar}/BAR2".to_string());
+    for i in 0..3 { // do it a few times
+        loaded_vars.clear();
+        variables.clear();
+        loaded_vars.insert("foo".to_string(), "{repo}/FOO".to_string());
+        loaded_vars.insert("bar".to_string(), "{foo}/BAR".to_string());
+        loaded_vars.insert("bar-2".to_string(), "{bar}/BAR2".to_string());
 
-        resolve_vars(&mut variables, &var_paths, &mut repo_map, &repo_names).unwrap();
+        resolve_default_vars(&loaded_vars, fpath.as_path(), &mut variables,
+                             &mut repo_map, &repo_names).unwrap();
+        resolve_vars(&mut variables).unwrap();
         let foo = TSIMPLE_DIR.join("FOO");
         let bar = foo.join("BAR");
         let bar2 = bar.join("BAR2");

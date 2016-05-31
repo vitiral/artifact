@@ -14,10 +14,12 @@ use std::iter::FromIterator;
 
 // crates
 use toml::{Parser, Value, Table};
+use strfmt;
 
 // modules
 use core::types::*;
-use core::vars::{resolve_vars, resolve_settings, fill_text_fields, DEFAULT_GLOBALS};
+use core::vars::{resolve_default_vars, resolve_vars, resolve_settings,
+                 fill_text_fields, DEFAULT_GLOBALS};
 
 lazy_static!{
     pub static ref ARTIFACT_ATTRS: HashSet<String> = HashSet::from_iter(
@@ -438,30 +440,16 @@ pub fn load_path(path: &Path) -> LoadResult<(Artifacts, Settings)>{
         try!(resolve_settings(&mut settings, &mut repo_map, &loaded_settings));
     }
 
-    info!("Organizing variables...");
-
-    let mut error = false;
-    let mut var_paths: HashMap<String, PathBuf> = HashMap::new();
+    info!("Resolving default globals in variables...");
     for pv in loaded_variables.drain(0..) {
         let p = pv.0;
-        let vars = pv.1;
-        for (k, v) in vars {
-            match variables.insert(k.clone(), v) {
-                Some(_) => {
-                    error!("global var {:?} exists twice, one at {:?}", k, p);
-                    error = true;
-                }
-                None => {}
-            }
-            var_paths.insert(k, p.clone());
-        }
-    }
-    if error {
-        return Err(LoadError::new("Error while organizing variables".to_string()));
+        let v = pv.1;
+        try!(resolve_default_vars(&v, p.as_path(), &mut variables, &mut repo_map,
+                                        &settings.repo_names));
     }
 
     info!("Resolving variables...");
-    try!(resolve_vars(&mut variables, &var_paths, &mut repo_map, &settings.repo_names));
+    try!(resolve_vars(&mut variables));
 
     info!("Filling in variables for text fields...");
     try!(fill_text_fields(&mut artifacts, &settings, &mut variables, &mut repo_map));

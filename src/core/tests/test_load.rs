@@ -173,8 +173,7 @@ fn test_load_path() {
     assert!(load_path(TINVALID_DIR.join(&PathBuf::from("attr")).as_path()).is_err());
 
     // LOC-core-load-unit-3
-    // assert!(load_path(TINVALID_DIR.join(&PathBuf::from("same_names")).as_path()).is_err());
-    load_path(TINVALID_DIR.join(&PathBuf::from("same_names")).as_path()).unwrap();
+    assert!(load_path(TINVALID_DIR.join(&PathBuf::from("same_names")).as_path()).is_err());
 
     let (artifacts, settings) = load_path(TSIMPLE_DIR.as_path()).unwrap();
     assert!(artifacts.contains_key(&ArtName::from_str("REQ-purpose").unwrap()));
