@@ -1,0 +1,12 @@
+# This is an artifacts file for the command line tool rsk
+# files in {repo}/.rsk are automatically loaded by the rsk command
+# tool.
+
+[settings]
+# Any *.rsk file can define additional paths to be loaded by listing them
+# in a path.
+# There are two variables that can be used:
+# - {cwd}: the path to the directory of the file
+# - {repo}: the path to the current repository, found using repo_names
+paths = ["{repo}/docs"]
+repo_names = [".git", ".hg", ".svn"]

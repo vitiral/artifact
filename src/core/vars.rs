@@ -207,14 +207,13 @@ pub fn resolve_vars(variables: &mut Variables) -> LoadResult<()> {
                     }
                     variables.insert(k.clone(), s);
                 }
-                Err(_) => {
-                    // TODO: strfmt should give two types of error,
-                    // FmtError or NameError
-                    // we should fail immediately on fmterror
-                    // with a beter error msg
-                    errors.push(k.clone());
-                    // reinsert original value
-                    variables.insert(k.clone(), var);
+                Err(e) => match e {
+                    strfmt::FmtError::Invalid(e) => return Err(LoadError::new(e.to_string())),
+                    strfmt::FmtError::KeyError(_) => {
+                        errors.push(k.clone());
+                        // reinsert original value
+                        variables.insert(k.clone(), var);
+                    }
                 }
             }
         }
