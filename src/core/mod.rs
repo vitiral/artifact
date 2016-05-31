@@ -11,10 +11,12 @@ pub mod fmt;
 #[cfg(test)]
 mod tests;
 
+pub use core::vars::find_repo;
 pub use core::types::{
     LoadResult, LoadError,
     Artifacts, Artifact, ArtType, ArtName, Loc,
     Settings};
+pub use core::load::parse_names;
 // use core::load;
 
 /// do all core loading operations defined in SPC-core-load-parts

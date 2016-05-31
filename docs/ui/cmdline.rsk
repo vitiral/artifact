@@ -63,7 +63,7 @@ this will result in more information being displayed and the information
 taking up more than one line.
 
 if `l` is specified without any display flags, then display will == `-A`
-```
+'''
 
 [REQ-ui-cmdline-cmd-ls-flags-recursive]
 text = '''
@@ -76,7 +76,7 @@ for anything that has been displayed (and no additional information).
 
 Recursion **shall** be smart indented with clear spearators in `-l` mode
 so that it is easy to read
-```
+'''
 
 [REQ-ui-cmdline-cmd-ls-flags-display]
 text = '''

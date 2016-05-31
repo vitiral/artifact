@@ -1,15 +1,11 @@
 // # logger config
-#[cfg(test)]
-extern crate env_logger;
-#[cfg(not(test))]
-extern crate fern;
+#[cfg(test)]      extern crate env_logger;
+#[cfg(not(test))] extern crate fern;
 
 // # general crates
 extern crate itertools;
-#[macro_use]
-extern crate lazy_static;
-#[macro_use]
-extern crate log;
+#[macro_use] extern crate lazy_static;
+#[macro_use] extern crate log;
 
 // # core crates
 // LOC-core-loading-toml

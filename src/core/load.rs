@@ -89,7 +89,7 @@ impl Settings {
     }
 }
 
-fn _parse_partof<I>(raw: &mut I, in_brackets: bool) -> LoadResult<Vec<String>>
+fn _parse_names<I>(raw: &mut I, in_brackets: bool) -> LoadResult<Vec<String>>
     where I: Iterator<Item = char>
 {
     // hello-[there, you-[are, great]]
@@ -113,7 +113,7 @@ fn _parse_partof<I>(raw: &mut I, in_brackets: bool) -> LoadResult<Vec<String>>
                     return Err(LoadError::new("cannot have '[' after characters ',' or ']' \
                                                or at start of string".to_string()));
                 }
-                for p in try!(_parse_partof(raw, true)) {
+                for p in try!(_parse_names(raw, true)) {
                     strout.write_str(&current).unwrap();
                     strout.write_str(&p).unwrap();
                     strout.push(',');
@@ -133,8 +133,8 @@ fn _parse_partof<I>(raw: &mut I, in_brackets: bool) -> LoadResult<Vec<String>>
     Ok(strout.split(",").filter(|s| s != &"").map(|s| s.to_string()).collect())
 }
 
-fn parse_partof(partof_str: &str) -> LoadResult<HashSet<ArtName>> {
-    let strs = try!(_parse_partof(&mut partof_str.chars(), false));
+pub fn parse_names(partof_str: &str) -> LoadResult<HashSet<ArtName>> {
+    let strs = try!(_parse_names(&mut partof_str.chars(), false));
     let mut out = HashSet::new();
     for s in strs {
         let n = try!(ArtName::from_str(s.as_str()));
@@ -144,16 +144,16 @@ fn parse_partof(partof_str: &str) -> LoadResult<HashSet<ArtName>> {
 }
 
 #[test]
-fn test_parse_partof() {
-    assert_eq!(_parse_partof(&mut "hi, ho".chars(), false).unwrap(), ["hi", "ho"]);
-    assert_eq!(_parse_partof(&mut "hi-[ho, he]".chars(), false).unwrap(), ["hi-ho", "hi-he"]);
-    assert_eq!(_parse_partof(
+fn test_parse_names() {
+    assert_eq!(_parse_names(&mut "hi, ho".chars(), false).unwrap(), ["hi", "ho"]);
+    assert_eq!(_parse_names(&mut "hi-[ho, he]".chars(), false).unwrap(), ["hi-ho", "hi-he"]);
+    assert_eq!(_parse_names(
         &mut "hi-[ho, he], he-[ho, hi, ha-[ha, he]]".chars(), false).unwrap(),
         ["hi-ho", "hi-he", "he-ho", "he-hi", "he-ha-ha", "he-ha-he"]);
-    assert!(_parse_partof(&mut "[]".chars(), false).is_err());
-    assert!(_parse_partof(&mut "[hi]".chars(), false).is_err());
-    assert!(_parse_partof(&mut "hi-[ho, [he]]".chars(), false).is_err());
-    assert!(_parse_partof(&mut "hi-[ho, he".chars(), false).is_err());
+    assert!(_parse_names(&mut "[]".chars(), false).is_err());
+    assert!(_parse_names(&mut "[hi]".chars(), false).is_err());
+    assert!(_parse_names(&mut "hi-[ho, [he]]".chars(), false).is_err());
+    assert!(_parse_names(&mut "hi-[ho, he".chars(), false).is_err());
 }
 
 impl Artifact {
@@ -185,7 +185,7 @@ impl Artifact {
             text: check_type!(get_attr!(tbl, "text", df_str, String),
                               "text", name),
             refs: check_type!(get_vecstr(tbl, "refs", &df_vec), "refs", name),
-            partof: try!(parse_partof(&partof_str)),
+            partof: try!(parse_names(&partof_str)),
             loc: loc,
 
             // calculated vars

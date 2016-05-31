@@ -18,16 +18,17 @@ pub fn names(names: &Vec<&ArtName>) -> String {
 }
 
 /// settings for what to format
+#[derive(Debug, Default, PartialEq, Eq)]
 pub struct FmtSettings {
-    long: bool,
-    recurse: u8,
-    path: bool,
-    parts: bool,
-    partof: bool,
-    loc_name: bool,
-    loc_path: bool,
-    text: bool,
-    refs: bool,
+    pub long: bool,
+    pub recurse: u8,
+    pub path: bool,
+    pub parts: bool,
+    pub partof: bool,
+    pub loc_name: bool,
+    pub loc_path: bool,
+    pub text: bool,
+    pub refs: bool,
     // completed: bool,
     // tested: bool,
 }
@@ -46,19 +47,19 @@ fn _display_artifact(lines: &mut Vec<(u8, String)>, name: &ArtName,
     if artifact.completed < 0. {
         write!(s, " NC  ").unwrap();
     } else {
-        write!(s, "{:4.1}%", artifact.completed * 100.).unwrap();
+        write!(s, "{:>4.0}%", artifact.completed * 100.).unwrap();
     }
     if artifact.tested < 0. {
-        write!(s, " NC   ").unwrap();
+        write!(s, "  NC   ").unwrap();
     } else {
-        write!(s, " {:4.1}%  ", artifact.tested * 100.).unwrap();
+        write!(s, " {:>4.0}%  ", artifact.tested * 100.).unwrap();
     }
-    s.write_str(name.raw.as_str()).unwrap();
     if settings.long {
+        s.write_str(name.raw.as_str()).unwrap();
         lines.push((indent, s.clone()));
         s.clear();
     } else {
-        s.write_str("| ").unwrap();
+        write!(s, "{:<45}", name.raw).unwrap();
     }
 
     if settings.path {
@@ -68,8 +69,8 @@ fn _display_artifact(lines: &mut Vec<(u8, String)>, name: &ArtName,
             lines.push((indent, s.clone()));
             s.clear();
         } else {
-            s.write_str(path.as_ref()).unwrap();
             s.write_str("| ").unwrap();
+            s.write_str(path.as_ref()).unwrap();
         }
     }
 
@@ -82,8 +83,8 @@ fn _display_artifact(lines: &mut Vec<(u8, String)>, name: &ArtName,
             lines.push((indent, s.clone()));
             s.clear();
         } else {
-            s.write_str(parts.as_str()).unwrap();
             s.write_str("| ").unwrap();
+            s.write_str(parts.as_str()).unwrap();
         }
     }
 
@@ -96,8 +97,8 @@ fn _display_artifact(lines: &mut Vec<(u8, String)>, name: &ArtName,
             lines.push((indent, s.clone()));
             s.clear();
         } else {
-            s.write_str(partof.as_str()).unwrap();
             s.write_str("| ").unwrap();
+            s.write_str(partof.as_str()).unwrap();
         }
     }
     if !settings.long {
@@ -110,7 +111,15 @@ pub fn display_artifact(name: &ArtName, artifact: &Artifact, settings: &FmtSetti
                         -> String {
     let mut lines: Vec<(u8, String)> = Vec::new();
     _display_artifact(&mut lines, name, artifact, settings, settings.recurse, 0);
-    "".to_string()
+    let mut s = String::new();
+    for (indent, txt) in lines {
+        for _ in 0..indent {
+            s.push('|');
+        }
+        s.write_str(txt.as_str()).unwrap();
+        s.push('\n');
+    }
+    s
 }
 
 
