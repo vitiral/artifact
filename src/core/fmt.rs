@@ -44,7 +44,7 @@ pub struct FmtArtifact {
     pub long: bool,
     pub path: Option<path::PathBuf>,
     pub parts: Option<Vec<FmtArtifact>>,
-    pub partof: Option<Vec<ArtName>>,
+    pub partof: Option<Vec<FmtArtifact>>,
     pub loc_name: Option<ArtName>,
     pub loc_path: Option<path::PathBuf>,
     pub loc_valid: Option<bool>,
@@ -81,6 +81,9 @@ pub fn fmt_artifact(name: &ArtName, artifacts: &Artifacts, fmtset: &FmtSettings,
     if fmtset.partof {
         let mut partof = artifact.partof.iter().map(|p| p.clone()).collect::<Vec<ArtName>>();
         partof.sort();
+        let partof = partof.drain(0..)
+            .map(|n| FmtArtifact{name: n, ..FmtArtifact::default()})
+            .collect();
         out.partof = Some(partof);
     }
     if fmtset.loc_name {
@@ -101,6 +104,10 @@ pub fn fmt_artifact(name: &ArtName, artifacts: &Artifacts, fmtset: &FmtSettings,
             &None => None,
         }
     }
+    out.loc_valid = match &artifact.loc {
+        &Some(ref l) => Some(l.valid()),
+        &None => None,
+    };
     if fmtset.refs {
         out.refs = Some(artifact.refs.clone());
     }

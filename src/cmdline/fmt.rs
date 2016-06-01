@@ -107,7 +107,17 @@ impl FmtArtifact {
                 first = false;
                 try!(p.write(w, artifacts, settings, indent + 1));
             }
-
+        }
+        if let Some(ref partof) = self.partof {
+            try!(w.write("| ".as_ref()));
+            let mut first = true;
+            for p in partof {
+                if !first && p.name_only() {
+                    try!(w.write(", ".as_ref()));
+                }
+                first = false;
+                try!(p.write(w, artifacts, settings, indent + 1));
+            }
         }
         try!(w.write("\n".as_ref()));
         Ok(())

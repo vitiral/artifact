@@ -21,7 +21,7 @@ lazy_static!{
     // must start with artifact type, followed by "-", followed by at least 1 valid character
     // cannot end with "-"
     pub static ref ART_VALID: Regex = Regex::new(
-        r"(REQ|SPC|RSK|TST|LOC)-[A-Z0-9_-]*[A-Z0-9_]\z").unwrap();
+        r"(REQ|SPC|RSK|TST|LOC)(-[A-Z0-9_-]*[A-Z0-9_])?\z").unwrap();
 }
 
 #[derive(Debug, Clone, Eq, PartialEq)]
@@ -39,6 +39,7 @@ pub enum ArtType {
 pub struct Loc {
     pub loc: ArtName,
     pub path: path::PathBuf,
+    pub line_col: Option<(usize, usize)>,
 }
 
 impl Loc {
@@ -63,17 +64,21 @@ impl Loc {
         Ok(Loc {
             loc: try!(ArtName::from_str(loc)),
             path: path::PathBuf::from(path),
+            line_col: None,
         })
     }
 
     pub fn valid(&self) -> bool {
         if self.path.exists() {
             // TODO: also check to make sure the name exists in the file
+            // TODO: also, can check if the name is part of the artifacts -- if it is,
+            // then always valid
             true
         } else {
             false
         }
     }
+
 }
 
 impl fmt::Display for Loc {

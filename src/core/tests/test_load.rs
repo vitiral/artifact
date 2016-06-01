@@ -148,7 +148,8 @@ fn test_load_toml() {
         assert_eq!(art.partof, expected);
         let expected = Loc{
             loc: ArtName::from_str("LOC-Foo").unwrap(),
-            path: PathBuf::from("{core}/foo.rs")};
+            path: PathBuf::from("{core}/foo.rs"),
+            line_col: None};
         assert_eq!(art.loc.as_ref().unwrap(), &expected);
         assert_eq!(art.completed, -1.0);
         assert_eq!(art.tested, -1.0);

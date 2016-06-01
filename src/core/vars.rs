@@ -11,7 +11,7 @@ use std::collections::{HashMap, HashSet};
 use std::iter::FromIterator;
 
 // Traits
-use std::io::{Write};
+use std::io::{Write, Read};
 use std::fmt::Write as WriteStr;
 
 // crates
@@ -274,6 +274,7 @@ pub fn fill_text_fields(artifacts: &mut Artifacts,
                     set_loc = Some(Loc {
                         loc: loc.loc.clone(),
                         path: PathBuf::from(l.as_str()),
+                        line_col: None,
                     });
                 }
                 Err(err) => errors.push(("loc", err)),
@@ -299,4 +300,116 @@ fn get_path_str<'a>(path: &'a Path) -> LoadResult<&'a str> {
             "detected invalid unicode in path name: ".to_string() +
             path.to_string_lossy().as_ref())),
     }
+}
+
+fn resolve_locs(artifacts: &mut Artifacts) -> LoadResult<()> {
+    let mut paths: HashSet<PathBuf> = HashSet::new();
+    // map the location names to the artifact names
+    let mut loc_artifacts: HashMap<ArtName, ArtName> = HashMap::new();
+    // get all valid paths
+    for (name, artifact) in artifacts.iter() {
+        if let Some(ref l) = artifact.loc {
+            loc_artifacts.insert(l.loc.clone(), name.clone());
+            if !paths.contains(l.path.as_path()) {
+                paths.insert(l.path.clone());
+            }
+        }
+    };
+    paths.remove(Path::new(""));
+
+    // analyze all files for valid locations
+    let mut error = false;
+    // values are                   (path, line,  col)
+    let mut locs: HashMap<ArtName, (PathBuf, usize, usize)> = HashMap::new();
+    for path in paths {
+        let mut fd = match fs::File::open(path.clone()) {
+            Ok(fd) => fd,
+            Err(_) => continue,
+        };
+        let mut s = String::new();
+        fd.read_to_string(&mut s).unwrap();
+
+        let mut start_pos = 0;
+        let mut start_col = 0;
+        let mut loc_part = ' ';  // ' ' represents blank
+        let (mut pos, mut line, mut col) = (0, 0, 0);
+        for c in s.chars() {
+            loc_part = match loc_part {
+                ' ' => match c {
+                    'L' | 'l' => {
+                        start_pos = pos;
+                        start_col = col;
+                        'L'
+                    }
+                    _ => ' ',
+                },
+                'L' => match c {
+                    'O' | 'o' => 'O',
+                    _ => ' ',
+                },
+                'O' => match c {
+                    'C' | 'c' => 'C',
+                    _ => ' ',
+                },
+                'C' => match c {
+                    '-' => '-',
+                    _ => ' ',
+                },
+                '-' => match c {
+                    'a'...'z' | 'A'...'Z' | '0'...'9' | '-' | '_' => '*',
+                    _ => ' ',
+                },
+                '*' => match c {
+                    'a'...'z' | 'A'...'Z' | '0'...'9' | '-' | '_' => '*',
+                    _ => {  // valid LOC is finished
+                        let (_, end) = s.split_at(start_pos);
+                        let (name, _) = end.split_at(pos - start_pos);
+                        // check for overlap on insert
+                        match locs.insert(ArtName::from_str(name).unwrap(),
+                                          (path.clone(), line, start_col)) {
+                            None => {},
+                            Some(l) => {
+                                error!("detected overlapping loc names in files: {:?} and {:?}",
+                                       l.0, path.as_path());
+                                error = true;
+                            }
+                        }
+                        ' '
+                    },
+                },
+                _ => ' ',
+            };
+            match c {
+                '\n' => {
+                    line += 1;
+                    col = 0;
+                }
+                _ => col += 1,
+            };
+            pos += 1;
+        }
+    }
+    if error {
+        return Err(LoadError::new("Overlapping keys found".to_string()));
+    }
+
+    // now fill in the location values
+    for (lname, info) in locs {
+        let aname = loc_artifacts.get(&lname).unwrap();
+        let artifact = artifacts.get_mut(&aname).unwrap();
+        let (path, line, col) = info;
+        let aloc = artifact.loc.iter_mut().next().unwrap();
+        if aloc.path != path {
+            error!("found {} at path {:?}, but {} has it set at {:?}",
+                lname, path, aname, aloc.path);
+            error = true;
+            continue;
+        };
+        aloc.line_col = Some((line, col));
+    }
+
+    if error {
+        return Err(LoadError::new("Invalid paths".to_string()));
+    }
+    Ok(())
 }
