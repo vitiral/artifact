@@ -1,6 +1,6 @@
 [SPC-core-artifact-name-struct]
 partof = "REQ-core-[artifacts-name, links-prefix]"
-loc = "LOC-core-artifact: {core}/types.rs"
+loc = "LOC-core-artifact-name: {core}/types.rs"
 text = '''
 The artifact name shall be a struct similar to std::path::Path
 '''

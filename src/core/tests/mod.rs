@@ -143,8 +143,14 @@ partof = 'SPC-core-bob-2-b'
 ";
 
 
-pub static TOML_BAD: &'static str = "[REQ-bad]\nrefs = 'REQ-foo'";  // invalid type
 pub static TOML_OVERLAP: &'static str = "[REQ-foo]\n";
+pub static TOML_BAD: &'static str = "[REQ-bad]\nrefs = 'REQ-foo'";
+pub static TOML_BAD2: &'static str = "[REQ-bad]\nrefs = 'REQ-foo'";
+pub static TOML_BAD_ATTR1: &'static str = "[REQ-foo]\nref=['invalid']\n";
+pub static TOML_BAD_ATTR2: &'static str = "[REQ-bad]\nrefs = ['REQ-foo', 2, 'hi']";
+pub static TOML_BAD_JSON: &'static str = "{\"REQ-foo\": {\"refs\": [\"hi\"]}}";
+pub static TOML_BAD_NAMES1: &'static str = "[REQ-bad]\n[REQ-bad]";
+pub static TOML_BAD_NAMES2: &'static str = "[REQ-bad]\nrefs=['hi']\nrefs=['you']";
 
 pub fn parse_text(t: &str) -> Table {
     Parser::new(t).parse().unwrap()

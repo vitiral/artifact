@@ -11,7 +11,7 @@ It shall have the following attributes:
 
 
 [SPC-core-settings-vars]
-loc = "LOC-core-settings-vars: {core}/types.rs"
+loc = "LOC-core-settings: {core}/types.rs"
 text = '''
 settings **shall** have only the default globals applied to them
 before other variables are resolved

@@ -133,7 +133,7 @@ Table. This will only load the raw settings, returning an Err on an invalid type
 '''
 
 [SPC-core-load-settings-resolve]
-loc = "LOC-load-settings-resolve: {core}/load.rs"
+loc = "LOC-load-settings-resolve: {core}/vars.rs"
 partof = "SPC-core-load-parts-1"
 text = '''
 Settings are resolved only after a recursive directory tree has been loaded.
@@ -147,17 +147,18 @@ settings is resolved.
 '''
 
 [SPC-core-load-vars]
-loc = "LOC-core-load-vars-resolve-other: {core}/load.rs"
+loc = "LOC-core-load-vars: {core}/load.rs"
 partof = "SPC-core-load-parts-1"
 text = '''
-variables shall be applied in two parts:
-- resolve settings.paths after full recursive directory load
+variables shall be applied in three parts:
+- default globals (cwd and repo)
 - resolve all other variables after entire project load
 '''
 
 ##################################################
 # load paths-file function
 [SPC-core-load-paths]
+loc = "LOC-core-load-path: {core}/load.rs"
 partof = "SPC-core-load-parts-1"
 text = '''
 There **shall** be a function which can read a list of paths from a file
@@ -197,6 +198,7 @@ load a folder with a [file folder[file]] and make sure all values
 are present
 '''
 [TST-core-load-dir-unit-2]
+loc = "LOC-core-load-unit-3: {core}/tests/test_load.rs"
 partof = "RSK-core-load-invalid"
 text = "load a [file] with an invalid attribute an make sure it errors"
 [TST-core-load-dir-unit-3]

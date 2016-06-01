@@ -31,20 +31,19 @@ The following **will not** have variables applied:
 [SPC-core-vars-struct]
 loc = "LOC-core-vars-struct: {core}/types.rs"
 text = '''
-There shall be a struct which is used to return variables
+There shall be a struct which holds variables for use
 '''
 
 [SPC-core-vars-resolve]
-loc = "LOC-core-vars-resolve: {core}/load.rs"
 text = '''
 variables **shall** be loaded in the following manner:
 - default globals will always be loaded on a per-file basis
-    and their text will be interpreted for the defaults
-    immediately.
+and their text will be interpreted for the defaults
+immediately.
 - global variables will be interpreted at a later time,
-    after all artifacts have been loaded
+after all artifacts have been loaded
 - global variabes can use eachother in their definition,
-    as long as the definition isn't recursive
+as long as the definition isn't recursive
 '''
 
 [SPC-core-vars-lib]
@@ -54,4 +53,18 @@ text = '''
 the rust library [strfmt](https://github.com/vitiral/strfmt)
 **will** be used to accomplish the heavy lifting of actually
 formatting strings.
+'''
+
+[SPC-core-vars-resolve-default]
+loc = "LOC-core-vars-resolve-default: {core}/vars.rs"
+text = '''
+default variables **shall** use the feature of strfmt that allows
+for ignoring missing variables to resolve variables immediately
+'''
+
+[SPC-core-vars-resolve-user]
+loc = "LOC-core-vars-resolve-user: {core}/vars.rs"
+text = '''
+rsk shall be able to handle variables that use other variables resolving
+variables repeatedly until they have been completely resolved.
 '''

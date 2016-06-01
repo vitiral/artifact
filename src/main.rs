@@ -8,7 +8,7 @@ extern crate itertools;
 #[macro_use] extern crate log;
 
 // # core crates
-// LOC-core-loading-toml
+// LOC-core-load-toml
 // LOC-core-vars-lib
 extern crate regex;
 extern crate strfmt;

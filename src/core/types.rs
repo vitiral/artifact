@@ -14,7 +14,7 @@ use regex::Regex;
 pub type LoadResult<T> = Result<T, LoadError>;
 pub type Artifacts = HashMap<ArtName, Artifact>;
 
-// LOC-core-vars-sruct
+// LOC-core-vars-struct
 pub type Variables = HashMap<String, String>;
 
 lazy_static!{

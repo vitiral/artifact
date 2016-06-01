@@ -22,6 +22,7 @@ pub use core::load::parse_names;
 /// do all core loading operations defined in SPC-core-load-parts
 /// includes loading and validating raw data, resolving and applying
 /// variables, and linking artifacts
+/// LOC-core-load-path
 pub fn load_path(path: &Path) -> LoadResult<(Artifacts, Settings)>{
     let start = time::get_time();
     info!("loading path: {}", path.to_string_lossy().as_ref());
@@ -38,8 +39,3 @@ pub fn load_path(path: &Path) -> LoadResult<(Artifacts, Settings)>{
           artifacts.len(), total.num_milliseconds() as f64 * 1e-3);
     Ok((artifacts, settings))
 }
-
-    // TODO: LOC-core-load-parts-2:<load and validate global variables>
-    // LOC-core-load-parts-3:<resolve variables in text fields>
-    // LOC-core-load-parts-4:<auto-creation of missing prefix artifacts>
-    // LOC-core-load-parts-5:<linking of artifacts>

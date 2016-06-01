@@ -139,6 +139,7 @@ pub fn find_and_insert_repo(dir: &Path, repo_map: &mut HashMap<PathBuf, PathBuf>
 
 /// resolves default vars from a file (cwd and repo)
 /// and inserts into variables
+/// LOC-core-vars-resolve-default
 pub fn resolve_default_vars(vars: &Variables, fpath: &Path,
                             variables: &mut Variables,
                             repo_map: &mut HashMap<PathBuf, PathBuf>,
@@ -178,7 +179,7 @@ pub fn resolve_default_vars(vars: &Variables, fpath: &Path,
 /// continues to resolve variables until all are resolved
 /// - done if no vars were resolved in a pass and no errors
 /// - error if no vars were resolved in a pass and there were errors
-/// LOC-core-vars-resolve
+/// LOC-core-vars-resolve-user
 pub fn resolve_vars(variables: &mut Variables) -> LoadResult<()> {
     // keep resolving variables until all are resolved
     let mut msg = String::new();

@@ -438,10 +438,12 @@ pub fn load_path_raw(path: &Path) -> LoadResult<(Artifacts, Settings)> {
                 return Err(LoadError::new(msg));
             }
         };
+        // LOC-core-load-settings-resolve
         // resolve the project-level settings after each directory is recursively loaded
         try!(resolve_settings(&mut settings, &mut repo_map, &loaded_settings));
     }
 
+    // LOC-core-load-vars
     info!("Resolving default globals in variables...");
     for pv in loaded_variables.drain(0..) {
         let p = pv.0;
@@ -450,6 +452,7 @@ pub fn load_path_raw(path: &Path) -> LoadResult<(Artifacts, Settings)> {
                                         &settings.repo_names));
     }
 
+    // LOC-core-load-parts-3:<resolve variables in text fields>
     info!("Resolving variables...");
     try!(resolve_vars(&mut variables));
 

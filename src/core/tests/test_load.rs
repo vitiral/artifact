@@ -109,6 +109,18 @@ fn test_load_toml() {
 
     // LOC-tst-core-load-invalid:<load some invalid toml files>
     assert!(load_toml(&path, TOML_BAD, &mut artifacts, &mut settings, &mut variables).is_err());
+    assert!(load_toml(&path, TOML_BAD_JSON, &mut artifacts, &mut settings, &mut variables).is_err());
+    assert!(load_toml(&path, TOML_BAD_ATTR1, &mut artifacts,
+                      &mut settings, &mut variables).is_err());
+    assert!(load_toml(&path, TOML_BAD_ATTR2, &mut artifacts,
+                      &mut settings, &mut variables).is_err());
+    assert!(load_toml(&path, TOML_BAD_NAMES1, &mut artifacts,
+                      &mut settings, &mut variables).is_err());
+    assert!(load_toml(&path, TOML_BAD_NAMES2, &mut artifacts,
+                      &mut settings, &mut variables).is_err());
+    assert_eq!(artifacts.len(), 0);
+    assert_eq!(settings.len(), 0);
+    assert_eq!(variables.len(), 0);
 
     let num = load_toml(&path, TOML_RSK, &mut artifacts, &mut settings, &mut variables).unwrap();
     assert_eq!(num, 10);
