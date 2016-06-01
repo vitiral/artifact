@@ -94,7 +94,7 @@ fn test_loc() {
 /// (as it is based on the name)
 // TODO: Hash and Eq have to be defined to ONLY care about
 // value. raw is simply for displaying on the ui
-#[derive(Clone)]
+#[derive(Default, Clone)]
 pub struct ArtName {
     pub raw: String,
     pub value: Vec<String>,
@@ -226,6 +226,7 @@ pub struct Settings {
     pub disabled: bool,
     pub paths: VecDeque<path::PathBuf>,
     pub repo_names: HashSet<String>,
+    pub color: bool,
 }
 
 impl Settings {
@@ -234,6 +235,7 @@ impl Settings {
             disabled: false,
             paths: VecDeque::new(),
             repo_names: HashSet::new(),
+            color: true,
         }
     }
 }

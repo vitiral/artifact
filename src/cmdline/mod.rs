@@ -19,6 +19,7 @@ use clap::ArgMatches;
 
 mod matches;
 mod ls;
+mod fmt;
 
 #[cfg(not(test))]
 fn init_logger(quiet: bool, verbosity: u8) {
@@ -90,7 +91,7 @@ pub fn cmd() {
     if let Some(ls) = matches.subcommand_matches("ls") {
         info!("Calling the ls command");
         let (names, fmtset) = ls::get_ls_cmd(&ls).unwrap();
-        ls::do_ls(names, &artifacts, fmtset);
+        ls::do_ls(names, &artifacts, &fmtset, &settings);
     }
 }
 

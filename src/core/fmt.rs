@@ -1,5 +1,7 @@
 use std::fmt::Write;
 use std::iter::FromIterator;
+use std::path;
+use std::collections::HashSet;
 
 use core::types::*;
 
@@ -33,125 +35,92 @@ pub struct FmtSettings {
     // tested: bool,
 }
 
+/// structure which contains all the information necessary to
+/// format an artifact for cmdline, html, or anything else
+/// purposely doesn't contain items that are *always* displayed
+/// such as completed or tested
+#[derive(Debug, Default)]
+pub struct FmtArtifact {
+    pub path: Option<path::PathBuf>,
+    pub parts: Option<Vec<FmtArtifact>>,
+    pub partof: Option<Vec<ArtName>>,
+    pub loc_name: Option<ArtName>,
+    pub loc_path: Option<path::PathBuf>,
+    pub loc_valid: Option<bool>,
+    pub refs: Option<Vec<String>>,
+    pub text: Option<String>,
+    pub name: ArtName,
+}
 
-/// return the formatted lines as a vec of (indent, value) tuples
-fn _display_artifact(lines: &mut Vec<(u8, String)>, name: &ArtName,
-                     artifact: &Artifact, settings: &FmtSettings, recurse: u8,
-                     indent: u8) {
-    let mut s = String::new();
-    // The first line is always `[--] COMPLETED% TESTED% NAME`
-    write!(s, "[{}{}] ",
-           if artifact.completed >= 1. {"D"} else {"-"},
-           if artifact.tested >= 1. {"T"} else {"-"}).unwrap();
-
-    if artifact.completed < 0. {
-        write!(s, " NC  ").unwrap();
-    } else {
-        write!(s, "{:>4.0}%", artifact.completed * 100.).unwrap();
+/// use several configuration options and pieces of data to represent
+/// how the artifact should be formatted
+pub fn fmt_artifact(name: &ArtName, artifacts: &Artifacts, fmtset: &FmtSettings,
+                    recurse: u8, displayed: &mut HashSet<ArtName>) -> FmtArtifact {
+    let artifact = artifacts.get(name).unwrap();
+    let mut out = FmtArtifact::default();
+    if fmtset.path {
+        out.path = Some(artifact.path.clone());
     }
-    if artifact.tested < 0. {
-        write!(s, "  NC   ").unwrap();
-    } else {
-        write!(s, " {:>4.0}%  ", artifact.tested * 100.).unwrap();
-    }
-    if settings.long {
-        s.write_str(name.raw.as_str()).unwrap();
-        lines.push((indent, s.clone()));
-        s.clear();
-    } else {
-        write!(s, "{:<45}", name.raw).unwrap();
-    }
-
-    if settings.path {
-        let path = artifact.path.to_string_lossy();
-        if settings.long {
-            write!(s, "path: {}", path.as_ref()).unwrap();
-            lines.push((indent, s.clone()));
-            s.clear();
-        } else {
-            s.write_str("| ").unwrap();
-            s.write_str(path.as_ref()).unwrap();
+    if fmtset.parts {
+        let mut parts: Vec<FmtArtifact> = Vec::new();
+        for p in &artifact.parts {
+            let mut part;
+            if recurse == 0 || displayed.contains(&p) {
+                part = FmtArtifact::default();
+                part.name = p.clone();
+            } else {
+                part = fmt_artifact(&p, artifacts, fmtset, recurse - 1, displayed);
+                displayed.insert(p.clone());
+            }
+            parts.push(part);
         }
+        parts.sort_by_key(|p| p.name.clone());  // TODO: get around clone here
+        out.parts = Some(parts);
     }
-
-    if settings.parts {
-        let mut parts = Vec::from_iter(artifact.parts.iter());
-        parts.sort();
-        let parts = names(&parts);
-        if settings.long {
-            write!(s, "parts: {}", parts.as_str()).unwrap();
-            lines.push((indent, s.clone()));
-            s.clear();
-        } else {
-            s.write_str("| ").unwrap();
-            s.write_str(parts.as_str()).unwrap();
-        }
-    }
-
-    if settings.partof {
-        let mut partof = Vec::from_iter(artifact.partof.iter());
+    if fmtset.partof {
+        let mut partof = artifact.partof.iter().map(|p| p.clone()).collect::<Vec<ArtName>>();
         partof.sort();
-        let partof = names(&partof);
-        if settings.long {
-            write!(s, "partof: {}", partof.as_str()).unwrap();
-            lines.push((indent, s.clone()));
-            s.clear();
+        out.partof = Some(partof);
+    }
+    if fmtset.loc_name {
+        out.loc_name = match &artifact.loc {
+            &Some(ref l) => Some(l.loc.clone()),
+            &None => None,
+        };
+    }
+    if fmtset.loc_path {
+        out.loc_path = match &artifact.loc {
+            &Some(ref l) => {
+                if l.path == path::Path::new("") {
+                    None
+                } else {
+                    Some(l.path.clone())
+                }
+            }
+            &None => None,
+        }
+    }
+    if fmtset.refs {
+        out.refs = Some(artifact.refs.clone());
+    }
+    if fmtset.text {
+        if fmtset.long {
+            out.text = Some(artifact.text.clone());
         } else {
-            s.write_str("| ").unwrap();
-            s.write_str(partof.as_str()).unwrap();
+            // return only the first "line" according to markdown
+            let mut s = String::new();
+            for l in artifact.text.lines() {
+                let l = l.trim();
+                if l == "" {
+                    break;
+                }
+                s.write_str(l).unwrap();
+                s.push(' ');
+            }
+            out.text = Some(s);
         }
     }
-    if !settings.long {
-        lines.push((indent, s));
-    }
+    out.name = name.clone();
+    out
 }
 
-/// fully configurable display of an artifact
-pub fn display_artifact(name: &ArtName, artifact: &Artifact, settings: &FmtSettings)
-                        -> String {
-    let mut lines: Vec<(u8, String)> = Vec::new();
-    _display_artifact(&mut lines, name, artifact, settings, settings.recurse, 0);
-    let mut s = String::new();
-    for (indent, txt) in lines {
-        for _ in 0..indent {
-            s.push('|');
-        }
-        s.write_str(txt.as_str()).unwrap();
-        s.push('\n');
-    }
-    s
-}
-
-
-/// format most artifacts onto a single line, intended to be
-/// displayed in a table, etc
-pub fn artifact_line(name: &ArtName, artifact: &Artifact) -> String {
-    let mut s = String::new();
-    s.write_str(name.raw.as_str()).unwrap();
-    let mut extra: i64 = 60 - s.len() as i64;
-    while extra > 0 {
-        s.push(' ');
-        extra -= 1;
-    }
-    write!(s, "|{}{}",
-           if artifact.completed >= 1. {"D"} else {"-"},
-           if artifact.tested >= 1. {"T"} else {"-"}).unwrap();
-
-    if artifact.completed < 0. {
-        write!(s, "| ERROR ").unwrap();
-    } else {
-        write!(s, "| {:5.1} ", artifact.completed * 100.).unwrap();
-    }
-    if artifact.tested < 0. {
-        write!(s, "| ERROR |").unwrap();
-    } else {
-        write!(s, "| {:5.1} |", artifact.tested * 100.).unwrap();
-    }
-    if artifact.ty == ArtType::SPC || artifact.ty == ArtType::TST {
-        match &artifact.loc {
-            &Some(ref l) => write!(s, " {}", l.loc).unwrap(),
-            &None => write!(s, " NOT IMPLEMENTED").unwrap(),
-        }
-    }
-    s
-}

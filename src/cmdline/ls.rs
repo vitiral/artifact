@@ -1,8 +1,14 @@
+use std::io;
+use std::io::Write;
 use std::process::exit;
+use std::collections::HashSet;
+
 use clap::{Arg, App, SubCommand, ArgMatches, AppSettings as AS};
 
-use core::fmt::{display_artifact, FmtSettings};
-use core::{Artifacts, ArtName, parse_names};
+use core::fmt::{FmtSettings, fmt_artifact};
+use cmdline::fmt::FmtArtifact;
+use core::{Artifacts, ArtName, parse_names, Settings};
+
 
 pub fn get_subcommand<'a, 'b>() -> App<'a, 'b> {
     SubCommand::with_name("ls")
@@ -97,13 +103,15 @@ pub fn get_ls_cmd(matches: &ArgMatches) -> Result<(Vec<ArtName>, FmtSettings), S
 }
 
 
-pub fn do_ls(names: Vec<ArtName>, artifacts: &Artifacts, settings: FmtSettings) {
+pub fn do_ls(names: Vec<ArtName>, artifacts: &Artifacts, fmtset: &FmtSettings, settings: &Settings) {
     let mut dne: Vec<ArtName> = Vec::new();
     let mut names = names.clone();
     if names.len() == 0 {
         names.extend(artifacts.keys().map(|n| n.clone()));
     }
     names.sort();
+    let mut displayed: HashSet<ArtName> = HashSet::new();
+    let mut stdout = io::stdout();
     for name in names {
         let artifact = match artifacts.get(&name) {
             Some(a) => a,
@@ -112,7 +120,10 @@ pub fn do_ls(names: Vec<ArtName>, artifacts: &Artifacts, settings: FmtSettings) 
                 continue;
             }
         };
-        print!("{}", display_artifact(&name, artifact, &settings));
+        let f = fmt_artifact(&name, artifacts, fmtset, fmtset.recurse, &mut displayed);
+        f.write(&mut stdout, artifacts, settings).unwrap(); // FIXME: unwrap
+        stdout.write("\n".as_ref()).unwrap();
+        // print!("{}", display_artifact(&name, artifact, &settings));
     }
     if dne.len() > 0 {
         error!("The following artifacts do not exist: {:?}", dne);

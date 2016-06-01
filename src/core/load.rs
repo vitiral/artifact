@@ -85,6 +85,7 @@ impl Settings {
             paths: str_paths.iter().map(|s| PathBuf::from(s)).collect(),
             repo_names: HashSet::from_iter(check_type!(
                 get_vecstr(tbl, "repo_names", &df_vec), "repo_names", "settings")),
+            color: true,
         })
     }
 }
@@ -394,8 +395,9 @@ fn default_repo_names() -> HashSet<String> {
 /// LOC-core-load-path
 pub fn load_path(path: &Path) -> LoadResult<(Artifacts, Settings)>{
     let mut artifacts = Artifacts::new();
-    let mut settings = Settings{disabled: false, paths:VecDeque::new(),
-                                repo_names: default_repo_names()};
+    let mut settings = Settings{disabled: false, paths: VecDeque::new(),
+                                repo_names: default_repo_names(),
+                                color: true};
     let mut variables = Variables::new();
     let mut loaded_dirs: HashSet<PathBuf> = HashSet::new();
     let mut loaded_settings: Vec<(PathBuf, Settings)> = Vec::new();

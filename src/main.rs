@@ -17,6 +17,7 @@ extern crate toml;
 
 // # ui-cmdline crates
 extern crate clap;
+extern crate ansi_term;
 
 pub mod core;
 mod cmdline;
