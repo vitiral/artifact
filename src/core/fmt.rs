@@ -41,6 +41,7 @@ pub struct FmtSettings {
 /// such as completed or tested
 #[derive(Debug, Default)]
 pub struct FmtArtifact {
+    pub long: bool,
     pub path: Option<path::PathBuf>,
     pub parts: Option<Vec<FmtArtifact>>,
     pub partof: Option<Vec<ArtName>>,
