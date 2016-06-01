@@ -47,6 +47,7 @@ pub struct FmtArtifact {
     pub partof: Option<Vec<FmtArtifact>>,
     pub loc_name: Option<ArtName>,
     pub loc_path: Option<path::PathBuf>,
+    pub loc_line_col: Option<(usize, usize)>,
     pub loc_valid: Option<bool>,
     pub refs: Option<Vec<String>>,
     pub text: Option<String>,
@@ -89,25 +90,26 @@ pub fn fmt_artifact(name: &ArtName, artifacts: &Artifacts, fmtset: &FmtSettings,
     if fmtset.loc_name {
         out.loc_name = match &artifact.loc {
             &Some(ref l) => Some(l.loc.clone()),
-            &None => None,
+            &None => Some(ArtName::from_str("LOC-DNE").unwrap()),
         };
     }
     if fmtset.loc_path {
-        out.loc_path = match &artifact.loc {
+        match &artifact.loc {
             &Some(ref l) => {
-                if l.path == path::Path::new("") {
+                out.loc_path = if l.path == path::Path::new("") {
                     None
                 } else {
                     Some(l.path.clone())
-                }
+                };
+                out.loc_line_col = l.line_col;
             }
-            &None => None,
+            &None => {}
         }
+        out.loc_valid = match &artifact.loc {
+            &Some(ref l) => Some(l.valid(artifacts)),
+            &None => None,
+        };
     }
-    out.loc_valid = match &artifact.loc {
-        &Some(ref l) => Some(l.valid()),
-        &None => None,
-    };
     if fmtset.refs {
         out.refs = Some(artifact.refs.clone());
     }

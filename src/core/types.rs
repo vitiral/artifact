@@ -68,17 +68,15 @@ impl Loc {
         })
     }
 
-    pub fn valid(&self) -> bool {
-        if self.path.exists() {
-            // TODO: also check to make sure the name exists in the file
-            // TODO: also, can check if the name is part of the artifacts -- if it is,
-            // then always valid
+    /// if the LOC has a valid place in a file OR is an explicit
+    /// artifact then it is valid
+    pub fn valid(&self, artifacts: &Artifacts) -> bool {
+        if self.line_col.is_some() {
             true
         } else {
-            false
+            artifacts.contains_key(&self.loc)
         }
     }
-
 }
 
 impl fmt::Display for Loc {

@@ -43,7 +43,7 @@ fn test_get_attr() {
     let df_tbl = Table::new();
     let ref df_vec: Vec<String> = Vec::new();
 
-    // LOC-tst-core-load-attrs-unit-1:<Test loading valid existing types>
+    // LOC-tst-core-load-attrs-unit-1-a:<Test loading valid existing types>
     let test = get_attr!(tbl_good, "REQ-bar", df_tbl, Table).unwrap();
     assert!(get_attr!(&test, "disabled", false, Boolean).unwrap() == false);
     assert!(get_attr!(&test, "disabled", true, Boolean).unwrap() == false);
@@ -70,7 +70,7 @@ fn test_check_type() {
     let df_tbl = Table::new();
 
     let test = get_attr!(tbl_good, "REQ-bar", df_tbl, Table).unwrap();
-    // LOC-tst-core-load-attrs-unit-1:<Test loading valid type>
+    // LOC-tst-core-load-attrs-unit-1-b:<Test loading valid type>
     fn check_valid(test: &Table) -> LoadResult<Vec<String>> {
         Ok(check_type!(get_vecstr(test, "refs", &Vec::new()), "refs", "name"))
     }

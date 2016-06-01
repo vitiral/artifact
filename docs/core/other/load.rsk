@@ -281,6 +281,6 @@ the type is loaded with proper type checking
 [TST-core-load-attrs-unit-1]
 loc = "LOC-tst-core-load-attrs-unit-1: {core}/load.rs"
 [TST-core-load-attrs-unit-2]
-loc = "LOC-tst-core-load-attrs-unit-2: {core}/load.rs"
+loc = "LOC-tst-core-load-attrs-unit-2: {core}/tests/test_load.rs"
 [TST-core-load-attrs-unit-3]
-loc = "LOC-tst-core-load-attrs-unit-3: {core}/load.rs"
+loc = "LOC-tst-core-load-attrs-unit-3: {core}/tests/test_load.rs"

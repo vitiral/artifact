@@ -140,9 +140,10 @@ pub fn set_completed(artifacts: &mut Artifacts) -> usize {
                 // SPC and TST artifacts are done if loc is set
                 match (&artifact.loc, &artifact.ty) {
                     (&Some(ref l), &ArtType::SPC) | (&Some(ref l), &ArtType::TST) => {
-                        if artifacts.contains_key(&l.loc) || l.valid() {
+                        let lvalid = l.valid(artifacts);
+                        if artifacts.contains_key(&l.loc) || lvalid {
                             got_it = 2; // it is 100% completed by definition
-                        } else if !l.valid() {
+                        } else if !lvalid {
                             warn!("[{:?}:{}] has non-existant loc of {}",
                                   artifact.path,
                                   name,

@@ -64,6 +64,5 @@ fn test_load_path() {
     assert_eq!(spc_loc.loc.iter().next().unwrap().line_col.unwrap(), (4, 4));
     assert_eq!(spc_lvl1.loc.iter().next().unwrap().line_col.unwrap(), (3, 3));
 
-
     // TODO: more validation
 }

@@ -20,7 +20,7 @@ impl FmtArtifact {
                                 -> io::Result<()> {
         if !self.name_only() {
             for _ in 0..(indent * 2) {
-                try!(w.write(" ".as_ref()));
+                try!(w.write_all(" ".as_ref()));
             }
         }
         let artifact = artifacts.get(&self.name).unwrap();
@@ -67,18 +67,18 @@ impl FmtArtifact {
                 try!(write!(w, "|{}{}| ", d_sym, t_sym));
                 // format completed %
                 for _ in 0..(3 - d_perc.len()) {
-                    try!(w.write(" ".as_ref()));
+                    try!(w.write_all(" ".as_ref()));
                 }
                 try!(write!(w, "{}% ", d_perc));
                 // format tested %
                 for _ in 0..(3 - t_perc.len()) {
-                    try!(w.write(" ".as_ref()));
+                    try!(w.write_all(" ".as_ref()));
                 }
                 try!(write!(w, "{}% ", t_perc));
                 try!(write!(w, "| {} ", name));
                 if name.len() < 45 {
                     for _ in 0..(45 - name.len()) {
-                        try!(w.write(" ".as_ref()));
+                        try!(w.write_all(" ".as_ref()));
                     }
                 }
             }
@@ -98,28 +98,57 @@ impl FmtArtifact {
         }
 
         if let Some(ref parts) = self.parts {
-            try!(w.write("| ".as_ref()));
+            try!(w.write_all("| ".as_ref()));
             let mut first = true;
             for p in parts {
                 if !first && p.name_only() {
-                    try!(w.write(", ".as_ref()));
+                    try!(w.write_all(", ".as_ref()));
                 }
                 first = false;
                 try!(p.write(w, artifacts, settings, indent + 1));
             }
+            try!(w.write_all(" ".as_ref()));
         }
         if let Some(ref partof) = self.partof {
-            try!(w.write("| ".as_ref()));
+            try!(w.write_all("| ".as_ref()));
             let mut first = true;
             for p in partof {
                 if !first && p.name_only() {
-                    try!(w.write(", ".as_ref()));
+                    try!(w.write_all(", ".as_ref()));
                 }
                 first = false;
                 try!(p.write(w, artifacts, settings, indent + 1));
             }
+            try!(w.write_all(" ".as_ref()));
         }
-        try!(w.write("\n".as_ref()));
+        if self.loc_name.is_some() || self.loc_path.is_some() {
+            try!(w.write_all("| ".as_ref()));
+            let mut loc_str = String::new();
+            if let Some(ref lname) = self.loc_name {
+                loc_str.write_str(lname.raw.as_str()).unwrap();
+            }
+            if let Some(ref lpath) = self.loc_path {
+                write!(loc_str, ":{}", lpath.to_string_lossy().as_ref()).unwrap();
+                if let Some(ref line_col) = self.loc_line_col {
+                    write!(loc_str, "({}:{})", line_col.0, line_col.1).unwrap();
+                }
+            }
+            if settings.color {
+                match self.loc_valid {
+                    None => try!(w.write_all(loc_str.as_ref())),
+                    Some(true) => try!(write!(w, "{}", Green.paint(loc_str))),
+                    Some(false) => try!(write!(w, "{}", Red.paint(loc_str))),
+                }
+            } else {
+                match self.loc_valid {
+                    None | Some(true) => try!(w.write_all(loc_str.as_ref())),
+                    Some(false) => try!(write!(w, "!{}!", loc_str)),
+                }
+            }
+            try!(w.write_all(" ".as_ref()));
+        }
+
+        try!(w.write_all("\n".as_ref()));
         Ok(())
     }
 

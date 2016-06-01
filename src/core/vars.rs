@@ -378,15 +378,21 @@ pub fn resolve_locs(artifacts: &mut Artifacts) -> LoadResult<()> {
                             '-' => end.split_at(pos - start_pos - 1),
                             _ => end.split_at(pos - start_pos),
                         };
-                        // check for overlap on insert
-                        match locs.insert(ArtName::from_str(name).unwrap(),
-                                          (path.clone(), line, start_col)) {
-                            None => {},
-                            Some(l) => {
-                                error!("detected overlapping loc names in files: {:?} and {:?}",
-                                       l.0, path.as_path());
-                                error = true;
+                        let locname = ArtName::from_str(name).unwrap();
+                        if loc_artifacts.contains_key(&locname) {
+                            // only do checking if the loc actually exists
+                            // check for overlap on insert
+                            match locs.insert(locname,
+                                            (path.clone(), line, start_col)) {
+                                None => {},
+                                Some(l) => {
+                                    error!("detected overlapping loc {} in files: {:?} and {:?}",
+                                        name, l.0, path.as_path());
+                                    error = true;
+                                }
                             }
+                        } else {
+                            warn!("Found loc that is not a member of an artifact: {}", name);
                         }
                         ' '
                     },
