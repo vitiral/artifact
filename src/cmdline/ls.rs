@@ -121,7 +121,7 @@ pub fn do_ls(names: Vec<ArtName>, artifacts: &Artifacts, fmtset: &FmtSettings, s
             }
         };
         let f = fmt_artifact(&name, artifacts, fmtset, fmtset.recurse, &mut displayed);
-        f.write(&mut stdout, artifacts, settings).unwrap(); // FIXME: unwrap
+        f.write(&mut stdout, artifacts, settings, 0).unwrap(); // FIXME: unwrap
         stdout.write("\n".as_ref()).unwrap();
         // print!("{}", display_artifact(&name, artifact, &settings));
     }
