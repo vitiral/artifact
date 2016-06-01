@@ -1,0 +1,33 @@
+[REQ-core-ui]
+text = '''
+The ui module **will** use a core **fmt** module that provides cross-functional
+support for all of the ui modules.
+
+This support will include:
+ - filtering out artifacts
+ - specifying format datatypes that can be used across modules
+ - filtering out desired attrs from artifacts to be displayed
+ - filtering out specific artifacts according to patterns
+'''
+
+
+[SPC-core-ui-fmttype]
+text = '''
+There **shall** be a struct which defines all the fields that can be
+printed with Option<String> values.
+
+This will be used to detail what items were filtered from another
+module.
+
+The display struct **shall** contain enough information to provide
+colors to items that are in error, not complete, etc.
+'''
+
+[SPC-core-ui-filter]
+text = '''
+There **shall** be a simple filter function with a simple filter data
+type that can be used to do complex filters on rsk artifacts
+
+Complex filters allow someone to filter by any attribute, or
+combination of attributes.
+'''
