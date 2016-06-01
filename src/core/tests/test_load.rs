@@ -166,17 +166,16 @@ fn test_load_toml() {
 }
 
 #[test]
-fn test_load_path() {
-    env_logger::init().unwrap();
-    info!("running test_load_path");
-    error!("this is here!");
+fn test_load_path_raw() {
+    env_logger::init();
+    info!("running test_load_path_raw");
     // LOC-core-load-dir-unit-2
-    assert!(load_path(TINVALID_DIR.join(&PathBuf::from("attr")).as_path()).is_err());
+    assert!(load_path_raw(TINVALID_DIR.join(&PathBuf::from("attr")).as_path()).is_err());
 
     // LOC-core-load-unit-3
-    assert!(load_path(TINVALID_DIR.join(&PathBuf::from("same_names")).as_path()).is_err());
+    assert!(load_path_raw(TINVALID_DIR.join(&PathBuf::from("same_names")).as_path()).is_err());
 
-    let (artifacts, settings) = load_path(TSIMPLE_DIR.as_path()).unwrap();
+    let (artifacts, settings) = load_path_raw(TSIMPLE_DIR.as_path()).unwrap();
     assert!(artifacts.contains_key(&ArtName::from_str("REQ-purpose").unwrap()));
 
     let req_purpose = artifacts.get(&ArtName::from_str("REQ-purpose").unwrap()).unwrap();
@@ -185,6 +184,7 @@ fn test_load_path() {
     // LOC-core-load-dir-unit-1
     let req_lvl1 = artifacts.get(&ArtName::from_str("REQ-lvl-1").unwrap()).unwrap();
     let spc_lvl1 = artifacts.get(&ArtName::from_str("SPC-lvl-1").unwrap()).unwrap();
+    let spc_loc  = artifacts.get(&ArtName::from_str("SPC-loc").unwrap()).unwrap();
 
     let req_lvl2 = artifacts.get(&ArtName::from_str("REQ-lvl-2").unwrap()).unwrap();
     let spc_lvl2 = artifacts.get(&ArtName::from_str("SPC-lvl-2").unwrap()).unwrap();

@@ -393,7 +393,7 @@ fn default_repo_names() -> HashSet<String> {
 /// given a valid path, load all paths
 /// linking does not occur in this step
 /// LOC-core-load-path
-pub fn load_path(path: &Path) -> LoadResult<(Artifacts, Settings)>{
+pub fn load_path_raw(path: &Path) -> LoadResult<(Artifacts, Settings)> {
     let mut artifacts = Artifacts::new();
     let mut settings = Settings{disabled: false, paths: VecDeque::new(),
                                 repo_names: default_repo_names(),

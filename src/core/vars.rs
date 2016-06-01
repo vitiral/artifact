@@ -302,7 +302,8 @@ fn get_path_str<'a>(path: &'a Path) -> LoadResult<&'a str> {
     }
 }
 
-fn resolve_locs(artifacts: &mut Artifacts) -> LoadResult<()> {
+pub fn resolve_locs(artifacts: &mut Artifacts) -> LoadResult<()> {
+    info!("resolving locations...");
     let mut paths: HashSet<PathBuf> = HashSet::new();
     // map the location names to the artifact names
     let mut loc_artifacts: HashMap<ArtName, ArtName> = HashMap::new();
@@ -329,10 +330,13 @@ fn resolve_locs(artifacts: &mut Artifacts) -> LoadResult<()> {
         let mut s = String::new();
         fd.read_to_string(&mut s).unwrap();
 
+        let mut prev_char = ' ';
         let mut start_pos = 0;
         let mut start_col = 0;
         let mut loc_part = ' ';  // ' ' represents blank
-        let (mut pos, mut line, mut col) = (0, 0, 0);
+        let (mut pos, mut line, mut col) = (0, 1, 0); // line starts at 1
+        // pretty simple parse tree... just do it ourselves!
+        // Looking for LOC-[a-z0-9_-] case insensitive
         for c in s.chars() {
             loc_part = match loc_part {
                 ' ' => match c {
@@ -356,14 +360,24 @@ fn resolve_locs(artifacts: &mut Artifacts) -> LoadResult<()> {
                     _ => ' ',
                 },
                 '-' => match c {
-                    'a'...'z' | 'A'...'Z' | '0'...'9' | '-' | '_' => '*',
+                    'a'...'z' | 'A'...'Z' | '0'...'9' | '-' | '_' => {
+                        prev_char = c;
+                        '*' // we have a valid LOC
+                    }
                     _ => ' ',
                 },
                 '*' => match c {
-                    'a'...'z' | 'A'...'Z' | '0'...'9' | '-' | '_' => '*',
+                    'a'...'z' | 'A'...'Z' | '0'...'9' | '-' | '_' => {
+                        prev_char = c;
+                        '*' // still reading valid LOC
+                    }
                     _ => {  // valid LOC is finished
                         let (_, end) = s.split_at(start_pos);
-                        let (name, _) = end.split_at(pos - start_pos);
+                        // if last char is '-' ignore it
+                        let (name, _) = match prev_char {
+                            '-' => end.split_at(pos - start_pos - 1),
+                            _ => end.split_at(pos - start_pos),
+                        };
                         // check for overlap on insert
                         match locs.insert(ArtName::from_str(name).unwrap(),
                                           (path.clone(), line, start_col)) {
@@ -392,6 +406,7 @@ fn resolve_locs(artifacts: &mut Artifacts) -> LoadResult<()> {
     if error {
         return Err(LoadError::new("Overlapping keys found".to_string()));
     }
+    debug!("Found file locs: {:?}", locs);
 
     // now fill in the location values
     for (lname, info) in locs {

@@ -53,3 +53,17 @@ fn test_resolve_vars() {
         assert_eq!(variables.get("bar-2").unwrap(), bar2.to_str().unwrap());
     }
 }
+
+
+#[test]
+fn test_resolve_loc() {
+    let mut loaded_vars: Variables = Variables::new();
+    let mut variables: Variables = Variables::new();
+    let mut var_paths: HashMap<String, PathBuf> = HashMap::new();
+    let mut repo_map: HashMap<PathBuf, PathBuf> = HashMap::new();
+    let mut repo_names = HashSet::new();
+
+    let fpath = TSIMPLE_DIR.join(PathBuf::from("src/loc1.rsk"));
+    repo_names.insert(String::from(".tst_repo_name"));
+
+}

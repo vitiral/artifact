@@ -11,13 +11,13 @@ pub mod fmt;
 #[cfg(test)]
 mod tests;
 
+// export for other modules to use
 pub use core::vars::find_repo;
 pub use core::types::{
     LoadResult, LoadError,
     Artifacts, Artifact, ArtType, ArtName, Loc,
     Settings};
 pub use core::load::parse_names;
-// use core::load;
 
 /// do all core loading operations defined in SPC-core-load-parts
 /// includes loading and validating raw data, resolving and applying
@@ -25,7 +25,8 @@ pub use core::load::parse_names;
 pub fn load_path(path: &Path) -> LoadResult<(Artifacts, Settings)>{
     let start = time::get_time();
     info!("loading path: {}", path.to_string_lossy().as_ref());
-    let (mut artifacts, settings) = try!(load::load_path(path));
+    let (mut artifacts, settings) = try!(load::load_path_raw(path));
+    try!(vars::resolve_locs(&mut artifacts));
     link::create_parents(&mut artifacts);
     link::link_parents(&mut artifacts);
     try!(link::validate_partof(&artifacts));

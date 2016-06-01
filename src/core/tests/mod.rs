@@ -18,6 +18,7 @@ use toml::{Parser, Value, Table};
 mod test_load;
 mod test_vars;
 mod test_link;
+mod test_core;
 
 // Data and helpers
 
@@ -29,6 +30,7 @@ lazy_static!{
     pub static ref TEMPTY_DIR: PathBuf = TDATA_DIR.join(PathBuf::from("empty"));
     pub static ref TSIMPLE_DIR: PathBuf = TDATA_DIR.join(PathBuf::from("simple"));
     pub static ref TINVALID_DIR: PathBuf = TDATA_DIR.join(PathBuf::from("invalid"));
+    pub static ref TLOC_DIR: PathBuf = TDATA_DIR.join(PathBuf::from("loc"));
 }
 
 // valid toml, not necessarily all valid artifacts
