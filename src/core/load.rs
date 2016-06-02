@@ -59,7 +59,7 @@ pub fn get_vecstr(tbl: &Table, attr: &str, default: &Vec<String>)
     }
 }
 
-/// LOC-core-load-table-check:<check the type to make sure it matches>
+/// TST-core-load-table-check:<check the type to make sure it matches>
 macro_rules! check_type {
     ($value: expr, $attr: expr, $name: expr) => {
         match $value {
@@ -74,7 +74,7 @@ macro_rules! check_type {
 }
 
 impl Settings {
-    /// LOC-core-settings-from_table:<load a settings object from a table>
+    /// SPC-core-settings-from_table:<load a settings object from a table>
     pub fn from_table(tbl: &Table) -> LoadResult<Settings> {
         let df_vec = Vec::new();
         let str_paths: Vec<String> = check_type!(
@@ -197,13 +197,13 @@ impl Artifact {
     }
 }
 
-/// LOC-core-load-table:<load a table from toml>
 /// inputs:
 ///     ftable: file-table
 ///     path: path to this file
 ///     artifacts: place to put the loaded artifacts
 ///     settings: place to put the loaded settings
 ///     variables: place to put the loaded variables
+/// SPC-core-load-table:<load a table from toml>
 pub fn load_table(ftable: &mut Table, path: &Path,
                   artifacts: &mut Artifacts,
                   settings: &mut Vec<(PathBuf, Settings)>,
@@ -297,7 +297,7 @@ pub fn load_toml(path: &Path, text: &str,
 
 /// given a file path load the artifacts
 ///
-/// LOC-core-load-file
+/// SPC-core-load-file
 pub fn load_file(path: &Path,
                  artifacts: &mut Artifacts,
                  settings: &mut Vec<(PathBuf, Settings)>,
@@ -317,7 +317,7 @@ pub fn load_file(path: &Path,
     load_toml(path, &text, artifacts, settings, variables)
 }
 
-/// LOC-core-load-dir:<given a path load the raw artifacts from files recursively>
+/// SPC-core-load-dir:<given a path load the raw artifacts from files recursively>
 pub fn load_dir(path: &Path,
                 loaded_dirs: &mut HashSet<PathBuf>,
                 artifacts: &mut Artifacts,
@@ -392,7 +392,7 @@ fn default_repo_names() -> HashSet<String> {
 
 /// given a valid path, load all paths
 /// linking does not occur in this step
-/// LOC-core-load-path
+/// SPC-core-load-paths
 pub fn load_path_raw(path: &Path) -> LoadResult<(Artifacts, Settings)> {
     let mut artifacts = Artifacts::new();
     let mut settings = Settings{disabled: false, paths: VecDeque::new(),
@@ -418,7 +418,7 @@ pub fn load_path_raw(path: &Path) -> LoadResult<(Artifacts, Settings)> {
                                   path.to_string_lossy().as_ref()));
     }
 
-    // LOC-core-load-parts-1:<load and validate all paths recursively>
+    // SPC-core-load-parts-1:<load and validate all paths recursively>
     while settings.paths.len() > 0 {
         loaded_settings.clear();
         let dir = settings.paths.pop_front().unwrap(); // it has len, it better pop!

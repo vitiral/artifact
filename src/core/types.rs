@@ -25,7 +25,7 @@ lazy_static!{
 }
 
 #[derive(Debug, Clone, Eq, PartialEq)]
-/// LOC-core-artifacts-enum:<valid artifact types>
+/// SPC-core-artifact-types:<valid artifact types>
 pub enum ArtType {
     REQ,
     SPC,
@@ -34,7 +34,7 @@ pub enum ArtType {
     LOC,
 }
 
-/// LOC-core-loc<Location data type>
+/// SPC-core-artifact-attrs-loc<Location data type>
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub struct Loc {
     pub path: path::PathBuf,
@@ -77,7 +77,7 @@ fn test_loc() {
     assert_eq!(result.path, path::PathBuf::from("path/is/cool"));
 }
 
-/// LOC-core-artifact-name:<storage of the artifact's name>
+/// SPC-core-artifact-name-struct:<storage of the artifact's name>
 /// also contains logic for finding the artifact's type
 /// (as it is based on the name)
 // TODO: Hash and Eq have to be defined to ONLY care about
@@ -89,7 +89,7 @@ pub struct ArtName {
 }
 
 impl ArtName {
-    /// LOC-find-type:<find a valid type or error>
+    /// SPC-core-artifacts-types-check:<find a valid type or error>
     fn find_type_maybe(&self) -> LoadResult<ArtType> {
         let ty = self.value.get(0).unwrap();
         match ty.as_str() {
@@ -111,7 +111,7 @@ impl ArtName {
 
     pub fn from_str(s: &str) -> LoadResult<ArtName> {
         // REQ-core-artifacts-name: strip spaces, ensure valid chars
-        // SPC-name-check:<make sure name is valid>
+        // SPC-core-artifact-name-check:<make sure name is valid>
         let value = s.to_ascii_uppercase().replace(' ', "");
         if !ART_VALID.is_match(&value) {
             return Err(LoadError::new("invalid artifact name: ".to_string() + s));
@@ -189,7 +189,7 @@ impl PartialOrd for ArtName {
     }
 }
 
-/// LOC-core-artifact:<artifact definition>
+/// SPC-core-artifact-struct:<artifact definition>
 /// The Artifact type. This encapsulates
 /// REQ, SPC, RSK, and TST artifacts and
 /// contains space to link them
@@ -208,7 +208,7 @@ pub struct Artifact {
 }
 
 #[derive(Debug)]
-/// LOC-core-settings
+/// SPC-core-settings-struct
 pub struct Settings {
     pub disabled: bool,
     pub paths: VecDeque<path::PathBuf>,

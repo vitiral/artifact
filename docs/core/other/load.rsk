@@ -109,7 +109,7 @@ ui as missing links or None completion (etc)
 '''
 
 [SPC-core-load-parts-1]
-loc = "LOC-core-load-parts-1: {core}/load.rs"
+loc = "{core}/load.rs"
 text = '''
 Loading and basic validation of raw text **shall** be accomplished mostly by
 the type implementations themselves in a `from*` method.
@@ -126,14 +126,14 @@ If a directory already exists in this Map, it will not be loaded.
 '''
 
 [SPC-core-load-settings-from_table]
-loc = "LOC-core-settings-from_table: {core}/load.rs"
+loc = "{core}/load.rs"
 text = '''
 Settings **shall** have a `from_table` method to load them directly from a toml
 Table. This will only load the raw settings, returning an Err on an invalid type.
 '''
 
 [SPC-core-load-settings-resolve]
-loc = "LOC-load-settings-resolve: {core}/vars.rs"
+loc = "{core}/vars.rs"
 partof = "SPC-core-load-parts-1"
 text = '''
 Settings are resolved only after a recursive directory tree has been loaded.
@@ -158,7 +158,7 @@ variables shall be applied in three parts:
 ##################################################
 # load paths-file function
 [SPC-core-load-paths]
-loc = "LOC-core-load-path: {core}/load.rs"
+loc = "{core}/load.rs"
 partof = "SPC-core-load-parts-1"
 text = '''
 There **shall** be a function which can read a list of paths from a file
@@ -166,7 +166,7 @@ and load them recursively **or** can just load a directory path.
 '''
 
 [TST-core-load-path]
-loc = "LOC-tst-core-deep: {core}/tests/test_load.rs"
+loc = "{core}/tests/test_load.rs"
 partof = "SPC-core-load-paths, RSK-core-load-infinite_loop"
 text = '''
 have a paths-file and unreachable .rsk files. Have the file point to the unreachable
@@ -179,7 +179,7 @@ Also have the file point **back** to the original file, to test for infinite loo
 # load dir function
 [SPC-core-load-dir]
 partof = "SPC-core-load-parts-1"
-loc = "LOC-core-load-dir: {core}/load.rs"
+loc = "{core}/load.rs"
 text = '''
 There **shall** be a function which can load all artifacts from a
 directory recursively (as defined in LOC-core-load-recursive)
@@ -192,19 +192,19 @@ text = "tests related to ensuring that toml works as expected"
 [TST-core-load-dir-unit]
 partof = "SPC-core-load-dir"
 [TST-core-load-dir-unit-1]
-loc = "LOC-core-load-dir-unit-1: {core}/tests/test_load.rs"
+loc = "{core}/tests/test_load.rs"
 text = '''
 load a folder with a [file folder[file]] and make sure all values
 are present
 '''
 [TST-core-load-dir-unit-2]
-loc = "LOC-core-load-unit-3: {core}/tests/test_load.rs"
+loc = "{core}/tests/test_load.rs"
 partof = "RSK-core-load-invalid"
 text = "load a [file] with an invalid attribute an make sure it errors"
 [TST-core-load-dir-unit-3]
 text = "load two files with the same key and make sure it errors"
 [TST-core-load-dir-unit-4]
-loc = "LOC-core-load-dir-unit-4: {core}/tests/test_load.rs"
+loc = "{core}/tests/test_load.rs"
 text = '''
 load a structure like so:
 ```
@@ -214,7 +214,7 @@ load a structure like so:
 and make sure that `unreachable.rsk` does **not** get loaded
 '''
 [TST-core-load-dir-unit-5]
-loc = "LOC-core-load-dir-unit-5: {core}/tests/test_load.rs"
+loc = "{core}/tests/test_load.rs"
 text = '''
 load a structure like so:
 ```
@@ -228,7 +228,7 @@ and make sure that all three rsk files are loaded
 ##################################################
 # load file function
 [SPC-core-load-file]
-loc = "LOC-core-load-file: {core}/load.rs"
+loc = "{core}/load.rs"
 partof = "SPC-core-load-parts-1"
 text = '''
 There **shall** be a function which can load all artifacts from a
@@ -236,12 +236,12 @@ file given a path
 '''
 
 [TST-core-load-valid]
-loc = "LOC-tst-core-load-valid: {core}/tests/test_load.rs"
+loc = "{core}/tests/test_load.rs"
 partof = "SPC-core-load-file, RSK-core-load-invalid"
 text = "load a valid toml file and verify it's artifacts and settings"
 
 [TST-core-load-invalid]
-loc = "LOC-tst-core-load-invalid: {core}/tests/test_load.rs"
+loc = "{core}/tests/test_load.rs"
 partof = "SPC-core-load-file, RSK-core-load-invalid"
 text = '''
 load separate toml files suffering the issues listed below and ensure
@@ -257,14 +257,14 @@ they do not load.
 # load table function
 [SPC-core-load-table]
 partof = "SPC-core-load-parts-1"
-loc = "LOC-core-load-table: {core}/load.rs"
+loc = "{core}/load.rs"
 text = '''
 There **shall** be a function which loads artifacts from a toml Table
 '''
 
 [TST-core-load-table-check]
 partof = "SPC-core-load-table, RSK-core-load-invalid"
-loc = "LOC-core-load-table-check: {core}/load.rs"
+loc = "{core}/load.rs"
 text = '''
 The rust langauge **will** guarantee that every return value / error is addressed.
 
@@ -280,8 +280,10 @@ text = '''
 There **will** be extensive unit tests on the attrs loading mechanism to ensure
 the type is loaded with proper type checking
 '''
-[TST-core-load-attrs-unit-1]
-loc = "LOC-tst-core-load-attrs-unit-1: {core}/load.rs"
+[TST-core-load-attrs-unit-1-a]
+loc = "{core}//tests/test_load.rs"
+[TST-core-load-attrs-unit-1-b]
+loc = "{core}//tests/test_load.rs"
 [TST-core-load-attrs-unit-2]
 loc = "LOC-tst-core-load-attrs-unit-2: {core}/tests/test_load.rs"
 [TST-core-load-attrs-unit-3]

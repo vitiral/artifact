@@ -22,7 +22,7 @@ use super::super::load::*;
 // // Tests
 
 #[test]
-/// LOC-tst-name-check:<check that name combinations raise correct errors>
+/// TST-core-artifact-name-check:<check that name combinations raise correct errors>
 fn test_artifact_name() {
     // valid names
     for name in vec!["REQ-foo", "REQ-foo-2", "REQ-foo2", "REQ-foo2", "REQ-foo-bar-2_3",
@@ -43,7 +43,7 @@ fn test_get_attr() {
     let df_tbl = Table::new();
     let ref df_vec: Vec<String> = Vec::new();
 
-    // LOC-tst-core-load-attrs-unit-1-a:<Test loading valid existing types>
+    // TST-core-load-attrs-unit-1-a:<Test loading valid existing types>
     let test = get_attr!(tbl_good, "REQ-bar", df_tbl, Table).unwrap();
     assert!(get_attr!(&test, "disabled", false, Boolean).unwrap() == false);
     assert!(get_attr!(&test, "disabled", true, Boolean).unwrap() == false);
@@ -70,7 +70,7 @@ fn test_check_type() {
     let df_tbl = Table::new();
 
     let test = get_attr!(tbl_good, "REQ-bar", df_tbl, Table).unwrap();
-    // LOC-tst-core-load-attrs-unit-1-b:<Test loading valid type>
+    // TST-core-load-attrs-unit-1-b:<Test loading valid type>
     fn check_valid(test: &Table) -> LoadResult<Vec<String>> {
         Ok(check_type!(get_vecstr(test, "refs", &Vec::new()), "refs", "name"))
     }
@@ -99,7 +99,7 @@ fn test_settings() {
 
 
 #[test]
-/// LOC-tst-core-load-valid:<load some valid toml files>
+/// TST-core-load-valid:<load some valid toml files>
 fn test_load_toml() {
     let mut artifacts = Artifacts::new();
     let mut settings: Vec<(PathBuf, Settings)> = Vec::new();
@@ -107,7 +107,7 @@ fn test_load_toml() {
 
     let path = PathBuf::from("hi/there");
 
-    // LOC-tst-core-load-invalid:<load some invalid toml files>
+    // TST-core-load-invalid:<load some invalid toml files>
     assert!(load_toml(&path, TOML_BAD, &mut artifacts, &mut settings, &mut variables).is_err());
     assert!(load_toml(&path, TOML_BAD_JSON, &mut artifacts, &mut settings, &mut variables).is_err());
     assert!(load_toml(&path, TOML_BAD_ATTR1, &mut artifacts,
@@ -183,7 +183,7 @@ fn test_load_path_raw() {
     // LOC-core-load-dir-unit-2
     assert!(load_path_raw(TINVALID_DIR.join(&PathBuf::from("attr")).as_path()).is_err());
 
-    // LOC-core-load-unit-3
+    // TST-core-load-unit-3
     assert!(load_path_raw(TINVALID_DIR.join(&PathBuf::from("same_names")).as_path()).is_err());
 
     let (artifacts, settings) = load_path_raw(TSIMPLE_DIR.as_path()).unwrap();
@@ -192,7 +192,7 @@ fn test_load_path_raw() {
     let req_purpose = artifacts.get(&ArtName::from_str("REQ-purpose").unwrap()).unwrap();
 
     // load all artifacts that should exist
-    // LOC-core-load-dir-unit-1
+    // TST-core-load-dir-unit-1
     let req_lvl1 = artifacts.get(&ArtName::from_str("REQ-lvl-1").unwrap()).unwrap();
     let spc_lvl1 = artifacts.get(&ArtName::from_str("SPC-lvl-1").unwrap()).unwrap();
     let spc_loc  = artifacts.get(&ArtName::from_str("SPC-loc").unwrap()).unwrap();
@@ -202,8 +202,8 @@ fn test_load_path_raw() {
     let tst_lvl2 = artifacts.get(&ArtName::from_str("TST-lvl-2").unwrap()).unwrap();
 
     // deep loading
-    // LOC-tst-core-deep
-    // LOC-core-load-dir-unit-4
+    // TST-core-load-path
+    // TST-core-load-dir-unit-4
     assert!(!artifacts.contains_key(&ArtName::from_str("REQ-unreachable").unwrap()));
 
     let req_deep = artifacts.get(&ArtName::from_str("REQ-deep").unwrap()).unwrap();
@@ -214,7 +214,7 @@ fn test_load_path_raw() {
     let lvl1_dir = TSIMPLE_DIR.join(PathBuf::from("lvl_1"));
     let lvl1_dir_str = lvl1_dir.as_path().to_str().unwrap().to_string();
 
-    // LOC-core-load-dir-unit-5
+    // TST-core-load-dir-unit-5
     assert_eq!(req_purpose.refs, [extra_dir.join(PathBuf::from("README.md")).to_str().unwrap()]);
     assert_eq!(spc_lvl1.text, "level one does FOO");
     assert_eq!(spc_lvl1.loc.as_ref().unwrap().path, lvl1_dir.join(PathBuf::from("lvl_1.rs")));

@@ -1,21 +1,21 @@
 [SPC-core-artifact-name-struct]
+loc = "{core}/types.rs"
 partof = "REQ-core-[artifacts-name, links-prefix]"
-loc = "LOC-core-artifact-name: {core}/types.rs"
 text = '''
 The artifact name shall be a struct similar to std::path::Path
 '''
 
 [SPC-core-artifact-name-check]
-loc = "LOC-name-check: {core}/types.rs"
+loc = "{core}/types.rs"
 partof = "REQ-core-artifacts-name"
 text = "The name shall be checked to match the requirements"
 
-[TST-artifact-name-check]
-loc = "LOC-tst-name-check: {core}/tests/test_load.rs"
+[TST-core-artifact-name-check]
+loc = "{core}/tests/test_load.rs"
 partof = "SPC-core-artifact-name-check"
 
 [SPC-core-artifact-struct]
-loc = "LOC-core-artifact: {core}/types.rs"
+loc = "{core}/types.rs"
 partof = "REQ-core-artifacts-attrs"
 text = '''
 Artifacts will be implemented in code as an Artifact struct with all the relevant
@@ -23,14 +23,14 @@ attributes attached to it
 '''
 
 [SPC-core-artifact-attrs-loc]
-loc = "LOC-core-loc: {core}/types.rs"
+loc = "{core}/types.rs"
 partof = "REQ-core-artifacts-attrs-loc"
 text = '''
 the LOC artifact as an attribute shall be it's own struct with information stored
 '''
 
-[SPC-core-artifacts-types]
-loc = "LOC-core-artifacts-enum: {core}/types.rs"
+[SPC-core-artifact-types]
+loc = "{core}/types.rs"
 partof = "REQ-core-artifacts-types"
 text = '''
 Valid artifact types shall be determined through an enum.
@@ -40,7 +40,7 @@ are all nearly identical
 '''
 
 [SPC-core-artifacts-types-check]
-loc = "LOC-find-type: {core}/types.rs"
+loc = "{core}/types.rs"
 text = '''
 All artifacts must be a defined type or error
 '''

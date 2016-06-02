@@ -1,5 +1,5 @@
 [SPC-core-settings-struct]
-loc = "LOC-core-settings: {core}/types.rs"
+loc = "{core}/types.rs"
 text = '''
 There **shall** be a settings struct that holds the valid project level settings.
 
@@ -7,12 +7,4 @@ It shall have the following attributes:
 - bool disabled: whether the file where this settings object exists is disabled
 - VecDeque paths: deque to store and load project level paths
 - HashSet repo_names: valid names for repositories (used for `repo` variable)
-'''
-
-
-[SPC-core-settings-vars]
-loc = "LOC-core-settings: {core}/types.rs"
-text = '''
-settings **shall** have only the default globals applied to them
-before other variables are resolved
 '''

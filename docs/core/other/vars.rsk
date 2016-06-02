@@ -29,7 +29,7 @@ The following **will not** have variables applied:
 '''
 
 [SPC-core-vars-struct]
-loc = "LOC-core-vars-struct: {core}/types.rs"
+loc = "{core}/types.rs"
 text = '''
 There shall be a struct which holds variables for use
 '''
@@ -47,7 +47,7 @@ as long as the definition isn't recursive
 '''
 
 [SPC-core-vars-lib]
-loc = "LOC-core-vars-lib: {src}/main.rs"
+loc = "{src}/main.rs"
 partof = "REQ-core-vars-fmt"
 text = '''
 the rust library [strfmt](https://github.com/vitiral/strfmt)
@@ -56,14 +56,14 @@ formatting strings.
 '''
 
 [SPC-core-vars-resolve-default]
-loc = "LOC-core-vars-resolve-default: {core}/vars.rs"
+loc = "{core}/vars.rs"
 text = '''
 default variables **shall** use the feature of strfmt that allows
 for ignoring missing variables to resolve variables immediately
 '''
 
 [SPC-core-vars-resolve-user]
-loc = "LOC-core-vars-resolve-user: {core}/vars.rs"
+loc = "{core}/vars.rs"
 text = '''
 rsk shall be able to handle variables that use other variables resolving
 variables repeatedly until they have been completely resolved.

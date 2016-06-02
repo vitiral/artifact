@@ -58,7 +58,7 @@ pub fn find_repo(dir: &Path, repo_names: &HashSet<String>) -> Option<PathBuf> {
     }
 }
 
-/// LOC-load-settings-resolve:<resolve all informaiton related to settings>
+/// SPC-core-load-settings-resolve:<resolve all informaiton related to settings>
 pub fn resolve_settings(settings: &mut Settings,
                         repo_map: &mut HashMap<PathBuf, PathBuf>,
                         loaded_settings: &Vec<(PathBuf, Settings)>)
@@ -139,7 +139,7 @@ pub fn find_and_insert_repo(dir: &Path, repo_map: &mut HashMap<PathBuf, PathBuf>
 
 /// resolves default vars from a file (cwd and repo)
 /// and inserts into variables
-/// LOC-core-vars-resolve-default
+/// SPC-core-vars-resolve-default
 pub fn resolve_default_vars(vars: &Variables, fpath: &Path,
                             variables: &mut Variables,
                             repo_map: &mut HashMap<PathBuf, PathBuf>,
@@ -179,7 +179,7 @@ pub fn resolve_default_vars(vars: &Variables, fpath: &Path,
 /// continues to resolve variables until all are resolved
 /// - done if no vars were resolved in a pass and no errors
 /// - error if no vars were resolved in a pass and there were errors
-/// LOC-core-vars-resolve-user
+/// SPC-core-vars-resolve-user
 pub fn resolve_vars(variables: &mut Variables) -> LoadResult<()> {
     // keep resolving variables until all are resolved
     let mut msg = String::new();
@@ -316,7 +316,6 @@ pub fn resolve_locs(artifacts: &mut Artifacts) -> LoadResult<()> {
         }
     };
     paths.remove(Path::new(""));
-    println!("getting paths: {:?}", paths);
 
     // analyze all files for valid locations
     let mut error = false;
@@ -340,7 +339,6 @@ pub fn resolve_locs(artifacts: &mut Artifacts) -> LoadResult<()> {
         // pretty simple parse tree... just do it ourselves!
         // Looking for LOC-[a-z0-9_-] case insensitive
         for c in s.chars() {
-            println!("prev: {:?}, spc: {:?}", prev, spc);
             if prev == spc || prev == tst {
                 if prev_char == ' ' {
                     start_pos = pos - 4;
