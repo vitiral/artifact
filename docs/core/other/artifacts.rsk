@@ -38,8 +38,6 @@ hold the `(line, col)` information provided.
 `loc` is what defines the base-completeness of the artifact set
 '''
 
-[TST-core-artifact-loc]
-
 [SPC-core-artifact-types]
 loc = "{core}/types.rs"
 partof = "REQ-core-artifacts-types"
