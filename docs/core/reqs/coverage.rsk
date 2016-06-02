@@ -1,6 +1,5 @@
 [REQ-core-coverage]
 partof = "REQ-purpose-coverage"
-refs = ["REQ-core-artifacts-attrs-[parts, partof]"]
 text = '''
 How coverage is calculated.
 

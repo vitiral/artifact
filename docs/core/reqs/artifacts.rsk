@@ -97,6 +97,7 @@ linked as one
 '''
 
 [REQ-core-artifacts-attrs-partof]
+partof = "REQ-purpose-linking"
 text = '''
 the `partof` field **shall** be a string specifying which artifacts the artifact item
 is a part of (which artifacts depend on it)
@@ -143,6 +144,7 @@ The reasons for these rules are:
 '''
 
 [REQ-core-artifacts-attrs-parts]
+partof = "REQ-core-coverage, REQ-core-artifacts-attrs-partof"
 text = '''
 the `parts` attribute of an artifact shall be used to detail the
 artifacts that it *depends on* (opposite of partof)
@@ -151,7 +153,7 @@ artifacts that it *depends on* (opposite of partof)
 '''
 
 [REQ-core-artifacts-attrs-loc]
-refs = ["REQ-core-coverage-loc"]
+partof = "REQ-core-coverage"
 text = '''
 The loc field **shall** be a string which specifies the location where a
 SPC or TST artifact is implemented.

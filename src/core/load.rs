@@ -89,6 +89,7 @@ impl Settings {
     }
 }
 
+// [SPC-core-artifact-names-parse]
 fn _parse_names<I>(raw: &mut I, in_brackets: bool) -> LoadResult<Vec<String>>
     where I: Iterator<Item = char>
 {
@@ -182,8 +183,10 @@ impl Artifact {
             // loaded vars
             ty: name.get_type(),
             path: path.to_path_buf(),
+            // [SPC-core-artifact-attrs-text]
             text: check_type!(get_attr!(tbl, "text", df_str, String),
                               "text", name),
+            // [SPC-core-artifact-attrs-refs]
             refs: check_type!(get_vecstr(tbl, "refs", &df_vec), "refs", name),
             partof: try!(parse_names(&partof_str)),
             loc: loc,

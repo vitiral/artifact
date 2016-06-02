@@ -60,6 +60,7 @@ Possible choices:
 '''
 
 [REQ-purpose-linking]
+partof = "REQ-purpose-[artifacts, coverage]"
 text = '''
 linking **will** be in an easy to understand format.
 

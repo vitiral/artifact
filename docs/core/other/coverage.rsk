@@ -1,0 +1,13 @@
+
+
+[SPC-core-artifacts-attrs-loc-invalid]
+loc = "{core}/link.rs"
+partof = "REQ-core-artifacts-attrs-loc-invalid"
+
+[SPC-core-coverage-percent-done]
+loc = "{core}/link.rs"
+partof = "REQ-core-coverage-percent-done"
+
+[SPC-core-coverage-percent-tested]
+loc = "{core}/link.rs"
+partof = "REQ-core-coverage-percent-tested"

@@ -224,7 +224,7 @@ Also have the file point **back** to the original file, to test for infinite loo
 ##################################################
 # load dir function
 [SPC-core-load-dir]
-partof = "SPC-core-load-parts-1"
+partof = "REQ-core-load-recursive, SPC-core-load-parts-1"
 loc = "{core}/load.rs"
 text = '''
 There **shall** be a function which can load all artifacts from a

@@ -12,7 +12,7 @@ text = "The parent method must be tested"
 
 [SPC-core-artifact-name-check]
 loc = "{core}/types.rs"
-partof = "REQ-core-artifacts-name"
+partof = "REQ-core-artifacts-[name, types-[req, spc, rsk, tst]]"
 text = "The name shall be checked to match the requirements"
 
 [TST-core-artifact-name-check]
@@ -37,6 +37,35 @@ hold the `(line, col)` information provided.
 
 `loc` is what defines the base-completeness of the artifact set
 '''
+
+[SPC-core-artifact-attrs-refs]
+loc = "{core}/load.rs"
+partof = "REQ-core-artifacts-attrs-refs"
+text = '''
+the `refs` attr **shall** be used to store unchecked string
+references which the ui components **may** convert into various
+forms (i.e. link, artifact-link, etc)
+'''
+
+[SPC-core-artifact-attrs-text]
+loc = "{core}/load.rs"
+partof = "REQ-core-artifacts-attrs-refs"
+text = '''
+the `text` attr **shall** be used to store an unchecked string
+which the ui components **will** evaluate later as some form of
+markdown
+'''
+
+[SPC-core-artifact-names-parse]
+loc = "{core}/load.rs"
+partof = "SPC-core-artifact-attrs-partof, REQ-core-artifacts-attrs-[partof, partof-fmt]"
+[TST-core-artifact-names-parse]
+loc = "{core}/load.rs"
+partof = "SPC-core-artifact-names-parse"
+
+[SPC-core-artifact-attrs-parts]
+partof = "REQ-core-artifacts-attrs-parts"
+text = "artifact parts shall be automatically determined"
 
 [SPC-core-artifact-types]
 loc = "{core}/types.rs"

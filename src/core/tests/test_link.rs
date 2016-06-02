@@ -33,7 +33,7 @@ fn test_basic_link() {
         art.loc = Some(Loc{path: path.clone(), line_col: Some((1, 2))});
     }
 
-    // test create parents
+    // [TST-core-artifact-attrs-parts-parents]
     create_parents(&mut artifacts);
     assert!(artifacts.contains_key(&req_name));
     assert!(artifacts.contains_key(&ArtName::from_str("REQ-parts").unwrap()));

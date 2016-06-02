@@ -8,7 +8,7 @@ use core::types::{LoadResult, LoadError, Artifacts, Artifact, ArtType, ArtName};
 use core::fmt;
 
 /// create parents for all artifacts that have no parents except for
-/// LOC artifacts
+// [SPC-core-artifact-attrs-parts-parents-create]
 pub fn create_parents(artifacts: &mut Artifacts) {
     let mut create_names: HashSet<ArtName> = HashSet::new();
     for (name, art) in artifacts.iter() {
@@ -48,6 +48,7 @@ pub fn create_parents(artifacts: &mut Artifacts) {
 }
 
 /// traverse all artifacts and link them to their by-name parent
+/// [SPC-core-artifact-attrs-parts-parents-link]
 pub fn link_parents(artifacts: &mut Artifacts) {
     for (name, artifact) in artifacts.iter_mut() {
         if name.get_type() == ArtType::LOC {
@@ -75,6 +76,7 @@ pub fn validate_partof(artifacts: &Artifacts) -> LoadResult<()> {
                 (&ArtType::TST, &ArtType::RSK) |
                 (&ArtType::TST, &ArtType::SPC) => {}
                 (_, _) => {
+                    // [SPC-core-artifact-attrs-partof-validate]
                     error!("[{:?}:{}]: {:?} can not be a partof {:?}",
                            artifact.path,
                            name,
@@ -124,6 +126,7 @@ pub fn link_parts(artifacts: &mut Artifacts) -> u64 {
 
 
 /// discover how complete and how tested all artifacts are (or are not!)
+/// [SPC-core-coverage-percent-done]
 pub fn set_completed(artifacts: &mut Artifacts) -> usize {
     let mut names: HashSet<ArtName> = HashSet::from_iter(artifacts.keys().map(|n| n.clone()));
     let mut known: HashSet<ArtName> = HashSet::new();
@@ -149,6 +152,9 @@ pub fn set_completed(artifacts: &mut Artifacts) -> usize {
                             got_it = 3; // it is 0% completed by definition
                         }
                     }
+                    // [SPC-core-artifacts-attrs-loc-invalid]
+                    (&Some(_), ty @ _) => warn!("[{:?}:{}] has loc set but is of type {:?}",
+                                                    artifact.path, name, ty),
                     _ => {}
                 }
                 if got_it == 0 && artifact.parts.len() == 0 {
@@ -226,6 +232,7 @@ pub fn set_completed(artifacts: &mut Artifacts) -> usize {
 }
 
 /// Find the amount each artifact is tested
+/// [SPC-core-coverage-percent-tested]
 pub fn set_tested(artifacts: &mut Artifacts) -> usize {
     let mut names: HashSet<ArtName> = HashSet::from_iter(artifacts.keys().map(|n| n.clone()));
     let mut known: HashSet<ArtName> = HashSet::new();
