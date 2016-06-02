@@ -357,6 +357,7 @@ pub fn resolve_locs(artifacts: &mut Artifacts) -> LoadResult<()> {
                                 _ => end.split_at(pos - start_pos),
                             };
                             let locname = ArtName::from_str(name).unwrap();
+                            debug!("Found loc: {}", locname);
                             if looking_for.contains(&locname) {
                                 // only do checking if the loc actually exists
                                 // check for overlap on insert

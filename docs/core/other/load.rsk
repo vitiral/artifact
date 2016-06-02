@@ -21,7 +21,7 @@ refs = ["SPC-core-load-scope"]
 partof = "REQ-purpose-format, REQ-core-load"
 
 [SPC-core-load-error]
-loc = "LOC-core-load-error: {core}/types.rs"
+loc = "{core}/types.rs"
 text = '''
 Any error during loading **shall** result in a LoadError with
 a useful description
@@ -75,7 +75,7 @@ There are several safeguards:
 ##################################################
 # toml spec
 [SPC-core-load-toml]
-loc = "LOC-core-load-toml: {src}/main.rs"
+loc = "{src}/main.rs"
 partof = "REQ-core-load"
 text = '''
 The rust library "toml-rs"
@@ -147,7 +147,7 @@ settings is resolved.
 '''
 
 [SPC-core-load-vars]
-loc = "LOC-core-load-vars: {core}/load.rs"
+loc = "{core}/load.rs"
 partof = "SPC-core-load-parts-1"
 text = '''
 variables shall be applied in three parts:
@@ -285,6 +285,6 @@ loc = "{core}//tests/test_load.rs"
 [TST-core-load-attrs-unit-1-b]
 loc = "{core}//tests/test_load.rs"
 [TST-core-load-attrs-unit-2]
-loc = "LOC-tst-core-load-attrs-unit-2: {core}/tests/test_load.rs"
+loc = "{core}/tests/test_load.rs"
 [TST-core-load-attrs-unit-3]
-loc = "LOC-tst-core-load-attrs-unit-3: {core}/tests/test_load.rs"
+loc = "{core}/tests/test_load.rs"

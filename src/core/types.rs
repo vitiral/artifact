@@ -14,7 +14,7 @@ use regex::Regex;
 pub type LoadResult<T> = Result<T, LoadError>;
 pub type Artifacts = HashMap<ArtName, Artifact>;
 
-// LOC-core-vars-struct
+// SPC-core-vars-struct
 pub type Variables = HashMap<String, String>;
 
 lazy_static!{
@@ -63,7 +63,7 @@ impl Loc {
 
 impl fmt::Display for Loc {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        try!(write!(f, "<@{}", self.path.to_string_lossy().as_ref()));
+        try!(write!(f, "<L:{}", self.path.to_string_lossy().as_ref()));
         if let Some(line_col) = self.line_col {
             try!(write!(f, "({}:{})", line_col.0, line_col.1));
         }

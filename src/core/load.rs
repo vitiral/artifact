@@ -442,7 +442,7 @@ pub fn load_path_raw(path: &Path) -> LoadResult<(Artifacts, Settings)> {
         try!(resolve_settings(&mut settings, &mut repo_map, &loaded_settings));
     }
 
-    // LOC-core-load-vars
+    // SPC-core-load-vars
     info!("Resolving default globals in variables...");
     for pv in loaded_variables.drain(0..) {
         let p = pv.0;
