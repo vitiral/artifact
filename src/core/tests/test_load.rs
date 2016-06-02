@@ -26,7 +26,7 @@ use super::super::load::*;
 fn test_artifact_name() {
     // valid names
     for name in vec!["REQ-foo", "REQ-foo-2", "REQ-foo2", "REQ-foo2", "REQ-foo-bar-2_3",
-                     "SPC-foo", "RSK-foo", "TST-foo", "LOC-foo"] {
+                     "SPC-foo", "RSK-foo", "TST-foo"] {
         assert!(ArtName::from_str(name).is_ok());
     }
     for name in vec!["REQ-foo*", "REQ-foo\n", "REQ-foo-"] {
@@ -123,7 +123,7 @@ fn test_load_toml() {
     assert_eq!(variables.len(), 0);
 
     let num = load_toml(&path, TOML_RSK, &mut artifacts, &mut settings, &mut variables).unwrap();
-    assert_eq!(num, 10);
+    assert_eq!(num, 8);
     assert!(artifacts.contains_key(&ArtName::from_str("REQ-foo").unwrap()));
     assert!(artifacts.contains_key(&ArtName::from_str("SPC-foo").unwrap()));
     assert!(artifacts.contains_key(&ArtName::from_str("RSK-foo").unwrap()));
@@ -200,8 +200,6 @@ fn test_load_path_raw() {
     let req_lvl2 = artifacts.get(&ArtName::from_str("REQ-lvl-2").unwrap()).unwrap();
     let spc_lvl2 = artifacts.get(&ArtName::from_str("SPC-lvl-2").unwrap()).unwrap();
     let tst_lvl2 = artifacts.get(&ArtName::from_str("TST-lvl-2").unwrap()).unwrap();
-    let loc_lvl2 = artifacts.get(&ArtName::from_str("LOC-lvl-2").unwrap()).unwrap();
-    let loc_tst_lvl2 = artifacts.get(&ArtName::from_str("LOC-tst-lvl-2").unwrap()).unwrap();
 
     // deep loading
     // LOC-tst-core-deep

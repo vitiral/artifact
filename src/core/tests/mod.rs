@@ -27,6 +27,7 @@ lazy_static!{
     pub static ref TEST_DIR: PathBuf = CWD.join(PathBuf::from(
         file!()).parent().unwrap().to_path_buf());
     pub static ref TDATA_DIR: PathBuf = TEST_DIR.join(PathBuf::from("data"));
+    pub static ref TBASIC_DIR: PathBuf = TDATA_DIR.join(PathBuf::from("basic"));
     pub static ref TEMPTY_DIR: PathBuf = TDATA_DIR.join(PathBuf::from("empty"));
     pub static ref TSIMPLE_DIR: PathBuf = TDATA_DIR.join(PathBuf::from("simple"));
     pub static ref TINVALID_DIR: PathBuf = TDATA_DIR.join(PathBuf::from("invalid"));
@@ -62,21 +63,19 @@ repo_names = ['.test']
 [REQ-foo]
 disabled = false
 [SPC-foo]
-loc = 'LOC-foo'
+loc = '{core}/foo.rs'
 refs = ['1', '2']
 partof = 'REQ-foo'
-[LOC-foo]
 [RSK-foo]
 [TST-foo]
 partof = 'SPC-dne'
-loc = 'LOC-tst-foo'
-[LOC-tst-foo]
+
 [SPC-bar]
+loc = '{core}/foo.rs'
 disabled = false
 partof = 'REQ-[foo, bar-[1,2]]'
 refs = [\"hello\", \"ref\"]
 text = 'bar'
-loc = 'LOC-foo: {core}/foo.rs'
 
 [REQ-parts-p1-a]
 [REQ-parts-p1-b]
@@ -106,35 +105,28 @@ partof = 'REQ-core-bob'
 
 # bob 1 (done, partially tested)
 [SPC-core-bob-1]
-loc = 'LOC-core-bob-1'
+# loc
 
 [TST-core-bob-1]
 partof = 'SPC-core-bob-1'
 [TST-core-bob-1-a]
-loc = 'LOC-tst-core-bob-1-a'
+# loc
 [TST-core-bob-1-b]
 [TST-core-bob-1-b-1]
 [TST-core-bob-1-b-2]
-loc = 'LOC-tst-core-bob-1-b-2'
-
-[LOC-core-bob-1]
-[LOC-tst-core-bob-1-a]
-[LOC-tst-core-bob-1-b-2]
+# loc
 
 # bob 2 (not done)
 [SPC-core-bob-2]
 [SPC-core-bob-2-a]
 [SPC-core-bob-2-b]
-loc = 'LOC-core-bob-2-b'
+# loc
 
 [TST-core-bob-2-a] # tested but not implemented, possible in TDD
 partof = 'SPC-core-bob-2-a'
-loc = 'LOC-tst-core-bob-2-a'
+# loc
 [TST-core-bob-2-b] # implemented but not tested
 partof = 'SPC-core-bob-2-b'
-
-[LOC-core-bob-2-b]
-[LOC-tst-core-bob-2-a]
 
 # joe and jane, only requirements
 [REQ-core-joe]

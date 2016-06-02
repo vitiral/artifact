@@ -4,6 +4,8 @@ use std::env;
 use std::collections::{HashMap, HashSet, VecDeque};
 use std::path::PathBuf;
 
+use env_logger;
+
 use super::*;  // data directory constants
 use super::super::vars::*;
 use super::super::types::*;
@@ -57,6 +59,7 @@ fn test_resolve_vars() {
 
 #[test]
 fn test_resolve_loc() {
+    env_logger::init();
     let mut loaded_vars: Variables = Variables::new();
     let mut variables: Variables = Variables::new();
     let mut var_paths: HashMap<String, PathBuf> = HashMap::new();

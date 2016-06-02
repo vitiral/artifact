@@ -1,8 +1,13 @@
 
 
 /// This implements loc
-/// LOC-loc<implementing location>
+/// SPC-loc<implementing location>
 fn impl_loc() -> bool {
     println!("hello loc");
     true
 }
+
+
+
+// [SPC-lvl-2]
+// [TST-lvl-2]

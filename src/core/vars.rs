@@ -316,6 +316,7 @@ pub fn resolve_locs(artifacts: &mut Artifacts) -> LoadResult<()> {
         }
     };
     paths.remove(Path::new(""));
+    println!("getting paths: {:?}", paths);
 
     // analyze all files for valid locations
     let mut error = false;
@@ -335,15 +336,15 @@ pub fn resolve_locs(artifacts: &mut Artifacts) -> LoadResult<()> {
         let mut prev_char = ' ';
         let mut start_pos = 0;
         let mut start_col = 0;
-        let mut loc_part = ' ';  // ' ' represents blank
         let (mut pos, mut line, mut col) = (0, 1, 0); // line starts at 1
         // pretty simple parse tree... just do it ourselves!
         // Looking for LOC-[a-z0-9_-] case insensitive
         for c in s.chars() {
+            println!("prev: {:?}, spc: {:?}", prev, spc);
             if prev == spc || prev == tst {
                 if prev_char == ' ' {
-                    start_pos = pos;
-                    start_col = col;
+                    start_pos = pos - 4;
+                    start_col = col - 4;
                 }
                 match c {
                     'a'...'z' | 'A'...'Z' | '0'...'9' | '-' | '_' => {
@@ -366,7 +367,7 @@ pub fn resolve_locs(artifacts: &mut Artifacts) -> LoadResult<()> {
                                     None => {},
                                     Some(l) => {
                                         error!("detected overlapping loc {} in files: {:?} and {:?}",
-                                            name, l.0, path.as_path());
+                                               name, l.0, path.as_path());
                                         error = true;
                                     }
                                 }
@@ -375,15 +376,15 @@ pub fn resolve_locs(artifacts: &mut Artifacts) -> LoadResult<()> {
                             }
                             prev_char = ' ';
                         }
-                        prev.pop_back();
-                        prev.push_front(c);
+                        prev.pop_front();
+                        prev.push_back(c);
                     },
                 }
             } else {
                 if prev.len() == 4 {
-                    prev.pop_back();
+                    prev.pop_front();
                 }
-                prev.push_front(c);
+                prev.push_back(c);
             }
             match c {
                 '\n' => {
@@ -398,7 +399,7 @@ pub fn resolve_locs(artifacts: &mut Artifacts) -> LoadResult<()> {
     if error {
         return Err(LoadError::new("Overlapping keys found in src loc".to_string()));
     }
-    debug!("Found file locs: {:?}", locs);
+    println!("Found file locs: {:?}", locs);
 
     // now fill in the location values
     for (lname, info) in locs {
