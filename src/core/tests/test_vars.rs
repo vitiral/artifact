@@ -1,14 +1,16 @@
 #![allow(dead_code, unused_imports, unused_variables)]
 
+use std::iter::FromIterator;
+
 use std::env;
 use std::collections::{HashMap, HashSet, VecDeque};
 use std::path::PathBuf;
 
-use env_logger;
 
 use super::*;  // data directory constants
 use super::super::vars::*;
 use super::super::types::*;
+use super::super::super::init_logger;
 
 #[test]
 fn test_find_repo() {
@@ -57,9 +59,45 @@ fn test_resolve_vars() {
 }
 
 
+pub static LOC_TEST: &'static str = "\
+SPC-who
+   #SPC-what
+ // SPC-where
+  //kjsdlfkjwe TST-foo-what-where-2-b-3 kljasldkjf
+// TST-dont-care
+/// SPC-core-load-error: <load file error>
+";
+
+#[test]
+fn test_resolve_loc_text() {
+    let mut locs: HashMap<ArtName, (PathBuf, usize, usize)> = HashMap::new();
+    let mut looking_for: HashSet<ArtName> = HashSet::from_iter(
+        vec!["SPC-who", "SPC-what", "SPC-where", "TST-foo-what-where-2-b-3",
+             "SPC-core-load-error"]
+        .iter().map(|n| ArtName::from_str(n).unwrap()));
+    let path = PathBuf::from("hi/there");
+    resolve_locs_text(LOC_TEST, &path, &mut locs, &looking_for).unwrap();
+    assert!(!locs.contains_key(&ArtName::from_str("TST-dont-care").unwrap()));
+
+    let spc_who = locs.get(&ArtName::from_str("SPC-who").unwrap()).unwrap();
+    let spc_what = locs.get(&ArtName::from_str("SPC-what").unwrap()).unwrap();
+    let spc_where = locs.get(&ArtName::from_str("SPC-where").unwrap()).unwrap();
+    let tst_long = locs.get(&ArtName::from_str("TST-foo-what-where-2-b-3").unwrap()).unwrap();
+    let spc_error = locs.get(&ArtName::from_str("SPC-core-load-error").unwrap()).unwrap();
+
+    fn get_linecol(l: &(PathBuf, usize, usize)) -> (usize, usize) {
+        (l.1, l.2)
+    }
+    assert_eq!(get_linecol(spc_who),     (1, 0));
+    assert_eq!(get_linecol(spc_what),    (2, 4));
+    assert_eq!(get_linecol(spc_where),   (3, 4));
+    assert_eq!(get_linecol(tst_long),    (4, 15));
+    assert_eq!(get_linecol(spc_error),   (6, 4));
+}
+
 #[test]
 fn test_resolve_loc() {
-    env_logger::init();
+    // env_logger::init();
     let mut loaded_vars: Variables = Variables::new();
     let mut variables: Variables = Variables::new();
     let mut var_paths: HashMap<String, PathBuf> = HashMap::new();
@@ -68,5 +106,5 @@ fn test_resolve_loc() {
 
     let fpath = TSIMPLE_DIR.join(PathBuf::from("src/loc1.rsk"));
     repo_names.insert(String::from(".tst_repo_name"));
-
 }
+

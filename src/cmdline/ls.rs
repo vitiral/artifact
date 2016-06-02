@@ -6,7 +6,6 @@ use std::collections::HashSet;
 use clap::{Arg, App, SubCommand, ArgMatches, AppSettings as AS};
 
 use core::fmt::{FmtSettings, fmt_artifact};
-use cmdline::fmt::FmtArtifact;
 use core::{Artifacts, ArtName, parse_names, Settings};
 
 
@@ -109,7 +108,7 @@ pub fn do_ls(names: Vec<ArtName>, artifacts: &Artifacts, fmtset: &FmtSettings, s
     let mut displayed: HashSet<ArtName> = HashSet::new();
     let mut stdout = io::stdout();
     for name in names {
-        let artifact = match artifacts.get(&name) {
+        match artifacts.get(&name) {
             Some(a) => a,
             None => {
                 dne.push(name);

@@ -14,7 +14,6 @@ use std::iter::FromIterator;
 
 // crates
 use toml::{Parser, Value, Table};
-use strfmt;
 
 // modules
 use core::types::*;
@@ -74,7 +73,7 @@ macro_rules! check_type {
 }
 
 impl Settings {
-    /// SPC-core-settings-from_table:<load a settings object from a table>
+    /// SPC-core-load-settings-from_table:<load a settings object from a table>
     pub fn from_table(tbl: &Table) -> LoadResult<Settings> {
         let df_vec = Vec::new();
         let str_paths: Vec<String> = check_type!(
@@ -166,7 +165,7 @@ impl Artifact {
             .filter(|k| !ARTIFACT_ATTRS.contains(k.as_str())).collect();
         if invalid_attrs.len() > 0 {
             let mut msg = String::new();
-            write!(msg, "{} has invalid attributes: {:?}", name, invalid_attrs);
+            write!(msg, "{} has invalid attributes: {:?}", name, invalid_attrs).unwrap();
             return Err(LoadError::new(msg));
         }
 
@@ -403,13 +402,12 @@ pub fn load_path_raw(path: &Path) -> LoadResult<(Artifacts, Settings)> {
     let mut loaded_settings: Vec<(PathBuf, Settings)> = Vec::new();
     let mut loaded_variables: Vec<(PathBuf, Variables)> = Vec::new();
     let mut repo_map: HashMap<PathBuf, PathBuf> = HashMap::new();
-    let mut num_loaded: u64 = 0;
     let mut msg = String::new();
 
     info!("Loading artifact files:");
     if path.is_file() {
-        num_loaded += try!(load_file(path, &mut artifacts, &mut loaded_settings,
-                                     &mut loaded_variables));
+        try!(load_file(path, &mut artifacts, &mut loaded_settings,
+                       &mut loaded_variables));
         try!(resolve_settings(&mut settings, &mut repo_map, &loaded_settings));
     } else if path.is_dir() {
         settings.paths.push_back(path.to_path_buf());
@@ -429,9 +427,9 @@ pub fn load_path_raw(path: &Path) -> LoadResult<(Artifacts, Settings)> {
             continue
         }
         loaded_dirs.insert(dir.to_path_buf());
-        num_loaded += match load_dir(dir.as_path(), &mut loaded_dirs,
-                                     &mut artifacts, &mut loaded_settings,
-                                     &mut loaded_variables) {
+        match load_dir(dir.as_path(), &mut loaded_dirs,
+                       &mut artifacts, &mut loaded_settings,
+                       &mut loaded_variables) {
             Ok(n) => n,
             Err(err) => {
                 write!(msg, "Error loading <{}>: {}", dir.to_string_lossy().as_ref(), err).unwrap();

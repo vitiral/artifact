@@ -1,5 +1,4 @@
 use std::fmt::Write;
-use std::iter::FromIterator;
 use std::path;
 use std::collections::HashSet;
 
@@ -98,7 +97,7 @@ pub fn fmt_artifact(name: &ArtName, artifacts: &Artifacts, fmtset: &FmtSettings,
             &None => {}
         }
         out.loc_valid = match &artifact.loc {
-            &Some(ref l) => Some(l.valid(artifacts)),
+            &Some(ref l) => Some(l.valid()),
             &None => None,
         };
     }

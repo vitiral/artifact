@@ -8,21 +8,18 @@
 
 use std::env;
 use std::collections::HashSet;
-use std::path::Path;
-use std::iter::FromIterator;
 
 use core;
 
 use log;
-#[cfg(not(test))] use fern;
+use fern;
 use clap::ArgMatches;
 
 mod matches;
 mod ls;
 mod fmt;
 
-#[cfg(not(test))]
-fn init_logger(quiet: bool, verbosity: u8) {
+pub fn init_logger(quiet: bool, verbosity: u8, stderr: bool) -> Result<(), fern::InitError> {
     let level = if quiet {log::LogLevelFilter::Off } else {
         match verbosity {
             0 => log::LogLevelFilter::Warn,
@@ -32,18 +29,22 @@ fn init_logger(quiet: bool, verbosity: u8) {
             _ => unreachable!(),
         }
     };
+    let output = if stderr {
+        fern::OutputConfig::stderr()
+    } else {
+        fern::OutputConfig::stdout()
+    };
+
     let logger_config = fern::DispatchConfig {
         format: Box::new(|msg: &str, level: &log::LogLevel, _location: &log::LogLocation| {
             format!("{}: {}", level, msg)
         }),
-        output: vec![fern::OutputConfig::stderr()],
+        output: vec![output],
         level: level,
     };
-    fern::init_global_logger(logger_config, log::LogLevelFilter::Trace).unwrap();
+    fern::init_global_logger(logger_config, log::LogLevelFilter::Trace)
 }
 
-#[cfg(test)]
-fn init_logger(quiet: bool, verbosity: u8) {}
 
 
 pub fn get_loglevel(matches: &ArgMatches) -> Option<(u8, bool)> {
@@ -63,7 +64,7 @@ pub fn cmd() {
     let matches = matches::get_matches();
     // initialze the logger
     match get_loglevel(&matches) {
-        Some((v, q)) => init_logger(q, v),
+        Some((v, q)) => init_logger(q, v, true).unwrap(),
         None => return,
     };
 

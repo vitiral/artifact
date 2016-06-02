@@ -2,14 +2,10 @@
 
 use std::io;
 use std::fmt::Write;
-use std::iter::FromIterator;
-use std::collections::HashSet;
-use std::path;
 
 use ansi_term::Colour::{Red, Blue, Green, Yellow};
-use ansi_term::Style;
 
-use core::{Settings, Artifacts, ArtName};
+use core::{Settings, Artifacts};
 pub use core::fmt::*;
 
 impl FmtArtifact {
@@ -28,8 +24,8 @@ impl FmtArtifact {
         let completed_str = ((artifact.completed * 100.) as i64).to_string();
         let tested_str = ((artifact.tested * 100.) as i64).to_string();
         if settings.color {
-            let (d_sym, d_perc, t_sym, t_perc, name) = if (
-                    artifact.completed >= 1. && artifact.tested >= 1.) {
+            let (d_sym, d_perc, t_sym, t_perc, name) = if artifact.completed >= 1. &&
+                    artifact.tested >= 1. {
                 (Green.paint("D"), Green.paint(completed_str),
                  Green.paint("T"), Green.paint(tested_str),
                  Green.paint(self.name.raw.as_str()))

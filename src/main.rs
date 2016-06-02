@@ -1,6 +1,5 @@
 // # logger config
-#[cfg(test)]      extern crate env_logger;
-#[cfg(not(test))] extern crate fern;
+extern crate fern;
 
 // # general crates
 extern crate itertools;
@@ -22,6 +21,7 @@ extern crate ansi_term;
 pub mod core;
 mod cmdline;
 
+pub use cmdline::init_logger;
 
 fn main() {
     cmdline::cmd();

@@ -22,6 +22,8 @@ use core::types::*;
 lazy_static!{
     pub static ref DEFAULT_GLOBALS: HashSet<String> = HashSet::from_iter(
         ["repo", "cwd"].iter().map(|s| s.to_string()));
+    pub static ref SPC: VecDeque<char> = VecDeque::from_iter(vec!['S', 'P', 'C', '-']);
+    pub static ref TST: VecDeque<char> = VecDeque::from_iter(vec!['T', 'S', 'T', '-']);
 }
 
 /// finds the closest repo dir given a directory
@@ -302,6 +304,79 @@ fn get_path_str<'a>(path: &'a Path) -> LoadResult<&'a str> {
     }
 }
 
+
+pub fn resolve_locs_text(s: &str, path: &PathBuf,
+                         locs: &mut HashMap<ArtName, (PathBuf, usize, usize)>,
+                         looking_for: &HashSet<ArtName>)
+                         -> LoadResult<bool> {
+    debug!("resolving locs text");
+    let mut prev: VecDeque<char> = VecDeque::with_capacity(4);
+    let mut prev_char = ' ';
+    let mut start_pos = 0;
+    let mut start_col = 0;
+    let (mut pos, mut line, mut col) = (0, 1, 0); // line starts at 1
+    // pretty simple parse tree... just do it ourselves!
+    // Looking for LOC-[a-z0-9_-] case insensitive
+    let mut error = false;
+    for c in s.chars() {
+        if prev == *SPC || prev == *TST {
+            if prev_char == ' ' {
+                start_pos = pos - 4;
+                start_col = col - 4;
+            }
+            match c {
+                'a'...'z' | 'A'...'Z' | '0'...'9' | '-' | '_' => {
+                    prev_char = c;  // still reading a valid artifact name
+                }
+                _ => {  // valid LOC is finished
+                    if prev_char != ' ' { // "SPC- ", etc is actually invalid
+                        let (_, end) = s.split_at(start_pos);
+                        // if last char is '-' ignore it
+                        let (name, _) = match prev_char {
+                            '-' => end.split_at(pos - start_pos - 1),
+                            _ => end.split_at(pos - start_pos),
+                        };
+                        let locname = ArtName::from_str(name).unwrap();
+                        debug!("Found loc: {}", locname);
+                        if looking_for.contains(&locname) {
+                            // only do checking if the loc actually exists
+                            // check for overlap on insert
+                            match locs.insert(locname,
+                                            (path.clone(), line, start_col)) {
+                                None => {},
+                                Some(l) => {
+                                    error!("detected overlapping loc {} in files: {:?} and {:?}",
+                                            name, l.0, path.as_path());
+                                    error = true;
+                                }
+                            }
+                        } else {
+                            warn!("Found loc that is not a member of an artifact: {}", name);
+                        }
+                        prev_char = ' ';
+                    }
+                    prev.pop_front();
+                    prev.push_back(c);
+                },
+            }
+        } else {
+            if prev.len() == 4 {
+                prev.pop_front();
+            }
+            prev.push_back(c);
+        }
+        match c {
+            '\n' => {
+                line += 1;
+                col = 0;
+            }
+            _ => col += 1,
+        };
+        pos += 1;
+    }
+    Ok(error)
+}
+
 pub fn resolve_locs(artifacts: &mut Artifacts) -> LoadResult<()> {
     info!("resolving locations...");
     let mut paths: HashSet<PathBuf> = HashSet::new();
@@ -328,72 +403,7 @@ pub fn resolve_locs(artifacts: &mut Artifacts) -> LoadResult<()> {
         };
         let mut s = String::new();
         fd.read_to_string(&mut s).unwrap();
-
-        let spc: VecDeque<char> = VecDeque::from_iter(vec!['S', 'P', 'C', '-']);
-        let tst: VecDeque<char> = VecDeque::from_iter(vec!['T', 'S', 'T', '-']);
-        let mut prev: VecDeque<char> = VecDeque::with_capacity(4);
-        let mut prev_char = ' ';
-        let mut start_pos = 0;
-        let mut start_col = 0;
-        let (mut pos, mut line, mut col) = (0, 1, 0); // line starts at 1
-        // pretty simple parse tree... just do it ourselves!
-        // Looking for LOC-[a-z0-9_-] case insensitive
-        for c in s.chars() {
-            if prev == spc || prev == tst {
-                if prev_char == ' ' {
-                    start_pos = pos - 4;
-                    start_col = col - 4;
-                }
-                match c {
-                    'a'...'z' | 'A'...'Z' | '0'...'9' | '-' | '_' => {
-                        prev_char = c;  // still reading a valid artifact name
-                    }
-                    _ => {  // valid LOC is finished
-                        if prev_char != ' ' { // "SPC- ", etc is actually invalid
-                            let (_, end) = s.split_at(start_pos);
-                            // if last char is '-' ignore it
-                            let (name, _) = match prev_char {
-                                '-' => end.split_at(pos - start_pos - 1),
-                                _ => end.split_at(pos - start_pos),
-                            };
-                            let locname = ArtName::from_str(name).unwrap();
-                            debug!("Found loc: {}", locname);
-                            if looking_for.contains(&locname) {
-                                // only do checking if the loc actually exists
-                                // check for overlap on insert
-                                match locs.insert(locname,
-                                                (path.clone(), line, start_col)) {
-                                    None => {},
-                                    Some(l) => {
-                                        error!("detected overlapping loc {} in files: {:?} and {:?}",
-                                               name, l.0, path.as_path());
-                                        error = true;
-                                    }
-                                }
-                            } else {
-                                warn!("Found loc that is not a member of an artifact: {}", name);
-                            }
-                            prev_char = ' ';
-                        }
-                        prev.pop_front();
-                        prev.push_back(c);
-                    },
-                }
-            } else {
-                if prev.len() == 4 {
-                    prev.pop_front();
-                }
-                prev.push_back(c);
-            }
-            match c {
-                '\n' => {
-                    line += 1;
-                    col = 0;
-                }
-                _ => col += 1,
-            };
-            pos += 1;
-        }
+        error |= try!(resolve_locs_text(&s, &path, &mut locs, &looking_for));
     }
     if error {
         return Err(LoadError::new("Overlapping keys found in src loc".to_string()));

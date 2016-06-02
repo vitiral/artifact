@@ -13,14 +13,13 @@ use std::fmt::Write as WriteStr;
 use std::iter::FromIterator;
 
 use toml::{Parser, Value, Table};
-use env_logger;
 
 use super::*;  // data directory constants
 use super::super::*;
 
 #[test]
 fn test_load_path() {
-    env_logger::init();
+    // env_logger::init();
     info!("running test_load_path");
     assert!(load_path(TINVALID_DIR.join(&PathBuf::from("attr")).as_path()).is_err());
     assert!(load_path(TINVALID_DIR.join(&PathBuf::from("same_names")).as_path()).is_err());

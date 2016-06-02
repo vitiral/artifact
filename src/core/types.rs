@@ -52,7 +52,7 @@ impl Loc {
     }
 
     /// if the LOC has a valid place in a file it is valid
-    pub fn valid(&self, artifacts: &Artifacts) -> bool {
+    pub fn valid(&self) -> bool {
         if self.line_col.is_some() {
             true
         } else {
@@ -228,7 +228,7 @@ impl Settings {
 }
 
 /// Error for parsing files into artifacts
-/// LOC-core-load-error: <load file error>
+/// SPC-core-load-error: <load file error>
 #[derive(Debug)]
 pub struct LoadError {
     pub desc: String,

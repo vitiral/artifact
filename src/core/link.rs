@@ -3,8 +3,6 @@
 use std::path;
 use std::collections::{HashMap, HashSet};
 use std::iter::FromIterator;
-use std::fmt::Write;
-use itertools::Itertools;
 
 use core::types::{LoadResult, LoadError, Artifacts, Artifact, ArtType, ArtName};
 use core::fmt;
@@ -140,7 +138,7 @@ pub fn set_completed(artifacts: &mut Artifacts) -> usize {
                 // SPC and TST artifacts are done if loc is set
                 match (&artifact.loc, &artifact.ty) {
                     (&Some(ref l), &ArtType::SPC) | (&Some(ref l), &ArtType::TST) => {
-                        let lvalid = l.valid(artifacts);
+                        let lvalid = l.valid();
                         if lvalid {
                             got_it = 2; // it is 100% completed by definition
                         } else if !lvalid {

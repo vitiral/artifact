@@ -13,7 +13,6 @@ use std::fmt::Write as WriteStr;
 use std::iter::FromIterator;
 
 use toml::{Parser, Value, Table};
-use env_logger;
 
 use super::*;  // data directory constants
 use super::super::types::*;
@@ -51,14 +50,14 @@ fn test_get_attr() {
     assert!(get_attr!(&test, "text", df_str, String).unwrap() == "bar");
     assert!(get_vecstr(&test, "refs", df_vec).unwrap() == ["hello", "ref"]);
 
-    // LOC-tst-core-load-attrs-unit-2:<Test loading invalid existing types>
+    // TST-core-load-attrs-unit-2:<Test loading invalid existing types>
     assert!(get_attr!(&test, "disabled", df_str, String).is_none());
     assert!(get_attr!(&test, "text", false, Boolean).is_none());
     assert!(get_vecstr(&test, "text", df_vec).is_none());
     let test = get_attr!(tbl_good, "SPC-foo", Table::new(), Table).unwrap();
     assert!(get_vecstr(&test, "refs", df_vec).is_none());
 
-    // LOC-tst-core-load-attrs-unit-3:<Test loading valid default types>
+    // TST-core-load-attrs-unit-3:<Test loading valid default types>
     let test = get_attr!(tbl_good, "REQ-foo", Table::new(), Table).unwrap();
     assert!(get_attr!(&test, "disabled", false, Boolean).unwrap() == false);
     assert!(get_attr!(&test, "text", df_str, String).unwrap() == "");
@@ -178,9 +177,9 @@ fn test_load_toml() {
 
 #[test]
 fn test_load_path_raw() {
-    env_logger::init();
+    // env_logger::init();
     info!("running test_load_path_raw");
-    // LOC-core-load-dir-unit-2
+    // TST-core-load-dir-unit-2
     assert!(load_path_raw(TINVALID_DIR.join(&PathBuf::from("attr")).as_path()).is_err());
 
     // TST-core-load-unit-3
