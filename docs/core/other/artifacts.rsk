@@ -27,6 +27,10 @@ Artifacts will be implemented in code as an Artifact struct with all the relevan
 attributes attached to it
 '''
 
+[SPC-core-artifact-attrs-disabled]
+loc = "{core}/load.rs"
+partof = "REQ-core-artifacts-attrs-disabled"
+
 [SPC-core-artifact-attrs-loc]
 loc = "{core}/types.rs"
 partof = "REQ-core-artifacts-attrs-loc"
@@ -49,7 +53,7 @@ forms (i.e. link, artifact-link, etc)
 
 [SPC-core-artifact-attrs-text]
 loc = "{core}/load.rs"
-partof = "REQ-core-artifacts-attrs-refs"
+partof = "REQ-core-artifacts-attrs-text"
 text = '''
 the `text` attr **shall** be used to store an unchecked string
 which the ui components **will** evaluate later as some form of

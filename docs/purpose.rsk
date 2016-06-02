@@ -162,6 +162,12 @@ languages in existence
 - scale-out: single threaded code can easily be made highly concurrent 
 - fun: rust is a fun language to write in.
 '''
+[SPC-purpose-etc-language]
+partof = "REQ-purpose-etc-language"
+loc = "{cwd}/notes.md"
+[TST-purpose-etc-language]
+partof = "SPC-purpose-etc-language"
+loc = "{cwd}/notes.md"
 
 [REQ-purpose-etc-modules]
 text = '''
@@ -170,6 +176,12 @@ as possible.
 
 Roughly, they **should** be broken up according to these requirements.
 '''
+[SPC-purpose-etc-modules]
+partof = "REQ-purpose-etc-modules"
+loc = "{cwd}/notes.md"
+[TST-purpose-etc-modules]
+partof = "SPC-purpose-etc-modules"
+loc = "{cwd}/notes.md"
 
 [REQ-purpose-versioning]
 text = '''
@@ -180,3 +192,9 @@ In the event a breaking change is necessary, rsk **shall** not make the
 change until a major version release and shall attempt whatever backwards
 compatibility is possible.
 '''
+[SPC-purpose-etc-versioning]
+partof = "REQ-purpose-etc-versioning"
+loc = "{cwd}/notes.md"
+[TST-purpose-etc-versioning]
+partof = "SPC-purpose-etc-versioning"
+loc = "{cwd}/notes.md"

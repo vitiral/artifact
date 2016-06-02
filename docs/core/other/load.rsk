@@ -40,6 +40,7 @@ loc = "{core}/load.rs"
 [SPC-core-load-error-vars]
 partof = "REQ-core-error-wait"
 [SPC-core-load-error-vars-1]
+partof = "REQ-core-vars-collisions"
 loc = "{core}/vars.rs"
 [SPC-core-load-error-vars-return-1]
 loc = "{core}/vars.rs"
@@ -118,7 +119,7 @@ shall be used to load raw toml files
 '''
 [TST-core-load-toml]
 partof = "SPC-core-load-toml"
-loc = "{docs}/external.md"
+loc = "{docs}/notes.md"
 text = '''
 the toml-rs library has extensive unit tests to ensure
 it is valid
@@ -194,7 +195,7 @@ loc = "{core}/tests/test_load.rs"
 
 [SPC-core-load-vars]
 loc = "{core}/load.rs"
-partof = "SPC-core-load-parts-1"
+partof = "REQ-core-vars-globals-[cwd, repo], SPC-core-load-parts-1"
 text = '''
 variables shall be applied in three parts:
 - default globals (cwd and repo)

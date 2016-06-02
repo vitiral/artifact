@@ -32,6 +32,7 @@ pub fn load_path(path: &Path) -> LoadResult<(Artifacts, Settings)>{
     // LOC-core-load-parts-4:<auto-creation of missing prefix artifacts>
     link::create_parents(&mut artifacts);
     link::link_parents(&mut artifacts);
+    // [TST-core-partof-vaidate]
     try!(link::validate_partof(&artifacts));
     // LOC-core-load-parts-5:<linking of artifacts>
     link::link_parts(&mut artifacts);

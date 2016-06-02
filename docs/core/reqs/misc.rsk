@@ -1,28 +1,3 @@
-
-[REQ-core-variables]
-text = '''
-There **shall** be a method of setting variables.
-
-These variables can be accessed in any **string** type block by using the
-"{{}}" brackets suronding the variable name
-
-'''
-
-[REQ-core-variables-global]
-text = '''
-global variables **shall** be supported.
-- global vars **shall** be able to be set in any file and accessed in any file
-- the parser **shall** throw a useful exception upon finding global vars that overlap
-
-> global vars are used primarily for setting directory paths for source code
-'''
-
-[REQ-core-defaults]
-text = '''
-there **shall** be a simple method to set default variables for all artifacts
-in a document
-'''
-
 [REQ-core-error-wait]
 text = '''
 During loading, as many errors **should** be displayed as possible before crashing.

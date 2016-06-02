@@ -1,7 +1,6 @@
 
 [SPC-core-vars]
-partof = "REQ-core-vars-globals"
-refs = ["REQ-core-vars-globals-[cwd, repo]"]
+refs = ["REQ-core-vars-global-[cwd, repo]"]
 text = '''
 The following fields **will** have variables applied:
 - settings fields:
@@ -44,7 +43,7 @@ formatting strings.
 '''
 [TST-core-vars-lib]
 partof = "SPC-core-vars-lib"
-loc = "{docs}/external.md"
+loc = "{docs}/notes.md"
 text = '''
 The strfmt library already has extensive testing
 '''

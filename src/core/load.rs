@@ -145,6 +145,7 @@ pub fn parse_names(partof_str: &str) -> LoadResult<HashSet<ArtName>> {
 }
 
 #[test]
+// [TST-core-artifact-names-parse]
 fn test_parse_names() {
     assert_eq!(_parse_names(&mut "hi, ho".chars(), false).unwrap(), ["hi", "ho"]);
     assert_eq!(_parse_names(&mut "hi-[ho, he]".chars(), false).unwrap(), ["hi-ho", "hi-he"]);
@@ -262,7 +263,7 @@ pub fn load_table(ftable: &mut Table, path: &Path,
                 name, overlap.path.display()).unwrap();
             return Err(LoadError::new(String::from_utf8(msg).unwrap()));
         }
-        // check if artifact is active
+        // [SPC-core-artifact-attrs-disabled]
         if check_type!(get_attr!(art_tbl, "disabled", false, Boolean),
                        "disabled", name) {
             continue

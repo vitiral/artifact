@@ -6,6 +6,8 @@ partof **shall** be validated by the type settings laid
 out in the requirements
 '''
 [TST-core-partof-vaidate]
+partof = "SPC-core-artifact-attrs-partof-validate"
+loc = "{core}/mod.rs"
 text = '''
 There **shall** be a test that attempts to use partof variables that are invalid
 and ensures there was an error.
