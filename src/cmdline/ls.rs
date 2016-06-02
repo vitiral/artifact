@@ -68,7 +68,6 @@ pub fn get_ls_cmd(matches: &ArgMatches) -> Result<(Vec<ArtName>, FmtSettings), S
     settings.path = matches.is_present("path");
     settings.parts = matches.is_present("parts");
     settings.partof = matches.is_present("partof");
-    settings.loc_name = matches.is_present("loc");
     settings.loc_path = matches.is_present("implemented");
     settings.refs = matches.is_present("refs");
     settings.text = matches.is_present("text");
@@ -77,17 +76,14 @@ pub fn get_ls_cmd(matches: &ArgMatches) -> Result<(Vec<ArtName>, FmtSettings), S
         settings.path = !settings.path;
         settings.parts = !settings.parts;
         settings.partof = !settings.partof;
-        settings.loc_name = !settings.loc_name;
         settings.loc_path = !settings.loc_path;
         settings.refs = !settings.refs;
         settings.text = !settings.text;
     } else if settings.long && !(settings.path || settings.parts || settings.partof ||
-                                 settings.loc_name || settings.loc_path || settings.refs ||
-                                 settings.text) {
+                                 settings.loc_path || settings.refs || settings.text) {
         // if long is specified but no other display attributes are specified
         settings.path = true;
         settings.parts = true;
-        settings.loc_name = true;
         settings.refs = true;
         settings.text = true;
     }

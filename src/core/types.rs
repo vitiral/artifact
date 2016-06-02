@@ -37,7 +37,6 @@ pub enum ArtType {
 /// LOC-core-loc<Location data type>
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub struct Loc {
-    pub loc: ArtName,
     pub path: path::PathBuf,
     pub line_col: Option<(usize, usize)>,
 }
@@ -46,49 +45,35 @@ impl Loc {
     /// return Loc
     /// the path is not checked for validity yet
     pub fn from_str(s: &str) -> LoadResult<Loc> {
-        let loc;
-        let path;
-        let split = s.find(':');
-        match split {
-            None => {
-                loc = s;
-                path = "";
-            }
-            Some(split) => {
-                let (l, p) = s.split_at(split);
-                loc = l;
-                let (_, p) = p.split_at(1); // throw away ':'
-                path = p.trim();
-            }
-        }
         Ok(Loc {
-            loc: try!(ArtName::from_str(loc)),
-            path: path::PathBuf::from(path),
+            path: path::PathBuf::from(s),
             line_col: None,
         })
     }
 
-    /// if the LOC has a valid place in a file OR is an explicit
-    /// artifact then it is valid
+    /// if the LOC has a valid place in a file it is valid
     pub fn valid(&self, artifacts: &Artifacts) -> bool {
         if self.line_col.is_some() {
             true
         } else {
-            artifacts.contains_key(&self.loc)
+            false
         }
     }
 }
 
 impl fmt::Display for Loc {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}: {}", self.path.to_string_lossy().as_ref(), self.loc)
+        try!(write!(f, "<@{}", self.path.to_string_lossy().as_ref()));
+        if let Some(line_col) = self.line_col {
+            try!(write!(f, "({}:{})", line_col.0, line_col.1));
+        }
+        write!(f, ">")
     }
 }
 
 #[test]
 fn test_loc() {
-    let result = Loc::from_str("LOC-bar: path/is/cool").unwrap();
-    assert_eq!(result.loc, ArtName::from_str("loc-BAR").unwrap());
+    let result = Loc::from_str("path/is/cool").unwrap();
     assert_eq!(result.path, path::PathBuf::from("path/is/cool"));
 }
 
@@ -112,7 +97,6 @@ impl ArtName {
             "SPC" => Ok(ArtType::SPC),
             "RSK" => Ok(ArtType::RSK),
             "TST" => Ok(ArtType::TST),
-            "LOC" => Ok(ArtType::LOC),
             _ => {
                 Err(LoadError::new("Artifact name is invalid, must start with REQ, SPC, etc:"
                                        .to_string() +
@@ -127,7 +111,7 @@ impl ArtName {
 
     pub fn from_str(s: &str) -> LoadResult<ArtName> {
         // REQ-core-artifacts-name: strip spaces, ensure valid chars
-        // LOC-name-check:<make sure name is valid>
+        // SPC-name-check:<make sure name is valid>
         let value = s.to_ascii_uppercase().replace(' ', "");
         if !ART_VALID.is_match(&value) {
             return Err(LoadError::new("invalid artifact name: ".to_string() + s));

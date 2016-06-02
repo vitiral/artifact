@@ -17,7 +17,7 @@ text = '''
 the percentage done **shall** be 100% if `loc` is set *or* will be calculated
 by the average percent completion of all of it's parts
 
-> note: it is an error to set `loc` for REQ, RSK or LOC components
+> note: it is an error to set `loc` for REQ or RSK components
 '''
 
 [REQ-core-coverage-percent-tested]

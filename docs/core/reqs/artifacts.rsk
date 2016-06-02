@@ -53,15 +53,6 @@ The test can link to either a design-specification (SPC) or risk (RSK).
 In addtion, the test can have a path associated with the code implementation (LOC).
 '''
 
-[REQ-core-artifacts-types-loc]
-text = '''
-The prefix and name of 'LOC' **will** specify a location.
-
-LOC artifacts can be specified to identify that the artifact has been implemented
-outside of code. Use the `refs` attribute in the LOC artifact as well as the documentation
-to specify.
-'''
-
 [REQ-core-artifacts-attrs]
 text = '''
 All artifacts **will** have the following attributes:
@@ -116,7 +107,6 @@ default = ""
 '''
 
 [REQ-core-artifacts-attrs-partof-fmt]
-refs = ["REQ-core-artifacts-attrs-loc"]
 text = '''
 The partof field **shall** follow the following spec for specifying multiple artifacts
 - `[]` **will** denote a set of artifacts related to the prevoius characters
@@ -182,11 +172,11 @@ should help prevent artifacts that aren't done from being considered done.
 
 default = ""
 
-It is an error to set `loc` for REQ, RSK and LOC components
+Note: it is an error to set `loc` for REQ or RSK components
 '''
 
 [REQ-core-artifacts-attrs-loc-invalid]
 text = '''
-REQ, RSK or LOC artifacts with a `loc` value set **shall** be ignored and cause
+REQ or RSK artifacts with a `loc` value set **shall** be ignored and cause
 a warning to be issued
 '''

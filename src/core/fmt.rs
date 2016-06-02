@@ -27,7 +27,6 @@ pub struct FmtSettings {
     pub path: bool,
     pub parts: bool,
     pub partof: bool,
-    pub loc_name: bool,
     pub loc_path: bool,
     pub text: bool,
     pub refs: bool,
@@ -45,7 +44,6 @@ pub struct FmtArtifact {
     pub path: Option<path::PathBuf>,
     pub parts: Option<Vec<FmtArtifact>>,
     pub partof: Option<Vec<FmtArtifact>>,
-    pub loc_name: Option<ArtName>,
     pub loc_path: Option<path::PathBuf>,
     pub loc_line_col: Option<(usize, usize)>,
     pub loc_valid: Option<bool>,
@@ -86,12 +84,6 @@ pub fn fmt_artifact(name: &ArtName, artifacts: &Artifacts, fmtset: &FmtSettings,
             .map(|n| FmtArtifact{name: n, ..FmtArtifact::default()})
             .collect();
         out.partof = Some(partof);
-    }
-    if fmtset.loc_name {
-        out.loc_name = match &artifact.loc {
-            &Some(ref l) => Some(l.loc.clone()),
-            &None => Some(ArtName::from_str("LOC-DNE").unwrap()),
-        };
     }
     if fmtset.loc_path {
         match &artifact.loc {

@@ -7,7 +7,7 @@ use std::env;
 use std::clone::Clone;
 use std::path::{Path, PathBuf};
 use std::convert::AsRef;
-use std::collections::{HashMap, HashSet};
+use std::collections::{HashMap, HashSet, VecDeque};
 use std::iter::FromIterator;
 
 // Traits
@@ -273,7 +273,6 @@ pub fn fill_text_fields(artifacts: &mut Artifacts,
                     trace!("loc path set to: {}", l);
                     trace!("using variables: {:?}", variables);
                     set_loc = Some(Loc {
-                        loc: loc.loc.clone(),
                         path: PathBuf::from(l.as_str()),
                         line_col: None,
                     });
@@ -306,12 +305,11 @@ fn get_path_str<'a>(path: &'a Path) -> LoadResult<&'a str> {
 pub fn resolve_locs(artifacts: &mut Artifacts) -> LoadResult<()> {
     info!("resolving locations...");
     let mut paths: HashSet<PathBuf> = HashSet::new();
-    // map the location names to the artifact names
-    let mut loc_artifacts: HashMap<ArtName, ArtName> = HashMap::new();
-    // get all valid paths
+    let mut looking_for: HashSet<ArtName> = HashSet::new();
+    // get all valid paths and the locations we are looking for
     for (name, artifact) in artifacts.iter() {
         if let Some(ref l) = artifact.loc {
-            loc_artifacts.insert(l.loc.clone(), name.clone());
+            looking_for.insert(name.clone());
             if !paths.contains(l.path.as_path()) {
                 paths.insert(l.path.clone());
             }
@@ -331,6 +329,9 @@ pub fn resolve_locs(artifacts: &mut Artifacts) -> LoadResult<()> {
         let mut s = String::new();
         fd.read_to_string(&mut s).unwrap();
 
+        let spc: VecDeque<char> = VecDeque::from_iter(vec!['S', 'P', 'C', '-']);
+        let tst: VecDeque<char> = VecDeque::from_iter(vec!['T', 'S', 'T', '-']);
+        let mut prev: VecDeque<char> = VecDeque::with_capacity(4);
         let mut prev_char = ' ';
         let mut start_pos = 0;
         let mut start_col = 0;
@@ -339,67 +340,51 @@ pub fn resolve_locs(artifacts: &mut Artifacts) -> LoadResult<()> {
         // pretty simple parse tree... just do it ourselves!
         // Looking for LOC-[a-z0-9_-] case insensitive
         for c in s.chars() {
-            loc_part = match loc_part {
-                ' ' => match c {
-                    'L' | 'l' => {
-                        start_pos = pos;
-                        start_col = col;
-                        'L'
-                    }
-                    _ => ' ',
-                },
-                'L' => match c {
-                    'O' | 'o' => 'O',
-                    _ => ' ',
-                },
-                'O' => match c {
-                    'C' | 'c' => 'C',
-                    _ => ' ',
-                },
-                'C' => match c {
-                    '-' => '-',
-                    _ => ' ',
-                },
-                '-' => match c {
+            if prev == spc || prev == tst {
+                if prev_char == ' ' {
+                    start_pos = pos;
+                    start_col = col;
+                }
+                match c {
                     'a'...'z' | 'A'...'Z' | '0'...'9' | '-' | '_' => {
-                        prev_char = c;
-                        '*' // we have a valid LOC
-                    }
-                    _ => ' ',
-                },
-                '*' => match c {
-                    'a'...'z' | 'A'...'Z' | '0'...'9' | '-' | '_' => {
-                        prev_char = c;
-                        '*' // still reading valid LOC
+                        prev_char = c;  // still reading a valid artifact name
                     }
                     _ => {  // valid LOC is finished
-                        let (_, end) = s.split_at(start_pos);
-                        // if last char is '-' ignore it
-                        let (name, _) = match prev_char {
-                            '-' => end.split_at(pos - start_pos - 1),
-                            _ => end.split_at(pos - start_pos),
-                        };
-                        let locname = ArtName::from_str(name).unwrap();
-                        if loc_artifacts.contains_key(&locname) {
-                            // only do checking if the loc actually exists
-                            // check for overlap on insert
-                            match locs.insert(locname,
-                                            (path.clone(), line, start_col)) {
-                                None => {},
-                                Some(l) => {
-                                    error!("detected overlapping loc {} in files: {:?} and {:?}",
-                                        name, l.0, path.as_path());
-                                    error = true;
+                        if prev_char != ' ' { // "SPC- ", etc is actually invalid
+                            let (_, end) = s.split_at(start_pos);
+                            // if last char is '-' ignore it
+                            let (name, _) = match prev_char {
+                                '-' => end.split_at(pos - start_pos - 1),
+                                _ => end.split_at(pos - start_pos),
+                            };
+                            let locname = ArtName::from_str(name).unwrap();
+                            if looking_for.contains(&locname) {
+                                // only do checking if the loc actually exists
+                                // check for overlap on insert
+                                match locs.insert(locname,
+                                                (path.clone(), line, start_col)) {
+                                    None => {},
+                                    Some(l) => {
+                                        error!("detected overlapping loc {} in files: {:?} and {:?}",
+                                            name, l.0, path.as_path());
+                                        error = true;
+                                    }
                                 }
+                            } else {
+                                warn!("Found loc that is not a member of an artifact: {}", name);
                             }
-                        } else {
-                            warn!("Found loc that is not a member of an artifact: {}", name);
+                            prev_char = ' ';
                         }
-                        ' '
+                        prev.pop_back();
+                        prev.push_front(c);
                     },
-                },
-                _ => ' ',
-            };
+                }
+            } else {
+                if prev.len() == 4 {
+                    prev.pop_back();
+                }
+                prev.push_front(c);
+            }
             match c {
                 '\n' => {
                     line += 1;
@@ -411,19 +396,18 @@ pub fn resolve_locs(artifacts: &mut Artifacts) -> LoadResult<()> {
         }
     }
     if error {
-        return Err(LoadError::new("Overlapping keys found".to_string()));
+        return Err(LoadError::new("Overlapping keys found in src loc".to_string()));
     }
     debug!("Found file locs: {:?}", locs);
 
     // now fill in the location values
     for (lname, info) in locs {
-        let aname = loc_artifacts.get(&lname).unwrap();
-        let artifact = artifacts.get_mut(&aname).unwrap();
+        let artifact = artifacts.get_mut(&lname).unwrap();
         let (path, line, col) = info;
         let aloc = artifact.loc.iter_mut().next().unwrap();
         if aloc.path != path {
             error!("found {} at path {:?}, but {} has it set at {:?}",
-                lname, path, aname, aloc.path);
+                lname, path, lname, aloc.path);
             error = true;
             continue;
         };

@@ -438,7 +438,6 @@ pub fn load_path_raw(path: &Path) -> LoadResult<(Artifacts, Settings)> {
                 return Err(LoadError::new(msg));
             }
         };
-        // LOC-core-load-settings-resolve
         // resolve the project-level settings after each directory is recursively loaded
         try!(resolve_settings(&mut settings, &mut repo_map, &loaded_settings));
     }

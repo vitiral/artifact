@@ -121,12 +121,9 @@ impl FmtArtifact {
             }
             try!(w.write_all(" ".as_ref()));
         }
-        if self.loc_name.is_some() || self.loc_path.is_some() {
+        if self.loc_path.is_some() {
             try!(w.write_all("| ".as_ref()));
             let mut loc_str = String::new();
-            if let Some(ref lname) = self.loc_name {
-                loc_str.write_str(lname.raw.as_str()).unwrap();
-            }
             if let Some(ref lpath) = self.loc_path {
                 write!(loc_str, ":{}", lpath.to_string_lossy().as_ref()).unwrap();
                 if let Some(ref line_col) = self.loc_line_col {
@@ -156,9 +153,9 @@ impl FmtArtifact {
     /// if it is, it is formatted differently
     fn name_only(&self) -> bool {
         match (&self.path, &self.parts, &self.partof,
-               &self.loc_name, &self.loc_path, &self.loc_valid,
+               &self.loc_path, &self.loc_valid,
                &self.refs, &self.text) {
-            (&None, &None, &None, &None, &None, &None, &None, &None) => true,
+            (&None, &None, &None, &None, &None, &None, &None) => true,
             _ => false,
         }
     }

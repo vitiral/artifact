@@ -25,7 +25,6 @@ rsk **will** support 5 types of artifacts that can be tracked
 - RSK: risks related to requirements
 - SPC: software design specificaion based on one or more requirements
 - TST: test design of a risk or specification
-- LOC: location of code implementation of a specification or test
 
 The valid links **will** look like this:
 ```
@@ -33,7 +32,7 @@ The valid links **will** look like this:
    ^                |
     \---- RSK <-----/
 
-* SPC and TST can be implemented at a LOC
+* SPC and TST can be implemented at a location or a link
 ```
 
 In other words, you can design a spec (SPC) based on
