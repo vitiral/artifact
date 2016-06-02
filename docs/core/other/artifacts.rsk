@@ -5,6 +5,11 @@ text = '''
 The artifact name shall be a struct similar to std::path::Path
 '''
 
+[TST-core-artifact-name-parent]
+loc = "{core}/types.rs"
+partof = "SPC-core-artifact-name-struct"
+text = "The parent method must be tested"
+
 [SPC-core-artifact-name-check]
 loc = "{core}/types.rs"
 partof = "REQ-core-artifacts-name"
@@ -26,8 +31,14 @@ attributes attached to it
 loc = "{core}/types.rs"
 partof = "REQ-core-artifacts-attrs-loc"
 text = '''
-the LOC artifact as an attribute shall be it's own struct with information stored
+the `loc` attribute **shall** be a simple user given path. Once given,
+it will search for the artifact name it is attached to at the path given and
+hold the `(line, col)` information provided.
+
+`loc` is what defines the base-completeness of the artifact set
 '''
+
+[TST-core-artifact-loc]
 
 [SPC-core-artifact-types]
 loc = "{core}/types.rs"
@@ -39,7 +50,7 @@ Each artifact will not get it's own struct type as they
 are all nearly identical
 '''
 
-[SPC-core-artifacts-types-check]
+[SPC-core-artifact-types-check]
 loc = "{core}/types.rs"
 text = '''
 All artifacts must be a defined type or error

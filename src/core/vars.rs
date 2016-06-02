@@ -78,14 +78,13 @@ pub fn resolve_settings(settings: &mut Settings,
     for ps in loaded_settings.iter() {
         let ref settings_item: &Settings = &ps.1;
 
-        // load the default global variables {cwd} and {repo}
         let fpath = ps.0.clone();
         let cwd = fpath.parent().unwrap();
         let cwd_str = try!(get_path_str(cwd));
 
         // TODO: for full windows compatibility you will probably want to support OsStr
         // here... I just don't want to
-        // LOC-core-settings-vars
+        // [SPC-core-settings-vars]
         vars.insert("cwd".to_string(), cwd_str.to_string());
         try!(find_and_insert_repo(cwd, repo_map, &settings.repo_names));
         let repo = repo_map.get(cwd).unwrap();
@@ -159,6 +158,7 @@ pub fn resolve_default_vars(vars: &Variables, fpath: &Path,
         let var = match strfmt::strfmt_options(v.as_str(), &fmtvars, true) {
             Ok(v) => v,
             Err(e) => {
+                // [SPC-core-load-error-vars-1]
                 error!("error formatting: {}", e.to_string());
                 error = true;
                 continue;
@@ -166,6 +166,7 @@ pub fn resolve_default_vars(vars: &Variables, fpath: &Path,
         };
         match variables.insert(k.clone(), var) {
             Some(_) => {
+                // [SPC-core-load-error-vars-2]
                 error!("global var {:?} exists twice, one at {:?}", k, fpath);
                 error = true;
             }
@@ -173,6 +174,7 @@ pub fn resolve_default_vars(vars: &Variables, fpath: &Path,
         }
     }
     if error {
+        // [SPC-core-load-error-vars-return-1]
         return Err(LoadError::new("errors while resolving default variables".to_string()));
     }
     Ok(())
@@ -213,6 +215,7 @@ pub fn resolve_vars(variables: &mut Variables) -> LoadResult<()> {
                 Err(e) => match e {
                     strfmt::FmtError::Invalid(e) => return Err(LoadError::new(e.to_string())),
                     strfmt::FmtError::KeyError(_) => {
+                        // [SPC-core-load-error-vars-3]
                         errors.push(k.clone());
                         // reinsert original value
                         variables.insert(k.clone(), var);
@@ -225,6 +228,7 @@ pub fn resolve_vars(variables: &mut Variables) -> LoadResult<()> {
                 break;
             } else {
                 // unresolved errors
+                // [SPC-core-load-error-vars-return-2]
                 keys = keys.iter().filter(|k| !remove_keys.contains(k.as_str()))
                     .map(|s| s.clone()).collect();
                 write!(msg, "Could not resolve some globals: {:?}\ngot related errors: {:?}",
@@ -264,6 +268,7 @@ pub fn fill_text_fields(artifacts: &mut Artifacts,
         for r in &art.refs {
             match strfmt::strfmt(r.as_str(), &variables) {
                 Ok(r) => refs.push(r),
+                // [SPC-core-load-error-text-1]
                 Err(err) => errors.push(("ref", err)),
             }
         }
@@ -279,17 +284,20 @@ pub fn fill_text_fields(artifacts: &mut Artifacts,
                         line_col: None,
                     });
                 }
+                // [SPC-core-load-error-text-2]
                 Err(err) => errors.push(("loc", err)),
             }
         }
         art.loc = set_loc;
         if errors.len() > 0 {
+            // [SPC-core-load-error-text-3]
             error!(" resolving variables on [{:?}] {} failed: {:?}", art.path, name, errors);
             error = true;
         }
     }
 
     if error {
+        // [SPC-core-load-error-text-return]
         return Err(LoadError::new("failure to resolve artifact text fields".to_string()));
     }
     Ok(())
@@ -304,7 +312,7 @@ fn get_path_str<'a>(path: &'a Path) -> LoadResult<&'a str> {
     }
 }
 
-
+/// [SPC-core-load-loc-text]
 pub fn resolve_locs_text(s: &str, path: &PathBuf,
                          locs: &mut HashMap<ArtName, (PathBuf, usize, usize)>,
                          looking_for: &HashSet<ArtName>)
@@ -377,6 +385,7 @@ pub fn resolve_locs_text(s: &str, path: &PathBuf,
     Ok(error)
 }
 
+/// [SPC-core-load-loc-resolve]
 pub fn resolve_locs(artifacts: &mut Artifacts) -> LoadResult<()> {
     info!("resolving locations...");
     let mut paths: HashSet<PathBuf> = HashSet::new();

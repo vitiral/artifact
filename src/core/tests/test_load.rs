@@ -83,6 +83,7 @@ fn test_check_type() {
 }
 
 #[test]
+// [TST-core-settings-struct]
 fn test_settings() {
     let tbl_good = parse_text(TOML_GOOD);
     let df_tbl = Table::new();
@@ -117,6 +118,9 @@ fn test_load_toml() {
                       &mut settings, &mut variables).is_err());
     assert!(load_toml(&path, TOML_BAD_NAMES2, &mut artifacts,
                       &mut settings, &mut variables).is_err());
+    // [TST-core-settings-disabled]
+    assert_eq!(load_toml(&path, TOML_DISABLED, &mut artifacts,
+                         &mut settings, &mut variables).unwrap(), 0);
     assert_eq!(artifacts.len(), 0);
     assert_eq!(settings.len(), 0);
     assert_eq!(variables.len(), 0);
@@ -148,6 +152,11 @@ fn test_load_toml() {
         assert_eq!(art.completed, -1.0);
         assert_eq!(art.tested, -1.0);
 
+        // [TST-core-load-settings]
+        let set = &settings.iter().next().unwrap().1;
+        assert_eq!(set.paths, VecDeque::from_iter(vec![PathBuf::from("{cwd}/data/empty")]));
+        assert_eq!(set.repo_names, HashSet::from_iter(vec![".test".to_string()]));
+
         // test non-defaults
         let art = artifacts.get(&ArtName::from_str("SPC-bar").unwrap()).unwrap();
         assert_eq!(art.ty, ArtType::SPC);
@@ -165,6 +174,7 @@ fn test_load_toml() {
         assert_eq!(art.tested, -1.0);
     }
 
+    // TST-core-load-dir-unit-3
     // REQ-foo already exists, so this must throw an error
     assert!(load_toml(&path, TOML_OVERLAP, &mut artifacts, &mut settings, &mut variables).is_err());
 
@@ -185,6 +195,7 @@ fn test_load_path_raw() {
     // TST-core-load-unit-3
     assert!(load_path_raw(TINVALID_DIR.join(&PathBuf::from("same_names")).as_path()).is_err());
 
+    // [TST-core-settings-general]
     let (artifacts, settings) = load_path_raw(TSIMPLE_DIR.as_path()).unwrap();
     assert!(artifacts.contains_key(&ArtName::from_str("REQ-purpose").unwrap()));
 
@@ -217,6 +228,4 @@ fn test_load_path_raw() {
     assert_eq!(req_purpose.refs, [extra_dir.join(PathBuf::from("README.md")).to_str().unwrap()]);
     assert_eq!(spc_lvl1.text, "level one does FOO");
     assert_eq!(spc_lvl1.loc.as_ref().unwrap().path, lvl1_dir.join(PathBuf::from("lvl_1.rs")));
-
-    // TODO: more validation
 }

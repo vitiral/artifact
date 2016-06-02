@@ -21,11 +21,46 @@ refs = ["SPC-core-load-scope"]
 partof = "REQ-purpose-format, REQ-core-load"
 
 [SPC-core-load-error]
-loc = "{core}/types.rs"
 text = '''
 Any error during loading **shall** result in a LoadError with
 a useful description
 '''
+
+[SPC-core-load-error-file]
+partof = "REQ-core-error-wait"
+[SPC-core-load-error-file-1]
+loc = "{core}/load.rs"
+[SPC-core-load-error-file-2]
+loc = "{core}/load.rs"
+[SPC-core-load-error-file-3]
+loc = "{core}/load.rs"
+[SPC-core-load-error-file-return]
+loc = "{core}/load.rs"
+
+[SPC-core-load-error-vars]
+partof = "REQ-core-error-wait"
+[SPC-core-load-error-vars-1]
+loc = "{core}/vars.rs"
+[SPC-core-load-error-vars-return-1]
+loc = "{core}/vars.rs"
+[SPC-core-load-error-vars-3]
+loc = "{core}/vars.rs"
+[SPC-core-load-error-vars-return-2]
+loc = "{core}/vars.rs"
+text = '''
+This uses an even better format, as it simply prints all invalid errors at the end
+'''
+
+[SPC-core-load-error-text]
+partof = "REQ-core-error-wait"
+[SPC-core-load-error-text-1]
+loc = "{core}/vars.rs"
+[SPC-core-load-error-text-2]
+loc = "{core}/vars.rs"
+[SPC-core-load-error-text-3]
+loc = "{core}/vars.rs"
+[SPC-core-load-error-text-return]
+loc = "{core}/vars.rs"
 
 ##################################################
 # Risks related to loading in general
@@ -81,11 +116,18 @@ text = '''
 The rust library "toml-rs"
 shall be used to load raw toml files
 '''
+[TST-core-load-toml]
+partof = "SPC-core-load-toml"
+loc = "{docs}/external.md"
+text = '''
+the toml-rs library has extensive unit tests to ensure
+it is valid
+'''
 
 ##################################################
 # loading parts
 [SPC-core-load-parts]
-partof = "REQ-core-load-items"
+partof = "REQ-core-load-items, SPC-core-load-scope"
 text = '''
 This details the high level loading proceedure of rsk
 
@@ -146,6 +188,10 @@ these variables must be resolved at the same time that
 settings is resolved.
 '''
 
+[TST-core-load-settings]
+partof = "SPC-core-load-settings-[from_table, resolve]"
+loc = "{core}/tests/test_load.rs"
+
 [SPC-core-load-vars]
 loc = "{core}/load.rs"
 partof = "SPC-core-load-parts-1"
@@ -185,9 +231,9 @@ There **shall** be a function which can load all artifacts from a
 directory recursively (as defined in LOC-core-load-recursive)
 '''
 
-[TST-core-toml]
+[TST-core-load]
 partof = "RSK-core-load-stable"
-text = "tests related to ensuring that toml works as expected"
+text = "tests related to ensuring that loading toml works as expected"
 
 [TST-core-load-dir-unit]
 partof = "SPC-core-load-dir"
@@ -202,6 +248,7 @@ loc = "{core}/tests/test_load.rs"
 partof = "RSK-core-load-invalid"
 text = "load a [file] with an invalid attribute an make sure it errors"
 [TST-core-load-dir-unit-3]
+loc = "{core}/tests/test_load.rs"
 text = "load two files with the same key and make sure it errors"
 [TST-core-load-dir-unit-4]
 loc = "{core}/tests/test_load.rs"
@@ -237,12 +284,15 @@ file given a path
 
 [TST-core-load-valid]
 loc = "{core}/tests/test_load.rs"
-partof = "SPC-core-load-file, RSK-core-load-invalid"
+partof = '''
+SPC-core-load-file, RSK-core-load-invalid,
+SPC-core-artifact-[name-[check, struct], struct, types, types-check]
+'''
 text = "load a valid toml file and verify it's artifacts and settings"
 
 [TST-core-load-invalid]
 loc = "{core}/tests/test_load.rs"
-partof = "SPC-core-load-file, RSK-core-load-invalid"
+partof = "SPC-core-load-[file, error], RSK-core-load-invalid"
 text = '''
 load separate toml files suffering the issues listed below and ensure
 they do not load.
@@ -275,7 +325,7 @@ address them, returning Err immediately on any value that is the incorrect type.
 ##################################################
 # load attrs function
 [TST-core-load-attrs-unit]
-partof = "SPC-core-load-table, RSK-core-load"
+partof = "SPC-core-load-table, RSK-core-load, SPC-core-artifact-attrs"
 text = '''
 There **will** be extensive unit tests on the attrs loading mechanism to ensure
 the type is loaded with proper type checking
@@ -288,3 +338,27 @@ loc = "{core}//tests/test_load.rs"
 loc = "{core}/tests/test_load.rs"
 [TST-core-load-attrs-unit-3]
 loc = "{core}/tests/test_load.rs"
+
+[SPC-core-load-loc-text]
+loc = "{core}/vars.rs"
+partof = "SPC-core-artifact-attrs-loc"
+text = '''
+there **shall** be a function that searches through text
+and finds the relevant artifact names with their
+positions, such that it can be stored by the artifact.loc
+attr
+'''
+[TST-core-load-loc-text]
+loc = "{core}/tests/test_vars.rs"
+partof = "SPC-core-load-loc-text"
+
+[SPC-core-load-loc-resolve]
+loc = "{core}/vars.rs"
+text = '''
+there **shall** be a function that resolves the loc
+attrs for all artifacts and prints out warnings
+for locations that can't be resolved
+'''
+[TST-core-load-loc-resolve]
+loc = "{core}/tests/test_core.rs"
+partof = "SPC-core-load-loc-resolve"

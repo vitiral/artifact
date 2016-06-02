@@ -34,7 +34,23 @@ text = '''
 There shall be a struct which holds variables for use
 '''
 
+[SPC-core-vars-lib]
+loc = "{src}/main.rs"
+partof = "REQ-core-vars-fmt"
+text = '''
+the rust library [strfmt](https://github.com/vitiral/strfmt)
+**will** be used to accomplish the heavy lifting of actually
+formatting strings.
+'''
+[TST-core-vars-lib]
+partof = "SPC-core-vars-lib"
+loc = "{docs}/external.md"
+text = '''
+The strfmt library already has extensive testing
+'''
+
 [SPC-core-vars-resolve]
+partof = "SPC-core-vars-struct"
 text = '''
 variables **shall** be loaded in the following manner:
 - default globals will always be loaded on a per-file basis
@@ -46,21 +62,15 @@ after all artifacts have been loaded
 as long as the definition isn't recursive
 '''
 
-[SPC-core-vars-lib]
-loc = "{src}/main.rs"
-partof = "REQ-core-vars-fmt"
-text = '''
-the rust library [strfmt](https://github.com/vitiral/strfmt)
-**will** be used to accomplish the heavy lifting of actually
-formatting strings.
-'''
-
 [SPC-core-vars-resolve-default]
 loc = "{core}/vars.rs"
 text = '''
 default variables **shall** use the feature of strfmt that allows
 for ignoring missing variables to resolve variables immediately
 '''
+[TST-core-vars-resolve-default]
+loc = "{core}/tests/test_vars.rs"
+partof = "SPC-core-[load-vars, vars-resolve-default]"
 
 [SPC-core-vars-resolve-user]
 loc = "{core}/vars.rs"
@@ -68,3 +78,6 @@ text = '''
 rsk shall be able to handle variables that use other variables resolving
 variables repeatedly until they have been completely resolved.
 '''
+[TST-core-vars-resolve-user]
+loc = "{core}/tests/test_vars.rs"
+partof = "SPC-core-[load-vars, vars-resolve-user]"

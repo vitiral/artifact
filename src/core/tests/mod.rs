@@ -134,6 +134,7 @@ partof = 'SPC-core-bob-2-b'
 ";
 
 
+pub static TOML_DISABLED: &'static str = "[settings]\ndisabled=true\n[REQ-nono]\n";
 pub static TOML_OVERLAP: &'static str = "[REQ-foo]\n";
 pub static TOML_BAD: &'static str = "[REQ-bad]\nrefs = 'REQ-foo'";
 pub static TOML_BAD2: &'static str = "[REQ-bad]\nrefs = 'REQ-foo'";

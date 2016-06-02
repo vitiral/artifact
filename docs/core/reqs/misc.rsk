@@ -22,3 +22,17 @@ text = '''
 there **shall** be a simple method to set default variables for all artifacts
 in a document
 '''
+
+[REQ-core-error-wait]
+text = '''
+During loading, as many errors **should** be displayed as possible before crashing.
+
+These errors **should** be as descriptve as possible, including information like:
+ - what variable is in error
+ - what variable **caused** the error
+ - the pprint of the variables in question
+ - the location where the variables are defined
+
+This takes a lesson from compilers as seeing all the errors can significantly help
+the user debug their problems
+'''

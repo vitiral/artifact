@@ -89,7 +89,7 @@ pub struct ArtName {
 }
 
 impl ArtName {
-    /// SPC-core-artifacts-types-check:<find a valid type or error>
+    /// SPC-core-artifact-types-check:<find a valid type or error>
     fn find_type_maybe(&self) -> LoadResult<ArtType> {
         let ty = self.value.get(0).unwrap();
         match ty.as_str() {
@@ -135,6 +135,7 @@ impl ArtName {
 }
 
 #[test]
+/// [TST-core-artifact-name-parent]
 fn test_artname_parent() {
     let name = ArtName::from_str("REQ-foo-bar-b").unwrap();
     let parent = name.parent().unwrap();
@@ -212,6 +213,7 @@ pub struct Artifact {
 pub struct Settings {
     pub disabled: bool,
     pub paths: VecDeque<path::PathBuf>,
+    // [SPC-core-settings-overlap-repo_names]
     pub repo_names: HashSet<String>,
     pub color: bool,
 }
@@ -228,7 +230,6 @@ impl Settings {
 }
 
 /// Error for parsing files into artifacts
-/// SPC-core-load-error: <load file error>
 #[derive(Debug)]
 pub struct LoadError {
     pub desc: String,

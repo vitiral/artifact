@@ -53,20 +53,14 @@ fn test_load_path() {
     let lvl1_dir_str = lvl1_dir.as_path().to_str().unwrap().to_string();
 
     // LOC-core-load-dir-unit-5
-    println!("here");
     assert_eq!(req_purpose.refs, [extra_dir.join(PathBuf::from("README.md")).to_str().unwrap()]);
-    println!("here");
     assert_eq!(spc_lvl1.text, "level one does FOO");
-    println!("here");
     assert_eq!(spc_lvl1.loc.as_ref().unwrap().path, lvl1_dir.join(PathBuf::from("lvl_1.rs")));
 
     // LOC-core-resolve-loc-unit-1<test that loc is loaded correctly>
-    println!("here");
-    println!("spc_loc: {:?}", spc_loc);
     assert_eq!(spc_loc.loc.iter().next().unwrap().line_col.unwrap(), (4, 4));
-    println!("here");
     assert_eq!(spc_lvl1.loc.iter().next().unwrap().line_col.unwrap(), (3, 3));
-    println!("here");
 
     // TODO: more validation
+    // TODO: need to check that completeness makes sense: [TST-core-load-loc-resolve]
 }

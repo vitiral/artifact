@@ -107,7 +107,7 @@ fn _parse_names<I>(raw: &mut I, in_brackets: bool) -> LoadResult<Vec<String>>
             }
         };
         match c {
-            ' ' => {}, // ignore whitespace
+            ' ' | '\n' | '\r' => {}, // ignore whitespace
             '[' => {
                 if current == "" {
                     return Err(LoadError::new("cannot have '[' after characters ',' or ']' \
@@ -214,6 +214,7 @@ pub fn load_table(ftable: &mut Table, path: &Path,
     match ftable.remove("settings") {
         Some(Value::Table(t)) => {
             let lset = try!(Settings::from_table(&t));
+            // [SPC-core-settings-disabled]
             if lset.disabled {
                 return Ok(0);
             }
@@ -338,6 +339,7 @@ pub fn load_dir(path: &Path,
         let ftype = match entry.file_type() {
             Ok(f) => f,
             Err(err) => {
+                // [SPC-core-load-error-file-1]
                 error!("while loading from <{}>: {}", fpath.display(), err);
                 error = true;
                 continue;
@@ -356,6 +358,7 @@ pub fn load_dir(path: &Path,
             match load_file(fpath.as_path(), artifacts, settings, variables) {
                 Ok(n) => num_loaded += n,
                 Err(err) => {
+                    // [SPC-core-load-error-file-2]
                     error!("while loading from <{}>: {}", fpath.display(), err);
                     error = true;
                 }
@@ -370,11 +373,13 @@ pub fn load_dir(path: &Path,
             loaded_dirs.insert(dir.to_path_buf());
             match load_dir(dir.as_path(), loaded_dirs, artifacts, settings, variables) {
                 Ok(n) => num_loaded += n,
+                // [SPC-core-load-error-file-3]
                 Err(_) => error = true,
             }
         }
     }
     if error {
+        // [SPC-core-load-error-file-return]
         return Err(LoadError::new("ERROR: some files failed to load".to_string()));
     } else {
         Ok(num_loaded)
@@ -418,14 +423,13 @@ pub fn load_path_raw(path: &Path) -> LoadResult<(Artifacts, Settings)> {
 
     // SPC-core-load-parts-1:<load and validate all paths recursively>
     while settings.paths.len() > 0 {
-        loaded_settings.clear();
         let dir = settings.paths.pop_front().unwrap(); // it has len, it better pop!
-
-        debug!("Loading: {:?}", dir);
-        // load the files
         if loaded_dirs.contains(&dir) {
+            // [SPC-core-settings-overlap-paths]:<ignore extra paths>
             continue
         }
+        debug!("Loading: {:?}", dir);
+        loaded_settings.clear();
         loaded_dirs.insert(dir.to_path_buf());
         match load_dir(dir.as_path(), &mut loaded_dirs,
                        &mut artifacts, &mut loaded_settings,

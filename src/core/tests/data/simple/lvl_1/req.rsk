@@ -1,3 +1,6 @@
+[settings]
+repo_names = [".tst_repo_name"] # for testing that it ignores overlap
+
 [SPC-loc]
 loc = "{src}/loc.rs"
 text = "test that it goes into a src directory"

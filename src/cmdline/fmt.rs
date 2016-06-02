@@ -32,9 +32,12 @@ impl FmtArtifact {
             } else {
                 let mut score = 0;
                 let (d_sym, d_perc) = if artifact.completed >= 1. {
-                    score += 2;
+                    score += 3;
                     (Blue.paint("D"), Blue.paint(completed_str))
-                } else if artifact.completed >= 0.5 {
+                } else if artifact.completed >= 0.7 {
+                    score += 2;
+                    (Yellow.paint("-"), Yellow.paint(completed_str))
+                } else if artifact.completed >= 0.4 {
                     score += 1;
                     (Yellow.paint("-"), Yellow.paint(completed_str))
                 } else {
@@ -50,8 +53,8 @@ impl FmtArtifact {
                     (Red.paint("-"), Red.paint(tested_str))
                 };
                 let name = match score {
-                    3 => Blue,
-                    2 | 1 => Yellow,
+                    3...4 => Blue,
+                    1...2 => Yellow,
                     0 => Red,
                     _ => unreachable!(),
                 }.paint(self.name.raw.as_str());
