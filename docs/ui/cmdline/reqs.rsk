@@ -52,8 +52,8 @@ understood, but rsk standard `REQ-foo-[bar-baz]` will be.
 
 [REQ-ui-cmdline-cmd-ls-flags-empty]
 text = '''
-`rsk ls` with no commands given will simply print all artifacts within a single
-line of information.
+`rsk ls` with no commands given will simply print all artifacts with standard
+settings in a single line of information.
 '''
 
 [REQ-ui-cmdline-cmd-ls-flags-long]
@@ -89,19 +89,38 @@ The following flags are used to specify what to display:
     this will display the first 30 chars of the "debug" representation
     of the text
 - R: display the refs
-- L: display the loc artifact name
-- I: display the loc path (implementation path)
+- L: display the loc path (implementation path)
 '''
 
 [REQ-ui-cmdline-cmd-ls-flags-pattern]
 refs = ["REQ-ui-cmdline-cmd-ls-flags-display"]
 text = '''
-the `-p` flag will signify the regexp pattern to be used to filter by the
-artifact name
+the `-p` flag will signify that the main argument should be interpreted as
+a regexp pattern instead of as artifact names
 
-In the future, a second argument **may** specify additional fields to filter
-in that map with REQ-ui-cmdline-cmd-ls-flags-display
-(with the addition of N==name)
+If a value follows p, it will specify the fields to filter in that map with
+REQ-ui-cmdline-cmd-ls-flags-display (with the addition of N==name)
 
 So: `rsk ls -p "REQ-ui-cmdline.*" -NO` would filter by name and partof
+'''
+
+[REQ-ui-cmdline-cmd-ls-flags-invalid]
+text = '''
+the `-i` flag will signify to display only the invalid items, or the items
+that have some issue with them (i.e. loc does not exist).
+
+It is recommended that this flag be used with -v to also see associated
+warnings
+'''
+
+[REQ-ui-cmdline-cmd-ls-flags-tested]
+text = '''
+The `-t` flag will speciy only **non** tested components (< 100%)
+The `-T` flag will specify only **fully** tested components (== 100%)
+'''
+
+[REQ-ui-cmdline-cmd-ls-flags-completed]
+text = '''
+The `-c` flag will speciy only **non** completed components (< 100%)
+The `-C` flag will specify only **fully** completed components (== 100%)
 '''
