@@ -23,7 +23,6 @@ use super::super::load::*;
 #[test]
 /// TST-core-artifact-name-check:<check that name combinations raise correct errors>
 fn test_artifact_name() {
-    mark_test!("TST-core-artifact-name-check:<check that name combinations raise correct errors>")
     // valid names
     for name in vec!["REQ-foo", "REQ-foo-2", "REQ-foo2", "REQ-foo2", "REQ-foo-bar-2_3",
                      "SPC-foo", "RSK-foo", "TST-foo"] {
