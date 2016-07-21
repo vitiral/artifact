@@ -97,11 +97,33 @@ impl FmtArtifact {
         }
 
         if let Some(ref parts) = self.parts {
-            try!(w.write_all("| ".as_ref()));
+            if self.long {
+                let msg = "\n * parts: ";
+                if settings.color {
+                    write!(w, "{}", Green.paint(msg)).unwrap();
+                } else {
+                    w.write_all(msg.as_ref()).unwrap();
+                }
+            } else {
+                try!(w.write_all("| ".as_ref()));
+            }
             let mut first = true;
+            let mut num_written = 0;
             for p in parts {
-                if !first && p.name_only() {
-                    try!(w.write_all(", ".as_ref()));
+                if self.long {
+                    num_written += 1;
+                    if num_written % 4 == 0 {
+                        w.write_all("\n    ".as_ref()).unwrap();
+                        num_written = 0;
+                    } else {
+                        if !first && p.name_only() {
+                            try!(w.write_all(", ".as_ref()));
+                        }
+                    }
+                } else {
+                    if !first && p.name_only() {
+                        try!(w.write_all(", ".as_ref()));
+                    }
                 }
                 first = false;
                 try!(p.write(w, artifacts, settings, indent + 1));
@@ -109,7 +131,11 @@ impl FmtArtifact {
             try!(w.write_all(" ".as_ref()));
         }
         if let Some(ref partof) = self.partof {
-            try!(w.write_all("| ".as_ref()));
+            if self.long {
+                w.write_all("\n * partof: ".as_ref()).unwrap();
+            } else {
+                try!(w.write_all("| ".as_ref()));
+            }
             let mut first = true;
             for p in partof {
                 if !first && p.name_only() {
@@ -121,7 +147,11 @@ impl FmtArtifact {
             try!(w.write_all(" ".as_ref()));
         }
         if self.loc_path.is_some() {
-            try!(w.write_all("| ".as_ref()));
+            if self.long {
+                w.write_all("\n * loc: ".as_ref()).unwrap();
+            } else {
+                try!(w.write_all("| ".as_ref()));
+            }
             let mut loc_str = String::new();
             if let Some(ref lpath) = self.loc_path {
                 write!(loc_str, ":{}", lpath.to_string_lossy().as_ref()).unwrap();
@@ -142,6 +172,14 @@ impl FmtArtifact {
                 }
             }
             try!(w.write_all(" ".as_ref()));
+        }
+        if let Some(ref text) = self.text {
+            if !self.long {
+                w.write_all("| ".as_ref()).unwrap()
+            }
+            let lines: Vec<_> = text.split("\n").collect();
+            let text = lines.join("\n    ");
+            w.write_all(text.as_ref()).unwrap();
         }
 
         try!(w.write_all("\n".as_ref()));

@@ -13,7 +13,7 @@ pub fn get_subcommand<'a, 'b>() -> App<'a, 'b> {
     SubCommand::with_name("ls")
         .about("list artifacts according to various parameters")
         .settings(&[AS::DeriveDisplayOrder, AS::ColoredHelp])
-        .arg(Arg::with_name("artifacts")
+        .arg(Arg::with_name("search")
                 .help("artifact names given in form REQ-foo-[bar, baz-[1,2]]")
                 .use_delimiter(false))
         .arg(Arg::with_name("long")
@@ -87,14 +87,14 @@ pub fn get_ls_cmd(matches: &ArgMatches) -> Result<(Vec<ArtName>, FmtSettings), S
         settings.text = true;
     }
 
-    let names = matches.value_of("artifacts").unwrap_or("");
-    let mut artifacts = Vec::new();
-    artifacts.extend(parse_names(names).unwrap());
-    artifacts.sort();
+    let search = matches.value_of("search").unwrap_or("");
+    let mut artnames = Vec::new();
+    artnames.extend(parse_names(search).unwrap());
+    artnames.sort();
 
-    debug!("artifacts: {:?}", artifacts);
+    debug!("artifacts: {:?}", artnames);
     debug!("ls settings: {:?}", settings);
-    Ok((artifacts, settings))
+    Ok((artnames, settings))
 }
 
 

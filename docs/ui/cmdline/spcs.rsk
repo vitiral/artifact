@@ -1,0 +1,13 @@
+[SPC-ui-filter]
+partof = "REQ-ui-cmdline-cmd-ls-[args, flags-[pattern, invalid, tested, completed]]"
+text = '''
+A simple filter function **shall** be created that can filter by the various command
+line options.
+
+Idealy a static html version of this **should** be implemented for the static
+webpage, probably using javascript. The webpage version should use the same
+underlying function.
+
+It looks like enscripten can be used for the html side:
+    https://github.com/rust-lang/rfcs/issues/604
+'''

@@ -60,6 +60,7 @@ pub fn fmt_artifact(name: &ArtName, artifacts: &Artifacts, fmtset: &FmtSettings,
                     recurse: u8, displayed: &mut HashSet<ArtName>) -> FmtArtifact {
     let artifact = artifacts.get(name).unwrap();
     let mut out = FmtArtifact::default();
+    out.long = fmtset.long;
     if fmtset.path {
         out.path = Some(artifact.path.clone());
     }
