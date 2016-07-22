@@ -94,6 +94,7 @@ impl FmtArtifact {
         }
 
         if self.name_only() {
+            try!(w.write_all("\n".as_ref()));
             return Ok(());
         }
 

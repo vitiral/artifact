@@ -1,21 +1,35 @@
 use std::io;
 use std::io::Write;
+use std::fmt::Write as FmtWrite;
+use std::iter::FromIterator;
 use std::process::exit;
 use std::collections::HashSet;
 
+use regex::{Regex, RegexBuilder};
 use clap::{Arg, App, SubCommand, ArgMatches, AppSettings as AS};
 
 use core::fmt::{FmtSettings, fmt_artifact};
 use core::{Artifacts, ArtName, parse_names, Settings};
+use cmdline::search::{VALID_SEARCH_FIELDS, SearchSettings, show_artifact};
 
 
 pub fn get_subcommand<'a, 'b>() -> App<'a, 'b> {
+    // TODO: implement -c and -t
     SubCommand::with_name("ls")
         .about("list artifacts according to various parameters")
         .settings(&[AS::DeriveDisplayOrder, AS::ColoredHelp])
         .arg(Arg::with_name("search")
-                 .help("artifact names given in form REQ-foo-[bar, baz-[1,2]]")
+                 .help("artifact names given in form REQ-foo-[bar, baz-[1,2]] OR regexp pattern \
+                        if -P is given")
                  .use_delimiter(false))
+        .arg(Arg::with_name("pattern")
+                 .short("p")
+                 .help("SEARCH using a pearl regexp pattern in the given FIELDS instead of \
+                        searching by name. Valid areas are: N=name, D=path, P=parts, O=partof, \
+                        L=loc, R=refs, T=text, A=see '-A'")
+                 .value_name("FIELDS")
+                 .takes_value(true)
+                 .max_values(1))
         .arg(Arg::with_name("long")
                  .short("l")
                  .help("print items in the 'long form'"))
@@ -31,6 +45,20 @@ pub fn get_subcommand<'a, 'b>() -> App<'a, 'b> {
                      }
                  })
                  .default_value("0")
+                 .max_values(1))
+        .arg(Arg::with_name("completed")
+                 .short("c")
+                 .help("give a filter for the completedness in %. I.e. '<45'. '<' is the default \
+                        if no comparison operator is given, '<1' is the default if no args are \
+                        given")
+                 .takes_value(true)
+                 .default_value("1")
+                 .max_values(1))
+        .arg(Arg::with_name("tested")
+                 .short("t")
+                 .help("give a filter for the testedness in %. see '-c'")
+                 .takes_value(true)
+                 .default_value("1")
                  .max_values(1))
         .arg(Arg::with_name("all")
                  .short("A")
@@ -48,9 +76,6 @@ pub fn get_subcommand<'a, 'b>() -> App<'a, 'b> {
         .arg(Arg::with_name("loc")
                  .short("L")
                  .help("display location name"))
-        .arg(Arg::with_name("implemented")
-                 .short("I")
-                 .help("display the path where the artifact is implemented (LOC path)"))
         .arg(Arg::with_name("refs")
                  .short("R")
                  .help("display the references to this artifact"))
@@ -61,14 +86,15 @@ pub fn get_subcommand<'a, 'b>() -> App<'a, 'b> {
 
 
 /// get all the information from the user input
-pub fn get_ls_cmd(matches: &ArgMatches) -> Result<(Vec<ArtName>, FmtSettings), String> {
+pub fn get_ls_cmd(matches: &ArgMatches)
+                  -> Result<(String, FmtSettings, Option<SearchSettings>), String> {
     let mut settings = FmtSettings::default();
     settings.long = matches.is_present("long");
     settings.recurse = matches.value_of("recursive").unwrap().parse::<u8>().unwrap();
     settings.path = matches.is_present("path");
     settings.parts = matches.is_present("parts");
     settings.partof = matches.is_present("partof");
-    settings.loc_path = matches.is_present("implemented");
+    settings.loc_path = matches.is_present("loc");
     settings.refs = matches.is_present("refs");
     settings.text = matches.is_present("text");
     if matches.is_present("all") {
@@ -89,38 +115,99 @@ pub fn get_ls_cmd(matches: &ArgMatches) -> Result<(Vec<ArtName>, FmtSettings), S
         settings.refs = true;
         settings.text = true;
     }
+    let search_settings = match matches.value_of("pattern") {
+        Some(p) => {
+            let pattern = HashSet::from_iter(p.chars());
+            debug!("got search pattern: {:?}", pattern);
+            let invalid: HashSet<char> = pattern.difference(&VALID_SEARCH_FIELDS)
+                                                .cloned()
+                                                .collect();
+            if invalid.len() > 0 {
+                let mut msg = String::new();
+                write!(msg, "Unknown search fields in pattern: {:?}", invalid);
+                return Err(msg);
+            }
+            let mut set = SearchSettings {
+                name: pattern.contains(&'N'),
+                path: pattern.contains(&'D'),
+                parts: pattern.contains(&'P'),
+                partof: pattern.contains(&'O'),
+                loc: pattern.contains(&'L'),
+                refs: pattern.contains(&'R'),
+                text: pattern.contains(&'T'),
+            };
+            if pattern.contains(&'A') {
+                set.name = !set.name;
+                set.path = !set.path;
+                set.parts = !set.parts;
+                set.partof = !set.partof;
+                set.loc = !set.loc;
+                set.refs = !set.refs;
+                set.text = !set.text;
+            }
+            Some(set)
+        }
+        None => None,
+    };
 
-    let search = matches.value_of("search").unwrap_or("");
-    let mut artnames = Vec::new();
-    artnames.extend(parse_names(search).unwrap());
-    artnames.sort();
+    let search = matches.value_of("search").unwrap_or("").to_string();
 
-    debug!("artifacts: {:?}", artnames);
     debug!("ls settings: {:?}", settings);
-    Ok((artnames, settings))
+    Ok((search, settings, search_settings))
 }
 
-
-pub fn do_ls(names: Vec<ArtName>,
+/// perform the ls command given the inputs
+pub fn do_ls(search: String,
              artifacts: &Artifacts,
              fmtset: &FmtSettings,
+             search_set: &Option<SearchSettings>,
              settings: &Settings) {
     let mut dne: Vec<ArtName> = Vec::new();
-    let mut names = names.clone();
+    let mut names = Vec::new();
+    let mut pat: Option<Regex> = None;
+    let mut pat_case: Option<Regex> = None;
+    if search_set.is_none() {
+        // names are determined from the beginning
+        names.extend(parse_names(&search).unwrap());
+        names.sort();
+        debug!("artifact names selected: {:?}", names);
+    } else {
+        pat = Some(match Regex::new(&search) {
+            Ok(p) => p,
+            Err(e) => {
+                error!("Invalid pattern: {}", e.to_string());
+                exit(1);
+            }
+        });
+        pat_case = Some(RegexBuilder::new(&search)
+                            .case_insensitive(true)
+                            .compile()
+                            .unwrap());
+    }
     if names.len() == 0 {
         names.extend(artifacts.keys().map(|n| n.clone()));
+        names.sort();
     }
-    names.sort();
+
     let mut displayed: HashSet<ArtName> = HashSet::new();
     let mut stdout = io::stdout();
     for name in names {
-        match artifacts.get(&name) {
+        let art = match artifacts.get(&name) {
             Some(a) => a,
             None => {
                 dne.push(name);
                 continue;
             }
         };
+        if let &Some(ref ss) = search_set {
+            if !show_artifact(&name,
+                              art,
+                              pat.as_ref().unwrap(),
+                              pat_case.as_ref().unwrap(),
+                              ss) {
+                continue;
+            }
+        }
         let f = fmt_artifact(&name, artifacts, fmtset, fmtset.recurse, &mut displayed);
         f.write(&mut stdout, artifacts, settings, 0).unwrap(); // FIXME: unwrap
     }

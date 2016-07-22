@@ -18,6 +18,7 @@ use clap::ArgMatches;
 mod matches;
 mod ls;
 mod fmt;
+mod search;
 
 pub fn init_logger(quiet: bool, verbosity: u8, stderr: bool) -> Result<(), fern::InitError> {
     let level = if quiet {log::LogLevelFilter::Off } else {
@@ -91,8 +92,8 @@ pub fn cmd() {
 
     if let Some(ls) = matches.subcommand_matches("ls") {
         info!("Calling the ls command");
-        let (names, fmtset) = ls::get_ls_cmd(&ls).unwrap();
-        ls::do_ls(names, &artifacts, &fmtset, &settings);
+        let (names, fmtset, search_set) = ls::get_ls_cmd(&ls).unwrap();
+        ls::do_ls(names, &artifacts, &fmtset, &search_set, &settings);
     }
 }
 
