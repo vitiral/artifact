@@ -14,48 +14,49 @@ pub fn get_subcommand<'a, 'b>() -> App<'a, 'b> {
         .about("list artifacts according to various parameters")
         .settings(&[AS::DeriveDisplayOrder, AS::ColoredHelp])
         .arg(Arg::with_name("search")
-                .help("artifact names given in form REQ-foo-[bar, baz-[1,2]]")
-                .use_delimiter(false))
+                 .help("artifact names given in form REQ-foo-[bar, baz-[1,2]]")
+                 .use_delimiter(false))
         .arg(Arg::with_name("long")
-                .short("l")
-                .help("print items in the 'long form'"))
+                 .short("l")
+                 .help("print items in the 'long form'"))
         .arg(Arg::with_name("recursive")
-                .short("r")
-                .help("print the parts of the artifact up to the given depth (default 1)")
-                .value_name("DEPTH")
-                .takes_value(true)
-                .validator(|s| match s.parse::<u8>() {
-                    Ok(_) => Ok(()),
-                    Err(e) => Err(e.to_string()),
-                })
-                .default_value("0")
-                .max_values(1))
+                 .short("r")
+                 .help("print the parts of the artifact up to the given depth (default 1)")
+                 .value_name("DEPTH")
+                 .takes_value(true)
+                 .validator(|s| {
+                     match s.parse::<u8>() {
+                         Ok(_) => Ok(()),
+                         Err(e) => Err(e.to_string()),
+                     }
+                 })
+                 .default_value("0")
+                 .max_values(1))
         .arg(Arg::with_name("all")
-                .short("A")
-                .help("activate all display flags. If this flag is set, additional flags will \
-                    be *deactivated* instead of activated"))
+                 .short("A")
+                 .help("activate all display flags. If this flag is set, additional flags will \
+                        be *deactivated* instead of activated"))
         .arg(Arg::with_name("path")
-                .short("D")
-                .help("display the path where the artifact is defined"))
+                 .short("D")
+                 .help("display the path where the artifact is defined"))
         .arg(Arg::with_name("parts")
-                .short("P")
-                .help("display the parts of the artifact"))
+                 .short("P")
+                 .help("display the parts of the artifact"))
         .arg(Arg::with_name("partof")
-                .short("O")
-                .help("display the artifacts which this artifact is a partof"))
+                 .short("O")
+                 .help("display the artifacts which this artifact is a partof"))
         .arg(Arg::with_name("loc")
-                .short("L")
-                .help("display location name"))
+                 .short("L")
+                 .help("display location name"))
         .arg(Arg::with_name("implemented")
-                .short("I")
-                .help("display the path where the artifact is implemented (LOC path)"))
+                 .short("I")
+                 .help("display the path where the artifact is implemented (LOC path)"))
         .arg(Arg::with_name("refs")
-                .short("R")
-                .help("display the references to this artifact"))
+                 .short("R")
+                 .help("display the references to this artifact"))
         .arg(Arg::with_name("text")
-                .short("T")
-                .help("display the text description of this artifact \
-                        (first line only if not -l)"))
+                 .short("T")
+                 .help("display the text description of this artifact (first line only if not -l)"))
 }
 
 
@@ -78,11 +79,13 @@ pub fn get_ls_cmd(matches: &ArgMatches) -> Result<(Vec<ArtName>, FmtSettings), S
         settings.loc_path = !settings.loc_path;
         settings.refs = !settings.refs;
         settings.text = !settings.text;
-    } else if settings.long && !(settings.path || settings.parts || settings.partof ||
-                                 settings.loc_path || settings.refs || settings.text) {
+    } else if settings.long &&
+       !(settings.path || settings.parts || settings.partof || settings.loc_path ||
+         settings.refs || settings.text) {
         // if long is specified but no other display attributes are specified
         settings.path = true;
         settings.parts = true;
+        settings.partof = true;
         settings.refs = true;
         settings.text = true;
     }
@@ -98,7 +101,10 @@ pub fn get_ls_cmd(matches: &ArgMatches) -> Result<(Vec<ArtName>, FmtSettings), S
 }
 
 
-pub fn do_ls(names: Vec<ArtName>, artifacts: &Artifacts, fmtset: &FmtSettings, settings: &Settings) {
+pub fn do_ls(names: Vec<ArtName>,
+             artifacts: &Artifacts,
+             fmtset: &FmtSettings,
+             settings: &Settings) {
     let mut dne: Vec<ArtName> = Vec::new();
     let mut names = names.clone();
     if names.len() == 0 {

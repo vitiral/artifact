@@ -20,7 +20,8 @@ impl FmtArtifact {
             }
         }
         let artifact = artifacts.get(&self.name).unwrap();
-        // print the name and completeness, colorized
+
+        // format the completeness and name
         let completed_str = ((artifact.completed * 100.) as i64).to_string();
         let tested_str = ((artifact.tested * 100.) as i64).to_string();
         if settings.color {
@@ -96,46 +97,46 @@ impl FmtArtifact {
             return Ok(());
         }
 
-        if let Some(ref parts) = self.parts {
-            if self.long {
-                let msg = "\n * parts: ";
-                if settings.color {
-                    write!(w, "{}", Green.paint(msg)).unwrap();
-                } else {
-                    w.write_all(msg.as_ref()).unwrap();
-                }
-            } else {
-                try!(w.write_all("| ".as_ref()));
+        // format the references
+        if let Some(ref refs) = self.refs {
+            self.write_header(w, "\n * refs: ", settings);
+            let sep = if self.long {"\n    "} else {" "};
+            for r in refs {
+                try!(w.write_all(sep.as_ref()));
+                try!(w.write_all(r.as_ref()));
             }
+            if self.long {
+                try!(w.write_all("\n".as_ref()));
+            } else {
+                try!(w.write_all(" ".as_ref()));
+            }
+        }
+
+        // format the parts
+        if let Some(ref parts) = self.parts {
+            self.write_header(w, "\n * parts: ", settings);
             let mut first = true;
             let mut num_written = 0;
             for p in parts {
                 if self.long {
-                    num_written += 1;
-                    if num_written % 4 == 0 {
-                        w.write_all("\n    ".as_ref()).unwrap();
-                        num_written = 0;
-                    } else {
-                        if !first && p.name_only() {
-                            try!(w.write_all(", ".as_ref()));
-                        }
-                    }
-                } else {
-                    if !first && p.name_only() {
-                        try!(w.write_all(", ".as_ref()));
-                    }
+                    w.write_all("\n    ".as_ref()).unwrap();
                 }
-                first = false;
                 try!(p.write(w, artifacts, settings, indent + 1));
+                num_written += 1;
+                if !self.long && num_written < parts.len() {
+                    w.write_all(", ".as_ref()).unwrap();
+                }
             }
-            try!(w.write_all(" ".as_ref()));
-        }
-        if let Some(ref partof) = self.partof {
             if self.long {
-                w.write_all("\n * partof: ".as_ref()).unwrap();
+                try!(w.write_all("\n".as_ref()));
             } else {
-                try!(w.write_all("| ".as_ref()));
+                try!(w.write_all(" ".as_ref()));
             }
+        }
+
+        // format the artifacts that are a partof this artifact
+        if let Some(ref partof) = self.partof {
+            self.write_header(w, "\n * partof: ", settings);
             let mut first = true;
             for p in partof {
                 if !first && p.name_only() {
@@ -146,12 +147,10 @@ impl FmtArtifact {
             }
             try!(w.write_all(" ".as_ref()));
         }
+
+        // format the location that where the implementation of this artifact can be found
         if self.loc_path.is_some() {
-            if self.long {
-                w.write_all("\n * loc: ".as_ref()).unwrap();
-            } else {
-                try!(w.write_all("| ".as_ref()));
-            }
+            self.write_header(w, "\n * loc: ", settings);
             let mut loc_str = String::new();
             if let Some(ref lpath) = self.loc_path {
                 write!(loc_str, ":{}", lpath.to_string_lossy().as_ref()).unwrap();
@@ -173,10 +172,11 @@ impl FmtArtifact {
             }
             try!(w.write_all(" ".as_ref()));
         }
+
+        // format the text
+        // TODO: use markdown to apply styles to the text
         if let Some(ref text) = self.text {
-            if !self.long {
-                w.write_all("| ".as_ref()).unwrap()
-            }
+            self.write_header(w, "\n * text:\n    ", settings);
             let lines: Vec<_> = text.split("\n").collect();
             let text = lines.join("\n    ");
             w.write_all(text.as_ref()).unwrap();
@@ -185,6 +185,19 @@ impl FmtArtifact {
         try!(w.write_all("\n".as_ref()));
         Ok(())
     }
+
+    fn write_header<W: io::Write> (&self, w: &mut W, msg: &str, settings: &Settings) {
+        if self.long {
+            if settings.color {
+                write!(w, "{}", Green.paint(msg)).unwrap();
+            } else {
+                w.write_all(msg.as_ref()).unwrap();
+            }
+        } else {
+            w.write_all("| ".as_ref()).unwrap();
+        }
+    }
+
 
     /// return whether this object is only the name
     /// if it is, it is formatted differently
@@ -198,108 +211,3 @@ impl FmtArtifact {
     }
 }
 
-// // return the formatted lines as a vec of (indent, value) tuples
-// fn _display_artifact(lines: &mut Vec<(u8, String)>, name: &ArtName,
-//                      artifact: &Artifact, settings: &FmtSettings, recurse: u8,
-//                      indent: u8) {
-//     let mut s = String::new();
-//     // The first line is always `[--] COMPLETED% TESTED% NAME`
-//     write!(s, "[{}{}] ",
-//            if artifact.completed >= 1. {"D"} else {"-"},
-//            if artifact.tested >= 1. {"T"} else {"-"}).unwrap();
-
-//     if artifact.completed < 0. {
-//         write!(s, " NC  ").unwrap();
-//     } else {
-//         write!(s, "{:>4.0}%", artifact.completed * 100.).unwrap();
-//     }
-//     if artifact.tested < 0. {
-//         write!(s, "  NC   ").unwrap();
-//     } else {
-//         write!(s, " {:>4.0}%  ", artifact.tested * 100.).unwrap();
-//     }
-//     if settings.long {
-//         s.write_str(name.raw.as_str()).unwrap();
-//         lines.push((indent, s.clone()));
-//         s.clear();
-//     } else {
-//         write!(s, "{:<45}", name.raw).unwrap();
-//     }
-
-//     if settings.path {
-//         let path = artifact.path.to_string_lossy();
-//         if settings.long {
-//             write!(s, "path: {}", path.as_ref()).unwrap();
-//             lines.push((indent, s.clone()));
-//             s.clear();
-//         } else {
-//             s.write_str("| ").unwrap();
-//             s.write_str(path.as_ref()).unwrap();
-//         }
-//     }
-
-//     if settings.parts {
-//         let mut parts = Vec::from_iter(artifact.parts.iter());
-//         parts.sort();
-//         let parts = names(&parts);
-//         if settings.long {
-//             write!(s, "parts: {}", parts.as_str()).unwrap();
-//             lines.push((indent, s.clone()));
-//             s.clear();
-//         } else {
-//             s.write_str("| ").unwrap();
-//             s.write_str(parts.as_str()).unwrap();
-//         }
-//     }
-
-//     if settings.partof {
-//         let mut partof = Vec::from_iter(artifact.partof.iter());
-//         partof.sort();
-//         let partof = names(&partof);
-//         if settings.long {
-//             write!(s, "partof: {}", partof.as_str()).unwrap();
-//             lines.push((indent, s.clone()));
-//             s.clear();
-//         } else {
-//             s.write_str("| ").unwrap();
-//             s.write_str(partof.as_str()).unwrap();
-//         }
-//     }
-
-//     if settings.loc_path {
-//         if settings.long {
-//             write!(s, "implemented: ").unwrap();
-//         } else {
-//             s.write_str("| ").unwrap()
-//         }
-//         if let Some(ref l) = artifact.loc {
-//             s.write_str(l.path.to_string_lossy().as_ref()).unwrap();
-//         } else {
-//             // s.write_str("").unwrap();
-//         }
-//         if settings.long {
-//             lines.push((indent, s.clone()));
-//             s.clear();
-//         }
-//     }
-
-//     if !settings.long {
-//         lines.push((indent, s));
-//     }
-// }
-
-// /// fully configurable display of an artifact
-// pub fn display_artifact(name: &ArtName, artifact: &Artifact, settings: &FmtSettings)
-//                         -> String {
-//     let mut lines: Vec<(u8, String)> = Vec::new();
-//     _display_artifact(&mut lines, name, artifact, settings, settings.recurse, 0);
-//     let mut s = String::new();
-//     for (indent, txt) in lines {
-//         for _ in 0..indent {
-//             s.push('|');
-//         }
-//         s.write_str(txt.as_str()).unwrap();
-//         s.push('\n');
-//     }
-//     s
-// }
