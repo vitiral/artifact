@@ -200,11 +200,8 @@ pub fn do_ls(search: String,
             }
         };
         if let &Some(ref ss) = search_set {
-            if !show_artifact(&name,
-                              art,
-                              pat.as_ref().unwrap(),
-                              pat_case.as_ref().unwrap(),
-                              ss) {
+            let (p, pc) = (pat.as_ref().unwrap(), pat_case.as_ref().unwrap());
+            if !show_artifact(&name, art, p, pc, ss) {
                 continue;
             }
         }

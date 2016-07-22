@@ -359,7 +359,7 @@ pub fn resolve_locs_text(s: &str, path: &PathBuf,
                                 }
                             }
                         } else {
-                            warn!("Found loc that is not a member of an artifact: {}", name);
+                            // warn!("Found loc that is not a member of an artifact: {}", name);
                         }
                         prev_char = ' ';
                     }
@@ -417,7 +417,6 @@ pub fn resolve_locs(artifacts: &mut Artifacts) -> LoadResult<()> {
     if error {
         return Err(LoadError::new("Overlapping keys found in src loc".to_string()));
     }
-    println!("Found file locs: {:?}", locs);
 
     // now fill in the location values
     for (lname, info) in locs {
