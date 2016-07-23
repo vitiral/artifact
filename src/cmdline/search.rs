@@ -34,7 +34,6 @@ fn matches_name(pat: &Regex, names: &HashSet<ArtName>) -> bool {
 /// SPC-ui-filter
 pub fn show_artifact(name: &ArtName,
                        art: &Artifact,
-                       pat: &Regex,
                        pat_case: &Regex,
                        search_settings: &SearchSettings)
                        -> bool {

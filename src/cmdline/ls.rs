@@ -174,17 +174,16 @@ pub fn do_ls(search: String,
     } else {
         // names to use are determined by filtering
         // the regexp
-        pat = Some(match Regex::new(&search) {
+        let pat = RegexBuilder::new(&search)
+                      .case_insensitive(true)
+                      .compile();
+        pat_case = Some(match p {
             Ok(p) => p,
             Err(e) => {
                 error!("Invalid pattern: {}", e.to_string());
                 exit(1);
             }
         });
-        pat_case = Some(RegexBuilder::new(&search)
-                            .case_insensitive(true)
-                            .compile()
-                            .unwrap());
     }
     if names.len() == 0 {
         names.extend(artifacts.keys().map(|n| n.clone()));
@@ -202,8 +201,8 @@ pub fn do_ls(search: String,
             }
         };
         if let &Some(ref ss) = search_set {
-            let (p, pc) = (pat.as_ref().unwrap(), pat_case.as_ref().unwrap());
-            if !show_artifact(&name, art, p, pc, ss) {
+            let pc = pat_case.as_ref().unwrap();
+            if !show_artifact(&name, art, pc, ss) {
                 continue;
             }
         }
