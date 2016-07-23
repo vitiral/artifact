@@ -167,11 +167,13 @@ pub fn do_ls(search: String,
     let mut pat: Option<Regex> = None;
     let mut pat_case: Option<Regex> = None;
     if search_set.is_none() {
-        // names are determined from the beginning
+        // names to use are determined from the beginning
         names.extend(parse_names(&search).unwrap());
         names.sort();
         debug!("artifact names selected: {:?}", names);
     } else {
+        // names to use are determined by filtering
+        // the regexp
         pat = Some(match Regex::new(&search) {
             Ok(p) => p,
             Err(e) => {

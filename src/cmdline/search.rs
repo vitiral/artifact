@@ -22,6 +22,15 @@ pub struct SearchSettings {
     pub text: bool,
 }
 
+fn matches_name(pat: &Regex, names: &HashSet<ArtName>) -> bool {
+    for n in names.iter() {
+        if pat.is_match(&n.raw) {
+            return true;
+        }
+    }
+    false
+}
+
 /// SPC-ui-filter
 pub fn show_artifact(name: &ArtName,
                        art: &Artifact,
@@ -29,10 +38,18 @@ pub fn show_artifact(name: &ArtName,
                        pat_case: &Regex,
                        search_settings: &SearchSettings)
                        -> bool {
-    if search_settings.name {
-        if !pat_case.is_match(&name.raw) {
-            return false;
-        }
+    let ss = search_settings;
+    if (ss.name && pat_case.is_match(&name.raw))
+        || (ss.parts && matches_name(pat_case, &art.parts))
+        || (ss.partof && matches_name(pat_case, &art.partof))
+        || (ss.loc && match art.loc.as_ref() {
+             None => false,
+             Some(l) => pat.is_match(l.path.to_string_lossy().as_ref()),
+        })
+        || (ss.refs && art.refs.iter().any(|r| pat_case.is_match(r)))
+        || (ss.text && pat_case.is_match(&art.text)) {
+        true
+    } else {
+        false
     }
-    return true;
 }

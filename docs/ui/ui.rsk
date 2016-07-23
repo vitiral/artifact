@@ -22,12 +22,3 @@ module.
 The display struct **shall** contain enough information to provide
 colors to items that are in error, not complete, etc.
 '''
-
-[SPC-core-ui-filter]
-text = '''
-There **shall** be a simple filter function with a simple filter data
-type that can be used to do complex filters on rsk artifacts
-
-Complex filters allow someone to filter by any attribute, or
-combination of attributes.
-'''
