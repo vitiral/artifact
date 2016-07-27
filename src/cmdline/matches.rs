@@ -1,8 +1,11 @@
-use clap::{Arg, App, SubCommand, ArgMatches, AppSettings as AS};
+use std::ffi::OsString;
+
+use clap::{Arg, App, SubCommand, ArgMatches, AppSettings as AS, Result as ClapResult};
 
 use super::ls;
 
-pub fn get_matches<'a>() -> ArgMatches<'a> {
+pub fn get_matches<'a, I, T>(args: I) -> ClapResult<ArgMatches<'a>>
+    where I: IntoIterator<Item=T>, T: Into<OsString> {
     App::new("rsk")
         .version("0.0.1")
         .about("the requirements tracking tool made for developers")
@@ -27,5 +30,5 @@ pub fn get_matches<'a>() -> ArgMatches<'a> {
                      .required(false))
         )
         .subcommand(ls::get_subcommand())
-        .get_matches()
+        .get_matches_from_safe(args)
 }

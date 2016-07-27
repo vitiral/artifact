@@ -158,7 +158,39 @@ fn test_parse_names() {
     assert!(_parse_names(&mut "hi-[ho, he".chars(), false).is_err());
 }
 
+/// parse toml using a std error for this library
+fn parse_toml(toml: &str) -> LoadResult<Table> {
+    let mut parser = Parser::new(toml);
+    match parser.parse() {
+        Some(table) => Ok(table),
+        None => {
+            let mut msg = String::new();
+            for e in &parser.errors {
+                let (line, col) = parser.to_linecol(e.lo);
+                write!(msg, "[{}:{}] {}, ", line, col, e.desc).unwrap();
+            }
+            Err(LoadError::new(msg))
+        },
+    }
+}
+
 impl Artifact {
+    /// from_str is mosty used to make testing and one-off development easier
+    pub fn from_str(toml: &str) -> LoadResult<(ArtName, Artifact)> {
+        let table = try!(parse_toml(toml));
+        if table.len() != 1 {
+            return Err(LoadError::new("must contain a single table".to_string()));
+        }
+        let (name, value) = table.iter().next().unwrap();
+        let name = try!(ArtName::from_str(name));
+        let value = match value {
+            &Value::Table(ref t) => t,
+            _ => return Err(LoadError::new("must contain a single table".to_string())),
+        };
+        let artifact = try!(Artifact::from_table(&name, &Path::new("from_str"), value));
+        Ok((name, artifact))
+    }
+
     fn from_table(name: &ArtName, path: &Path, tbl: &Table) -> LoadResult<Artifact> {
         let df_str = "".to_string();
         let df_vec: Vec<String> = vec![];
@@ -282,20 +314,7 @@ pub fn load_toml(path: &Path, text: &str,
                  variables: &mut Vec<(PathBuf, Variables)>)
                  -> LoadResult<u64> {
     // parse the text
-    let mut parser = Parser::new(text);
-    let mut table = match parser.parse() {
-        Some(table) => table,
-        None => {
-            let mut msg = String::new();
-            for e in &parser.errors {
-                let (line, col) = parser.to_linecol(e.lo);
-                write!(msg, "[{}:{}] {}, ", line, col, e.desc).unwrap();
-            }
-            // write!(msg, "Could not parse []: {}", parser.errors);
-            // desc.extend(parser.errors.iter().map(|e| e.to_string()));
-            return Err(LoadError::new(msg));
-        },
-    };
+    let mut table = try!(parse_toml(text));
     load_table(&mut table, path, artifacts, settings, variables)
 }
 

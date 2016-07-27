@@ -1,3 +1,5 @@
+use std::env;
+
 // # logger config
 extern crate fern;
 
@@ -24,5 +26,5 @@ mod cmdline;
 pub use cmdline::init_logger;
 
 fn main() {
-    cmdline::cmd();
+    cmdline::cmd(env::args());
 }

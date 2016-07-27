@@ -116,37 +116,7 @@ pub fn get_ls_cmd(matches: &ArgMatches)
         settings.text = true;
     }
     let search_settings = match matches.value_of("pattern") {
-        Some(p) => {
-            let pattern = HashSet::from_iter(p.chars());
-            debug!("got search pattern: {:?}", pattern);
-            let invalid: HashSet<char> = pattern.difference(&VALID_SEARCH_FIELDS)
-                                                .cloned()
-                                                .collect();
-            if invalid.len() > 0 {
-                let mut msg = String::new();
-                write!(msg, "Unknown search fields in pattern: {:?}", invalid);
-                return Err(msg);
-            }
-            let mut set = SearchSettings {
-                name: pattern.contains(&'N'),
-                path: pattern.contains(&'D'),
-                parts: pattern.contains(&'P'),
-                partof: pattern.contains(&'O'),
-                loc: pattern.contains(&'L'),
-                refs: pattern.contains(&'R'),
-                text: pattern.contains(&'T'),
-            };
-            if pattern.contains(&'A') {
-                set.name = !set.name;
-                set.path = !set.path;
-                set.parts = !set.parts;
-                set.partof = !set.partof;
-                set.loc = !set.loc;
-                set.refs = !set.refs;
-                set.text = !set.text;
-            }
-            Some(set)
-        }
+        Some(p) => Some(try!(SearchSettings::from_str(p))),
         None => None,
     };
 
@@ -177,7 +147,7 @@ pub fn do_ls(search: String,
         let pat = RegexBuilder::new(&search)
                       .case_insensitive(true)
                       .compile();
-        pat_case = Some(match p {
+        pat_case = Some(match pat {
             Ok(p) => p,
             Err(e) => {
                 error!("Invalid pattern: {}", e.to_string());

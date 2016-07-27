@@ -17,7 +17,7 @@ pub use core::types::{
     LoadResult, LoadError,
     Artifacts, Artifact, ArtType, ArtName, Loc,
     Settings};
-pub use core::load::parse_names;
+pub use core::load::{parse_names, load_toml};
 
 /// do all core loading operations defined in SPC-core-load-parts
 /// includes loading and validating raw data, resolving and applying

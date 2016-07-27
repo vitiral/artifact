@@ -7,18 +7,22 @@
 //! that the user may want to execute
 
 use std::env;
+use std::ffi::OsString;
 use std::collections::HashSet;
 
 use core;
 
 use log;
 use fern;
-use clap::ArgMatches;
+use clap::{ArgMatches, ErrorKind};
 
 mod matches;
 mod ls;
 mod fmt;
 mod search;
+
+#[cfg(tests)]
+mod tests;
 
 pub fn init_logger(quiet: bool, verbosity: u8, stderr: bool) -> Result<(), fern::InitError> {
     let level = if quiet {log::LogLevelFilter::Off } else {
@@ -61,8 +65,22 @@ pub fn get_loglevel(matches: &ArgMatches) -> Option<(u8, bool)> {
 }
 
 
-pub fn cmd() {
-    let matches = matches::get_matches();
+pub fn cmd<'a, I, T>(args: I)
+        where I: IntoIterator<Item=T>, T: Into<OsString> {
+    let matches = match matches::get_matches(args) {
+        Ok(m) => m,
+        Err(e) => match e.kind {
+            ErrorKind::HelpDisplayed | ErrorKind::VersionDisplayed => {
+                println!("{}", e);
+                return;
+            },
+            _ => {
+                error!("{}", e);
+                return;
+            }
+        },
+    };
+
     // initialze the logger
     match get_loglevel(&matches) {
         Some((v, q)) => init_logger(q, v, true).unwrap(),
@@ -92,8 +110,8 @@ pub fn cmd() {
 
     if let Some(ls) = matches.subcommand_matches("ls") {
         info!("Calling the ls command");
-        let (names, fmtset, search_set) = ls::get_ls_cmd(&ls).unwrap();
-        ls::do_ls(names, &artifacts, &fmtset, &search_set, &settings);
+        let (search, fmtset, search_set) = ls::get_ls_cmd(&ls).unwrap();
+        ls::do_ls(search, &artifacts, &fmtset, &search_set, &settings);
     }
 }
 
