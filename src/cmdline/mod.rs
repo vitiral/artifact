@@ -34,6 +34,7 @@ pub fn init_logger(quiet: bool, verbosity: u8, stderr: bool) -> Result<(), fern:
             _ => unreachable!(),
         }
     };
+    println!("logger verbosity: {}, level: {}", verbosity, level);
     let output = if stderr {
         fern::OutputConfig::stderr()
     } else {
@@ -56,7 +57,7 @@ pub fn get_loglevel(matches: &ArgMatches) -> Option<(u8, bool)> {
     let verbosity = match matches.occurrences_of("v") {
         v @ 0...3 => v,
         _ => {
-            error!("verbosity cannot be higher than 3");
+            println!("ERROR: verbosity cannot be higher than 3");
             return None;
         }
     } as u8;

@@ -5,6 +5,7 @@ use std::collections::HashSet;
 
 use regex::Regex;
 
+
 use core::{Artifact, ArtName, parse_names, load_toml, Settings};
 
 lazy_static!{
@@ -13,7 +14,14 @@ lazy_static!{
 }
 
 #[derive(Debug, Default, PartialEq, Eq)]
+pub struct PercentSearch {
+    pub lt: bool,
+    pub perc: u8,
+}
+
+#[derive(Debug, Default, PartialEq, Eq)]
 pub struct SearchSettings {
+    pub use_regex: bool,
     pub name: bool,
     pub path: bool,
     pub parts: bool,
@@ -21,10 +29,27 @@ pub struct SearchSettings {
     pub loc: bool,
     pub refs: bool,
     pub text: bool,
+    pub completed: PercentSearch,
+    pub tested: PercentSearch,
 }
 
 impl SearchSettings {
-    pub fn from_str(s: &str) -> Result<SearchSettings, String> {
+    pub fn new() -> SearchSettings {
+        SearchSettings {
+            use_regex: false,
+            name: false,
+            path: false,
+            parts: false,
+            partof: false,
+            loc: false,
+            refs: false,
+            text: false,
+            completed: PercentSearch{lt: false, perc: 0},
+            tested: PercentSearch{lt: false, perc: 0},
+        }
+    }
+
+    pub fn from_regex(s: &str) -> Result<SearchSettings, String> {
         let pattern = HashSet::from_iter(s.chars());
         debug!("got search pattern: {:?}", pattern);
         let invalid: HashSet<char> = pattern.difference(&VALID_SEARCH_FIELDS)
@@ -32,10 +57,11 @@ impl SearchSettings {
                                             .collect();
         if invalid.len() > 0 {
             let mut msg = String::new();
-            write!(msg, "Unknown search fields in pattern: {:?}", invalid);
+            write!(msg, "Unknown search fields in pattern: {:?}", invalid).unwrap();
             return Err(msg);
         }
         let mut set = SearchSettings {
+            use_regex: true,
             name: pattern.contains(&'N'),
             path: pattern.contains(&'D'),
             parts: pattern.contains(&'P'),
@@ -43,6 +69,8 @@ impl SearchSettings {
             loc: pattern.contains(&'L'),
             refs: pattern.contains(&'R'),
             text: pattern.contains(&'T'),
+            completed: PercentSearch{lt: false, perc: 0},
+            tested: PercentSearch{lt: false, perc: 0},
         };
         if pattern.contains(&'A') {
             set.name = !set.name;
@@ -72,7 +100,16 @@ pub fn show_artifact(name: &ArtName,
                      search_settings: &SearchSettings)
                      -> bool {
     let ss = search_settings;
-    if (ss.name && pat_case.is_match(&name.raw))
+    let completed = (art.completed * 100.0).round() as u8;
+    let tested = (art.tested * 100.0).round() as u8;
+    if (ss.completed.lt && completed > ss.completed.perc)
+        || (!ss.completed.lt && completed < ss.completed.perc)
+        || (ss.tested.lt && tested > ss.tested.perc)
+        || (!ss.tested.lt && tested < ss.tested.perc) {
+        false
+    } else if !ss.use_regex {
+        true
+    } else if (ss.name && pat_case.is_match(&name.raw))
         || (ss.parts && matches_name(pat_case, &art.parts))
         || (ss.partof && matches_name(pat_case, &art.partof))
         || (ss.loc && match art.loc.as_ref() {
@@ -89,16 +126,31 @@ pub fn show_artifact(name: &ArtName,
 
 #[test]
 fn test_show_artfact() {
-    let req_one = Artifact::from_str("[REQ-one]
+    let mut req_one = Artifact::from_str("[REQ-one]
             partof = 'REQ-base'
             text = 'hello bob'").unwrap();
-    let req_two = Artifact::from_str("[REQ-two]\ntext = 'goodbye joe'").unwrap();
+    let mut req_two = Artifact::from_str("[REQ-two]\ntext = 'goodbye joe'").unwrap();
+    req_one.1.tested = 0.2;
+    req_one.1.completed = 0.8;
 
     let search_bob = &Regex::new("bob").unwrap();
     let search_two = &Regex::new("two").unwrap();
-    let settings_name = SearchSettings::from_str("N").unwrap();
-    let settings_text = SearchSettings::from_str("T").unwrap();
-    let settings_nt = SearchSettings::from_str("NT").unwrap();
+
+    // test percentage search
+    let mut settings_little_tested = SearchSettings::new();
+    settings_little_tested.tested = PercentSearch{lt: false, perc: 10};
+    assert!(show_artifact(&req_one.0, &req_one.1, &search_bob, &settings_little_tested));
+
+    let mut settings_ct = SearchSettings::new();
+    settings_ct.completed = PercentSearch{lt: false, perc: 50};
+    settings_ct.tested = PercentSearch{lt: false, perc: 50};
+    assert!(!show_artifact(&req_one.0, &req_one.1, &search_bob, &settings_ct));
+
+    // test regex search
+    let settings_name = SearchSettings::from_regex("N").unwrap();
+    let settings_text = SearchSettings::from_regex("T").unwrap();
+    let settings_nt = SearchSettings::from_regex("NT").unwrap();
+
     assert!(show_artifact(&req_one.0, &req_one.1, &search_bob, &settings_text));
     assert!(show_artifact(&req_one.0, &req_one.1, &search_bob, &settings_nt));
     assert!(show_artifact(&req_two.0, &req_two.1, &search_two, &settings_nt));

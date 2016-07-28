@@ -61,9 +61,9 @@ impl FmtArtifact {
                 }.paint(self.name.raw.as_str());
                 (d_sym, d_perc, t_sym, t_perc, name)
             };
-            if self.name_only() {
-                try!(write!(w, "{}", name));
-            } else {
+            // if self.name_only() {
+            //     try!(write!(w, "{}", name));
+            // } else {
                 try!(write!(w, "|{}{}| ", d_sym, t_sym));
                 // format completed %
                 for _ in 0..(3 - d_perc.len()) {
@@ -81,22 +81,22 @@ impl FmtArtifact {
                         try!(w.write_all(" ".as_ref()));
                     }
                 }
-            }
+            // }
         } else {
-            if self.name_only() {
-                try!(write!(w, "{}", &self.name.raw));
-            } else {
+            // if self.name_only() {
+            //     try!(write!(w, "{}", &self.name.raw));
+            // } else {
                 let d_sym = if artifact.completed >= 1. {"D"} else {"-"};
                 let t_sym = if artifact.tested >= 1. {"T"} else {"-"};
                 try!(write!(w, "|{}{}|{:>3}% {:>3}%| {:<45}", d_sym, t_sym,
                             completed_str, tested_str, &self.name.raw));
-            }
+            // }
         }
 
-        if self.name_only() {
-            try!(w.write_all("\n".as_ref()));
-            return Ok(());
-        }
+        // if self.name_only() {
+        //     try!(w.write_all("\n".as_ref()));
+        //     return Ok(());
+        // }
 
         // format the references
         if let Some(ref refs) = self.refs {

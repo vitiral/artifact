@@ -204,8 +204,8 @@ pub struct Artifact {
     pub partof: HashSet<ArtName>,
     pub parts: HashSet<ArtName>,
     pub loc: Option<Loc>,
-    pub completed: f32, // completed percent (calculated)
-    pub tested: f32, // tested percent (calculated)
+    pub completed: f32, // completed ratio (calculated)
+    pub tested: f32, // tested ratio (calculated)
 }
 
 #[derive(Debug)]
