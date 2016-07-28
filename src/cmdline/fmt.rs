@@ -14,6 +14,7 @@ impl FmtArtifact {
     pub fn write<W: io::Write> (&self, w: &mut W, artifacts: &Artifacts,
                                 settings: &Settings, indent: u8)
                                 -> io::Result<()> {
+        let nfno = indent > 0 && self.name_only(); // not-first-name-only
         if !self.name_only() {
             for _ in 0..(indent * 2) {
                 try!(w.write_all(" ".as_ref()));
@@ -27,43 +28,49 @@ impl FmtArtifact {
         if settings.color {
             let (d_sym, d_perc, t_sym, t_perc, name) = if artifact.completed >= 1. &&
                     artifact.tested >= 1. {
-                (Green.paint("D"), Green.paint(completed_str),
-                 Green.paint("T"), Green.paint(tested_str),
-                 Green.paint(self.name.raw.as_str()))
+                (Green.bold().paint("D"), Green.paint(completed_str),
+                 Green.bold().paint("T"), Green.paint(tested_str),
+                 Green.bold().paint(self.name.raw.as_str()))
             } else {
                 let mut score = 0;
                 let (d_sym, d_perc) = if artifact.completed >= 1. {
                     score += 3;
-                    (Blue.paint("D"), Blue.paint(completed_str))
+                    (Blue.bold().paint("D"), Blue.bold().paint(completed_str))
                 } else if artifact.completed >= 0.7 {
                     score += 2;
-                    (Yellow.paint("-"), Yellow.paint(completed_str))
+                    (Yellow.bold().paint("-"), Yellow.bold().paint(completed_str))
                 } else if artifact.completed >= 0.4 {
                     score += 1;
-                    (Yellow.paint("-"), Yellow.paint(completed_str))
+                    (Yellow.bold().paint("-"), Yellow.bold().paint(completed_str))
                 } else {
-                    (Red.paint("-"), Red.paint(completed_str))
+                    (Red.bold().paint("-"), Red.bold().paint(completed_str))
                 };
                 let (t_sym, t_perc) = if artifact.tested >= 1. {
                     score += 2;
-                    (Blue.paint("T"), Blue.paint(tested_str))
+                    (Blue.bold().paint("T"), Blue.bold().paint(tested_str))
                 } else if artifact.tested >= 0.5 {
                     score += 1;
-                    (Yellow.paint("-"), Yellow.paint(tested_str))
+                    (Yellow.bold().paint("-"), Yellow.bold().paint(tested_str))
                 } else {
-                    (Red.paint("-"), Red.paint(tested_str))
+                    (Red.bold().paint("-"), Red.bold().paint(tested_str))
                 };
                 let name = match score {
                     3...4 => Blue,
                     1...2 => Yellow,
                     0 => Red,
                     _ => unreachable!(),
-                }.paint(self.name.raw.as_str());
+                };
+                let sname = self.name.raw.as_str();
+                let name = if nfno {
+                    name.paint(sname)
+                } else {
+                    name.bold().underline().paint(sname)
+                };
                 (d_sym, d_perc, t_sym, t_perc, name)
             };
-            // if self.name_only() {
-            //     try!(write!(w, "{}", name));
-            // } else {
+            if nfno {
+                try!(write!(w, "{}", name));
+            } else {
                 try!(write!(w, "|{}{}| ", d_sym, t_sym));
                 // format completed %
                 for _ in 0..(3 - d_perc.len()) {
@@ -81,22 +88,21 @@ impl FmtArtifact {
                         try!(w.write_all(" ".as_ref()));
                     }
                 }
-            // }
+            }
         } else {
-            // if self.name_only() {
-            //     try!(write!(w, "{}", &self.name.raw));
-            // } else {
+            if nfno {
+                try!(write!(w, "{}", &self.name.raw));
+            } else {
                 let d_sym = if artifact.completed >= 1. {"D"} else {"-"};
                 let t_sym = if artifact.tested >= 1. {"T"} else {"-"};
                 try!(write!(w, "|{}{}|{:>3}% {:>3}%| {:<45}", d_sym, t_sym,
                             completed_str, tested_str, &self.name.raw));
-            // }
+            }
         }
 
-        // if self.name_only() {
-        //     try!(w.write_all("\n".as_ref()));
-        //     return Ok(());
-        // }
+        if nfno {
+            return Ok(());
+        }
 
         // format the references
         if let Some(ref refs) = self.refs {
@@ -106,11 +112,7 @@ impl FmtArtifact {
                 try!(w.write_all(sep.as_ref()));
                 try!(w.write_all(r.as_ref()));
             }
-            if self.long {
-                try!(w.write_all("\n".as_ref()));
-            } else {
-                try!(w.write_all(" ".as_ref()));
-            }
+            self.write_end(w)
         }
 
         // format the parts
@@ -128,11 +130,7 @@ impl FmtArtifact {
                     w.write_all(", ".as_ref()).unwrap();
                 }
             }
-            if self.long {
-                try!(w.write_all("\n".as_ref()));
-            } else {
-                try!(w.write_all(" ".as_ref()));
-            }
+            self.write_end(w)
         }
 
         // format the artifacts that are a partof this artifact
@@ -146,12 +144,12 @@ impl FmtArtifact {
                 first = false;
                 try!(p.write(w, artifacts, settings, indent + 1));
             }
-            try!(w.write_all(" ".as_ref()));
+            self.write_end(w);
         }
 
         // format the location that where the implementation of this artifact can be found
         if self.loc_path.is_some() {
-            self.write_header(w, "\n * loc: ", settings);
+            self.write_header(w, "\n * implemented-at-loc: ", settings);
             let mut loc_str = String::new();
             if let Some(ref lpath) = self.loc_path {
                 write!(loc_str, ":{}", lpath.to_string_lossy().as_ref()).unwrap();
@@ -172,6 +170,13 @@ impl FmtArtifact {
                 }
             }
             try!(w.write_all(" ".as_ref()));
+        }
+
+        // format where the artifact is implemented
+        if let Some(ref path) = self.path {
+            self.write_header(w, "\n * defined-at: ", settings);
+            try!(w.write_all(path.to_string_lossy().as_ref().as_ref()));
+            self.write_end(w)
         }
 
         // format the text
@@ -199,6 +204,13 @@ impl FmtArtifact {
         }
     }
 
+    fn write_end<W: io::Write> (&self, w: &mut W) {
+        if self.long {
+            // try!(w.write_all("\n".as_ref()));
+        } else {
+            w.write_all(" ".as_ref()).unwrap();
+        }
+    }
 
     /// return whether this object is only the name
     /// if it is, it is formatted differently

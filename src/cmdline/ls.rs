@@ -19,14 +19,12 @@ pub fn get_subcommand<'a, 'b>() -> App<'a, 'b> {
         .about("list artifacts according to various parameters")
         .settings(&[AS::DeriveDisplayOrder, AS::ColoredHelp])
         .arg(Arg::with_name("search")
-                 .help("artifact names given in form REQ-foo-[bar, baz-[1,2]] OR pearl regexp \
+                 .help("artifact names given in form `REQ-foo-[bar, baz-[1,2]]` OR pearl regexp \
                         pattern if -p is given")
                  .use_delimiter(false))
         .arg(Arg::with_name("pattern")
                  .short("p")
-                 .help("SEARCH using a pearl regexp pattern in the given FIELDS instead of \
-                        searching by name. Valid areas are: N=name, D=path, P=parts, O=partof, \
-                        L=loc, R=refs, T=text, A=see '-A'")
+                 .help("search FIELDS using pearl regexp SEARCH.")
                  .value_name("FIELDS")
                  .takes_value(true)
                  .max_values(1))
@@ -48,9 +46,7 @@ pub fn get_subcommand<'a, 'b>() -> App<'a, 'b> {
                  .max_values(1))
         .arg(Arg::with_name("completed")
                  .short("c")
-                 .help("give a filter for the completedness in %. I.e. '<45'. '<' is the default \
-                        if no comparison operator is given, '<0' is the default if no args are \
-                        given. Note: all comparisons are inclusive (<1 means <=1)")
+                 .help("filter by completeness (ie `<45`), < and > are inclusive, '>' == `>100`")
                  .takes_value(true))
         .arg(Arg::with_name("tested")
                  .short("t")
@@ -58,11 +54,7 @@ pub fn get_subcommand<'a, 'b>() -> App<'a, 'b> {
                  .takes_value(true))
         .arg(Arg::with_name("all")
                  .short("A")
-                 .help("activate all display flags. If this flag is set, additional flags will \
-                        be *deactivated* instead of activated"))
-        .arg(Arg::with_name("path")
-                 .short("D")
-                 .help("display the path where the artifact is defined"))
+                 .help("If set, additional flags will be *deactivated* instead of activated"))
         .arg(Arg::with_name("parts")
                  .short("P")
                  .help("display the parts of the artifact"))
@@ -216,7 +208,6 @@ pub fn get_ls_cmd(matches: &ArgMatches) -> Result<(String, FmtSettings, SearchSe
     let mut settings = FmtSettings::default();
     settings.long = matches.is_present("long");
     settings.recurse = matches.value_of("recursive").unwrap().parse::<u8>().unwrap();
-    settings.path = matches.is_present("path");
     settings.parts = matches.is_present("parts");
     settings.partof = matches.is_present("partof");
     settings.loc_path = matches.is_present("loc");
