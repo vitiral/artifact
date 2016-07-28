@@ -15,6 +15,7 @@ use cmdline::search::{VALID_SEARCH_FIELDS, SearchSettings, PercentSearch, show_a
 
 pub fn get_subcommand<'a, 'b>() -> App<'a, 'b> {
     // TODO: implement -c and -t
+    // [SPC-ui-cmdline-cmd-ls]
     SubCommand::with_name("ls")
         .about("list artifacts according to various parameters")
         .settings(&[AS::DeriveDisplayOrder, AS::ColoredHelp])
@@ -55,6 +56,9 @@ pub fn get_subcommand<'a, 'b>() -> App<'a, 'b> {
         .arg(Arg::with_name("all")
                  .short("A")
                  .help("If set, additional flags will be *deactivated* instead of activated"))
+        .arg(Arg::with_name("path")
+                 .short("D")
+                 .help("display the path where the artifact is defined"))
         .arg(Arg::with_name("parts")
                  .short("P")
                  .help("display the parts of the artifact"))
@@ -208,6 +212,7 @@ pub fn get_ls_cmd(matches: &ArgMatches) -> Result<(String, FmtSettings, SearchSe
     let mut settings = FmtSettings::default();
     settings.long = matches.is_present("long");
     settings.recurse = matches.value_of("recursive").unwrap().parse::<u8>().unwrap();
+    settings.path = matches.is_present("path");
     settings.parts = matches.is_present("parts");
     settings.partof = matches.is_present("partof");
     settings.loc_path = matches.is_present("loc");
@@ -270,7 +275,8 @@ pub fn do_ls(search: String,
              settings: &Settings) {
     let mut dne: Vec<ArtName> = Vec::new();
     let mut names = Vec::new();
-    let mut pat: Option<Regex> = None;
+    let pat: Option<Regex> = None;
+    let mut fmtset = (*fmtset).clone();
     let pat_case;
     if search_set.use_regex {
         // names to use are determined by filtering the regex
@@ -291,7 +297,11 @@ pub fn do_ls(search: String,
         debug!("artifact names selected: {:?}", names);
         pat_case = Regex::new("").unwrap();
     }
-    if names.len() == 0 {
+    debug!("fmtset empty: {}", fmtset.is_empty());
+    if names.len() == 0 && search.len() == 0 && fmtset.is_empty() {
+        // [REQ-ui-cmdline-cmd-ls-flags-empty]
+        fmtset.partof = true;
+        fmtset.loc_path = true;
         names.extend(artifacts.keys().map(|n| n.clone()));
         names.sort();
     }
@@ -309,7 +319,7 @@ pub fn do_ls(search: String,
         if !show_artifact(&name, art, &pat_case, search_set) {
             continue;
         }
-        let f = fmt_artifact(&name, artifacts, fmtset, fmtset.recurse, &mut displayed);
+        let f = fmt_artifact(&name, artifacts, &fmtset, fmtset.recurse, &mut displayed);
         f.write(&mut stdout, artifacts, settings, 0).unwrap(); // FIXME: unwrap
     }
     if dne.len() > 0 {

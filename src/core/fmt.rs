@@ -20,7 +20,7 @@ pub fn names(names: &Vec<&ArtName>) -> String {
 
 /// settings for what to format
 /// [SPC-core-fmt-settings]
-#[derive(Debug, Default, PartialEq, Eq)]
+#[derive(Debug, Default, Clone, PartialEq, Eq)]
 pub struct FmtSettings {
     pub long: bool,
     pub recurse: u8,
@@ -30,8 +30,14 @@ pub struct FmtSettings {
     pub loc_path: bool,
     pub text: bool,
     pub refs: bool,
-    // completed: bool,
-    // tested: bool,
+}
+
+impl FmtSettings {
+    pub fn is_empty(&self) -> bool {
+        !self.long && !self.path && !self.parts
+            && !self.partof && !self.loc_path
+            && !self.text && !self.refs
+    }
 }
 
 /// structure which contains all the information necessary to

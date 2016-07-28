@@ -1,0 +1,20 @@
+
+[REQ-ui-cmdline-cmd]
+text = '''
+The commands on the cmdline **will** be memonic and borrow from other
+common command line tools like bash, git, etc whenever possible.
+
+In the cases where copying those tools commands does not make sense,
+they will not be coppied
+'''
+
+[REQ-ui-cmdline-cmd-help]
+text = "help command"
+
+[REQ-ui-cmdline-cmd-init]
+text = '''
+`rsk init` is the primary first command that will be run by the user. It will
+initialize a `.rsk` folder in the cwd (giving an error if the cwd is not part
+of a repo) and will give the user basic instructions on how to create
+requirements and where to get more information.
+'''

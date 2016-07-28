@@ -25,6 +25,8 @@ mod cmdline;
 
 pub use cmdline::init_logger;
 
+pub const VERSION: &'static str = env!("CARGO_PKG_VERSION");
+
 fn main() {
     cmdline::cmd(env::args());
 }

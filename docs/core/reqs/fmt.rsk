@@ -17,19 +17,30 @@ loc = "{core}/fmt.rs"
 
 [REQ-core-fmt-settings]
 text = '''
-The core module **shall** have a struct that encapsulates
-all format settings and can be used to configure how artifacts
-will be displayed
+There **shall** be a struct which defines all the fields that can be
+printed with Option<String> values.
+
+This will be used to detail what items were filtered from another
+module.
+
+The display struct **shall** contain enough information to provide
+colors to items that are in error, not complete, etc.
 '''
 [SPC-core-fmt-settings]
 partof = "REQ-core-fmt-settings"
 loc = "{core}/fmt.rs"
 
+
 [REQ-core-fmt-artifact]
 text = '''
-The core module **shall** have a struct that encapsulates
-the result of applying constraints of the formatting of
-an artifact
+There **shall** be a struct which defines all the fields that can be
+printed with Option<String> values.
+
+This will be used to detail what items were filtered from another
+module.
+
+The display struct **shall** contain enough information to provide
+colors to items that are in error, not complete, etc.
 '''
 [SPC-core-fmt-artifact]
 partof = "REQ-core-fmt-artifact"

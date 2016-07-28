@@ -10,11 +10,14 @@ use std::env;
 use std::ffi::OsString;
 use std::collections::HashSet;
 
+
 use core;
+use super::VERSION;
 
 use log;
 use fern;
 use clap::{ArgMatches, ErrorKind};
+use ansi_term::Colour::Green;
 
 mod matches;
 mod ls;
@@ -70,16 +73,10 @@ pub fn cmd<'a, I, T>(args: I)
         where I: IntoIterator<Item=T>, T: Into<OsString> {
     let matches = match matches::get_matches(args) {
         Ok(m) => m,
-        Err(e) => match e.kind {
-            ErrorKind::HelpDisplayed | ErrorKind::VersionDisplayed => {
-                println!("{}", e);
-                return;
-            },
-            _ => {
-                error!("{}", e);
-                return;
-            }
-        },
+        Err(e) => {
+            println!("{}", e);
+            return;
+        }
     };
 
     // initialze the logger
@@ -113,6 +110,8 @@ pub fn cmd<'a, I, T>(args: I)
         info!("Calling the ls command");
         let (search, fmtset, search_set) = ls::get_ls_cmd(&ls).unwrap();
         ls::do_ls(search, &artifacts, &fmtset, &search_set, &settings);
+    } else {
+        println!("{} {}: use -h to show help", Green.bold().paint("rsk"), Green.paint(VERSION));
     }
 }
 

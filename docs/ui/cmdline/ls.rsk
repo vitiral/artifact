@@ -1,33 +1,3 @@
-
-[REQ-ui-cmdline]
-partof = "REQ-purpose-ui-cmdline"
-text = '''
-The ui::cmdline module **will** accomplish the second half of the primary
-purpose of rsk, which is to provide a simple way for a developer
-to track and monitor their progress, as well as give them
-easy access to all files.
-'''
-
-[REQ-ui-cmdline-cmd]
-text = '''
-The commands on the cmdline **will** be memonic and borrow from other
-common command line tools like bash, git, etc whenever possible.
-
-In the cases where copying those tools commands does not make sense,
-they will not be coppied
-'''
-
-[REQ-ui-cmdline-cmd-help]
-text = "help command"
-
-[REQ-ui-cmdline-cmd-init]
-text = '''
-`rsk init` is the primary first command that will be run by the user. It will
-initialize a `.rsk` folder in the cwd (giving an error if the cwd is not part
-of a repo) and will give the user basic instructions on how to create
-requirements and where to get more information.
-'''
-
 [REQ-ui-cmdline-cmd-ls]
 text = '''
 The `rsk ls` command grouping **will** be used to display information
@@ -39,16 +9,24 @@ interface to glimpse large amounts of information.
 the default outputs of `ls` should try to be easy to parse by tools like
 grep as it can be.
 '''
-
-[REQ-ui-cmdline-cmd-ls-args]
+[SPC-ui-cmdline-cmd-ls-interface]
+partof = "REQ-ui-cmdline-cmd-ls"
 text = '''
-All unflaged args after `ls` shall be determined to be an ArtNames strings.
-Each string will be interpreted to match possible ArtNames and those names will
-be used for the display.
-
-This should mimick the unix `ls` command as much as possible. Wildcards are not
-understood, but rsk standard `REQ-foo-[bar-baz]` will be.
+The implementation **shall** use a Subcommand structure and **will** be
+reasonably well documented
 '''
+
+[REQ-ui-cmdline-cmd-ls-search]
+refs = ["REQ-core-artifacts-attrs-partof-fmt"]
+text = '''
+The first (and only) argument after `ls` **shall** be the SEARCH field which
+is used to find the artifacts that the user is looking for.
+
+By default, this will be interpreted as an ArtName group. However, if pattern
+searching is selected, it will be interpreted as a perl regexp
+'''
+[SPC-ui-cmdline-cmd-ls-search-interface]
+partof = "REQ-ui-cmdline-cmd-ls-search"
 
 [REQ-ui-cmdline-cmd-ls-flags-empty]
 text = '''
@@ -93,9 +71,10 @@ The following flags are used to specify what to display:
 '''
 
 [REQ-ui-cmdline-cmd-ls-flags-pattern]
+partof = "REQ-ui-cmdline-cmd-ls-search"
 refs = ["REQ-ui-cmdline-cmd-ls-flags-display"]
 text = '''
-the `-p` flag will signify that the main argument should be interpreted as
+the `-p` flag will signify that the SEARCH argument should be interpreted as
 a regexp pattern instead of as artifact names
 
 If a value follows p, it will specify the fields to filter in that map with
@@ -123,4 +102,20 @@ The `-T` flag will specify only **fully** tested components (== 100%)
 text = '''
 The `-c` flag will speciy only **non** completed components (< 100%)
 The `-C` flag will specify only **fully** completed components (== 100%)
+'''
+
+
+[SPC-ui-filter]
+loc = "{cmdline}/search.rs"
+partof = "REQ-ui-cmdline-cmd-ls-[args, flags-[pattern, invalid, tested, completed]]"
+text = '''
+A simple filter function **shall** be created that can filter by the various command
+line options.
+
+Idealy a static html version of this **should** be implemented for the static
+webpage, probably using javascript. The webpage version should use the same
+underlying function.
+
+It looks like enscripten can be used for the html side:
+https://github.com/rust-lang/rfcs/issues/604
 '''
