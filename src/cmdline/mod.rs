@@ -37,7 +37,6 @@ pub fn init_logger(quiet: bool, verbosity: u8, stderr: bool) -> Result<(), fern:
             _ => unreachable!(),
         }
     };
-    println!("logger verbosity: {}, level: {}", verbosity, level);
     let output = if stderr {
         fern::OutputConfig::stderr()
     } else {

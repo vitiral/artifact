@@ -33,6 +33,7 @@ fn test_load_path() {
     // LOC-core-load-dir-unit-1
     let req_lvl1 = artifacts.get(&ArtName::from_str("REQ-lvl-1").unwrap()).unwrap();
     let spc_lvl1 = artifacts.get(&ArtName::from_str("SPC-lvl-1").unwrap()).unwrap();
+    let spc_dne  = artifacts.get(&ArtName::from_str("SPC-loc-dne").unwrap()).unwrap();
     let spc_loc  = artifacts.get(&ArtName::from_str("SPC-loc").unwrap()).unwrap();
 
     let req_lvl2 = artifacts.get(&ArtName::from_str("REQ-lvl-2").unwrap()).unwrap();
@@ -60,6 +61,9 @@ fn test_load_path() {
     // LOC-core-resolve-loc-unit-1<test that loc is loaded correctly>
     assert_eq!(spc_loc.loc.iter().next().unwrap().line_col.unwrap(), (4, 4));
     assert_eq!(spc_lvl1.loc.iter().next().unwrap().line_col.unwrap(), (3, 3));
+
+    // [TST-core-artifact-attrs-loc-invalid]
+    assert!(!spc_dne.loc.iter().next().unwrap().valid());
 
     // TODO: more validation
     // TODO: need to check that completeness makes sense: [TST-core-load-loc-resolve]

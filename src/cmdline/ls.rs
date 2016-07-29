@@ -16,6 +16,7 @@ use cmdline::search::{VALID_SEARCH_FIELDS, SearchSettings, PercentSearch, show_a
 pub fn get_subcommand<'a, 'b>() -> App<'a, 'b> {
     // TODO: implement -c and -t
     // [SPC-ui-cmdline-cmd-ls]
+    // [SPC-ui-cmdline-ls-interface]
     // [SPC-ui-cmdline-ls-flags-impl-interface]
     SubCommand::with_name("ls")
         .about("list artifacts according to various parameters")
@@ -238,6 +239,8 @@ pub fn get_ls_cmd(matches: &ArgMatches) -> Result<(String, FmtSettings, SearchSe
         settings.refs = true;
         settings.text = true;
     }
+
+    // [SPC-ui-cmdline-ls-search-interface]
     let mut search_settings;
     match matches.value_of("pattern") {
         Some(p) => {
@@ -301,8 +304,8 @@ pub fn do_ls(search: String,
         pat_case = Regex::new("").unwrap();
     }
     debug!("fmtset empty: {}", fmtset.is_empty());
-    if names.len() == 0 && search.len() == 0 && fmtset.is_empty() {
-        // [SPC-ui-cmdline-cmd-ls-flags-empty]
+    if names.len() == 0 && search.len() == 0 {
+        // [SPC-ui-cmdline-ls-flags-empty]
         names.extend(artifacts.keys().map(|n| n.clone()));
         names.sort();
     }

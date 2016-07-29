@@ -1,4 +1,5 @@
 [REQ-ui-cmdline-ls]
+partof = "REQ-ui-cmdline-cmd"
 text = '''
 The `rsk ls` command grouping **will** be used to display information
 about the artifacts in various specified formats.
@@ -21,7 +22,6 @@ partof = "SPC-ui-cmdline-ls-interface"
 text = "tests that validate the cmdline interface behaves as expected"
 
 [REQ-ui-cmdline-ls-color]
-loc = "{cmdline}/fmt.rs"
 partof = "REQ-purpose-ui-cmdline"
 text = '''
 In order to make viewing of information via cmdline easier,
@@ -36,6 +36,7 @@ The following **will** be followed:
 - names that are in ERROR will *blink bold red*
 '''
 [SPC-ui-cmdline-ls-color]
+loc = "{cmdline}/fmt.rs"
 text = '''
 The formatting function **shall** apply color if it is selected by
 the settings.
@@ -72,7 +73,7 @@ By default, this will be interpreted as an ArtName group. However, if pattern
 searching is selected, it will be interpreted as a perl regexp
 '''
 [SPC-ui-cmdline-ls-search-interface]
-partof = "REQ-ui-cmdline-ls-search"
+loc = "{cmdline}/ls.rs"
 [TST-ui-cmdline-ls-search-interface]
 loc = "{cmdline}/tests/test_cmd.rs"
 
@@ -107,6 +108,7 @@ so that it is easy to read
 '''
 
 [REQ-ui-cmdline-ls-flags-display]
+partof = "REQ-purpose-ui-link"
 text = '''
 The following flags are used to specify what to display:
 - a/A: display all these flags for all artifacts
@@ -135,7 +137,7 @@ So: `rsk ls -p "REQ-ui-cmdline.*" -NO` would filter by name and partof
 
 [REQ-ui-cmdline-ls-flags-invalid]
 text = '''
-the `-i` flag will signify to display only the invalid items, or the items
+the `-i` flag will display only the invalid items, or the items
 that have some issue with them (i.e. loc does not exist).
 
 It is recommended that this flag be used with -v to also see associated

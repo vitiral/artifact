@@ -32,7 +32,7 @@ pub fn create_parents(artifacts: &mut Artifacts) {
         let art = Artifact {
             ty: name.get_type(),
             path: path::PathBuf::from("PARENT"),
-            text: "Auto-created parent artifact".to_string(),
+            text: "AUTO".to_string(),
             refs: vec![],
             partof: HashSet::new(),
             parts: HashSet::new(),
@@ -57,6 +57,7 @@ pub fn link_parents(artifacts: &mut Artifacts) {
 }
 
 /// traverse all artifacts and link them to their by-name uppers
+/// [SPC-core-links-named_partof]
 pub fn link_named_partofs(artifacts: &mut Artifacts) {
     let artifacts_keys: HashSet<ArtName> = HashSet::from_iter(artifacts.keys().cloned());
     for (name, artifact) in artifacts.iter_mut() {
@@ -96,6 +97,8 @@ mod tests {
     }
 }
 
+
+/// [SPC-core-links-valid]
 pub fn validate_partof(artifacts: &Artifacts) -> LoadResult<()> {
     let mut error = false;
     for (name, artifact) in artifacts.iter() {
@@ -129,6 +132,7 @@ pub fn validate_partof(artifacts: &Artifacts) -> LoadResult<()> {
 
 /// traverse all artifacts and their `partof` members and cross-link them to
 /// the artifact's `parts` members
+/// [SPC-core-artifact-attrs-parts-link]
 pub fn link_parts(artifacts: &mut Artifacts) -> u64 {
     // get all the parts, linked by name
     let mut warnings: u64 = 0;

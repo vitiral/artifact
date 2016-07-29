@@ -13,3 +13,7 @@ text = "one level deep in a recursive dir"
 loc = "{lvl_1}/lvl_1.rs"
 text = "level one does {foo}"
 
+
+[SPC-loc-dne]
+loc = "{lvl_1}/dne"
+text = "dne does not exist"

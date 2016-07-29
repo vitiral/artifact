@@ -66,6 +66,7 @@ fn test_basic_link() {
     assert_eq!(req_parts.parts, HashSet::from_iter(
         ["REQ-parts-p1", "REQ-parts-p2"].iter().map(|n| ArtName::from_str(n).unwrap())));
 
+    // [TST-core-links-named_partof]
     assert_eq!(req_foo.parts, HashSet::from_iter(
         ["SPC-foo", "SPC-bar"].iter().map(|n| ArtName::from_str(n).unwrap())));
     assert_eq!(spc_foo.partof, HashSet::from_iter(
@@ -76,6 +77,7 @@ fn test_basic_link() {
     assert_eq!(req_parts_p1_a.parts, HashSet::new());
 
     // test completed %
+    // [TST-core-coverage-percent-done-1]
     assert_eq!(spc_foo.completed, 1.);
     assert_eq!(req_foo.completed, 1.);
     assert_eq!(req_parts.completed, 0.);
@@ -83,6 +85,7 @@ fn test_basic_link() {
     assert_eq!(req_parts_p1_a.completed, 0.);
 
     // test tested %
+    // [TST-core-coverage-percent-tested-1]
     assert_eq!(tst_foo.tested, 1.);
     assert_eq!(spc_foo.tested, 1.);
     assert_eq!(req_foo.tested, 0.5);
@@ -156,6 +159,7 @@ fn test_link_completed_tested() {
         ["TST-core-bob-1"].iter().map(|n| ArtName::from_str(n).unwrap())));
 
     // assert completed
+    // [TST-core-coverage-percent-done-2]
     let bob_complete = (1. + (1.+0.)/2.) / 2.;
     assert_eq!(spc_bob_1.completed,     1.);
     assert_eq!(spc_bob.completed,       bob_complete);
@@ -163,6 +167,7 @@ fn test_link_completed_tested() {
     assert_eq!(req.completed, (bob_complete + 0. + 0.) / 3.0);
 
     // assert tested
+    // [TST-core-coverage-percent-tested-2]
     assert_eq!(tst_bob_1_a.tested,      1.);
     assert_eq!(tst_bob_1_b_2.tested,    1.);
     assert_eq!(tst_bob_1_b.tested,      0.5);
@@ -174,4 +179,31 @@ fn test_link_completed_tested() {
     assert_eq!(spc_bob.tested,          bob_tested);
     assert_eq!(req_bob.tested,          bob_tested);
     assert_eq!(req.tested,              (bob_tested + 0. + 0.) / 3.);
+}
+
+#[test]
+fn test_invalid_partof() {
+    // [TST-core-links-valid-req]
+    let artifacts = load_toml_simple("[REQ-foo]\npartof = 'SPC-bar'\n");
+    assert!(validate_partof(&artifacts).is_err());
+    let artifacts = load_toml_simple("[REQ-foo]\npartof = 'RSK-bar'\n");
+    assert!(validate_partof(&artifacts).is_err());
+    let artifacts = load_toml_simple("[REQ-foo]\npartof = 'TST-bar'\n");
+    assert!(validate_partof(&artifacts).is_err());
+
+    // [TST-core-links-valid-rsk]
+    let artifacts = load_toml_simple("[RSK-foo]\npartof = 'TST-bar'\n");
+    assert!(validate_partof(&artifacts).is_err());
+    let artifacts = load_toml_simple("[RSK-foo]\npartof = 'SPC-bar'\n");
+    assert!(validate_partof(&artifacts).is_err());
+
+    // [TST-core-links-valid-spc]
+    let artifacts = load_toml_simple("[SPC-foo]\npartof = 'TST-bar'\n");
+    assert!(validate_partof(&artifacts).is_err());
+    let artifacts = load_toml_simple("[SPC-foo]\npartof = 'RSK-bar'\n");
+    assert!(validate_partof(&artifacts).is_err());
+
+    // [TST-core-links-valid-tst]
+    let artifacts = load_toml_simple("[TST-foo]\npartof = 'REQ-bar'\n");
+    assert!(validate_partof(&artifacts).is_err());
 }

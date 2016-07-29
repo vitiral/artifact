@@ -3,11 +3,23 @@
 [SPC-core-artifact-attrs-loc-invalid]
 loc = "{core}/link.rs"
 partof = "REQ-core-artifact-attrs-loc-invalid"
+[TST-core-artifact-attrs-loc-invalid]
+loc = "{core}/tests/test_core.rs"
 
 [SPC-core-coverage-percent-done]
 loc = "{core}/link.rs"
 partof = "REQ-core-coverage-percent-done"
+[TST-core-coverage-percent-done]
+[TST-core-coverage-percent-done-1]
+loc = "{core}/tests/test_link.rs"
+[TST-core-coverage-percent-done-2]
+loc = "{core}/tests/test_link.rs"
 
 [SPC-core-coverage-percent-tested]
 loc = "{core}/link.rs"
 partof = "REQ-core-coverage-percent-tested"
+[TST-core-coverage-percent-tested]
+[TST-core-coverage-percent-tested-1]
+loc = "{core}/tests/test_link.rs"
+[TST-core-coverage-percent-tested-2]
+loc = "{core}/tests/test_link.rs"
