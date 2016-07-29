@@ -10,7 +10,8 @@ pub fn get_matches<'a, I, T>(args: I) -> ClapResult<ArgMatches<'a>>
     // [SPC-ui-cmdline-cmd-help]
     App::new("rsk")
         .version("0.0.1")
-        .about("the requirements tracking tool made for developers")
+        .about("the requirements tracking tool made for developers. Call `rsk init -t` for \
+                a tutorial")
         .settings(&[AS::SubcommandRequiredElseHelp, AS::VersionlessSubcommands,
                     AS::DeriveDisplayOrder, AS::ColoredHelp])
         .arg(Arg::with_name("v")
@@ -23,15 +24,7 @@ pub fn get_matches<'a, I, T>(args: I) -> ClapResult<ArgMatches<'a>>
              .long("quiet")
              .help("if set no output will be printed")
              .global(true))
-        .subcommand(
-            SubCommand::with_name("init")
-                .about("initiailze the current directory and get help")
-                .arg(Arg::with_name("path")
-                     .value_name("PATH")
-                     .help("initialzie the path, default is cwd")
-                     .required(false))
-        )
-        .subcommand(ls::get_subcommand())
         .subcommand(init::get_subcommand())
+        .subcommand(ls::get_subcommand())
         .get_matches_from_safe(args)
 }

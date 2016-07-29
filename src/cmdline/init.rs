@@ -207,21 +207,18 @@ your progress and validate your work. Good luck!
 '''
 ";
 pub fn get_subcommand<'a, 'b>() -> App<'a, 'b> {
-    // TODO: implement -c and -t
-    // [SPC-ui-cmdline-cmd-ls]
-    // [SPC-ui-cmdline-ls-interface]
-    // [SPC-ui-cmdline-ls-flags-impl-interface]
+    // [SPC-ui-cmdline-cmd-init-interface]
     SubCommand::with_name("init")
         .about("initiailze the repository and get help")
         .settings(&[AS::DeriveDisplayOrder, AS::ColoredHelp])
         .arg(Arg::with_name("tutorial")
              .short("t")
-             .help("also initialize interactive tutorial"))
+             .help("also initialize the interactive tutorial"))
 }
 
 pub fn do_init(path: &Path, repo_names: &HashSet<String>, tutorial: bool) -> io::Result<()> {
     let mut read_dir = try!(fs::read_dir(path));
-    if read_dir.any(|e|
+    let exists = read_dir.any(|e|
         match e {
                 Err(_) => false,
                 Ok(e) => {
@@ -237,25 +234,31 @@ pub fn do_init(path: &Path, repo_names: &HashSet<String>, tutorial: bool) -> io:
                         }
                     }
                 }
-            }) {
-        println!("see {}/.rsk/help.toml", path.to_string_lossy().as_ref());
-        return Ok(());
-    }
+        });
     let repo = path.join(".rsk");
-    try!(fs::create_dir(&repo));
+    if !exists {
+        try!(fs::create_dir(&repo));
 
-    // create settings
-    let settings = repo.join("settings.rsk");
-    let mut f = try!(fs::File::create(settings));
-    f.write_all(SETTINGS_RSK.as_ref()).unwrap();
+        // create settings
+        let settings = repo.join("settings.rsk");
+        let mut f = try!(fs::File::create(settings));
+        f.write_all(SETTINGS_RSK.as_ref()).unwrap();
+    }
+
 
     // create tutorial
     if tutorial {
         let help = repo.join("tutorial.rsk");
+        if exists {
+            match fs::remove_file(&help) {
+                _ => {} // if can't remove, don't care
+            };
+        }
         let mut f = try!(fs::File::create(help));
         f.write_all(TUTORIAL_RSK.as_ref()).unwrap();
+        println!("See tutorial at {0}/tutorial.toml", repo.to_string_lossy().as_ref());
+    } else {
+        println!("rsk initialized at {0}", repo.to_string_lossy().as_ref());
     }
-
-    println!("rsk initialized at {0}. See {0}/help.toml", repo.to_string_lossy().as_ref());
     Ok(())
 }

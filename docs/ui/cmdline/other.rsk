@@ -28,3 +28,6 @@ The command will be an ultra simple one.
 In the future it may accept an optional path. For now, it
 is a completely empty subcommand
 '''
+
+[SPC-ui-cmdline-cmd-init-impl]
+loc = "{cmdline}/init.rs"
