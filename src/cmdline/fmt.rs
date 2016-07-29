@@ -11,6 +11,7 @@ pub use core::fmt::*;
 impl FmtArtifact {
     /// write the formatted version of the artifact to the
     /// writter
+    /// [SPC-ui-cmdline-ls-flags-impl-formatting]
     pub fn write<W: io::Write> (&self, w: &mut W, artifacts: &Artifacts,
                                 settings: &Settings, indent: u8)
                                 -> io::Result<()> {
@@ -20,12 +21,26 @@ impl FmtArtifact {
                 try!(w.write_all(" ".as_ref()));
             }
         }
-        let artifact = artifacts.get(&self.name).unwrap();
+        trace!("formatting artifact: {}", self.name);
+        let artifact = match artifacts.get(&self.name) {
+            Some(a) => a,
+            None => {
+                // invalid partof value
+                if settings.color {
+                    write!(w, "{}", Red.bold().blink().paint(self.name.raw.as_str())).unwrap();
+                } else {
+                    write!(w, "{}", self.name.raw).unwrap();
+                }
+                return Ok(());
+            }
+        };
 
         // format the completeness and name
         let completed_str = ((artifact.completed * 100.) as i64).to_string();
         let tested_str = ((artifact.tested * 100.) as i64).to_string();
         if settings.color {
+
+            // [SPC-ui-cmdline-ls-color]
             let (d_sym, d_perc, t_sym, t_perc, name) = if artifact.completed >= 1. &&
                     artifact.tested >= 1. {
                 let name = if nfno {

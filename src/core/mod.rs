@@ -30,6 +30,7 @@ pub fn load_path(path: &Path) -> LoadResult<(Artifacts, Settings)>{
     try!(vars::resolve_locs(&mut artifacts));
     // TODO: LOC-core-load-parts-2:<load and validate global variables>
     // LOC-core-load-parts-4:<auto-creation of missing prefix artifacts>
+    link::link_named_partofs(&mut artifacts); // MUST come before parents are created
     link::create_parents(&mut artifacts);
     link::link_parents(&mut artifacts);
     // [TST-core-partof-vaidate]

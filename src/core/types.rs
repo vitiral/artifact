@@ -31,7 +31,6 @@ pub enum ArtType {
     SPC,
     RSK,
     TST,
-    LOC,
 }
 
 /// SPC-core-artifact-attrs-loc<Location data type>
@@ -132,6 +131,25 @@ impl ArtName {
         value.pop().unwrap();
         Some(ArtName{raw: value.join("-"), value: value})
     }
+
+    pub fn named_partofs(&self) -> Vec<ArtName> {
+        if self.value.len() <= 1 {
+            return vec![];
+        }
+        let ty = self.get_type();
+        match ty {
+            ArtType::TST => vec![self._get_named_partof("SPC")],
+            ArtType::SPC => vec![self._get_named_partof("REQ")],
+            ArtType::RSK => vec![],
+            ArtType::REQ => vec![],
+        }
+    }
+
+    /// CAN PANIC
+    fn _get_named_partof(&self, ty: &str) -> ArtName {
+        let s = ty.to_string() + self.raw.split_at(3).1;
+        ArtName::from_str(&s).unwrap()
+    }
 }
 
 #[test]
@@ -194,7 +212,7 @@ impl PartialOrd for ArtName {
 /// The Artifact type. This encapsulates
 /// REQ, SPC, RSK, and TST artifacts and
 /// contains space to link them
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct Artifact {
     // directly loaded types
     pub ty: ArtType,

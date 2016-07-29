@@ -1,4 +1,4 @@
-[REQ-ui-cmdline-cmd-ls]
+[REQ-ui-cmdline-ls]
 text = '''
 The `rsk ls` command grouping **will** be used to display information
 about the artifacts in various specified formats.
@@ -9,14 +9,61 @@ interface to glimpse large amounts of information.
 the default outputs of `ls` should try to be easy to parse by tools like
 grep as it can be.
 '''
-[SPC-ui-cmdline-cmd-ls-interface]
-partof = "REQ-ui-cmdline-cmd-ls"
+[SPC-ui-cmdline-ls-interface]
+partof = "REQ-ui-cmdline-ls"
 text = '''
 The implementation **shall** use a Subcommand structure and **will** be
-reasonably well documented
+documented in the -h help menu
+'''
+[TST-ui-cmdline-ls-interface]
+loc = "{cmdlin}/tests/test_cmd.rs"
+partof = "SPC-ui-cmdline-ls-interface"
+text = "tests that validate the cmdline interface behaves as expected"
+
+[REQ-ui-cmdline-ls-color]
+loc = "{cmdline}/fmt.rs"
+partof = "REQ-purpose-ui-cmdline"
+text = '''
+In order to make viewing of information via cmdline easier,
+rsk **shall** colorize it's output to make it clear which items
+are done or not done or in error.
+
+The following **will** be followed:
+- names that are complete will be green
+- names that are almost complete will be blue
+- names that are somewhat complete will be yellow
+- names that are very litle or not complete will be red
+- names that are in ERROR will *blink bold red*
+'''
+[SPC-ui-cmdline-ls-color]
+partof = "REQ-ui-cmdline-ls-color"
+text = '''
+The formatting function **shall** apply color if it is selected by
+the settings.
+
+A fairly complex point **shall** be put in use for colorizing the output.
+The goal is to have:
+- 100% tested+completed be *green* across the board
+- otherwise, no *green*. *Blue* is the best you can get
+
+being completed is weighted higher than being tested -- 100% completed should always
+mean that your name is *blue*.
+
+For completed, the levels are: (100%, 70%, 40%, 0%) which correspond to points (3, 2, 1, 0)
+and colors (blue, yellow, yellow, red)
+
+For tested, the levels are: (100%, 50%, 0%) which correspond to points (2, 1, 0)
+and colors (blue, yellow, red)
+
+Add these together and you get the following:
+- 5: Everything green
+- 3-4: name is blue
+- 1-2: name is yellow
+- 0: name is red
 '''
 
-[REQ-ui-cmdline-cmd-ls-search]
+[REQ-ui-cmdline-ls-search]
+partof = "REQ-purpose-ui-filtering"
 refs = ["REQ-core-artifacts-attrs-partof-fmt"]
 text = '''
 The first (and only) argument after `ls` **shall** be the SEARCH field which
@@ -25,16 +72,22 @@ is used to find the artifacts that the user is looking for.
 By default, this will be interpreted as an ArtName group. However, if pattern
 searching is selected, it will be interpreted as a perl regexp
 '''
-[SPC-ui-cmdline-cmd-ls-search-interface]
-partof = "REQ-ui-cmdline-cmd-ls-search"
+[SPC-ui-cmdline-ls-search-interface]
+partof = "REQ-ui-cmdline-ls-search"
+[TST-ui-cmdline-ls-search-interface]
+partof = "SPC-ui-cmdline-ls-search-interface"
+loc = "{cmdlin}/tests/test_cmd.rs"
 
-[REQ-ui-cmdline-cmd-ls-flags-empty]
+[REQ-ui-cmdline-ls-flags-empty]
 text = '''
 `rsk ls` with no commands given will simply print all artifacts with standard
 settings in a single line of information.
 '''
+[SPC-ui-cmdline-ls-flags-empty]
+loc = "{cmdline}/ls.rs"
+partof = "REQ-ui-cmdline-ls-flags-empty"
 
-[REQ-ui-cmdline-cmd-ls-flags-long]
+[REQ-ui-cmdline-ls-flags-long]
 text = '''
 the `-l` flag will signify that the "long form" of printing is desired. Typically
 this will result in more information being displayed and the information
@@ -43,7 +96,7 @@ taking up more than one line.
 if `l` is specified without any display flags, then display will == `-A`
 '''
 
-[REQ-ui-cmdline-cmd-ls-flags-recursive]
+[REQ-ui-cmdline-ls-flags-recursive]
 text = '''
 the `-r` flag will signify that information should be displayed recursively,
 meaning that if REQ-foo has parts REQ-bar and REQ-baz, then the parts will
@@ -56,7 +109,7 @@ Recursion **shall** be smart indented with clear spearators in `-l` mode
 so that it is easy to read
 '''
 
-[REQ-ui-cmdline-cmd-ls-flags-display]
+[REQ-ui-cmdline-ls-flags-display]
 text = '''
 The following flags are used to specify what to display:
 - a/A: display all these flags for all artifacts
@@ -70,20 +123,20 @@ The following flags are used to specify what to display:
 - L: display the loc path (implementation path)
 '''
 
-[REQ-ui-cmdline-cmd-ls-flags-pattern]
-partof = "REQ-ui-cmdline-cmd-ls-search"
-refs = ["REQ-ui-cmdline-cmd-ls-flags-display"]
+[REQ-ui-cmdline-ls-flags-pattern]
+partof = "REQ-ui-cmdline-ls-search"
+refs = ["REQ-ui-cmdline-ls-flags-display"]
 text = '''
 the `-p` flag will signify that the SEARCH argument should be interpreted as
 a regexp pattern instead of as artifact names
 
 If a value follows p, it will specify the fields to filter in that map with
-REQ-ui-cmdline-cmd-ls-flags-display (with the addition of N==name)
+REQ-ui-cmdline-ls-flags-display (with the addition of N==name)
 
 So: `rsk ls -p "REQ-ui-cmdline.*" -NO` would filter by name and partof
 '''
 
-[REQ-ui-cmdline-cmd-ls-flags-invalid]
+[REQ-ui-cmdline-ls-flags-invalid]
 text = '''
 the `-i` flag will signify to display only the invalid items, or the items
 that have some issue with them (i.e. loc does not exist).
@@ -92,22 +145,45 @@ It is recommended that this flag be used with -v to also see associated
 warnings
 '''
 
-[REQ-ui-cmdline-cmd-ls-flags-tested]
+[REQ-ui-cmdline-ls-flags-tested]
 text = '''
 The `-t` flag will speciy only **non** tested components (< 100%)
 The `-T` flag will specify only **fully** tested components (== 100%)
 '''
 
-[REQ-ui-cmdline-cmd-ls-flags-completed]
+[REQ-ui-cmdline-ls-flags-completed]
 text = '''
 The `-c` flag will speciy only **non** completed components (< 100%)
 The `-C` flag will specify only **fully** completed components (== 100%)
 '''
 
+[SPC-ui-cmdline-ls-flags-impl]
+partof = "REQ-ui-cmdline-ls-flags-[completed, display, long, pattern, recursive, tested]"
+text = '''
+implementation of flags
+'''
+
+[SPC-ui-cmdline-ls-flags-impl-interface]
+loc = "{cmdline}/ls.rs"
+text = '''
+The cmdline interface to set the various flags settings **shall** be through a clap
+SubCommand object and converted into a FmtSettings object.
+'''
+
+[SPC-ui-cmdline-ls-flags-impl-create]
+loc = "{cmdline}/ls.rs"
+text = "the creation of the FmtSettings object"
+
+[SPC-ui-cmdline-ls-flags-impl-formatting]
+loc = "{cmdline}/fmt.rs"
+text = '''
+The settings will be actually formatted by passing them into the formatting function.
+It will react to which fields are selected for display
+'''
 
 [SPC-ui-filter]
 loc = "{cmdline}/search.rs"
-partof = "REQ-ui-cmdline-cmd-ls-[args, flags-[pattern, invalid, tested, completed]]"
+partof = "REQ-ui-cmdline-ls-search"
 text = '''
 A simple filter function **shall** be created that can filter by the various command
 line options.
@@ -119,3 +195,7 @@ underlying function.
 It looks like enscripten can be used for the html side:
 https://github.com/rust-lang/rfcs/issues/604
 '''
+
+[TST-ui-filter]
+loc = "{cmdline}/search.rs"
+partof = "SPC-ui-filter"

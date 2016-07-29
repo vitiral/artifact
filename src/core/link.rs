@@ -12,9 +12,6 @@ use core::fmt;
 pub fn create_parents(artifacts: &mut Artifacts) {
     let mut create_names: HashSet<ArtName> = HashSet::new();
     for (name, art) in artifacts.iter() {
-        if art.ty == ArtType::LOC {
-            continue;
-        }
         let mut name = name.clone();
         loop {
             name = match (&name).parent() {
@@ -51,14 +48,51 @@ pub fn create_parents(artifacts: &mut Artifacts) {
 /// [SPC-core-artifact-attrs-parts-parents-link]
 pub fn link_parents(artifacts: &mut Artifacts) {
     for (name, artifact) in artifacts.iter_mut() {
-        if name.get_type() == ArtType::LOC {
-            continue;
-        }
         let parent = match name.parent() {
             Some(p) => p,
             None => continue,
         };
         artifact.partof.insert(parent);
+    }
+}
+
+/// traverse all artifacts and link them to their by-name uppers
+pub fn link_named_partofs(artifacts: &mut Artifacts) {
+    let artifacts_keys: HashSet<ArtName> = HashSet::from_iter(artifacts.keys().cloned());
+    for (name, artifact) in artifacts.iter_mut() {
+        for p in name.named_partofs() {
+            if artifacts_keys.contains(&p) {
+                artifact.partof.insert(p);
+            }
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use super::super::*;
+    use core::load::load_toml_simple;
+    use std::collections::HashSet;
+    use std::iter::FromIterator;
+    #[test]
+    fn test_link_named_partofs() {
+        let mut artifacts = load_toml_simple("\
+            [REQ-one]
+            [SPC-one]
+            [TST-one]
+            [RSK-one]\n");
+        let req_one = ArtName::from_str("REQ-one").unwrap();
+        let spc_one = ArtName::from_str("SPC-one").unwrap();
+        let tst_one = ArtName::from_str("TST-one").unwrap();
+        let rsk_one = ArtName::from_str("RSK-one").unwrap();
+        link_named_partofs(&mut artifacts);
+        assert_eq!(artifacts.get(&req_one).unwrap().partof, HashSet::new());
+        assert_eq!(artifacts.get(&spc_one).unwrap().partof, HashSet::from_iter(
+            vec![req_one.clone()]));
+        assert_eq!(artifacts.get(&tst_one).unwrap().partof, HashSet::from_iter(
+            vec![spc_one.clone()]));
+        assert_eq!(artifacts.get(&rsk_one).unwrap().partof, HashSet::new());
     }
 }
 

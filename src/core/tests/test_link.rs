@@ -33,6 +33,8 @@ fn test_basic_link() {
         art.loc = Some(Loc{path: path.clone(), line_col: Some((1, 2))});
     }
 
+    link_named_partofs(&mut artifacts);
+
     // [TST-core-artifact-attrs-parts-parents]
     create_parents(&mut artifacts);
     assert!(artifacts.contains_key(&req_name));
@@ -64,6 +66,11 @@ fn test_basic_link() {
     assert_eq!(req_parts.parts, HashSet::from_iter(
         ["REQ-parts-p1", "REQ-parts-p2"].iter().map(|n| ArtName::from_str(n).unwrap())));
 
+    assert_eq!(req_foo.parts, HashSet::from_iter(
+        ["SPC-foo", "SPC-bar"].iter().map(|n| ArtName::from_str(n).unwrap())));
+    assert_eq!(spc_foo.partof, HashSet::from_iter(
+        ["REQ-foo", "SPC"].iter().map(|n| ArtName::from_str(n).unwrap())));
+
     assert_eq!(req_parts_p1_a.partof, HashSet::from_iter(
         ["REQ-parts-p1"].iter().map(|n| ArtName::from_str(n).unwrap())));
     assert_eq!(req_parts_p1_a.parts, HashSet::new());
@@ -77,8 +84,8 @@ fn test_basic_link() {
 
     // test tested %
     assert_eq!(tst_foo.tested, 1.);
-    assert_eq!(spc_foo.tested, 0.);
-    assert_eq!(req_foo.tested, 0.);
+    assert_eq!(spc_foo.tested, 1.);
+    assert_eq!(req_foo.tested, 0.5);
     assert_eq!(req_parts.tested, 0.);
     assert_eq!(req_parts_p1.tested, 0.);
     assert_eq!(req_parts_p1_a.tested, 0.);
@@ -99,11 +106,7 @@ fn test_link_completed_tested() {
         art.loc = Some(Loc{path: path.clone(), line_col: Some((1, 2))});
     }
 
-    // just checking that this artifact is good throughout the process
-    assert_eq!(artifacts.get(&ArtName::from_str("SPC-core-bob").unwrap()).unwrap().partof,
-               HashSet::from_iter(
-        ["REQ-core-bob"].iter().map(|n| ArtName::from_str(n).unwrap())));
-
+    link_named_partofs(&mut artifacts);
     create_parents(&mut artifacts);
     link_parents(&mut artifacts);
     validate_partof(&artifacts).unwrap();

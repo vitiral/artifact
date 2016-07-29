@@ -307,6 +307,15 @@ pub fn load_table(ftable: &mut Table, path: &Path,
     return Ok(num_loaded);
 }
 
+pub fn load_toml_simple(text: &str) -> Artifacts {
+    let mut artifacts = Artifacts::new();
+    let mut settings: Vec<(PathBuf, Settings)> = Vec::new();
+    let mut variables: Vec<(PathBuf, Variables)> = Vec::new();
+    let path = PathBuf::from("test");
+    load_toml(&path, text, &mut artifacts, &mut settings, &mut variables).unwrap();
+    artifacts
+}
+
 /// Given text load the artifacts
 pub fn load_toml(path: &Path, text: &str,
                  artifacts: &mut Artifacts,

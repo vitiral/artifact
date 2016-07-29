@@ -93,3 +93,21 @@ Parts are:
 - REQ-foo-1 and REQ-foo-baz is partof REQ-foo
 - REQ-foo-1-a is partof REQ-foo-1
 '''
+
+[REQ-core-links-named_partof]
+refs = ["REQ-purpose-artifacts"]
+partof = "REQ-core-artifacts-name"
+text = '''
+- All artifacts with the same whole-postfix (upper, i.e. "above the artifact") **shall** automatically be linked according to
+   REQ-purpose-artifacts
+- If an intermediary whole-postfix artifact does not exist, it **shall not** be automatically
+    created.
+
+definition of whole-prefix: set of characters after the type specifier
+
+# Examples
+Example:
+
+`REQ-bar-baz` has whole-postfix: bar-baz
+if `SPC-bar-baz` is defined, it will automatically be considered partof REQ-bar-baz
+'''

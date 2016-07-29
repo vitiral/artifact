@@ -64,7 +64,6 @@ disabled = false
 [SPC-foo]
 loc = '{core}/foo.rs'
 refs = ['1', '2']
-partof = 'REQ-foo'
 [RSK-foo]
 [TST-foo]
 partof = 'SPC-dne'
@@ -100,14 +99,12 @@ pub static TOML_LINK: &'static str = "
 [REQ-core-bob]
 
 [SPC-core-bob]
-partof = 'REQ-core-bob'
 
 # bob 1 (done, partially tested)
 [SPC-core-bob-1]
 # loc
 
 [TST-core-bob-1]
-partof = 'SPC-core-bob-1'
 [TST-core-bob-1-a]
 # loc
 [TST-core-bob-1-b]
@@ -122,10 +119,8 @@ partof = 'SPC-core-bob-1'
 # loc
 
 [TST-core-bob-2-a] # tested but not implemented, possible in TDD
-partof = 'SPC-core-bob-2-a'
 # loc
 [TST-core-bob-2-b] # implemented but not tested
-partof = 'SPC-core-bob-2-b'
 
 # joe and jane, only requirements
 [REQ-core-joe]

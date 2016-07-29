@@ -125,6 +125,7 @@ pub fn show_artifact(name: &ArtName,
 }
 
 #[test]
+/// [TST-ui-filter]
 fn test_show_artfact() {
     let mut req_one = Artifact::from_str("[REQ-one]
             partof = 'REQ-base'

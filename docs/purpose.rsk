@@ -193,7 +193,7 @@ change until a major version release and shall attempt whatever backwards
 compatibility is possible.
 '''
 [SPC-purpose-etc-versioning]
-partof = "REQ-purpose-etc-versioning"
+partof = "REQ-purpose-versioning"
 loc = "{cwd}/notes.md"
 [TST-purpose-etc-versioning]
 partof = "SPC-purpose-etc-versioning"
