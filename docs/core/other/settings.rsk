@@ -12,7 +12,6 @@ It shall have the following attributes:
 
 [TST-core-settings-struct]
 loc = "{core}/tests/test_load.rs"
-partof = "SPC-core-settings-struct"
 
 [SPC-core-settings-vars]
 loc = "{core}/vars.rs"
@@ -33,10 +32,8 @@ by having overlapping variables and ensuring that the load is successful
 '''
 
 [SPC-core-settings-disabled]
-partof = "REQ-core-settings-disabled"
 loc = "{core}/load.rs"
 text = "don't load anything in the file if disabled=true"
 [TST-core-settings-disabled]
 loc = "{core}/tests/test_load.rs"
-partof = "SPC-core-settings-disabled"
 

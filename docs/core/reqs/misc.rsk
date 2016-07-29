@@ -1,4 +1,4 @@
-[REQ-core-error-wait]
+[REQ-core-load-error-wait]
 text = '''
 During loading, as many errors **should** be displayed as possible before crashing.
 

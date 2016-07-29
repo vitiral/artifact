@@ -36,7 +36,6 @@ The following **will** be followed:
 - names that are in ERROR will *blink bold red*
 '''
 [SPC-ui-cmdline-ls-color]
-partof = "REQ-ui-cmdline-ls-color"
 text = '''
 The formatting function **shall** apply color if it is selected by
 the settings.
@@ -75,7 +74,6 @@ searching is selected, it will be interpreted as a perl regexp
 [SPC-ui-cmdline-ls-search-interface]
 partof = "REQ-ui-cmdline-ls-search"
 [TST-ui-cmdline-ls-search-interface]
-partof = "SPC-ui-cmdline-ls-search-interface"
 loc = "{cmdline}/tests/test_cmd.rs"
 
 [REQ-ui-cmdline-ls-flags-empty]
@@ -85,7 +83,6 @@ settings in a single line of information.
 '''
 [SPC-ui-cmdline-ls-flags-empty]
 loc = "{cmdline}/ls.rs"
-partof = "REQ-ui-cmdline-ls-flags-empty"
 
 [REQ-ui-cmdline-ls-flags-long]
 text = '''

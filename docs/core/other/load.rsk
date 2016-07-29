@@ -18,7 +18,7 @@ The load module **shall not** deal with:
 
 [SPC-core-load]
 refs = ["SPC-core-load-scope"]
-partof = "REQ-purpose-format, REQ-core-load"
+partof = "REQ-purpose-format"
 
 [SPC-core-load-error]
 text = '''
@@ -27,7 +27,7 @@ a useful description
 '''
 
 [SPC-core-load-error-file]
-partof = "REQ-core-error-wait"
+partof = "REQ-core-load-error-wait"
 [SPC-core-load-error-file-1]
 loc = "{core}/load.rs"
 [SPC-core-load-error-file-2]
@@ -38,7 +38,7 @@ loc = "{core}/load.rs"
 loc = "{core}/load.rs"
 
 [SPC-core-load-error-vars]
-partof = "REQ-core-error-wait"
+partof = "REQ-core-load-error-wait"
 [SPC-core-load-error-vars-1]
 partof = "REQ-core-vars-collisions"
 loc = "{core}/vars.rs"
@@ -53,7 +53,7 @@ This uses an even better format, as it simply prints all invalid errors at the e
 '''
 
 [SPC-core-load-error-text]
-partof = "REQ-core-error-wait"
+partof = "REQ-core-load-error-wait"
 [SPC-core-load-error-text-1]
 loc = "{core}/vars.rs"
 [SPC-core-load-error-text-2]
@@ -214,7 +214,7 @@ and load them recursively **or** can just load a directory path.
 
 [TST-core-load-path]
 loc = "{core}/tests/test_load.rs"
-partof = "SPC-core-load-paths, RSK-core-load-infinite_loop"
+partof = "RSK-core-load-infinite_loop"
 text = '''
 have a paths-file and unreachable .rsk files. Have the file point to the unreachable
 .rsk file's directory and validate that they are loaded correctly.

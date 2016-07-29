@@ -42,7 +42,6 @@ the rust library [strfmt](https://github.com/vitiral/strfmt)
 formatting strings.
 '''
 [TST-core-vars-lib]
-partof = "SPC-core-vars-lib"
 loc = "{docs}/notes.md"
 text = '''
 The strfmt library already has extensive testing
