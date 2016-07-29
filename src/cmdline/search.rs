@@ -49,7 +49,7 @@ impl SearchSettings {
         }
     }
 
-    pub fn from_regex(s: &str) -> Result<SearchSettings, String> {
+    pub fn from_str(s: &str) -> Result<SearchSettings, String> {
         let pattern = HashSet::from_iter(s.chars());
         debug!("got search pattern: {:?}", pattern);
         let invalid: HashSet<char> = pattern.difference(&VALID_SEARCH_FIELDS)
@@ -148,9 +148,9 @@ fn test_show_artfact() {
     assert!(!show_artifact(&req_one.0, &req_one.1, &search_bob, &settings_ct));
 
     // test regex search
-    let settings_name = SearchSettings::from_regex("N").unwrap();
-    let settings_text = SearchSettings::from_regex("T").unwrap();
-    let settings_nt = SearchSettings::from_regex("NT").unwrap();
+    let settings_name = SearchSettings::from_str("N").unwrap();
+    let settings_text = SearchSettings::from_str("T").unwrap();
+    let settings_nt = SearchSettings::from_str("NT").unwrap();
 
     assert!(show_artifact(&req_one.0, &req_one.1, &search_bob, &settings_text));
     assert!(show_artifact(&req_one.0, &req_one.1, &search_bob, &settings_nt));

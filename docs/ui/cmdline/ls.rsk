@@ -11,6 +11,7 @@ the default outputs of `ls` should try to be easy to parse by tools like
 grep as it can be.
 '''
 [SPC-ui-cmdline-ls-interface]
+loc = "{cmdline}/ls.rs"
 partof = "REQ-ui-cmdline-ls"
 text = '''
 The implementation **shall** use a Subcommand structure and **will** be

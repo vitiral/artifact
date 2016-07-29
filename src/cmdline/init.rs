@@ -8,7 +8,7 @@ use clap::{Arg, App, SubCommand, ArgMatches, AppSettings as AS};
 
 use core;
 
-const SETTINGS_RSK: &'static str = "\
+const SETTINGS_RSK: &'static str = r#"\
 # This is an artifacts file for the command line tool rsk
 # files (like this one) that are in {repo}/.rsk are automatically loaded
 
@@ -18,15 +18,15 @@ const SETTINGS_RSK: &'static str = "\
 # There are two variables that can be used anywhere:
 # - {cwd}: the path to the directory of the file
 # - {repo}: the path to the current repository, which is the closest
-#    directory that contains a \".rsk\" folder
+#    directory that contains a ".rsk" folder
 ## TODO: uncomment this line and define your own paths
 # paths = ['{repo}/docs']
 
 ## LEARN: try uncommenting out this line and then type `rsk ls`
 # [REQ-example]
-";
+"#;
 
-const TUTORIAL_RSK: &'static str = "\
+const TUTORIAL_RSK: &'static str = r#"\
 
 # Welcome to the rsk tutorial! This file is written in a way that
 # your .rsk files can be written in to define your requirements
@@ -57,21 +57,21 @@ text = '''
 .rsk files like this one are written in the TOML format
 you can read more about it here: https://github.com/toml-lang/toml
 
-all rsk files must end in \".rsk\".
+all rsk files must end in "rsk"
 
-They are all flat. This means rsk does not support the \"[first.second]\"
-syntax. This means that the \".\" character is illegal in names
+They are all flat. This means rsk does not support the "first.second]"
+syntax. This means that the " character is illegal in names
 '''
 
 [REQ-learn-rsk]
 text = '''
-This is what is known as an \"artifact\"
+This is what is known as an "artifact"
 
 Artifacts can be a requirement (REQ), design-specification (SPC)
 risk (RSK) or test (TST)
 
 This particular artifact is a requirement, therefore it begins with
-\"REQ\". After REQ there is a \"-\" and then the name of the requirement.
+"REQ" After REQ there is a " and then the name of the requirement.
 
 Unlike many requirements tracking tools, rsk encourages the use
 of human-readable names. We will talk more about this in the next
@@ -80,22 +80,22 @@ artifacts.
 
 [SPC-learn-spc]
 text = '''
-This is a design specification and is automatically linked as a \"partof\"
+This is a design specification and is automatically linked as a "partof"
 REQ-learn-rsk. In addition, it is a partof REQ-toml because it was explicitly
-linked using the \"partof\" field.
+linked using the "partof" field.
 '''
 
 [REQ-learn-partof]
-text = \"see the next artifact\"
+text = "see the next artifact"
 
 [SPC-learn-partof]
-partof = \"REQ-learn-rsk\"
+partof = "REQ-learn-rsk"
 text = '''
 RSK uses the names of artifacts to automatically link them and track progress
 as well as makes it simple for the user to link to arbitrary artifacts.
 (but they must be of specific types, more on that later)
 
-REQ-learn-rsk is explicitly a \"partof\" this artifact because it is specified
+REQ-learn-rsk is explicitly a "partof" this artifact because it is specified
 explicitly.
 
 REQ-learn-partof is automatically a partof this artifact because the names
@@ -117,9 +117,9 @@ REQ <-- REQ-LEARN <-- REQ-LEARN-PARTOF <-- SPC-learn-partof
 '''
 
 [SPC-learn-loc]
-loc = \"{repo}/example.py\"
+loc = "repo}/example.py"
 text = '''
-you can mark that an artifact is 100% \"completed\" by setting the \"loc\"
+you can mark that an artifact is 100% "completed" by setting the "loc"
 variable. This will look in the given file for the artifact name
 (in this case SPC-learn-loc), and if it finds it it will consider the
 artifact done.
@@ -128,12 +128,12 @@ when `rsk ls` is called, the percent completed and tested of each
 artifact will be displayed and colorized.
 
 If a SPC or TST has `loc` set, it is considered completed. Otherwise,
-the values are calculated based on the average of their \"parts\"
+the values are calculated based on the average of their "parts"
 (parts is the opposite of partof)
 '''
 
 [TST-learn-partof]
-partof = \"SPC-learn-[spc, loc]\"
+partof = "SPC-learn-[spc, loc]"
 text = '''
 The partof field is a string that uses a simple grouping syntax. This example
 does as you would expect, this artifact is a partof SPC-learn-spc and SPC-learn-loc
@@ -171,15 +171,40 @@ There are only a few rules for defining artifacts:
  - names cannot overlap, even in different files
  - artifacts must follow TST-learn-valid (see above)
  - all items (i.e. [REQ-foo]) must start with either REQ, RSK, SPC or TST
-     *except* for \"globals\" and \"settings\"
+     *except* for "globals""and "settings"
 '''
 
-##################################################
-# TODO: More to come
-# - we will help you start a project and track it's requirements
-# - we will detail the ls command and how it helps you find errors
-#     and do refactoring
+[SPC-learn-ls]
+text = '''
+The `ls` command is the most important component to learn in rsk, as it helps you
+manage the artifacts in your project, view how completed/tested they are,
+see whether they are linked correctly, etc.
 
+Type:
+    rsk ls SPC-learn-ls -l
+
+This will show you this artifact, pretty printed on your terminal.
+
+Try:
+    rsk ls learn -p N
+
+This searches in the "Name" field for all artifacts that have "learn"
+in their name.
+
+Let's say you wanted to find an artifact, and all you knew was that it mentioned files
+in it's description. You could run:
+
+    rsk ls file -p T -T
+
+This will search for the pattern "file" in the text field (`-p T`). It will also display a
+short piece of the text field.
+
+You see that SPC-learn-paths is what you were looking for, but you want an expanded view:
+   rsk ls SPC-learn-paths -l
+
+Now you see that SPC-learn-paths has not been tested or implemented and that it is partof
+SPC-LEARN. From this you could decide to implement and test SPC-learn-paths.
+'''
 
 ##################################################
 # Extra stuff
@@ -190,22 +215,22 @@ There are only a few rules for defining artifacts:
 # There are two variables that can be used anywhere:
 # - {cwd}: the path to the directory of the file
 # - {repo}: the path to the current repository, which is the closest
-#    directory that contains a \".rsk\" folder
+#    directory that contains a "rsk" folder
 # TODO: go to settings.rsk in this directory and follow it's dirrections
 
 [globals]
 # additional variables that can be used anywhere in the project
 # can be defined like below.
-example_var = \"{repo}/example\"
+example_var = "repo}/example"
 # they can then be used in any text block like:
-text = \"my var: {example_var}\"
+text = "my var: {example_var}"
 
-[SPC-learn-ls]
-text = '''
-Go forth, define your requirements and design specs and use `rsk ls` to track
-your progress and validate your work. Good luck!
-'''
-";
+##################################################
+# That is the end of this tutorial. Run the following
+# for part 2:
+#     rsk init -t 2
+"#;
+
 pub fn get_subcommand<'a, 'b>() -> App<'a, 'b> {
     // [SPC-ui-cmdline-cmd-init-interface]
     SubCommand::with_name("init")

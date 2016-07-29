@@ -30,7 +30,8 @@ pub fn get_subcommand<'a, 'b>() -> App<'a, 'b> {
                  .help("search FIELDS using pearl regexp SEARCH.")
                  .value_name("FIELDS")
                  .takes_value(true)
-                 .max_values(1))
+                 .max_values(1)
+                 .min_values(0))
         .arg(Arg::with_name("long")
                  .short("l")
                  .help("print items in the 'long form'"))
@@ -241,14 +242,12 @@ pub fn get_ls_cmd(matches: &ArgMatches) -> Result<(String, FmtSettings, SearchSe
     }
 
     // [SPC-ui-cmdline-ls-search-interface]
-    let mut search_settings;
-    match matches.value_of("pattern") {
-        Some(p) => {
-            search_settings = try!(SearchSettings::from_regex(p));
-            search_settings.use_regex = true;
-        }
-        None => search_settings = SearchSettings::new(),
-    }
+    let mut search_settings = match (matches.is_present("pattern"), matches.value_of("pattern")) {
+        (true, Some(p)) => try!(SearchSettings::from_str(p)),
+        (true, None) => SearchSettings::from_str("N").unwrap(),
+        (false, None) => SearchSettings::new(),
+        _ => unreachable!(),
+    };
     debug!("tested: {:?}", search_settings.tested);
     match matches.value_of("completed") {
         Some(c) => search_settings.completed = try!(get_percent(c)),

@@ -76,7 +76,7 @@ fn test_loc() {
     assert_eq!(result.path, path::PathBuf::from("path/is/cool"));
 }
 
-/// SPC-core-artifact-name-struct:<storage of the artifact's name>
+/// [SPC-core-artifact-name-struct]:<storage of the artifact's name>
 /// also contains logic for finding the artifact's type
 /// (as it is based on the name)
 // TODO: Hash and Eq have to be defined to ONLY care about
