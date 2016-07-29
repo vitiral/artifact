@@ -163,10 +163,8 @@ languages in existence
 - fun: rust is a fun language to write in.
 '''
 [SPC-purpose-etc-language]
-partof = "REQ-purpose-etc-language"
 loc = "{cwd}/notes.md"
 [TST-purpose-etc-language]
-partof = "SPC-purpose-etc-language"
 loc = "{cwd}/notes.md"
 
 [REQ-purpose-etc-modules]

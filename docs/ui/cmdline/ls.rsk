@@ -16,7 +16,7 @@ The implementation **shall** use a Subcommand structure and **will** be
 documented in the -h help menu
 '''
 [TST-ui-cmdline-ls-interface]
-loc = "{cmdlin}/tests/test_cmd.rs"
+loc = "{cmdline}/tests/test_cmd.rs"
 partof = "SPC-ui-cmdline-ls-interface"
 text = "tests that validate the cmdline interface behaves as expected"
 
@@ -64,7 +64,7 @@ Add these together and you get the following:
 
 [REQ-ui-cmdline-ls-search]
 partof = "REQ-purpose-ui-filtering"
-refs = ["REQ-core-artifacts-attrs-partof-fmt"]
+refs = ["REQ-core-artifact-attrs-partof-fmt"]
 text = '''
 The first (and only) argument after `ls` **shall** be the SEARCH field which
 is used to find the artifacts that the user is looking for.
@@ -76,7 +76,7 @@ searching is selected, it will be interpreted as a perl regexp
 partof = "REQ-ui-cmdline-ls-search"
 [TST-ui-cmdline-ls-search-interface]
 partof = "SPC-ui-cmdline-ls-search-interface"
-loc = "{cmdlin}/tests/test_cmd.rs"
+loc = "{cmdline}/tests/test_cmd.rs"
 
 [REQ-ui-cmdline-ls-flags-empty]
 text = '''

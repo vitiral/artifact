@@ -60,5 +60,4 @@ of the definitions
 '''
 [TST-definitions]
 loc = "{cwd}/notes.md"
-partof = "SPC-definitions"
 text = "no tests necessary"

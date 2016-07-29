@@ -5,8 +5,7 @@ text = '''
 partof **shall** be validated by the type settings laid
 out in the requirements
 '''
-[TST-core-partof-vaidate]
-partof = "SPC-core-artifact-attrs-partof-validate"
+[TST-core-artifact-attrs-partof-vaidate]
 loc = "{core}/mod.rs"
 text = '''
 There **shall** be a test that attempts to use partof variables that are invalid

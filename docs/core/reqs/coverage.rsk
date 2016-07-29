@@ -10,7 +10,7 @@ In summary:
 - for TST: %completed == %tested
 '''
 [REQ-core-coverage-percent-done]
-partof = "REQ-core-artifacts-attrs-loc"
+partof = "REQ-core-artifact-attrs-loc"
 text = '''
 # For REQ, SPC, RSK, TST
 the percentage done **shall** be 100% if `loc` is set *or* will be calculated

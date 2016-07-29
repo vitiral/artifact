@@ -1,8 +1,8 @@
 
 
-[SPC-core-artifacts-attrs-loc-invalid]
+[SPC-core-artifact-attrs-loc-invalid]
 loc = "{core}/link.rs"
-partof = "REQ-core-artifacts-attrs-loc-invalid"
+partof = "REQ-core-artifact-attrs-loc-invalid"
 
 [SPC-core-coverage-percent-done]
 loc = "{core}/link.rs"

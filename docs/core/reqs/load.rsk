@@ -29,10 +29,10 @@ Example:
 '''
 
 [REQ-core-load-items]
-partof = "REQ-core-settings, REQ-core-vars-globals, REQ-core-artifacts"
+partof = "REQ-core-settings, REQ-core-vars-globals, REQ-core-artifact"
 text = '''
 Valid items in a `.rsk` file are the following:
 - `settings`: see REQ-core-settings
 - `globals`: see REQ-core-variables-globals
-- artifacts: see REQ-core-artifacts for prefix and attrs
+- artifacts: see REQ-core-artifact for prefix and attrs
 '''

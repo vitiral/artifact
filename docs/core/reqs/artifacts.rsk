@@ -1,7 +1,7 @@
-[REQ-core-artifacts]
+[REQ-core-artifact]
 partof = "REQ-purpose-artifacts"
 
-[REQ-core-artifacts-name]
+[REQ-core-artifact-name]
 text = '''
 All artifact names **will** be composed of only the characters in the set:
 `a-zA-Z0-9_-`
@@ -17,7 +17,7 @@ Also:
 - the artifact name must begin with a valid artifact (REQ, SPC, RSK, TST, or LOC)
 '''
 
-[REQ-core-artifacts-types-req]
+[REQ-core-artifact-types-req]
 refs = ["REQ-definitions-assertions"]
 text = '''
 The prefix and name of 'REQ' **will** specifiy the software requirements.
@@ -26,7 +26,7 @@ Generally these should be the high level requirements in a specified format
 such as REQ-definitions-assertions
 '''
 
-[REQ-core-artifacts-types-spc]
+[REQ-core-artifact-types-spc]
 text = '''
 The prefix and name of 'SPC' **will** specify a design specification linked to
 a requirement.
@@ -35,7 +35,7 @@ In addition, the design specification can have a path associated with the
 code implementation (LOC).
 '''
 
-[REQ-core-artifacts-types-rsk]
+[REQ-core-artifact-types-rsk]
 refs = ["REQ-definitions-risks"]
 text = '''
 The prefix and name of 'RSK' **will** specify the risks associated with either
@@ -45,7 +45,7 @@ Generally these should be specified in defined format similar to
 REQ-definitions-risks
 '''
 
-[REQ-core-artifacts-types-tst]
+[REQ-core-artifact-types-tst]
 text = '''
 The prefix and name of 'TST' **will** specify a test.
 The test can link to either a design-specification (SPC) or risk (RSK).
@@ -53,7 +53,7 @@ The test can link to either a design-specification (SPC) or risk (RSK).
 In addtion, the test can have a path associated with the code implementation (LOC).
 '''
 
-[REQ-core-artifacts-attrs]
+[REQ-core-artifact-attrs]
 text = '''
 All artifacts **will** have the following attributes:
 - disabled: whether the artifact should be skipped during analysis
@@ -63,7 +63,7 @@ All artifacts **will** have the following attributes:
 - loc: the location where the artifact is implemented
 '''
 
-[REQ-core-artifacts-attrs-disabled]
+[REQ-core-artifact-attrs-disabled]
 text = '''
 All artifacts with `disabled` set **shall** be ignored during processing *except*
 artifact name collisions **shall** result in an error
@@ -71,19 +71,19 @@ artifact name collisions **shall** result in an error
 > default = false
 '''
 
-[REQ-core-artifacts-attrs-text]
+[REQ-core-artifact-attrs-text]
 text = '''
 The `text` field **shall** specify the text associated with the artifact
 
 > default = ""
 '''
 
-[REQ-core-artifacts-attrs-refs]
-refs = ["REQ-core-artifacts-attrs-partof"]
+[REQ-core-artifact-attrs-refs]
+refs = ["REQ-core-artifact-attrs-partof"]
 text = '''
 the `refs` field **will** be a list of strings that **shall** provide documentation to:
 - if the string looks like artifacts (i.e. REQ, SPC, etc are at the beginning)
-    it **shall** be linked as one in the format of REQ-core-artifacts-attrs-partof
+    it **shall** be linked as one in the format of REQ-core-artifact-attrs-partof
 - else if the string is a valid file path, it **shall** be linked to the relevant code
     repository
 - else if the string looks like a url (http://, www., *.com/org/etc), it **shall** be
@@ -96,18 +96,18 @@ linked as one
 > default = None
 '''
 
-[REQ-core-artifacts-attrs-partof]
+[REQ-core-artifact-attrs-partof]
 partof = "REQ-purpose-linking"
 text = '''
 the `partof` field **shall** be a string specifying which artifacts the artifact item
 is a part of (which artifacts depend on it)
 
-The format for specifying multiple artifacts is in REQ-core-artifacts-attrs-partof-fmt
+The format for specifying multiple artifacts is in REQ-core-artifact-attrs-partof-fmt
 
 default = ""
 '''
 
-[REQ-core-artifacts-attrs-partof-fmt]
+[REQ-core-artifact-attrs-partof-fmt]
 text = '''
 The partof field **shall** follow the following spec for specifying multiple artifacts
 - `[]` **will** denote a set of artifacts related to the prevoius characters
@@ -143,8 +143,8 @@ The reasons for these rules are:
     having to go backwards in the parsing.
 '''
 
-[REQ-core-artifacts-attrs-parts]
-partof = "REQ-core-coverage, REQ-core-artifacts-attrs-partof"
+[REQ-core-artifact-attrs-parts]
+partof = "REQ-core-coverage, REQ-core-artifact-attrs-partof"
 text = '''
 the `parts` attribute of an artifact shall be used to detail the
 artifacts that it *depends on* (opposite of partof)
@@ -152,7 +152,7 @@ artifacts that it *depends on* (opposite of partof)
 `parts` **shall not** be available in the file format (only in the user interfaces)
 '''
 
-[REQ-core-artifacts-attrs-loc]
+[REQ-core-artifact-attrs-loc]
 partof = "REQ-core-coverage"
 text = '''
 The loc field **shall** be a string which specifies the location where a
@@ -177,7 +177,7 @@ default = ""
 Note: it is an error to set `loc` for REQ or RSK components
 '''
 
-[REQ-core-artifacts-attrs-loc-invalid]
+[REQ-core-artifact-attrs-loc-invalid]
 text = '''
 REQ or RSK artifacts with a `loc` value set **shall** be ignored and cause
 a warning to be issued

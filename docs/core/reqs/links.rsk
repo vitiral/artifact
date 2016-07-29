@@ -1,6 +1,6 @@
 [REQ-core-links]
 partof = "REQ-purpose-linking"
-refs = ["REQ-core-artifacts-attrs-partof"]
+refs = ["REQ-core-artifact-attrs-partof"]
 text = '''
 The artifacts **shall** be allowed to link as defined in this REQ
 
@@ -68,7 +68,7 @@ text = "SPC **shall only** be allowed to be partof SPC and REQ"
 text = "TST **shall only** be allowed to be partof RSK, SPC and TST"
 
 [REQ-core-links-prefix]
-partof = "REQ-core-artifacts-name"
+partof = "REQ-core-artifact-name"
 text = '''
 - All artifacts with the same whole-prefix **shall** automatically be considered partof
     the whole-prefix artifact
@@ -96,7 +96,7 @@ Parts are:
 
 [REQ-core-links-named_partof]
 refs = ["REQ-purpose-artifacts"]
-partof = "REQ-core-artifacts-name"
+partof = "REQ-core-artifact-name"
 text = '''
 - All artifacts with the same whole-postfix (upper, i.e. "above the artifact") **shall** automatically be linked according to
    REQ-purpose-artifacts

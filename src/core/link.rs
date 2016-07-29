@@ -186,7 +186,7 @@ pub fn set_completed(artifacts: &mut Artifacts) -> usize {
                             got_it = 3; // it is 0% completed by definition
                         }
                     }
-                    // [SPC-core-artifacts-attrs-loc-invalid]
+                    // [SPC-core-artifact-attrs-loc-invalid]
                     (&Some(_), ty @ _) => warn!("[{:?}:{}] has loc set but is of type {:?}",
                                                     artifact.path, name, ty),
                     _ => {}

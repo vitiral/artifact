@@ -1,6 +1,6 @@
 [SPC-core-artifact-name-struct]
 loc = "{core}/types.rs"
-partof = "REQ-core-[artifacts-name, links-prefix]"
+partof = "REQ-core-[artifact-name, links-prefix]"
 text = '''
 The artifact name shall be a struct similar to std::path::Path
 '''
@@ -12,28 +12,25 @@ text = "The parent method must be tested"
 
 [SPC-core-artifact-name-check]
 loc = "{core}/types.rs"
-partof = "REQ-core-artifacts-[name, types-[req, spc, rsk, tst]]"
+partof = "REQ-core-artifact-[name, types-[req, spc, rsk, tst]]"
 text = "The name shall be checked to match the requirements"
 
 [TST-core-artifact-name-check]
 loc = "{core}/tests/test_load.rs"
-partof = "SPC-core-artifact-name-check"
 
 [SPC-core-artifact-struct]
 loc = "{core}/types.rs"
-partof = "REQ-core-artifacts-attrs"
+partof = "REQ-core-artifact-attrs"
 text = '''
-Artifacts will be implemented in code as an Artifact struct with all the relevant
+artifact will be implemented in code as an Artifact struct with all the relevant
 attributes attached to it
 '''
 
 [SPC-core-artifact-attrs-disabled]
 loc = "{core}/load.rs"
-partof = "REQ-core-artifacts-attrs-disabled"
 
 [SPC-core-artifact-attrs-loc]
 loc = "{core}/types.rs"
-partof = "REQ-core-artifacts-attrs-loc"
 text = '''
 the `loc` attribute **shall** be a simple user given path. Once given,
 it will search for the artifact name it is attached to at the path given and
@@ -44,7 +41,6 @@ hold the `(line, col)` information provided.
 
 [SPC-core-artifact-attrs-refs]
 loc = "{core}/load.rs"
-partof = "REQ-core-artifacts-attrs-refs"
 text = '''
 the `refs` attr **shall** be used to store unchecked string
 references which the ui components **may** convert into various
@@ -53,7 +49,6 @@ forms (i.e. link, artifact-link, etc)
 
 [SPC-core-artifact-attrs-text]
 loc = "{core}/load.rs"
-partof = "REQ-core-artifacts-attrs-text"
 text = '''
 the `text` attr **shall** be used to store an unchecked string
 which the ui components **will** evaluate later as some form of
@@ -62,18 +57,15 @@ markdown
 
 [SPC-core-artifact-names-parse]
 loc = "{core}/load.rs"
-partof = "SPC-core-artifact-attrs-partof, REQ-core-artifacts-attrs-[partof, partof-fmt]"
+partof = "SPC-core-artifact-attrs-partof, REQ-core-artifact-attrs-[partof, partof-fmt]"
 [TST-core-artifact-names-parse]
 loc = "{core}/load.rs"
-partof = "SPC-core-artifact-names-parse"
 
 [SPC-core-artifact-attrs-parts]
-partof = "REQ-core-artifacts-attrs-parts"
 text = "artifact parts shall be automatically determined"
 
 [SPC-core-artifact-types]
 loc = "{core}/types.rs"
-partof = "REQ-core-artifacts-types"
 text = '''
 Valid artifact types shall be determined through an enum.
 

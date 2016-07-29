@@ -14,13 +14,13 @@ Examples:
 '''
 
 [REQ-core-settings-disabled]
-refs = ["REQ-core-artifacts-attrs-disabled"]
+refs = ["REQ-core-artifact-attrs-disabled"]
 text = '''
 There **shall** be a `disabled` setting that will cause the parser to completely
 values in the file. Artifacts will not be loaded, paths will not be added for
 processing, etc.
 
-This is slightly different from REQ-core-artifacts-attrs-disabled, as the artifacts
+This is slightly different from REQ-core-artifact-attrs-disabled, as the artifacts
 will not be displayed in a ui under any circumstance.
 '''
 
