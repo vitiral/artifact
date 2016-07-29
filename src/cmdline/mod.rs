@@ -23,6 +23,7 @@ mod matches;
 mod ls;
 mod fmt;
 mod search;
+mod init;
 
 #[cfg(tests)]
 mod tests;
@@ -88,6 +89,14 @@ pub fn cmd<'a, I, T>(args: I)
     let mut repo_names = HashSet::new();
     repo_names.insert(".rsk".to_string());
     let cwd = env::current_dir().unwrap();
+    if let Some(_) = matches.subcommand_matches("init") {
+        info!("Calling the init command");
+        match init::do_init(&cwd, &repo_names) {
+            Ok(_) => {},
+            Err(e) => println!("ERROR: {}", e),
+        }
+        return;
+    }
     let repo = match core::find_repo(cwd.as_path(), &repo_names) {
         Some(r) => r,
         None => {
@@ -97,6 +106,7 @@ pub fn cmd<'a, I, T>(args: I)
     };
     let cfg = repo.join(".rsk");
     debug!("using cfg dir {:?}", cfg);
+
     let (artifacts, settings) = match core::load_path(cfg.as_path()) {
         Ok(v) => v,
         Err(err) => {

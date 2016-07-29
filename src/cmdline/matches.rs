@@ -3,6 +3,7 @@ use std::ffi::OsString;
 use clap::{Arg, App, SubCommand, ArgMatches, AppSettings as AS, Result as ClapResult};
 
 use super::ls;
+use super::init;
 
 pub fn get_matches<'a, I, T>(args: I) -> ClapResult<ArgMatches<'a>>
     where I: IntoIterator<Item=T>, T: Into<OsString> {
@@ -31,5 +32,6 @@ pub fn get_matches<'a, I, T>(args: I) -> ClapResult<ArgMatches<'a>>
                      .required(false))
         )
         .subcommand(ls::get_subcommand())
+        .subcommand(init::get_subcommand())
         .get_matches_from_safe(args)
 }

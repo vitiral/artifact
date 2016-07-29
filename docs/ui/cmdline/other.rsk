@@ -20,3 +20,11 @@ initialize a `.rsk` folder in the cwd (giving an error if the cwd is not part
 of a repo) and will give the user basic instructions on how to create
 requirements and where to get more information.
 '''
+
+[SPC-ui-cmdline-cmd-init-interface]
+text = '''
+The command will be an ultra simple one.
+
+In the future it may accept an optional path. For now, it
+is a completely empty subcommand
+'''
