@@ -313,11 +313,22 @@ fn get_path_str<'a>(path: &'a Path) -> LoadResult<&'a str> {
 }
 
 /// [SPC-core-load-loc-text]
-pub fn resolve_locs_text(s: &str, path: &PathBuf,
-                         locs: &mut HashMap<ArtName, (PathBuf, usize, usize)>,
-                         looking_for: &HashSet<ArtName>)
-                         -> LoadResult<bool> {
-    debug!("resolving locs text");
+/// given text, the path to the text, and the locations to add onto
+/// extract all the locations from the text and return whether there
+/// was an error
+pub fn find_locs_file(path: &Path,
+                      locs: &mut HashMap<ArtName, Loc>)
+                      -> bool {
+    debug!("resolving locs at: {:?}", path);
+    let mut text = String::new();
+    fs::File::open(path) {
+        Ok(f) => f.read_to_string(&mut text),
+        Err(e) => {
+            error!("while loading from <{}>: {}", path.display(), e);
+            return true;
+        }
+    }
+    let text = text;
     let mut prev: VecDeque<char> = VecDeque::with_capacity(4);
     let mut prev_char = ' ';
     let mut start_pos = 0;
@@ -326,7 +337,7 @@ pub fn resolve_locs_text(s: &str, path: &PathBuf,
     // pretty simple parse tree... just do it ourselves!
     // Looking for LOC-[a-z0-9_-] case insensitive
     let mut error = false;
-    for c in s.chars() {
+    for c in text.chars() {
         if prev == *SPC || prev == *TST {
             if prev_char == ' ' {
                 start_pos = pos - 4;
@@ -338,7 +349,7 @@ pub fn resolve_locs_text(s: &str, path: &PathBuf,
                 }
                 _ => {  // valid LOC is finished
                     if prev_char != ' ' { // "SPC- ", etc is actually invalid
-                        let (_, end) = s.split_at(start_pos);
+                        let (_, end) = text.split_at(start_pos);
                         // if last char is '-' ignore it
                         let (name, _) = match prev_char {
                             '-' => end.split_at(pos - start_pos - 1),
@@ -346,20 +357,17 @@ pub fn resolve_locs_text(s: &str, path: &PathBuf,
                         };
                         let locname = ArtName::from_str(name).unwrap();
                         debug!("Found loc: {}", locname);
-                        if looking_for.contains(&locname) {
-                            // only do checking if the loc actually exists
-                            // check for overlap on insert
-                            match locs.insert(locname,
-                                            (path.clone(), line, start_col)) {
-                                None => {},
-                                Some(l) => {
-                                    error!("detected overlapping loc {} in files: {:?} and {:?}",
-                                            name, l.0, path.as_path());
-                                    error = true;
-                                }
+                        match locs.insert(locname,
+                                          Loc {
+                                              path: path.clone(),
+                                              line_col: (line, start_col)
+                                          }) {
+                            None => {},
+                            Some(l) => {
+                                error!("detected overlapping loc {} in files: {:?} and {:?}",
+                                        name, l.0, path.as_path());
+                                error = true;
                             }
-                        } else {
-                            // warn!("Found loc that is not a member of an artifact: {}", name);
                         }
                         prev_char = ' ';
                     }
@@ -382,58 +390,82 @@ pub fn resolve_locs_text(s: &str, path: &PathBuf,
         };
         pos += 1;
     }
-    Ok(error)
+    error
 }
 
-/// [SPC-core-load-loc-resolve]
-pub fn resolve_locs(artifacts: &mut Artifacts) -> LoadResult<()> {
-    info!("resolving locations...");
-    let mut paths: HashSet<PathBuf> = HashSet::new();
-    let mut looking_for: HashSet<ArtName> = HashSet::new();
-    // get all valid paths and the locations we are looking for
-    for (name, artifact) in artifacts.iter() {
-        if let Some(ref l) = artifact.loc {
-            looking_for.insert(name.clone());
-            if !paths.contains(l.path.as_path()) {
-                paths.insert(l.path.clone());
+/// recursively find all locs given a directory
+fn find_locs_dir(path: &PathBuf, loaded_dirs: &mut HashSet<PathBuf>
+                 locs: &mut HashMap<ArtName, Loc>)
+                 -> LoadResult<()> {
+    let read_dir = match fs::read_dir(path) {
+        Ok(d) => d,
+        Err(err) => return Err(LoadError::new(err.to_string())),
+    };
+    let mut error = false;
+    let mut dirs_to_load: Vec<PathBuf> = Vec::new(); // TODO: references should be possible here...
+    for entry in read_dir.filter_map(|e| e.ok()) {
+        let fpath = entry.path();
+        let ftype = match entry.file_type() {
+            Ok(f) => f,
+            Err(err) => {
+                error!("while loading from <{}>: {}", fpath.display(), err);
+                error = true;
+                continue;
+            }
+        };
+        if ftype.is_dir() {
+            dirs_to_load.push(fpath.clone()); // load directories after files have been loaded
+        } else if ftype.is_file() {
+            match find_locs_file(&fpath, &mut locs) {
+                true => error = true,
+                false => {},
             }
         }
     };
-    paths.remove(Path::new(""));
 
-    // analyze all files for valid locations
-    let mut error = false;
-    // values are                   (path, line,  col)
-    let mut locs: HashMap<ArtName, (PathBuf, usize, usize)> = HashMap::new();
-    for path in paths {
-        let mut fd = match fs::File::open(path.clone()) {
-            Ok(fd) => fd,
-            Err(_) => continue,
-        };
-        let mut s = String::new();
-        fd.read_to_string(&mut s).unwrap();
-        error |= try!(resolve_locs_text(&s, &path, &mut locs, &looking_for));
-    }
-    if error {
-        return Err(LoadError::new("Overlapping keys found in src loc".to_string()));
-    }
-
-    // now fill in the location values
-    for (lname, info) in locs {
-        let artifact = artifacts.get_mut(&lname).unwrap();
-        let (path, line, col) = info;
-        let aloc = artifact.loc.iter_mut().next().unwrap();
-        if aloc.path != path {
-            error!("found {} at path {:?}, but {} has it set at {:?}",
-                lname, path, lname, aloc.path);
-            error = true;
+    for d in dirs_to_load {
+        if loaded_dirs.contains(&d) {
             continue;
-        };
-        aloc.line_col = Some((line, col));
+        }
+        match find_locs_dir(d, locs, loaded_dirs) {
+            true => error = true,
+            false => {},
+        }
     }
-
     if error {
-        return Err(LoadError::new("Invalid paths".to_string()));
+        Err(LoadError::new("encountered errors when loading locations from code"))
+    } else {
+        Ok(())
     }
-    Ok(())
+}
+
+/// search through the code_paths in settings to find all valid locs
+pub fn find_locs(settings: &mut Settings) -> LoadResult<HashMap<ArtName, Loc>> {
+    info!("parsing code files for artifacts...");
+    let mut locs: HashMap<ArtName, Loc> = HashMap::new();
+    let mut loaded_dirs: HashSet<PathBuf> = HashSet::new();
+    while settings.code_paths.len() > 0 {
+        let dir = settings.code_paths.pop_front().unwrap(); // it has len, it better pop!
+        if loaded_dirs.contains(&dir) {
+            continue
+        }
+        debug!("Loading from code: {:?}", dir);
+        loaded_dirs.insert(dir.to_path_buf());
+        match find_locs_dir(dir.as_path(), &mut loaded_dirs, &mut locs) {
+            Ok(n) => n,
+            Err(err) => {
+                let mut msg = String::new();
+                write!(msg, "Error loading <{}>: {}", dir.display(), err).unwrap();
+                return Err(LoadError::new(msg));
+            }
+        }
+    }
+}
+
+/// [SPC-core-load-loc-resolve]
+pub fn attach_locs(artifacts: &mut Artifacts, locs: &HashMap<ArtName, Loc>) {
+    for (lname, loc) in locs {
+        let artifact = artifacts.get_mut(&lname).unwrap();
+        artifact.loc = loc;
+    }
 }

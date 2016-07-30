@@ -348,8 +348,8 @@ partof = "SPC-core-artifact-attrs-loc"
 text = '''
 there **shall** be a function that searches through text
 and finds the relevant artifact names with their
-positions, such that it can be stored by the artifact.loc
-attr
+positions, such that they can be later linked to the `loc`
+fields of artifacts
 '''
 [TST-core-load-loc-text]
 loc = "{core}/tests/test_vars.rs"
@@ -359,8 +359,7 @@ partof = "SPC-core-load-loc-text"
 loc = "{core}/vars.rs"
 text = '''
 there **shall** be a function that resolves the loc
-attrs for all artifacts and prints out warnings
-for locations that can't be resolved
+attrs for all artifacts
 '''
 [TST-core-load-loc-resolve]
 loc = "{core}/tests/test_core.rs"

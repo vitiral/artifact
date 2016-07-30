@@ -22,7 +22,7 @@ use core::vars::{resolve_default_vars, resolve_vars, resolve_settings,
 
 lazy_static!{
     pub static ref ARTIFACT_ATTRS: HashSet<String> = HashSet::from_iter(
-        ["disabled", "text", "refs", "partof", "loc"].iter().map(|s| s.to_string()));
+        ["disabled", "text", "refs", "partof"].iter().map(|s| s.to_string()));
 }
 
 macro_rules! get_attr {
@@ -205,13 +205,6 @@ impl Artifact {
 
         let partof_str = check_type!(get_attr!(tbl, "partof", df_str, String),
                                     "partof", name);
-        let loc_str = check_type!(get_attr!(tbl, "loc", df_str, String),
-                                 "loc", name);
-        let loc = match loc_str.as_str() {
-            "" => None,
-            _ => Some(try!(Loc::from_str(loc_str.as_str()))),
-        };
-
         Ok(Artifact{
             // loaded vars
             ty: name.get_type(),
@@ -222,7 +215,7 @@ impl Artifact {
             // [SPC-core-artifact-attrs-refs]
             refs: check_type!(get_vecstr(tbl, "refs", &df_vec), "refs", name),
             partof: try!(parse_names(&partof_str)),
-            loc: loc,
+            loc: None,
 
             // calculated vars
             parts: HashSet::new(),
@@ -460,7 +453,7 @@ pub fn load_path_raw(path: &Path) -> LoadResult<(Artifacts, Settings)> {
             // [SPC-core-settings-overlap-paths]:<ignore extra paths>
             continue
         }
-        debug!("Loading: {:?}", dir);
+        debug!("Loading artifacts: {:?}", dir);
         loaded_settings.clear();
         loaded_dirs.insert(dir.to_path_buf());
         match load_dir(dir.as_path(), &mut loaded_dirs,

@@ -27,7 +27,7 @@ pub fn load_path(path: &Path) -> LoadResult<(Artifacts, Settings)>{
     let start = time::get_time();
     info!("loading path: {}", path.to_string_lossy().as_ref());
     let (mut artifacts, settings) = try!(load::load_path_raw(path));
-    try!(vars::resolve_locs(&mut artifacts));
+    try!(vars::resolve_locs(&mut artifacts, &settings));
     // TODO: LOC-core-load-parts-2:<load and validate global variables>
     // LOC-core-load-parts-4:<auto-creation of missing prefix artifacts>
     link::link_named_partofs(&mut artifacts); // MUST come before parents are created

@@ -29,16 +29,6 @@ attributes attached to it
 [SPC-core-artifact-attrs-disabled]
 loc = "{core}/load.rs"
 
-[SPC-core-artifact-attrs-loc]
-loc = "{core}/types.rs"
-text = '''
-the `loc` attribute **shall** be a simple user given path. Once given,
-it will search for the artifact name it is attached to at the path given and
-hold the `(line, col)` information provided.
-
-`loc` is what defines the base-completeness of the artifact set
-'''
-
 [SPC-core-artifact-attrs-refs]
 loc = "{core}/load.rs"
 text = '''

@@ -6,7 +6,7 @@ There **shall** be a method to set various settings each file.
 Settings **shall** determine many aspects of how the modules in **rsk** work.
 
 Examples:
-- paths to the directory of more artifacts
+- artifact_paths to the directories of more artifacts
 - valid repository names
 - how to handle to hide artifacts with disabled=true in the ui (i.e. hide them
     comletely, grey them out, etc)
@@ -24,17 +24,25 @@ This is slightly different from REQ-core-artifact-attrs-disabled, as the artifac
 will not be displayed in a ui under any circumstance.
 '''
 
-[REQ-core-settings-paths]
+[REQ-core-settings-artifact_paths]
 refs = ["REQ-core-vars-globals-[cwd,repo]"]
 text = '''
-There **shall** be a `paths` setting that is a string array with items that
+There **shall** be a `artifact_paths` setting that is a string array with items that
 point to the location of additional directories to load.
 
-The `paths` items **shall only** be able to use the following global variables:
+The `artifact_paths` items **shall only** be able to use the following global variables:
 - `{cwd}`
 - `{repo}`
+'''
 
-There **shall** be a useful error message if other variables are attempted.
+[REQ-core-settings-code_paths]
+refs = ["REQ-core-vars-globals-[cwd,repo]"]
+text = '''
+There **shall** be a `code_paths` setting that is a string array with items that
+point to the locations where code should be parsed to look for artifact names
+(implementation locations)
+
+The `code_paths` items **shall** be able to use all global variables.
 '''
 
 [REQ-core-settings-repo_names]

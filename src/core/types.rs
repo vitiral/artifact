@@ -37,7 +37,7 @@ pub enum ArtType {
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub struct Loc {
     pub path: path::PathBuf,
-    pub line_col: Option<(usize, usize)>,
+    pub line_col: (usize, usize),
 }
 
 impl Loc {
@@ -231,6 +231,7 @@ pub struct Artifact {
 pub struct Settings {
     pub disabled: bool,
     pub paths: VecDeque<path::PathBuf>,
+    pub code_paths: VecDeque<path::PathBuf>,
     // [SPC-core-settings-overlap-repo_names]
     pub repo_names: HashSet<String>,
     pub color: bool,

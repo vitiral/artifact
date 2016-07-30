@@ -155,8 +155,8 @@ artifacts that it *depends on* (opposite of partof)
 [REQ-core-artifact-attrs-loc]
 partof = "REQ-core-coverage"
 text = '''
-The loc field **shall** be a string which specifies the location where a
-SPC or TST artifact is implemented.
+The loc field **shall** be automatically determined by parsing all code files
+in the code path.
 
 artifacts with valid loc set are considered done, regardless of the completion
 of their sub-artifacts.
@@ -171,14 +171,4 @@ TSTs are implemented, then that implementation is considered completed and teste
 
 With great power comes great responsibility, but the combination of TSTs and SPCs
 should help prevent artifacts that aren't done from being considered done.
-
-default = ""
-
-Note: it is an error to set `loc` for REQ or RSK components
-'''
-
-[REQ-core-artifact-attrs-loc-invalid]
-text = '''
-REQ or RSK artifacts with a `loc` value set **shall** be ignored and cause
-a warning to be issued
 '''
