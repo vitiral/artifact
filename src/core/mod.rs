@@ -8,8 +8,8 @@ mod vars;
 mod link;
 pub mod fmt;
 
-// #[cfg(test)]
-// mod tests;
+#[cfg(test)]
+mod tests;
 
 // export for other modules to use
 pub use core::vars::find_repo;
