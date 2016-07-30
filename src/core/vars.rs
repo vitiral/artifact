@@ -60,6 +60,19 @@ pub fn find_repo(dir: &Path, repo_names: &HashSet<String>) -> Option<PathBuf> {
     }
 }
 
+fn do_strfmt(s: &str, vars: &HashMap<String, String>, fpath: &PathBuf)
+             -> LoadResult<String> {
+    match strfmt::strfmt(s, &vars) {
+        Ok(s) => Ok(s),
+        Err(e) => {
+            let mut msg = String::new();
+            write!(msg, "ERROR at {}: {}", fpath.to_string_lossy().as_ref(), e.to_string())
+                .unwrap();
+            return Err(LoadError::new(msg));
+        }
+    }
+}
+
 /// SPC-core-load-settings-resolve:<resolve all informaiton related to settings>
 pub fn resolve_settings(settings: &mut Settings,
                         repo_map: &mut HashMap<PathBuf, PathBuf>,
@@ -90,18 +103,21 @@ pub fn resolve_settings(settings: &mut Settings,
         let repo = repo_map.get(cwd).unwrap();
         vars.insert("repo".to_string(), try!(get_path_str(repo.as_path())).to_string());
 
+        // push code_paths
+        for p in settings_item.code_paths.iter() {
+            settings.code_paths.push_back(p.clone())
+        }
+
         // push resolved paths
         for p in settings_item.paths.iter() {
-            let p = match strfmt::strfmt(p.to_str().unwrap(), &vars) {
-                Ok(p) => p,
-                Err(e) => {
-                    let mut msg = String::new();
-                    write!(msg, "ERROR at {}: {}", fpath.to_string_lossy().as_ref(), e.to_string())
-                        .unwrap();
-                    return Err(LoadError::new(msg));
-                }
-            };
+            let p = try!(do_strfmt(p.to_str().unwrap(), &vars, &fpath));
             settings.paths.push_back(PathBuf::from(p));
+        }
+
+        // push resolved code_paths
+        for p in settings_item.code_paths.iter() {
+            let p = try!(do_strfmt(p.to_str().unwrap(), &vars, &fpath));
+            settings.code_paths.push_back(PathBuf::from(p));
         }
     }
     Ok(())
@@ -243,9 +259,9 @@ pub fn resolve_vars(variables: &mut Variables) -> LoadResult<()> {
 /// use the variables to fill in the text fields of all artifacts
 /// LOC-artifacts-vars
 pub fn fill_text_fields(artifacts: &mut Artifacts,
-                       settings: &Settings,
-                       variables: &mut Variables,
-                       repo_map: &mut HashMap<PathBuf, PathBuf>)
+                        settings: &Settings,
+                        variables: &mut Variables,
+                        repo_map: &mut HashMap<PathBuf, PathBuf>)
                         -> LoadResult<()> {
     // resolve all text blocks in artifacts
     let mut error = false;
@@ -273,22 +289,6 @@ pub fn fill_text_fields(artifacts: &mut Artifacts,
             }
         }
         art.refs = refs;
-        let mut set_loc = art.loc.clone();
-        if let Some(ref loc) = art.loc {
-            match strfmt::strfmt(loc.path.to_str().unwrap(), &variables) {
-                Ok(l) => {
-                    trace!("loc path set to: {}", l);
-                    trace!("using variables: {:?}", variables);
-                    set_loc = Some(Loc {
-                        path: PathBuf::from(l.as_str()),
-                        line_col: None,
-                    });
-                }
-                // [SPC-core-load-error-text-2]
-                Err(err) => errors.push(("loc", err)),
-            }
-        }
-        art.loc = set_loc;
         if errors.len() > 0 {
             // [SPC-core-load-error-text-3]
             error!(" resolving variables on [{:?}] {} failed: {:?}", art.path, name, errors);
@@ -321,13 +321,20 @@ pub fn find_locs_file(path: &Path,
                       -> bool {
     debug!("resolving locs at: {:?}", path);
     let mut text = String::new();
-    fs::File::open(path) {
-        Ok(f) => f.read_to_string(&mut text),
+    match fs::File::open(path) {
+        Ok(mut f) => match f.read_to_string(&mut text) {
+            Ok(_) => {},
+            Err(e) => {
+                error!("while reading from <{}>: {}", path.display(), e);
+                return true;
+            }
+        },
         Err(e) => {
             error!("while loading from <{}>: {}", path.display(), e);
             return true;
-        }
+        },
     }
+    let mut error = false;
     let text = text;
     let mut prev: VecDeque<char> = VecDeque::with_capacity(4);
     let mut prev_char = ' ';
@@ -336,7 +343,6 @@ pub fn find_locs_file(path: &Path,
     let (mut pos, mut line, mut col) = (0, 1, 0); // line starts at 1
     // pretty simple parse tree... just do it ourselves!
     // Looking for LOC-[a-z0-9_-] case insensitive
-    let mut error = false;
     for c in text.chars() {
         if prev == *SPC || prev == *TST {
             if prev_char == ' ' {
@@ -359,13 +365,13 @@ pub fn find_locs_file(path: &Path,
                         debug!("Found loc: {}", locname);
                         match locs.insert(locname,
                                           Loc {
-                                              path: path.clone(),
+                                              path: path.to_path_buf(),
                                               line_col: (line, start_col)
                                           }) {
                             None => {},
                             Some(l) => {
-                                error!("detected overlapping loc {} in files: {:?} and {:?}",
-                                        name, l.0, path.as_path());
+                                error!("detected overlapping loc {} in files: {:?} and {}",
+                                        name, l, path.display());
                                 error = true;
                             }
                         }
@@ -394,17 +400,28 @@ pub fn find_locs_file(path: &Path,
 }
 
 /// recursively find all locs given a directory
-fn find_locs_dir(path: &PathBuf, loaded_dirs: &mut HashSet<PathBuf>
+fn find_locs_dir(path: &PathBuf, loaded_dirs: &mut HashSet<PathBuf>,
                  locs: &mut HashMap<ArtName, Loc>)
-                 -> LoadResult<()> {
+                 -> bool {
+    loaded_dirs.insert(path.to_path_buf());
     let read_dir = match fs::read_dir(path) {
         Ok(d) => d,
-        Err(err) => return Err(LoadError::new(err.to_string())),
+        Err(err) => {
+            error!("while loading from dir <{}>: {}", path.display(), err);
+            return true;
+        }
     };
     let mut error = false;
-    let mut dirs_to_load: Vec<PathBuf> = Vec::new(); // TODO: references should be possible here...
+    let mut dirs_to_load: Vec<PathBuf> = Vec::new(); // TODO: use references
     for entry in read_dir.filter_map(|e| e.ok()) {
         let fpath = entry.path();
+        // don't parse .rsk files for locations
+        match fpath.extension() {
+            None => {},
+            Some(ext) => if ext == "rsk" {
+                continue
+            }
+        }
         let ftype = match entry.file_type() {
             Ok(f) => f,
             Err(err) => {
@@ -414,9 +431,9 @@ fn find_locs_dir(path: &PathBuf, loaded_dirs: &mut HashSet<PathBuf>
             }
         };
         if ftype.is_dir() {
-            dirs_to_load.push(fpath.clone()); // load directories after files have been loaded
+            dirs_to_load.push(fpath.clone());
         } else if ftype.is_file() {
-            match find_locs_file(&fpath, &mut locs) {
+            match find_locs_file(&fpath, locs) {
                 true => error = true,
                 false => {},
             }
@@ -427,16 +444,12 @@ fn find_locs_dir(path: &PathBuf, loaded_dirs: &mut HashSet<PathBuf>
         if loaded_dirs.contains(&d) {
             continue;
         }
-        match find_locs_dir(d, locs, loaded_dirs) {
+        match find_locs_dir(&d, loaded_dirs, locs) {
             true => error = true,
             false => {},
         }
     }
-    if error {
-        Err(LoadError::new("encountered errors when loading locations from code"))
-    } else {
-        Ok(())
-    }
+    error
 }
 
 /// search through the code_paths in settings to find all valid locs
@@ -444,21 +457,22 @@ pub fn find_locs(settings: &mut Settings) -> LoadResult<HashMap<ArtName, Loc>> {
     info!("parsing code files for artifacts...");
     let mut locs: HashMap<ArtName, Loc> = HashMap::new();
     let mut loaded_dirs: HashSet<PathBuf> = HashSet::new();
+    let mut error = false;
     while settings.code_paths.len() > 0 {
         let dir = settings.code_paths.pop_front().unwrap(); // it has len, it better pop!
         if loaded_dirs.contains(&dir) {
             continue
         }
         debug!("Loading from code: {:?}", dir);
-        loaded_dirs.insert(dir.to_path_buf());
-        match find_locs_dir(dir.as_path(), &mut loaded_dirs, &mut locs) {
-            Ok(n) => n,
-            Err(err) => {
-                let mut msg = String::new();
-                write!(msg, "Error loading <{}>: {}", dir.display(), err).unwrap();
-                return Err(LoadError::new(msg));
-            }
+        match find_locs_dir(&dir, &mut loaded_dirs, &mut locs) {
+            false => {},
+            true => return Err(LoadError::new("encountered errors while finding locations".to_string())),
         }
+    }
+    if error {
+        Err(LoadError::new("encountered errors when loading locations from code".to_string()))
+    } else {
+        Ok(locs)
     }
 }
 
@@ -466,6 +480,6 @@ pub fn find_locs(settings: &mut Settings) -> LoadResult<HashMap<ArtName, Loc>> {
 pub fn attach_locs(artifacts: &mut Artifacts, locs: &HashMap<ArtName, Loc>) {
     for (lname, loc) in locs {
         let artifact = artifacts.get_mut(&lname).unwrap();
-        artifact.loc = loc;
+        artifact.loc = Some(loc.clone());
     }
 }

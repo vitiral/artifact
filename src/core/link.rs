@@ -179,16 +179,7 @@ pub fn set_completed(artifacts: &mut Artifacts) -> usize {
                 // SPC and TST artifacts are done if loc is set
                 match (&artifact.loc, &artifact.ty) {
                     (&Some(ref l), &ArtType::SPC) | (&Some(ref l), &ArtType::TST) => {
-                        let lvalid = l.valid();
-                        if lvalid {
-                            got_it = 2; // it is 100% completed by definition
-                        } else if !lvalid {
-                            warn!("[{:?}:{}] has non-existant loc of {}",
-                                  artifact.path,
-                                  name,
-                                  l);
-                            got_it = 3; // it is 0% completed by definition
-                        }
+                        got_it = 2;
                     }
                     // [SPC-core-artifact-attrs-loc-invalid]
                     (&Some(_), ty @ _) => warn!("[{:?}:{}] has loc set but is of type {:?}",
@@ -196,7 +187,7 @@ pub fn set_completed(artifacts: &mut Artifacts) -> usize {
                     _ => {}
                 }
                 if got_it == 0 && artifact.parts.len() == 0 {
-                    got_it = 3; // no parts or invalid-loc == 0% complete
+                    got_it = 3; // no parts and no loc == 0% complete
                 } else if got_it == 0 && artifact.parts.iter().all(|n| known.contains(&n)) {
                     got_it = 1;
                 }

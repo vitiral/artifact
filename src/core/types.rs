@@ -40,40 +40,11 @@ pub struct Loc {
     pub line_col: (usize, usize),
 }
 
-impl Loc {
-    /// return Loc
-    /// the path is not checked for validity yet
-    pub fn from_str(s: &str) -> LoadResult<Loc> {
-        Ok(Loc {
-            path: path::PathBuf::from(s),
-            line_col: None,
-        })
-    }
-
-    /// if the LOC has a valid place in a file it is valid
-    pub fn valid(&self) -> bool {
-        if self.line_col.is_some() {
-            true
-        } else {
-            false
-        }
-    }
-}
-
 impl fmt::Display for Loc {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        try!(write!(f, "<L:{}", self.path.to_string_lossy().as_ref()));
-        if let Some(line_col) = self.line_col {
-            try!(write!(f, "({}:{})", line_col.0, line_col.1));
-        }
-        write!(f, ">")
+        write!(f, "<L:{}({}:{})>", self.path.display(),
+                    self.line_col.0, self.line_col.1)
     }
-}
-
-#[test]
-fn test_loc() {
-    let result = Loc::from_str("path/is/cool").unwrap();
-    assert_eq!(result.path, path::PathBuf::from("path/is/cool"));
 }
 
 /// [SPC-core-artifact-name-struct]:<storage of the artifact's name>
@@ -242,6 +213,7 @@ impl Settings {
         Settings {
             disabled: false,
             paths: VecDeque::new(),
+            code_paths: VecDeque::new(),
             repo_names: HashSet::new(),
             color: true,
         }

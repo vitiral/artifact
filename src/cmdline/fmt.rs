@@ -168,26 +168,14 @@ impl FmtArtifact {
         }
 
         // format the location that where the implementation of this artifact can be found
-        if self.loc_path.is_some() {
+        if self.loc.is_some() {
             self.write_header(w, "\n * implemented-at-loc: ", settings);
             let mut loc_str = String::new();
-            if let Some(ref lpath) = self.loc_path {
-                write!(loc_str, ":{}", lpath.to_string_lossy().as_ref()).unwrap();
-                if let Some(ref line_col) = self.loc_line_col {
-                    write!(loc_str, "({}:{})", line_col.0, line_col.1).unwrap();
-                }
-            }
+            write!(loc_str, "{:?}", self.loc);
             if settings.color {
-                match self.loc_valid {
-                    None => try!(w.write_all(loc_str.as_ref())),
-                    Some(true) => try!(write!(w, "{}", Green.paint(loc_str))),
-                    Some(false) => try!(write!(w, "{}", Red.paint(loc_str))),
-                }
+                try!(write!(w, "{}", Green.paint(loc_str)));
             } else {
-                match self.loc_valid {
-                    None | Some(true) => try!(w.write_all(loc_str.as_ref())),
-                    Some(false) => try!(write!(w, "!{}!", loc_str)),
-                }
+                try!(w.write_all(loc_str.as_ref()));
             }
             try!(w.write_all(" ".as_ref()));
         }
@@ -232,9 +220,8 @@ impl FmtArtifact {
     /// if it is, it is formatted differently
     fn name_only(&self) -> bool {
         match (&self.path, &self.parts, &self.partof,
-               &self.loc_path, &self.loc_valid,
-               &self.refs, &self.text) {
-            (&None, &None, &None, &None, &None, &None, &None) => true,
+               &self.loc, &self.refs, &self.text) {
+            (&None, &None, &None, &None, &None, &None) => true,
             _ => false,
         }
     }

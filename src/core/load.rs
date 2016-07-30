@@ -77,11 +77,14 @@ impl Settings {
     pub fn from_table(tbl: &Table) -> LoadResult<Settings> {
         let df_vec = Vec::new();
         let str_paths: Vec<String> = check_type!(
-            get_vecstr(tbl, "paths", &df_vec), "paths", "settings");
+            get_vecstr(tbl, "artifact_paths", &df_vec), "artifact_paths", "settings");
+        let code_paths: Vec<String> = check_type!(
+            get_vecstr(tbl, "code_paths", &df_vec), "code_paths", "settings");
         Ok(Settings {
             disabled: check_type!(get_attr!(tbl, "disabled", false, Boolean),
                                   "disabled", "settings"),
             paths: str_paths.iter().map(|s| PathBuf::from(s)).collect(),
+            code_paths: code_paths.iter().map(|s| PathBuf::from(s)).collect(),
             repo_names: HashSet::from_iter(check_type!(
                 get_vecstr(tbl, "repo_names", &df_vec), "repo_names", "settings")),
             color: true,
@@ -349,6 +352,7 @@ pub fn load_dir(path: &Path,
                 settings: &mut Vec<(PathBuf, Settings)>,
                 variables: &mut Vec<(PathBuf, Variables)>)
                 -> LoadResult<u64> {
+    loaded_dirs.insert(path.to_path_buf());
     // TDOO: if load_path.is_dir()
     let mut num_loaded: u64 = 0;
     let mut error = false;
@@ -371,7 +375,7 @@ pub fn load_dir(path: &Path,
             }
         };
         if ftype.is_dir() {
-            dirs_to_load.push(fpath.clone()); // load directories after files have been loaded
+            dirs_to_load.push(fpath.clone());
         } else if ftype.is_file() {
             let ext = match fpath.extension() {
                 None => continue,
@@ -390,12 +394,12 @@ pub fn load_dir(path: &Path,
             };
         }
     };
-    if num_loaded > 0 { // REQ-core-load-recursive: don't recurse if no .rsk files are in dir
+    // REQ-core-load-recursive: don't recurse if no .rsk files are in dir
+    if num_loaded > 0 {
         for dir in dirs_to_load {
             if loaded_dirs.contains(dir.as_path()) {
                 continue;
             }
-            loaded_dirs.insert(dir.to_path_buf());
             match load_dir(dir.as_path(), loaded_dirs, artifacts, settings, variables) {
                 Ok(n) => num_loaded += n,
                 // [SPC-core-load-error-file-3]
@@ -424,9 +428,8 @@ fn default_repo_names() -> HashSet<String> {
 /// SPC-core-load-paths
 pub fn load_path_raw(path: &Path) -> LoadResult<(Artifacts, Settings)> {
     let mut artifacts = Artifacts::new();
-    let mut settings = Settings{disabled: false, paths: VecDeque::new(),
-                                repo_names: default_repo_names(),
-                                color: true};
+    let mut settings = Settings::new();
+    settings.repo_names = default_repo_names();
     let mut variables = Variables::new();
     let mut loaded_dirs: HashSet<PathBuf> = HashSet::new();
     let mut loaded_settings: Vec<(PathBuf, Settings)> = Vec::new();

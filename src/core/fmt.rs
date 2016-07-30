@@ -51,9 +51,10 @@ pub struct FmtArtifact {
     pub path: Option<path::PathBuf>,
     pub parts: Option<Vec<FmtArtifact>>,
     pub partof: Option<Vec<FmtArtifact>>,
-    pub loc_path: Option<path::PathBuf>,
-    pub loc_line_col: Option<(usize, usize)>,
-    pub loc_valid: Option<bool>,
+    pub loc: Option<Loc>,
+    // pub loc_path: Option<path::PathBuf>,
+    // pub loc_line_col: (usize, usize),
+    // pub loc_valid: Option<bool>,
     pub refs: Option<Vec<String>>,
     pub text: Option<String>,
     pub name: ArtName,
@@ -95,21 +96,7 @@ pub fn fmt_artifact(name: &ArtName, artifacts: &Artifacts, fmtset: &FmtSettings,
         out.partof = Some(partof);
     }
     if fmtset.loc_path {
-        match &artifact.loc {
-            &Some(ref l) => {
-                out.loc_path = if l.path == path::Path::new("") {
-                    None
-                } else {
-                    Some(l.path.clone())
-                };
-                out.loc_line_col = l.line_col;
-            }
-            &None => {}
-        }
-        out.loc_valid = match &artifact.loc {
-            &Some(ref l) => Some(l.valid()),
-            &None => None,
-        };
+        out.loc = artifact.loc.clone();
     }
     if fmtset.refs {
         out.refs = Some(artifact.refs.clone());
