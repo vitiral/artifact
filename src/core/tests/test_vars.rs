@@ -3,19 +3,20 @@
 use std::env;
 
 use super::*;  // data directory constants
-use super::super::vars::*;
 use super::super::types::*;
+use super::super::vars::*;
+use super::super::locs::*;
+use super::super::utils;
 use super::super::super::init_logger;
 
 #[test]
 fn test_find_repo() {
-    assert_eq!(find_repo(TSIMPLE_DIR.as_path()).unwrap(),
+    assert_eq!(utils::find_repo(TSIMPLE_DIR.as_path()).unwrap(),
                TSIMPLE_DIR.as_path());
-    assert_eq!(find_repo(TSIMPLE_DIR.join("lvl_1").as_path()).unwrap(),
+    assert_eq!(utils::find_repo(TSIMPLE_DIR.join("lvl_1").as_path()).unwrap(),
                TSIMPLE_DIR.as_path());
-    assert!(find_repo(env::temp_dir().as_path()).is_none());
+    assert!(utils::find_repo(env::temp_dir().as_path()).is_none());
 }
-
 
 #[test]
 /// #TST-core-vars-resolve

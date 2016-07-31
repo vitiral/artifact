@@ -4,6 +4,8 @@
 use super::types::*;
 use super::vars;
 
+use super::utils;
+
 lazy_static!{
     pub static ref ARTIFACT_ATTRS: HashSet<String> = HashSet::from_iter(
         ["disabled", "text", "refs", "partof"].iter().map(|s| s.to_string()));
@@ -337,15 +339,63 @@ pub fn load_dir(path: &Path,
     }
 }
 
+/// push settings found (loaded_settings) into a main settings object
+/// repo_map is a pre-compiled hashset mapping dirs->repo_path (for performance)
+/// partof: #SPC-settings-resolve
+pub fn resolve_settings(settings: &mut Settings,
+                        repo_map: &mut HashMap<PathBuf, PathBuf>,
+                        loaded_settings: &Vec<(PathBuf, Settings)>)
+                        -> LoadResult<()> {
+    // now resolve all path names
+    let mut vars: HashMap<String, String> = HashMap::new();
+    for ps in loaded_settings.iter() {
+        let ref settings_item: &Settings = &ps.1;
+
+        let fpath = ps.0.clone();
+        let cwd = fpath.parent().unwrap();
+        let cwd_str = try!(utils::get_path_str(cwd));
+
+        // TODO: for full windows compatibility you will probably want to support OsStr
+        // here... I just don't want to
+        vars.insert("cwd".to_string(), cwd_str.to_string());
+        try!(utils::find_and_insert_repo(cwd, repo_map));
+        let repo = repo_map.get(cwd).unwrap();
+        vars.insert("repo".to_string(), try!(utils::get_path_str(repo.as_path())).to_string());
+
+        // push resolved paths
+        for p in settings_item.paths.iter() {
+            let p = try!(utils::do_strfmt(p.to_str().unwrap(), &vars, &fpath));
+            settings.paths.push_back(PathBuf::from(p));
+        }
+
+        // TODO: it is possible to be able to use all global variables in code_paths
+        //    but then it must be done in a separate step
+        // push resolved code_paths
+        for p in settings_item.code_paths.iter() {
+            let p = try!(utils::do_strfmt(p.to_str().unwrap(), &vars, &fpath));
+            settings.code_paths.push_back(PathBuf::from(p));
+        }
+
+        // push resolved exclude_code_paths
+        for p in settings_item.exclude_code_paths.iter() {
+            let p = try!(utils::do_strfmt(p.to_str().unwrap(), &vars, &fpath));
+            settings.exclude_code_paths.push_back(PathBuf::from(p));
+        }
+    }
+    Ok(())
+}
+
 /// given a valid path, load all paths given by the settings recursively
-/// partof: #SPC-load-path
-pub fn load_path_raw(path: &Path) -> LoadResult<(Artifacts, Settings)> {
+/// partof: #SPC-load-raw
+pub fn load_raw(path: &Path)
+                -> LoadResult<(Artifacts, Settings,
+                               Vec<(PathBuf, Variables)>,
+                               HashMap<PathBuf, PathBuf>)> {
     let mut artifacts = Artifacts::new();
     let mut settings = Settings::new();
-    let mut variables = Variables::new();
     let mut loaded_dirs: HashSet<PathBuf> = HashSet::new(); // see SPC-load-dir, RSK-2-load-loop
     let mut loaded_settings: Vec<(PathBuf, Settings)> = Vec::new();
-    let mut loaded_variables: Vec<(PathBuf, Variables)> = Vec::new();
+    let mut loaded_vars: Vec<(PathBuf, Variables)> = Vec::new();
     // repo_map maps directories to their found base-repositories
     let mut repo_map: HashMap<PathBuf, PathBuf> = HashMap::new();
     let mut msg = String::new();
@@ -353,8 +403,8 @@ pub fn load_path_raw(path: &Path) -> LoadResult<(Artifacts, Settings)> {
     info!("Loading artifact files:");
     if path.is_file() {
         try!(load_file(path, &mut artifacts, &mut loaded_settings,
-                       &mut loaded_variables));
-        try!(vars::resolve_settings(&mut settings, &mut repo_map, &loaded_settings));
+                       &mut loaded_vars));
+        try!(resolve_settings(&mut settings, &mut repo_map, &loaded_settings));
     } else if path.is_dir() {
         settings.paths.push_back(path.to_path_buf());
     } else {
@@ -373,7 +423,7 @@ pub fn load_path_raw(path: &Path) -> LoadResult<(Artifacts, Settings)> {
         loaded_dirs.insert(dir.to_path_buf());
         match load_dir(dir.as_path(), &mut loaded_dirs,
                        &mut artifacts, &mut loaded_settings,
-                       &mut loaded_variables) {
+                       &mut loaded_vars) {
             Ok(n) => n,
             Err(err) => {
                 write!(msg, "Error loading <{}>: {}", dir.to_string_lossy().as_ref(), err).unwrap();
@@ -384,22 +434,8 @@ pub fn load_path_raw(path: &Path) -> LoadResult<(Artifacts, Settings)> {
         // resolve the project-level settings after each directory is recursively loaded
         // so that artifact_paths can be resolved
         // see: SPC-settings-resolve
-        try!(vars::resolve_settings(&mut settings, &mut repo_map, &loaded_settings));
+        try!(resolve_settings(&mut settings, &mut repo_map, &loaded_settings));
     }
 
-    // partof: #SPC-vars
-    info!("Resolving default globals in variables, see SPC-vars.1");
-    for pv in loaded_variables.drain(0..) {
-        let p = pv.0;
-        let v = pv.1;
-        try!(vars::resolve_default_vars(&v, p.as_path(), &mut variables, &mut repo_map));
-    }
-
-    info!("Resolving variables, see SPC-vars.2");
-    try!(vars::resolve_vars(&mut variables));
-
-    info!("Filling in variables for text fields, see SPC-vars.3");
-    try!(vars::fill_text_fields(&mut artifacts, &settings, &mut variables, &mut repo_map));
-
-    Ok((artifacts, settings))
+    Ok((artifacts, settings, loaded_vars, repo_map))
 }

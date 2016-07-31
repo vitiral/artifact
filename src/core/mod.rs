@@ -2,20 +2,27 @@ use std::path::Path;
 
 use time;
 
+// General
 pub mod types;
-pub mod vars;
-#[macro_use] pub mod load;  // macro use so the macro can be tested
-pub mod link;
 pub mod fmt;
+
+// for loading
+pub mod utils;
+#[macro_use] pub mod load;  // macro use so the macro can be tested
+pub mod vars;
+pub mod link;
+pub mod locs;
 
 #[cfg(test)]
 mod tests;
 
 // export for other modules to use
-pub use core::vars::find_repo;
+pub use core::utils::find_repo;
 pub use core::types::{
     LoadResult, LoadError,
-    Artifacts, Artifact, ArtType, ArtName, ArtNames, Loc,
+    Artifact, Artifacts,
+    ArtType, Loc,
+    ArtName, ArtNames,
     Settings, LoadFromStr};
 pub use core::load::load_toml;
 
@@ -38,9 +45,15 @@ pub fn init_logger_test() {
 pub fn load_path(path: &Path) -> LoadResult<(Artifacts, Settings)>{
     let start = time::get_time();
     info!("loading path: {}", path.to_string_lossy().as_ref());
-    let (mut artifacts, mut settings) = try!(load::load_path_raw(path));
-    let locs = try!(vars::find_locs(&mut settings));
-    vars::attach_locs(&mut artifacts, &locs);
+    let (mut artifacts, mut settings, loaded_vars, mut repo_map) = try!(load::load_raw(path));
+
+    info!("resolving and filling variables");
+    let mut variables = try!(vars::resolve_loaded_vars(loaded_vars, &mut repo_map));
+    try!(vars::fill_text_fields(&mut artifacts, &settings, &mut variables, &mut repo_map));
+
+    info!("finding and attaching locations");
+    let locs = try!(locs::find_locs(&mut settings));
+    locs::attach_locs(&mut artifacts, &locs);
 
     // LOC-core-load-parts-4:<auto-creation of missing prefix artifacts>
     link::link_named_partofs(&mut artifacts); // MUST come before parents are created

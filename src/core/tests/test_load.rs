@@ -6,7 +6,8 @@ use super::*;  // data directory constants
 use super::super::init_logger_test;
 use super::super::types::*;
 use super::super::load::*;
-use super::super::vars::*;
+use super::super::vars;
+use super::super::locs::*;
 
 // // Tests
 
@@ -187,19 +188,29 @@ fn test_load_toml() {
     assert!(artifacts.contains_key(&ArtName::from_str("TST-foo-2").unwrap()));
 }
 
+/// do the raw load with variable resolultion
+pub fn load_raw_extra(path: &Path)
+                      -> LoadResult<(Artifacts, Settings)> {
+    let (mut artifacts, mut settings, loaded_vars, mut repo_map) = try!(load_raw(path));
+    let mut variables = try!(vars::resolve_loaded_vars(loaded_vars, &mut repo_map));
+    try!(vars::fill_text_fields(&mut artifacts, &settings, &mut variables, &mut repo_map));
+    try!(vars::fill_text_fields(&mut artifacts, &settings, &mut variables, &mut repo_map));
+    Ok((artifacts, settings))
+}
+
 #[test]
-fn test_load_path_raw() {
+fn test_load_raw() {
     init_logger_test();
-    info!("running test_load_path_raw");
+    info!("running test_loadraw");
     // #TST-core-load-dir-unit-2
-    assert!(load_path_raw(TINVALID_DIR.join(&PathBuf::from("attr")).as_path()).is_err());
+    assert!(load_raw_extra(TINVALID_DIR.join(&PathBuf::from("attr")).as_path()).is_err());
 
     // #TST-core-load-unit-3
-    assert!(load_path_raw(TINVALID_DIR.join(&PathBuf::from("same_names")).as_path()).is_err());
+    assert!(load_raw_extra(TINVALID_DIR.join(&PathBuf::from("same_names")).as_path()).is_err());
 
     info!("loading only valid now");
     // [#TST-core-settings-general]
-    let (artifacts, settings) = load_path_raw(TSIMPLE_DIR.as_path()).unwrap();
+    let (artifacts, settings) = load_raw_extra(TSIMPLE_DIR.as_path()).unwrap();
     assert!(artifacts.contains_key(&ArtName::from_str("REQ-purpose").unwrap()));
 
     let req_purpose = artifacts.get(&ArtName::from_str("REQ-purpose").unwrap()).unwrap();

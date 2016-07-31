@@ -2,35 +2,47 @@
 partof = "REQ-2-load"
 text = '''
 The load module **shall** encapsulate:
-- resolving the *default* global variables using
-the vars module
-- following paths to artifact directories
-- loading artifacts from files
-- validating name-collisions
-- validating attribute types
-- loading settings correctly
-
-The load module **shall not** deal with:
-- resolving user-set global variables
-- linking or analyzing completeness
+  1. following paths to artifact directories
+  2. loading artifacts from files
+  3. validating name-collisions
+  4. validating attribute types
+  5. loading settings correctly
+  6. loading the raw variables
+  7. resolving variables
+  8. creating missing parents
+  9. auto-linking artifacts
+ 10. final artifact linking
+ 11. analyzing completeness
 '''
-
-##################################################
-# Risks related to loading in general
 
 [SPC-load]
 text = '''
-This details the high level loading proceedure of rsk
+This details the high level loading proceedure of rsk and what
+should be executed in parallel streams
 
 The loading of the project files shall occur in 4 stages:
- 1. loading and validation of raw data from all settings.paths recursively
-     1.a. this requires resolving settings during load
- 2. load and validate variables
- 3. resolving of variables in text fields
- 4. auto-creation of missing prefix artifacts
+ 1. loading and validation of raw data from all settings.artifact_paths recursively
 
+In parallel:
+ 2. thread A (IO bound)
+    a. find locations
+ 3. thread B (CPU bound)
+    a. resolve variables
+    b. create parents
+    c. link parents
+    d. validate partof
+    e. link parts
+    f. set completed and tested
+
+Merge threads then:
+ 4. attach locations
+
+> Some of Thread B could be further parallized with a lock on Artifacts
+> (it has to be mutated by most of those steps)
+
+# Error Scenarios
 The only locations where critical failure (i.e. failure that causes `ls` to not work)
-is possible are in steps 1 and 2.
+is possible is in step 1
 
 Critical failure shall occur if:
 - invalid toml
@@ -44,8 +56,8 @@ ui as missing links or None completion (etc)
 
 [SPC-load-dir]
 text = '''
-The first necessary component is a function that can load all files in a directory
-recursively. For each dir this should:
+The first necessary component is a function that can load the raw data from
+all files in a directory recursively. For each dir this should:
 
  1. record itself in the `loaded_dirs` variable, to ensure dirs don't get double loaded
  2. parse any .rsk text files and store any directories
@@ -53,15 +65,14 @@ recursively. For each dir this should:
  4. return all parsed (but not-processed) artifacts, settings and variables
 '''
 
-[SPC-load-path]
+[SPC-load-raw]
 text = '''
 The raw-loading of paths will be done using the functions defined in:
  - SPC-load-dir
  - SPC-settings-load
- - SPC-vars
 
 It is a pretty simple design: directories are loaded and settings are resolved until
-settings.artifact_paths is exhausted. Once that is complete, the variables are resolved.
+settings.artifact_paths is exhausted
 '''
 
 
