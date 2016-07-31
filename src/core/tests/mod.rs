@@ -15,7 +15,7 @@ use std::iter::FromIterator;
 
 use toml::{Parser, Value, Table};
 
-// mod test_load;
+mod test_load;
 // mod test_vars;
 // mod test_link;
 // mod test_core;
@@ -37,7 +37,8 @@ lazy_static!{
 pub static TOML_GOOD: &'static str = "
 [settings]
 disabled = false
-paths = ['{cwd}/test', '{repo}/test']
+artifact_paths = ['{cwd}/test', '{repo}/test']
+code_paths = ['{cwd}/src', '{repo}/src2']
 repo_names = ['.test']
 
 [REQ-foo]
@@ -56,20 +57,18 @@ refs = [\"hello\", \"ref\"]
 pub static TOML_RSK: &'static str = "
 [settings]
 disabled = false
-paths = ['{cwd}/data/empty']
+artifact_paths = ['{cwd}/data/empty']
 repo_names = ['.test']
 
 [REQ-foo]
 disabled = false
 [SPC-foo]
-loc = '{core}/foo.rs'
 refs = ['1', '2']
 [RSK-foo]
 [TST-foo]
 partof = 'SPC-dne'
 
 [SPC-bar]
-loc = '{core}/foo.rs'
 disabled = false
 partof = 'REQ-[foo, bar-[1,2]]'
 refs = [\"hello\", \"ref\"]
@@ -84,7 +83,7 @@ partof = 'REQ-parts-p1'
 
 pub static TOML_RSK2: &'static str = "
 [settings]
-paths = ['test/path']
+artifact_paths = ['test/path']
 repo_names = ['.tst']
 [REQ-baz]
 [RSK-foo-2]

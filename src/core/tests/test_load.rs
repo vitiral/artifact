@@ -15,8 +15,10 @@ use std::iter::FromIterator;
 use toml::{Parser, Value, Table};
 
 use super::*;  // data directory constants
+use super::super::init_logger_test;
 use super::super::types::*;
 use super::super::load::*;
+use super::super::vars::*;
 
 // // Tests
 
@@ -89,12 +91,26 @@ fn test_settings() {
     let df_tbl = Table::new();
     let set = Settings::from_table(
         &get_attr!(tbl_good, "settings", df_tbl, Table).unwrap()).unwrap();
-    assert!(set.paths ==
-            VecDeque::from_iter(vec![PathBuf::from("{cwd}/test"), PathBuf::from("{repo}/test")]));
+    assert!(set.paths == VecDeque::from_iter(
+                vec![PathBuf::from("{cwd}/test"), PathBuf::from("{repo}/test")]));
+    assert!(set.code_paths == VecDeque::from_iter(
+        vec![PathBuf::from("{cwd}/src"), PathBuf::from("{repo}/src2")]));
     assert!(set.disabled == false);
     let mut expected = HashSet::new();
     expected.insert(".test".to_string());
     assert!(set.repo_names == expected);
+
+    let toml_invalid = r#"
+    [settings]
+    artifact_paths = ['hi']
+    paths = ['invalid']
+    "#;
+    let tbl_invalid = parse_text(toml_invalid);
+    let df_tbl = Table::new();
+
+    assert!(Settings::from_table(&get_attr!(tbl_invalid,
+                                            "settings", df_tbl, Table).unwrap()
+                                 ).is_err());
 }
 
 
@@ -126,6 +142,10 @@ fn test_load_toml() {
     assert_eq!(variables.len(), 0);
 
     let num = load_toml(&path, TOML_RSK, &mut artifacts, &mut settings, &mut variables).unwrap();
+    let locs = HashMap::from_iter(
+        vec![(ArtName::from_str("SPC-foo").unwrap(), Loc::fake()),
+             (ArtName::from_str("SPC-bar").unwrap(), Loc::fake())]);
+    attach_locs(&mut artifacts, &locs);
     assert_eq!(num, 8);
     assert!(artifacts.contains_key(&ArtName::from_str("REQ-foo").unwrap()));
     assert!(artifacts.contains_key(&ArtName::from_str("SPC-foo").unwrap()));
@@ -166,9 +186,7 @@ fn test_load_toml() {
         let expected = ["REQ-Foo", "REQ-Bar-1", "REQ-Bar-2"]
             .iter().map(|n| ArtName::from_str(n).unwrap()).collect();
         assert_eq!(art.partof, expected);
-        let expected = Loc{
-            path: PathBuf::from("{core}/foo.rs"),
-            line_col: None};
+        let expected = Loc::fake();
         assert_eq!(art.loc.as_ref().unwrap(), &expected);
         assert_eq!(art.completed, -1.0);
         assert_eq!(art.tested, -1.0);
@@ -187,7 +205,7 @@ fn test_load_toml() {
 
 #[test]
 fn test_load_path_raw() {
-    // env_logger::init();
+    init_logger_test();
     info!("running test_load_path_raw");
     // TST-core-load-dir-unit-2
     assert!(load_path_raw(TINVALID_DIR.join(&PathBuf::from("attr")).as_path()).is_err());

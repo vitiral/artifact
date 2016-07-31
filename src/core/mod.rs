@@ -19,6 +19,18 @@ pub use core::types::{
     Settings};
 pub use core::load::{parse_names, load_toml};
 
+#[cfg(test)]
+use super::cmdline::init_logger;
+#[cfg(test)]
+pub fn init_logger_test() {
+    match init_logger(false, 3, false) {
+        Ok(_) => {},
+        Err(_) => {},
+    }
+}
+
+
+
 /// do all core loading operations defined in SPC-core-load-parts
 /// includes loading and validating raw data, resolving and applying
 /// variables, and linking artifacts

@@ -2,7 +2,7 @@
 [REQ-same]
 text = '''
 there will be two items with the same names in different files... and loaded from
-differen directory recursions
+different directory recursions
 '''
 
 [SPC-same]

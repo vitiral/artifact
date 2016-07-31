@@ -1,4 +1,4 @@
 
 [settings]
-paths = ["{repo}/deep/spcs"]
+artifact_paths = ["{repo}/deep/spcs"]
 repo_names = [".fake_repo"]

@@ -46,6 +46,7 @@ The `code_paths` items **shall** be able to use all global variables.
 '''
 
 [REQ-core-settings-repo_names]
+# TODO: get rid of repo_names
 refs = ["REQ-core-vars-global-repo"]
 text = '''
 There **shall** be a `repo_names` setting that appends user defined repository

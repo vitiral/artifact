@@ -1,6 +1,6 @@
 
 [settings]
-paths = ["{repo}/deep/reqs", "{cwd}/deep/spcs"]
+artifact_paths = ["{repo}/deep/reqs", "{cwd}/deep/spcs"]
 repo_names = [".tst_repo_name"]
 
 [globals]

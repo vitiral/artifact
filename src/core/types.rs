@@ -40,6 +40,15 @@ pub struct Loc {
     pub line_col: (usize, usize),
 }
 
+impl Loc {
+    pub fn fake() -> Loc {
+        Loc {
+            path: path::Path::new("fake").to_path_buf(),
+            line_col: (42, 0),
+        }
+    }
+}
+
 impl fmt::Display for Loc {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "<L:{}({}:{})>", self.path.display(),

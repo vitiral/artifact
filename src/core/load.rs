@@ -23,6 +23,8 @@ use core::vars::{resolve_default_vars, resolve_vars, resolve_settings,
 lazy_static!{
     pub static ref ARTIFACT_ATTRS: HashSet<String> = HashSet::from_iter(
         ["disabled", "text", "refs", "partof"].iter().map(|s| s.to_string()));
+    pub static ref SETTINGS_ATTRS: HashSet<String> = HashSet::from_iter(
+        ["disabled", "artifact_paths", "code_paths", "repo_names"].iter().map(|s| s.to_string()));
 }
 
 macro_rules! get_attr {
@@ -75,6 +77,14 @@ macro_rules! check_type {
 impl Settings {
     /// SPC-core-load-settings-from_table:<load a settings object from a table>
     pub fn from_table(tbl: &Table) -> LoadResult<Settings> {
+        let invalid_attrs: Vec<_> = tbl.keys()
+            .filter(|k| !SETTINGS_ATTRS.contains(k.as_str())).collect();
+        if invalid_attrs.len() > 0 {
+            let mut msg = String::new();
+            write!(msg, "invalid attributes in settings: {:?}", invalid_attrs).unwrap();
+            return Err(LoadError::new(msg));
+        }
+
         let df_vec = Vec::new();
         let str_paths: Vec<String> = check_type!(
             get_vecstr(tbl, "artifact_paths", &df_vec), "artifact_paths", "settings");
