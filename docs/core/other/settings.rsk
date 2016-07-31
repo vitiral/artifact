@@ -1,6 +1,5 @@
 [SPC-core-settings-struct]
 partof = "REQ-core-settings-[paths, repo_names, disabled]"
-loc = "{core}/types.rs"
 text = '''
 There **shall** be a settings struct that holds the valid project level settings.
 
@@ -11,20 +10,15 @@ It shall have the following attributes:
 '''
 
 [TST-core-settings-struct]
-loc = "{core}/tests/test_load.rs"
 
 [SPC-core-settings-vars]
-loc = "{core}/vars.rs"
 text = "settings shall have access to cwd and repo vars"
 [SPC-core-settings-overlap-paths]
-loc = "{core}/load.rs"
 text = "extra paths shall be ignored"
 [SPC-core-settings-overlap-repo_names]
-loc = "{core}/types.rs"
 text = "by choosing a HashSet for repo_names, overlap of names will be ignored"
 
 [TST-core-settings-general]
-loc = "{core}/tests/test_load.rs"
 partof = "SPC-core-settings-[struct, vars, overlap-[paths, repo_names]]"
 text = '''
 The simple directory should test the overlap feature of both paths and repo_names
@@ -32,8 +26,6 @@ by having overlapping variables and ensuring that the load is successful
 '''
 
 [SPC-core-settings-disabled]
-loc = "{core}/load.rs"
 text = "don't load anything in the file if disabled=true"
 [TST-core-settings-disabled]
-loc = "{core}/tests/test_load.rs"
 

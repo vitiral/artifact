@@ -11,7 +11,6 @@ they will not be coppied
 [REQ-ui-cmdline-cmd-help]
 text = "help command"
 [SPC-ui-cmdline-cmd-help]
-loc = "{cmdline}/matches.rs"
 
 [REQ-ui-cmdline-cmd-init]
 text = '''
@@ -30,4 +29,3 @@ is a completely empty subcommand
 '''
 
 [SPC-ui-cmdline-cmd-init-impl]
-loc = "{cmdline}/init.rs"

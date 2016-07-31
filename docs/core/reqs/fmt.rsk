@@ -13,7 +13,6 @@ This will make it much easier to implement displaying for multiple forms
 '''
 [SPC-core-fmt-func]
 partof = "REQ-core-fmt-func"
-loc = "{core}/fmt.rs"
 
 [REQ-core-fmt-settings]
 text = '''
@@ -28,8 +27,6 @@ colors to items that are in error, not complete, etc.
 '''
 [SPC-core-fmt-settings]
 partof = "REQ-core-fmt-settings"
-loc = "{core}/fmt.rs"
-
 
 [REQ-core-fmt-artifact]
 text = '''
@@ -44,4 +41,3 @@ colors to items that are in error, not complete, etc.
 '''
 [SPC-core-fmt-artifact]
 partof = "REQ-core-fmt-artifact"
-loc = "{core}/fmt.rs"

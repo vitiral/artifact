@@ -163,9 +163,7 @@ languages in existence
 - fun: rust is a fun language to write in.
 '''
 [SPC-purpose-etc-language]
-loc = "{cwd}/notes.md"
 [TST-purpose-etc-language]
-loc = "{cwd}/notes.md"
 
 [REQ-purpose-etc-modules]
 text = '''
@@ -176,10 +174,8 @@ Roughly, they **should** be broken up according to these requirements.
 '''
 [SPC-purpose-etc-modules]
 partof = "REQ-purpose-etc-modules"
-loc = "{cwd}/notes.md"
 [TST-purpose-etc-modules]
 partof = "SPC-purpose-etc-modules"
-loc = "{cwd}/notes.md"
 
 [REQ-purpose-versioning]
 text = '''
@@ -192,7 +188,5 @@ compatibility is possible.
 '''
 [SPC-purpose-etc-versioning]
 partof = "REQ-purpose-versioning"
-loc = "{cwd}/notes.md"
 [TST-purpose-etc-versioning]
 partof = "SPC-purpose-etc-versioning"
-loc = "{cwd}/notes.md"

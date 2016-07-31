@@ -1,19 +1,16 @@
 [SPC-core-artifact-attrs-partof-validate]
-loc = "{core}/link.rs"
 partof = "REQ-core-links-valid-[req, rsk, spc, tst]"
 text = '''
 partof **shall** be validated by the type settings laid
 out in the requirements
 '''
 [TST-core-artifact-attrs-partof-vaidate]
-loc = "{core}/mod.rs"
 text = '''
 There **shall** be a test that attempts to use partof variables that are invalid
 and ensures there was an error.
 '''
 
 [SPC-core-artifact-attrs-parts-parents-create]
-loc = "{core}/link.rs"
 partof = "REQ-core-links-prefix"
 text = '''
 Some of an artifact's `parts` **shall** be automatically created
@@ -21,7 +18,6 @@ by the name prefix, called a `parent`
 '''
 
 [SPC-core-artifact-attrs-parts-parents-link]
-loc = "{core}/link.rs"
 partof = "REQ-core-links-prefix"
 text = '''
 parents, whether auto-created or not, **shall** be automaclly linked
@@ -29,17 +25,13 @@ as partof thier children
 '''
 
 [SPC-core-links-named_partof]
-loc = "{core}/link.rs"
 text = "This is amazingly simple"
 [TST-core-links-named_partof]
-loc = "{core}/tests/test_link.rs"
 
 [TST-core-artifact-attrs-parts-parents]
-loc = "{core}/tests/test_link.rs"
 partof = "SPC-core-artifact-attrs-parts-parents-[link, create]"
 
 [SPC-core-artifact-attrs-parts-link]
-loc = "{core}/link.rs"
 text = '''
 the parts **shall** be determined by simply going through all of the
 artifacts, looking up each item in their `partof` field, and linking
@@ -48,14 +40,9 @@ them back through the `parts` field
 
 [SPC-core-links-valid]
 partof = "REQ-core-links-valid-[req, rsk, spc, tst]"
-loc = "{core}/link.rs"
 [TST-core-links-valid]
 partof = "SPC-core-artifact-attrs-partof-validate"
 [TST-core-links-valid-req]
-loc = "{core}/tests/test_link.rs"
 [TST-core-links-valid-rsk]
-loc = "{core}/tests/test_link.rs"
 [TST-core-links-valid-spc]
-loc = "{core}/tests/test_link.rs"
 [TST-core-links-valid-tst]
-loc = "{core}/tests/test_link.rs"

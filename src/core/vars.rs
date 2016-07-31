@@ -109,10 +109,17 @@ pub fn resolve_settings(settings: &mut Settings,
             settings.paths.push_back(PathBuf::from(p));
         }
 
+        // TODO: it is possible to be able to use all global variables in code_paths
         // push resolved code_paths
         for p in settings_item.code_paths.iter() {
             let p = try!(do_strfmt(p.to_str().unwrap(), &vars, &fpath));
             settings.code_paths.push_back(PathBuf::from(p));
+        }
+
+        // push resolved exclude_code_paths
+        for p in settings_item.exclude_code_paths.iter() {
+            let p = try!(do_strfmt(p.to_str().unwrap(), &vars, &fpath));
+            settings.exclude_code_paths.push_back(PathBuf::from(p));
         }
     }
     Ok(())
@@ -341,11 +348,11 @@ pub fn find_locs_text(path: &Path,
                         };
                         let locname = ArtName::from_str(name).unwrap();
                         debug!("Found loc: {}", locname);
-                        match locs.insert(locname,
-                                          Loc {
-                                              path: path.to_path_buf(),
-                                              line_col: (line, start_col)
-                                          }) {
+                        let loc = Loc {
+                            path: path.to_path_buf(),
+                            line_col: (line, start_col)
+                        };
+                        match locs.insert(locname, loc) {
                             None => {},
                             Some(l) => {
                                 error!("detected overlapping loc {} in files: {:?} and {}",
@@ -459,7 +466,17 @@ fn find_locs_dir(path: &PathBuf, loaded_dirs: &mut HashSet<PathBuf>,
 pub fn find_locs(settings: &mut Settings) -> LoadResult<HashMap<ArtName, Loc>> {
     info!("parsing code files for artifacts...");
     let mut locs: HashMap<ArtName, Loc> = HashMap::new();
-    let mut loaded_dirs: HashSet<PathBuf> = HashSet::new();
+    let mut loaded_dirs: HashSet<PathBuf> = HashSet::from_iter(
+        settings.exclude_code_paths.iter().map(|p| p.to_path_buf()));
+    // first make sure the excluded directories exist
+    for d in loaded_dirs.iter() {
+        if !d.exists() {
+            let mut msg = String::new();
+            write!(msg, "excluded path {} does not exist!", d.display()).unwrap();
+            return Err(LoadError::new(msg));
+        }
+    }
+    debug!("initial excluded code paths: {:?}", loaded_dirs);
     let mut error = false;
     while settings.code_paths.len() > 0 {
         let dir = settings.code_paths.pop_front().unwrap(); // it has len, it better pop!

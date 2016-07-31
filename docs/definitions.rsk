@@ -52,12 +52,10 @@ determine the weight to assign to the risk.
 # House cleaning
 
 [SPC-definitions]
-loc = "{cwd}/notes.md"
 partof = "REQ-definitions-[assertions, risks]"
 text = '''
 This document itself meets the requirements
 of the definitions
 '''
 [TST-definitions]
-loc = "{cwd}/notes.md"
 text = "no tests necessary"

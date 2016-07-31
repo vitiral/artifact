@@ -1,25 +1,20 @@
 [SPC-core-artifact-name-struct]
-loc = "{core}/types.rs"
 partof = "REQ-core-[artifact-name, links-prefix]"
 text = '''
 The artifact name shall be a struct similar to std::path::Path
 '''
 
 [TST-core-artifact-name-parent]
-loc = "{core}/types.rs"
 partof = "SPC-core-artifact-name-struct"
 text = "The parent method must be tested"
 
 [SPC-core-artifact-name-check]
-loc = "{core}/types.rs"
 partof = "REQ-core-artifact-[name, types-[req, spc, rsk, tst]]"
 text = "The name shall be checked to match the requirements"
 
 [TST-core-artifact-name-check]
-loc = "{core}/tests/test_load.rs"
 
 [SPC-core-artifact-struct]
-loc = "{core}/types.rs"
 partof = "REQ-core-artifact-attrs"
 text = '''
 artifact will be implemented in code as an Artifact struct with all the relevant
@@ -27,10 +22,8 @@ attributes attached to it
 '''
 
 [SPC-core-artifact-attrs-disabled]
-loc = "{core}/load.rs"
 
 [SPC-core-artifact-attrs-refs]
-loc = "{core}/load.rs"
 text = '''
 the `refs` attr **shall** be used to store unchecked string
 references which the ui components **may** convert into various
@@ -38,7 +31,6 @@ forms (i.e. link, artifact-link, etc)
 '''
 
 [SPC-core-artifact-attrs-text]
-loc = "{core}/load.rs"
 text = '''
 the `text` attr **shall** be used to store an unchecked string
 which the ui components **will** evaluate later as some form of
@@ -46,16 +38,13 @@ markdown
 '''
 
 [SPC-core-artifact-names-parse]
-loc = "{core}/load.rs"
 partof = "SPC-core-artifact-attrs-partof, REQ-core-artifact-attrs-[partof, partof-fmt]"
 [TST-core-artifact-names-parse]
-loc = "{core}/load.rs"
 
 [SPC-core-artifact-attrs-parts]
 text = "artifact parts shall be automatically determined"
 
 [SPC-core-artifact-types]
-loc = "{core}/types.rs"
 text = '''
 Valid artifact types shall be determined through an enum.
 
@@ -64,7 +53,6 @@ are all nearly identical
 '''
 
 [SPC-core-artifact-types-check]
-loc = "{core}/types.rs"
 text = '''
 All artifacts must be a defined type or error
 '''

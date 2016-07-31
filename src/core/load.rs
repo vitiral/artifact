@@ -24,7 +24,9 @@ lazy_static!{
     pub static ref ARTIFACT_ATTRS: HashSet<String> = HashSet::from_iter(
         ["disabled", "text", "refs", "partof"].iter().map(|s| s.to_string()));
     pub static ref SETTINGS_ATTRS: HashSet<String> = HashSet::from_iter(
-        ["disabled", "artifact_paths", "code_paths", "repo_names"].iter().map(|s| s.to_string()));
+        ["disabled", "artifact_paths",
+         "code_paths", "exclude_code_paths",
+         "repo_names"].iter().map(|s| s.to_string()));
 }
 
 macro_rules! get_attr {
@@ -90,11 +92,14 @@ impl Settings {
             get_vecstr(tbl, "artifact_paths", &df_vec), "artifact_paths", "settings");
         let code_paths: Vec<String> = check_type!(
             get_vecstr(tbl, "code_paths", &df_vec), "code_paths", "settings");
+        let exclude_code_paths: Vec<String> = check_type!(
+            get_vecstr(tbl, "exclude_code_paths", &df_vec), "exclude_code_paths", "settings");
         Ok(Settings {
             disabled: check_type!(get_attr!(tbl, "disabled", false, Boolean),
                                   "disabled", "settings"),
             paths: str_paths.iter().map(|s| PathBuf::from(s)).collect(),
             code_paths: code_paths.iter().map(|s| PathBuf::from(s)).collect(),
+            exclude_code_paths: exclude_code_paths.iter().map(|s| PathBuf::from(s)).collect(),
             repo_names: HashSet::from_iter(check_type!(
                 get_vecstr(tbl, "repo_names", &df_vec), "repo_names", "settings")),
             color: true,

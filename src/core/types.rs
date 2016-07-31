@@ -212,6 +212,7 @@ pub struct Settings {
     pub disabled: bool,
     pub paths: VecDeque<path::PathBuf>,
     pub code_paths: VecDeque<path::PathBuf>,
+    pub exclude_code_paths: VecDeque<path::PathBuf>,
     // [SPC-core-settings-overlap-repo_names]
     pub repo_names: HashSet<String>,
     pub color: bool,
@@ -223,6 +224,7 @@ impl Settings {
             disabled: false,
             paths: VecDeque::new(),
             code_paths: VecDeque::new(),
+            exclude_code_paths: VecDeque::new(),
             repo_names: HashSet::new(),
             color: true,
         }
