@@ -93,18 +93,21 @@ partof = "SPC-load-raw"
 text = '''
 load the following and make sure values are present and correct:
  1. [file folder[file]]
+
  2. Unreachable should NOT get loaded:
- ```
+```
  /foo/foo.rsk
  /foo/bar/baz/unreachable.rsk
- ```
-'''
+```
+
  3. All three files should be loaded:
 ```
 /foo/foo.rsk
 /foo/bar/bar.rsk
 /foo/bar/baz/baz.rsk
 ```
+'''
+
 [TST-load-dir-invalid]
 text = '''
 load the following and make sure it results in an error:

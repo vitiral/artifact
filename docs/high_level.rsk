@@ -56,8 +56,9 @@ This allows nesting of projects without increasing time time it takes
 to load projects dramatically.
 '''
 
-[RSK-2-load-toml]
+[RSK-2-load]
 partof = "REQ-load"
+[RSK-2-load-toml]
 text = '''
 weight = 25
 
@@ -71,7 +72,6 @@ impact users. There is a **low** likelyhood that this issue will be an **avalanc
 '''
 
 [RSK-2-load-invalid]
-partof = "REQ-purpose-format"
 text = '''
 weight = 20
 
@@ -100,6 +100,7 @@ There are several safeguards:
 '''
 
 [REQ-2-settings]
+partof = "REQ-1-variables"
 text = '''
 Each .rsk file **will** be able to detail various settings. Any .rsk file
 can detail these settings (there is no special "config file")
@@ -123,6 +124,7 @@ all the rules of python string formatting.
 '''
 
 [REQ-2-artifact]
+partof = "REQ-1-artifact"
 text = '''
 rsk **shall** load artifacts from .rsk files in a "flat style" -- i.e. artifacts
 can be defined anywhere, the path to the file is not important.
@@ -191,6 +193,7 @@ The reasons for these rules are:
 '''
 
 [REQ-2-loc]
+partof = "REQ-1-coverage"
 text = '''
 rsk **shall** load the implementation LOCs from source code in the directories of
 settings.code_paths
