@@ -213,6 +213,7 @@ fn test_load_path_raw() {
     // TST-core-load-unit-3
     assert!(load_path_raw(TINVALID_DIR.join(&PathBuf::from("same_names")).as_path()).is_err());
 
+    info!("loading only valid now");
     // [TST-core-settings-general]
     let (artifacts, settings) = load_path_raw(TSIMPLE_DIR.as_path()).unwrap();
     assert!(artifacts.contains_key(&ArtName::from_str("REQ-purpose").unwrap()));
@@ -245,5 +246,4 @@ fn test_load_path_raw() {
     // TST-core-load-dir-unit-5
     assert_eq!(req_purpose.refs, [extra_dir.join(PathBuf::from("README.md")).to_str().unwrap()]);
     assert_eq!(spc_lvl1.text, "level one does FOO");
-    assert_eq!(spc_lvl1.loc.as_ref().unwrap().path, lvl1_dir.join(PathBuf::from("lvl_1.rs")));
 }

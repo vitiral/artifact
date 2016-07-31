@@ -269,11 +269,11 @@ pub fn fill_text_fields(artifacts: &mut Artifacts,
     for (name, art) in artifacts.iter_mut() {
         trace!("filling in {}", name);
         errors.clear();
-        let cwd = art.path.parent().unwrap().to_path_buf();
+        let cwd = art.path.parent().expect("no-path-parent").to_path_buf();
         try!(find_and_insert_repo(&cwd, repo_map, &settings.repo_names));
-        variables.insert("cwd".to_string(), cwd.to_str().unwrap().to_string());
-        variables.insert("repo".to_string(), repo_map.get(&cwd).unwrap()
-                            .to_str().unwrap().to_string());
+        variables.insert("cwd".to_string(), cwd.to_str().expect("utf-path").to_string());
+        variables.insert("repo".to_string(), repo_map.get(&cwd).expect("repo_map")
+                            .to_str().expect("utf-path").to_string());
 
         // evaluate text
         match strfmt::strfmt(art.text.as_str(), &variables) {
@@ -300,6 +300,7 @@ pub fn fill_text_fields(artifacts: &mut Artifacts,
         // [SPC-core-load-error-text-return]
         return Err(LoadError::new("failure to resolve artifact text fields".to_string()));
     }
+    trace!("Done filling");
     Ok(())
 }
 

@@ -2,7 +2,6 @@
 repo_names = [".tst_repo_name"] # for testing that it ignores overlap
 
 [SPC-loc]
-loc = "{src}/loc.rs"
 text = "test that it goes into a src directory"
 
 [REQ-lvl-1]
@@ -10,10 +9,7 @@ partof = "REQ-purpose"
 text = "one level deep in a recursive dir"
 
 [SPC-lvl-1]
-loc = "{lvl_1}/lvl_1.rs"
 text = "level one does {foo}"
 
-
 [SPC-loc-dne]
-loc = "{lvl_1}/dne"
 text = "dne does not exist"

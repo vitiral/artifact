@@ -96,7 +96,7 @@ pub fn fmt_artifact(name: &ArtName, artifacts: &Artifacts, fmtset: &FmtSettings,
         out.partof = Some(partof);
     }
     if fmtset.loc_path {
-        out.loc = artifact.loc.clone();
+    
     }
     if fmtset.refs {
         out.refs = Some(artifact.refs.clone());

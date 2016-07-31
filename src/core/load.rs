@@ -444,6 +444,7 @@ pub fn load_path_raw(path: &Path) -> LoadResult<(Artifacts, Settings)> {
     let mut loaded_dirs: HashSet<PathBuf> = HashSet::new();
     let mut loaded_settings: Vec<(PathBuf, Settings)> = Vec::new();
     let mut loaded_variables: Vec<(PathBuf, Variables)> = Vec::new();
+    // repo_map maps directories to their found base-repositories
     let mut repo_map: HashMap<PathBuf, PathBuf> = HashMap::new();
     let mut msg = String::new();
 

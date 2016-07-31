@@ -5,9 +5,7 @@ refs = ["REQ-lvl-1"]
 text = "two levels deep"
 
 [SPC-lvl-2]
-loc = "{src}/loc.rs"
 
 [TST-lvl-2]
-loc = "{src}/loc.rs"
 partof = "SPC-lvl-2"
 text = 'test lvl 2'
