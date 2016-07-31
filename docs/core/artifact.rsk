@@ -1,0 +1,79 @@
+[REQ-artifact-partof]
+partof = "REQ-1-linking, REQ-2-artifact-attrs"
+refs = ["REQ-2-names"]
+text = '''
+the `partof` field **shall** be a string specifying which artifacts the artifact item
+is a part of (which artifacts depend on it)
+
+The format for specifying multiple artifacts is in REQ-2-names
+
+default = ""
+'''
+
+[REQ-artifact-refs]
+partof = "REQ-2-artifact-attrs"
+text = '''
+the `refs` field **will** be a list of strings that **shall** provide documentation to:
+- if the string looks like artifacts (i.e. REQ, SPC, etc are at the beginning)
+it **shall** be linked as one in the format of REQ-core-artifact-attrs-partof
+- else if the string is a valid file path, it **shall** be linked to the relevant code
+repository
+- else if the string looks like a url (http://, www., *.com/org/etc), it **shall** be
+linked as one
+- else it **shall** be interpreted as markdown
+
+> Note: is advised that you do not put newline characters in any of the items in `refs`
+
+default = None
+'''
+
+[SPC-artifact]
+partof = "REQ-2-artifact"
+text = "definition, creation and loading of Artifact and it's attributes"
+
+[SPC-artifact-load]
+text = '''
+the Artifacts themselves **shall** be processed from a TOML table and converted
+to a struct.
+
+During this process all of it's values **shall** be validated and proper error
+messages **shall** be raised.
+'''
+
+[SPC-artifact-name]
+text = '''
+# parts
+1. `ArtName` struct definition
+2. `::from_str` method with proper error handling
+'''
+
+[SPC-artifact-refs]
+text = '''
+implementing refs parsing **shall** convert the refs to an enum list with
+the types {ArtName, PathBuf, Url, MarkDown}
+
+# parts
+ 1. check if it is a valid artifact-names field and link appropriately
+ 2. check if it is a valid file path and link appropriately
+ 3. check if it is a valid url
+ 4. process it as markdown
+'''
+
+[SPC-names]
+partof = "REQ-2-names, SPC-artifact-name"
+text = '''
+The Artifact names **shall** be processed from plaintext and stored in a structure
+
+multi-name strings **shall** be parsed with a simple linear function pushes
+onto a `String` datatype.
+
+# parts
+1. read one character at a time
+2. validates the character
+3. recurses if a `[]` block is being entered
+
+It will **not** validate that the artifact names are correct -- that is the
+responsibility of `::from_str`.
+'''
+[TST-names]
+text = "give valid and invalid inputs and verify results"

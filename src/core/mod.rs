@@ -2,11 +2,12 @@ use std::path::Path;
 
 use time;
 
-mod types;
-mod vars;
-#[macro_use] mod load;  // macro use so the macro can be tested
-mod link;
+pub mod types;
+pub mod vars;
+#[macro_use] pub mod load;  // macro use so the macro can be tested
+pub mod link;
 pub mod fmt;
+pub mod prefix;
 
 #[cfg(test)]
 mod tests;
@@ -15,9 +16,9 @@ mod tests;
 pub use core::vars::find_repo;
 pub use core::types::{
     LoadResult, LoadError,
-    Artifacts, Artifact, ArtType, ArtName, Loc,
-    Settings};
-pub use core::load::{parse_names, load_toml};
+    Artifacts, Artifact, ArtType, ArtName, ArtNames, Loc,
+    Settings, LoadFromStr};
+pub use core::load::load_toml;
 
 #[cfg(test)]
 use super::cmdline::init_logger;

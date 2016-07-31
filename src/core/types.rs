@@ -8,11 +8,13 @@ use std::collections::{HashMap, HashSet, VecDeque};
 use std::ascii::AsciiExt;
 use std::hash::{Hash, Hasher};
 use std::cmp::{PartialEq, Ord, PartialOrd, Ordering};
+use std::fmt::Write;
 
 use regex::Regex;
 
 pub type LoadResult<T> = Result<T, LoadError>;
 pub type Artifacts = HashMap<ArtName, Artifact>;
+pub type ArtNames = HashSet<ArtName>;
 
 // #SPC-core-vars-struct
 pub type Variables = HashMap<String, String>;
@@ -56,18 +58,32 @@ impl fmt::Display for Loc {
     }
 }
 
-/// [#SPC-core-artifact-name-struct]:<storage of the artifact's name>
-/// also contains logic for finding the artifact's type
-/// (as it is based on the name)
-// TODO: Hash and Eq have to be defined to ONLY care about
-// value. raw is simply for displaying on the ui
+/// Definition of an artifact name, with Traits for hashing,
+/// displaying, etc
+/// partof: #SPC-artifact-name (.1)
 #[derive(Default, Clone)]
 pub struct ArtName {
     pub raw: String,
     pub value: Vec<String>,
 }
 
+
 impl ArtName {
+    /// parse name from string and handle errors
+    /// see: SPC-artifact-name.2
+    pub fn from_str(s: &str) -> LoadResult<ArtName> {
+        let value = s.to_ascii_uppercase().replace(' ', "");
+        if !ART_VALID.is_match(&value) {
+            return Err(LoadError::new("invalid artifact name: ".to_string() + s));
+        }
+        let out = ArtName {
+            raw: s.to_string(),
+            value: value.split("-").map(|s| s.to_string()).collect(),
+        };
+        try!(out.find_type_maybe()); // ensure the type is valid
+        Ok(out)
+    }
+
     /// #SPC-core-artifact-types-check:<find a valid type or error>
     fn find_type_maybe(&self) -> LoadResult<ArtType> {
         let ty = self.value.get(0).unwrap();
@@ -86,21 +102,6 @@ impl ArtName {
 
     pub fn get_type(&self) -> ArtType {
         return self.find_type_maybe().unwrap();
-    }
-
-    pub fn from_str(s: &str) -> LoadResult<ArtName> {
-        // REQ-core-artifacts-name: strip spaces, ensure valid chars
-        // #SPC-core-artifact-name-check:<make sure name is valid>
-        let value = s.to_ascii_uppercase().replace(' ', "");
-        if !ART_VALID.is_match(&value) {
-            return Err(LoadError::new("invalid artifact name: ".to_string() + s));
-        }
-        let out = ArtName {
-            raw: s.to_string(),
-            value: value.split("-").map(|s| s.to_string()).collect(),
-        };
-        try!(out.find_type_maybe()); // ensure the type is valid
-        Ok(out)
     }
 
     pub fn parent(&self) -> Option<ArtName> {
@@ -187,6 +188,92 @@ impl PartialOrd for ArtName {
         self.value.partial_cmp(&other.value)
     }
 }
+
+
+
+/// subfunction to parse names from a names-str recusively
+/// see: REQ-2-names
+fn _parse_names<I>(raw: &mut I, in_brackets: bool) -> LoadResult<Vec<String>>
+    where I: Iterator<Item = char>
+{
+    // hello-[there, you-[are, great]]
+    // hello-there, hello-you-are, hello-you-great
+    let mut strout = String::new();
+    let mut current = String::new();
+    loop {
+        // SPC-names.1: read one char at a time
+        let c = match raw.next() {
+            Some(c) => c,
+            None => {
+                if in_brackets {
+                    // SPC-names.2: do validation
+                    return Err(LoadError::new("brackets are not closed".to_string()));
+                }
+                break;
+            }
+        };
+        match c {
+            ' ' | '\n' | '\r' => {}, // ignore whitespace
+            '[' => {
+                if current == "" {
+                    // SPC-names.2: more validation
+                    return Err(LoadError::new("cannot have '[' after characters ',' or ']' \
+                                               or at start of string".to_string()));
+                }
+                // SPC-names.3: recurse for brackets
+                for p in try!(_parse_names(raw, true)) {
+                    strout.write_str(&current).unwrap();
+                    strout.write_str(&p).unwrap();
+                    strout.push(',');
+                }
+                current.clear();
+            }
+            ']' => break,
+            ',' => {
+                strout.write_str(&current).unwrap();
+                strout.push(',');
+                current.clear();
+            }
+            _ => current.push(c),
+        }
+    }
+    strout.write_str(&current).unwrap();
+    Ok(strout.split(",").filter(|s| s != &"").map(|s| s.to_string()).collect())
+}
+
+#[test]
+// partof: #TST-names
+fn test_parse_names() {
+    assert_eq!(_parse_names(&mut "hi, ho".chars(), false).unwrap(), ["hi", "ho"]);
+    assert_eq!(_parse_names(&mut "hi-[ho, he]".chars(), false).unwrap(), ["hi-ho", "hi-he"]);
+    assert_eq!(_parse_names(
+        &mut "hi-[ho, he], he-[ho, hi, ha-[ha, he]]".chars(), false).unwrap(),
+               ["hi-ho", "hi-he", "he-ho", "he-hi", "he-ha-ha", "he-ha-he"]);
+    assert!(_parse_names(&mut "[]".chars(), false).is_err());
+    assert!(_parse_names(&mut "[hi]".chars(), false).is_err());
+    assert!(_parse_names(&mut "hi-[ho, [he]]".chars(), false).is_err());
+    assert!(_parse_names(&mut "hi-[ho, he".chars(), false).is_err());
+}
+
+
+pub trait LoadFromStr: Sized {
+    fn from_str(s: &str) -> LoadResult<Self>;
+}
+
+impl LoadFromStr for ArtNames {
+    /// Parse a "names str" and convert into a Set of ArtNames
+    /// partof: #SPC-names
+    fn from_str(partof_str: &str) -> LoadResult<ArtNames> {
+        let strs = try!(_parse_names(&mut partof_str.chars(), false));
+        let mut out = HashSet::new();
+        for s in strs {
+            out.insert(try!(ArtName::from_str(&s)));
+        }
+        Ok(out)
+    }
+}
+
+
 
 /// #SPC-core-artifact-struct:<artifact definition>
 /// The Artifact type. This encapsulates

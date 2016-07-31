@@ -1,0 +1,20 @@
+[SPC-settings-load]
+text = '''
+Settings **shall** be processed from a TOML table and converted to a struct.
+
+During this process all of it's values **shall** be validated and proper error
+messages **shall** be raised.
+'''
+
+[SPC-settings-resolve]
+text = '''
+Because artifact_paths determine the locations that will be used to search for
+.rsk files, and the .rsk files contain more settings that contain locations,
+the `artifact_paths` variable has to be analyzed *before* other variables are.
+
+This means three things:
+ 1. it is not possible to use global variables in artifact_paths
+ 2. default-globals have to be resolved for code_paths before other globals are
+ 2. a special process has to be developed for resolving settings that happens
+    during the loading of artifacts (the two processes are coupled)
+'''

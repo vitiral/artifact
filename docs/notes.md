@@ -14,7 +14,7 @@
 - #TST-0-language
 - #SPC-0-format
 - #TST-0-format
-- SPC-0-modules
-- TST-0-modules
-- SPC-0-versioning
-- TST-0-versioning
+- #SPC-1-versioning
+- #TST-1-versioning
+- #SPC-2-modules
+- #TST-2-modules

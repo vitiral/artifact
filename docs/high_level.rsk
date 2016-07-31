@@ -1,0 +1,271 @@
+# High level requirements and designs
+
+[REQ-2]
+text = "high level requirements"
+[SPC-2]
+text = "high level design specifications"
+[RSK-2]
+text = "high level risks"
+[TST-2]
+text = "high level test design"
+
+[REQ-2-modules]
+text = '''
+rsk **should** have decoupled modules that depend on eachother as little
+as possible.
+
+Roughly, they **should** be broken up according to the requirement categories
+detailed in these documents.
+'''
+[SPC-2-modules]
+[TST-2-modules]
+
+##################################################
+# Core: high level requirements related to the core module
+[REQ-2-load]
+text = "loading and parsing of text"
+
+[REQ-2-ftype]
+text = '''
+All rsk configuration and artifacts **will** be stored in files using
+[toml](https://github.com/toml-lang/toml) format with the `.rsk` extention.
+
+Artifacts **will** be items with keys denoted by their prefix (REQ, RSK, etc.).
+In addition, there **shall** be the following special items:
+
+- `settings`: stores various configuration settings of the whole project
+- `globals`: stores global variables that can be used in any text field
+'''
+
+[REQ-2-load]
+refs = ["REQ-2-settings"]
+text = '''
+There **shall** be settings in .rsk files that detail which directories to load.
+
+**rsk** shall recursively load all directories given to it in the `artifact_paths` setting.
+**recursively** is defined as "load until there is a directory with no `.rsk` files".
+
+Example:
+**rsk** will try to load /foo and /foo/src but will not try to load
+/foo/src/bar as there were no `.rsk` files in /foo/src
+```
+/foo/foo.rsk
+/foo/src/foo.rs
+/foo/src/bar/bar.rs
+```
+
+This allows nesting of projects without increasing time time it takes
+to load projects dramatically.
+'''
+
+[RSK-2-load-toml]
+partof = "REQ-load"
+text = '''
+weight = 25
+
+The **toml** library used is currently not stable. To prevent user impact
+to changes in the toml library (or at least able to inform users of breaking
+changes), extensive unit testsing must be in place that checks for
+breaking changes.
+
+the stability of the format is a **critical** component as it could directly
+impact users. There is a **low** likelyhood that this issue will be an **avalanche**
+'''
+
+[RSK-2-load-invalid]
+partof = "REQ-purpose-format"
+text = '''
+weight = 20
+
+Type checking and validity, and failing on invalid data is essential
+for the functionality of rsk and the reporting of errors to the user.
+
+loading is a **critical** component. There is a **low** likelyhood that
+this issue will be a **boulder**
+'''
+
+[RSK-2-load-loop]
+text = '''
+# weight = 15
+
+loading is a **critical** component. Without proper care and testing, there is a
+**low** likelyhood that requirements could try to load infinitely causing a
+**rock** of a problem.
+
+There are several safeguards:
+- directories that are loaded are stored. If loading is attempted again,
+    they will not be loaded.
+- testing can create situations that may cause recursive loads and validate that they
+    don't.
+- recusrive directory loads should always execute completely before the next path
+    is processed
+'''
+
+[REQ-2-settings]
+text = '''
+Each .rsk file **will** be able to detail various settings. Any .rsk file
+can detail these settings (there is no special "config file")
+
+The "initial .rsk file" **shall** be able to be specified in the command
+line and will default to `{cwd}/.rsk/settings.rsk`
+
+The settings are:
+ - `artifact_paths`: path to a directory containing more .rsk files
+ - `code_paths`: path to directory containing code which implements
+      artifacts (see `loc`)
+ - `exclude_code_paths`: code paths to exclude
+'''
+
+[REQ-2-globals]
+text = '''
+rsk **shall** load global variables from .rsk files and apply them to all text fields.
+
+Variables **shall** be specified in the format `{VARIABLE_NAME}` and behaves
+all the rules of python string formatting.
+'''
+
+[REQ-2-artifact]
+text = '''
+rsk **shall** load artifacts from .rsk files in a "flat style" -- i.e. artifacts
+can be defined anywhere, the path to the file is not important.
+
+Strict naming **will** be enforced to follow REQ-1-artifacts, where the prefix
+**will** be used to specify the type. i.e. `REQ-foo` means `foo` of type `REQ`
+
+All artifact names **will** be composed of only the characters in the set:
+`a-zA-Z0-9_-`
+
+In other words, that is all alpha-numeric characters as well as "_" and "-".
+
+Also:
+- case will be ignored ("a" == "A")
+- whitespace will be ignored ("a b" == "ab")
+- other characters will cause an error to be raised
+- "-" has a special meaning as defined in REQ-core-links-prefix
+- the artifact name cannot end with "-"
+- the artifact name must begin with a valid artifact (REQ, SPC, RSK, or TST)
+'''
+
+[REQ-2-artifact-attrs]
+refs = ["REQ-2-names"]
+text = '''
+All artifacts **will** have the following attributes that the user can define:
+- disabled: whether the artifact should be skipped during analysis
+- text: description of the artifact
+- refs: attr to list references for documentation purposes only
+- partof: a string containing artifact names which the artifact is a part of
+'''
+
+[REQ-2-names]
+text = '''
+Artifact names **shall** follow the following spec for specifying multiple artifacts
+- `[]` **will** denote a set of artifacts related to the prevoius characters
+- `,` **will** denote separate artifact groups
+
+# Example:
+Both of these are the same set of artifacts:
+- `bar-d[1, 2, 3]`
+- `bar-d1, bar-d2, bar-d3`
+
+Note: spaces ` ` are always ignored
+
+# invalid inputs
+- `,` and `:` characters are **only** permitted inside of brackets
+- after a closing bracket `]`, **only** the `,` or `]` character is permitted
+    - i.e. `REQ-[foo, bar]-baz` is invalid
+- it is an error for a `LOC` artifact to be in `partof` (use `loc`)
+
+# valid inputs
+Some interesting valid use cases are:
+- `REQ-[foo, bar-[1, 2, 3, 6], baz]` evaluates to `REQ-foo, REQ-bar-[1, 2, 3, 6], REQ-baz`
+    which evaluates to `REQ-foo, REQ-bar-1, REQ-bar-2, REQ-bar-3, REQ-bar-6, REQ-baz`
+
+The reasons for these rules are:
+- without the avility to do ranges or re-use a prefix, it can be very annoying to
+    list the requirements in an easy to understand way
+- however, the use cases for wanting to do something like [a,b]-[1,2,3] are poor.
+    The names and purpose of sub-categories should rarely (if ever) be
+    connected, and trying to maintain structures like that would likely cause
+    the developer more harm than good.
+- the parser is much easier to implement, and it is easier to see "under the hood"
+    at what the parser is actually doing if it only uses simple recursion rather than
+    having to go backwards in the parsing.
+'''
+
+[REQ-2-loc]
+text = '''
+rsk **shall** load the implementation LOCs from source code in the directory of
+settings.code_paths
+
+LOCs **will** be marked in plaintext in the sourecode itself like: `#ART-foo-bar`
+
+> Note: `ART` is either `SPC` or `TST`
+
+If a valid artifact is implemented at a LOC, then it **will** be considered "done" by
+the coverage analysis
+'''
+
+
+##################################################
+# High level UI requirements
+[REQ-2-ui-help]
+text = '''
+rsk **will** provide the ability to get help easily
+'''
+
+[REQ-2-ui-tutorial]
+text = '''
+rsk **will** provide an interactive tutorial to learn rsk as well as the basics
+of why to use requirements tracking in the first place.
+'''
+
+[REQ-2-ui-filtering]
+text = '''
+rsk's various ui methods **will** provide methods to filter by:
+- name
+- regexp in various fields
+- percent completed
+- percent tested
+'''
+
+[REQ-2-ui-markdown]
+text = '''
+when displaying to the user, all text **will** be processed
+as a simple markdown format
+
+For MVP, text based display can display raw text with colors
+'''
+
+[REQ-2-ui-link]
+text = '''
+rsk's various ui methods **will** provide simple methods to
+navigate and view linked components
+'''
+
+[REQ-2-ui-html]
+text = '''
+rsk **will** provide the ability to export to static-html for web-broswing
+of information OR provide a web-server. Further discussion is needed
+'''
+
+##################################################
+# High level interop requirements
+[REQ-2-interop]
+partof = "REQ-1-interop"
+
+[REQ-2-interop-json]
+text = '''
+rsk **will** provide json export utility for other tools to utilize.
+
+rsk **will not** utilize the exported json.
+'''
+
+[REQ-2-interop-sql]
+text = '''
+Later impleemntations of rsk **will** utilize an sql database to improve
+speed and interopability with external tooling.
+
+This database will probably be sqlite to meet with rsk's simplicity
+of requirements and **will** be optional for users.
+'''
+

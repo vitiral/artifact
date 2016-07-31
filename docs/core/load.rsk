@@ -1,0 +1,119 @@
+[REQ-load]
+partof = "REQ-2-load"
+text = '''
+The load module **shall** encapsulate:
+- resolving the *default* global variables using
+the vars module
+- following paths to artifact directories
+- loading artifacts from files
+- validating name-collisions
+- validating attribute types
+- loading settings correctly
+
+The load module **shall not** deal with:
+- resolving user-set global variables
+- linking or analyzing completeness
+'''
+
+##################################################
+# Risks related to loading in general
+
+[SPC-load]
+text = '''
+This details the high level loading proceedure of rsk
+
+The loading of the project files shall occur in 4 stages:
+ 1. loading and validation of raw data from all settings.paths recursively
+     1.a. this requires resolving settings during load
+ 2. load and validate variables
+ 3. resolving of variables in text fields
+ 4. auto-creation of missing prefix artifacts
+
+The only locations where critical failure (i.e. failure that causes `ls` to not work)
+is possible are in steps 1 and 2.
+
+Critical failure shall occur if:
+- invalid toml
+- artifact errors (invalid name, extra attr, invalid attr type, etc)
+- invalid partof string (artifact names)
+- invalid artifact_path
+
+Failures in further steps will simply cause warnings and will display on the
+ui as missing links or None completion (etc)
+'''
+
+##################################################
+# COPYED TESTS
+[TST-core-load]
+partof = "RSK-core-load-stable"
+text = "tests related to ensuring that loading toml works as expected"
+
+[TST-core-load-dir-unit]
+partof = "SPC-core-load-dir"
+[TST-core-load-dir-unit-1]
+text = '''
+load a folder with a [file folder[file]] and make sure all values
+are present
+'''
+[TST-core-load-dir-unit-2]
+partof = "RSK-core-load-invalid"
+text = "load a [file] with an invalid attribute an make sure it errors"
+[TST-core-load-dir-unit-3]
+text = "load two files with the same key and make sure it errors"
+[TST-core-load-dir-unit-4]
+text = '''
+load a structure like so:
+```
+/foo/foo.rsk
+/foo/bar/baz/unreachable.rsk
+```
+and make sure that `unreachable.rsk` does **not** get loaded
+'''
+[TST-core-load-dir-unit-5]
+text = '''
+load a structure like so:
+```
+/foo/foo.rsk
+/foo/bar/bar.rsk
+/foo/bar/baz/baz.rsk
+```
+and make sure that all three rsk files are loaded
+'''
+
+[TST-core-load-valid]
+partof = '''
+SPC-core-load-file, RSK-core-load-invalid,
+SPC-core-artifact-[name-[check, struct], struct, types, types-check]
+'''
+text = "load a valid toml file and verify it's artifacts and settings"
+
+[TST-core-load-invalid]
+partof = "SPC-core-load-[file, error], RSK-core-load-invalid"
+text = '''
+load separate toml files suffering the issues listed below and ensure
+they do not load.
+
+- trying to input a json-like table `{{}}`
+- trying to have multiple types in an array `[1, "hello", 3]`
+- name collisions at the [] level
+- name collisions at the base level
+'''
+
+[TST-core-load-attrs-unit]
+partof = "SPC-core-load-table, RSK-core-load, SPC-core-artifact-attrs"
+text = '''
+There **will** be extensive unit tests on the attrs loading mechanism to ensure
+the type is loaded with proper type checking
+'''
+
+
+##################################################
+# Testing rsks
+[TST-load-loop]
+partof = "RSK-2-load-loop"
+text = '''
+have a paths-file and unreachable .rsk files. Have the file point to the unreachable
+.rsk file's directory and validate that they are loaded correctly.
+
+Also have the file point **back** to the original file, to test for infinite loop
+'''

@@ -6,7 +6,7 @@ use std::collections::HashSet;
 use regex::Regex;
 
 
-use core::{Artifact, ArtName, parse_names, load_toml, Settings};
+use core::{Artifact, ArtName, load_toml, Settings};
 
 lazy_static!{
     pub static ref VALID_SEARCH_FIELDS: HashSet<char> = HashSet::from_iter(

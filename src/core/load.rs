@@ -1,24 +1,7 @@
 //! loadrs
 //! loading of raw artifacts from files and text
 
-use std::fs;
-use std::clone::Clone;
-use std::path::{Path, PathBuf};
-use std::convert::AsRef;
-use std::collections::{HashMap, HashSet, VecDeque};
-
-// Traits
-use std::io::{Read, Write};
-use std::fmt::Write as WriteStr;
-use std::iter::FromIterator;
-
-// crates
-use toml::{Parser, Value, Table};
-
-// modules
-use core::types::*;
-use core::vars::{resolve_default_vars, resolve_vars, resolve_settings,
-                 fill_text_fields, DEFAULT_GLOBALS};
+use super::prefix::*;
 
 lazy_static!{
     pub static ref ARTIFACT_ATTRS: HashSet<String> = HashSet::from_iter(
@@ -77,7 +60,8 @@ macro_rules! check_type {
 }
 
 impl Settings {
-    /// #SPC-core-load-settings-from_table:<load a settings object from a table>
+    /// Load a settings object from a TOML Table
+    /// partof: #SPC-settings-load
     pub fn from_table(tbl: &Table) -> LoadResult<Settings> {
         let invalid_attrs: Vec<_> = tbl.keys()
             .filter(|k| !SETTINGS_ATTRS.contains(k.as_str())).collect();
@@ -107,74 +91,7 @@ impl Settings {
     }
 }
 
-// [#SPC-core-artifact-names-parse]
-fn _parse_names<I>(raw: &mut I, in_brackets: bool) -> LoadResult<Vec<String>>
-    where I: Iterator<Item = char>
-{
-    // hello-[there, you-[are, great]]
-    // hello-there, hello-you-are, hello-you-great
-    let mut strout = String::new();
-    let mut current = String::new();
-    loop {
-        let c = match raw.next() {
-            Some(c) => c,
-            None => {
-                if in_brackets {
-                    return Err(LoadError::new("brackets are not closed".to_string()));
-                }
-                break;
-            }
-        };
-        match c {
-            ' ' | '\n' | '\r' => {}, // ignore whitespace
-            '[' => {
-                if current == "" {
-                    return Err(LoadError::new("cannot have '[' after characters ',' or ']' \
-                                               or at start of string".to_string()));
-                }
-                for p in try!(_parse_names(raw, true)) {
-                    strout.write_str(&current).unwrap();
-                    strout.write_str(&p).unwrap();
-                    strout.push(',');
-                }
-                current.clear();
-            }
-            ']' => break,
-            ',' => {
-                strout.write_str(&current).unwrap();
-                strout.push(',');
-                current.clear();
-            }
-            _ => current.push(c),
-        }
-    }
-    strout.write_str(&current).unwrap();
-    Ok(strout.split(",").filter(|s| s != &"").map(|s| s.to_string()).collect())
-}
 
-pub fn parse_names(partof_str: &str) -> LoadResult<HashSet<ArtName>> {
-    let strs = try!(_parse_names(&mut partof_str.chars(), false));
-    let mut out = HashSet::new();
-    for s in strs {
-        let n = try!(ArtName::from_str(s.as_str()));
-        out.insert(n);
-    }
-    Ok(out)
-}
-
-#[test]
-// [#TST-core-artifact-names-parse]
-fn test_parse_names() {
-    assert_eq!(_parse_names(&mut "hi, ho".chars(), false).unwrap(), ["hi", "ho"]);
-    assert_eq!(_parse_names(&mut "hi-[ho, he]".chars(), false).unwrap(), ["hi-ho", "hi-he"]);
-    assert_eq!(_parse_names(
-        &mut "hi-[ho, he], he-[ho, hi, ha-[ha, he]]".chars(), false).unwrap(),
-        ["hi-ho", "hi-he", "he-ho", "he-hi", "he-ha-ha", "he-ha-he"]);
-    assert!(_parse_names(&mut "[]".chars(), false).is_err());
-    assert!(_parse_names(&mut "[hi]".chars(), false).is_err());
-    assert!(_parse_names(&mut "hi-[ho, [he]]".chars(), false).is_err());
-    assert!(_parse_names(&mut "hi-[ho, he".chars(), false).is_err());
-}
 
 /// parse toml using a std error for this library
 fn parse_toml(toml: &str) -> LoadResult<Table> {
@@ -209,6 +126,8 @@ impl Artifact {
         Ok((name, artifact))
     }
 
+    /// Create an artifact object from a toml Table
+    /// partof: #SPC-artifact-load
     fn from_table(name: &ArtName, path: &Path, tbl: &Table) -> LoadResult<Artifact> {
         let df_str = "".to_string();
         let df_vec: Vec<String> = vec![];
@@ -227,12 +146,10 @@ impl Artifact {
             // loaded vars
             ty: name.get_type(),
             path: path.to_path_buf(),
-            // [#SPC-core-artifact-attrs-text]
             text: check_type!(get_attr!(tbl, "text", df_str, String),
                               "text", name),
-            // [#SPC-core-artifact-attrs-refs]
             refs: check_type!(get_vecstr(tbl, "refs", &df_vec), "refs", name),
-            partof: try!(parse_names(&partof_str)),
+            partof: try!(ArtNames::from_str(&partof_str)),
             loc: None,
 
             // calculated vars
@@ -275,7 +192,7 @@ pub fn load_table(ftable: &mut Table, path: &Path,
         Some(Value::Table(t)) => {
             let mut lvars = Variables::new();
             for (k, v) in t {
-                if DEFAULT_GLOBALS.contains(k.as_str()) {
+                if vars::DEFAULT_GLOBALS.contains(k.as_str()) {
                     return Err(LoadError::new("cannot use variables: repo, cwd".to_string()));
                 }
                 lvars.insert(k.clone(), match v {
@@ -438,9 +355,8 @@ fn default_repo_names() -> HashSet<String> {
     repo_names
 }
 
-/// given a valid path, load all paths
-/// linking does not occur in this step
-/// #SPC-core-load-paths
+/// given a valid path, load all paths given by the settings recursively
+/// partof: #SPC-load
 pub fn load_path_raw(path: &Path) -> LoadResult<(Artifacts, Settings)> {
     let mut artifacts = Artifacts::new();
     let mut settings = Settings::new();
@@ -457,7 +373,7 @@ pub fn load_path_raw(path: &Path) -> LoadResult<(Artifacts, Settings)> {
     if path.is_file() {
         try!(load_file(path, &mut artifacts, &mut loaded_settings,
                        &mut loaded_variables));
-        try!(resolve_settings(&mut settings, &mut repo_map, &loaded_settings));
+        try!(vars::resolve_settings(&mut settings, &mut repo_map, &loaded_settings));
     } else if path.is_dir() {
         settings.paths.push_back(path.to_path_buf());
     } else {
@@ -485,7 +401,8 @@ pub fn load_path_raw(path: &Path) -> LoadResult<(Artifacts, Settings)> {
             }
         };
         // resolve the project-level settings after each directory is recursively loaded
-        try!(resolve_settings(&mut settings, &mut repo_map, &loaded_settings));
+        // see: SPC-settings-resolve
+        try!(vars::resolve_settings(&mut settings, &mut repo_map, &loaded_settings));
     }
 
     // #SPC-core-load-vars
@@ -493,16 +410,16 @@ pub fn load_path_raw(path: &Path) -> LoadResult<(Artifacts, Settings)> {
     for pv in loaded_variables.drain(0..) {
         let p = pv.0;
         let v = pv.1;
-        try!(resolve_default_vars(&v, p.as_path(), &mut variables, &mut repo_map,
+        try!(vars::resolve_default_vars(&v, p.as_path(), &mut variables, &mut repo_map,
                                         &settings.repo_names));
     }
 
     // LOC-core-load-parts-3:<resolve variables in text fields>
     info!("Resolving variables...");
-    try!(resolve_vars(&mut variables));
+    try!(vars::resolve_vars(&mut variables));
 
     info!("Filling in variables for text fields...");
-    try!(fill_text_fields(&mut artifacts, &settings, &mut variables, &mut repo_map));
+    try!(vars::fill_text_fields(&mut artifacts, &settings, &mut variables, &mut repo_map));
 
     Ok((artifacts, settings))
 }

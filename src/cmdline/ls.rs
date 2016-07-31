@@ -9,7 +9,7 @@ use regex::{Regex, RegexBuilder};
 use clap::{Arg, App, SubCommand, ArgMatches, AppSettings as AS};
 
 use core::fmt::{FmtSettings, fmt_artifact};
-use core::{Artifacts, ArtName, parse_names, Settings};
+use core::{Artifacts, ArtName, ArtNames, LoadFromStr, Settings};
 use cmdline::search::{VALID_SEARCH_FIELDS, SearchSettings, PercentSearch, show_artifact};
 
 
@@ -297,7 +297,7 @@ pub fn do_ls(search: String,
         names.sort();
     } else {
         // names to use are determined from the beginning
-        names.extend(parse_names(&search).unwrap());
+        names.extend(ArtNames::from_str(&search).unwrap());
         names.sort();
         debug!("artifact names selected: {:?}", names);
         pat_case = Regex::new("").unwrap();
