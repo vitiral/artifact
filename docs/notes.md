@@ -8,11 +8,13 @@
 - TST-core-load-toml:<https://github.com/alexcrichton/toml-rs/tree/master/tests>
 
 # Internal components that don't need to be implemented or tested
-- SPC-definitions
-- TST-definitions
-- SPC-purpose-etc-language
-- TST-purpose-etc-language
-- SPC-purpose-etc-modules
-- TST-purpose-etc-modules
-- SPC-purpose-etc-versioning
-- TST-purpose-etc-versioning
+- #SPC-0-done
+- #TST-0-done
+- #SPC-0-language
+- #TST-0-language
+- #SPC-0-format
+- #TST-0-format
+- SPC-0-modules
+- TST-0-modules
+- SPC-0-versioning
+- TST-0-versioning

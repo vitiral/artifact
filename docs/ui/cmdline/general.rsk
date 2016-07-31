@@ -1,9 +1,0 @@
-
-[REQ-ui-cmdline]
-partof = "REQ-purpose-ui-cmdline"
-text = '''
-The ui::cmdline module **will** accomplish the second half of the primary
-purpose of rsk, which is to provide a simple way for a developer
-to track and monitor their progress, as well as give them
-easy access to all files.
-'''

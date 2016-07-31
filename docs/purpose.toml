@@ -1,24 +1,19 @@
-[REQ-purpose]
+[REQ-1]
 refs = ["{repo}/README.md"]
 
-[REQ-purpose-scale]
+[REQ-1-scale]
 text = '''
 rsk **will** be able to handle scale from very small projects with a single
 design document to enourmous multi-project multi-folder projects.
 '''
 
-[REQ-purpose-definitions]
-text = '''
-rsk **will** use defined definitions for all potentially confusing terms
-'''
-
-[REQ-purpose-coverage]
+[REQ-1-coverage]
 text = '''
 rsk **will** provide a simple but useful mechanism for calculating
 and displaying implementation and test coverage / completeness
 '''
 
-[REQ-purpose-artifacts]
+[REQ-1-artifacts]
 text = '''
 rsk **will** support 5 types of artifacts that can be tracked
 - REQ: software requirement
@@ -44,20 +39,6 @@ The artifacts **will** have simple orthoganl variables that accomplish
 the purposes defined in REQ-purpose.
 '''
 
-[REQ-purpose-format]
-text = '''
-**rsk** **will** use a simple text format to structure it's files
-
-Possible choices:
-- json: decent but too general for the purpose (nesting is unnecessary)
-    also, no way to line-comment making it almost useless for a tracking
-    tool. Also, not readable enough.
-- ini/toml: both are decent formats, prefer toml as it is a little bit
-    simpler
-- yaml: too complex for what is needed, not as readable as ini. Very
-    enjoyable general purpose format.
-- html/xml/etc: aboslutely not. Needlessly complex.
-'''
 
 [REQ-purpose-linking]
 partof = "REQ-purpose-[artifacts, coverage]"

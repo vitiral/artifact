@@ -93,12 +93,12 @@ impl FmtArtifact {
             } else {
                 try!(write!(w, "|{}{}| ", d_sym, t_sym));
                 // format completed %
-                for _ in 0..(3 - d_perc.len()) {
+                for _ in 0..(5 - d_perc.len()) {
                     try!(w.write_all(" ".as_ref()));
                 }
                 try!(write!(w, "{}% ", d_perc));
                 // format tested %
-                for _ in 0..(3 - t_perc.len()) {
+                for _ in 0..(5 - t_perc.len()) {
                     try!(w.write_all(" ".as_ref()));
                 }
                 try!(write!(w, "{}% ", t_perc));
@@ -168,14 +168,12 @@ impl FmtArtifact {
         }
 
         // format the location that where the implementation of this artifact can be found
-        if self.loc.is_some() {
+        if let Some(ref loc) = self.loc {
             self.write_header(w, "\n * implemented-at-loc: ", settings);
-            let mut loc_str = String::new();
-            write!(loc_str, "{:?}", self.loc);
             if settings.color {
-                try!(write!(w, "{}", Green.paint(loc_str)));
+                try!(write!(w, "{}", Green.paint(loc.to_string())));
             } else {
-                try!(w.write_all(loc_str.as_ref()));
+                try!(w.write_all(loc.to_string().as_ref()));
             }
             try!(w.write_all(" ".as_ref()));
         }

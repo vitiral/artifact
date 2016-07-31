@@ -1,8 +1,26 @@
-[REQ-definitions]
-text = "definitions for the rsk project"
-partof = "REQ-purpose-definitions"
+[REQ-0]
+text = "definitions and process for the rsk project"
 
-[REQ-definitions-assertions]
+[REQ-0-prefix]
+text = '''
+In this project, the following conventions shall apply for artifact names:
+ - `ART-0-*` denotes definitions and artifact process only. These will be defined
+     as completed, as they are simply documenting the process of artifacts.
+ - `ART-1-*` denotes purpose REQs, which detail at the highest level why
+     this project exists
+ - `ART-2-*` denotes high level design of all artifacts (req, spc, rsk and tst)
+ - further prefixes **will not** be used, and are reserved for further breakdowns
+ - any other prefix denotes detailed design. For instance, REQ-0-load details what is necessary in
+     loading artifacts at a very high level, wheras REQ-load details it at a lower level
+
+Any artifact that is `1` or `2` **will not** be implemented in code (it will only be implemented
+by sub artifacts)
+
+The purpose of this prefix is to bring these artifacts to the top when they are listed,
+as well as make a simple and clear distinction between high and low level design
+'''
+
+[REQ-0-assertions]
 text = '''
 Assertions **will** be used throughout the artifacts to mean:
 - shall: the statement must be implemented and it's
@@ -14,7 +32,7 @@ Assertions **will** be used throughout the artifacts to mean:
     not possible. Should is a statement of intent
 '''
 
-[REQ-definitions-risks]
+[REQ-0-risks]
 text = '''
 Risks are to be written with three sets of terms in mind:
 - likelyhood
@@ -48,14 +66,54 @@ determine the weight to assign to the risk.
 > avalanches whenever possible
 '''
 
+[REQ-0-language]
+text = "a programming language must be chosen to write the project in"
+[SPC-0-language]
+text = '''
+rsk **will** be written entirely in the rust programming language
+for the purposes of:
+- cross compilation: rust can be compiled on any platform
+- safety: it is impossible to segfault in rust
+- speed: rust is as fast as C++
+- static checking: rust is one of the most powerful static type checking
+    languages in existence, making it easier to refactor code
+- scale-out: single threaded code can easily be made highly concurrent
+- fun: rust is a fun language to write in.
+'''
+
+[REQ-0-format]
+text = '''
+**rsk** **will** use a simple text format for the user to write artifacts in
+'''
+[SPC-0-format]
+text = '''Possible choices:
+ - json: decent but too general for the purpose (nesting is unnecessary)
+     also, no way to line-comment making it almost useless for a tracking
+     tool. Also, not readable enough.
+ - ini/toml: both are decent formats, prefer toml as it is a little bit
+     simpler
+ - yaml: too complex for what is needed, not as readable as ini. Very
+     enjoyable general purpose format.
+ - html/xml/etc: aboslutely not. Needlessly complex.
+
+# Conclusion
+`rsk` **shall** use TOML for artifact writing.
+
+The reasons are:
+ - feautres covers all needs for rsk
+ - easy to learn
+ - easy to read
+ - easy to write in
+ - feature set well-limited to this application (not too many
+     features or way to do the same thing)
+'''
+
+
 ###########################
 # House cleaning
-
-[SPC-definitions]
-partof = "REQ-definitions-[assertions, risks]"
-text = '''
-This document itself meets the requirements
-of the definitions
-'''
-[TST-definitions]
-text = "no tests necessary"
+[SPC-0-done]
+partof = "REQ-0-[prefix, assertions, risks], SPC-0-[language, format]"
+text = "This document itself meets the requirements of the definitions and process"
+[TST-0-done]
+partof = "SPC-0, SPC-0-[format, language]"
+text = "no tests necessary on definitions and process"

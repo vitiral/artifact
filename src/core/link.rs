@@ -13,7 +13,6 @@ pub fn parse_text(artifacts: &mut Artifacts) {
 
 }
 
-
 /// create parents for all artifacts that have no parents except for
 // [#SPC-core-artifact-attrs-parts-parents-create]
 pub fn create_parents(artifacts: &mut Artifacts) {
