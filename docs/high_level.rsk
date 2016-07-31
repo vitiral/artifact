@@ -22,8 +22,6 @@ detailed in these documents.
 
 ##################################################
 # Core: high level requirements related to the core module
-[REQ-2-load]
-text = "loading and parsing of text"
 
 [REQ-2-ftype]
 text = '''
@@ -120,7 +118,7 @@ The settings are:
 text = '''
 rsk **shall** load global variables from .rsk files and apply them to all text fields.
 
-Variables **shall** be specified in the format `{VARIABLE_NAME}` and behaves
+Variables **shall** be specified in the format `{{VARIABLE_NAME}}` and behaves
 all the rules of python string formatting.
 '''
 

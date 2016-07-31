@@ -50,7 +50,7 @@ text = '''
 [SPC-artifact-refs]
 text = '''
 implementing refs parsing **shall** convert the refs to an enum list with
-the types {ArtName, PathBuf, Url, MarkDown}
+the types {{ArtName, PathBuf, Url, MarkDown}}
 
 # parts
  1. check if it is a valid artifact-names field and link appropriately
