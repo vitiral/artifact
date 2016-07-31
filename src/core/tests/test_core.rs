@@ -50,20 +50,18 @@ fn test_load_path() {
 
     let simple_dir_str = TSIMPLE_DIR.as_path().to_str().unwrap().to_string();
     let extra_dir = TSIMPLE_DIR.join(PathBuf::from("extra"));
+    let src_dir = TSIMPLE_DIR.join(PathBuf::from("src"));
     let lvl1_dir = TSIMPLE_DIR.join(PathBuf::from("lvl_1"));
     let lvl1_dir_str = lvl1_dir.as_path().to_str().unwrap().to_string();
 
     // LOC-core-load-dir-unit-5
     assert_eq!(req_purpose.refs, [extra_dir.join(PathBuf::from("README.md")).to_str().unwrap()]);
     assert_eq!(spc_lvl1.text, "level one does FOO");
-    assert_eq!(spc_lvl1.loc.as_ref().unwrap().path, lvl1_dir.join(PathBuf::from("lvl_1.rs")));
+    assert_eq!(spc_lvl1.loc.as_ref().unwrap().path, src_dir.join(PathBuf::from("lvl_1.rs")));
 
     // LOC-core-resolve-loc-unit-1<test that loc is loaded correctly>
-    assert_eq!(spc_loc.loc.iter().next().unwrap().line_col.unwrap(), (4, 4));
-    assert_eq!(spc_lvl1.loc.iter().next().unwrap().line_col.unwrap(), (3, 3));
-
-    // [TST-core-artifact-attrs-loc-invalid]
-    assert!(!spc_dne.loc.iter().next().unwrap().valid());
+    assert_eq!(spc_loc.loc.iter().next().unwrap().line_col, (4, 4));
+    assert_eq!(spc_lvl1.loc.iter().next().unwrap().line_col, (3, 3));
 
     // TODO: more validation
     // TODO: need to check that completeness makes sense: [TST-core-load-loc-resolve]

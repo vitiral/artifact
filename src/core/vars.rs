@@ -103,11 +103,6 @@ pub fn resolve_settings(settings: &mut Settings,
         let repo = repo_map.get(cwd).unwrap();
         vars.insert("repo".to_string(), try!(get_path_str(repo.as_path())).to_string());
 
-        // push code_paths
-        for p in settings_item.code_paths.iter() {
-            settings.code_paths.push_back(p.clone())
-        }
-
         // push resolved paths
         for p in settings_item.paths.iter() {
             let p = try!(do_strfmt(p.to_str().unwrap(), &vars, &fpath));

@@ -18,7 +18,7 @@ use toml::{Parser, Value, Table};
 mod test_load;
 mod test_vars;
 mod test_link;
-// mod test_core;
+mod test_core;
 
 // Data and helpers
 
