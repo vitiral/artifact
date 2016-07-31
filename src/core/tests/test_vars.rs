@@ -74,14 +74,11 @@ SPC-who
 #[test]
 fn test_resolve_loc_text() {
     // [TST-core-load-loc-text]
-    let mut locs: HashMap<ArtName, (PathBuf, usize, usize)> = HashMap::new();
-    let mut looking_for: HashSet<ArtName> = HashSet::from_iter(
-        vec!["SPC-who", "SPC-what", "SPC-where", "TST-foo-what-where-2-b-3",
-             "SPC-core-load-erro"]
-        .iter().map(|n| ArtName::from_str(n).unwrap()));
+    let mut locs: HashMap<ArtName, Loc> = HashMap::new();
     let path = PathBuf::from("hi/there");
-    resolve_locs_text(LOC_TEST, &path, &mut locs, &looking_for).unwrap();
-    assert!(!locs.contains_key(&ArtName::from_str("TST-dont-care").unwrap()));
+    assert!(!find_locs_text(&path, LOC_TEST, &mut locs));
+    // change: all locations are found
+    assert!(locs.contains_key(&ArtName::from_str("TST-dont-care").unwrap()));
 
     let spc_who = locs.get(&ArtName::from_str("SPC-who").unwrap()).unwrap();
     let spc_what = locs.get(&ArtName::from_str("SPC-what").unwrap()).unwrap();
@@ -89,12 +86,9 @@ fn test_resolve_loc_text() {
     let tst_long = locs.get(&ArtName::from_str("TST-foo-what-where-2-b-3").unwrap()).unwrap();
     let spc_error = locs.get(&ArtName::from_str("SPC-core-load-erro").unwrap()).unwrap();
 
-    fn get_linecol(l: &(PathBuf, usize, usize)) -> (usize, usize) {
-        (l.1, l.2)
-    }
-    assert_eq!(get_linecol(spc_who),     (1, 0));
-    assert_eq!(get_linecol(spc_what),    (2, 4));
-    assert_eq!(get_linecol(spc_where),   (3, 4));
-    assert_eq!(get_linecol(tst_long),    (4, 15));
-    assert_eq!(get_linecol(spc_error),   (6, 4));
+    assert_eq!(spc_who.line_col,     (1, 0));
+    assert_eq!(spc_what.line_col,    (2, 4));
+    assert_eq!(spc_where.line_col,   (3, 4));
+    assert_eq!(tst_long.line_col,    (4, 15));
+    assert_eq!(spc_error.line_col,   (6, 4));
 }

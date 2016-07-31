@@ -313,28 +313,10 @@ fn get_path_str<'a>(path: &'a Path) -> LoadResult<&'a str> {
     }
 }
 
-/// [SPC-core-load-loc-text]
-/// given text, the path to the text, and the locations to add onto
-/// extract all the locations from the text and return whether there
-/// was an error
-pub fn find_locs_file(path: &Path,
+pub fn find_locs_text(path: &Path,
+                      text: &str,
                       locs: &mut HashMap<ArtName, Loc>)
                       -> bool {
-    debug!("resolving locs at: {:?}", path);
-    let mut text = String::new();
-    match fs::File::open(path) {
-        Ok(mut f) => match f.read_to_string(&mut text) {
-            Ok(_) => {},
-            Err(e) => {
-                error!("while reading from <{}>: {}", path.display(), e);
-                return true;
-            }
-        },
-        Err(e) => {
-            error!("while loading from <{}>: {}", path.display(), e);
-            return true;
-        },
-    }
     let mut error = false;
     let text = text;
     let mut prev: VecDeque<char> = VecDeque::with_capacity(4);
@@ -398,6 +380,31 @@ pub fn find_locs_file(path: &Path,
         pos += 1;
     }
     error
+}
+
+/// [SPC-core-load-loc-text]
+/// given text, the path to the text, and the locations to add onto
+/// extract all the locations from the text and return whether there
+/// was an error
+pub fn find_locs_file(path: &Path,
+                      locs: &mut HashMap<ArtName, Loc>)
+                      -> bool {
+    debug!("resolving locs at: {:?}", path);
+    let mut text = String::new();
+    match fs::File::open(path) {
+        Ok(mut f) => match f.read_to_string(&mut text) {
+            Ok(_) => {},
+            Err(e) => {
+                error!("while reading from <{}>: {}", path.display(), e);
+                return true;
+            }
+        },
+        Err(e) => {
+            error!("while loading from <{}>: {}", path.display(), e);
+            return true;
+        },
+    }
+    find_locs_text(path, &text, locs)
 }
 
 /// recursively find all locs given a directory
