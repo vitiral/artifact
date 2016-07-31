@@ -30,7 +30,7 @@ fn test_basic_link() {
     let num = load_toml(&path, TOML_RSK, &mut artifacts, &mut settings, &mut variables).unwrap();
     for sname in &["REQ-foo", "SPC-foo", "TST-foo", "SPC-bar"] {
         let art = artifacts.get_mut(&ArtName::from_str(sname).unwrap()).unwrap();
-        art.loc = Some(Loc{path: path.clone(), line_col: Some((1, 2))});
+        art.loc = Some(Loc{path: path.clone(), line_col: (1, 2)});
     }
 
     link_named_partofs(&mut artifacts);
@@ -106,7 +106,7 @@ fn test_link_completed_tested() {
     for sname in &["SPC-core-bob-1", "TST-core-bob-1-a", "TST-core-bob-1-b-2",
                    "SPC-core-bob-2-b", "TST-core-bob-2-a"] {
         let art = artifacts.get_mut(&ArtName::from_str(sname).unwrap()).unwrap();
-        art.loc = Some(Loc{path: path.clone(), line_col: Some((1, 2))});
+        art.loc = Some(Loc{path: path.clone(), line_col: (1, 2)});
     }
 
     link_named_partofs(&mut artifacts);
