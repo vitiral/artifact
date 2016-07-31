@@ -30,7 +30,6 @@ fn test_load_path() {
     let req_purpose = artifacts.get(&ArtName::from_str("REQ-purpose").unwrap()).unwrap();
 
     // load all artifacts that should exist
-    // LOC-core-load-dir-unit-1
     let req_lvl1 = artifacts.get(&ArtName::from_str("REQ-lvl-1").unwrap()).unwrap();
     let spc_lvl1 = artifacts.get(&ArtName::from_str("SPC-lvl-1").unwrap()).unwrap();
     let spc_dne  = artifacts.get(&ArtName::from_str("SPC-loc-dne").unwrap()).unwrap();
@@ -41,8 +40,6 @@ fn test_load_path() {
     let tst_lvl2 = artifacts.get(&ArtName::from_str("TST-lvl-2").unwrap()).unwrap();
 
     // deep loading
-    // LOC-tst-core-deep
-    // LOC-core-load-dir-unit-4
     assert!(!artifacts.contains_key(&ArtName::from_str("REQ-unreachable").unwrap()));
 
     let req_deep = artifacts.get(&ArtName::from_str("REQ-deep").unwrap()).unwrap();
@@ -54,12 +51,10 @@ fn test_load_path() {
     let lvl1_dir = TSIMPLE_DIR.join(PathBuf::from("lvl_1"));
     let lvl1_dir_str = lvl1_dir.as_path().to_str().unwrap().to_string();
 
-    // LOC-core-load-dir-unit-5
     assert_eq!(req_purpose.refs, [extra_dir.join(PathBuf::from("README.md")).to_str().unwrap()]);
     assert_eq!(spc_lvl1.text, "level one does FOO");
     assert_eq!(spc_lvl1.loc.as_ref().unwrap().path, src_dir.join(PathBuf::from("lvl_1.rs")));
 
-    // LOC-core-resolve-loc-unit-1<test that loc is loaded correctly>
     assert_eq!(spc_loc.loc.iter().next().unwrap().line_col, (4, 4));
     assert_eq!(spc_lvl1.loc.iter().next().unwrap().line_col, (3, 3));
 

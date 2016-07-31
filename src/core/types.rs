@@ -14,7 +14,7 @@ use regex::Regex;
 pub type LoadResult<T> = Result<T, LoadError>;
 pub type Artifacts = HashMap<ArtName, Artifact>;
 
-// SPC-core-vars-struct
+// #SPC-core-vars-struct
 pub type Variables = HashMap<String, String>;
 
 lazy_static!{
@@ -25,7 +25,7 @@ lazy_static!{
 }
 
 #[derive(Debug, Clone, Eq, PartialEq)]
-/// SPC-core-artifact-types:<valid artifact types>
+/// #SPC-core-artifact-types:<valid artifact types>
 pub enum ArtType {
     REQ,
     SPC,
@@ -33,7 +33,7 @@ pub enum ArtType {
     TST,
 }
 
-/// SPC-core-artifact-attrs-loc<Location data type>
+/// #SPC-core-artifact-attrs-loc<Location data type>
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub struct Loc {
     pub path: path::PathBuf,
@@ -56,7 +56,7 @@ impl fmt::Display for Loc {
     }
 }
 
-/// [SPC-core-artifact-name-struct]:<storage of the artifact's name>
+/// [#SPC-core-artifact-name-struct]:<storage of the artifact's name>
 /// also contains logic for finding the artifact's type
 /// (as it is based on the name)
 // TODO: Hash and Eq have to be defined to ONLY care about
@@ -68,7 +68,7 @@ pub struct ArtName {
 }
 
 impl ArtName {
-    /// SPC-core-artifact-types-check:<find a valid type or error>
+    /// #SPC-core-artifact-types-check:<find a valid type or error>
     fn find_type_maybe(&self) -> LoadResult<ArtType> {
         let ty = self.value.get(0).unwrap();
         match ty.as_str() {
@@ -90,7 +90,7 @@ impl ArtName {
 
     pub fn from_str(s: &str) -> LoadResult<ArtName> {
         // REQ-core-artifacts-name: strip spaces, ensure valid chars
-        // SPC-core-artifact-name-check:<make sure name is valid>
+        // #SPC-core-artifact-name-check:<make sure name is valid>
         let value = s.to_ascii_uppercase().replace(' ', "");
         if !ART_VALID.is_match(&value) {
             return Err(LoadError::new("invalid artifact name: ".to_string() + s));
@@ -133,7 +133,7 @@ impl ArtName {
 }
 
 #[test]
-/// [TST-core-artifact-name-parent]
+/// [#TST-core-artifact-name-parent]
 fn test_artname_parent() {
     let name = ArtName::from_str("REQ-foo-bar-b").unwrap();
     let parent = name.parent().unwrap();
@@ -188,7 +188,7 @@ impl PartialOrd for ArtName {
     }
 }
 
-/// SPC-core-artifact-struct:<artifact definition>
+/// #SPC-core-artifact-struct:<artifact definition>
 /// The Artifact type. This encapsulates
 /// REQ, SPC, RSK, and TST artifacts and
 /// contains space to link them
@@ -207,13 +207,13 @@ pub struct Artifact {
 }
 
 #[derive(Debug)]
-/// SPC-core-settings-struct
+/// #SPC-core-settings-struct
 pub struct Settings {
     pub disabled: bool,
     pub paths: VecDeque<path::PathBuf>,
     pub code_paths: VecDeque<path::PathBuf>,
     pub exclude_code_paths: VecDeque<path::PathBuf>,
-    // [SPC-core-settings-overlap-repo_names]
+    // [#SPC-core-settings-overlap-repo_names]
     pub repo_names: HashSet<String>,
     pub color: bool,
 }

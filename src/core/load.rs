@@ -62,7 +62,7 @@ pub fn get_vecstr(tbl: &Table, attr: &str, default: &Vec<String>)
     }
 }
 
-/// TST-core-load-table-check:<check the type to make sure it matches>
+/// #TST-core-load-table-check:<check the type to make sure it matches>
 macro_rules! check_type {
     ($value: expr, $attr: expr, $name: expr) => {
         match $value {
@@ -77,7 +77,7 @@ macro_rules! check_type {
 }
 
 impl Settings {
-    /// SPC-core-load-settings-from_table:<load a settings object from a table>
+    /// #SPC-core-load-settings-from_table:<load a settings object from a table>
     pub fn from_table(tbl: &Table) -> LoadResult<Settings> {
         let invalid_attrs: Vec<_> = tbl.keys()
             .filter(|k| !SETTINGS_ATTRS.contains(k.as_str())).collect();
@@ -107,7 +107,7 @@ impl Settings {
     }
 }
 
-// [SPC-core-artifact-names-parse]
+// [#SPC-core-artifact-names-parse]
 fn _parse_names<I>(raw: &mut I, in_brackets: bool) -> LoadResult<Vec<String>>
     where I: Iterator<Item = char>
 {
@@ -163,7 +163,7 @@ pub fn parse_names(partof_str: &str) -> LoadResult<HashSet<ArtName>> {
 }
 
 #[test]
-// [TST-core-artifact-names-parse]
+// [#TST-core-artifact-names-parse]
 fn test_parse_names() {
     assert_eq!(_parse_names(&mut "hi, ho".chars(), false).unwrap(), ["hi", "ho"]);
     assert_eq!(_parse_names(&mut "hi-[ho, he]".chars(), false).unwrap(), ["hi-ho", "hi-he"]);
@@ -227,10 +227,10 @@ impl Artifact {
             // loaded vars
             ty: name.get_type(),
             path: path.to_path_buf(),
-            // [SPC-core-artifact-attrs-text]
+            // [#SPC-core-artifact-attrs-text]
             text: check_type!(get_attr!(tbl, "text", df_str, String),
                               "text", name),
-            // [SPC-core-artifact-attrs-refs]
+            // [#SPC-core-artifact-attrs-refs]
             refs: check_type!(get_vecstr(tbl, "refs", &df_vec), "refs", name),
             partof: try!(parse_names(&partof_str)),
             loc: None,
@@ -249,7 +249,7 @@ impl Artifact {
 ///     artifacts: place to put the loaded artifacts
 ///     settings: place to put the loaded settings
 ///     variables: place to put the loaded variables
-/// SPC-core-load-table:<load a table from toml>
+/// #SPC-core-load-table:<load a table from toml>
 pub fn load_table(ftable: &mut Table, path: &Path,
                   artifacts: &mut Artifacts,
                   settings: &mut Vec<(PathBuf, Settings)>,
@@ -261,7 +261,7 @@ pub fn load_table(ftable: &mut Table, path: &Path,
     match ftable.remove("settings") {
         Some(Value::Table(t)) => {
             let lset = try!(Settings::from_table(&t));
-            // [SPC-core-settings-disabled]
+            // [#SPC-core-settings-disabled]
             if lset.disabled {
                 return Ok(0);
             }
@@ -306,7 +306,7 @@ pub fn load_table(ftable: &mut Table, path: &Path,
                 name, overlap.path.display()).unwrap();
             return Err(LoadError::new(String::from_utf8(msg).unwrap()));
         }
-        // [SPC-core-artifact-attrs-disabled]
+        // [#SPC-core-artifact-attrs-disabled]
         if check_type!(get_attr!(art_tbl, "disabled", false, Boolean),
                        "disabled", name) {
             continue
@@ -340,7 +340,7 @@ pub fn load_toml(path: &Path, text: &str,
 
 /// given a file path load the artifacts
 ///
-/// SPC-core-load-file
+/// #SPC-core-load-file
 pub fn load_file(path: &Path,
                  artifacts: &mut Artifacts,
                  settings: &mut Vec<(PathBuf, Settings)>,
@@ -360,7 +360,7 @@ pub fn load_file(path: &Path,
     load_toml(path, &text, artifacts, settings, variables)
 }
 
-/// SPC-core-load-dir:<given a path load the raw artifacts from files recursively>
+/// #SPC-core-load-dir:<given a path load the raw artifacts from files recursively>
 pub fn load_dir(path: &Path,
                 loaded_dirs: &mut HashSet<PathBuf>,
                 artifacts: &mut Artifacts,
@@ -383,7 +383,7 @@ pub fn load_dir(path: &Path,
         let ftype = match entry.file_type() {
             Ok(f) => f,
             Err(err) => {
-                // [SPC-core-load-error-file-1]
+                // [#SPC-core-load-error-file-1]
                 error!("while loading from <{}>: {}", fpath.display(), err);
                 error = true;
                 continue;
@@ -402,7 +402,7 @@ pub fn load_dir(path: &Path,
             match load_file(fpath.as_path(), artifacts, settings, variables) {
                 Ok(n) => num_loaded += n,
                 Err(err) => {
-                    // [SPC-core-load-error-file-2]
+                    // [#SPC-core-load-error-file-2]
                     error!("while loading from <{}>: {}", fpath.display(), err);
                     error = true;
                 }
@@ -417,13 +417,13 @@ pub fn load_dir(path: &Path,
             }
             match load_dir(dir.as_path(), loaded_dirs, artifacts, settings, variables) {
                 Ok(n) => num_loaded += n,
-                // [SPC-core-load-error-file-3]
+                // [#SPC-core-load-error-file-3]
                 Err(_) => error = true,
             }
         }
     }
     if error {
-        // [SPC-core-load-error-file-return]
+        // [#SPC-core-load-error-file-return]
         return Err(LoadError::new("ERROR: some files failed to load".to_string()));
     } else {
         Ok(num_loaded)
@@ -440,7 +440,7 @@ fn default_repo_names() -> HashSet<String> {
 
 /// given a valid path, load all paths
 /// linking does not occur in this step
-/// SPC-core-load-paths
+/// #SPC-core-load-paths
 pub fn load_path_raw(path: &Path) -> LoadResult<(Artifacts, Settings)> {
     let mut artifacts = Artifacts::new();
     let mut settings = Settings::new();
@@ -465,11 +465,11 @@ pub fn load_path_raw(path: &Path) -> LoadResult<(Artifacts, Settings)> {
                                   path.to_string_lossy().as_ref()));
     }
 
-    // SPC-core-load-parts-1:<load and validate all paths recursively>
+    // #SPC-core-load-parts-1:<load and validate all paths recursively>
     while settings.paths.len() > 0 {
         let dir = settings.paths.pop_front().unwrap(); // it has len, it better pop!
         if loaded_dirs.contains(&dir) {
-            // [SPC-core-settings-overlap-paths]:<ignore extra paths>
+            // [#SPC-core-settings-overlap-paths]:<ignore extra paths>
             continue
         }
         debug!("Loading artifacts: {:?}", dir);
@@ -488,7 +488,7 @@ pub fn load_path_raw(path: &Path) -> LoadResult<(Artifacts, Settings)> {
         try!(resolve_settings(&mut settings, &mut repo_map, &loaded_settings));
     }
 
-    // SPC-core-load-vars
+    // #SPC-core-load-vars
     info!("Resolving default globals in variables...");
     for pv in loaded_variables.drain(0..) {
         let p = pv.0;

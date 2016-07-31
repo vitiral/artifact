@@ -93,7 +93,7 @@ fn matches_name(pat: &Regex, names: &HashSet<ArtName>) -> bool {
     false
 }
 
-/// SPC-ui-filter
+/// #SPC-ui-filter
 pub fn show_artifact(name: &ArtName,
                      art: &Artifact,
                      pat_case: &Regex,
@@ -125,7 +125,7 @@ pub fn show_artifact(name: &ArtName,
 }
 
 #[test]
-/// [TST-ui-filter]
+/// [#TST-ui-filter]
 fn test_show_artfact() {
     let mut req_one = Artifact::from_str("[REQ-one]
             partof = 'REQ-base'

@@ -11,7 +11,7 @@ pub use core::fmt::*;
 impl FmtArtifact {
     /// write the formatted version of the artifact to the
     /// writter
-    /// [SPC-ui-cmdline-ls-flags-impl-formatting]
+    /// [#SPC-ui-cmdline-ls-flags-impl-formatting]
     pub fn write<W: io::Write> (&self, w: &mut W, artifacts: &Artifacts,
                                 settings: &Settings, indent: u8)
                                 -> io::Result<()> {
@@ -40,7 +40,7 @@ impl FmtArtifact {
         let tested_str = ((artifact.tested * 100.) as i64).to_string();
         if settings.color {
 
-            // [SPC-ui-cmdline-ls-color]
+            // [#SPC-ui-cmdline-ls-color]
             let (d_sym, d_perc, t_sym, t_perc, name) = if artifact.completed >= 1. &&
                     artifact.tested >= 1. {
                 let name = if nfno {

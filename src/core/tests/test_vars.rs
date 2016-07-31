@@ -25,7 +25,7 @@ fn test_find_repo() {
 
 
 #[test]
-/// TST-core-vars-resolve
+/// #TST-core-vars-resolve
 fn test_resolve_vars() {
     // we are getting a race condition with variables where sometimes not all
     // variables are resolving. We need to find it and destroy it.
@@ -46,10 +46,10 @@ fn test_resolve_vars() {
         loaded_vars.insert("bar".to_string(), "{foo}/BAR".to_string());
         loaded_vars.insert("bar-2".to_string(), "{bar}/BAR2".to_string());
 
-        // TST-core-vars-resolve-default
+        // #TST-core-vars-resolve-default
         resolve_default_vars(&loaded_vars, fpath.as_path(), &mut variables,
                              &mut repo_map, &repo_names).unwrap();
-        // TST-core-vars-resolve-user
+        // #TST-core-vars-resolve-user
         resolve_vars(&mut variables).unwrap();
         let foo = TSIMPLE_DIR.join("FOO");
         let bar = foo.join("BAR");
@@ -63,20 +63,21 @@ fn test_resolve_vars() {
 
 
 pub static LOC_TEST: &'static str = "\
-SPC-who
-   #SPC-what
- // SPC-where
-  //kjsdlfkjwe TST-foo-what-where-2-b-3 kljasldkjf
-// TST-dont-care
-/// SPC-core-load-erro: <load file error>
+$SPC-who
+   #$SPC-what
+ // $SPC-where
+  //$kjsdlfkjwe TST-foo-what-where-2-b-3 kljasldkjf
+// $TST-dont-care
+/// $SPC-core-load-erro: <load file error>
 ";
 
 #[test]
 fn test_resolve_loc_text() {
-    // [TST-core-load-loc-text]
+    // [#TST-core-load-loc-text]
     let mut locs: HashMap<ArtName, Loc> = HashMap::new();
     let path = PathBuf::from("hi/there");
-    assert!(!find_locs_text(&path, LOC_TEST, &mut locs));
+    let LOC_TEST = LOC_TEST.replace("$", "#");
+    assert!(!find_locs_text(&path, &LOC_TEST, &mut locs));
     // change: all locations are found
     assert!(locs.contains_key(&ArtName::from_str("TST-dont-care").unwrap()));
 

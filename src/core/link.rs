@@ -8,7 +8,7 @@ use core::types::{LoadResult, LoadError, Artifacts, Artifact, ArtType, ArtName};
 use core::fmt;
 
 /// create parents for all artifacts that have no parents except for
-// [SPC-core-artifact-attrs-parts-parents-create]
+// [#SPC-core-artifact-attrs-parts-parents-create]
 pub fn create_parents(artifacts: &mut Artifacts) {
     let mut create_names: HashSet<ArtName> = HashSet::new();
     for (name, art) in artifacts.iter() {
@@ -45,7 +45,7 @@ pub fn create_parents(artifacts: &mut Artifacts) {
 }
 
 /// traverse all artifacts and link them to their by-name parent
-/// [SPC-core-artifact-attrs-parts-parents-link]
+/// [#SPC-core-artifact-attrs-parts-parents-link]
 pub fn link_parents(artifacts: &mut Artifacts) {
     for (name, artifact) in artifacts.iter_mut() {
         let parent = match name.parent() {
@@ -57,7 +57,7 @@ pub fn link_parents(artifacts: &mut Artifacts) {
 }
 
 /// traverse all artifacts and link them to their by-name uppers
-/// [SPC-core-links-named_partof]
+/// [#SPC-core-links-named_partof]
 pub fn link_named_partofs(artifacts: &mut Artifacts) {
     let artifacts_keys: HashSet<ArtName> = HashSet::from_iter(artifacts.keys().cloned());
     for (name, artifact) in artifacts.iter_mut() {
@@ -98,7 +98,7 @@ mod tests {
 }
 
 
-/// [SPC-core-links-valid]
+/// [#SPC-core-links-valid]
 pub fn validate_partof(artifacts: &Artifacts) -> LoadResult<()> {
     let mut error = false;
     for (name, artifact) in artifacts.iter() {
@@ -113,7 +113,7 @@ pub fn validate_partof(artifacts: &Artifacts) -> LoadResult<()> {
                 (&ArtType::TST, &ArtType::RSK) |
                 (&ArtType::TST, &ArtType::SPC) => {}
                 (_, _) => {
-                    // [SPC-core-artifact-attrs-partof-validate]
+                    // [#SPC-core-artifact-attrs-partof-validate]
                     error!("[{:?}:{}]: {:?} can not be a partof {:?}",
                            artifact.path,
                            name,
@@ -132,7 +132,7 @@ pub fn validate_partof(artifacts: &Artifacts) -> LoadResult<()> {
 
 /// traverse all artifacts and their `partof` members and cross-link them to
 /// the artifact's `parts` members
-/// [SPC-core-artifact-attrs-parts-link]
+/// [#SPC-core-artifact-attrs-parts-link]
 pub fn link_parts(artifacts: &mut Artifacts) -> u64 {
     // get all the parts, linked by name
     let mut warnings: u64 = 0;
@@ -164,7 +164,7 @@ pub fn link_parts(artifacts: &mut Artifacts) -> u64 {
 
 
 /// discover how complete and how tested all artifacts are (or are not!)
-/// [SPC-core-coverage-percent-done]
+/// [#SPC-core-coverage-percent-done]
 pub fn set_completed(artifacts: &mut Artifacts) -> usize {
     let mut names: HashSet<ArtName> = HashSet::from_iter(artifacts.keys().map(|n| n.clone()));
     let mut known: HashSet<ArtName> = HashSet::new();
@@ -181,7 +181,7 @@ pub fn set_completed(artifacts: &mut Artifacts) -> usize {
                     (&Some(ref l), &ArtType::SPC) | (&Some(ref l), &ArtType::TST) => {
                         got_it = 2;
                     }
-                    // [SPC-core-artifact-attrs-loc-invalid]
+                    // [#SPC-core-artifact-attrs-loc-invalid]
                     (&Some(_), ty @ _) => warn!("[{:?}:{}] has loc set but is of type {:?}",
                                                     artifact.path, name, ty),
                     _ => {}
@@ -261,7 +261,7 @@ pub fn set_completed(artifacts: &mut Artifacts) -> usize {
 }
 
 /// Find the amount each artifact is tested
-/// [SPC-core-coverage-percent-tested]
+/// [#SPC-core-coverage-percent-tested]
 pub fn set_tested(artifacts: &mut Artifacts) -> usize {
     let mut names: HashSet<ArtName> = HashSet::from_iter(artifacts.keys().map(|n| n.clone()));
     let mut known: HashSet<ArtName> = HashSet::new();

@@ -15,9 +15,9 @@ use cmdline::search::{VALID_SEARCH_FIELDS, SearchSettings, PercentSearch, show_a
 
 pub fn get_subcommand<'a, 'b>() -> App<'a, 'b> {
     // TODO: implement -c and -t
-    // [SPC-ui-cmdline-cmd-ls]
-    // [SPC-ui-cmdline-ls-interface]
-    // [SPC-ui-cmdline-ls-flags-impl-interface]
+    // [#SPC-ui-cmdline-cmd-ls]
+    // [#SPC-ui-cmdline-ls-interface]
+    // [#SPC-ui-cmdline-ls-flags-impl-interface]
     SubCommand::with_name("ls")
         .about("list artifacts according to various parameters")
         .settings(&[AS::DeriveDisplayOrder, AS::ColoredHelp])
@@ -212,7 +212,7 @@ fn test_get_percent() {
 
 /// get all the information from the user input
 pub fn get_ls_cmd(matches: &ArgMatches) -> Result<(String, FmtSettings, SearchSettings), String> {
-    // [SPC-ui-cmdline-ls-flags-impl-create]
+    // [#SPC-ui-cmdline-ls-flags-impl-create]
     let mut settings = FmtSettings::default();
     settings.long = matches.is_present("long");
     settings.recurse = matches.value_of("recursive").unwrap().parse::<u8>().unwrap();
@@ -241,7 +241,7 @@ pub fn get_ls_cmd(matches: &ArgMatches) -> Result<(String, FmtSettings, SearchSe
         settings.text = true;
     }
 
-    // [SPC-ui-cmdline-ls-search-interface]
+    // [#SPC-ui-cmdline-ls-search-interface]
     let mut search_settings = match (matches.is_present("pattern"), matches.value_of("pattern")) {
         (true, Some(p)) => try!(SearchSettings::from_str(p)),
         (true, None) => SearchSettings::from_str("N").unwrap(),
@@ -304,7 +304,7 @@ pub fn do_ls(search: String,
     }
     debug!("fmtset empty: {}", fmtset.is_empty());
     if names.len() == 0 && search.len() == 0 {
-        // [SPC-ui-cmdline-ls-flags-empty]
+        // [#SPC-ui-cmdline-ls-flags-empty]
         names.extend(artifacts.keys().map(|n| n.clone()));
         names.sort();
     }

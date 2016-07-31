@@ -42,13 +42,12 @@ pub fn load_path(path: &Path) -> LoadResult<(Artifacts, Settings)>{
     let locs = try!(vars::find_locs(&mut settings));
     vars::attach_locs(&mut artifacts, &locs);
 
-    // TODO: LOC-core-load-parts-2:<load and validate global variables>
     // LOC-core-load-parts-4:<auto-creation of missing prefix artifacts>
     link::link_named_partofs(&mut artifacts); // MUST come before parents are created
     link::create_parents(&mut artifacts);
     link::link_parents(&mut artifacts);
 
-    // [TST-core-artifact-attrs-partof-vaidate]
+    // [#TST-core-artifact-attrs-partof-vaidate]
     try!(link::validate_partof(&artifacts));
 
     // LOC-core-load-parts-5:<linking of artifacts>

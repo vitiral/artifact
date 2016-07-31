@@ -7,7 +7,7 @@ use super::init;
 
 pub fn get_matches<'a, I, T>(args: I) -> ClapResult<ArgMatches<'a>>
     where I: IntoIterator<Item=T>, T: Into<OsString> {
-    // [SPC-ui-cmdline-cmd-help]
+    // [#SPC-ui-cmdline-cmd-help]
     App::new("rsk")
         .version("0.0.1")
         .about("the requirements tracking tool made for developers. Call `rsk init -t` for \

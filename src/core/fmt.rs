@@ -19,7 +19,7 @@ pub fn names(names: &Vec<&ArtName>) -> String {
 }
 
 /// settings for what to format
-/// [SPC-core-fmt-settings]
+/// [#SPC-core-fmt-settings]
 #[derive(Debug, Default, Clone, PartialEq, Eq)]
 pub struct FmtSettings {
     pub long: bool,
@@ -44,7 +44,7 @@ impl FmtSettings {
 /// format an artifact for cmdline, html, or anything else
 /// purposely doesn't contain items that are *always* displayed
 /// such as completed or tested
-/// [SPC-core-fmt-artifact]
+/// [#SPC-core-fmt-artifact]
 #[derive(Debug, Default)]
 pub struct FmtArtifact {
     pub long: bool,
@@ -62,7 +62,7 @@ pub struct FmtArtifact {
 
 /// use several configuration options and pieces of data to represent
 /// how the artifact should be formatted
-// [SPC-core-fmt-func]
+// [#SPC-core-fmt-func]
 pub fn fmt_artifact(name: &ArtName, artifacts: &Artifacts, fmtset: &FmtSettings,
                     recurse: u8, displayed: &mut HashSet<ArtName>) -> FmtArtifact {
     let artifact = artifacts.get(name).unwrap();
@@ -96,7 +96,7 @@ pub fn fmt_artifact(name: &ArtName, artifacts: &Artifacts, fmtset: &FmtSettings,
         out.partof = Some(partof);
     }
     if fmtset.loc_path {
-    
+        out.loc = artifact.loc.clone();
     }
     if fmtset.refs {
         out.refs = Some(artifact.refs.clone());

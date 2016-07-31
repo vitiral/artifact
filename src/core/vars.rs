@@ -22,8 +22,8 @@ use core::types::*;
 lazy_static!{
     pub static ref DEFAULT_GLOBALS: HashSet<String> = HashSet::from_iter(
         ["repo", "cwd"].iter().map(|s| s.to_string()));
-    pub static ref SPC: VecDeque<char> = VecDeque::from_iter(vec!['S', 'P', 'C', '-']);
-    pub static ref TST: VecDeque<char> = VecDeque::from_iter(vec!['T', 'S', 'T', '-']);
+    pub static ref SPC: VecDeque<char> = VecDeque::from_iter(vec!['#', 'S', 'P', 'C', '-']);
+    pub static ref TST: VecDeque<char> = VecDeque::from_iter(vec!['#', 'T', 'S', 'T', '-']);
 }
 
 /// finds the closest repo dir given a directory
@@ -73,7 +73,7 @@ fn do_strfmt(s: &str, vars: &HashMap<String, String>, fpath: &PathBuf)
     }
 }
 
-/// SPC-core-load-settings-resolve:<resolve all informaiton related to settings>
+/// #SPC-core-load-settings-resolve:<resolve all informaiton related to settings>
 pub fn resolve_settings(settings: &mut Settings,
                         repo_map: &mut HashMap<PathBuf, PathBuf>,
                         loaded_settings: &Vec<(PathBuf, Settings)>)
@@ -97,7 +97,7 @@ pub fn resolve_settings(settings: &mut Settings,
 
         // TODO: for full windows compatibility you will probably want to support OsStr
         // here... I just don't want to
-        // [SPC-core-settings-vars]
+        // [#SPC-core-settings-vars]
         vars.insert("cwd".to_string(), cwd_str.to_string());
         try!(find_and_insert_repo(cwd, repo_map, &settings.repo_names));
         let repo = repo_map.get(cwd).unwrap();
@@ -158,7 +158,7 @@ pub fn find_and_insert_repo(dir: &Path, repo_map: &mut HashMap<PathBuf, PathBuf>
 
 /// resolves default vars from a file (cwd and repo)
 /// and inserts into variables
-/// SPC-core-vars-resolve-default
+/// #SPC-core-vars-resolve-default
 pub fn resolve_default_vars(vars: &Variables, fpath: &Path,
                             variables: &mut Variables,
                             repo_map: &mut HashMap<PathBuf, PathBuf>,
@@ -176,7 +176,7 @@ pub fn resolve_default_vars(vars: &Variables, fpath: &Path,
         let var = match strfmt::strfmt_options(v.as_str(), &fmtvars, true) {
             Ok(v) => v,
             Err(e) => {
-                // [SPC-core-load-error-vars-1]
+                // [#SPC-core-load-error-vars-1]
                 error!("error formatting: {}", e.to_string());
                 error = true;
                 continue;
@@ -184,7 +184,7 @@ pub fn resolve_default_vars(vars: &Variables, fpath: &Path,
         };
         match variables.insert(k.clone(), var) {
             Some(_) => {
-                // [SPC-core-load-error-vars-2]
+                // [#SPC-core-load-error-vars-2]
                 error!("global var {:?} exists twice, one at {:?}", k, fpath);
                 error = true;
             }
@@ -192,7 +192,7 @@ pub fn resolve_default_vars(vars: &Variables, fpath: &Path,
         }
     }
     if error {
-        // [SPC-core-load-error-vars-return-1]
+        // [#SPC-core-load-error-vars-return-1]
         return Err(LoadError::new("errors while resolving default variables".to_string()));
     }
     Ok(())
@@ -201,7 +201,7 @@ pub fn resolve_default_vars(vars: &Variables, fpath: &Path,
 /// continues to resolve variables until all are resolved
 /// - done if no vars were resolved in a pass and no errors
 /// - error if no vars were resolved in a pass and there were errors
-/// SPC-core-vars-resolve-user
+/// #SPC-core-vars-resolve-user
 pub fn resolve_vars(variables: &mut Variables) -> LoadResult<()> {
     // keep resolving variables until all are resolved
     let mut msg = String::new();
@@ -233,7 +233,7 @@ pub fn resolve_vars(variables: &mut Variables) -> LoadResult<()> {
                 Err(e) => match e {
                     strfmt::FmtError::Invalid(e) => return Err(LoadError::new(e.to_string())),
                     strfmt::FmtError::KeyError(_) => {
-                        // [SPC-core-load-error-vars-3]
+                        // [#SPC-core-load-error-vars-3]
                         errors.push(k.clone());
                         // reinsert original value
                         variables.insert(k.clone(), var);
@@ -246,7 +246,7 @@ pub fn resolve_vars(variables: &mut Variables) -> LoadResult<()> {
                 break;
             } else {
                 // unresolved errors
-                // [SPC-core-load-error-vars-return-2]
+                // [#SPC-core-load-error-vars-return-2]
                 keys = keys.iter().filter(|k| !remove_keys.contains(k.as_str()))
                     .map(|s| s.clone()).collect();
                 write!(msg, "Could not resolve some globals: {:?}\ngot related errors: {:?}",
@@ -286,20 +286,20 @@ pub fn fill_text_fields(artifacts: &mut Artifacts,
         for r in &art.refs {
             match strfmt::strfmt(r.as_str(), &variables) {
                 Ok(r) => refs.push(r),
-                // [SPC-core-load-error-text-1]
+                // [#SPC-core-load-error-text-1]
                 Err(err) => errors.push(("ref", err)),
             }
         }
         art.refs = refs;
         if errors.len() > 0 {
-            // [SPC-core-load-error-text-3]
+            // [#SPC-core-load-error-text-3]
             error!(" resolving variables on [{:?}] {} failed: {:?}", art.path, name, errors);
             error = true;
         }
     }
 
     if error {
-        // [SPC-core-load-error-text-return]
+        // [#SPC-core-load-error-text-return]
         return Err(LoadError::new("failure to resolve artifact text fields".to_string()));
     }
     trace!("Done filling");
@@ -321,13 +321,13 @@ pub fn find_locs_text(path: &Path,
                       -> bool {
     let mut error = false;
     let text = text;
-    let mut prev: VecDeque<char> = VecDeque::with_capacity(4);
+    let mut prev: VecDeque<char> = VecDeque::with_capacity(5);
     let mut prev_char = ' ';
     let mut start_pos = 0;
     let mut start_col = 0;
     let (mut pos, mut line, mut col) = (0, 1, 0); // line starts at 1
     // pretty simple parse tree... just do it ourselves!
-    // Looking for LOC-[a-z0-9_-] case insensitive
+    // Looking for #LOC-[a-z0-9_-] case insensitive
     for c in text.chars() {
         if prev == *SPC || prev == *TST {
             if prev_char == ' ' {
@@ -367,7 +367,7 @@ pub fn find_locs_text(path: &Path,
                 },
             }
         } else {
-            if prev.len() == 4 {
+            if prev.len() == 5 {
                 prev.pop_front();
             }
             prev.push_back(c);
@@ -384,7 +384,7 @@ pub fn find_locs_text(path: &Path,
     error
 }
 
-/// [SPC-core-load-loc-text]
+/// [#SPC-core-load-loc-text]
 /// given text, the path to the text, and the locations to add onto
 /// extract all the locations from the text and return whether there
 /// was an error
@@ -496,10 +496,13 @@ pub fn find_locs(settings: &mut Settings) -> LoadResult<HashMap<ArtName, Loc>> {
     }
 }
 
-/// [SPC-core-load-loc-resolve]
+/// [#SPC-core-load-loc-resolve]
 pub fn attach_locs(artifacts: &mut Artifacts, locs: &HashMap<ArtName, Loc>) {
     for (lname, loc) in locs {
-        let artifact = artifacts.get_mut(&lname).unwrap();
+        let artifact = match artifacts.get_mut(&lname) {
+            Some(a) => a,
+            None => continue,
+        };
         artifact.loc = Some(loc.clone());
     }
 }
