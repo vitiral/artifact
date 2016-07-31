@@ -1,7 +1,6 @@
 [settings]
-# having paths/repo_names multiple times doesn't do anything
+# having paths multiple times doesn't do anything
 artifact_paths = ["{repo}/deep/reqs"]
-repo_names = [".tst_repo_name"]
 
 [REQ-deep]
 partof = "REQ-purpose"

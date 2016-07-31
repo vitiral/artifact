@@ -1,6 +1,3 @@
-[settings]
-repo_names = [".tst_repo_name"] # for testing that it ignores overlap
-
 [SPC-loc]
 text = "test that it goes into a src directory"
 

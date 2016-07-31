@@ -13,7 +13,7 @@ lazy_static!{
 }
 
 /// finds the closest repo dir given a directory
-pub fn find_repo(dir: &Path, repo_names: &HashSet<String>) -> Option<PathBuf> {
+pub fn find_repo(dir: &Path) -> Option<PathBuf> {
     // trace!("start dir: {:?}", dir);
     let dir = env::current_dir().unwrap().join(dir);
     // trace!("abs dir: {:?}", dir);
@@ -33,7 +33,7 @@ pub fn find_repo(dir: &Path, repo_names: &HashSet<String>) -> Option<PathBuf> {
                     let p = e.path();
                     let fname = p.file_name().unwrap().to_str().unwrap();
                     // trace!("fname: {:?}", fname);
-                    repo_names.contains(fname) && p.is_dir()
+                    fname == ".rsk" && p.is_dir()
                 }
             }) {
             return Some(dir.to_path_buf());
@@ -61,14 +61,13 @@ fn do_strfmt(s: &str, vars: &HashMap<String, String>, fpath: &PathBuf)
 
 /// LOC-find-repo:<given a path, find the closest dir with the repo identifier
 ///     and keep track of it>
-pub fn find_and_insert_repo(dir: &Path, repo_map: &mut HashMap<PathBuf, PathBuf>,
-                        repo_names: &HashSet<String>)
+pub fn find_and_insert_repo(dir: &Path, repo_map: &mut HashMap<PathBuf, PathBuf>)
                         -> LoadResult<()> {
     let mut must_insert = false;
     let repo = match repo_map.get(dir) {
         Some(r) => r.to_path_buf(),
         None => {
-            let r = match find_repo(&dir, repo_names) {
+            let r = match find_repo(&dir) {
                 Some(r) => r,
                 None => {
                     let mut msg = String::new();
@@ -95,13 +94,12 @@ pub fn find_and_insert_repo(dir: &Path, repo_map: &mut HashMap<PathBuf, PathBuf>
 /// #SPC-core-vars-resolve-default
 pub fn resolve_default_vars(vars: &Variables, fpath: &Path,
                             variables: &mut Variables,
-                            repo_map: &mut HashMap<PathBuf, PathBuf>,
-                            repo_names: &HashSet<String>)
+                            repo_map: &mut HashMap<PathBuf, PathBuf>)
                             -> LoadResult<()> {
     let cwd = fpath.parent().unwrap();
     let mut fmtvars = Variables::new();
     fmtvars.insert("cwd".to_string(), cwd.to_str().unwrap().to_string());
-    try!(find_and_insert_repo(cwd, repo_map, repo_names));
+    try!(find_and_insert_repo(cwd, repo_map));
     fmtvars.insert("repo".to_string(), repo_map.get(cwd).unwrap()
                      .to_str().unwrap().to_string());
     let mut error = false;
@@ -206,7 +204,7 @@ pub fn fill_text_fields(artifacts: &mut Artifacts,
         trace!("filling in {}", name);
         errors.clear();
         let cwd = art.path.parent().expect("no-path-parent").to_path_buf();
-        try!(find_and_insert_repo(&cwd, repo_map, &settings.repo_names));
+        try!(find_and_insert_repo(&cwd, repo_map));
         variables.insert("cwd".to_string(), cwd.to_str().expect("utf-path").to_string());
         variables.insert("repo".to_string(), repo_map.get(&cwd).expect("repo_map")
                             .to_str().expect("utf-path").to_string());
@@ -442,19 +440,13 @@ pub fn attach_locs(artifacts: &mut Artifacts, locs: &HashMap<ArtName, Loc>) {
     }
 }
 
-/// #SPC-core-load-settings-resolve:<resolve all informaiton related to settings>
+/// push settings found (loaded_settings) into a main settings object
+/// repo_map is a pre-compiled hashset mapping dirs->repo_path (for performance)
+/// partof: #SPC-settings-resolve
 pub fn resolve_settings(settings: &mut Settings,
                         repo_map: &mut HashMap<PathBuf, PathBuf>,
                         loaded_settings: &Vec<(PathBuf, Settings)>)
                         -> LoadResult<()> {
-    // first pull out all of the repo_names
-    for ps in loaded_settings.iter() {
-        let ref s: &Settings = &ps.1;
-        for rn in &s.repo_names {
-            settings.repo_names.insert(rn.clone());
-        }
-    }
-
     // now resolve all path names
     let mut vars: HashMap<String, String> = HashMap::new();
     for ps in loaded_settings.iter() {
@@ -466,9 +458,8 @@ pub fn resolve_settings(settings: &mut Settings,
 
         // TODO: for full windows compatibility you will probably want to support OsStr
         // here... I just don't want to
-        // [#SPC-core-settings-vars]
         vars.insert("cwd".to_string(), cwd_str.to_string());
-        try!(find_and_insert_repo(cwd, repo_map, &settings.repo_names));
+        try!(find_and_insert_repo(cwd, repo_map));
         let repo = repo_map.get(cwd).unwrap();
         vars.insert("repo".to_string(), try!(get_path_str(repo.as_path())).to_string());
 
@@ -479,6 +470,7 @@ pub fn resolve_settings(settings: &mut Settings,
         }
 
         // TODO: it is possible to be able to use all global variables in code_paths
+        //    but then it must be done in a separate step
         // push resolved code_paths
         for p in settings_item.code_paths.iter() {
             let p = try!(do_strfmt(p.to_str().unwrap(), &vars, &fpath));

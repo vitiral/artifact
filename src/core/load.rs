@@ -9,8 +9,7 @@ lazy_static!{
         ["disabled", "text", "refs", "partof"].iter().map(|s| s.to_string()));
     pub static ref SETTINGS_ATTRS: HashSet<String> = HashSet::from_iter(
         ["disabled", "artifact_paths",
-         "code_paths", "exclude_code_paths",
-         "repo_names"].iter().map(|s| s.to_string()));
+         "code_paths", "exclude_code_paths"].iter().map(|s| s.to_string()));
 }
 
 macro_rules! get_attr {
@@ -85,13 +84,10 @@ impl Settings {
             paths: str_paths.iter().map(|s| PathBuf::from(s)).collect(),
             code_paths: code_paths.iter().map(|s| PathBuf::from(s)).collect(),
             exclude_code_paths: exclude_code_paths.iter().map(|s| PathBuf::from(s)).collect(),
-            repo_names: HashSet::from_iter(check_type!(
-                get_vecstr(tbl, "repo_names", &df_vec), "repo_names", "settings")),
             color: true,
         })
     }
 }
-
 
 
 /// parse toml using a std error for this library
@@ -161,22 +157,16 @@ impl Artifact {
     }
 }
 
-/// inputs:
-///     ftable: file-table
-///     path: path to this file
-///     artifacts: place to put the loaded artifacts
-///     settings: place to put the loaded settings
-///     variables: place to put the loaded variables
-/// #SPC-core-load-table:<load a table from toml>
-pub fn load_table(ftable: &mut Table, path: &Path,
-                  artifacts: &mut Artifacts,
-                  settings: &mut Vec<(PathBuf, Settings)>,
-                  variables: &mut Vec<(PathBuf, Variables)>)
-                  -> LoadResult<u64> {
+/// Load artifacts and settings from a toml Table
+pub fn load_file_table(file_table: &mut Table, path: &Path,
+                       artifacts: &mut Artifacts,
+                       settings: &mut Vec<(PathBuf, Settings)>,
+                       variables: &mut Vec<(PathBuf, Variables)>)
+                       -> LoadResult<u64> {
     let mut msg: Vec<u8> = Vec::new();
     let mut num_loaded: u64 = 0;
 
-    match ftable.remove("settings") {
+    match file_table.remove("settings") {
         Some(Value::Table(t)) => {
             let lset = try!(Settings::from_table(&t));
             // [#SPC-core-settings-disabled]
@@ -189,7 +179,7 @@ pub fn load_table(ftable: &mut Table, path: &Path,
         _ => return Err(LoadError::new("settings must be a Table".to_string())),
     }
 
-    match ftable.remove("globals") {
+    match file_table.remove("globals") {
         Some(Value::Table(t)) => {
             let mut lvars = Variables::new();
             for (k, v) in t {
@@ -208,7 +198,7 @@ pub fn load_table(ftable: &mut Table, path: &Path,
         _ => return Err(LoadError::new("globals must be a Table".to_string())),
     }
 
-    for (name, value) in ftable.iter() {
+    for (name, value) in file_table.iter() {
         let aname = try!(ArtName::from_str(name));
         // get the artifact table
         let art_tbl: &Table = match value {
@@ -253,7 +243,7 @@ pub fn load_toml(path: &Path, text: &str,
                  -> LoadResult<u64> {
     // parse the text
     let mut table = try!(parse_toml(text));
-    load_table(&mut table, path, artifacts, settings, variables)
+    load_file_table(&mut table, path, artifacts, settings, variables)
 }
 
 /// given a file path load the artifacts
@@ -278,7 +268,9 @@ pub fn load_file(path: &Path,
     load_toml(path, &text, artifacts, settings, variables)
 }
 
-/// #SPC-core-load-dir:<given a path load the raw artifacts from files recursively>
+/// recursively load a directory, ensuring that sub-directories don't get
+/// double loaded
+/// partof: #SPC-load-dir
 pub fn load_dir(path: &Path,
                 loaded_dirs: &mut HashSet<PathBuf>,
                 artifacts: &mut Artifacts,
@@ -301,7 +293,6 @@ pub fn load_dir(path: &Path,
         let ftype = match entry.file_type() {
             Ok(f) => f,
             Err(err) => {
-                // [#SPC-core-load-error-file-1]
                 error!("while loading from <{}>: {}", fpath.display(), err);
                 error = true;
                 continue;
@@ -320,7 +311,6 @@ pub fn load_dir(path: &Path,
             match load_file(fpath.as_path(), artifacts, settings, variables) {
                 Ok(n) => num_loaded += n,
                 Err(err) => {
-                    // [#SPC-core-load-error-file-2]
                     error!("while loading from <{}>: {}", fpath.display(), err);
                     error = true;
                 }
@@ -335,7 +325,6 @@ pub fn load_dir(path: &Path,
             }
             match load_dir(dir.as_path(), loaded_dirs, artifacts, settings, variables) {
                 Ok(n) => num_loaded += n,
-                // [#SPC-core-load-error-file-3]
                 Err(_) => error = true,
             }
         }
@@ -348,22 +337,13 @@ pub fn load_dir(path: &Path,
     }
 }
 
-fn default_repo_names() -> HashSet<String> {
-    let mut repo_names: HashSet<String> = HashSet::new();
-    repo_names.insert(".git".to_string());
-    repo_names.insert(".hg".to_string());
-    repo_names.insert(".svn".to_string());
-    repo_names
-}
-
 /// given a valid path, load all paths given by the settings recursively
-/// partof: #SPC-load
+/// partof: #SPC-load-path
 pub fn load_path_raw(path: &Path) -> LoadResult<(Artifacts, Settings)> {
     let mut artifacts = Artifacts::new();
     let mut settings = Settings::new();
-    settings.repo_names = default_repo_names();
     let mut variables = Variables::new();
-    let mut loaded_dirs: HashSet<PathBuf> = HashSet::new();
+    let mut loaded_dirs: HashSet<PathBuf> = HashSet::new(); // see SPC-load-dir, RSK-2-load-loop
     let mut loaded_settings: Vec<(PathBuf, Settings)> = Vec::new();
     let mut loaded_variables: Vec<(PathBuf, Variables)> = Vec::new();
     // repo_map maps directories to their found base-repositories
@@ -386,7 +366,6 @@ pub fn load_path_raw(path: &Path) -> LoadResult<(Artifacts, Settings)> {
     while settings.paths.len() > 0 {
         let dir = settings.paths.pop_front().unwrap(); // it has len, it better pop!
         if loaded_dirs.contains(&dir) {
-            // [#SPC-core-settings-overlap-paths]:<ignore extra paths>
             continue
         }
         debug!("Loading artifacts: {:?}", dir);
@@ -401,25 +380,25 @@ pub fn load_path_raw(path: &Path) -> LoadResult<(Artifacts, Settings)> {
                 return Err(LoadError::new(msg));
             }
         };
+
         // resolve the project-level settings after each directory is recursively loaded
+        // so that artifact_paths can be resolved
         // see: SPC-settings-resolve
         try!(vars::resolve_settings(&mut settings, &mut repo_map, &loaded_settings));
     }
 
-    // #SPC-core-load-vars
-    info!("Resolving default globals in variables...");
+    // partof: #SPC-vars
+    info!("Resolving default globals in variables, see SPC-vars.1");
     for pv in loaded_variables.drain(0..) {
         let p = pv.0;
         let v = pv.1;
-        try!(vars::resolve_default_vars(&v, p.as_path(), &mut variables, &mut repo_map,
-                                        &settings.repo_names));
+        try!(vars::resolve_default_vars(&v, p.as_path(), &mut variables, &mut repo_map));
     }
 
-    // LOC-core-load-parts-3:<resolve variables in text fields>
-    info!("Resolving variables...");
+    info!("Resolving variables, see SPC-vars.2");
     try!(vars::resolve_vars(&mut variables));
 
-    info!("Filling in variables for text fields...");
+    info!("Filling in variables for text fields, see SPC-vars.3");
     try!(vars::fill_text_fields(&mut artifacts, &settings, &mut variables, &mut repo_map));
 
     Ok((artifacts, settings))

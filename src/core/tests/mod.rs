@@ -40,7 +40,6 @@ pub static TOML_GOOD: &'static str = "
 disabled = false
 artifact_paths = ['{cwd}/test', '{repo}/test']
 code_paths = ['{cwd}/src', '{repo}/src2']
-repo_names = ['.test']
 
 [REQ-foo]
 disabled = false
@@ -59,7 +58,6 @@ pub static TOML_RSK: &'static str = "
 [settings]
 disabled = false
 artifact_paths = ['{cwd}/data/empty']
-repo_names = ['.test']
 
 [REQ-foo]
 disabled = false
@@ -85,7 +83,6 @@ partof = 'REQ-parts-p1'
 pub static TOML_RSK2: &'static str = "
 [settings]
 artifact_paths = ['test/path']
-repo_names = ['.tst']
 [REQ-baz]
 [RSK-foo-2]
 [TST-foo-2]

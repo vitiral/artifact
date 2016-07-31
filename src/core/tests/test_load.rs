@@ -84,9 +84,6 @@ fn test_settings() {
     assert!(set.code_paths == VecDeque::from_iter(
         vec![PathBuf::from("{cwd}/src"), PathBuf::from("{repo}/src2")]));
     assert!(set.disabled == false);
-    let mut expected = HashSet::new();
-    expected.insert(".test".to_string());
-    assert!(set.repo_names == expected);
 
     let toml_invalid = r#"
     [settings]
@@ -163,7 +160,6 @@ fn test_load_toml() {
         // [#TST-core-load-settings]
         let set = &settings.iter().next().unwrap().1;
         assert_eq!(set.paths, VecDeque::from_iter(vec![PathBuf::from("{cwd}/data/empty")]));
-        assert_eq!(set.repo_names, HashSet::from_iter(vec![".test".to_string()]));
 
         // test non-defaults
         let art = artifacts.get(&ArtName::from_str("SPC-bar").unwrap()).unwrap();

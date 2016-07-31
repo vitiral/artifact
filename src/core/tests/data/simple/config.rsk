@@ -2,7 +2,6 @@
 [settings]
 artifact_paths = ["{repo}/deep/reqs", "{cwd}/deep/spcs"]
 code_paths = ["{repo}/src", "{repo}/lvl_1"]
-repo_names = [".tst_repo_name"]
 
 [globals]
 src = "{repo}/src"

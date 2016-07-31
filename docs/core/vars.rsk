@@ -1,0 +1,10 @@
+
+[SPC-vars]
+text = '''
+variables **shall** be instantiated when settings are loaded and must be resolved
+in two steps:
+ 1. default globals within the variables, which depend on the path information
+ 2. iterative resolution of variables, which may require more than one pass (due to
+      embedded variables)
+ 3. actually replacing the variables in artifact text fields
+'''

@@ -42,6 +42,29 @@ Failures in further steps will simply cause warnings and will display on the
 ui as missing links or None completion (etc)
 '''
 
+[SPC-load-dir]
+text = '''
+The first necessary component is a function that can load all files in a directory
+recursively. For each dir this should:
+
+ 1. record itself in the `loaded_dirs` variable, to ensure dirs don't get double loaded
+ 2. parse any .rsk text files and store any directories
+ 3. recursively load all of the sub-directories that are not in `loaded_dirs`
+ 4. return all parsed (but not-processed) artifacts, settings and variables
+'''
+
+[SPC-load-path]
+text = '''
+The raw-loading of paths will be done using the functions defined in:
+ - SPC-load-dir
+ - SPC-settings-load
+ - SPC-vars
+
+It is a pretty simple design: directories are loaded and settings are resolved until
+settings.artifact_paths is exhausted. Once that is complete, the variables are resolved.
+'''
+
+
 ##################################################
 # COPYED TESTS
 [TST-core-load]

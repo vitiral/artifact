@@ -86,18 +86,16 @@ pub fn cmd<'a, I, T>(args: I)
     };
 
     // load the artifacts
-    let mut repo_names = HashSet::new();
-    repo_names.insert(".rsk".to_string());
     let cwd = env::current_dir().unwrap();
     if let Some(m) = matches.subcommand_matches("init") {
         info!("Calling the init command");
-        match init::do_init(&cwd, &repo_names, m.is_present("tutorial")) {
+        match init::do_init(&cwd, m.is_present("tutorial")) {
             Ok(_) => {},
             Err(e) => println!("ERROR: {}", e),
         }
         return;
     }
-    let repo = match core::find_repo(cwd.as_path(), &repo_names) {
+    let repo = match core::find_repo(cwd.as_path()) {
         Some(r) => r,
         None => {
             println!("Could not find .rsk folder. Try running `rsk init -t`");

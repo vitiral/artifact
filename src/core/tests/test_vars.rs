@@ -9,13 +9,11 @@ use super::super::super::init_logger;
 
 #[test]
 fn test_find_repo() {
-    let mut repo_names = HashSet::new();
-    repo_names.insert(String::from(".tst_repo_name"));
-    assert_eq!(find_repo(TSIMPLE_DIR.as_path(), &repo_names).unwrap(),
+    assert_eq!(find_repo(TSIMPLE_DIR.as_path()).unwrap(),
                TSIMPLE_DIR.as_path());
-    assert_eq!(find_repo(TSIMPLE_DIR.join("lvl_1").as_path(), &repo_names).unwrap(),
+    assert_eq!(find_repo(TSIMPLE_DIR.join("lvl_1").as_path()).unwrap(),
                TSIMPLE_DIR.as_path());
-    assert!(find_repo(env::temp_dir().as_path(), &repo_names).is_none());
+    assert!(find_repo(env::temp_dir().as_path()).is_none());
 }
 
 
@@ -28,11 +26,9 @@ fn test_resolve_vars() {
     let mut variables: Variables = Variables::new();
     let mut var_paths: HashMap<String, PathBuf> = HashMap::new();
     let mut repo_map: HashMap<PathBuf, PathBuf> = HashMap::new();
-    let mut repo_names = HashSet::new();
 
     println!("simple dir: {:?}", TSIMPLE_DIR.as_path());
     let fpath = TSIMPLE_DIR.join(PathBuf::from("fake.rsk"));
-    repo_names.insert(String::from(".tst_repo_name"));
 
     for i in 0..3 { // do it a few times
         loaded_vars.clear();
@@ -43,7 +39,7 @@ fn test_resolve_vars() {
 
         // #TST-core-vars-resolve-default
         resolve_default_vars(&loaded_vars, fpath.as_path(), &mut variables,
-                             &mut repo_map, &repo_names).unwrap();
+                             &mut repo_map).unwrap();
         // #TST-core-vars-resolve-user
         resolve_vars(&mut variables).unwrap();
         let foo = TSIMPLE_DIR.join("FOO");

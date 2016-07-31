@@ -11,4 +11,3 @@
 artifact_paths = ["{repo}/docs"]
 code_paths = ["{repo}/src", "{repo}/docs"]
 exclude_code_paths = ["{repo}/src/core/tests/data"]
-repo_names = [".git", ".hg", ".svn"]

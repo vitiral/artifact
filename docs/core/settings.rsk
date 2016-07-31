@@ -13,8 +13,8 @@ Because artifact_paths determine the locations that will be used to search for
 the `artifact_paths` variable has to be analyzed *before* other variables are.
 
 This means three things:
- 1. it is not possible to use global variables in artifact_paths
- 2. default-globals have to be resolved for code_paths before other globals are
+ 1. it is not possible to use general global variables in artifact_paths
+ 2. default-globals have to be resolved for artifact_paths before other globals are
  2. a special process has to be developed for resolving settings that happens
     during the loading of artifacts (the two processes are coupled)
 '''

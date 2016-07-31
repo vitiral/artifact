@@ -241,7 +241,7 @@ pub fn get_subcommand<'a, 'b>() -> App<'a, 'b> {
              .help("also initialize the interactive tutorial"))
 }
 
-pub fn do_init(path: &Path, repo_names: &HashSet<String>, tutorial: bool) -> io::Result<()> {
+pub fn do_init(path: &Path, tutorial: bool) -> io::Result<()> {
     let mut read_dir = try!(fs::read_dir(path));
     let exists = read_dir.any(|e|
         match e {
