@@ -1,7 +1,8 @@
 //! loadrs
 //! loading of raw artifacts from files and text
 
-use super::prefix::*;
+use super::types::*;
+use super::vars;
 
 lazy_static!{
     pub static ref ARTIFACT_ATTRS: HashSet<String> = HashSet::from_iter(

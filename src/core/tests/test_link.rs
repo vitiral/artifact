@@ -1,16 +1,4 @@
 use std::ascii::AsciiExt;
-use std::fs;
-use std::clone::Clone;
-use std::path::{Path, PathBuf};
-use std::convert::AsRef;
-use std::collections::{HashMap, HashSet, VecDeque};
-
-// Traits
-use std::io::{Read, Write};
-use std::fmt::Write as WriteStr;
-use std::iter::FromIterator;
-
-use toml::{Parser, Value, Table};
 
 use super::*;  // data directory constants
 use super::super::types::*;

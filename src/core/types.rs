@@ -1,17 +1,32 @@
+// Export these:
+// Traits
+pub use std::io::{Read, Write};
+pub use std::fmt::Write as WriteStr;
+pub use std::iter::FromIterator;
+pub use std::clone::Clone;
+pub use std::convert::AsRef;
+pub use std::str::FromStr;
 
-use std::path;
+// stdlib
+pub use std::fs;
+pub use std::path::{Path, PathBuf};
+pub use std::collections::{HashMap, HashSet, VecDeque};
+
+// crates
+pub use strfmt;
+pub use regex::Regex;
+pub use toml::{Parser, Value, Table};
+
+// for type definitions only
 use std::fmt;
 use std::error;
 use std::convert::From;
 use std::option::Option;
-use std::collections::{HashMap, HashSet, VecDeque};
 use std::ascii::AsciiExt;
 use std::hash::{Hash, Hasher};
 use std::cmp::{PartialEq, Ord, PartialOrd, Ordering};
-use std::fmt::Write;
 
-use regex::Regex;
-
+// definition of new types
 pub type LoadResult<T> = Result<T, LoadError>;
 pub type Artifacts = HashMap<ArtName, Artifact>;
 pub type ArtNames = HashSet<ArtName>;
@@ -38,14 +53,14 @@ pub enum ArtType {
 /// #SPC-core-artifact-attrs-loc<Location data type>
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub struct Loc {
-    pub path: path::PathBuf,
+    pub path: PathBuf,
     pub line_col: (usize, usize),
 }
 
 impl Loc {
     pub fn fake() -> Loc {
         Loc {
-            path: path::Path::new("fake").to_path_buf(),
+            path: Path::new("fake").to_path_buf(),
             line_col: (42, 0),
         }
     }
@@ -283,7 +298,7 @@ impl LoadFromStr for ArtNames {
 pub struct Artifact {
     // directly loaded types
     pub ty: ArtType,
-    pub path: path::PathBuf,
+    pub path: PathBuf,
     pub text: String,
     pub refs: Vec<String>,
     pub partof: HashSet<ArtName>,
@@ -297,9 +312,9 @@ pub struct Artifact {
 /// #SPC-core-settings-struct
 pub struct Settings {
     pub disabled: bool,
-    pub paths: VecDeque<path::PathBuf>,
-    pub code_paths: VecDeque<path::PathBuf>,
-    pub exclude_code_paths: VecDeque<path::PathBuf>,
+    pub paths: VecDeque<PathBuf>,
+    pub code_paths: VecDeque<PathBuf>,
+    pub exclude_code_paths: VecDeque<PathBuf>,
     // [#SPC-core-settings-overlap-repo_names]
     pub repo_names: HashSet<String>,
     pub color: bool,

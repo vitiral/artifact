@@ -3,7 +3,7 @@
 //! also contains settings resolution because it is similar
 
 use std::env;
-use super::prefix::*;
+use super::types::*;
 
 lazy_static!{
     pub static ref DEFAULT_GLOBALS: HashSet<String> = HashSet::from_iter(

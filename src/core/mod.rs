@@ -7,7 +7,6 @@ pub mod vars;
 #[macro_use] pub mod load;  // macro use so the macro can be tested
 pub mod link;
 pub mod fmt;
-pub mod prefix;
 
 #[cfg(test)]
 mod tests;

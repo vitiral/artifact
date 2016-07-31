@@ -1,11 +1,6 @@
 #![allow(dead_code, unused_imports, unused_variables)]
 
-use std::iter::FromIterator;
-
 use std::env;
-use std::collections::{HashMap, HashSet, VecDeque};
-use std::path::PathBuf;
-
 
 use super::*;  // data directory constants
 use super::super::vars::*;

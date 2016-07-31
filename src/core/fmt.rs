@@ -1,7 +1,3 @@
-use std::fmt::Write;
-use std::path;
-use std::collections::HashSet;
-
 use core::types::*;
 
 /// format ArtNames in a reasonable way
@@ -48,11 +44,11 @@ impl FmtSettings {
 #[derive(Debug, Default)]
 pub struct FmtArtifact {
     pub long: bool,
-    pub path: Option<path::PathBuf>,
+    pub path: Option<PathBuf>,
     pub parts: Option<Vec<FmtArtifact>>,
     pub partof: Option<Vec<FmtArtifact>>,
     pub loc: Option<Loc>,
-    // pub loc_path: Option<path::PathBuf>,
+    // pub loc_path: Option<PathBuf>,
     // pub loc_line_col: (usize, usize),
     // pub loc_valid: Option<bool>,
     pub refs: Option<Vec<String>>,
