@@ -16,7 +16,7 @@ use std::iter::FromIterator;
 use toml::{Parser, Value, Table};
 
 mod test_load;
-// mod test_vars;
+mod test_vars;
 // mod test_link;
 // mod test_core;
 
