@@ -18,9 +18,11 @@ use super::*;  // data directory constants
 use super::super::*;
 
 #[test]
+// partof: #TST-load-simple, #TST-settings-resolve
 fn test_load_path() {
     init_logger_test();
     info!("running test_load_path");
+    // see: TST-load-dir-invalid
     assert!(load_path(TINVALID_DIR.join(&PathBuf::from("attr")).as_path()).is_err());
     assert!(load_path(TINVALID_DIR.join(&PathBuf::from("same_names")).as_path()).is_err());
 
@@ -60,5 +62,5 @@ fn test_load_path() {
     assert_eq!(spc_lvl1.loc.iter().next().unwrap().line_col, (3, 3));
 
     // TODO: more validation
-    // TODO: need to check that completeness makes sense: [TST-core-load-loc-resolve]
+    // TODO: need to check that completeness makes sense: TST-core-load-loc-resolve
 }

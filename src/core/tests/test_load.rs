@@ -74,7 +74,7 @@ fn test_check_type() {
 }
 
 #[test]
-// [#TST-core-settings-struct]
+/// partof: #TST-settings-load
 fn test_settings() {
     let tbl_good = parse_text(TOML_GOOD);
     let df_tbl = Table::new();
@@ -86,6 +86,7 @@ fn test_settings() {
         vec![PathBuf::from("{cwd}/src"), PathBuf::from("{repo}/src2")]));
     assert!(set.disabled == false);
 
+    // see: 4
     let toml_invalid = r#"
     [settings]
     artifact_paths = ['hi']
@@ -101,7 +102,6 @@ fn test_settings() {
 
 
 #[test]
-/// #TST-core-load-valid:<load some valid toml files>
 fn test_load_toml() {
     let mut artifacts = Artifacts::new();
     let mut settings: Vec<(PathBuf, Settings)> = Vec::new();
@@ -109,7 +109,7 @@ fn test_load_toml() {
 
     let path = PathBuf::from("hi/there");
 
-    // #TST-core-load-invalid:<load some invalid toml files>
+    // #TST-load-toml-invalid
     assert!(load_toml(&path, TOML_BAD, &mut artifacts, &mut settings, &mut variables).is_err());
     assert!(load_toml(&path, TOML_BAD_JSON, &mut artifacts, &mut settings, &mut variables).is_err());
     assert!(load_toml(&path, TOML_BAD_ATTR1, &mut artifacts,
@@ -120,13 +120,15 @@ fn test_load_toml() {
                       &mut settings, &mut variables).is_err());
     assert!(load_toml(&path, TOML_BAD_NAMES2, &mut artifacts,
                       &mut settings, &mut variables).is_err());
-    // [#TST-core-settings-disabled]
+
+    // #TST-disabled-1
     assert_eq!(load_toml(&path, TOML_DISABLED, &mut artifacts,
                          &mut settings, &mut variables).unwrap(), 0);
     assert_eq!(artifacts.len(), 0);
     assert_eq!(settings.len(), 0);
     assert_eq!(variables.len(), 0);
 
+    // #TST-artifact-load: basic loading unit tests
     let num = load_toml(&path, TOML_RSK, &mut artifacts, &mut settings, &mut variables).unwrap();
     let locs = HashMap::from_iter(
         vec![(ArtName::from_str("SPC-foo").unwrap(), Loc::fake()),
@@ -145,7 +147,7 @@ fn test_load_toml() {
     assert!(!artifacts.contains_key(&ArtName::from_str("TST-foo-2").unwrap()));
 
     {
-        // test defaults
+        // #TST-artifact-attrs-defaults
         let art = artifacts.get(&ArtName::from_str("RSK-foo").unwrap()).unwrap();
         assert_eq!(art.ty, ArtType::RSK);
         assert_eq!(art.path, path);
@@ -157,10 +159,6 @@ fn test_load_toml() {
         assert_eq!(art.loc, None);
         assert_eq!(art.completed, -1.0);
         assert_eq!(art.tested, -1.0);
-
-        // [#TST-core-load-settings]
-        let set = &settings.iter().next().unwrap().1;
-        assert_eq!(set.paths, VecDeque::from_iter(vec![PathBuf::from("{cwd}/data/empty")]));
 
         // test non-defaults
         let art = artifacts.get(&ArtName::from_str("SPC-bar").unwrap()).unwrap();
@@ -175,10 +173,14 @@ fn test_load_toml() {
         assert_eq!(art.loc.as_ref().unwrap(), &expected);
         assert_eq!(art.completed, -1.0);
         assert_eq!(art.tested, -1.0);
+
+        // see TST-settings-load
+        let set = &settings.iter().next().unwrap().1;
+        assert_eq!(set.paths, VecDeque::from_iter(vec![PathBuf::from("{cwd}/data/empty")]));
+
     }
 
-    // #TST-core-load-dir-unit-3
-    // REQ-foo already exists, so this must throw an error
+    // must be loaded afterwards, uses already existing artifacts
     assert!(load_toml(&path, TOML_OVERLAP, &mut artifacts, &mut settings, &mut variables).is_err());
 
     let num = load_toml(&path, TOML_RSK2, &mut artifacts, &mut settings, &mut variables).unwrap();
@@ -199,24 +201,22 @@ pub fn load_raw_extra(path: &Path)
 }
 
 #[test]
+/// partof: #TST-load-dir-valid, #TST-load-dir-invalid
 fn test_load_raw() {
     init_logger_test();
-    info!("running test_loadraw");
-    // #TST-core-load-dir-unit-2
+    info!("running test_load_raw");
+    // see: invalid.1: load with invalid attribute
     assert!(load_raw_extra(TINVALID_DIR.join(&PathBuf::from("attr")).as_path()).is_err());
-
-    // #TST-core-load-unit-3
+    // see: invalid.2: load two files that have the same key
     assert!(load_raw_extra(TINVALID_DIR.join(&PathBuf::from("same_names")).as_path()).is_err());
 
     info!("loading only valid now");
-    // [#TST-core-settings-general]
     let (artifacts, settings) = load_raw_extra(TSIMPLE_DIR.as_path()).unwrap();
     assert!(artifacts.contains_key(&ArtName::from_str("REQ-purpose").unwrap()));
 
-    let req_purpose = artifacts.get(&ArtName::from_str("REQ-purpose").unwrap()).unwrap();
-
     // load all artifacts that should exist
-    // #TST-core-load-dir-unit-1
+    let req_purpose = artifacts.get(&ArtName::from_str("REQ-purpose").unwrap()).unwrap();
+    // see valid.1
     let req_lvl1 = artifacts.get(&ArtName::from_str("REQ-lvl-1").unwrap()).unwrap();
     let spc_lvl1 = artifacts.get(&ArtName::from_str("SPC-lvl-1").unwrap()).unwrap();
     let spc_loc  = artifacts.get(&ArtName::from_str("SPC-loc").unwrap()).unwrap();

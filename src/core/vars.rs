@@ -167,13 +167,13 @@ pub fn resolve_loaded_vars(mut loaded_vars: Vec<(PathBuf, Variables)>,
                            repo_map: &mut HashMap<PathBuf, PathBuf>)
                            -> LoadResult<Variables> {
     let mut variables = Variables::new();
-    info!("Resolving default globals in variables, see SPC-vars.1");
+    debug!("Resolving default globals in variables, see SPC-vars.1");
     for pv in loaded_vars.drain(0..) {
         let p = pv.0;
         let v = pv.1;
         try!(resolve_default_vars(&v, p.as_path(), &mut variables, repo_map));
     }
-    info!("Resolving variables, see SPC-vars.2");
+    debug!("Resolving variables, see SPC-vars.2");
     try!(resolve_vars(&mut variables));
     Ok(variables)
 }

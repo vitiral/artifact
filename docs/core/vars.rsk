@@ -8,3 +8,13 @@ in two steps:
       embedded variables)
  3. actually replacing the variables in artifact text fields
 '''
+
+[TST-vars]
+[TST-vars-race]
+text = '''
+test the resolution of variables outside of simply doing other projects.
+create a situation where var-A depends on var-B which depends on var-C,
+which itself depends on default-vars.
+'''
+
+[SPC-loc]

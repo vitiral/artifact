@@ -40,6 +40,12 @@ During this process all of it's values **shall** be validated and proper error
 messages **shall** be raised.
 '''
 
+[TST-artifact-load]
+text = '''
+There **will** be a basic unit test that loads a raw toml file and ensures that
+all the artiacts are loaded as expected
+'''
+
 [SPC-artifact-name]
 text = '''
 # parts
@@ -77,3 +83,10 @@ responsibility of `::from_str`.
 '''
 [TST-names]
 text = "give valid and invalid inputs and verify results"
+
+[TST-artifact-attrs-defaults]
+partof = "SPC-artifact"
+text = '''
+Various tests for artifact attrs to make sure they work with their defaults
+set and not set
+'''

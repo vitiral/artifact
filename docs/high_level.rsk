@@ -192,7 +192,7 @@ The reasons for these rules are:
 
 [REQ-2-loc]
 text = '''
-rsk **shall** load the implementation LOCs from source code in the directory of
+rsk **shall** load the implementation LOCs from source code in the directories of
 settings.code_paths
 
 LOCs **will** be marked in plaintext in the sourecode itself like: `#ART-foo-bar`
