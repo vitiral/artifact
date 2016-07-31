@@ -77,7 +77,7 @@ impl ArtName {
             "RSK" => Ok(ArtType::RSK),
             "TST" => Ok(ArtType::TST),
             _ => {
-                Err(LoadError::new("Artifact name is invalid, must start with REQ, SPC, etc:"
+                Err(LoadError::new("Artifact name is invalid, must start with REQ, SPC, etc. Got: "
                                        .to_string() +
                                    self.raw.as_str()))
             }

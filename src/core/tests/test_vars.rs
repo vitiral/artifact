@@ -62,11 +62,11 @@ fn test_resolve_vars() {
 }
 
 
-pub static LOC_TEST: &'static str = "\
+pub const LOC_TEST: &'static str = "\
 $SPC-who
    #$SPC-what
  // $SPC-where
-  //$kjsdlfkjwe TST-foo-what-where-2-b-3 kljasldkjf
+  //kjsdlfkjwe $TST-foo-what-where-2-b-3 kljasldkjf
 // $TST-dont-care
 /// $SPC-core-load-erro: <load file error>
 ";
@@ -76,8 +76,8 @@ fn test_resolve_loc_text() {
     // [#TST-core-load-loc-text]
     let mut locs: HashMap<ArtName, Loc> = HashMap::new();
     let path = PathBuf::from("hi/there");
-    let LOC_TEST = LOC_TEST.replace("$", "#");
-    assert!(!find_locs_text(&path, &LOC_TEST, &mut locs));
+    let loc_test = LOC_TEST.replace("$", "#");
+    assert!(!find_locs_text(&path, &loc_test, &mut locs));
     // change: all locations are found
     assert!(locs.contains_key(&ArtName::from_str("TST-dont-care").unwrap()));
 

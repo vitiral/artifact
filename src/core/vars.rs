@@ -329,22 +329,23 @@ pub fn find_locs_text(path: &Path,
     // pretty simple parse tree... just do it ourselves!
     // Looking for #LOC-[a-z0-9_-] case insensitive
     for c in text.chars() {
-        if prev == *SPC || prev == *TST {
+        if prev == *SPC || prev == *TST {  // TODO: I'm sure this is not as fast as possible
             if prev_char == ' ' {
-                start_pos = pos - 4;
-                start_col = col - 4;
+                start_pos = pos - 5;
+                start_col = col - 5;
             }
             match c {
                 'a'...'z' | 'A'...'Z' | '0'...'9' | '-' | '_' => {
                     prev_char = c;  // still reading a valid artifact name
                 }
-                _ => {  // valid LOC is finished
+                _ => {  // valid #ART is finished
                     if prev_char != ' ' { // "SPC- ", etc is actually invalid
-                        let (_, end) = text.split_at(start_pos);
+                        let art_start = start_pos + 1; // + 1 because of '#'
+                        let (_, end) = text.split_at(art_start);
                         // if last char is '-' ignore it
                         let (name, _) = match prev_char {
-                            '-' => end.split_at(pos - start_pos - 1),
-                            _ => end.split_at(pos - start_pos),
+                            '-' => end.split_at(pos - art_start - 1),
+                            _ => end.split_at(pos - art_start),
                         };
                         let locname = ArtName::from_str(name).unwrap();
                         debug!("Found loc: {}", locname);

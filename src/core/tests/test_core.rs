@@ -19,7 +19,7 @@ use super::super::*;
 
 #[test]
 fn test_load_path() {
-    // env_logger::init();
+    init_logger_test();
     info!("running test_load_path");
     assert!(load_path(TINVALID_DIR.join(&PathBuf::from("attr")).as_path()).is_err());
     assert!(load_path(TINVALID_DIR.join(&PathBuf::from("same_names")).as_path()).is_err());
@@ -55,6 +55,7 @@ fn test_load_path() {
     assert_eq!(spc_lvl1.text, "level one does FOO");
     assert_eq!(spc_lvl1.loc.as_ref().unwrap().path, src_dir.join(PathBuf::from("lvl_1.rs")));
 
+    debug!("checking loc");
     assert_eq!(spc_loc.loc.iter().next().unwrap().line_col, (4, 4));
     assert_eq!(spc_lvl1.loc.iter().next().unwrap().line_col, (3, 3));
 
