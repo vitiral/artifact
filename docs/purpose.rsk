@@ -115,7 +115,7 @@ The reasons are:
 # House cleaning
 [SPC-0-done]
 partof = "REQ-0-[prefix, assertions, risks], SPC-0-[language, format]"
-text = "This document itself meets the req
+text = "This document itself meets the requirements of the definitions and process"
 [TST-0-done]
 partof = "SPC-0, SPC-0-[format, language]"
 text = "no tests necessary on definitions and process"

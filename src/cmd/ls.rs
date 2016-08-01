@@ -23,19 +23,20 @@ pub fn get_subcommand<'a, 'b>() -> App<'a, 'b> {
         .arg(Arg::with_name("long")
                  .short("l")
                  .help("print items in the 'long form'"))
-        .arg(Arg::with_name("recursive")
-                 .short("r")
-                 .help("print the parts of the artifact up to the given depth (default 1)")
-                 .value_name("DEPTH")
-                 .takes_value(true)
-                 .validator(|s| {
-                     match s.parse::<u8>() {
-                         Ok(_) => Ok(()),
-                         Err(e) => Err(e.to_string()),
-                     }
-                 })
-                 .default_value("0")
-                 .max_values(1))
+        // TODO: add -r
+        // .arg(Arg::with_name("recursive")
+        //          .short("r")
+        //          .help("print the parts of the artifact up to the given depth (default 1)")
+        //          .value_name("DEPTH")
+        //          .takes_value(true)
+        //          .validator(|s| {
+        //              match s.parse::<u8>() {
+        //                  Ok(_) => Ok(()),
+        //                  Err(e) => Err(e.to_string()),
+        //              }
+        //          })
+        //          .default_value("0")
+        //          .max_values(1))
         .arg(Arg::with_name("completed")
                  .short("c")
                  .help("filter by completeness (ie `<45`), < and > are inclusive, '>' == `>100`")
@@ -203,7 +204,7 @@ pub fn get_ls_cmd(matches: &ArgMatches) -> Result<(String, FmtSettings, SearchSe
     // [#SPC-ui-cmdline-ls-flags-impl-create]
     let mut settings = FmtSettings::default();
     settings.long = matches.is_present("long");
-    settings.recurse = matches.value_of("recursive").unwrap().parse::<u8>().unwrap();
+    // settings.recurse = matches.value_of("recursive").unwrap().parse::<u8>().unwrap();
     settings.path = matches.is_present("path");
     settings.parts = matches.is_present("parts");
     settings.partof = matches.is_present("partof");
