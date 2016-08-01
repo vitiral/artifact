@@ -2,6 +2,11 @@
 **rsk** is a intended to be an easy to use tool for a someone at any skill
 level or quality background to easily write and track their requirements.
 
+## Tutorial
+Once installed call `rsk -h` and see the help message. `rsk tutorial` will start the
+interactive tutorial.
+
+## Purpose
 Requirements and design documentation are probably the most important components of
 writing quality software: even more important than unit testing or revision control.
 Without writing out your requirements and tracking your design specifications, it can
@@ -25,7 +30,32 @@ If you like **rsk**, please leave a **star :star:** at github.com/vitiral/rsk. I
 bugs or have any suggestions, please open an issue there under 
 [issues](https://github.com/vitiral/rsk/issues)
 
+**rsk** is still in Beta and is not 100% feature complete. The API for the commands is 
+expected to be stable, but the author reserves the right to change the formatting or color 
+of the output.
+
 ## Installation
 
-### With rust and cargo
-If you have cargo installed, simply execute
+There are currently two installation options: downloading a cross-linux musl
+binary or installing through Cargo.
+
+### Linux
+Run this in the terminal to install the **rsk** binary in `~/bin`:
+```
+mkdir -f ~/bin && wget -q https://github.com/vitiral/rsk/raw/master/target/x86_64-unknown-linux-musl/release/rsk -O ~/bin/rsk && chmod a+x ~/bin/rsk
+```
+
+Now add `~/bin` to your `$PATH` in `.bashrc`. With a text editor, copy/paste this to the end:
+```
+export PATH="$HOME/bin:$PATH"
+```
+
+Now run `source ~/.bashrc`. You should now be able to run `rsk -h`. Update by simply re-running the 
+first line.
+
+### compiling from source with [cargo](https://github.com/rust-lang/cargo)
+If you have rust and cargo installed, simply execute:
+```
+cargo install rsk
+```
+and follow any directions there.
