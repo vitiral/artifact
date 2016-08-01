@@ -1,0 +1,48 @@
+
+[REQ-cmd]
+partof = "REQ-purpose-config"
+text = '''
+The interface **will** be a simple command-line one that can be called
+with a path to the questions to ask
+'''
+
+[SPC-cmd]
+text = '''
+The cmldine interface **shall** accept a single argument, which is the path to a file
+containing the questions to ask in csv format.
+
+The program will go through all the questions, prompting the user with a
+question and return whether the response was valid or not.
+'''
+
+[REQ-cmd-load]
+partof = "REQ-[cmd, purpose-config]"
+text = '''
+Loading of questions **shall** follow a standardized format
+and **shall** have a function which loads the questions
+into a datatype that can be understood by this application.
+'''
+
+[SPC-cmd-load]
+text = '''
+The first argument **shall** be loaded as a datatype that can be used
+by the rest of the program
+'''
+
+[SPC-cmd-response]
+partof = "REQ-purpose-learning"
+text = '''
+when an answer is correct, a happy message **shall** be displayed. Otherwise,
+an error message with the correct answer **shall** be displayed
+'''
+
+[SPC-cmd-random]
+partof = "REQ-purpose-learning"
+text = "The questions **shall** be presented randomly"
+
+[SPC-cmd-weighted]
+partof = "REQ-purpose-learning"
+text = '''
+The questions **shall** be given a higher weight when they are missed
+'''
+
