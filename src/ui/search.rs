@@ -1,36 +1,9 @@
 
-use std::fmt::Write;
-use std::iter::FromIterator;
-use std::collections::HashSet;
-
-use regex::Regex;
-
-
-use core::{Artifact, ArtName, load_toml, Settings};
+use super::types::*;
 
 lazy_static!{
     pub static ref VALID_SEARCH_FIELDS: HashSet<char> = HashSet::from_iter(
         ['N', 'D', 'P', 'O', 'L', 'R', 'T', 'A'].iter().map(|s| s.clone()));
-}
-
-#[derive(Debug, Default, PartialEq, Eq)]
-pub struct PercentSearch {
-    pub lt: bool,
-    pub perc: u8,
-}
-
-#[derive(Debug, Default, PartialEq, Eq)]
-pub struct SearchSettings {
-    pub use_regex: bool,
-    pub name: bool,
-    pub path: bool,
-    pub parts: bool,
-    pub partof: bool,
-    pub loc: bool,
-    pub refs: bool,
-    pub text: bool,
-    pub completed: PercentSearch,
-    pub tested: PercentSearch,
 }
 
 impl SearchSettings {
@@ -84,6 +57,7 @@ impl SearchSettings {
         Ok(set)
     }
 }
+
 fn matches_name(pat: &Regex, names: &HashSet<ArtName>) -> bool {
     for n in names.iter() {
         if pat.is_match(&n.raw) {

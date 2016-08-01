@@ -4,7 +4,6 @@ use time;
 
 // General
 pub mod types;
-pub mod fmt;
 
 // for loading
 pub mod utils;
@@ -27,7 +26,7 @@ pub use core::types::{
 pub use core::load::load_toml;
 
 #[cfg(test)]
-use super::cmdline::init_logger;
+use super::init_logger;
 #[cfg(test)]
 pub fn init_logger_test() {
     match init_logger(false, 3, false) {

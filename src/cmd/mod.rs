@@ -15,46 +15,19 @@ use core;
 use super::VERSION;
 
 use log;
-use fern;
 use clap::{ArgMatches, ErrorKind};
 use ansi_term::Colour::Green;
 
+mod types;
 mod matches;
 mod ls;
 mod fmt;
-mod search;
 mod init;
 
 #[cfg(tests)]
 mod tests;
 
-pub fn init_logger(quiet: bool, verbosity: u8, stderr: bool) -> Result<(), fern::InitError> {
-    let level = if quiet {log::LogLevelFilter::Off } else {
-        match verbosity {
-            0 => log::LogLevelFilter::Warn,
-            1 => log::LogLevelFilter::Info,
-            2 => log::LogLevelFilter::Debug,
-            3 => log::LogLevelFilter::Trace,
-            _ => unreachable!(),
-        }
-    };
-    let output = if stderr {
-        fern::OutputConfig::stderr()
-    } else {
-        fern::OutputConfig::stdout()
-    };
-
-    let logger_config = fern::DispatchConfig {
-        format: Box::new(|msg: &str, level: &log::LogLevel, _location: &log::LogLocation| {
-            format!("{}: {}", level, msg)
-        }),
-        output: vec![output],
-        level: level,
-    };
-    fern::init_global_logger(logger_config, log::LogLevelFilter::Trace)
-}
-
-
+use super::init_logger;
 
 pub fn get_loglevel(matches: &ArgMatches) -> Option<(u8, bool)> {
     let verbosity = match matches.occurrences_of("v") {

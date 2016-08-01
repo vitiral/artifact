@@ -1,9 +1,9 @@
-use std::ffi::OsString;
 
-use clap::{Arg, App, SubCommand, ArgMatches, AppSettings as AS, Result as ClapResult};
+use std::ffi::OsString;
 
 use super::ls;
 use super::init;
+use super::types::*;
 
 pub fn get_matches<'a, I, T>(args: I) -> ClapResult<ArgMatches<'a>>
     where I: IntoIterator<Item=T>, T: Into<OsString> {

@@ -1,16 +1,10 @@
 //! methods to format the FmtArtifact object and write it to a stream
 
-use std::io;
-use std::fmt::Write;
-
-use ansi_term::Colour::{Red, Blue, Green, Yellow};
-
-use core::{Settings, Artifacts};
-pub use core::fmt::*;
+use super::types::*;
 
 impl FmtArtifact {
     /// write the formatted version of the artifact to the
-    /// writter
+    /// cmdline writter
     /// [#SPC-ui-cmdline-ls-flags-impl-formatting]
     pub fn write<W: io::Write> (&self, w: &mut W, artifacts: &Artifacts,
                                 settings: &Settings, indent: u8)

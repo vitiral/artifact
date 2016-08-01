@@ -1,17 +1,5 @@
-use std::io;
-use std::io::Write;
-use std::fmt::Write as FmtWrite;
-use std::iter::FromIterator;
-use std::process::exit;
-use std::collections::HashSet;
 
-use regex::{Regex, RegexBuilder};
-use clap::{Arg, App, SubCommand, ArgMatches, AppSettings as AS};
-
-use core::fmt::{FmtSettings, fmt_artifact};
-use core::{Artifacts, ArtName, ArtNames, LoadFromStr, Settings};
-use cmdline::search::{VALID_SEARCH_FIELDS, SearchSettings, PercentSearch, show_artifact};
-
+use super::types::*;
 
 pub fn get_subcommand<'a, 'b>() -> App<'a, 'b> {
     // TODO: implement -c and -t
@@ -325,10 +313,10 @@ pub fn do_ls(search: String,
                 continue;
             }
         };
-        if !show_artifact(&name, art, &pat_case, search_set) {
+        if !ui::show_artifact(&name, art, &pat_case, search_set) {
             continue;
         }
-        let f = fmt_artifact(&name, artifacts, &fmtset, fmtset.recurse, &mut displayed);
+        let f = ui::fmt_artifact(&name, artifacts, &fmtset, fmtset.recurse, &mut displayed);
         f.write(&mut stdout, artifacts, settings, 0).unwrap(); // FIXME: unwrap
     }
     if dne.len() > 0 {

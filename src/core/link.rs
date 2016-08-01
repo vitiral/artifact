@@ -5,7 +5,7 @@ use std::collections::{HashMap, HashSet};
 use std::iter::FromIterator;
 
 use core::types::{LoadResult, LoadError, Artifacts, Artifact, ArtType, ArtName};
-use core::fmt;
+use ui;
 
 // TODO:
 /// parse text for artifact parts
@@ -259,7 +259,7 @@ pub fn set_completed(artifacts: &mut Artifacts) -> usize {
             unknown.sort();
             warn!(" - {} could not resolve parts: {}",
                   name,
-                  fmt::names(&unknown));
+                  ui::fmt_names(&unknown));
         }
     }
     names.len()
@@ -331,7 +331,7 @@ pub fn set_tested(artifacts: &mut Artifacts) -> usize {
             unknown.sort();
             warn!(" - {} could not resolve parts: {}",
                   name,
-                  fmt::names(&unknown));
+                  ui::fmt_names(&unknown));
         }
     }
     names.len()
