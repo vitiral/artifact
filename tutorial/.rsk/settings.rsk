@@ -1,3 +1,4 @@
+#TUTORIAL_RSK=true
 # This is an artifacts file for the command line tool rsk
 # files (like this one) that are in {repo}/.rsk are automatically loaded
 

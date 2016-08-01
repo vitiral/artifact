@@ -20,6 +20,8 @@ mod matches;
 mod ls;
 mod fmt;
 mod init;
+mod tutorial;
+mod data;  // data mostly for the tutorial
 
 #[cfg(test)]
 mod tests;
@@ -55,7 +57,7 @@ pub fn cmd<'a, I, T>(args: I)
         None => return,
     };
 
-    // load the artifacts
+    // If init is selected, do that
     let cwd = env::current_dir().unwrap();
     if let Some(_) = matches.subcommand_matches("init") {
         info!("Calling the init command");
@@ -65,6 +67,18 @@ pub fn cmd<'a, I, T>(args: I)
         }
         return;
     }
+
+    // If tutorial is selected, do that
+    if let Some(_) = matches.subcommand_matches("tutorial") {
+        info!("Calling the tutorial command");
+        match tutorial::do_tutorial(&cwd) {
+            Ok(_) => {},
+            Err(e) => println!("ERROR: {}", e),
+        }
+        return;
+    }
+
+    // load the artifacts
     let repo = match core::find_repo(cwd.as_path()) {
         Some(r) => r,
         None => {

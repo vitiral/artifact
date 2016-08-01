@@ -3,6 +3,7 @@ use std::ffi::OsString;
 
 use super::ls;
 use super::init;
+use super::tutorial;
 use super::types::*;
 
 pub fn get_matches<'a, I, T>(args: I) -> ClapResult<ArgMatches<'a>>
@@ -24,6 +25,7 @@ pub fn get_matches<'a, I, T>(args: I) -> ClapResult<ArgMatches<'a>>
              .long("quiet")
              .help("if set no output will be printed")
              .global(true))
+        .subcommand(tutorial::get_subcommand())
         .subcommand(init::get_subcommand())
         .subcommand(ls::get_subcommand())
         .get_matches_from_safe(args)
