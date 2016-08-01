@@ -9,4 +9,5 @@
 # - {repo}: the path to the current repository, which is the closest
 #    directory that contains a ".rsk" folder
 ## TODO: uncomment this line and define your own paths
-paths = ['{repo}/docs']
+artifact_paths = ['{repo}/docs']
+code_paths = ['{repo}/flash']

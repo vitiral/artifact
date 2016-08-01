@@ -1,6 +1,7 @@
 
 ##################################################
 # Tutorial Stage 1: introduction to rsk
+> Run `rsk tutorial` to start this stage of the tutorial
 Congradulations! You have installed rsk!
 
 A tutorial file has been created for you in this directory, open the file
@@ -11,16 +12,16 @@ When you are finished, go to the next section.
 
 ##################################################
 # Tutorial Stage 2: high-level requirements and design specifications
-> Run `rsk init -t 2` to start this stage of the tutorial
+> Run `rsk tutorial 2` to start this stage of the tutorial
 
 A few changes have been made to your local directory:
  - `tutorial.rsk` has been removed
  - the `flash_card_challenge.htm` file has been added
  - the `docs/` folder has been added
  
-open `flash_card_challenge.htm` and skim through the project that we will
-be executing. Don't worry! You don't need to know python to follow along
-with this tutorial.
+open `flash_card_challenge.htm` in a browser and skim through the project 
+that we will be executing. Don't worry! You don't need to know python to 
+follow along with this tutorial.
 
 Now open `docs/purpose.rsk`. This is a rough attempt to translate the ideas
 in `flash_card_challenge.htm` into what are known as "high-level requirements"
