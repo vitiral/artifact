@@ -16,7 +16,7 @@ use ui;
 /// create parents for all artifacts that have no parents
 pub fn create_parents(artifacts: &mut Artifacts) {
     let mut create_names: HashSet<ArtName> = HashSet::new();
-    for (name, art) in artifacts.iter() {
+    for name in artifacts.keys() {
         let mut name = name.clone();
         loop {
             name = match (&name).parent() {
@@ -183,7 +183,7 @@ pub fn set_completed(artifacts: &mut Artifacts) -> usize {
                 let artifact = artifacts.get(&name).unwrap();
                 // SPC and TST artifacts are done if loc is set
                 match (&artifact.loc, &artifact.ty) {
-                    (&Some(ref l), &ArtType::SPC) | (&Some(ref l), &ArtType::TST) => {
+                    (&Some(_), &ArtType::SPC) | (&Some(_), &ArtType::TST) => {
                         got_it = 2;
                     }
                     // [#SPC-core-artifact-attrs-loc-invalid]

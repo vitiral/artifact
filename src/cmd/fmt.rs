@@ -132,7 +132,6 @@ impl FmtArtifact {
         // format the parts
         if let Some(ref parts) = self.parts {
             self.write_header(w, "\n * parts: ", settings);
-            let mut first = true;
             let mut num_written = 0;
             for p in parts {
                 if self.long {

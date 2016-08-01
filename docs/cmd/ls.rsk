@@ -1,5 +1,5 @@
 [REQ-ls]
-partof = "REQ-cmd"
+partof = "REQ-cmd, REQ-2-ui-link"
 text = '''
 The `rsk ls` command grouping **will** be used to display information
 about the artifacts in various specified formats.
@@ -28,7 +28,6 @@ The args are as follows:
 '''
 
 [SPC-ls-display]
-partof = "REQ-ls-args"
 text = '''
 The following flags are used to specify what to display:
 - a/A: display all these flags for all artifacts
@@ -43,7 +42,6 @@ of the text
 '''
 
 [SPC-ls-pattern]
-partof = "REQ-ls-args"
 text = '''
 the `-p` flag will signify that the SEARCH argument should be interpreted as
 a regexp pattern instead of as artifact names
@@ -98,8 +96,7 @@ Add these together and you get the following:
 '''
 
 [SPC-ls-search]
-partof = "REQ-purpose-ui-filtering"
-refs = ["REQ-core-artifact-attrs-partof-fmt"]
+partof = "REQ-2-ui-filtering"
 text = '''
 The first (and only) argument after `ls` **shall** be the SEARCH field which
 is used to find the artifacts that the user is looking for.

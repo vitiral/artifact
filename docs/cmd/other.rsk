@@ -1,5 +1,5 @@
 [REQ-cmd]
-partof = "REQ-2-[ui, cmd, help]"
+partof = "REQ-2-[ui, ui-[cmd, help]]"
 text = '''
 The rsk cmdline interface will provide submodules to meet the requirements
 defined in REQ-2-ui such as:
@@ -41,6 +41,7 @@ want to create a rsk project. It will initialize a `.rsk` folder in the cwd
 (giving an error if the cwd is already initialized) and will give the user basic
 instructions on how to create requirements and where to get more information.
 '''
+[SPC-init]
 
 [REQ-status]
 text = '''

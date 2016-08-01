@@ -2,7 +2,6 @@
 //! used by the load module to resolve and apply loaded variables
 //! also contains settings resolution because it is similar
 
-use std::env;
 use super::types::*;
 use super::utils;
 
@@ -115,7 +114,6 @@ pub fn resolve_vars(variables: &mut Variables) -> LoadResult<()> {
 /// use the variables to fill in the text fields of all artifacts
 /// LOC-artifacts-vars
 pub fn fill_text_fields(artifacts: &mut Artifacts,
-                        settings: &Settings,
                         variables: &mut Variables,
                         repo_map: &mut HashMap<PathBuf, PathBuf>)
                         -> LoadResult<()> {

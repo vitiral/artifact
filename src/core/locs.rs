@@ -169,7 +169,6 @@ pub fn find_locs(settings: &mut Settings) -> LoadResult<HashMap<ArtName, Loc>> {
         }
     }
     debug!("initial excluded code paths: {:?}", loaded_dirs);
-    let mut error = false;
     while settings.code_paths.len() > 0 {
         let dir = settings.code_paths.pop_front().unwrap(); // it has len, it better pop!
         if loaded_dirs.contains(&dir) {
@@ -181,11 +180,7 @@ pub fn find_locs(settings: &mut Settings) -> LoadResult<HashMap<ArtName, Loc>> {
             true => return Err(LoadError::new("encountered errors while finding locations".to_string())),
         }
     }
-    if error {
-        Err(LoadError::new("encountered errors when loading locations from code".to_string()))
-    } else {
-        Ok(locs)
-    }
+    Ok(locs)
 }
 
 /// attach the locations to the artifacts. Separated to allow for easy threading

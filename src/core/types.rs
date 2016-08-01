@@ -20,7 +20,6 @@ pub use toml::{Parser, Value, Table};
 // for type definitions only
 use std::fmt;
 use std::error;
-use std::convert::From;
 use std::option::Option;
 use std::ascii::AsciiExt;
 use std::hash::{Hash, Hasher};

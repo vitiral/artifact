@@ -8,14 +8,11 @@
 
 use std::env;
 use std::ffi::OsString;
-use std::collections::HashSet;
-
 
 use core;
 use super::VERSION;
 
-use log;
-use clap::{ArgMatches, ErrorKind};
+use clap::ArgMatches;
 use ansi_term::Colour::Green;
 
 mod types;
@@ -60,9 +57,9 @@ pub fn cmd<'a, I, T>(args: I)
 
     // load the artifacts
     let cwd = env::current_dir().unwrap();
-    if let Some(m) = matches.subcommand_matches("init") {
+    if let Some(_) = matches.subcommand_matches("init") {
         info!("Calling the init command");
-        match init::do_init(&cwd, m.is_present("tutorial")) {
+        match init::do_init(&cwd) {
             Ok(_) => {},
             Err(e) => println!("ERROR: {}", e),
         }

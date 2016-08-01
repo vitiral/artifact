@@ -20,13 +20,13 @@ artifact_paths = ['{repo}/docs']
 "#;
 
 pub fn get_subcommand<'a, 'b>() -> App<'a, 'b> {
-    // [SPC-ui-cmdline-cmd-init-interface]
+    // #SPC-init
     SubCommand::with_name("init")
         .about("initiailze the repository in the cwd")
         .settings(&[AS::DeriveDisplayOrder, AS::ColoredHelp])
 }
 
-pub fn do_init(path: &Path, tutorial: bool) -> io::Result<()> {
+pub fn do_init(path: &Path) -> io::Result<()> {
     let mut read_dir = try!(fs::read_dir(path));
     let exists = read_dir.any(|e|
         match e {

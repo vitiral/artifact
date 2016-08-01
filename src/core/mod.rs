@@ -48,7 +48,7 @@ pub fn load_path(path: &Path) -> LoadResult<(Artifacts, Settings)>{
 
     info!("resolving and filling variables");
     let mut variables = try!(vars::resolve_loaded_vars(loaded_vars, &mut repo_map));
-    try!(vars::fill_text_fields(&mut artifacts, &settings, &mut variables, &mut repo_map));
+    try!(vars::fill_text_fields(&mut artifacts, &mut variables, &mut repo_map));
 
     info!("finding and attaching locations");
     let locs = try!(locs::find_locs(&mut settings));
