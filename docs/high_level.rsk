@@ -210,32 +210,47 @@ the coverage analysis
 
 ##################################################
 # High level UI requirements
+[REQ-2-ui]
+partof = "REQ-1-ui"
+
+[REQ-2-ui-cmd]
+text = '''
+rsk **will** provide a simple cmd line utility which has multiple modules
+for accomplishing everything in REQ-2-ui.
+
+As ths is the primary frontend for rsk, it should aim to be as complete and
+correct as possible.
+'''
+
 [REQ-2-ui-help]
 text = '''
-rsk **will** provide the ability to get help easily
+rsk **will** provide the ability to get help easily in all UI environments
 '''
 
 [REQ-2-ui-tutorial]
 text = '''
 rsk **will** provide an interactive tutorial to learn rsk as well as the basics
 of why to use requirements tracking in the first place.
+
+This **should** be in place for all formats. For cmdline, an interactive tutorial is
+great. For the web, a video tutorial would be best.
 '''
 
 [REQ-2-ui-filtering]
 text = '''
-rsk's various ui methods **will** provide methods to filter by:
+rsk's various ui formats **will** provide methods to filter by:
 - name
-- regexp in various fields
+- regexp in any of the fields
 - percent completed
 - percent tested
 '''
 
 [REQ-2-ui-markdown]
 text = '''
-when displaying to the user, all text **will** be processed
+when displaying to the user, all text fields **will** be processed
 as a simple markdown format
 
-For MVP, text based display can display raw text with colors
+For MVP, text based display can display raw text
 '''
 
 [REQ-2-ui-link]
@@ -244,10 +259,16 @@ rsk's various ui methods **will** provide simple methods to
 navigate and view linked components
 '''
 
-[REQ-2-ui-html]
+[REQ-2-ui-web]
 text = '''
-rsk **will** provide the ability to export to static-html for web-broswing
-of information OR provide a web-server. Further discussion is needed
+rsk **will** provide a HTTP web server which can host up-to-date requirements
+as well as provide a REST-JSON API server for tracking test execution over
+a period of time.
+
+In addition, the web-ui should allow users to add/delete artifacts,
+as well as interface with the git backend which tracks changes.
+
+This hasn't even entered the design phase yet.
 '''
 
 ##################################################
@@ -259,15 +280,24 @@ partof = "REQ-1-interop"
 text = '''
 rsk **will** provide json export utility for other tools to utilize.
 
-rsk **will not** utilize the exported json.
+rsk **may** utilize the serialization internally for web interactions.
 '''
 
-[REQ-2-interop-sql]
+##################################################
+# High level performance requierments
+[REQ-2-performance]
+partof = "REQ-1-scale"
 text = '''
-Later impleemntations of rsk **will** utilize an sql database to improve
-speed and interopability with external tooling.
+rsk **will** aim to be as performant as is "reasonable" in both memory
+and cpu usage.
 
-This database will probably be sqlite to meet with rsk's simplicity
-of requirements and **will** be optional for users.
+rsk **will** opt to use more threads/cpu/memory to speed up the user
+experience when possible (speed > efficiency)
 '''
 
+[REQ-2-performance-store]
+text = '''
+rsk **will** use a serialized file to speed up processing of data. Once a
+file has been processed, it's **will** be able to be loaded from the file
+instead of re-parsed.
+'''
