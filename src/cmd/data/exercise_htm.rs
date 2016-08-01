@@ -1,4 +1,4 @@
-pub const data: &'static str = r###"\
+pub static data: &'static str = r##"
 <!DOCTYPE html>
 <html dir="ltr" class="client-js" lang="en"><head>
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">
@@ -333,4 +333,4 @@ mw.loader.load(["mediawiki.user","mediawiki.page.ready"], null, true);
 }</script><script type="text/javascript" src="Flash%20card%20challenge%20-%20OpenHatch%20wiki_files/load_003.php"></script>
 <script src="Flash%20card%20challenge%20-%20OpenHatch%20wiki_files/load_005.php"></script>
 <!-- Served in 0.042 secs. --></body></html>
-"###;
+"##;

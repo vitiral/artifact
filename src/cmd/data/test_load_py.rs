@@ -1,3 +1,4 @@
+pub static data: &'static str = r##"#TUTORIAL=true
 import os
 import unittest
 from StringIO import StringIO
@@ -69,3 +70,4 @@ class TestLoadIo(unittest.TestCase):
             load.Question("three", "3"),
         ]
         self.assertEqual(result, expected)
+"##;

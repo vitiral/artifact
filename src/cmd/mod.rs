@@ -69,12 +69,20 @@ pub fn cmd<'a, I, T>(args: I)
     }
 
     // If tutorial is selected, do that
-    if let Some(_) = matches.subcommand_matches("tutorial") {
+    if let Some(t) = matches.subcommand_matches("tutorial") {
         info!("Calling the tutorial command");
-        match tutorial::do_tutorial(&cwd) {
-            Ok(_) => {},
-            Err(e) => println!("ERROR: {}", e),
-        }
+        let c = match tutorial::get_tutorial_cmd(t) {
+            Ok(c) => c,
+            Err(e) => {
+                println!("ERROR: {}", e);
+                return;
+            },
+        };
+        tutorial::do_tutorial(c).unwrap();
+        // match tutorial::do_tutorial(c) {
+        //     Ok(_) => {},
+        //     Err(e) => println!("ERROR: {}", e),
+        // }
         return;
     }
 
