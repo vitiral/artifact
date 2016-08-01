@@ -1,7 +1,12 @@
 [package]
 name = "rsk"
 version = "0.0.1"
+description = "rsk: the requirements tracking tool made for developers"
+repository = "https://github.com/vitiral/rsk"
+readme = "README.md"
+keywords = ["cmdline", "tool", "requirements", "documentation", "testing"]
 authors = ["Garrett Berg <vitiral@gmail.com>"]
+license = "MIT"
 
 [dependencies]
 # general
