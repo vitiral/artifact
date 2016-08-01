@@ -1,7 +1,9 @@
 use std::env;
-use super::types::*;
+use std::fmt;
 
 use strfmt;
+
+use super::types::*;
 
 pub fn do_strfmt(s: &str, vars: &HashMap<String, String>, fpath: &PathBuf)
              -> LoadResult<String> {
@@ -14,6 +16,17 @@ pub fn do_strfmt(s: &str, vars: &HashMap<String, String>, fpath: &PathBuf)
             return Err(LoadError::new(msg));
         }
     }
+}
+
+pub fn strfmt_ignore_missing<T: fmt::Display>(fmtstr: &str, vars: &HashMap<String, T>)
+                                              -> strfmt::Result<String>{
+    let formatter = |mut fmt: strfmt::Formatter| {
+        match vars.get(fmt.key) {
+            Some(v) => fmt.str(v.to_string().as_str()),
+            None => fmt.skip(),
+        }
+    };
+    strfmt::strfmt_map(fmtstr, &formatter)
 }
 
 pub fn get_path_str<'a>(path: &'a Path) -> LoadResult<&'a str> {

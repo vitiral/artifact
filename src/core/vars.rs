@@ -28,7 +28,7 @@ pub fn resolve_default_vars(vars: &Variables, fpath: &Path,
     let mut error = false;
     for (k, v) in vars {
         // format only the cwd and repo variables
-        let var = match strfmt::strfmt_options(v.as_str(), &fmtvars, true) {
+        let var = match utils::strfmt_ignore_missing(v.as_str(), &fmtvars) {
             Ok(v) => v,
             Err(e) => {
                 // [#SPC-core-load-error-vars-1]
@@ -85,14 +85,17 @@ pub fn resolve_vars(variables: &mut Variables) -> LoadResult<()> {
                     }
                     variables.insert(k.clone(), s);
                 }
+
                 Err(e) => match e {
-                    strfmt::FmtError::Invalid(e) => return Err(LoadError::new(e.to_string())),
+                    strfmt::FmtError::Invalid(e) | strfmt::FmtError::TypeError(e) => {
+                        return Err(LoadError::new(e.to_string()));
+                    },
                     strfmt::FmtError::KeyError(_) => {
                         // [#SPC-core-load-error-vars-3]
                         errors.push(k.clone());
                         // reinsert original value
                         variables.insert(k.clone(), var);
-                    }
+                    },
                 }
             }
         }
