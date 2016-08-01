@@ -116,6 +116,7 @@ The settings are:
 '''
 
 [REQ-2-globals]
+partof = "REQ-1-variables"
 text = '''
 rsk **shall** load global variables from .rsk files and apply them to all text fields.
 

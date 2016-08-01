@@ -13,8 +13,7 @@ use core::fmt;
 
 // }
 
-/// create parents for all artifacts that have no parents except for
-// [#SPC-core-artifact-attrs-parts-parents-create]
+/// create parents for all artifacts that have no parents
 pub fn create_parents(artifacts: &mut Artifacts) {
     let mut create_names: HashSet<ArtName> = HashSet::new();
     for (name, art) in artifacts.iter() {
@@ -51,7 +50,7 @@ pub fn create_parents(artifacts: &mut Artifacts) {
 }
 
 /// traverse all artifacts and link them to their by-name parent
-/// [#SPC-core-artifact-attrs-parts-parents-link]
+/// partof: #SPC-artifact-partof-3
 pub fn link_parents(artifacts: &mut Artifacts) {
     for (name, artifact) in artifacts.iter_mut() {
         let parent = match name.parent() {
@@ -62,8 +61,8 @@ pub fn link_parents(artifacts: &mut Artifacts) {
     }
 }
 
-/// traverse all artifacts and link them to their by-name uppers
-/// [#SPC-core-links-named_partof]
+/// traverse all artifacts and link them to their by-name type
+/// partof: #SPC-artifact-partof-2
 pub fn link_named_partofs(artifacts: &mut Artifacts) {
     let artifacts_keys: HashSet<ArtName> = HashSet::from_iter(artifacts.keys().cloned());
     for (name, artifact) in artifacts.iter_mut() {

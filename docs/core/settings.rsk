@@ -1,3 +1,5 @@
+[SPC-settings]
+partof = "REQ-2-settings"
 [SPC-settings-load]
 text = '''
 Settings **shall** be processed from a TOML table and converted to a struct.

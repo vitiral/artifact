@@ -9,6 +9,54 @@ The format for specifying multiple artifacts is in REQ-2-names
 
 default = ""
 '''
+[SPC-artifact-partof]
+text = '''
+There are three ways to specify that an artifact is a partof another artifact:
+ 1. explicitly through the partof attr
+ 2. through postfix-name (different-type)
+ 3. through prefix-name (parents)
+
+These three implementations are fairly scattered, so all 3 are linked.
+'''
+[SPC-artifact-partof-1]
+text = '''
+if the user specifies that an artifact is a partof another (valid) artifact,
+then it will be
+'''
+[TST-artifact-partof-1]
+text = "simply test that the load function correctly loads what is expected"
+
+[SPC-artifact-partof-2]
+text = '''
+artifacts will be linked by their postfix if they are able. However, artifacts
+**will not** be created if they do not exist (like parents, see partof-2)
+
+This stage happens after partof-1 but before partof-3. This is important because
+"parents" that are automatically created in stage 3 will not be automatically
+linked in this manner.
+
+# Example
+If you define:
+- `REQ-foo-bar`
+- `RSK-foo-bar`
+- `SPC-foo-bar`
+- `TST-foo-bar`
+
+Then `REQ-foo-bar` will automatically be a partof both `SPC-foo-bar` and `RSK-foo-bar`,
+`RSK-foo-bar` and `SPC-foo-bar` will both be a partof `TST-foo-bar`
+'''
+[TST-artifact-partof-2]
+
+[SPC-artifact-partof-3]
+text = '''
+parents of an artifact will be automatically created if they do not exist and then
+linked as partof their children.
+
+# Example
+`REQ-foo-bar` has "child" `REQ-foo`. If `REQ-foo` doesn't exist, it will be
+created as `REQ-FOO` and will be a `partof` `REQ-foo-bar`
+'''
+[TST-artifact-partof-3]
 
 [REQ-artifact-refs]
 partof = "REQ-2-artifact-attrs"

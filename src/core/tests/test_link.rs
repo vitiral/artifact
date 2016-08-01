@@ -23,7 +23,6 @@ fn test_basic_link() {
 
     link_named_partofs(&mut artifacts);
 
-    // [#TST-core-artifact-attrs-parts-parents]
     create_parents(&mut artifacts);
     assert!(artifacts.contains_key(&req_name));
     assert!(artifacts.contains_key(&ArtName::from_str("REQ-parts").unwrap()));
@@ -137,6 +136,8 @@ fn test_link_completed_tested() {
     let spc_bob_2_b    = artifacts.get(&ArtName::from_str("REQ-core-jane").unwrap()).unwrap();
 
     // assert parts make some sense
+    // #TST-artifact-partof-2: SPC-core-bob automatically has REQ-core-bob
+    // #TST-artifact-partof-3: SPC-core-bob automatically has SPC-core
     assert_eq!(req.parts, HashSet::from_iter(
         ["REQ-core"].iter().map(|n| ArtName::from_str(n).unwrap())));
     assert_eq!(spc_bob.partof, HashSet::from_iter(

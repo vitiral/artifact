@@ -119,6 +119,7 @@ impl ArtName {
         return self.find_type_maybe().unwrap();
     }
 
+    /// see: SPC-artifact-partof-2
     pub fn parent(&self) -> Option<ArtName> {
         if self.value.len() <= 1 {
             return None;
@@ -128,15 +129,18 @@ impl ArtName {
         Some(ArtName{raw: value.join("-"), value: value})
     }
 
+    /// see: SPC-artifact-partof-1
     pub fn named_partofs(&self) -> Vec<ArtName> {
         if self.value.len() <= 1 {
             return vec![];
         }
         let ty = self.get_type();
         match ty {
-            ArtType::TST => vec![self._get_named_partof("SPC")],
+            ArtType::TST => vec![
+                self._get_named_partof("SPC"),
+                self._get_named_partof("RSK")],
             ArtType::SPC => vec![self._get_named_partof("REQ")],
-            ArtType::RSK => vec![],
+            ArtType::RSK => vec![self._get_named_partof("REQ")],
             ArtType::REQ => vec![],
         }
     }

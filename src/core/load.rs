@@ -139,6 +139,7 @@ impl Artifact {
             return Err(LoadError::new(msg));
         }
 
+        // partf: #SPC-artifact-partof-1: explicitly set artifact
         let partof_str = check_type!(get_attr!(tbl, "partof", df_str, String),
                                     "partof", name);
         Ok(Artifact{

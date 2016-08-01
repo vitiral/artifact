@@ -1,5 +1,6 @@
 
 [SPC-vars]
+partof = "REQ-2-globals"
 text = '''
 variables **shall** be instantiated when settings are loaded and must be resolved
 in two steps:

@@ -111,7 +111,6 @@ fn test_load_toml() {
 
     // #TST-load-toml-invalid
     assert!(load_toml(&path, TOML_BAD, &mut artifacts, &mut settings, &mut variables).is_err());
-    assert!(load_toml(&path, TOML_BAD_JSON, &mut artifacts, &mut settings, &mut variables).is_err());
     assert!(load_toml(&path, TOML_BAD_ATTR1, &mut artifacts,
                       &mut settings, &mut variables).is_err());
     assert!(load_toml(&path, TOML_BAD_ATTR2, &mut artifacts,
@@ -166,6 +165,8 @@ fn test_load_toml() {
         assert_eq!(art.path, path);
         assert_eq!(art.text, "bar");
         assert_eq!(art.refs, ["hello", "ref"]);
+
+        // #TST-artifact-partof-1: test loading of partof
         let expected = ["REQ-Foo", "REQ-Bar-1", "REQ-Bar-2"]
             .iter().map(|n| ArtName::from_str(n).unwrap()).collect();
         assert_eq!(art.partof, expected);
@@ -201,16 +202,20 @@ pub fn load_raw_extra(path: &Path)
 }
 
 #[test]
-/// partof: #TST-load-dir-valid, #TST-load-dir-invalid
 fn test_load_raw() {
     init_logger_test();
     info!("running test_load_raw");
+    // partof: #TST-load-dir-invalid
     // see: invalid.1: load with invalid attribute
     assert!(load_raw_extra(TINVALID_DIR.join(&PathBuf::from("attr")).as_path()).is_err());
     // see: invalid.2: load two files that have the same key
     assert!(load_raw_extra(TINVALID_DIR.join(&PathBuf::from("same_names")).as_path()).is_err());
 
     info!("loading only valid now");
+    // The TSIMPL_DIR has several tests set up in it, including valid
+    // "back references" to make sure that directories don't load multiple
+    // times, valid loc, etc.
+    // partof: #TST-load-loop, #TST-load-dir-valid
     let (artifacts, settings) = load_raw_extra(TSIMPLE_DIR.as_path()).unwrap();
     assert!(artifacts.contains_key(&ArtName::from_str("REQ-purpose").unwrap()));
 

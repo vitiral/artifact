@@ -16,11 +16,12 @@ The load module **shall** encapsulate:
 '''
 
 [SPC-load]
+partof = "REQ-2-ftype"
 text = '''
 This details the high level loading proceedure of rsk and what
 should be executed in parallel streams
 
-The loading of the project files shall occur in 4 stages:
+The loading of the project files (.rsk toml files) shall occur in 4 stages:
  1. loading and validation of raw data from all settings.artifact_paths recursively
 
 In parallel:
@@ -116,7 +117,7 @@ load the following and make sure it results in an error:
 '''
 
 [TST-load-toml-invalid]
-partof = "RSK-2-load-toml"
+partof = "RSK-2-load-[toml, invalid]"
 text = '''
 load separate toml files suffering the issues listed below and ensure
 they do not load.
