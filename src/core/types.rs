@@ -136,11 +136,9 @@ impl ArtName {
         }
         let ty = self.get_type();
         match ty {
-            ArtType::TST => vec![
-                self._get_named_partof("SPC"),
-                self._get_named_partof("RSK")],
+            ArtType::TST => vec![self._get_named_partof("SPC")],
             ArtType::SPC => vec![self._get_named_partof("REQ")],
-            ArtType::RSK => vec![self._get_named_partof("REQ")],
+            ArtType::RSK => vec![],
             ArtType::REQ => vec![],
         }
     }

@@ -111,6 +111,7 @@ fn test_load_toml() {
 
     // #TST-load-toml-invalid
     assert!(load_toml(&path, TOML_BAD, &mut artifacts, &mut settings, &mut variables).is_err());
+    assert!(load_toml(&path, TOML_BAD_JSON, &mut artifacts, &mut settings, &mut variables).is_err());
     assert!(load_toml(&path, TOML_BAD_ATTR1, &mut artifacts,
                       &mut settings, &mut variables).is_err());
     assert!(load_toml(&path, TOML_BAD_ATTR2, &mut artifacts,
