@@ -34,7 +34,7 @@ impl FmtArtifact {
         let tested_str = ((artifact.tested * 100.) as i64).to_string();
         if settings.color {
 
-            // [#SPC-ui-cmdline-ls-color]
+            // #SPC-ls-color]
             let (d_sym, d_perc, t_sym, t_perc, name) = if artifact.completed >= 1. &&
                     artifact.tested >= 1. {
                 let name = if nfno {

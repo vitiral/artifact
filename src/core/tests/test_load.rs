@@ -204,7 +204,7 @@ pub fn load_raw_extra(path: &Path)
 
 #[test]
 fn test_load_raw() {
-    init_logger_test();
+    // init_logger_test();
     info!("running test_load_raw");
     // partof: #TST-load-dir-invalid
     // see: invalid.1: load with invalid attribute

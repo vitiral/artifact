@@ -1,0 +1,52 @@
+[REQ-cmd]
+partof = "REQ-2-[ui, cmd, help]"
+text = '''
+The rsk cmdline interface will provide submodules to meet the requirements
+defined in REQ-2-ui such as:
+
+ - init: initialize the current repository
+ - tutorial: begin an interactive tutorial for the user
+ - ls: show artifacts and their status
+ - status: give a status on the current artifacts
+'''
+
+[REQ-tutorial]
+text = '''
+There **shall** be a tutorial that helps the user learn about rsk.
+
+The tutorial should be interactive and guide the user first through the basics of rsk
+and then through recording the requirements and design specifications of a simple
+project.
+
+Key points that should be hit during the tutorial are:
+- how to use `rsk` and the `ls` cmd
+- basics of setting the paths to load docs
+- creating requirements
+- creating specifications
+- creating tests
+- auto-linking of req <- spc <- of similar names
+- manual linking of different names
+- format for linking multiple items
+- debugging when links are invalid
+- marking items as done
+- marking items as tested
+- overview of error messages and error formats
+- final words
+'''
+
+[REQ-init]
+text = '''
+`rsk init` is the primary first command that will be run by the user when they
+want to create a rsk project. It will initialize a `.rsk` folder in the cwd
+(giving an error if the cwd is already initialized) and will give the user basic
+instructions on how to create requirements and where to get more information.
+'''
+
+[REQ-status]
+text = '''
+The `status` command gives the user information on any errors that exist in
+the project artifacts such as:
+
+ 1. invalid artifacts in partof
+ 2. extra "locations" provided in the code
+'''

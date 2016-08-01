@@ -204,11 +204,12 @@ rsk **will** provide simple methods to interact and view it's data
 
 [REQ-1-ui-cmd]
 text = '''
-rsk **will** provide cmd line utilities to view summaries and specific
-artifacts
-
 rsk's primarily purpose **should** be to support text based and cmdline
-workflows
+workflows. rsk **will** provide a cmd line utilitie to use rsk features,
+view and filter artifacts, etc.
+
+The commands on the cmdline **will** be memonic and borrow from other
+common command line tools like bash, git, etc whenever possible.
 '''
 
 [REQ-1-interop]

@@ -20,7 +20,7 @@ use super::super::*;
 #[test]
 // partof: #TST-load-simple, #TST-settings-resolve
 fn test_load_path() {
-    init_logger_test();
+    // init_logger_test();
     info!("running test_load_path");
     // see: TST-load-dir-invalid
     assert!(load_path(TINVALID_DIR.join(&PathBuf::from("attr")).as_path()).is_err());

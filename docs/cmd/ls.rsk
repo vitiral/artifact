@@ -10,8 +10,9 @@ interface to glimpse large amounts of information.
 the default outputs of `ls` should try to be easy to parse by tools like
 grep as it can be.
 '''
+[SPC-ls]
 
-[REQ-ls-args]
+[SPC-ls-args]
 text = '''
 `rsk ls` with no commands given will simply print all artifacts with standard
 settings in a single line of information.
@@ -23,9 +24,10 @@ The args are as follows:
      regex pattern is selected
  - completed/tested: flags which control what percentage completed/tested to
      display
+ - recursion: recurse into parts
 '''
 
-[REQ-ls-display]
+[SPC-ls-display]
 partof = "REQ-ls-args"
 text = '''
 The following flags are used to specify what to display:
@@ -40,7 +42,7 @@ of the text
 - L: display the loc path (implementation path)
 '''
 
-[REQ-ls-pattern]
+[SPC-ls-pattern]
 partof = "REQ-ls-args"
 text = '''
 the `-p` flag will signify that the SEARCH argument should be interpreted as
@@ -51,6 +53,10 @@ REQ-ls-display (with the addition of `N` for name)
 
 So: `rsk ls -p "REQ-ui-cmdline.*" -NO` would filter by name and partof
 '''
+
+[TST-ls-interface]
+partof = "SPC-ls-[args, display, pattern, search]"
+text = "general tests to validate that input args give correct settings"
 
 [REQ-ls-color]
 text = '''
@@ -91,7 +97,7 @@ Add these together and you get the following:
 - 0: name is red
 '''
 
-[REQ-ls-search]
+[SPC-ls-search]
 partof = "REQ-purpose-ui-filtering"
 refs = ["REQ-core-artifact-attrs-partof-fmt"]
 text = '''
@@ -103,25 +109,3 @@ searching is selected, it will be interpreted as a perl regexp
 '''
 [TST-ls-search]
 text = "validate that the args are interpreted correctly"
-
-[REQ-ui-cmdline-ls-flags-long]
-text = '''
-the `-l` flag will signify that the "long form" of printing is desired. Typically
-this will result in more information being displayed and the information
-taking up more than one line.
-
-if `l` is specified without any display flags, then display will == `-A`
-'''
-
-[REQ-ui-cmdline-ls-flags-recursive]
-text = '''
-the `-r` flag will signify that information should be displayed recursively,
-meaning that if REQ-foo has parts REQ-bar and REQ-baz, then the parts will
-be displayed as well.
-
-Recursion **shall** track what has been displayed and print `<ArtName> ...`
-for anything that has been displayed (and no additional information).
-
-Recursion **shall** be smart indented with clear spearators in `-l` mode
-so that it is easy to read
-'''

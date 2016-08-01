@@ -16,7 +16,7 @@ pub fn fmt_names(names: &Vec<&ArtName>) -> String {
 
 /// use several configuration options and pieces of data to represent
 /// how the artifact should be formatted
-// [#SPC-core-fmt-func]
+/// partof: #SPC-ui-fmt
 pub fn fmt_artifact(name: &ArtName, artifacts: &Artifacts, fmtset: &FmtSettings,
                 recurse: u8, displayed: &mut HashSet<ArtName>) -> FmtArtifact {
     let artifact = artifacts.get(name).unwrap();

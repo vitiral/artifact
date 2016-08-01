@@ -215,8 +215,8 @@ partof = "REQ-1-ui"
 
 [REQ-2-ui-cmd]
 text = '''
-rsk **will** provide a simple cmd line utility which has multiple modules
-for accomplishing everything in REQ-2-ui.
+rsk **will** provide a simple but complete cmd line utility which has multiple
+modules for accomplishing everything in REQ-2-ui.
 
 As ths is the primary frontend for rsk, it should aim to be as complete and
 correct as possible.

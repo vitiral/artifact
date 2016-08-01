@@ -1,11 +1,10 @@
 
 use super::types::*;
 
+/// Get the ls subcommand, which is what creates the command
+/// for the cmdline
+/// partof: #SPC-ls-args, #SPC-ls-display, #SPC-ls-pattern
 pub fn get_subcommand<'a, 'b>() -> App<'a, 'b> {
-    // TODO: implement -c and -t
-    // [#SPC-ui-cmdline-cmd-ls]
-    // [#SPC-ui-cmdline-ls-interface]
-    // [#SPC-ui-cmdline-ls-flags-impl-interface]
     SubCommand::with_name("ls")
         .about("list artifacts according to various parameters")
         .settings(&[AS::DeriveDisplayOrder, AS::ColoredHelp])
@@ -230,7 +229,7 @@ pub fn get_ls_cmd(matches: &ArgMatches) -> Result<(String, FmtSettings, SearchSe
         settings.text = true;
     }
 
-    // [#SPC-ui-cmdline-ls-search-interface]
+    // #SPC-ls-search
     let mut search_settings = match (matches.is_present("pattern"), matches.value_of("pattern")) {
         (true, Some(p)) => try!(SearchSettings::from_str(p)),
         (true, None) => SearchSettings::from_str("N").unwrap(),

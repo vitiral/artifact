@@ -24,7 +24,7 @@ mod ls;
 mod fmt;
 mod init;
 
-#[cfg(tests)]
+#[cfg(test)]
 mod tests;
 
 use super::init_logger;
