@@ -6,6 +6,8 @@ use super::vars;
 
 use super::utils;
 
+use toml::{Parser, Value, Table};
+
 lazy_static!{
     pub static ref ARTIFACT_ATTRS: HashSet<String> = HashSet::from_iter(
         ["disabled", "text", "refs", "partof"].iter().map(|s| s.to_string()));

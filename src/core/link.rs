@@ -7,6 +7,7 @@ use std::iter::FromIterator;
 use core::types::{LoadResult, LoadError, Artifacts, Artifact, ArtType, ArtName};
 use ui;
 
+
 // TODO:
 /// parse text for artifact parts
 // pub fn parse_text(artifacts: &mut Artifacts) {

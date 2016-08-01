@@ -5,6 +5,8 @@
 use super::types::*;
 use super::utils;
 
+use strfmt;
+
 lazy_static!{
     pub static ref DEFAULT_GLOBALS: HashSet<String> = HashSet::from_iter(
         ["repo", "cwd"].iter().map(|s| s.to_string()));

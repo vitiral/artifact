@@ -32,7 +32,7 @@ fn test_get_matches() {
     // #TST-ls-search
     let args = vec!["rsk", "ls", "regex", "-p", "TNL"];
     let matches = get_matches(&args).unwrap();
-    let (search, fmtset, search_set) = ls::get_ls_cmd(
+    let (search, _, search_set) = ls::get_ls_cmd(
         matches.subcommand_matches("ls").unwrap()).unwrap();
     assert_eq!(search, "regex");
     assert!(search_set.text);

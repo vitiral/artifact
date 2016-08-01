@@ -1,6 +1,8 @@
 use std::env;
 use super::types::*;
 
+use strfmt;
+
 pub fn do_strfmt(s: &str, vars: &HashMap<String, String>, fpath: &PathBuf)
              -> LoadResult<String> {
     match strfmt::strfmt(s, &vars) {

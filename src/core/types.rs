@@ -13,9 +13,7 @@ pub use std::path::{Path, PathBuf};
 pub use std::collections::{HashMap, HashSet, VecDeque};
 
 // crates
-pub use strfmt;
-pub use regex::Regex;
-pub use toml::{Parser, Value, Table};
+use regex::Regex;
 
 // for type definitions only
 use std::fmt;

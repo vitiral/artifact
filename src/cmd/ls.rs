@@ -225,6 +225,7 @@ pub fn get_ls_cmd(matches: &ArgMatches) -> Result<(String, FmtSettings, SearchSe
         settings.path = true;
         settings.parts = true;
         settings.partof = true;
+        settings.loc_path = true;
         settings.refs = true;
         settings.text = true;
     }

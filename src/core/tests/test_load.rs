@@ -9,6 +9,10 @@ use super::super::load::*;
 use super::super::vars;
 use super::super::locs::*;
 
+use strfmt;
+use regex::Regex;
+use toml::{Parser, Value, Table};
+
 // // Tests
 
 #[test]
@@ -195,7 +199,7 @@ fn test_load_toml() {
 /// do the raw load with variable resolultion
 pub fn load_raw_extra(path: &Path)
                       -> LoadResult<(Artifacts, Settings)> {
-    let (mut artifacts, mut settings, loaded_vars, mut repo_map) = try!(load_raw(path));
+    let (mut artifacts, settings, loaded_vars, mut repo_map) = try!(load_raw(path));
     let mut variables = try!(vars::resolve_loaded_vars(loaded_vars, &mut repo_map));
     try!(vars::fill_text_fields(&mut artifacts, &mut variables, &mut repo_map));
     Ok((artifacts, settings))

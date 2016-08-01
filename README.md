@@ -1,24 +1,31 @@
 # rsk: the requirements tracking tool made for developers
-**rsk** is a requirements tracking tool made for developers.
+**rsk** is a intended to be an easy to use tool for a someone at any skill
+level or quality background to easily write and track their requirements.
 
-The primary goal of **rsk** is to provide a clean and simple text based
-interface for requirements tracking.
+Requirements and design documentation are probably the most important components of
+writing quality software: even more important than unit testing or revision control.
+Without writing out your requirements and tracking your design specifications, it can
+be very difficult to develop and maintain the product you were aiming to create.
+However, there are no open source tools (or proprietary tools for that matter) 
+that make this process simple, easy and fun. **rsk** aims to do that by giving you a:
 
-**rsk**, as the name implies, is different from many other requirements
-tracking tools. In addition to tracking the progress of design specifications
-and their associated tests, **rsk** supports tracking the *risks* related 
-to any requirement. Once a team member identifies risks associated with a 
-requirement, the testing (whether end-to-end or unit) of those risks can be 
-tracked so that developers can get a sense of when they are "done" testing.
+ 1. simple text-based format to write your requirements in (TOML). This makes it
+      easy to track your requirements with the rest of your project using standard
+      revision control tools (git, hg, etc)
+ 2. workflow that is easy for developers to integrate with
+ 3. ui that is familar and useful -- helping the developer track their own progress
+      and maintain requirements -> design -> test documentation.
 
-**rsk** provides a simple inteface by which the developer can view their progress 
-through the command line, as well as providing their users/manager/team 
-easy to navitage html.
+It is hard to keep documentation up to date, especially when it doesn't aid
+the core developer in tracking their progress. **rsk** aims to bridge that gap,
+giving you a simple tool that you can use to track your project completeness and
+test coverage.
 
-**rsk** is designed to scale to projects of any size, from a 300 line open
-source library with minimal requirements all the way to production 
-level software with extensive requirements. 
+If you like **rsk**, please leave a **star :star:** at github.com/vitiral/rsk. If you find
+bugs or have any suggestions, please open an issue there under 
+[issues](https://github.com/vitiral/rsk/issues)
 
-It is believed that by providing a comprehensive tool for accomplishing this 
-task, writing of requirements and detailed design can become as second nature 
-to developers as writing unit tests and using revision control has become.
+## Installation
+
+### With rust and cargo
+If you have cargo installed, simply execute

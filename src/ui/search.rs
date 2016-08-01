@@ -104,7 +104,7 @@ fn test_show_artfact() {
     let mut req_one = Artifact::from_str("[REQ-one]
             partof = 'REQ-base'
             text = 'hello bob'").unwrap();
-    let mut req_two = Artifact::from_str("[REQ-two]\ntext = 'goodbye joe'").unwrap();
+    let req_two = Artifact::from_str("[REQ-two]\ntext = 'goodbye joe'").unwrap();
     req_one.1.tested = 0.2;
     req_one.1.completed = 0.8;
 

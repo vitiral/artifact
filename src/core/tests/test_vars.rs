@@ -25,7 +25,7 @@ fn test_resolve_vars() {
     // variables are resolving. We need to find it and destroy it.
     let mut loaded_vars: Variables = Variables::new();
     let mut variables: Variables = Variables::new();
-    let mut var_paths: HashMap<String, PathBuf> = HashMap::new();
+    let var_paths: HashMap<String, PathBuf> = HashMap::new();
     let mut repo_map: HashMap<PathBuf, PathBuf> = HashMap::new();
 
     println!("simple dir: {:?}", TSIMPLE_DIR.as_path());
