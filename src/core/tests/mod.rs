@@ -121,7 +121,6 @@ pub static TOML_LINK: &'static str = "
 
 ";
 
-
 pub static TOML_DISABLED: &'static str = "[settings]\ndisabled=true\n[REQ-nono]\n";
 pub static TOML_OVERLAP: &'static str = "[REQ-foo]\n";
 pub static TOML_BAD: &'static str = "[REQ-bad]\npartof = ['REQ-foo']";

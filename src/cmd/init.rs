@@ -4,7 +4,7 @@ pub use std::fs;
 use super::types::*;
 
 const SETTINGS_RSK: &'static str = r#"[settings]
-artifact_paths = ['{repo}/docs']
+artifact_paths = ["{repo}/docs"]
 code_paths = []
 exclude_code_paths = []
 
@@ -50,9 +50,9 @@ pub fn do_init(path: &Path) -> io::Result<()> {
         let settings = repo.join("settings.rsk");
         let mut f = try!(fs::File::create(settings));
         f.write_all(SETTINGS_RSK.as_ref()).unwrap();
-        println!("rsk already initialized at {0}", repo.display());
-    } else {
         println!("rsk initialized at {0}", repo.display());
+    } else {
+        println!("rsk already initialized at {0}", repo.display());
     }
     Ok(())
 }
