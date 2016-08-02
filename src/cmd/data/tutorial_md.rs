@@ -116,13 +116,15 @@ A few changes have been made to your local directory:
 > and is python's packaging mechanism.
 
 Take a look at `flash/load.py`. This contains the machinery for loading our file.
-Notice the various `#ART-*` tags located in the documentation. This is how we mark
-that an artifact is "completed". Note that only `SPC` and `TST` artifacts can be
-completed in this way.
+Notice the various `#SPC` tags located in the documentation strings. This is how
+rsk knows which artifacts are implemented and where. If an artifact is implemented
+in code in this way it is marked as 100% "completed".
+
+> Note: only `SPC` and `TST` artifacts can be completed in this way.
 
 There are two ways that an artifact is considered "done":
- - if it is a SPC or TST and has a #ART tag in source
- - if it's parts are done
+ - if it is a SPC or TST and has a #ART tag somewhere in source code
+ - if it's `parts` are done
 
 Additionally, an artifact is only considered "tested" when it's TST parts are
 considered done.
@@ -131,7 +133,8 @@ Run the command
 
     rsk ls SPC-load-format
 
-Notice that it is now "implemented-at" `flash/load.py`.
+Notice that it is now "implemented-at" `flash/load.py`. Go to where it says it is
+implemented and confirm that the information is correct.
 
 Head to `flash/tests/test_load.py` and notice that similar tags an be found there
 for TST artifacts.
@@ -139,16 +142,38 @@ for TST artifacts.
 ## Exercises
  1. run `rsk ls ARTIFACT` on an artifact that is tagged in source. Now change the tag
       so that it is mispelled and run it again. Did the completeness change?
- 2. do the same thing for an arifact in the `partof` field. Notice that invalid names
-      blink red on your terminal.
+ 2. do the same thing for an arifact in the `partof` field for a file in `docs/`.
+      Notice that invalid names blink red on your terminal and you get WARN messages.
+      You can use this feature to help you ensure your artifact links are correct.
 
+##################################################
+# Documenting your own project
+
+To start documenting your own project, run `rsk init` in your project and edit
+`.rsk/settings.rsk` with the paths to find your code-implementations and documents.
+I have a few parting words of advice for using the tool:
+
+ 1. keep your artifacts high level -- don't try to design every detail using rsk.
+       Using rsk does not mean that you don't have to leave code comments!
+ 2. keep names short and simple. Avoid unnecessary nesting. If you have web and
+      cmdline ui elements, consider naming them just `REQ-web` and `REQ-cmd` instead
+      of `REQ-ui-web` and `REQ-ui-cmd`. Trying to nest too deep can quickly get
+      confusing.
+ 3. use `rsk ls` liberally, and check for and fix warning messages!
+ 4. don't be afraid to refactor your artifacts. It is actually easier than it might
+      sound, as **rsk** will help you find broken links and incomplete items in real
+      time. Not to mention that if you use revision control (you should), your
+      artifacts can be tracked with your project -- no more having your documents
+      and your code be wildly out of sync!
+
+Other than that, good luck!
 
 ##################################################
 # Summary and Final Words
 
 This tutorial took you part of the way through developing a simple project using
-rsk. I leave it as a exercise for you to finish the project in whichever language
-you are most comftorable. Have some fun with the rsk tool, trying to break it or find bugs.
-If you find any or have any suggestions, please open a ticket at:
+**rsk**. I leave it as an exercise to finish the project in whichever language you are
+most comftorable. Have some fun with the rsk tool, try to break it. If you manage
+to break it or have any suggestions, please open a ticket at:
 https://github.com/vitiral/rsk/issues
 "##;

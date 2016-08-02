@@ -149,7 +149,9 @@ pub fn do_tutorial(part: u8) -> io::Result<()> {
             println!("  Tutorial part 2: open tutorial.md with a text editor and see part 2");
             try!(write_file(&SETTINGS_RSK, data::settings_2::data));
         } else {
-            println!("  Tutorial part 3: open tutorial.md with a text editor and see part 3");
+            if part == 3 {
+                println!("  Tutorial part 3: open tutorial.md with a text editor and see part 3");
+            }
             try!(write_file(&SETTINGS_RSK, data::settings_2::data)); // same settings
             try!(write_file(&LOAD_RSK, data::load_rsk::data));
             if part == 4 {
