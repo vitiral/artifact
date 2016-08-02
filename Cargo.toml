@@ -30,6 +30,3 @@ default-features = false
 
 # Cherry-pick the features you'd like to use
 features = [ "suggestions", "color" ]
-
-[dev-dependencies]
-env_logger = "0.3.3"
