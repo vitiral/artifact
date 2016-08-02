@@ -3,13 +3,10 @@ pub use std::path::{PathBuf, Path};
 pub use std::fs;
 use super::types::*;
 
-const SETTINGS_RSK: &'static str = r#"\
-# This is an artifacts file for the command line tool rsk
-# files (like this one) that are in {repo}/.rsk are automatically loaded
-# for a tutorial on how to use rsk type `rsk tutorial`
-
-[settings]
+const SETTINGS_RSK: &'static str = r#"[settings]
 artifact_paths = ['{repo}/docs']
+code_paths = []
+exclude_code_paths = []
 
 [globals]
 # This is where you define variables

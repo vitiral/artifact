@@ -4,7 +4,7 @@ partof = "REQ-purpose"
 text = '''
 The interface **will** be a simple command-line one that can be called
 with a path to the questions to ask. The program will go through all the
-questions, prompting teh user with aquestion and return whether the response was
+questions, prompting the user with a question and return whether the response was
 valid or not.
 '''
 

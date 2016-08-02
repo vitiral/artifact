@@ -162,7 +162,7 @@ impl FmtArtifact {
 
         // format the location that where the implementation of this artifact can be found
         if let Some(ref loc) = self.loc {
-            self.write_header(w, "\n * implemented-at-loc: ", settings);
+            self.write_header(w, "\n * implemented-at: ", settings);
             if settings.color {
                 try!(write!(w, "{}", Green.paint(loc.to_string())));
             } else {

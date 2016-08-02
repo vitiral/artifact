@@ -322,7 +322,7 @@ pub fn load_dir(path: &Path,
             };
         }
     };
-    // REQ-core-load-recursive: don't recurse if no .rsk files are in dir
+    // don't recurse if no .rsk files are found
     if num_loaded > 0 {
         for dir in dirs_to_load {
             if loaded_dirs.contains(dir.as_path()) {
