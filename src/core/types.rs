@@ -299,7 +299,6 @@ pub struct Artifact {
     pub ty: ArtType,
     pub path: PathBuf,
     pub text: String,
-    pub refs: Vec<String>,
     pub partof: HashSet<ArtName>,
     pub parts: HashSet<ArtName>,
     pub loc: Option<Loc>,

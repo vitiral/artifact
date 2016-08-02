@@ -59,9 +59,6 @@ pub fn get_subcommand<'a, 'b>() -> App<'a, 'b> {
         .arg(Arg::with_name("loc")
                  .short("L")
                  .help("display location name"))
-        .arg(Arg::with_name("refs")
-                 .short("R")
-                 .help("display the references to this artifact"))
         .arg(Arg::with_name("text")
                  .short("T")
                  .help("display the text description of this artifact (first line only if not -l)"))
@@ -208,7 +205,6 @@ pub fn get_ls_cmd(matches: &ArgMatches) -> Result<(String, FmtSettings, SearchSe
     settings.parts = matches.is_present("parts");
     settings.partof = matches.is_present("partof");
     settings.loc_path = matches.is_present("loc");
-    settings.refs = matches.is_present("refs");
     settings.text = matches.is_present("text");
     if matches.is_present("all") {
         // reverse everything
@@ -216,17 +212,15 @@ pub fn get_ls_cmd(matches: &ArgMatches) -> Result<(String, FmtSettings, SearchSe
         settings.parts = !settings.parts;
         settings.partof = !settings.partof;
         settings.loc_path = !settings.loc_path;
-        settings.refs = !settings.refs;
         settings.text = !settings.text;
     } else if settings.long &&
-       !(settings.path || settings.parts || settings.partof || settings.loc_path ||
-         settings.refs || settings.text) {
+       !(settings.path || settings.parts || settings.partof || settings.loc_path
+         || settings.text) {
         // if long is specified but no other display attributes are specified
         settings.path = true;
         settings.parts = true;
         settings.partof = true;
         settings.loc_path = true;
-        settings.refs = true;
         settings.text = true;
     }
 

@@ -10,7 +10,7 @@ use toml::{Parser, Value, Table};
 
 lazy_static!{
     pub static ref ARTIFACT_ATTRS: HashSet<String> = HashSet::from_iter(
-        ["disabled", "text", "refs", "partof"].iter().map(|s| s.to_string()));
+        ["disabled", "text", "partof"].iter().map(|s| s.to_string()));
     pub static ref SETTINGS_ATTRS: HashSet<String> = HashSet::from_iter(
         ["disabled", "artifact_paths",
          "code_paths", "exclude_code_paths"].iter().map(|s| s.to_string()));
@@ -150,7 +150,6 @@ impl Artifact {
             path: path.to_path_buf(),
             text: check_type!(get_attr!(tbl, "text", df_str, String),
                               "text", name),
-            refs: check_type!(get_vecstr(tbl, "refs", &df_vec), "refs", name),
             partof: try!(ArtNames::from_str(&partof_str)),
             loc: None,
 

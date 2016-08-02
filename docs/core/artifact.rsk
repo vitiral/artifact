@@ -1,6 +1,5 @@
 [REQ-artifact-partof]
 partof = "REQ-1-linking, REQ-2-artifact-attrs"
-refs = ["REQ-2-names"]
 text = '''
 the `partof` field **shall** be a string specifying which artifacts the artifact item
 is a part of (which artifacts depend on it)
@@ -61,23 +60,6 @@ created as `REQ-FOO` and will be a `partof` `REQ-foo-bar`
 '''
 [TST-artifact-partof-3]
 
-[REQ-artifact-refs]
-partof = "REQ-2-artifact-attrs"
-text = '''
-the `refs` field **will** be a list of strings that **shall** provide documentation to:
-- if the string looks like artifacts (i.e. REQ, SPC, etc are at the beginning)
-it **shall** be linked as one in the format of REQ-core-artifact-attrs-partof
-- else if the string is a valid file path, it **shall** be linked to the relevant code
-repository
-- else if the string looks like a url (http://, www., *.com/org/etc), it **shall** be
-linked as one
-- else it **shall** be interpreted as markdown
-
-> Note: is advised that you do not put newline characters in any of the items in `refs`
-
-default = None
-'''
-
 [SPC-artifact]
 partof = "REQ-2-artifact"
 text = "definition, creation and loading of Artifact and it's attributes"
@@ -102,18 +84,6 @@ text = '''
 # parts
 1. `ArtName` struct definition
 2. `::from_str` method with proper error handling
-'''
-
-[SPC-artifact-refs]
-text = '''
-implementing refs parsing **shall** convert the refs to an enum list with
-the types {{ArtName, PathBuf, Url, MarkDown}}
-
-# parts
- 1. check if it is a valid artifact-names field and link appropriately
- 2. check if it is a valid file path and link appropriately
- 3. check if it is a valid url
- 4. process it as markdown
 '''
 
 [SPC-names]

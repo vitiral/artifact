@@ -1,7 +1,6 @@
 
 [REQ-lvl-2]
 partof = "REQ-purpose"
-refs = ["REQ-lvl-1"]
 text = "two levels deep"
 
 [SPC-lvl-2]

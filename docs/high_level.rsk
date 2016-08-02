@@ -36,7 +36,6 @@ In addition, there **shall** be the following special items:
 '''
 
 [REQ-2-load]
-refs = ["REQ-2-settings"]
 text = '''
 There **shall** be settings in .rsk files that detail which directories to load.
 
@@ -148,12 +147,10 @@ Also:
 '''
 
 [REQ-2-artifact-attrs]
-refs = ["REQ-2-names"]
 text = '''
 All artifacts **will** have the following attributes that the user can define:
 - disabled: whether the artifact should be skipped during analysis
 - text: description of the artifact
-- refs: attr to list references for documentation purposes only
 - partof: a string containing artifact names which the artifact is a part of
 '''
 

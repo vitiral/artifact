@@ -43,38 +43,17 @@ fn test_get_attr() {
     assert!(get_attr!(&test, "disabled", true, Boolean).unwrap() == false);
     assert!(get_attr!(&test, "text", df_str, String).unwrap() == "bar");
     assert!(get_attr!(&test, "text", df_str, String).unwrap() == "bar");
-    assert!(get_vecstr(&test, "refs", df_vec).unwrap() == ["hello", "ref"]);
 
     // #TST-core-load-attrs-unit-2:<Test loading invalid existing types>
     assert!(get_attr!(&test, "disabled", df_str, String).is_none());
     assert!(get_attr!(&test, "text", false, Boolean).is_none());
     assert!(get_vecstr(&test, "text", df_vec).is_none());
     let test = get_attr!(tbl_good, "SPC-foo", Table::new(), Table).unwrap();
-    assert!(get_vecstr(&test, "refs", df_vec).is_none());
 
     // #TST-core-load-attrs-unit-3:<Test loading valid default types>
     let test = get_attr!(tbl_good, "REQ-foo", Table::new(), Table).unwrap();
     assert!(get_attr!(&test, "disabled", false, Boolean).unwrap() == false);
     assert!(get_attr!(&test, "text", df_str, String).unwrap() == "");
-}
-
-#[test]
-fn test_check_type() {
-    let tbl_good = parse_text(TOML_GOOD);
-    let df_tbl = Table::new();
-
-    let test = get_attr!(tbl_good, "REQ-bar", df_tbl, Table).unwrap();
-    // #TST-core-load-attrs-unit-1-b:<Test loading valid type>
-    fn check_valid(test: &Table) -> LoadResult<Vec<String>> {
-        Ok(check_type!(get_vecstr(test, "refs", &Vec::new()), "refs", "name"))
-    }
-    assert!(check_valid(&test).is_ok());
-
-    let test = get_attr!(tbl_good, "SPC-foo", df_tbl, Table).unwrap();
-    fn check_invalid(test: &Table) -> LoadResult<Vec<String>> {
-        Ok(check_type!(get_vecstr(test, "refs", &Vec::new()), "refs", "name"))
-    }
-    assert!(check_invalid(&test).is_err());
 }
 
 #[test]
@@ -156,8 +135,6 @@ fn test_load_toml() {
         assert_eq!(art.ty, ArtType::RSK);
         assert_eq!(art.path, path);
         assert_eq!(art.text, "");
-        let expected: Vec<String> = Vec::new();
-        assert_eq!(art.refs, expected);
         let expected: HashSet<ArtName> = HashSet::new();
         assert_eq!(art.partof, expected);
         assert_eq!(art.loc, None);
@@ -169,7 +146,6 @@ fn test_load_toml() {
         assert_eq!(art.ty, ArtType::SPC);
         assert_eq!(art.path, path);
         assert_eq!(art.text, "bar");
-        assert_eq!(art.refs, ["hello", "ref"]);
 
         // #TST-artifact-partof-1: test loading of partof
         let expected = ["REQ-Foo", "REQ-Bar-1", "REQ-Bar-2"]
@@ -248,6 +224,5 @@ fn test_load_raw() {
     let lvl1_dir_str = lvl1_dir.as_path().to_str().unwrap().to_string();
 
     // #TST-core-load-dir-unit-5
-    assert_eq!(req_purpose.refs, [extra_dir.join(PathBuf::from("README.md")).to_str().unwrap()]);
     assert_eq!(spc_lvl1.text, "level one does FOO");
 }

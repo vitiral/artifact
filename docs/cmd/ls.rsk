@@ -37,7 +37,6 @@ The following flags are used to specify what to display:
 - T: display the text formatted as markdown. If `-l` is not specified,
 this will display the first 30 chars of the "debug" representation
 of the text
-- R: display the refs
 - L: display the loc path (implementation path)
 '''
 

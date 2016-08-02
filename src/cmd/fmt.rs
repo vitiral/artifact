@@ -118,17 +118,6 @@ impl FmtArtifact {
             return Ok(());
         }
 
-        // format the references
-        if let Some(ref refs) = self.refs {
-            self.write_header(w, "\n * refs: ", settings);
-            let sep = if self.long {"\n    "} else {" "};
-            for r in refs {
-                try!(w.write_all(sep.as_ref()));
-                try!(w.write_all(r.as_ref()));
-            }
-            self.write_end(w)
-        }
-
         // format the parts
         if let Some(ref parts) = self.parts {
             self.write_header(w, "\n * parts: ", settings);
@@ -211,8 +200,8 @@ impl FmtArtifact {
     /// if it is, it is formatted differently
     fn name_only(&self) -> bool {
         match (&self.path, &self.parts, &self.partof,
-               &self.loc, &self.refs, &self.text) {
-            (&None, &None, &None, &None, &None, &None) => true,
+               &self.loc, &self.text) {
+            (&None, &None, &None, &None, &None) => true,
             _ => false,
         }
     }

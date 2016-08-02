@@ -39,7 +39,6 @@ pub fn create_parents(artifacts: &mut Artifacts) {
             ty: name.get_type(),
             path: path::PathBuf::from("PARENT"),
             text: "AUTO".to_string(),
-            refs: vec![],
             partof: HashSet::new(),
             parts: HashSet::new(),
             loc: None,

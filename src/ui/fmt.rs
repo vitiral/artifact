@@ -52,9 +52,6 @@ pub fn fmt_artifact(name: &ArtName, artifacts: &Artifacts, fmtset: &FmtSettings,
     if fmtset.loc_path {
         out.loc = artifact.loc.clone();
     }
-    if fmtset.refs {
-        out.refs = Some(artifact.refs.clone());
-    }
     if fmtset.text {
         if fmtset.long {
             out.text = Some(artifact.text.clone());

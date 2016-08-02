@@ -124,8 +124,11 @@ text = "no tests necessary on definitions and process"
 ##################################################
 # Purpose Requirements
 [REQ-1]
-text = "purpose requirements"
-refs = ["{repo}/README.md"]
+text = '''
+purpose requirements. For an easy-to-read purpose statement see:
+[README.md](https://github.com/vitiral/rsk/blob/master/README.md)
+'''
+
 
 [REQ-1-scale]
 text = '''

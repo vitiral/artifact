@@ -26,14 +26,13 @@ pub struct FmtSettings {
     pub partof: bool,
     pub loc_path: bool,
     pub text: bool,
-    pub refs: bool,
 }
 
 impl FmtSettings {
     pub fn is_empty(&self) -> bool {
         !self.long && !self.path && !self.parts
             && !self.partof && !self.loc_path
-            && !self.text && !self.refs
+            && !self.text
     }
 }
 
@@ -52,7 +51,6 @@ pub struct FmtArtifact {
     // pub loc_path: Option<PathBuf>,
     // pub loc_line_col: (usize, usize),
     // pub loc_valid: Option<bool>,
-    pub refs: Option<Vec<String>>,
     pub text: Option<String>,
     pub name: ArtName,
 }
@@ -72,7 +70,6 @@ pub struct SearchSettings {
     pub parts: bool,
     pub partof: bool,
     pub loc: bool,
-    pub refs: bool,
     pub text: bool,
     pub completed: PercentSearch,
     pub tested: PercentSearch,

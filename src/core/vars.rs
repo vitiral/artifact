@@ -139,15 +139,6 @@ pub fn fill_text_fields(artifacts: &mut Artifacts,
             Ok(t) => art.text = t,
             Err(err) => errors.push(("text field", err)),
         };
-        let mut refs = Vec::new();
-        for r in &art.refs {
-            match strfmt::strfmt(r.as_str(), &variables) {
-                Ok(r) => refs.push(r),
-                // [#SPC-core-load-error-text-1]
-                Err(err) => errors.push(("ref", err)),
-            }
-        }
-        art.refs = refs;
         if errors.len() > 0 {
             // [#SPC-core-load-error-text-3]
             error!(" resolving variables on [{:?}] {} failed: {:?}", art.path, name, errors);

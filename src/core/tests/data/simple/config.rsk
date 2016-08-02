@@ -12,4 +12,3 @@ extra = "{cwd}/extra"
 
 [REQ-purpose]
 text = "used to test basic functionality"
-refs = ["{extra}/README.md"]

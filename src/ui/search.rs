@@ -15,7 +15,6 @@ impl SearchSettings {
             parts: false,
             partof: false,
             loc: false,
-            refs: false,
             text: false,
             completed: PercentSearch{lt: false, perc: 0},
             tested: PercentSearch{lt: false, perc: 0},
@@ -40,7 +39,6 @@ impl SearchSettings {
             parts: pattern.contains(&'P'),
             partof: pattern.contains(&'O'),
             loc: pattern.contains(&'L'),
-            refs: pattern.contains(&'R'),
             text: pattern.contains(&'T'),
             completed: PercentSearch{lt: false, perc: 0},
             tested: PercentSearch{lt: false, perc: 0},
@@ -51,7 +49,6 @@ impl SearchSettings {
             set.parts = !set.parts;
             set.partof = !set.partof;
             set.loc = !set.loc;
-            set.refs = !set.refs;
             set.text = !set.text;
         }
         Ok(set)
@@ -90,7 +87,6 @@ pub fn show_artifact(name: &ArtName,
              None => false,
              Some(l) => pat_case.is_match(l.path.to_string_lossy().as_ref()),
         })
-        || (ss.refs && art.refs.iter().any(|r| pat_case.is_match(r)))
         || (ss.text && pat_case.is_match(&art.text)) {
         true
     } else {

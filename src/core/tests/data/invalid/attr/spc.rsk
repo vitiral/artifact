@@ -2,7 +2,7 @@
 
 [SPC-invalid]
 text = "This has an invalid attribute"
-ref = ["valid refs, invalid name"]
+part = "REQ-valid-partof-invalid-name"
 
 
 [SPC-valid]

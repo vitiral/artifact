@@ -1,7 +1,6 @@
 
 [SPC-loc]
 partof = "REQ-2-loc"
-refs = ["SPC-load-raw"]
 text = '''
 location finding is a fundamentally a simple problem: recursively search through
 the directories given by settings.code_paths (excluding settings.exclude_code_paths)
