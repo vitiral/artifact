@@ -8,11 +8,10 @@ interactive tutorial.
 
 ## Purpose
 Requirements and design-documentation are probably the most important components of
-writing quality software. Without writing out your requirements and tracking your 
-design specifications, it can be very difficult to develop and maintain the product 
-you were aiming to create. However, there are no open source tools (or proprietary 
-tools for that matter) that make this process simple, easy and fun. **rsk** aims to 
-do that by giving you a:
+writing quality software. Without them it can be very difficult to develop and 
+maintain the product you were aiming to create. However, there are no open source 
+tools (or proprietary tools for that matter) that make this process simple, easy 
+and fun. **rsk** aims to do that by giving you a:
 
  1. simple text-based format to write your requirements in (TOML). This makes it
       easy to track your requirements with the rest of your project using standard
@@ -27,9 +26,9 @@ giving you a simple tool that you can use to track your project completeness and
 test coverage.
 
 If you like or use **rsk** please star:star: it on [github](https://github.com/vitiral/rsk) 
-and mention it to frieds and colleauges. It is my belief that requirements tracking needs to 
+and mention it to friends and colleagues. It is my belief that requirements tracking needs to 
 be as second nature for developers as revision control and unit testing has become. I hope
-that it will help us build better software and thus make the world a little bit better.
+that by building better software we can all make the world just a little bit better.
 
 If you find bugs or have any suggestions, please open them here:
 [bug tracker](https://github.com/vitiral/rsk/issues)
@@ -41,17 +40,17 @@ that needs to be changed if it improves usability.
 
 ## Installation
 
-There are currently two installation options: downloading a cross-linux musl
+There are currently two installation options: downloading a cross-linux
 binary or installing through Cargo.
 
 ### Linux Binary
-Download [this file](https://github.com/vitiral/rsk/raw/master/target/x86_64-unknown-linux-musl/release/rsk) and put it's directory in your PATH variable.
+Download [this file](https://github.com/vitiral/rsk/raw/master/target/x86_64-unknown-linux-musl/release/rsk) `chmod a+x` it, and put it in a directory on your `$PATH`
 
 **OR follow these directions**
 
-Run this in the terminal to download the **rsk** binary in `~/bin`:
+Run this in the terminal to download the **rsk** binary into `~/bin`:
 ```
-mkdir -f ~/bin && wget -q https://github.com/vitiral/rsk/raw/master/target/x86_64-unknown-linux-musl/release/rsk -O ~/bin/rsk && chmod a+x ~/bin/rsk
+mkdir -p ~/bin && wget -q https://github.com/vitiral/rsk/raw/master/target/x86_64-unknown-linux-musl/release/rsk -O ~/bin/rsk && chmod a+x ~/bin/rsk
 ```
 
 Now add `~/bin` to your `$PATH` in `.bashrc`. With a text editor, copy/paste this to the end:
@@ -59,8 +58,8 @@ Now add `~/bin` to your `$PATH` in `.bashrc`. With a text editor, copy/paste thi
 export PATH="$HOME/bin:$PATH"
 ```
 
-Now run `source ~/.bashrc`. You should now be able to run `rsk -h`. Update by simply re-running the 
-first line.
+Now run `source ~/.bashrc`. You should now be able to run `rsk -h` from anywhere. Update **rsk**
+by simply re-running the first line.
 
 ### Cross Platform with [cargo](https://github.com/rust-lang/cargo)
 > Note: neither windows or mac are tested. If you try either, whether it works or not,
@@ -71,10 +70,10 @@ cargo install rsk
 ```
 and follow any directions it tells you to.
 
-# Ultra Simple Example
+# Ultra Simple Tutorial
 > **For a full tutorial, install rsk and run `rsk tutorial`**
 
-If I was writing a hello world program in python and wanted to track requirements,
+If I was writing a "hello world" program in python and wanted to track requirements,
 this would be the process.
 
  1. `mkdir` and `cd`to an empty folder
@@ -140,9 +139,9 @@ if __name__ == '__main__':
 |DT|   100%   100% | REQ-world
 |--|    50%    50% | SPC
 |--|     0%     0% | SPC-aliens
-|DT|   100%   100% | SPC-world                                     | <L:$CWD/src/hello.py(12:16)> 
+|DT|   100%   100% | SPC-world   | <L:$CWD/src/hello.py(12:16)> 
 |DT|   100%   100% | TST
-|DT|   100%   100% | TST-world                                     | <L:$CWD/src/hello.py(8:16)> 
+|DT|   100%   100% | TST-world   | <L:$CWD/src/hello.py(8:16)> 
 ```
 
 As you can see, we've finished our specs and tests for saying hello to the world, 
