@@ -68,7 +68,8 @@ by simply re-running the first line.
 > Note: neither windows or mac are tested. If you try either, whether it works or not,
 > please open an [issue](https://github.com/vitiral/rsk/issues) to let us know!
 
-If you have rust and cargo installed, simply execute:
+If you have rust and cargo installed (recommendation: install them with
+[rustup](https://github.com/rust-lang-nursery/rustup.rs)), simply execute:
 ```
 cargo install rsk
 ```
