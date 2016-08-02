@@ -152,17 +152,30 @@ when the aliens arrive and **rsk** can help you do that!
 Here is a snapshot (0.1.0) of items yet to be started:
 ```
 $ rsk ls -c '<' -T
-|--|     0%     0% | REQ-1-interop            | rsk **will** provide simple methods for other tools to interact with it's data
-|--|     0%     0% | REQ-1-scale              | rsk **will** be able to handle scale from very small projects with a single design document to enourmous multi-project multi-folder projects.
+|--|     0%     0% | REQ-1-interop            | rsk **will** provide simple
+    methods for other tools to interact with it's data
+|--|     0%     0% | REQ-1-scale              | rsk **will** be able to handle
+    scale from very small projects with a single design document to enourmous
+    multi-project multi-folder projects.
 |--|     0%     0% | REQ-2-interop            |
-|--|     0%     0% | REQ-2-interop-json       | rsk **will** provide json export utility for other tools to utilize.
-|--|     0%     0% | REQ-2-performance        | rsk **will** aim to be as performant as is "reasonable" in both memory and cpu usage.
-|--|     0%     0% | REQ-2-performance-store  | rsk **will** use a serialized file to speed up processing of data. Once a file has been processed, it's **will** be able to be loaded from the file instead of re-parsed.
-|--|     0%     0% | REQ-2-ui-markdown        | when displaying to the user, all text fields **will** be processed as a simple markdown format
-|--|     0%     0% | REQ-2-ui-tutorial        | rsk **will** provide an interactive tutorial to learn rsk as well as the basics of why to use requirements tracking in the first place.
-|--|     0%     0% | REQ-2-ui-web             | rsk **will** provide a HTTP web server which can host up-to-date requirements as well as provide a REST-JSON API server for tracking test execution over a period of time.
-|--|     0%     0% | REQ-status               | The `status` command gives the user information on any errors that exist in the project artifacts such as:
-|--|     0%     0% | REQ-tutorial             | There **shall** be a tutorial that helps the user learn about rsk.
+|--|     0%     0% | REQ-2-interop-json       | rsk **will** provide json export
+    utility for other tools to utilize.
+|--|     0%     0% | REQ-2-performance        | rsk **will** aim to be as
+    performant as is "reasonable" in both memory and cpu usage.
+|--|     0%     0% | REQ-2-performance-store  | rsk **will** use a serialized
+    file to speed up processing of data. Once a file has been processed, it's
+    **will** be able to be loaded from the file instead of re-parsed.
+|--|     0%     0% | REQ-2-ui-markdown        | when displaying to the user, all
+    text fields **will** be processed as a simple markdown format
+|--|     0%     0% | REQ-2-ui-tutorial        | rsk **will** provide an interactive
+    tutorial to learn rsk as well as the basics of why to use requirements tracking in the first place.
+|--|     0%     0% | REQ-2-ui-web             | rsk **will** provide a HTTP web
+    server which can host up-to-date requirements as well as provide a REST-JSON
+    API server for tracking test execution over a period of time.
+|--|     0%     0% | REQ-status               | The `status` command gives the user
+    information on any errors that exist in the project artifacts such as:
+|--|     0%     0% | REQ-tutorial             | There **shall** be a tutorial
+    that helps the user learn about rsk.
 ```
 
 
