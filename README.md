@@ -82,7 +82,13 @@ this would be the process.
  4. `vim docs/design.rsk` and write my requirements and design
 ```
 # docs/design.rsk
+[REQ-purpose]
+text = '''
+we need to be able to say hello to both the world and aliens
+'''
+
 [REQ-world]
+partof = "REQ-purpose"
 text = '''
 there **shall** be way to say hello to the world. All of it.
 '''
@@ -99,6 +105,7 @@ test it before printing.
 '''
 
 [REQ-aliens]
+partof = "REQ-purpose"
 text = '''
 there **shall also** be a way to say hello to aliens, but
 that will be harder
@@ -136,6 +143,7 @@ if __name__ == '__main__':
 ```
 |--|    50%    50% | REQ
 |--|     0%     0% | REQ-aliens
+|--|    50%    50% | REQ-purpose
 |DT|   100%   100% | REQ-world
 |--|    50%    50% | SPC
 |--|     0%     0% | SPC-aliens
