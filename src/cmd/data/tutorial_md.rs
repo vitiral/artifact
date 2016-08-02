@@ -93,14 +93,15 @@ the program. This is all defined under `SPC-cmd-load`. Run:
 ```
 
 From this you can see the parts that have to be implemented for `SPC-load`
-to be considered done.
+to be considered done. Note that SPC-load was auto-created because it is a
+parent of other artifacts.
 
 > ## Exercise 2:
 > Explore each part of SPC-load using the `rsk ls` cmd.
 
 This document details quite a bit of the design specifications, risks and tests
 in order to create this function. Let's actually get to work and start coding.
-
+That is the focus of the next part
 
 ##################################################
 # Tutorial Stage 4: writing and linking code

@@ -5,6 +5,12 @@ text = '''
 duplicates **shall not** be allowed, as they would be extremely confusing
 '''
 
+[REQ-load]
+text = '''
+loading **shall** be from a csv file in a simple format. This is where
+the questions will be gotten from
+'''
+
 [SPC-question]
 text = '''
 The `Question` class **shall** be the primary datatype used for questions
@@ -25,7 +31,7 @@ Where whitespace is ignored
 '''
 
 [SPC-load-validate]
-partof = "REQ-question-duplicate, REQ-load-format"
+partof = "REQ-question-duplicate, SPC-load-format"
 text = '''
 input questions **shall** be validated to meet the
 linked requirements, printing and returning an error

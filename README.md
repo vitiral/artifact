@@ -133,7 +133,7 @@ if __name__ == '__main__':
 ```
  7. `python2 src/hello.py`: it says hello world! That is good design :)
  8. `vim ~/.rsk/settings.rsk` and add `"{repo}/src"` to `code_paths`
- 9. `rsk ls -L` to show this lovely status report (run on your computer for color):
+ 9. `rsk ls -L` to show this lovely status report (run on your own computer for color):
 ```
 |--|    50%    50% | REQ
 |--|     0%     0% | REQ-aliens
