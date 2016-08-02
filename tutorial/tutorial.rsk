@@ -120,6 +120,7 @@ In other words, you can design a spec (SPC) based on
 a requirement (REQ). A requirement can have a risk (RSK)
 associated with it. Tests can test to either a spec (SPC)
 or to a risk (RSK)
+'''
 
 [SPC-learn-paths]
 text = '''

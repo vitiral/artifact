@@ -1,160 +1,203 @@
 pub const data: &'static str = r##"
-##################################################
-# Tutorial Stage 1: introduction to rsk
-> Run `rsk tutorial` to start this stage of the tutorial
-Congradulations! You have installed rsk!
-
-A tutorial file has been created for you in this directory, open the file
-`tutorial.rsk` in your text editor of choice and read through it,
-following all the directions.
-
-When you are finished, go to the next section.
-
-##################################################
-# Tutorial Stage 2: high-level requirements and design specifications
-> Run `rsk tutorial 2` to start this stage of the tutorial
-
-A few changes have been made to your local directory:
- - `tutorial.rsk` has been removed
- - the `flash_card_challenge.htm` file has been added
- - the `docs/` folder has been added with `purpose.rsk` and `high_level.rsk` in it
- - `.rsk/settings.rsk` has been updated with a new `artifact_paths`
- 
-open `flash_card_challenge.htm` in a browser and skim through the project 
-that we will be executing. Don't worry! You don't need to know python to 
-follow along with this tutorial.
-
-Now open `docs/purpose.rsk`. This is a rough attempt to translate the ideas
-in `flash_card_challenge.htm` into what are known as "high-level requirements"
-
-High-level requirements are important because they document why your
-project even exists -- something that is important to know as you develop it!
-Without high-level requirements, it is easy to loose sight of what your project
-is trying to accomplish and can be difficult to keep track of which features
-are useful and which are not.
-
-> ## Exercise 1:
-> Review `docs/purpose.rsk` and make sure it makes sense. Think about things you think should
-> be added to the purpose documentation, and feel free to make changes.
-> You can always return it to it's original state with `rsk tutorial 2`
-
-Now open `high_level.rsk` in the same directory. This is mostly the high-level 
-specification of the command/program itself.
-
-High-level specifications allows you to lay out your ideas for how a project
-should be structued before you actually write any code. It also allows you to write out
-"TODOs" that you think **should** be done, but you maybe won't get done in your
-first iteration.
-
-> ## Exercise 2:
-> Revew the `docs/high_level.rsk` document. Which items do you think should be done 
-> immediately, and which will have to wait? Feel free to make any edits you think 
-> should be made. 
-> 
-> ### Some thoughts in answer:
-> Probably `SPC-cmd-load` and `SPC-cmd-response` has to be done immediately, so that 
-> an initial implementation can be shown to work, but both `SPC-cmd-random`
-> and `SPC-cmd-weighted` can wait for at least a little bit.
-
-Now run:
-```
-    rsk ls
-```
-    
-This displays all the artifacts you just looked at, but colorizes them according
-to whether they are complete or not. Right now, nothing is done so all you
-see is red.
-
-Now run:
-```
-    rsk ls REQ-cmd -l
-```
-    
-This calls to list only one artifact, and displays it in the "long" format
-
-> Note: try `rsk ls cmd -p` to search for all items with "cmd" in the name
-
-> ## Exercise 3:
-> Play around with the `rsk ls` command a little more to get used to it, we will
-> be using it alot. Get help with:
->     `rsk ls -h`
-    
-Once you are done, continue onto stage 3.
+# Welcome to the rsk tutorial! This file is written just like
+# .rsk files are.
+#
+# you can get to this stage in the tutorial at any time by running:
+#
+#     rsk tutorial
+#
+# rsk is a command line, text based tool for requriements tracking.
+# It aims to be easy to use by anybody and especially productive
+# for developers
+#
+# Follow along with this file to get an idea of how you can
+# easily write and track requirements in your source code
+#
+# before we continue too far, why don't you try a command? Type
+# the following command:
+#
+#     rsk ls REQ-learn-rsk -l
+#
+# You should see a colorized artifact. If you do, good. If you are having
+# problems try going back to the installation tutorial at github.com/vitiral/rsk
 
 ##################################################
-# Tutorial Stage 3: detailed design and test design of the loading function
-> Run `rsk tutorial 3` to start this stage of the tutorial
+# Defining requirements
 
-A few changes have been made to your local directory:
- - `docs/load.rsk` has been created
+# This is how you define a requirement
+[REQ-toml]
+text = '''
+.rsk files like this one are written in the TOML format
+you can read more about it here: https://github.com/toml-lang/toml
 
-> ## Exercise 1:
-> Read through `docs/load.rsk` and see if the general plan makes sense to you.
-> What would you change? Feel free to make any edits you think should be
-> made. You can always return it to it's original state with `rsk init -t 3`
+all rsk files must end in ".rsk"
 
-The first task we are going to address is how we load the questions into
-the program. This is all defined under `SPC-cmd-load`. Run:
+They are all flat. This means rsk does not support the "[first.second]"
+syntax. This means that the "." character is illegal in names
+'''
+
+[REQ-learn-rsk]
+text = '''
+artifacts are defined by specifying their name like so: "[REQ-NAME]"
+
+Artifacts can be a requirement (REQ), design-specification (SPC)
+risk (RSK) or test (TST)
+
+This particular artifact is a requirement, therefore it begins with
+"REQ". After REQ there is a "-" and then the name of the requirement.
+
+Unlike many requirements tracking tools, rsk encourages the use
+of human-readable names. We will talk more about this later.
+'''
+
+[SPC-learn-spc]
+partof = "REQ-toml"
+text = '''
+Anything starting with SPC is is a design specification. Requirements (REQ)
+should be used for detailing "what you want your application to do" and
+design specifications (SPC) shuld be used for detailing "how your application
+will do it".
+
+There is also tests (TST) and risks (RSK) which we will learn about later.
+'''
+
+[REQ-learn-partof]
+text = "see the next artifact"
+
+[SPC-learn-partof]
+partof = "REQ-learn-rsk"
+text = '''
+RSK uses the names of artifacts to automatically link them and track progress.
+This makes it easy for the user to intuitively link together requirements with
+specification and reduces boilderplate.
+
+REQ-learn-rsk is explicitly a "partof" this artifact because it is specified
+explicitly.
+
+REQ-learn-partof is automatically a "partof" this artifact because the names
+after the type are the same.
+
+In addition, missing parents are automatically created and linked. So
+SPC-LEARN is also a partof this artifact, even though it is not even in this
+document. This makes it very easy to make trees of artifacts without needing to
+specify every branch.
+
+So far we have:
 ```
-    rsk ls SPC-load -l
+
+            --- SPC-LEARN <--- SPC-learn-spc
+           /
+REQ <-- REQ-LEARN <-- REQ-learn-partof <-- SPC-learn-partof
+           ^                                  |
+           \-------- REQ-learn-rsk <----------/
+
+  * items in ALL CAPS were created automatically
 ```
 
-From this you can see the parts that have to be implemented for `SPC-load`
-to be considered done.
+> Note: only parents are created automatically. Auto-creating for similar-named
+>   artifacts would polute your links)
+>
+> Note: RSK artifacts are never automatically linked by name (only their parents
+>   are automatically created and linked)
+'''
 
-> ## Exercise 2:
-> Explore each part of SPC-load using the `rsk ls` cmd.
+[SPC-learn-example]
+text = "this is used in the next artifact"
 
-This document details quite a bit of the design specifications, risks and tests
-in order to create this function. Let's actually get to work and start coding.
+[TST-learn-partof]
+partof = "SPC-learn-[spc, example]"
+text = '''
+The partof field is a string that uses a simple grouping syntax. This example
+does as you would expect, this artifact is a partof SPC-learn-spc and SPC-learn-example
 
+note: it is also automatically a partof SPC-learn-partof and TST-LEARN because of the name
+'''
+
+[SPC-learn-valid]
+text = '''
+There are only a few rules for defining artifacts:
+ - case is ignored for all names (except globals and settings)
+ - names cannot overlap, even in different files
+ - all items (i.e. [REQ-foo]) must start with either REQ, RSK, SPC or TST
+     *except* for "globals" and "settings"
+ - artifact names must follow SPC-learn-links (see bellow)
+'''
+
+[SPC-learn-links]
+partof = "SPC-learn-partof"
+text = '''
+There are some rules for which artifacts can be a partof other artifacts:
+- all artifacts can be a partof their own group (i.e. SPC can be a partof SPC)
+- SPC and RSK can be a partof REQ
+- TST can be a partof SPC and RSK
+- REQ can only be a partof itself
+
+Here is a helpful graph of valid relations:
+```
+  REQ <-- SPC <-- TST
+   ^               |
+   \---- RSK <-----/
+```
+
+In other words, you can design a spec (SPC) based on
+a requirement (REQ). A requirement can also have a risk (RSK)
+associated with it. Tests can test to either a spec (SPC)
+or to a risk (RSK)
+'''
+
+[SPC-learn-type-rsk]
+text = '''
+the RSK type is what this application was named after, and allows you
+to specify risks associated with your requirements (RSK can be partof REQ).
+
+Frequently (for larger projects especially) it is a good idea to do risk
+analysis on which areas of your application are most likely to fail and
+which would be the most catestrophic. RSK artifacts allow you to document these
+and design test cases based on them.
+'''
+
+[SPC-learn-tst]
+text = '''
+TST is used to document test design and is the only way that an artifact can be
+considered "tested".
+'''
+
+[SPC-learn-ls]
+text = '''
+The `ls` command is the most important component to learn in rsk, as it helps you
+manage the artifacts in your project, see how they are linked, and view how completed/tested
+they are.
+
+Type:
+    rsk ls SPC-learn-ls -l
+
+This will show you this artifact, pretty printed on your terminal.
+
+Try:
+    rsk ls learn -p
+
+This searches in the "Name" field for all artifacts that have "learn"
+in their name.
+
+Let's say you wanted to find an artifact, and all you knew was that it mentioned files
+in it's text field. You could run:
+
+    rsk ls file -p T -T
+
+This will search for the pattern "file" in the text field (`-p T`). It will also display a
+short piece of the text field (`-T`)
+
+Now let's say that You see that SPC-learn-valid is what you were looking for,
+but you want an expanded view:
+
+   rsk ls SPC-learn-valid -l
+
+Now you see that SPC-learn-valid has not been tested or implemented and that it is partof
+SPC-LEARN. From there you could decide what to do.
+'''
 
 ##################################################
-# Tutorial Stage 4: writing and linking code
-> Run `rsk tutorial 4` to start this stage of the tutorial
-
-A few changes have been made to your local directory:
- - `flash/` has been created with two files, `__init__.py`
-     and `load.py`
- - `.rsk/settings.rsk` was updated to include the `code_paths` variable
- 
-> Note: for python, a directory with an `__init__.py` file is called a "module"
-> and is python's packaging mechanism.
-
-Take a look at `flash/load.py`. This contains the machinery for loading our file.
-Notice the various `#ART-*` tags located in the documentation. This is how we mark
-that an artifact is "completed". Note that only `SPC` and `TST` artifacts can be
-completed in this way.
-
-There are two ways that an artifact is considered "done":
- - if it is a SPC or TST and has a #ART tag in source
- - if it's parts are done
- 
-Additionally, an artifact is only considered "tested" when it's TST parts are 
-considered done.
-
-Run the command
-
-    rsk ls SPC-load-format
-
-Notice that it is now "implemented-at" `flash/load.py`.
-
-Head to `flash/tests/test_load.py` and notice that similar tags an be found there
-for TST artifacts.
-
-## Exercises
- 1. run `rsk ls ARTIFACT` on an artifact that is tagged in source. Now change the tag
-      so that it is mispelled and run it again. Did the completeness change?
- 2. do the same thing for an arifact in the `partof` field. Notice that invalid names
-      blink red on your terminal.
-
-
-##################################################
-# Summary and Final Words
-
-This tutorial took you part of the way through developing a simple product using
-requirements. I leave it as a exercise for the reader to finish the project in
-whichever language you are most comftorable. Have some fun with the rsk tool,
-trying to break it or find bugs. If you find any, please post them at: 
-https://github.com/vitiral/rsk/issues
+# That is the end part 1 of the tutorial. Run the following
+# for part 2:
+#     rsk tutorial 2
 "##;

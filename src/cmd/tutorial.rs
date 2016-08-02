@@ -143,6 +143,7 @@ pub fn do_tutorial(part: u8) -> io::Result<()> {
         try!(fs::create_dir(&RSK_DIR));
         try!(write_file(&SETTINGS_RSK, data::settings_1::data));
         try!(write_file(&TUTORIAL_RSK, data::tutorial_rsk::data));
+        println!("Tutorial part 1: open tutorial.rsk with a text editor");
     } else if part == 2 || part == 3 {
         try!(fs::create_dir(&RSK_DIR));
         try!(fs::create_dir(&DOCS_DIR));
@@ -152,8 +153,10 @@ pub fn do_tutorial(part: u8) -> io::Result<()> {
         try!(write_file(&PURPOSE_RSK, data::purpose_rsk::data));
         try!(write_file(&HIGH_LEVEL_RSK, data::high_level_rsk::data));
         if part == 2 {
+            println!("Tutorial part 2: see tutorial.md part 2");
             try!(write_file(&SETTINGS_RSK, data::settings_2::data));
         } else if part == 3 {
+            println!("Tutorial part 3: see tutorial.md part 3");
             try!(fs::create_dir(&SRC_DIR));
             try!(fs::create_dir(&TESTS_DIR));
             try!(write_file(&SETTINGS_RSK, data::settings_3::data));
