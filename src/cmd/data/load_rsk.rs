@@ -1,4 +1,4 @@
-pub static data: &'static str = r##"
+pub static DATA: &'static str = r##"
 [REQ-question-duplicate]
 partof = "REQ-purpose-learning"
 text = '''

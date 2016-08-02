@@ -1,4 +1,4 @@
-pub static data: &'static str = r##"
+pub static DATA: &'static str = r##"
 foo, bar
     forest, ham
     I, love

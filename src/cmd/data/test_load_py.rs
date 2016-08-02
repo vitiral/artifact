@@ -1,4 +1,4 @@
-pub static data: &'static str = r##"
+pub static DATA: &'static str = r##"
 import os
 import unittest
 from StringIO import StringIO

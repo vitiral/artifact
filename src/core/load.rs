@@ -131,8 +131,6 @@ impl Artifact {
     /// partof: #SPC-artifact-load
     fn from_table(name: &ArtName, path: &Path, tbl: &Table) -> LoadResult<Artifact> {
         let df_str = "".to_string();
-        let df_vec: Vec<String> = vec![];
-
         let invalid_attrs: Vec<_> = tbl.keys()
             .filter(|k| !ARTIFACT_ATTRS.contains(k.as_str())).collect();
         if invalid_attrs.len() > 0 {

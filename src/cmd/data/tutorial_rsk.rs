@@ -1,4 +1,4 @@
-pub const data: &'static str = r##"
+pub const DATA: &'static str = r##"
 # Welcome to the rsk tutorial! This file is written just like
 # .rsk files are.
 #

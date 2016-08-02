@@ -1,4 +1,4 @@
-pub static data: &'static str = r##"#TUTORIAL=true
+pub static DATA: &'static str = r##"#TUTORIAL=true
 [settings]
 # Any *.rsk file can define additional paths to be loaded by listing them
 # in a path.

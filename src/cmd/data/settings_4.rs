@@ -1,4 +1,4 @@
-pub static data: &'static str = r##"#TUTORIAL=true
+pub static DATA: &'static str = r##"#TUTORIAL=true
 [settings]
 # There are two variables that can be used anywhere:
 # - {cwd}: the path to the directory of the file

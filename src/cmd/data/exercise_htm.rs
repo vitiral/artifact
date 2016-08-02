@@ -1,4 +1,4 @@
-pub static data: &'static str = r##"
+pub static DATA: &'static str = r##"
 <!DOCTYPE html>
 <html dir="ltr" class="client-js" lang="en"><head>
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">

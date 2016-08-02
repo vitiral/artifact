@@ -80,13 +80,6 @@ pub fn do_tutorial(part: u8) -> io::Result<()> {
     let TEST_LOAD_PY: PathBuf = TESTS_DIR.join(PathBuf::from("test_load.py"));
     let EXAMPLE_CSV: PathBuf = TESTS_DIR.join(PathBuf::from("example.csv"));
 
-    let PART_1_DIRS: HashSet<PathBuf> = HashSet::from_iter(vec![
-        RSK_DIR.clone()]);
-    let mut PART_2_DIRS: HashSet<PathBuf> = HashSet::from_iter(vec![
-        RSK_DIR.clone(), DOCS_DIR.clone()]);
-    let mut PART_3_DIRS: HashSet<PathBuf> = HashSet::from_iter(vec![
-        RSK_DIR.clone(), DOCS_DIR.clone(), SRC_DIR.clone(), TESTS_DIR.clone()]);
-
     let PART_1_FILES: HashSet<PathBuf> = HashSet::from_iter(vec![
         SETTINGS_RSK.clone(), TUTORIAL_RSK.clone()]);
 
@@ -136,32 +129,32 @@ pub fn do_tutorial(part: u8) -> io::Result<()> {
     println!("## Tutorial Loaded!");
     if part == 1 {
         println!("  Tutorial part 1: open tutorial.rsk with a text editor");
-        try!(write_file(&SETTINGS_RSK, data::settings_1::data));
-        try!(write_file(&TUTORIAL_RSK, data::tutorial_rsk::data));
+        try!(write_file(&SETTINGS_RSK, data::settings_1::DATA));
+        try!(write_file(&TUTORIAL_RSK, data::tutorial_rsk::DATA));
     } else {
         create_dir(&DOCS_DIR);
-        try!(write_file(&TUTORIAL_MD, data::tutorial_md::data));
-        try!(write_file(&CAPITOLS_CSV, data::capitols_csv::data));
-        try!(write_file(&EXERCISE_HTM, data::exercise_htm::data));
-        try!(write_file(&PURPOSE_RSK, data::purpose_rsk::data));
-        try!(write_file(&HIGH_LEVEL_RSK, data::high_level_rsk::data));
+        try!(write_file(&TUTORIAL_MD, data::tutorial_md::DATA));
+        try!(write_file(&CAPITOLS_CSV, data::capitols_csv::DATA));
+        try!(write_file(&EXERCISE_HTM, data::exercise_htm::DATA));
+        try!(write_file(&PURPOSE_RSK, data::purpose_rsk::DATA));
+        try!(write_file(&HIGH_LEVEL_RSK, data::high_level_rsk::DATA));
         if part == 2 {
             println!("  Tutorial part 2: open tutorial.md with a text editor and see part 2");
-            try!(write_file(&SETTINGS_RSK, data::settings_2::data));
+            try!(write_file(&SETTINGS_RSK, data::settings_2::DATA));
         } else {
             if part == 3 {
                 println!("  Tutorial part 3: open tutorial.md with a text editor and see part 3");
             }
-            try!(write_file(&SETTINGS_RSK, data::settings_2::data)); // same settings
-            try!(write_file(&LOAD_RSK, data::load_rsk::data));
+            try!(write_file(&SETTINGS_RSK, data::settings_2::DATA)); // same settings
+            try!(write_file(&LOAD_RSK, data::load_rsk::DATA));
             if part == 4 {
                 println!("  Tutorial part 4: open tutorial.md with a text editor and see part 4");
                 create_dir(&SRC_DIR);
                 create_dir(&TESTS_DIR);
-                try!(write_file(&SETTINGS_RSK, data::settings_4::data));
-                try!(write_file(&LOAD_PY, data::load_py::data));
-                try!(write_file(&TEST_LOAD_PY, data::test_load_py::data));
-                try!(write_file(&EXAMPLE_CSV, data::example_csv::data));
+                try!(write_file(&SETTINGS_RSK, data::settings_4::DATA));
+                try!(write_file(&LOAD_PY, data::load_py::DATA));
+                try!(write_file(&TEST_LOAD_PY, data::test_load_py::DATA));
+                try!(write_file(&EXAMPLE_CSV, data::example_csv::DATA));
                 try!(write_file(&INIT_PY, ""));
                 try!(write_file(&TEST_INIT_PY, ""));
             }

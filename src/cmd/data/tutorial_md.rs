@@ -1,4 +1,4 @@
-pub static data: &'static str = r##"
+pub static DATA: &'static str = r##"
 This is 2nd and 3rd part of the tutorial. If you would like to reset the directory at the
 intro run `rsk tutorial`
 
