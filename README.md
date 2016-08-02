@@ -44,7 +44,10 @@ There are currently two installation options: downloading a cross-linux
 binary or installing through Cargo.
 
 ### Linux Binary
-Download [this file](https://github.com/vitiral/rsk/raw/master/target/x86_64-unknown-linux-musl/release/rsk) `chmod a+x` it, and put it in a directory on your `$PATH`
+All we will be doing is downloading [this file](https://github.com/vitiral/rsk/raw/master/target/x86_64-unknown-linux-musl/release/rsk), 
+`chmod a+x` it, and putting it in a directory on your `$PATH`
+
+If you know what all this means, just do that.
 
 **OR follow these directions**
 
@@ -64,6 +67,7 @@ by simply re-running the first line.
 ### Cross Platform with [cargo](https://github.com/rust-lang/cargo)
 > Note: neither windows or mac are tested. If you try either, whether it works or not,
 > please open an [issue](https://github.com/vitiral/rsk/issues) to let us know!
+
 If you have rust and cargo installed, simply execute:
 ```
 cargo install rsk
@@ -76,10 +80,10 @@ and follow any directions it tells you to.
 If I was writing a "hello world" program in python and wanted to track requirements,
 this would be the process.
 
- 1. `mkdir` and `cd`to an empty folder
- 2. `rsk init`
- 3. `mkdir docs`
- 4. `vim docs/design.rsk` and write my requirements and design
+ - `mkdir` and `cd`to an empty folder
+ - `rsk init`
+ - `mkdir docs`
+ - `vim docs/design.rsk` and write my requirements and design
 ```
 # docs/design.rsk
 [REQ-purpose]
@@ -116,8 +120,8 @@ text = '''
 I think we should use SETI or something
 '''
 ```
- 5. `mkdir src`
- 6. `vim src/hello.py` and write my program
+ - `mkdir src`
+ - `vim src/hello.py` and write my program
 ```
 #!/usr/bin/python2
 
@@ -137,9 +141,9 @@ if __name__ == '__main__':
     test_greeting()
     hello_world()
 ```
- 7. `python2 src/hello.py`: it says hello world! That is good design :)
- 8. `vim ~/.rsk/settings.rsk` and add `"{repo}/src"` to `code_paths`
- 9. `rsk ls -L` to show this lovely status report (run on your own computer for color):
+ - `python2 src/hello.py`: it says hello world! That is good design :)
+ - `vim ~/.rsk/settings.rsk` and add `"{repo}/src"` to `code_paths`
+ - `rsk ls -L` to show this lovely status report (run on your own computer for color):
 ```
 |--|    50%    50% | REQ
 |--|     0%     0% | REQ-aliens
