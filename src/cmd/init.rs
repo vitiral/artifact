@@ -4,7 +4,7 @@ pub use std::fs;
 use super::types::*;
 
 const SETTINGS_RSK: &'static str = r#"[settings]
-artifact_paths = ["{repo}/docs"]
+artifact_paths = ["{repo}/reqs"]
 code_paths = []
 exclude_code_paths = []
 
@@ -14,6 +14,13 @@ exclude_code_paths = []
 # - {cwd}: the path to the directory of the file using it
 # - {repo}: the path to the current repository, which is the closest
 #    directory (searching down) that contains a ".rsk" folder
+"#;
+
+const PURPOSE_RSK: &'static str = r#"# project purpose and definition documentation
+[REQ-purpose]
+text = '''
+The purpose of this project is...
+'''
 "#;
 
 pub fn get_subcommand<'a, 'b>() -> App<'a, 'b> {
@@ -43,16 +50,22 @@ pub fn do_init(path: &Path) -> io::Result<()> {
             }
         });
     let repo = path.join(".rsk");
+    let reqs = path.join("reqs");
     if !exists {
         try!(fs::create_dir(&repo));
+        let _ = fs::create_dir(&reqs);
 
         // create settings
         let settings = repo.join("settings.rsk");
-        let mut f = try!(fs::File::create(settings));
+        let purpose = reqs.join("purpose.rsk");
+        let mut f = try!(fs::File::create(&settings));
         f.write_all(SETTINGS_RSK.as_ref()).unwrap();
-        println!("rsk initialized at {0}", repo.display());
+        let mut f = try!(fs::File::create(purpose));
+        f.write_all(PURPOSE_RSK.as_ref()).unwrap();
+        println!("rsk initialized at {} with artifacts at {}",
+                 settings.display(), reqs.display());
     } else {
-        println!("rsk already initialized at {0}", repo.display());
+        println!("rsk already initialized at {}", repo.display());
     }
     Ok(())
 }
