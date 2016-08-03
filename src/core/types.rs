@@ -11,6 +11,7 @@ pub use std::str::FromStr;
 pub use std::fs;
 pub use std::path::{Path, PathBuf};
 pub use std::collections::{HashMap, HashSet, VecDeque};
+pub use std::rc::Rc;
 
 // crates
 use regex::Regex;
@@ -25,8 +26,8 @@ use std::cmp::{PartialEq, Ord, PartialOrd, Ordering};
 
 // definition of new types
 pub type LoadResult<T> = Result<T, LoadError>;
-pub type Artifacts = HashMap<ArtName, Artifact>;
-pub type ArtNames = HashSet<ArtName>;
+pub type Artifacts = HashMap<Rc<ArtName>, Artifact>;
+pub type ArtNames = HashSet<Rc<ArtName>>;
 
 // #SPC-core-vars-struct
 pub type Variables = HashMap<String, String>;
@@ -124,6 +125,13 @@ impl ArtName {
         let mut value = self.value.clone();
         value.pop().unwrap();
         Some(ArtName{raw: value.join("-"), value: value})
+    }
+
+    pub fn parent_rc(&self) -> Option<Rc<ArtName>> {
+        match self.parent() {
+            Some(p) => Some(Rc::new(p)),
+            None => None,
+        }
     }
 
     /// see: SPC-artifact-partof-1
@@ -281,7 +289,7 @@ impl LoadFromStr for ArtNames {
         let strs = try!(_parse_names(&mut partof_str.chars(), false));
         let mut out = HashSet::new();
         for s in strs {
-            out.insert(try!(ArtName::from_str(&s)));
+            out.insert(Rc::new(try!(ArtName::from_str(&s))));
         }
         Ok(out)
     }
@@ -299,8 +307,8 @@ pub struct Artifact {
     pub ty: ArtType,
     pub path: PathBuf,
     pub text: String,
-    pub partof: HashSet<ArtName>,
-    pub parts: HashSet<ArtName>,
+    pub partof: ArtNames,
+    pub parts: ArtNames,
     pub loc: Option<Loc>,
     pub completed: f32, // completed ratio (calculated)
     pub tested: f32, // tested ratio (calculated)

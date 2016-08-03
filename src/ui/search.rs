@@ -55,7 +55,7 @@ impl SearchSettings {
     }
 }
 
-fn matches_name(pat: &Regex, names: &HashSet<ArtName>) -> bool {
+fn matches_name(pat: &Regex, names: &ArtNames) -> bool {
     for n in names.iter() {
         if pat.is_match(&n.raw) {
             return true;

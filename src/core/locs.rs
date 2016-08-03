@@ -186,7 +186,7 @@ pub fn find_locs(settings: &mut Settings) -> LoadResult<HashMap<ArtName, Loc>> {
 /// attach the locations to the artifacts. Separated to allow for easy threading
 pub fn attach_locs(artifacts: &mut Artifacts, locs: &HashMap<ArtName, Loc>) {
     for (lname, loc) in locs {
-        let artifact = match artifacts.get_mut(&lname) {
+        let artifact = match artifacts.get_mut(lname) {
             Some(a) => a,
             None => continue,
         };

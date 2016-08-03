@@ -1,7 +1,7 @@
 use super::types::*;
 
 /// format ArtNames in a reasonable way
-pub fn fmt_names(names: &Vec<&ArtName>) -> String {
+pub fn fmt_names(names: &Vec<Rc<ArtName>>) -> String {
     if names.len() == 0 {
         return "".to_string();
     }
@@ -17,8 +17,8 @@ pub fn fmt_names(names: &Vec<&ArtName>) -> String {
 /// use several configuration options and pieces of data to represent
 /// how the artifact should be formatted
 /// partof: #SPC-ui-fmt
-pub fn fmt_artifact(name: &ArtName, artifacts: &Artifacts, fmtset: &FmtSettings,
-                recurse: u8, displayed: &mut HashSet<ArtName>) -> FmtArtifact {
+pub fn fmt_artifact(name: &Rc<ArtName>, artifacts: &Artifacts, fmtset: &FmtSettings,
+                recurse: u8, displayed: &mut ArtNames) -> FmtArtifact {
     let artifact = artifacts.get(name).unwrap();
     let mut out = FmtArtifact::default();
     out.long = fmtset.long;
@@ -29,7 +29,7 @@ pub fn fmt_artifact(name: &ArtName, artifacts: &Artifacts, fmtset: &FmtSettings,
         let mut parts: Vec<FmtArtifact> = Vec::new();
         for p in &artifact.parts {
             let mut part;
-            if recurse == 0 || displayed.contains(&p) {
+            if recurse == 0 || displayed.contains(p) {
                 part = FmtArtifact::default();
                 part.name = p.clone();
             } else {
@@ -42,7 +42,7 @@ pub fn fmt_artifact(name: &ArtName, artifacts: &Artifacts, fmtset: &FmtSettings,
         out.parts = Some(parts);
     }
     if fmtset.partof {
-        let mut partof = artifact.partof.iter().map(|p| p.clone()).collect::<Vec<ArtName>>();
+        let mut partof = artifact.partof.iter().map(|p| p.clone()).collect::<Vec<Rc<ArtName>>>();
         partof.sort();
         let partof = partof.drain(0..)
             .map(|n| FmtArtifact{name: n, ..FmtArtifact::default()})

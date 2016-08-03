@@ -1,4 +1,5 @@
 // Traits
+pub use std::rc::Rc;
 pub use std::io::Write;
 pub use std::fmt::Write as FmtWrite;
 pub use std::iter::FromIterator;
@@ -52,7 +53,7 @@ pub struct FmtArtifact {
     // pub loc_line_col: (usize, usize),
     // pub loc_valid: Option<bool>,
     pub text: Option<String>,
-    pub name: ArtName,
+    pub name: Rc<ArtName>,
 }
 
 

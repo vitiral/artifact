@@ -1,4 +1,5 @@
 
+use std::rc::Rc;
 use super::types::*;
 
 /// Get the ls subcommand, which is what creates the command
@@ -260,8 +261,8 @@ pub fn do_ls(search: String,
              fmtset: &FmtSettings,
              search_set: &SearchSettings,
              settings: &Settings) {
-    let mut dne: Vec<ArtName> = Vec::new();
-    let mut names = Vec::new();
+    let mut dne: Vec<Rc<ArtName>> = Vec::new();
+    let mut names: Vec<Rc<ArtName>> = Vec::new();
     let mut fmtset = (*fmtset).clone();
     let pat_case;
     if search_set.use_regex {
@@ -288,7 +289,7 @@ pub fn do_ls(search: String,
     debug!("fmtset empty: {}", fmtset.is_empty());
     if names.len() == 0 && search.len() == 0 {
         // [#SPC-ui-cmdline-ls-flags-empty]
-        names.extend(artifacts.keys().map(|n| n.clone()));
+        names.extend(artifacts.keys().cloned());
         names.sort();
     }
     if fmtset.is_empty() {
@@ -297,7 +298,7 @@ pub fn do_ls(search: String,
     }
 
 
-    let mut displayed: HashSet<ArtName> = HashSet::new();
+    let mut displayed = ArtNames::new();
     let mut stdout = io::stdout();
     for name in names {
         let art = match artifacts.get(&name) {

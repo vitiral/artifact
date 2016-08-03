@@ -222,7 +222,7 @@ pub fn load_file_table(file_table: &mut Table, path: &Path,
             continue
         }
         let artifact = try!(Artifact::from_table(&aname, path, art_tbl));
-        artifacts.insert(aname, artifact);
+        artifacts.insert(Rc::new(aname), artifact);
         num_loaded += 1;
     }
     return Ok(num_loaded);
@@ -272,6 +272,11 @@ pub fn load_file(path: &Path,
 
 /// recursively load a directory, ensuring that sub-directories don't get
 /// double loaded
+// TODO: making this parallel should be easy and dramatically improve performance:
+// - recursing through the directory, finding all the paths to files
+//     (and adding dirs to loaded_dirs)
+// - loading the files in parallel (IO bound)
+// - resolving all settings at the end
 /// partof: #SPC-load-dir
 pub fn load_dir(path: &Path,
                 loaded_dirs: &mut HashSet<PathBuf>,
@@ -284,7 +289,7 @@ pub fn load_dir(path: &Path,
     let mut num_loaded: u64 = 0;
     let mut error = false;
     // for entry in WalkDir::new(&path).into_iter().filter_map(|e| e.ok()) {
-    let mut dirs_to_load: Vec<PathBuf> = Vec::new(); // TODO: references should be possible here...
+    let mut dirs_to_load: Vec<PathBuf> = Vec::new();
     let read_dir = match fs::read_dir(path) {
         Ok(d) => d,
         Err(err) => return Err(LoadError::new("E001: ".to_string() + &err.to_string())),
@@ -356,7 +361,7 @@ pub fn resolve_settings(settings: &mut Settings,
         let cwd_str = try!(utils::get_path_str(cwd));
 
         // TODO: for full windows compatibility you will probably want to support OsStr
-        // here... I just don't want to
+        // here... I just don't want to yet
         vars.insert("cwd".to_string(), cwd_str.to_string());
         try!(utils::find_and_insert_repo(cwd, repo_map));
         let repo = repo_map.get(cwd).unwrap();
@@ -432,7 +437,7 @@ pub fn load_raw(path: &Path)
         };
 
         // resolve the project-level settings after each directory is recursively loaded
-        // so that artifact_paths can be resolved
+        // so that we can find new artifact_paths
         // see: SPC-settings-resolve
         try!(resolve_settings(&mut settings, &mut repo_map, &loaded_settings));
     }
