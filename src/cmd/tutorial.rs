@@ -53,7 +53,7 @@ fn create_dir(path: &PathBuf) {
 pub fn do_tutorial(part: u8) -> io::Result<()> {
     let CWD: PathBuf = env::current_dir().unwrap();
     let RSK_DIR: PathBuf = CWD.join(PathBuf::from(".rsk"));
-    let DOCS_DIR: PathBuf = CWD.join(PathBuf::from("docs"));
+    let REQS_DIR: PathBuf = CWD.join(PathBuf::from("reqs"));
     let SRC_DIR: PathBuf = CWD.join(PathBuf::from("flash"));
     let TESTS_DIR: PathBuf = SRC_DIR.join(PathBuf::from("tests"));
 
@@ -66,10 +66,10 @@ pub fn do_tutorial(part: u8) -> io::Result<()> {
     let CAPITOLS_CSV: PathBuf = CWD.join(PathBuf::from("capitols.csv"));
     let EXERCISE_HTM: PathBuf = CWD.join(PathBuf::from("flash_card_challenge.htm"));
 
-    // docs file paths
-    let PURPOSE_RSK: PathBuf = DOCS_DIR.join(PathBuf::from("purpose.rsk"));
-    let HIGH_LEVEL_RSK: PathBuf = DOCS_DIR.join(PathBuf::from("high_level.rsk"));
-    let LOAD_RSK: PathBuf = DOCS_DIR.join(PathBuf::from("load.rsk"));
+    // reqs file paths
+    let PURPOSE_RSK: PathBuf = REQS_DIR.join(PathBuf::from("purpose.rsk"));
+    let HIGH_LEVEL_RSK: PathBuf = REQS_DIR.join(PathBuf::from("high_level.rsk"));
+    let LOAD_RSK: PathBuf = REQS_DIR.join(PathBuf::from("load.rsk"));
 
     // src file paths
     let INIT_PY: PathBuf = SRC_DIR.join(PathBuf::from("__init__.py"));
@@ -132,7 +132,7 @@ pub fn do_tutorial(part: u8) -> io::Result<()> {
         try!(write_file(&SETTINGS_RSK, data::settings_1::DATA));
         try!(write_file(&TUTORIAL_RSK, data::tutorial_rsk::DATA));
     } else {
-        create_dir(&DOCS_DIR);
+        create_dir(&REQS_DIR);
         try!(write_file(&TUTORIAL_MD, data::tutorial_md::DATA));
         try!(write_file(&CAPITOLS_CSV, data::capitols_csv::DATA));
         try!(write_file(&EXERCISE_HTM, data::exercise_htm::DATA));

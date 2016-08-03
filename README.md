@@ -83,10 +83,9 @@ this would be the process.
 
  - `mkdir` and `cd`to an empty folder
  - `rsk init`
- - `mkdir docs`
- - `vim docs/design.rsk` and write my requirements and design
+ - `vim reqs/design.rsk` and write my requirements and design
 ```
-# docs/design.rsk
+# reqs/design.rsk
 [REQ-purpose]
 text = '''
 we need to be able to say hello to both the world and aliens

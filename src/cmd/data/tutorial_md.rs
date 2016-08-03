@@ -13,14 +13,14 @@ other artifacts, you should do so in separate files than the ones created.
 A few changes have been made to your local directory:
  - `tutorial.rsk` has been removed
  - the `flash_card_challenge.htm` file has been added
- - the `docs/` folder has been added with `purpose.rsk` and `high_level.rsk` in it
+ - the `reqs/` folder has been added with `purpose.rsk` and `high_level.rsk` in it
  - `.rsk/settings.rsk` has been updated with a new `artifact_paths`
 
 open `flash_card_challenge.htm` in a browser and skim through the project 
 that we will be executing. Don't worry! You don't need to know python to 
 follow along with this tutorial.
 
-Now open `docs/purpose.rsk`. This is a rough attempt to translate the ideas
+Now open `reqs/purpose.rsk`. This is a rough attempt to translate the ideas
 in `flash_card_challenge.htm` into purpose statements.
 
 Purpose statements are important because they document why your project even exists -- 
@@ -32,7 +32,7 @@ In addition, purpose statements allow you to specify what your project will acco
 but then complete in in pieces. **rsk** will help you track which part is complete!
 
 > ## Exercise 1:
-> Review `docs/purpose.rsk` and make sure it makes sense. Think about things you think should
+> Review `reqs/purpose.rsk` and make sure it makes sense. Think about things you think should
 > be added to the purpose documentation and make notes or add artifacts in a separate file.
 > You can always return it to it's original state with `rsk tutorial 2`
 
@@ -45,7 +45,7 @@ should be structued before you actually write any code. It also allows you to wr
 first iteration.
 
 > ## Exercise 2:
-> Revew the `docs/high_level.rsk` document. Which items do you think should be done 
+> Revew the `reqs/high_level.rsk` document. Which items do you think should be done 
 > immediately, and which will have to wait? 
 
 Now run:
@@ -79,10 +79,10 @@ Once you are done, continue onto stage 3.
 > Run `rsk tutorial 3` to reset the local directory to this stage
 
 A few changes have been made to your local directory:
- - `docs/load.rsk` has been created
+ - `reqs/load.rsk` has been created
 
 > ## Exercise 1:
-> Read through `docs/load.rsk` and see if the general plan makes sense to you.
+> Read through `reqs/load.rsk` and see if the general plan makes sense to you.
 > What would you change? Feel free to make any edits you think should be
 > made. You can always return it to it's original state with `rsk init -t 3`
 
@@ -142,7 +142,7 @@ for TST artifacts.
 ## Exercises
  1. run `rsk ls ARTIFACT` on an artifact that is tagged in source. Now change the tag
       so that it is mispelled and run it again. Did the completeness change?
- 2. do the same thing for an arifact in the `partof` field for a file in `docs/`.
+ 2. do the same thing for an arifact in the `partof` field for a file in `reqs/`.
       Notice that invalid names blink red on your terminal and you get WARN messages.
       You can use this feature to help you ensure your artifact links are correct.
 
