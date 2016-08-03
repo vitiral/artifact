@@ -1,6 +1,6 @@
 [package]
 name = "rsk"
-version = "0.1.1"
+version = "0.1.2"
 description = "rsk: the requirements tracking tool made for developers"
 repository = "https://github.com/vitiral/rsk"
 readme = "README.md"
