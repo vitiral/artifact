@@ -20,7 +20,7 @@ pub use super::super::core;
 pub use super::super::core::{
     Settings, Artifact, Artifacts,
     ArtType, Loc,
-    ArtName, ArtNames,
+    ArtName, ArtNameRc, ArtNames,
     LoadFromStr};
 pub use super::super::ui;
 pub use super::super::ui::{FmtSettings, FmtArtifact, PercentSearch, SearchSettings};

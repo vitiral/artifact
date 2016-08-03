@@ -26,8 +26,9 @@ use std::cmp::{PartialEq, Ord, PartialOrd, Ordering};
 
 // definition of new types
 pub type LoadResult<T> = Result<T, LoadError>;
-pub type Artifacts = HashMap<Rc<ArtName>, Artifact>;
-pub type ArtNames = HashSet<Rc<ArtName>>;
+pub type Artifacts = HashMap<ArtNameRc, Artifact>;
+pub type ArtNameRc = Rc<ArtName>;
+pub type ArtNames = HashSet<ArtNameRc>;
 
 // #SPC-core-vars-struct
 pub type Variables = HashMap<String, String>;
@@ -127,7 +128,7 @@ impl ArtName {
         Some(ArtName{raw: value.join("-"), value: value})
     }
 
-    pub fn parent_rc(&self) -> Option<Rc<ArtName>> {
+    pub fn parent_rc(&self) -> Option<ArtNameRc> {
         match self.parent() {
             Some(p) => Some(Rc::new(p)),
             None => None,
@@ -280,6 +281,12 @@ fn test_parse_names() {
 
 pub trait LoadFromStr: Sized {
     fn from_str(s: &str) -> LoadResult<Self>;
+}
+
+impl LoadFromStr for ArtNameRc {
+    fn from_str(s: &str) -> LoadResult<ArtNameRc> {
+        Ok(Rc::new(try!(ArtName::from_str(s))))
+    }
 }
 
 impl LoadFromStr for ArtNames {

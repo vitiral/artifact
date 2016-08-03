@@ -53,7 +53,7 @@ pub fn link_parents(artifacts: &mut Artifacts) {
 /// traverse all artifacts and link them to their by-name type
 /// partof: #SPC-artifact-partof-2
 pub fn link_named_partofs(artifacts: &mut Artifacts) {
-    let artifacts_keys: ArtNames = HashSet::from_iter(artifacts.keys().cloned());
+    let artifacts_keys = ArtNames::from_iter(artifacts.keys().cloned());
     for (name, artifact) in artifacts.iter_mut() {
         for p in name.named_partofs() {
             if artifacts_keys.contains(&p) {
@@ -75,10 +75,10 @@ mod tests {
             [SPC-one]
             [TST-one]
             [RSK-one]\n");
-        let req_one = Rc::new(ArtName::from_str("REQ-one").unwrap());
-        let spc_one = Rc::new(ArtName::from_str("SPC-one").unwrap());
-        let tst_one = Rc::new(ArtName::from_str("TST-one").unwrap());
-        let rsk_one = Rc::new(ArtName::from_str("RSK-one").unwrap());
+        let req_one = ArtNameRc::from_str("REQ-one").unwrap();
+        let spc_one = ArtNameRc::from_str("SPC-one").unwrap();
+        let tst_one = ArtNameRc::from_str("TST-one").unwrap();
+        let rsk_one = ArtNameRc::from_str("RSK-one").unwrap();
         link_named_partofs(&mut artifacts);
         assert_eq!(artifacts.get(&req_one).unwrap().partof, ArtNames::new());
         assert_eq!(artifacts.get(&spc_one).unwrap().partof, ArtNames::from_iter(
@@ -128,7 +128,7 @@ pub fn validate_partof(artifacts: &Artifacts) -> LoadResult<()> {
 pub fn link_parts(artifacts: &mut Artifacts) -> u64 {
     // get all the parts, linked by name
     let mut warnings: u64 = 0;
-    let mut artifact_parts: HashMap<Rc<ArtName>, HashSet<Rc<ArtName>>> = HashMap::new();
+    let mut artifact_parts: HashMap<ArtNameRc, ArtNames> = HashMap::new();
     for (name, artifact) in artifacts.iter() {
         // get the artifacts this is a `partof`, this artifact should be in all of their `parts`
         for partof in artifact.partof.iter() {

@@ -1,7 +1,7 @@
 use super::types::*;
 
 /// format ArtNames in a reasonable way
-pub fn fmt_names(names: &Vec<Rc<ArtName>>) -> String {
+pub fn fmt_names(names: &Vec<ArtNameRc>) -> String {
     if names.len() == 0 {
         return "".to_string();
     }
@@ -17,7 +17,7 @@ pub fn fmt_names(names: &Vec<Rc<ArtName>>) -> String {
 /// use several configuration options and pieces of data to represent
 /// how the artifact should be formatted
 /// partof: #SPC-ui-fmt
-pub fn fmt_artifact(name: &Rc<ArtName>, artifacts: &Artifacts, fmtset: &FmtSettings,
+pub fn fmt_artifact(name: &ArtNameRc, artifacts: &Artifacts, fmtset: &FmtSettings,
                 recurse: u8, displayed: &mut ArtNames) -> FmtArtifact {
     let artifact = artifacts.get(name).unwrap();
     let mut out = FmtArtifact::default();
@@ -42,7 +42,7 @@ pub fn fmt_artifact(name: &Rc<ArtName>, artifacts: &Artifacts, fmtset: &FmtSetti
         out.parts = Some(parts);
     }
     if fmtset.partof {
-        let mut partof = artifact.partof.iter().map(|p| p.clone()).collect::<Vec<Rc<ArtName>>>();
+        let mut partof = artifact.partof.iter().map(|p| p.clone()).collect::<Vec<ArtNameRc>>();
         partof.sort();
         let partof = partof.drain(0..)
             .map(|n| FmtArtifact{name: n, ..FmtArtifact::default()})

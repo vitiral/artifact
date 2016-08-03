@@ -21,7 +21,7 @@ pub use core::types::{
     LoadResult, LoadError,
     Artifact, Artifacts,
     ArtType, Loc,
-    ArtName, ArtNames,
+    ArtName, ArtNameRc, ArtNames,
     Settings, LoadFromStr};
 pub use core::load::load_toml;
 

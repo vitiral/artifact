@@ -149,7 +149,7 @@ fn test_load_toml() {
 
         // #TST-artifact-partof-1: test loading of partof
         let expected = ["REQ-Foo", "REQ-Bar-1", "REQ-Bar-2"]
-            .iter().map(|n| Rc::new(ArtName::from_str(n).unwrap())).collect();
+            .iter().map(|n| ArtNameRc::from_str(n).unwrap()).collect();
         assert_eq!(art.partof, expected);
         let expected = Loc::fake();
         assert_eq!(art.loc.as_ref().unwrap(), &expected);

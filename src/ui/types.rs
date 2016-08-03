@@ -13,7 +13,7 @@ pub use regex::{Regex, RegexBuilder};
 pub use super::super::core::{
     Settings, Artifact, Artifacts,
     ArtType, Loc,
-    ArtName, ArtNames,
+    ArtName, ArtNameRc, ArtNames,
     LoadFromStr};
 
 /// settings for what to format
@@ -53,7 +53,7 @@ pub struct FmtArtifact {
     // pub loc_line_col: (usize, usize),
     // pub loc_valid: Option<bool>,
     pub text: Option<String>,
-    pub name: Rc<ArtName>,
+    pub name: ArtNameRc,
 }
 
 

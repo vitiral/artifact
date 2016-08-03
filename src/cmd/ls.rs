@@ -1,5 +1,4 @@
 
-use std::rc::Rc;
 use super::types::*;
 
 /// Get the ls subcommand, which is what creates the command
@@ -261,8 +260,8 @@ pub fn do_ls(search: String,
              fmtset: &FmtSettings,
              search_set: &SearchSettings,
              settings: &Settings) {
-    let mut dne: Vec<Rc<ArtName>> = Vec::new();
-    let mut names: Vec<Rc<ArtName>> = Vec::new();
+    let mut dne: Vec<ArtNameRc> = Vec::new();
+    let mut names: Vec<ArtNameRc> = Vec::new();
     let mut fmtset = (*fmtset).clone();
     let pat_case;
     if search_set.use_regex {
