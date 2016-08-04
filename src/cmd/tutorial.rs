@@ -9,6 +9,7 @@ use super::types::*;
 
 use super::data;
 
+/// return the cmdline subcommand
 pub fn get_subcommand<'a, 'b>() -> App<'a, 'b> {
     SubCommand::with_name("tutorial")
         .about("start the interactive tutorial")
@@ -17,6 +18,7 @@ pub fn get_subcommand<'a, 'b>() -> App<'a, 'b> {
              .help("the part to set the tutorial at"))
 }
 
+/// parse the matches to create the cmd
 pub fn get_tutorial_cmd(matches: &ArgMatches) -> Result<u8, String> {
     let part = match matches.value_of("part").unwrap_or("1").parse::<u8>() {
         Ok(p) => p,
@@ -31,6 +33,7 @@ pub fn get_tutorial_cmd(matches: &ArgMatches) -> Result<u8, String> {
     }
 }
 
+/// remove files with logging, ignore errors
 fn remove_files_force(files: &HashSet<PathBuf>) {
     for p in files.iter() {
         trace!("removing file: {}", p.display());
@@ -38,6 +41,7 @@ fn remove_files_force(files: &HashSet<PathBuf>) {
     }
 }
 
+/// write to a file with logging
 fn write_file(path: &PathBuf, data: &str) -> io::Result<()> {
     trace!("creating file: {}", path.display());
     let mut f = try!(fs::File::create(path.as_path()));
@@ -45,11 +49,14 @@ fn write_file(path: &PathBuf, data: &str) -> io::Result<()> {
     Ok(())
 }
 
+/// create a directory with logging, ignore any errors
 fn create_dir(path: &PathBuf) {
     trace!("creating dir: {}", path.display());
     let _ = fs::create_dir(path);
 }
 
+/// run the tutorial
+/// partof: #SPC-tutorial
 pub fn do_tutorial(part: u8) -> io::Result<()> {
     let CWD: PathBuf = env::current_dir().unwrap();
     let RSK_DIR: PathBuf = CWD.join(PathBuf::from(".rsk"));

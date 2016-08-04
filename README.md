@@ -13,9 +13,10 @@ maintain the product you were aiming to create. However, there are no open sourc
 tools (or proprietary tools for that matter) that make this process simple, easy
 and fun. **rsk** aims to do that by giving you a:
 
- 1. simple text-based format to write your requirements in (TOML). This makes it
-      easy to track your requirements with the rest of your project using standard
-      revision control tools (git, hg, etc)
+ 1. simple text-based format to write your requirements in 
+      ([TOML](https://github.com/toml-lang/toml)). This makes it easy to track 
+      your requirements with the rest of your project using standard revision 
+      control tools (git, hg, etc)
  2. workflow that is easy for developers to integrate with
  3. UI that is familar and useful -- helping the developer track their own progress
       from requirements to design to implementation and testing
@@ -25,18 +26,29 @@ the core developer in tracking their progress. **rsk** aims to bridge that gap,
 giving you a simple tool that you can use to track your project completeness and
 test coverage.
 
-If you like or use **rsk** please star:star: it on [github](https://github.com/vitiral/rsk)
-and mention it to friends and colleagues. It is my belief that requirements tracking needs to
-be as second nature for developers as revision control and unit testing has become. I hope
-that by building better software we can all make the world just a little bit better.
+If you like or use **rsk** please star:star: it on 
+[github](https://github.com/vitiral/rsk) and mention it to friends and colleagues. 
+It is my belief that requirements tracking needs to be as second nature for 
+developers as revision control and unit testing has become. I hope that by building 
+better software we can all make the world just a little bit better.
 
-If you find bugs or have any suggestions, please open them here:
+If you find bugs or have any suggestions, please open an issue here:
 [bug tracker](https://github.com/vitiral/rsk/issues)
 
 ### Beta Notice
 **rsk** is still in Beta and is not 100% feature complete. The API for the cmdline and
 text format is expected to be stable, but the author reserves the right to change anything
 that needs to be changed if it improves usability.
+
+**Future improvements include:**
+ - Additional command line tools
+     - status: analyze artifacts and display any errors and a summary
+     - export: export artifacts to json, csv and other formats
+     - tests: cmd for viewing and querying executed tests in relationship 
+         to defined tests (see below)
+ - Test Tracking: REST API with DB backend for tracking test execution
+     (rsk currently only supports tracking implementaiton, not execution)
+ - Web UI frontend to make it easy for non-devs to view requirements
 
 ## Installation
 

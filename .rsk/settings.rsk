@@ -8,6 +8,6 @@
 # There are two variables that can be used:
 # - {cwd}: the path to the directory of the file
 # - {repo}: the path to the current repository, found using repo_names
-artifact_paths = ["{repo}/docs"]
-code_paths = ["{repo}/src", "{repo}/docs"]
+artifact_paths = ["{repo}/reqs"]
+code_paths = ["{repo}/src", "{repo}/reqs"]
 exclude_code_paths = ["{repo}/src/core/tests/data"]

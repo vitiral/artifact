@@ -11,13 +11,17 @@ defined in REQ-2-ui such as:
 '''
 
 [REQ-tutorial]
+partof = "REQ-2-ui-tutorial"
 text = '''
 There **shall** be a tutorial that helps the user learn about rsk.
 
 The tutorial should be interactive and guide the user first through the basics of rsk
 and then through recording the requirements and design specifications of a simple
 project.
+'''
 
+[SPC-tutorial]
+text = '''
 Key points that should be hit during the tutorial are:
 - how to use `rsk` and the `ls` cmd
 - basics of setting the paths to load docs
