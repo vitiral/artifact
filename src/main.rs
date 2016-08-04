@@ -1,3 +1,4 @@
+use std::io;
 use std::env;
 
 // # logger config
@@ -54,5 +55,5 @@ pub fn init_logger(quiet: bool, verbosity: u8, stderr: bool) -> Result<(), fern:
 }
 
 fn main() {
-    cmd::cmd(env::args());
+    cmd::cmd(&mut io::stdout(), env::args());
 }

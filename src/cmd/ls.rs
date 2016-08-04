@@ -260,7 +260,9 @@ pub fn get_ls_cmd(matches: &ArgMatches) -> Result<(String, FmtSettings, SearchSe
 }
 
 /// perform the ls command given the inputs
-pub fn do_ls(search: String,
+pub fn do_ls<W: Write>(
+             w: &mut W,
+             search: String,
              artifacts: &Artifacts,
              fmtset: &FmtSettings,
              search_set: &SearchSettings,
@@ -308,7 +310,6 @@ pub fn do_ls(search: String,
 
 
     let mut displayed = ArtNames::new();
-    let mut stdout = io::stdout();
     for name in names {
         let art = match artifacts.get(&name) {
             Some(a) => a,
@@ -322,7 +323,7 @@ pub fn do_ls(search: String,
             continue;
         }
         let f = ui::fmt_artifact(&name, artifacts, &fmtset, fmtset.recurse, &mut displayed);
-        f.write(&mut stdout, artifacts, &settings, 0).unwrap(); // FIXME: unwrap
+        f.write(w, artifacts, &settings, 0).unwrap(); // FIXME: unwrap
     }
     if dne.len() > 0 {
         error!("The following artifacts do not exist: {:?}", dne);

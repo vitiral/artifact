@@ -7,6 +7,7 @@
 //! that the user may want to execute
 
 use std::env;
+use std::io;
 use std::ffi::OsString;
 
 use core;
@@ -41,12 +42,14 @@ pub fn get_loglevel(matches: &ArgMatches) -> Option<(u8, bool)> {
 }
 
 
-pub fn cmd<'a, I, T>(args: I)
-        where I: IntoIterator<Item=T>, T: Into<OsString> {
+pub fn cmd<'a, W, I, T>(w: &mut W, args: I)
+    where I: IntoIterator<Item=T>,
+          T: Into<OsString>,
+          W: io::Write {
     let matches = match matches::get_matches(args) {
         Ok(m) => m,
         Err(e) => {
-            println!("{}", e);
+            write!(w, "{}", e).unwrap();
             return;
         }
     };
@@ -108,9 +111,11 @@ pub fn cmd<'a, I, T>(args: I)
     if let Some(ls) = matches.subcommand_matches("ls") {
         info!("Calling the ls command");
         let (search, fmtset, search_set) = ls::get_ls_cmd(&ls).unwrap();
-        ls::do_ls(search, &artifacts, &fmtset, &search_set, &settings);
+        ls::do_ls(w, search, &artifacts, &fmtset, &search_set, &settings);
     } else {
-        println!("{} {}: use -h to show help", Green.bold().paint("rsk"), Green.paint(VERSION));
+        write!(w, "{} {}: use -h to show help",
+               Green.bold().paint("rsk"),
+               Green.paint(VERSION)).unwrap();
     }
 }
 
