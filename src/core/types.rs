@@ -321,7 +321,7 @@ pub struct Artifact {
     pub tested: f32, // tested ratio (calculated)
 }
 
-#[derive(Debug)]
+#[derive(Debug, Default, Clone)]
 /// #SPC-core-settings-struct
 pub struct Settings {
     pub disabled: bool,

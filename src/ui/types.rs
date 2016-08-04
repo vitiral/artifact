@@ -27,6 +27,7 @@ pub struct FmtSettings {
     pub partof: bool,
     pub loc_path: bool,
     pub text: bool,
+    pub color: bool,
 }
 
 impl FmtSettings {

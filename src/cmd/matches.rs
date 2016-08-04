@@ -13,6 +13,7 @@ pub fn get_matches<'a, I, T>(args: I) -> ClapResult<ArgMatches<'a>>
         .version("0.0.1")
         .about("the requirements tracking tool made for developers. Call `rsk init -t` for \
                 a tutorial")
+        .author("https://github.com/vitiral/rsk")
         .settings(&[AS::SubcommandRequiredElseHelp, AS::VersionlessSubcommands,
                     AS::DeriveDisplayOrder, AS::ColoredHelp])
         .arg(Arg::with_name("v")

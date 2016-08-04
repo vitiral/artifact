@@ -62,6 +62,10 @@ pub fn get_subcommand<'a, 'b>() -> App<'a, 'b> {
         .arg(Arg::with_name("text")
                  .short("T")
                  .help("display the text description of this artifact (first line only if not -l)"))
+        .arg(Arg::with_name("plain")
+             .long("plain")
+             .help("do not display color in the output"))
+
 }
 
 /// return (lt, percent) returning None when there is no value
@@ -206,6 +210,7 @@ pub fn get_ls_cmd(matches: &ArgMatches) -> Result<(String, FmtSettings, SearchSe
     settings.partof = matches.is_present("partof");
     settings.loc_path = matches.is_present("loc");
     settings.text = matches.is_present("text");
+    settings.color = !matches.is_present("plain");
     if matches.is_present("all") {
         // reverse everything
         settings.path = !settings.path;
@@ -263,6 +268,11 @@ pub fn do_ls(search: String,
     let mut dne: Vec<ArtNameRc> = Vec::new();
     let mut names: Vec<ArtNameRc> = Vec::new();
     let mut fmtset = (*fmtset).clone();
+    let mut settings = (*settings).clone();
+
+    // load settings from cmdline inputs
+    settings.color = fmtset.color;
+
     let pat_case;
     if search_set.use_regex {
         // names to use are determined by filtering the regex
@@ -312,7 +322,7 @@ pub fn do_ls(search: String,
             continue;
         }
         let f = ui::fmt_artifact(&name, artifacts, &fmtset, fmtset.recurse, &mut displayed);
-        f.write(&mut stdout, artifacts, settings, 0).unwrap(); // FIXME: unwrap
+        f.write(&mut stdout, artifacts, &settings, 0).unwrap(); // FIXME: unwrap
     }
     if dne.len() > 0 {
         error!("The following artifacts do not exist: {:?}", dne);
