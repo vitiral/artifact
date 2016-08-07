@@ -1,6 +1,6 @@
 # rsk: the requirements tracking tool made for developers
 **rsk** is a intended to be an easy to use tool for a someone at any skill
-level or quality background to easily write and track their requirements.
+level or quality background to easily write and track their requirements. 
 
 ## Tutorial
 Once installed call `rsk -h` and see the help message. `rsk tutorial` will start the

@@ -22,20 +22,6 @@ pub fn get_subcommand<'a, 'b>() -> App<'a, 'b> {
         .arg(Arg::with_name("long")
                  .short("l")
                  .help("print items in the 'long form'"))
-        // TODO: add -r
-        // .arg(Arg::with_name("recursive")
-        //          .short("r")
-        //          .help("print the parts of the artifact up to the given depth (default 1)")
-        //          .value_name("DEPTH")
-        //          .takes_value(true)
-        //          .validator(|s| {
-        //              match s.parse::<u8>() {
-        //                  Ok(_) => Ok(()),
-        //                  Err(e) => Err(e.to_string()),
-        //              }
-        //          })
-        //          .default_value("0")
-        //          .max_values(1))
         .arg(Arg::with_name("completed")
                  .short("c")
                  .help("filter by completeness (ie `<45`), < and > are inclusive, '>' == `>100`")
@@ -63,8 +49,8 @@ pub fn get_subcommand<'a, 'b>() -> App<'a, 'b> {
                  .short("T")
                  .help("display the text description of this artifact (first line only if not -l)"))
         .arg(Arg::with_name("plain")
-             .long("plain")
-             .help("do not display color in the output"))
+                 .long("plain")
+                 .help("do not display color in the output"))
 
 }
 
@@ -219,8 +205,7 @@ pub fn get_ls_cmd(matches: &ArgMatches) -> Result<(String, FmtSettings, SearchSe
         settings.loc_path = !settings.loc_path;
         settings.text = !settings.text;
     } else if settings.long &&
-       !(settings.path || settings.parts || settings.partof || settings.loc_path
-         || settings.text) {
+       !(settings.path || settings.parts || settings.partof || settings.loc_path || settings.text) {
         // if long is specified but no other display attributes are specified
         settings.path = true;
         settings.parts = true;
@@ -260,13 +245,12 @@ pub fn get_ls_cmd(matches: &ArgMatches) -> Result<(String, FmtSettings, SearchSe
 }
 
 /// perform the ls command given the inputs
-pub fn do_ls<W: Write>(
-             w: &mut W,
-             search: String,
-             artifacts: &Artifacts,
-             fmtset: &FmtSettings,
-             search_set: &SearchSettings,
-             settings: &Settings) {
+pub fn do_ls<W: Write>(w: &mut W,
+                       search: String,
+                       artifacts: &Artifacts,
+                       fmtset: &FmtSettings,
+                       search_set: &SearchSettings,
+                       settings: &Settings) {
     let mut dne: Vec<ArtNameRc> = Vec::new();
     let mut names: Vec<ArtNameRc> = Vec::new();
     let mut fmtset = (*fmtset).clone();
