@@ -2,18 +2,18 @@ pub const DATA: &'static str = r##"
 # Welcome to the rsk tutorial! This file is written just like
 # .rsk files are.
 #
-# you can get to this stage in the tutorial at any time by running:
+# You can get to this stage in the tutorial at any time by running:
 #
 #     rsk tutorial
 #
-# rsk is a command line, text based tool for requriements tracking.
+# rsk is a command line, text based tool for requirements tracking.
 # It aims to be easy to use by anybody and especially productive
 # for developers
 #
 # Follow along with this file to get an idea of how you can
 # easily write and track requirements in your source code
 #
-# before we continue too far, why don't you try a command? Type
+# Before we continue too far, why don't you try a command? Type
 # the following command:
 #
 #     rsk ls REQ-learn-rsk -l
@@ -30,7 +30,7 @@ text = '''
 .rsk files like this one are written in the TOML format
 you can read more about it here: https://github.com/toml-lang/toml
 
-all rsk files must end in ".rsk"
+All rsk files must end in ".rsk"
 
 They are all flat. This means rsk does not support the "[first.second]"
 syntax. This means that the "." character is illegal in names
@@ -38,7 +38,7 @@ syntax. This means that the "." character is illegal in names
 
 [REQ-learn-rsk]
 text = '''
-artifacts are defined by specifying their name like so: "[REQ-NAME]"
+Artifacts are defined by specifying their name like so: "[REQ-NAME]"
 
 Artifacts can be a requirement (REQ), design-specification (SPC)
 risk (RSK) or test (TST)
@@ -53,12 +53,12 @@ of human-readable names. We will talk more about this later.
 [SPC-learn-spc]
 partof = "REQ-toml"
 text = '''
-Anything starting with SPC is is a design specification. Requirements (REQ)
+Anything starting with SPC is a design specification. Requirements (REQ)
 should be used for detailing "what you want your application to do" and
-design specifications (SPC) shuld be used for detailing "how your application
+design specifications (SPC) should be used for detailing "how your application
 will do it".
 
-There is also tests (TST) and risks (RSK) which we will learn about later.
+There are also tests (TST) and risks (RSK) which we will learn about later.
 '''
 
 [REQ-learn-partof]
@@ -67,9 +67,9 @@ text = "see the next artifact"
 [SPC-learn-partof]
 partof = "REQ-learn-rsk"
 text = '''
-RSK uses the names of artifacts to automatically link them and track progress.
+rsk uses the names of artifacts to automatically link them and track progress.
 This makes it easy for the user to intuitively link together requirements with
-specification and reduces boilderplate.
+specification and reduces boilerplate.
 
 REQ-learn-rsk is explicitly a "partof" this artifact because it is specified
 explicitly.
@@ -95,7 +95,7 @@ REQ <-- REQ-LEARN <-- REQ-learn-partof <-- SPC-learn-partof
 ```
 
 > Note: only parents are created automatically. Auto-creating for similar-named
->   artifacts would polute your links)
+>   artifacts would pollute your links
 >
 > Note: RSK artifacts are never automatically linked by name (only their parents
 >   are automatically created and linked)
@@ -108,9 +108,11 @@ text = "this is used in the next artifact"
 partof = "SPC-learn-[spc, example]"
 text = '''
 The partof field is a string that uses a simple grouping syntax. This example
-does as you would expect, this artifact is a partof SPC-learn-spc and SPC-learn-example
+does as you would expect, this artifact is a partof SPC-learn-spc and
+SPC-learn-example
 
-note: it is also automatically a partof SPC-learn-partof and TST-LEARN because of the name
+Note: it is also automatically a partof SPC-learn-partof and TST-LEARN because
+of the name
 '''
 
 [SPC-learn-valid]
@@ -152,7 +154,7 @@ to specify risks associated with your requirements (RSK can be partof REQ).
 
 Frequently (for larger projects especially) it is a good idea to do risk
 analysis on which areas of your application are most likely to fail and
-which would be the most catestrophic. RSK artifacts allow you to document these
+which would be the most catastrophic. RSK artifacts allow you to document these
 and design test cases based on them.
 '''
 
@@ -164,9 +166,9 @@ considered "tested".
 
 [SPC-learn-ls]
 text = '''
-The `ls` command is the most important component to learn in rsk, as it helps you
-manage the artifacts in your project, see how they are linked, and view how completed/tested
-they are.
+The `ls` command is the most important component to learn in rsk, as it helps
+you manage the artifacts in your project, see how they are linked, and view how
+completed/tested they are.
 
 Type:
     rsk ls SPC-learn-ls -l
@@ -179,21 +181,21 @@ Try:
 This searches in the "Name" field for all artifacts that have "learn"
 in their name.
 
-Let's say you wanted to find an artifact, and all you knew was that it mentioned files
-in it's text field. You could run:
+Let's say you wanted to find an artifact, and all you knew was that it mentioned
+files in it's text field. You could run:
 
     rsk ls file -p T -T
 
-This will search for the pattern "file" in the text field (`-p T`). It will also display a
-short piece of the text field (`-T`)
+This will search for the pattern "file" in the text field (`-p T`). It will also
+display a short piece of the text field (`-T`)
 
 Now let's say that You see that SPC-learn-valid is what you were looking for,
 but you want an expanded view:
 
    rsk ls SPC-learn-valid -l
 
-Now you see that SPC-learn-valid has not been tested or implemented and that it is partof
-SPC-LEARN. From there you could decide what to do.
+Now you see that SPC-learn-valid has not been tested or implemented and that it
+is partof SPC-LEARN. From there you could decide what to do.
 '''
 
 ##################################################

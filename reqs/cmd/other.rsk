@@ -38,6 +38,13 @@ Key points that should be hit during the tutorial are:
 - final words
 '''
 
+[TST-tutorial-line]
+partof = "SPC-tutorial"
+text = '''
+all lines in the tutorial **shall** be tested to be 80 characters or less.
+This will make the tutorial uniform and easier to read.
+'''
+
 [REQ-init]
 text = '''
 `rsk init` is the primary first command that will be run by the user when they

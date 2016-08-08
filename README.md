@@ -1,6 +1,6 @@
 # rsk: the requirements tracking tool made for developers
-**rsk** is a intended to be an easy to use tool for a someone at any skill
-level or quality background to easily write and track their requirements. 
+**rsk** follows the principle that Requirements, Specs and Tests (RST) are in the 
+alphabet, so they should be as easy to get as your ABC's!
 
 ## Tutorial
 Once installed call `rsk -h` and see the help message. `rsk tutorial` will start the
@@ -19,7 +19,7 @@ and fun. **rsk** aims to do that by giving you a:
       control tools (git, hg, etc)
  2. workflow that is easy for developers to integrate with
  3. UI that is familar and useful -- helping the developer track their own progress
-      from requirements to design to implementation and testing
+      from requirements -> design -> implementation -> testing
 
 It is hard to keep documentation up to date, especially when it doesn't aid
 the core developer in tracking their progress. **rsk** aims to bridge that gap,
@@ -43,9 +43,9 @@ that needs to be changed if it improves usability.
 **Future improvements include:**
  - Additional command line tools
      - status: analyze artifacts and display any errors and a summary
-     - export: export artifacts to json, csv and other formats
+     - export: export artifacts to json, csv, html and other formats
      - tests: cmd for viewing and querying executed tests in relationship 
-         to defined tests (see below)
+         to defined tests (see Test Tracking)
  - Test Tracking: REST API with DB backend for tracking test execution
      (rsk currently only supports tracking implementaiton, not execution)
  - Web UI frontend to make it easy for non-devs to view requirements
