@@ -166,8 +166,8 @@ considered "tested".
 
 [SPC-learn-ls]
 text = '''
-The `ls` command is the most important component to learn in rsk, as it helps you
-manage the artifacts in your project, see how they are linked, and view how
+The `ls` command is the most important component to learn in rsk, as it helps
+you manage the artifacts in your project, see how they are linked, and view how
 completed/tested they are.
 
 Type:
