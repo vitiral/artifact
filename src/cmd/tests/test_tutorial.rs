@@ -3,6 +3,7 @@ use super::super::data;
 
 
 #[test]
+// #TST-tutorial-line
 fn test_line_length() {
     let files = vec![
         ("capitols", data::capitols_csv::DATA),
@@ -20,3 +21,4 @@ fn test_line_length() {
         }
     }
 }
+

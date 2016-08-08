@@ -39,3 +39,26 @@ fn test_get_matches() {
     assert!(search_set.name);
     assert!(search_set.loc);
 }
+
+
+#[test]
+fn test_ls() {
+    let (mut fmt_set, mut search_set, mut settings) = (
+        FmtSettings::default(),
+        SearchSettings::default(),
+        Settings::default(),
+    );
+    let artifacts = Artifacts::from_iter(vec![
+        Artifact::from_str("[REQ-foo]\n").unwrap(),
+        Artifact::from_str("[SPC-foo]\n").unwrap(),
+        Artifact::from_str("[TST-foo]\n").unwrap(),
+        ]);
+    let mut w: Vec<u8> = Vec::new();
+    ls::do_ls(
+        &mut w,
+        "req-foo", // case does not matter
+        &artifacts,
+        &fmt_set,
+        &search_set,
+        &settings);
+}

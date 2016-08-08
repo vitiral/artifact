@@ -188,76 +188,76 @@ fn test_get_percent() {
 /// get all the information from the user input
 pub fn get_ls_cmd(matches: &ArgMatches) -> Result<(String, FmtSettings, SearchSettings), String> {
     // [#SPC-ui-cmdline-ls-flags-impl-create]
-    let mut settings = FmtSettings::default();
-    settings.long = matches.is_present("long");
-    // settings.recurse = matches.value_of("recursive").unwrap().parse::<u8>().unwrap();
-    settings.path = matches.is_present("path");
-    settings.parts = matches.is_present("parts");
-    settings.partof = matches.is_present("partof");
-    settings.loc_path = matches.is_present("loc");
-    settings.text = matches.is_present("text");
-    settings.color = !matches.is_present("plain");
+    let mut fmt_set = FmtSettings::default();
+    fmt_set.long = matches.is_present("long");
+    // fmt_set.recurse = matches.value_of("recursive").unwrap().parse::<u8>().unwrap();
+    fmt_set.path = matches.is_present("path");
+    fmt_set.parts = matches.is_present("parts");
+    fmt_set.partof = matches.is_present("partof");
+    fmt_set.loc_path = matches.is_present("loc");
+    fmt_set.text = matches.is_present("text");
+    fmt_set.color = !matches.is_present("plain");
     if matches.is_present("all") {
         // reverse everything
-        settings.path = !settings.path;
-        settings.parts = !settings.parts;
-        settings.partof = !settings.partof;
-        settings.loc_path = !settings.loc_path;
-        settings.text = !settings.text;
-    } else if settings.long &&
-       !(settings.path || settings.parts || settings.partof || settings.loc_path || settings.text) {
+        fmt_set.path = !fmt_set.path;
+        fmt_set.parts = !fmt_set.parts;
+        fmt_set.partof = !fmt_set.partof;
+        fmt_set.loc_path = !fmt_set.loc_path;
+        fmt_set.text = !fmt_set.text;
+    } else if fmt_set.long &&
+       !(fmt_set.path || fmt_set.parts || fmt_set.partof || fmt_set.loc_path || fmt_set.text) {
         // if long is specified but no other display attributes are specified
-        settings.path = true;
-        settings.parts = true;
-        settings.partof = true;
-        settings.loc_path = true;
-        settings.text = true;
+        fmt_set.path = true;
+        fmt_set.parts = true;
+        fmt_set.partof = true;
+        fmt_set.loc_path = true;
+        fmt_set.text = true;
     }
 
     // #SPC-ls-search
-    let mut search_settings = match (matches.is_present("pattern"), matches.value_of("pattern")) {
+    let mut search_set = match (matches.is_present("pattern"), matches.value_of("pattern")) {
         (true, Some(p)) => try!(SearchSettings::from_str(p)),
         (true, None) => SearchSettings::from_str("N").unwrap(),
         (false, None) => SearchSettings::new(),
         _ => unreachable!(),
     };
-    debug!("tested: {:?}", search_settings.tested);
+    debug!("tested: {:?}", search_set.tested);
     match matches.value_of("completed") {
-        Some(c) => search_settings.completed = try!(get_percent(c)),
+        Some(c) => search_set.completed = try!(get_percent(c)),
         None => {}
     }
     match matches.value_of("tested") {
         Some(t) => {
             debug!("got tested: {}", t);
-            search_settings.tested = try!(get_percent(t));
+            search_set.tested = try!(get_percent(t));
         }
         None => {}
     }
-    debug!("tested: {:?}", search_settings.tested);
+    debug!("tested: {:?}", search_set.tested);
 
     let search = matches.value_of("search").unwrap_or("").to_string();
 
-    debug!("ls search: {}, settings: {:?}, search_settings: {:?}",
+    debug!("ls search: {}, fmt_set: {:?}, search_set: {:?}",
            search,
-           settings,
-           search_settings);
-    Ok((search, settings, search_settings))
+           fmt_set,
+           search_set);
+    Ok((search, fmt_set, search_set))
 }
 
 /// perform the ls command given the inputs
 pub fn do_ls<W: Write>(w: &mut W,
-                       search: String,
+                       search: &str,
                        artifacts: &Artifacts,
-                       fmtset: &FmtSettings,
+                       fmt_set: &FmtSettings,
                        search_set: &SearchSettings,
                        settings: &Settings) {
     let mut dne: Vec<ArtNameRc> = Vec::new();
     let mut names: Vec<ArtNameRc> = Vec::new();
-    let mut fmtset = (*fmtset).clone();
+    let mut fmt_set = (*fmt_set).clone();
     let mut settings = (*settings).clone();
 
     // load settings from cmdline inputs
-    settings.color = fmtset.color;
+    settings.color = fmt_set.color;
 
     let pat_case;
     if search_set.use_regex {
@@ -281,15 +281,15 @@ pub fn do_ls<W: Write>(w: &mut W,
         debug!("artifact names selected: {:?}", names);
         pat_case = Regex::new("").unwrap();
     }
-    debug!("fmtset empty: {}", fmtset.is_empty());
+    debug!("fmt_set empty: {}", fmt_set.is_empty());
     if names.len() == 0 && search.len() == 0 {
         // [#SPC-ui-cmdline-ls-flags-empty]
         names.extend(artifacts.keys().cloned());
         names.sort();
     }
-    if fmtset.is_empty() {
-        fmtset.parts = true;
-        fmtset.path = true;
+    if fmt_set.is_empty() {
+        fmt_set.parts = true;
+        fmt_set.path = true;
     }
 
 
@@ -306,7 +306,7 @@ pub fn do_ls<W: Write>(w: &mut W,
         if !ui::show_artifact(&name, art, &pat_case, search_set) {
             continue;
         }
-        let f = ui::fmt_artifact(&name, artifacts, &fmtset, fmtset.recurse, &mut displayed);
+        let f = ui::fmt_artifact(&name, artifacts, &fmt_set, fmt_set.recurse, &mut displayed);
         f.write(w, artifacts, &settings, 0).unwrap(); // FIXME: unwrap
     }
     if dne.len() > 0 {

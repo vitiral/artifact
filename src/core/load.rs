@@ -112,7 +112,7 @@ fn parse_toml(toml: &str) -> LoadResult<Table> {
 
 impl Artifact {
     /// from_str is mosty used to make testing and one-off development easier
-    pub fn from_str(toml: &str) -> LoadResult<(ArtName, Artifact)> {
+    pub fn from_str(toml: &str) -> LoadResult<(ArtNameRc, Artifact)> {
         let table = try!(parse_toml(toml));
         if table.len() != 1 {
             return Err(LoadError::new("must contain a single table".to_string()));
@@ -124,7 +124,7 @@ impl Artifact {
             _ => return Err(LoadError::new("must contain a single table".to_string())),
         };
         let artifact = try!(Artifact::from_table(&name, &Path::new("from_str"), value));
-        Ok((name, artifact))
+        Ok((Rc::new(name), artifact))
     }
 
     /// Create an artifact object from a toml Table
