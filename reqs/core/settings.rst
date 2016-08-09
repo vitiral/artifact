@@ -21,7 +21,7 @@ also, whenever settings are loaded, validate
 [SPC-settings-resolve]
 text = '''
 Because artifact_paths determine the locations that will be used to search for
-.rsk files, and the .rsk files contain more settings that contain locations,
+.rst files, and the .rst files contain more settings that contain locations,
 the `artifact_paths` variable has to be analyzed *before* other variables are.
 
 This means three things:
