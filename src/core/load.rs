@@ -30,8 +30,7 @@ macro_rules! get_attr {
 }
 
 /// only one type is in an array, so make this custom
-pub fn get_vecstr(tbl: &Table, attr: &str, default: &Vec<String>)
-              -> Option<Vec<String>> {
+pub fn get_vecstr(tbl: &Table, attr: &str, default: &Vec<String>) -> Option<Vec<String>> {
     match tbl.get(attr) {
         // if the value is in the table, try to get it's elements
         Some(&Value::Array(ref a)) => {
@@ -68,7 +67,8 @@ impl Settings {
     /// partof: #SPC-settings-load
     pub fn from_table(tbl: &Table) -> LoadResult<Settings> {
         let invalid_attrs: Vec<_> = tbl.keys()
-            .filter(|k| !SETTINGS_ATTRS.contains(k.as_str())).collect();
+                                       .filter(|k| !SETTINGS_ATTRS.contains(k.as_str()))
+                                       .collect();
         if invalid_attrs.len() > 0 {
             let mut msg = String::new();
             write!(msg, "invalid attributes in settings: {:?}", invalid_attrs).unwrap();
@@ -76,15 +76,21 @@ impl Settings {
         }
 
         let df_vec = Vec::new();
-        let str_paths: Vec<String> = check_type!(
-            get_vecstr(tbl, "artifact_paths", &df_vec), "artifact_paths", "settings");
-        let code_paths: Vec<String> = check_type!(
-            get_vecstr(tbl, "code_paths", &df_vec), "code_paths", "settings");
-        let exclude_code_paths: Vec<String> = check_type!(
-            get_vecstr(tbl, "exclude_code_paths", &df_vec), "exclude_code_paths", "settings");
+        let str_paths: Vec<String> = check_type!(get_vecstr(tbl, "artifact_paths", &df_vec),
+                                                 "artifact_paths",
+                                                 "settings");
+        let code_paths: Vec<String> = check_type!(get_vecstr(tbl, "code_paths", &df_vec),
+                                                  "code_paths",
+                                                  "settings");
+        let exclude_code_paths: Vec<String> = check_type!(get_vecstr(tbl,
+                                                                     "exclude_code_paths",
+                                                                     &df_vec),
+                                                          "exclude_code_paths",
+                                                          "settings");
         Ok(Settings {
             disabled: check_type!(get_attr!(tbl, "disabled", false, Boolean),
-                                  "disabled", "settings"),
+                                  "disabled",
+                                  "settings"),
             paths: str_paths.iter().map(|s| PathBuf::from(s)).collect(),
             code_paths: code_paths.iter().map(|s| PathBuf::from(s)).collect(),
             exclude_code_paths: exclude_code_paths.iter().map(|s| PathBuf::from(s)).collect(),
@@ -106,7 +112,7 @@ fn parse_toml(toml: &str) -> LoadResult<Table> {
                 write!(msg, "[{}:{}] {}, ", line, col, e.desc).unwrap();
             }
             Err(LoadError::new(msg))
-        },
+        }
     }
 }
 
@@ -132,7 +138,8 @@ impl Artifact {
     fn from_table(name: &ArtName, path: &Path, tbl: &Table) -> LoadResult<Artifact> {
         let df_str = "".to_string();
         let invalid_attrs: Vec<_> = tbl.keys()
-            .filter(|k| !ARTIFACT_ATTRS.contains(k.as_str())).collect();
+                                       .filter(|k| !ARTIFACT_ATTRS.contains(k.as_str()))
+                                       .collect();
         if invalid_attrs.len() > 0 {
             let mut msg = String::new();
             write!(msg, "{} has invalid attributes: {:?}", name, invalid_attrs).unwrap();
@@ -140,14 +147,12 @@ impl Artifact {
         }
 
         // partf: #SPC-artifact-partof-1: explicitly set artifact
-        let partof_str = check_type!(get_attr!(tbl, "partof", df_str, String),
-                                    "partof", name);
-        Ok(Artifact{
+        let partof_str = check_type!(get_attr!(tbl, "partof", df_str, String), "partof", name);
+        Ok(Artifact {
             // loaded vars
             ty: name.get_type(),
             path: path.to_path_buf(),
-            text: check_type!(get_attr!(tbl, "text", df_str, String),
-                              "text", name),
+            text: check_type!(get_attr!(tbl, "text", df_str, String), "text", name),
             partof: try!(ArtNames::from_str(&partof_str)),
             loc: None,
 
@@ -160,7 +165,8 @@ impl Artifact {
 }
 
 /// Load artifacts and settings from a toml Table
-pub fn load_file_table(file_table: &mut Table, path: &Path,
+pub fn load_file_table(file_table: &mut Table,
+                       path: &Path,
                        artifacts: &mut Artifacts,
                        settings: &mut Vec<(PathBuf, Settings)>,
                        variables: &mut Vec<(PathBuf, Variables)>)
@@ -177,7 +183,7 @@ pub fn load_file_table(file_table: &mut Table, path: &Path,
             }
             settings.push((path.to_path_buf(), lset));
         }
-        None => {},
+        None => {}
         _ => return Err(LoadError::new("settings must be a Table".to_string())),
     }
 
@@ -188,15 +194,18 @@ pub fn load_file_table(file_table: &mut Table, path: &Path,
                 if vars::DEFAULT_GLOBALS.contains(k.as_str()) {
                     return Err(LoadError::new("cannot use variables: repo, cwd".to_string()));
                 }
-                lvars.insert(k.clone(), match v {
-                    Value::String(s) => s.to_string(),
-                    _ => return Err(LoadError::new(
-                        k.to_string() + " global var must be of type str")),
-                });
+                lvars.insert(k.clone(),
+                             match v {
+                                 Value::String(s) => s.to_string(),
+                                 _ => {
+                                     return Err(LoadError::new(k.to_string() +
+                                                               " global var must be of type str"))
+                                 }
+                             });
             }
             variables.push((path.to_path_buf(), lvars));
         }
-        None => {},
+        None => {}
         _ => return Err(LoadError::new("globals must be a Table".to_string())),
     }
 
@@ -212,14 +221,18 @@ pub fn load_file_table(file_table: &mut Table, path: &Path,
         };
         // check for overlap
         if let Some(overlap) = artifacts.get(&aname) {
-            write!(&mut msg, "Overlapping key found <{}> other key at: {}",
-                name, overlap.path.display()).unwrap();
+            write!(&mut msg,
+                   "Overlapping key found <{}> other key at: {}",
+                   name,
+                   overlap.path.display())
+                .unwrap();
             return Err(LoadError::new(String::from_utf8(msg).unwrap()));
         }
         // [#SPC-core-artifact-attrs-disabled]
         if check_type!(get_attr!(art_tbl, "disabled", false, Boolean),
-                       "disabled", name) {
-            continue
+                       "disabled",
+                       name) {
+            continue;
         }
         let artifact = try!(Artifact::from_table(&aname, path, art_tbl));
         artifacts.insert(Rc::new(aname), artifact);
@@ -238,7 +251,8 @@ pub fn load_toml_simple(text: &str) -> Artifacts {
 }
 
 /// Given text load the artifacts
-pub fn load_toml(path: &Path, text: &str,
+pub fn load_toml(path: &Path,
+                 text: &str,
                  artifacts: &mut Artifacts,
                  settings: &mut Vec<(PathBuf, Settings)>,
                  variables: &mut Vec<(PathBuf, Variables)>)
@@ -261,12 +275,11 @@ pub fn load_file(path: &Path,
     // read the text
     let mut text = String::new();
     let mut fp = fs::File::open(path).unwrap();
-    try!(fp.read_to_string(&mut text).or_else(
-        |err| {
-            let mut msg = String::new();
-            write!(msg, "Error loading path {:?}: {}", path, err).unwrap();
-            Err(LoadError::new(msg))
-         }));
+    try!(fp.read_to_string(&mut text).or_else(|err| {
+        let mut msg = String::new();
+        write!(msg, "Error loading path {:?}: {}", path, err).unwrap();
+        Err(LoadError::new(msg))
+    }));
     load_toml(path, &text, artifacts, settings, variables)
 }
 
@@ -312,8 +325,9 @@ pub fn load_dir(path: &Path,
                 None => continue,
                 Some(ext) => ext,
             };
-            if ext != "rst" { // only load rst files
-                continue
+            if ext != "toml" {
+                // only load toml files
+                continue;
             }
             match load_file(fpath.as_path(), artifacts, settings, variables) {
                 Ok(n) => num_loaded += n,
@@ -323,8 +337,8 @@ pub fn load_dir(path: &Path,
                 }
             };
         }
-    };
-    // don't recurse if no .rst files are found
+    }
+    // don't recurse if no .toml files are found
     if num_loaded > 0 {
         for dir in dirs_to_load {
             if loaded_dirs.contains(dir.as_path()) {
@@ -365,7 +379,8 @@ pub fn resolve_settings(settings: &mut Settings,
         vars.insert("cwd".to_string(), cwd_str.to_string());
         try!(utils::find_and_insert_repo(cwd, repo_map));
         let repo = repo_map.get(cwd).unwrap();
-        vars.insert("repo".to_string(), try!(utils::get_path_str(repo.as_path())).to_string());
+        vars.insert("repo".to_string(),
+                    try!(utils::get_path_str(repo.as_path())).to_string());
 
         // push resolved paths
         for p in settings_item.paths.iter() {
@@ -393,7 +408,8 @@ pub fn resolve_settings(settings: &mut Settings,
 /// given a valid path, load all paths given by the settings recursively
 /// partof: #SPC-load-raw
 pub fn load_raw(path: &Path)
-                -> LoadResult<(Artifacts, Settings,
+                -> LoadResult<(Artifacts,
+                               Settings,
                                Vec<(PathBuf, Variables)>,
                                HashMap<PathBuf, PathBuf>)> {
     let mut artifacts = Artifacts::new();
@@ -407,8 +423,7 @@ pub fn load_raw(path: &Path)
 
     info!("Loading artifact files:");
     if path.is_file() {
-        try!(load_file(path, &mut artifacts, &mut loaded_settings,
-                       &mut loaded_vars));
+        try!(load_file(path, &mut artifacts, &mut loaded_settings, &mut loaded_vars));
         try!(resolve_settings(&mut settings, &mut repo_map, &loaded_settings));
     } else if path.is_dir() {
         settings.paths.push_back(path.to_path_buf());
@@ -421,17 +436,23 @@ pub fn load_raw(path: &Path)
     while settings.paths.len() > 0 {
         let dir = settings.paths.pop_front().unwrap(); // it has len, it better pop!
         if loaded_dirs.contains(&dir) {
-            continue
+            continue;
         }
         debug!("Loading artifacts: {:?}", dir);
         loaded_settings.clear();
         loaded_dirs.insert(dir.to_path_buf());
-        match load_dir(dir.as_path(), &mut loaded_dirs,
-                       &mut artifacts, &mut loaded_settings,
+        match load_dir(dir.as_path(),
+                       &mut loaded_dirs,
+                       &mut artifacts,
+                       &mut loaded_settings,
                        &mut loaded_vars) {
             Ok(n) => n,
             Err(err) => {
-                write!(msg, "Error loading <{}>: {}", dir.to_string_lossy().as_ref(), err).unwrap();
+                write!(msg,
+                       "Error loading <{}>: {}",
+                       dir.to_string_lossy().as_ref(),
+                       err)
+                    .unwrap();
                 return Err(LoadError::new(msg));
             }
         };

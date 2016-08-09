@@ -1,6 +1,6 @@
 pub const DATA: &'static str = r##"
 # Welcome to the rst tutorial! This file is written just like
-# .rst files are.
+# rst toml files are.
 #
 # You can get to this stage in the tutorial at any time by running:
 #
@@ -27,10 +27,10 @@ pub const DATA: &'static str = r##"
 # This is how you define a requirement
 [REQ-toml]
 text = '''
-.rst files like this one are written in the TOML format
+rst files like this one are written in the TOML format
 you can read more about it here: https://github.com/toml-lang/toml
 
-All rst files must end in ".rst"
+All rst files must end in ".toml"
 
 They are all flat. This means rst does not support the "[first.second]"
 syntax. This means that the "." character is illegal in names

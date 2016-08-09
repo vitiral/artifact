@@ -1,18 +1,18 @@
 
 pub mod settings_1;
-pub mod tutorial_rst;
+pub mod tutorial_toml;
 
 // part 2
 pub mod settings_2;
 pub mod tutorial_md;
 pub mod capitols_csv;
 pub mod exercise_htm;
-pub mod purpose_rst;
-pub mod high_level_rst;
+pub mod purpose_toml;
+pub mod high_level_toml;
 pub mod example_csv;
 
 // part 3
-pub mod load_rst;
+pub mod load_toml;
 
 // part 4
 pub mod settings_4;

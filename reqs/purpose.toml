@@ -221,14 +221,6 @@ rst **will** provide a web-based frontend to support:
  - viewing executed test data
 '''
 
-[REQ-1-test_history]
-text = '''
-rst **will** provide a means (probably a REST API server) for other
-applications to report test execution data to it. rst **will** store
-the test execution data and provide interfaces for viewing it through
-both the cmdline and web ui's
-'''
-
 [REQ-1-interop]
 text = '''
 rst **will** provide simple methods for other tools to interact with

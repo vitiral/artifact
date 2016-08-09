@@ -3,7 +3,7 @@ pub use std::path::{PathBuf, Path};
 pub use std::fs;
 use super::types::*;
 
-const SETTINGS_RST: &'static str = r#"[settings]
+const SETTINGS_TOML: &'static str = r#"[settings]
 artifact_paths = ["{repo}/reqs"]
 code_paths = []
 exclude_code_paths = []
@@ -16,7 +16,7 @@ exclude_code_paths = []
 #    directory (searching down) that contains a ".rst" folder
 "#;
 
-const PURPOSE_RST: &'static str = r#"# project purpose and definition documentation
+const PURPOSE_TOML: &'static str = r#"# project purpose and definition documentation
 [REQ-purpose]
 text = '''
 The purpose of this project is...
@@ -56,12 +56,12 @@ pub fn do_init(path: &Path) -> io::Result<()> {
         let _ = fs::create_dir(&reqs);
 
         // create settings
-        let settings = repo.join("settings.rst");
-        let purpose = reqs.join("purpose.rst");
+        let settings = repo.join("settings.toml");
+        let purpose = reqs.join("purpose.toml");
         let mut f = try!(fs::File::create(&settings));
-        f.write_all(SETTINGS_RST.as_ref()).unwrap();
+        f.write_all(SETTINGS_TOML.as_ref()).unwrap();
         let mut f = try!(fs::File::create(purpose));
-        f.write_all(PURPOSE_RST.as_ref()).unwrap();
+        f.write_all(PURPOSE_TOML.as_ref()).unwrap();
         println!("rst initialized at {} with artifacts at {}",
                  settings.display(), reqs.display());
     } else {

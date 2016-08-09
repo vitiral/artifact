@@ -1,6 +1,6 @@
 pub static DATA: &'static str = r##"#TUTORIAL=true
 [settings]
-# Any *.rst file can define additional paths to be loaded by listing them
+# Any *.toml file can define additional paths to be loaded by listing them
 # in a path.
 # There are two variables that can be used anywhere:
 # - {cwd}: the path to the directory of the file

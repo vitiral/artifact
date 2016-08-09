@@ -116,10 +116,10 @@ fn find_locs_dir(path: &PathBuf, loaded_dirs: &mut HashSet<PathBuf>,
     let mut dirs_to_load: Vec<PathBuf> = Vec::new(); // TODO: use references
     for entry in read_dir.filter_map(|e| e.ok()) {
         let fpath = entry.path();
-        // don't parse .rst files for locations
+        // don't parse .toml files for locations
         match fpath.extension() {
             None => {},
-            Some(ext) => if ext == "rst" {
+            Some(ext) => if ext == "toml" {
                 continue
             }
         }

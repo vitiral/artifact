@@ -29,7 +29,7 @@ fn test_resolve_vars() {
     let mut repo_map: HashMap<PathBuf, PathBuf> = HashMap::new();
 
     println!("simple dir: {:?}", TSIMPLE_DIR.as_path());
-    let fpath = TSIMPLE_DIR.join(PathBuf::from("fake.rst"));
+    let fpath = TSIMPLE_DIR.join(PathBuf::from("fake.toml"));
 
     for i in 0..3 { // do it a few times
         loaded_vars.clear();

@@ -12,20 +12,20 @@ than the ones created.
 > Run `rst tutorial 2` to reset the local directory to this stage
 
 A few changes have been made to your local directory:
- - `tutorial.rst` has been removed
+ - `tutorial.toml` has been removed
  - the `flash_card_challenge.htm` file has been added
- - the `reqs/` folder has been added with `purpose.rst` and `high_level.rst` in 
-   it
- - `.rst/settings.rst` has been updated with a new `artifact_paths`
+ - the `reqs/` folder has been added with `purpose.toml` and `high_level.toml`
+     in it
+ - `.rst/settings.toml` has been updated with a new `artifact_paths`
 
-Open `flash_card_challenge.htm` in a browser and skim through the project 
-that we will be executing. Don't worry! You don't need to know python to 
+Open `flash_card_challenge.htm` in a browser and skim through the project
+that we will be executing. Don't worry! You don't need to know python to
 follow along with this tutorial.
 
-Now open `reqs/purpose.rst`. This is a rough attempt to translate the ideas
+Now open `reqs/purpose.toml`. This is a rough attempt to translate the ideas
 in `flash_card_challenge.htm` into purpose statements.
 
-Purpose statements are important because they document why your project even 
+Purpose statements are important because they document why your project even
 exists -- something that is important to know as you develop it! Without
 high-level requirements, it is easy to loose sight of what your project is
 trying to accomplish and can be difficult to keep track of which features are
@@ -36,12 +36,12 @@ accomplish, but then complete in pieces. **rst** will help you track which part
 is complete!
 
 > ## Exercise 1:
-> Review `reqs/purpose.rst` and make sure it makes sense. Think about things you
-> think should be added to the purpose documentation and make notes or add
-> artifacts in a separate file. You can always return it to it's original state 
+> Review `reqs/purpose.toml` and make sure it makes sense. Think about things
+you > think should be added to the purpose documentation and make notes or add
+> artifacts in a separate file. You can always return it to it's original state
 > with `rst tutorial 2`
 
-Now open `high_level.rst` in the same directory. This is mostly the high-level 
+Now open `high_level.toml` in the same directory. This is mostly the high-level
 specifications and requirements of the command/program itself.
 
 High-level specifications allows you to lay out your ideas for how a project
@@ -50,7 +50,7 @@ write out "TODOs" that you think **should** be done, but you maybe won't get
 done in your first iteration.
 
 > ## Exercise 2:
-> Review the `reqs/high_level.rst` document. Which items do you think should be
+> Review the `reqs/high_level.toml` document. Which items do you think should be
 > done immediately, and which will have to wait?
 
 Now run:
@@ -85,10 +85,10 @@ Once you are done, continue onto stage 3.
 > Run `rst tutorial 3` to reset the local directory to this stage
 
 A few changes have been made to your local directory:
- - `reqs/load.rst` has been created
+ - `reqs/load.toml` has been created
 
 > ## Exercise 1:
-> Read through `reqs/load.rst` and see if the general plan makes sense to you.
+> Read through `reqs/load.toml` and see if the general plan makes sense to you.
 > What would you change? Feel free to make any edits you think should be
 > made. You can always return it to it's original state with `rst init -t 3`
 
@@ -116,7 +116,7 @@ That is the focus of the next part
 A few changes have been made to your local directory:
  - `flash/` has been created with two files, `__init__.py`
      and `load.py`
- - `.rst/settings.rst` was updated to include the `code_paths` variable
+ - `.rst/settings.toml` was updated to include the `code_paths` variable
 
 > Note: for python, a directory with an `__init__.py` file is called a "module"
 > and is python's packaging mechanism.
@@ -158,7 +158,7 @@ there for TST artifacts.
 # Documenting your own project
 
 To start documenting your own project, run `rst init` in your project and edit
-`.rst/settings.rst` with the paths to find your code-implementations and
+`.rst/settings.toml` with the paths to find your code-implementations and
 documents. I have a few parting words of advice for using the tool:
 
  1. keep your artifacts high level -- don't try to design every detail using

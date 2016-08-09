@@ -57,7 +57,8 @@ def load_io(f):
             # skip if the row contains nothing but whitespace
             continue
         if len(row) != 2:
-            raise ValueError("row is invalid length of {}: {}".format(len(row), row))
+            raise ValueError("row is invalid length of {}: {}".format(
+                len(row), row))
         questions.append(Question(*row))
     return questions
 
