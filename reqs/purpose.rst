@@ -1,5 +1,5 @@
 ##################################################
-# Definitions
+# 0: Definitions
 
 [REQ-0]
 text = "definitions and process for the rst project"
@@ -122,13 +122,12 @@ text = "no tests necessary on definitions and process"
 
 
 ##################################################
-# Purpose Requirements
+# 1: Purpose Requirements
 [REQ-1]
 text = '''
 purpose requirements. For an easy-to-read purpose statement see:
 [README.md](https://github.com/vitiral/rst/blob/master/README.md)
 '''
-
 
 [REQ-1-scale]
 text = '''
@@ -213,6 +212,21 @@ view and filter artifacts, etc.
 
 The commands on the cmdline **will** be memonic and borrow from other
 common command line tools like bash, git, etc whenever possible.
+'''
+
+[REQ-1-web]
+text = '''
+rst **will** provide a web-based frontend to support:
+ - searching and viewing artifacts
+ - viewing executed test data
+'''
+
+[REQ-1-test_history]
+text = '''
+rst **will** provide a means (probably a REST API server) for other
+applications to report test execution data to it. rst **will** store
+the test execution data and provide interfaces for viewing it through
+both the cmdline and web ui's
 '''
 
 [REQ-1-interop]

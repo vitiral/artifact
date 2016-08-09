@@ -258,15 +258,24 @@ navigate and view linked components
 '''
 
 [REQ-2-ui-web]
+partof = "REQ-1-ui-web"
 text = '''
-rst **will** provide a HTTP web server which can host up-to-date requirements
-as well as provide a REST-JSON API server for tracking test execution over
-a period of time.
+rst **will** provide an HTTP web server for searching and viewing artifacts,
+as well as searching and viewing test execution data.
 
-In addition, the web-ui should allow users to add/delete artifacts,
-as well as interface with the git backend which tracks changes.
+The displayed web pages **will** be constructed in an easy-to-read and
+easy to use format.
 
-This hasn't even entered the design phase yet.
+The web interface **will not** be able to add or delete artifacts (this may
+or may not happen in a later major release).
+'''
+
+[REQ-2-rest]
+text = '''
+rst **will** provide a REST API server for other applications to report
+test execution data to it. rst **will** store the test execution data in
+a database and provide interfaces for viewing it through both the cmdline
+and web ui's
 '''
 
 ##################################################
