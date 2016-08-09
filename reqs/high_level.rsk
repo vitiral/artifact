@@ -11,7 +11,7 @@ text = "high level test design"
 
 [REQ-2-modules]
 text = '''
-rsk **should** have decoupled modules that depend on eachother as little
+rst **should** have decoupled modules that depend on eachother as little
 as possible.
 
 Roughly, they **should** be broken up according to the requirement categories
@@ -25,8 +25,8 @@ detailed in these documents.
 
 [REQ-2-ftype]
 text = '''
-All rsk configuration and artifacts **will** be stored in files using
-[toml](https://github.com/toml-lang/toml) format with the `.rsk` extention.
+All rst configuration and artifacts **will** be stored in files using
+[toml](https://github.com/toml-lang/toml) format with the `.rst` extention.
 
 Artifacts **will** be items with keys denoted by their prefix (REQ, RSK, etc.).
 In addition, there **shall** be the following special items:
@@ -37,16 +37,16 @@ In addition, there **shall** be the following special items:
 
 [REQ-2-load]
 text = '''
-There **shall** be settings in .rsk files that detail which directories to load.
+There **shall** be settings in .rst files that detail which directories to load.
 
-**rsk** shall recursively load all directories given to it in the `artifact_paths` setting.
-**recursively** is defined as "load until there is a directory with no `.rsk` files".
+**rst** shall recursively load all directories given to it in the `artifact_paths` setting.
+**recursively** is defined as "load until there is a directory with no `.rst` files".
 
 Example:
-**rsk** will try to load /foo and /foo/src but will not try to load
-/foo/src/bar as there were no `.rsk` files in /foo/src
+**rst** will try to load /foo and /foo/src but will not try to load
+/foo/src/bar as there were no `.rst` files in /foo/src
 ```
-/foo/foo.rsk
+/foo/foo.rst
 /foo/src/foo.rs
 /foo/src/bar/bar.rs
 ```
@@ -75,7 +75,7 @@ text = '''
 weight = 20
 
 Type checking and validity, and failing on invalid data is essential
-for the functionality of rsk and the reporting of errors to the user.
+for the functionality of rst and the reporting of errors to the user.
 
 loading is a **critical** component. There is a **low** likelyhood that
 this issue will be a **boulder**
@@ -101,14 +101,14 @@ There are several safeguards:
 [REQ-2-settings]
 partof = "REQ-1-variables"
 text = '''
-Each .rsk file **will** be able to detail various settings. Any .rsk file
+Each .rst file **will** be able to detail various settings. Any .rst file
 can detail these settings (there is no special "config file")
 
-The "initial .rsk file" **shall** be able to be specified in the command
-line and will default to `{cwd}/.rsk/settings.rsk`
+The "initial .rst file" **shall** be able to be specified in the command
+line and will default to `{cwd}/.rst/settings.rst`
 
 The settings are:
- - `artifact_paths`: path to a directory containing more .rsk files
+ - `artifact_paths`: path to a directory containing more .rst files
  - `code_paths`: path to directory containing code which implements
       artifacts (see `loc`)
  - `exclude_code_paths`: code paths to exclude
@@ -117,7 +117,7 @@ The settings are:
 [REQ-2-globals]
 partof = "REQ-1-variables"
 text = '''
-rsk **shall** load global variables from .rsk files and apply them to all text fields.
+rst **shall** load global variables from .rst files and apply them to all text fields.
 
 Variables **shall** be specified in the format `{{VARIABLE_NAME}}` and behaves
 all the rules of python string formatting.
@@ -126,7 +126,7 @@ all the rules of python string formatting.
 [REQ-2-artifact]
 partof = "REQ-1-artifact"
 text = '''
-rsk **shall** load artifacts from .rsk files in a "flat style" -- i.e. artifacts
+rst **shall** load artifacts from .rst files in a "flat style" -- i.e. artifacts
 can be defined anywhere, the path to the file is not important.
 
 Strict naming **will** be enforced to follow REQ-1-artifacts, where the prefix
@@ -193,7 +193,7 @@ The reasons for these rules are:
 [REQ-2-loc]
 partof = "REQ-1-coverage"
 text = '''
-rsk **shall** load the implementation LOCs from source code in the directories of
+rst **shall** load the implementation LOCs from source code in the directories of
 settings.code_paths
 
 LOCs **will** be marked in plaintext in the sourecode itself like: `#ART-foo-bar`
@@ -213,21 +213,21 @@ partof = "REQ-1-ui"
 [REQ-2-ui-cmd]
 partof = "REQ-1-ui-cmd"
 text = '''
-rsk **will** provide a simple but complete cmd line utility which has multiple
+rst **will** provide a simple but complete cmd line utility which has multiple
 modules for accomplishing everything in REQ-2-ui.
 
-As ths is the primary frontend for rsk, it should aim to be as complete and
+As ths is the primary frontend for rst, it should aim to be as complete and
 correct as possible.
 '''
 
 [REQ-2-ui-help]
 text = '''
-rsk **will** provide the ability to get help easily in all UI environments
+rst **will** provide the ability to get help easily in all UI environments
 '''
 
 [REQ-2-ui-tutorial]
 text = '''
-rsk **will** provide an interactive tutorial to learn rsk as well as the basics
+rst **will** provide an interactive tutorial to learn rst as well as the basics
 of why to use requirements tracking in the first place.
 
 This **should** be in place for all formats. For cmdline, an interactive tutorial is
@@ -236,7 +236,7 @@ great. For the web, a video tutorial would be best.
 
 [REQ-2-ui-filtering]
 text = '''
-rsk's various ui formats **will** provide methods to filter by:
+rst's various ui formats **will** provide methods to filter by:
 - name
 - regexp in any of the fields
 - percent completed
@@ -253,13 +253,13 @@ For MVP, text based display can display raw text
 
 [REQ-2-ui-link]
 text = '''
-rsk's various ui methods **will** provide simple methods to
+rst's various ui methods **will** provide simple methods to
 navigate and view linked components
 '''
 
 [REQ-2-ui-web]
 text = '''
-rsk **will** provide a HTTP web server which can host up-to-date requirements
+rst **will** provide a HTTP web server which can host up-to-date requirements
 as well as provide a REST-JSON API server for tracking test execution over
 a period of time.
 
@@ -276,9 +276,9 @@ partof = "REQ-1-interop"
 
 [REQ-2-interop-json]
 text = '''
-rsk **will** provide json export utility for other tools to utilize.
+rst **will** provide json export utility for other tools to utilize.
 
-rsk **may** utilize the serialization internally for web interactions.
+rst **may** utilize the serialization internally for web interactions.
 '''
 
 ##################################################
@@ -286,16 +286,16 @@ rsk **may** utilize the serialization internally for web interactions.
 [REQ-2-performance]
 partof = "REQ-1-scale"
 text = '''
-rsk **will** aim to be as performant as is "reasonable" in both memory
+rst **will** aim to be as performant as is "reasonable" in both memory
 and cpu usage.
 
-rsk **will** opt to use more threads/cpu/memory to speed up the user
+rst **will** opt to use more threads/cpu/memory to speed up the user
 experience when possible (speed > efficiency)
 '''
 
 [REQ-2-performance-store]
 text = '''
-rsk **will** use a serialized file to speed up processing of data. Once a
+rst **will** use a serialized file to speed up processing of data. Once a
 file has been processed, it's **will** be able to be loaded from the file
 instead of re-parsed.
 '''

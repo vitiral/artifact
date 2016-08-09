@@ -364,7 +364,7 @@ impl fmt::Display for LoadError {
 
 impl error::Error for LoadError {
     fn description(&self) -> &str {
-        "error loading .rsk file"
+        "error loading .rst file"
     }
 
     fn cause(&self) -> Option<&error::Error> {

@@ -2,7 +2,7 @@
 # Definitions
 
 [REQ-0]
-text = "definitions and process for the rsk project"
+text = "definitions and process for the rst project"
 
 [REQ-0-prefix]
 text = '''
@@ -11,7 +11,7 @@ In this project, the following conventions shall apply for artifact names:
      as completed, as they are simply documenting the process of artifacts.
  - `ART-1-*` denotes purpose REQs, which detail at the highest level why
      this project exists
- - `ART-2-*` denotes high level design of all artifacts (req, spc, rsk and tst)
+ - `ART-2-*` denotes high level design of all artifacts (req, spc, rst and tst)
  - further prefixes **will not** be used, and are reserved for further breakdowns
  - any other prefix denotes detailed design. For instance, REQ-0-load details what is necessary in
      loading artifacts at a very high level, wheras REQ-load details it at a lower level
@@ -73,7 +73,7 @@ determine the weight to assign to the risk.
 text = "a programming language must be chosen to write the project in"
 [SPC-0-language]
 text = '''
-rsk **will** be written entirely in the rust programming language
+rst **will** be written entirely in the rust programming language
 for the purposes of:
 - cross compilation: rust can be compiled on any platform
 - safety: it is impossible to segfault in rust
@@ -86,7 +86,7 @@ for the purposes of:
 
 [REQ-0-format]
 text = '''
-**rsk** **will** use a simple text format for the user to write artifacts in
+**rst** **will** use a simple text format for the user to write artifacts in
 '''
 [SPC-0-format]
 text = '''Possible choices:
@@ -100,10 +100,10 @@ text = '''Possible choices:
  - html/xml/etc: aboslutely not. Needlessly complex.
 
 # Conclusion
-`rsk` **shall** use TOML for artifact writing.
+`rst` **shall** use TOML for artifact writing.
 
 The reasons are:
- - feautres covers all needs for rsk
+ - feautres covers all needs for rst
  - easy to learn
  - easy to read
  - easy to write in
@@ -126,25 +126,25 @@ text = "no tests necessary on definitions and process"
 [REQ-1]
 text = '''
 purpose requirements. For an easy-to-read purpose statement see:
-[README.md](https://github.com/vitiral/rsk/blob/master/README.md)
+[README.md](https://github.com/vitiral/rst/blob/master/README.md)
 '''
 
 
 [REQ-1-scale]
 text = '''
-rsk **will** be able to handle scale from very small projects with a single
+rst **will** be able to handle scale from very small projects with a single
 design document to enourmous multi-project multi-folder projects.
 '''
 
 [REQ-1-coverage]
 text = '''
-rsk **will** provide a simple but useful mechanism for calculating
+rst **will** provide a simple but useful mechanism for calculating
 and displaying implementation and test coverage / completeness
 '''
 
 [REQ-1-artifact]
 text = '''
-rsk **will** support 4 types of artifacts that can be tracked
+rst **will** support 4 types of artifacts that can be tracked
 - REQ: software requirement
 - RSK: risks related to requirements
 - SPC: software design specificaion based on one or more requirements
@@ -184,14 +184,14 @@ It is recognized that there are two main concerns:
 Ease of writing links is considered the most important, as reading
 links can be accomplished automatically through the ui interface.
 
-For this reason, **rsk** uses the "partof" nomenclature for linking.
+For this reason, **rst** uses the "partof" nomenclature for linking.
 This allows the user to think "what requirement does this fulfill"
 or "what requirement is this a risk for" and link things one at a time.
 
-**rsk** does not provide the "parts" nomenclature, as having both would
+**rst** does not provide the "parts" nomenclature, as having both would
 add needless complexity.
 
-In addition, **rsk** will try to infer links from the names whenever possible.
+In addition, **rst** will try to infer links from the names whenever possible.
 '''
 
 [REQ-1-variables]
@@ -202,13 +202,13 @@ for use in text and paths
 
 [REQ-1-ui]
 text = '''
-rsk **will** provide simple methods to interact and view it's data
+rst **will** provide simple methods to interact and view it's data
 '''
 
 [REQ-1-ui-cmd]
 text = '''
-rsk's primarily purpose **should** be to support text based and cmdline
-workflows. rsk **will** provide a cmd line utilitie to use rsk features,
+rst's primarily purpose **should** be to support text based and cmdline
+workflows. rst **will** provide a cmd line utilitie to use rst features,
 view and filter artifacts, etc.
 
 The commands on the cmdline **will** be memonic and borrow from other
@@ -217,16 +217,16 @@ common command line tools like bash, git, etc whenever possible.
 
 [REQ-1-interop]
 text = '''
-rsk **will** provide simple methods for other tools to interact with
+rst **will** provide simple methods for other tools to interact with
 it's data
 '''
 
 [REQ-1-versioning]
 text = '''
-rsk **should** never make a breaking change once a version has been
+rst **should** never make a breaking change once a version has been
 declared stable.
 
-In the event a breaking change is necessary, rsk **shall** not make the
+In the event a breaking change is necessary, rst **shall** not make the
 change until a major version release and shall attempt whatever backwards
 compatibility is possible.
 '''

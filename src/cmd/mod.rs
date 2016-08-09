@@ -2,7 +2,7 @@
 //! command line
 //!
 //! this module contains trait implementations and other sugar
-//! to help with displaying rsk artifacts on the cmd line
+//! to help with displaying rst artifacts on the cmd line
 //! as well as functions which map easily to cmdline methods
 //! that the user may want to execute
 
@@ -93,11 +93,11 @@ pub fn cmd<'a, W, I, T>(w: &mut W, args: I)
     let repo = match core::find_repo(cwd.as_path()) {
         Some(r) => r,
         None => {
-            println!("Could not find .rsk folder. Try running `rsk init -t`");
+            println!("Could not find .rst folder. Try running `rst init -t`");
             return;
         }
     };
-    let cfg = repo.join(".rsk");
+    let cfg = repo.join(".rst");
     debug!("using cfg dir {:?}", cfg);
 
     let (artifacts, settings) = match core::load_path(cfg.as_path()) {
@@ -114,7 +114,7 @@ pub fn cmd<'a, W, I, T>(w: &mut W, args: I)
         ls::do_ls(w, &search, &artifacts, &fmtset, &search_set, &settings);
     } else {
         write!(w, "{} {}: use -h to show help",
-               Green.bold().paint("rsk"),
+               Green.bold().paint("rst"),
                Green.paint(VERSION)).unwrap();
     }
 }

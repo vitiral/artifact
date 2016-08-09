@@ -6,7 +6,7 @@ use super::super::ls;
 #[test]
 /// partof: #TST-ls-interface
 fn test_get_matches() {
-    let args = vec!["rsk", "ls", "-l"];
+    let args = vec!["rst", "ls", "-l"];
     let matches = get_matches(&args).unwrap();
     let (search, fmtset, search_set) = ls::get_ls_cmd(
         matches.subcommand_matches("ls").unwrap()).unwrap();
@@ -16,7 +16,7 @@ fn test_get_matches() {
     assert_eq!(search_set, SearchSettings::new());
 
     // test that -A works
-    let args = vec!["rsk", "ls", "all", "-AP"];
+    let args = vec!["rst", "ls", "all", "-AP"];
     let matches = get_matches(&args).unwrap();
     let (search, fmtset, search_set) = ls::get_ls_cmd(
         matches.subcommand_matches("ls").unwrap()).unwrap();
@@ -30,7 +30,7 @@ fn test_get_matches() {
 
     // test that pattern works
     // #TST-ls-search
-    let args = vec!["rsk", "ls", "regex", "-p", "TNL"];
+    let args = vec!["rst", "ls", "regex", "-p", "TNL"];
     let matches = get_matches(&args).unwrap();
     let (search, _, search_set) = ls::get_ls_cmd(
         matches.subcommand_matches("ls").unwrap()).unwrap();

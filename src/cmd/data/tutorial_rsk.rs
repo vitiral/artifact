@@ -1,12 +1,12 @@
 pub const DATA: &'static str = r##"
-# Welcome to the rsk tutorial! This file is written just like
-# .rsk files are.
+# Welcome to the rst tutorial! This file is written just like
+# .rst files are.
 #
 # You can get to this stage in the tutorial at any time by running:
 #
-#     rsk tutorial
+#     rst tutorial
 #
-# rsk is a command line, text based tool for requirements tracking.
+# rst is a command line, text based tool for requirements tracking.
 # It aims to be easy to use by anybody and especially productive
 # for developers
 #
@@ -16,10 +16,10 @@ pub const DATA: &'static str = r##"
 # Before we continue too far, why don't you try a command? Type
 # the following command:
 #
-#     rsk ls REQ-learn-rsk -l
+#     rst ls REQ-learn-rst -l
 #
 # You should see a colorized artifact. If you do, good. If you are having
-# problems try going back to the installation tutorial at github.com/vitiral/rsk
+# problems try going back to the installation tutorial at github.com/vitiral/rst
 
 ##################################################
 # Defining requirements
@@ -27,16 +27,16 @@ pub const DATA: &'static str = r##"
 # This is how you define a requirement
 [REQ-toml]
 text = '''
-.rsk files like this one are written in the TOML format
+.rst files like this one are written in the TOML format
 you can read more about it here: https://github.com/toml-lang/toml
 
-All rsk files must end in ".rsk"
+All rst files must end in ".rst"
 
-They are all flat. This means rsk does not support the "[first.second]"
+They are all flat. This means rst does not support the "[first.second]"
 syntax. This means that the "." character is illegal in names
 '''
 
-[REQ-learn-rsk]
+[REQ-learn-rst]
 text = '''
 Artifacts are defined by specifying their name like so: "[REQ-NAME]"
 
@@ -46,7 +46,7 @@ risk (RSK) or test (TST)
 This particular artifact is a requirement, therefore it begins with
 "REQ". After REQ there is a "-" and then the name of the requirement.
 
-Unlike many requirements tracking tools, rsk encourages the use
+Unlike many requirements tracking tools, rst encourages the use
 of human-readable names. We will talk more about this later.
 '''
 
@@ -65,13 +65,13 @@ There are also tests (TST) and risks (RSK) which we will learn about later.
 text = "see the next artifact"
 
 [SPC-learn-partof]
-partof = "REQ-learn-rsk"
+partof = "REQ-learn-rst"
 text = '''
-rsk uses the names of artifacts to automatically link them and track progress.
+rst uses the names of artifacts to automatically link them and track progress.
 This makes it easy for the user to intuitively link together requirements with
 specification and reduces boilerplate.
 
-REQ-learn-rsk is explicitly a "partof" this artifact because it is specified
+REQ-learn-rst is explicitly a "partof" this artifact because it is specified
 explicitly.
 
 REQ-learn-partof is automatically a "partof" this artifact because the names
@@ -89,7 +89,7 @@ So far we have:
            /
 REQ <-- REQ-LEARN <-- REQ-learn-partof <-- SPC-learn-partof
            ^                                  |
-           \-------- REQ-learn-rsk <----------/
+           \-------- REQ-learn-rst <----------/
 
   * items in ALL CAPS were created automatically
 ```
@@ -149,8 +149,8 @@ or to a risk (RSK)
 
 [SPC-learn-type-rsk]
 text = '''
-the RSK type is what this application was named after, and allows you
-to specify risks associated with your requirements (RSK can be partof REQ).
+the RSK type allows you to specify risks associated with your requirements
+(RSK can be partof REQ).
 
 Frequently (for larger projects especially) it is a good idea to do risk
 analysis on which areas of your application are most likely to fail and
@@ -166,17 +166,17 @@ considered "tested".
 
 [SPC-learn-ls]
 text = '''
-The `ls` command is the most important component to learn in rsk, as it helps
+The `ls` command is the most important component to learn in rst, as it helps
 you manage the artifacts in your project, see how they are linked, and view how
 completed/tested they are.
 
 Type:
-    rsk ls SPC-learn-ls -l
+    rst ls SPC-learn-ls -l
 
 This will show you this artifact, pretty printed on your terminal.
 
 Try:
-    rsk ls learn -p
+    rst ls learn -p
 
 This searches in the "Name" field for all artifacts that have "learn"
 in their name.
@@ -184,7 +184,7 @@ in their name.
 Let's say you wanted to find an artifact, and all you knew was that it mentioned
 files in it's text field. You could run:
 
-    rsk ls file -p T -T
+    rst ls file -p T -T
 
 This will search for the pattern "file" in the text field (`-p T`). It will also
 display a short piece of the text field (`-T`)
@@ -192,7 +192,7 @@ display a short piece of the text field (`-T`)
 Now let's say that You see that SPC-learn-valid is what you were looking for,
 but you want an expanded view:
 
-   rsk ls SPC-learn-valid -l
+   rst ls SPC-learn-valid -l
 
 Now you see that SPC-learn-valid has not been tested or implemented and that it
 is partof SPC-LEARN. From there you could decide what to do.
@@ -201,5 +201,5 @@ is partof SPC-LEARN. From there you could decide what to do.
 ##################################################
 # That is the end part 1 of the tutorial. Run the following
 # for part 2:
-#     rsk tutorial 2
+#     rst tutorial 2
 "##;

@@ -59,7 +59,7 @@ pub fn find_repo(dir: &Path) -> Option<PathBuf> {
                                 let p = e.path();
                                 let fname = p.file_name().unwrap().to_str().unwrap();
                                 // trace!("fname: {:?}", fname);
-                                fname == ".rsk" && p.is_dir()
+                                fname == ".rst" && p.is_dir()
                             }
                         }) {
             return Some(dir.to_path_buf());

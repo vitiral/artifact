@@ -59,24 +59,24 @@ fn create_dir(path: &PathBuf) {
 /// partof: #SPC-tutorial
 pub fn do_tutorial(part: u8) -> io::Result<()> {
     let CWD: PathBuf = env::current_dir().unwrap();
-    let RSK_DIR: PathBuf = CWD.join(PathBuf::from(".rsk"));
+    let RST_DIR: PathBuf = CWD.join(PathBuf::from(".rst"));
     let REQS_DIR: PathBuf = CWD.join(PathBuf::from("reqs"));
     let SRC_DIR: PathBuf = CWD.join(PathBuf::from("flash"));
     let TESTS_DIR: PathBuf = SRC_DIR.join(PathBuf::from("tests"));
 
-    // .rsk file paths
-    let SETTINGS_RSK: PathBuf = RSK_DIR.join(PathBuf::from("settings.rsk"));
+    // .rst file paths
+    let SETTINGS_RST: PathBuf = RST_DIR.join(PathBuf::from("settings.rst"));
 
     // cwd file paths
-    let TUTORIAL_RSK: PathBuf = CWD.join(PathBuf::from("tutorial.rsk"));
+    let TUTORIAL_RST: PathBuf = CWD.join(PathBuf::from("tutorial.rst"));
     let TUTORIAL_MD: PathBuf = CWD.join(PathBuf::from("tutorial.md"));
     let CAPITOLS_CSV: PathBuf = CWD.join(PathBuf::from("capitols.csv"));
     let EXERCISE_HTM: PathBuf = CWD.join(PathBuf::from("flash_card_challenge.htm"));
 
     // reqs file paths
-    let PURPOSE_RSK: PathBuf = REQS_DIR.join(PathBuf::from("purpose.rsk"));
-    let HIGH_LEVEL_RSK: PathBuf = REQS_DIR.join(PathBuf::from("high_level.rsk"));
-    let LOAD_RSK: PathBuf = REQS_DIR.join(PathBuf::from("load.rsk"));
+    let PURPOSE_RST: PathBuf = REQS_DIR.join(PathBuf::from("purpose.rst"));
+    let HIGH_LEVEL_RST: PathBuf = REQS_DIR.join(PathBuf::from("high_level.rst"));
+    let LOAD_RST: PathBuf = REQS_DIR.join(PathBuf::from("load.rst"));
 
     // src file paths
     let INIT_PY: PathBuf = SRC_DIR.join(PathBuf::from("__init__.py"));
@@ -88,14 +88,14 @@ pub fn do_tutorial(part: u8) -> io::Result<()> {
     let EXAMPLE_CSV: PathBuf = TESTS_DIR.join(PathBuf::from("example.csv"));
 
     let PART_1_FILES: HashSet<PathBuf> = HashSet::from_iter(vec![
-        SETTINGS_RSK.clone(), TUTORIAL_RSK.clone()]);
+        SETTINGS_RST.clone(), TUTORIAL_RST.clone()]);
 
     let PART_2_FILES: HashSet<PathBuf> = HashSet::from_iter(vec![
-        SETTINGS_RSK.clone(), TUTORIAL_MD.clone(), CAPITOLS_CSV.clone(),
-        EXERCISE_HTM.clone(), PURPOSE_RSK.clone(), HIGH_LEVEL_RSK.clone()]);
+        SETTINGS_RST.clone(), TUTORIAL_MD.clone(), CAPITOLS_CSV.clone(),
+        EXERCISE_HTM.clone(), PURPOSE_RST.clone(), HIGH_LEVEL_RST.clone()]);
 
     let mut PART_3_FILES: HashSet<PathBuf> = HashSet::from_iter(vec![
-        LOAD_RSK.clone(), INIT_PY.clone(), LOAD_PY.clone(),
+        LOAD_RST.clone(), INIT_PY.clone(), LOAD_PY.clone(),
         TEST_INIT_PY.clone(), TEST_LOAD_PY.clone()]);
 
     PART_3_FILES.extend(PART_2_FILES.iter().cloned());
@@ -104,7 +104,7 @@ pub fn do_tutorial(part: u8) -> io::Result<()> {
     ALL_FILES.extend(PART_1_FILES.iter().cloned());
     ALL_FILES.extend(PART_3_FILES.iter().cloned());
 
-    let already_tutorial = match fs::File::open(&SETTINGS_RSK) {
+    let already_tutorial = match fs::File::open(&SETTINGS_RST) {
         Ok(mut f) => {
             let mut buffer = [0; 14];
             match f.read_exact(&mut buffer) {
@@ -121,7 +121,7 @@ pub fn do_tutorial(part: u8) -> io::Result<()> {
         // delete anything we shouldn't
         match try!(fs::read_dir(&CWD)).next() {
             Some(_) => {
-                println!("ERROR: can only start the rsk tutorial in an empty directory");
+                println!("ERROR: can only start the rst tutorial in an empty directory");
                 return Ok(());
             },
             None => {},  // empty directory, what we want
@@ -132,33 +132,33 @@ pub fn do_tutorial(part: u8) -> io::Result<()> {
     debug!("running tutorial at part: {}", part);
 
     remove_files_force(&ALL_FILES);
-    create_dir(&RSK_DIR);
+    create_dir(&RST_DIR);
     println!("## Tutorial Loaded!");
     if part == 1 {
-        println!("  Tutorial part 1: open tutorial.rsk with a text editor");
-        try!(write_file(&SETTINGS_RSK, data::settings_1::DATA));
-        try!(write_file(&TUTORIAL_RSK, data::tutorial_rsk::DATA));
+        println!("  Tutorial part 1: open tutorial.rst with a text editor");
+        try!(write_file(&SETTINGS_RST, data::settings_1::DATA));
+        try!(write_file(&TUTORIAL_RST, data::tutorial_rst::DATA));
     } else {
         create_dir(&REQS_DIR);
         try!(write_file(&TUTORIAL_MD, data::tutorial_md::DATA));
         try!(write_file(&CAPITOLS_CSV, data::capitols_csv::DATA));
         try!(write_file(&EXERCISE_HTM, data::exercise_htm::DATA));
-        try!(write_file(&PURPOSE_RSK, data::purpose_rsk::DATA));
-        try!(write_file(&HIGH_LEVEL_RSK, data::high_level_rsk::DATA));
+        try!(write_file(&PURPOSE_RST, data::purpose_rst::DATA));
+        try!(write_file(&HIGH_LEVEL_RST, data::high_level_rst::DATA));
         if part == 2 {
             println!("  Tutorial part 2: open tutorial.md with a text editor and see part 2");
-            try!(write_file(&SETTINGS_RSK, data::settings_2::DATA));
+            try!(write_file(&SETTINGS_RST, data::settings_2::DATA));
         } else {
             if part == 3 {
                 println!("  Tutorial part 3: open tutorial.md with a text editor and see part 3");
             }
-            try!(write_file(&SETTINGS_RSK, data::settings_2::DATA)); // same settings
-            try!(write_file(&LOAD_RSK, data::load_rsk::DATA));
+            try!(write_file(&SETTINGS_RST, data::settings_2::DATA)); // same settings
+            try!(write_file(&LOAD_RST, data::load_rst::DATA));
             if part == 4 {
                 println!("  Tutorial part 4: open tutorial.md with a text editor and see part 4");
                 create_dir(&SRC_DIR);
                 create_dir(&TESTS_DIR);
-                try!(write_file(&SETTINGS_RSK, data::settings_4::DATA));
+                try!(write_file(&SETTINGS_RST, data::settings_4::DATA));
                 try!(write_file(&LOAD_PY, data::load_py::DATA));
                 try!(write_file(&TEST_LOAD_PY, data::test_load_py::DATA));
                 try!(write_file(&EXAMPLE_CSV, data::example_csv::DATA));

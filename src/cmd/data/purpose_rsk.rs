@@ -1,14 +1,14 @@
 pub static DATA: &'static str = r##"
 [REQ-purpose]
 text = '''
-Write a flash card quizzer from scratch and learn about rsk
+Write a flash card quizzer from scratch and learn about rst
 while doing so.
 
 The example tutorial can be found here: http://wiki.openhatch.org/Flash_card_challenge
 or at: {repo}/flash_card_challenge.htm
 
 The program should be easy to understand and follow along so that it can
-reach maximum audience for instructing in rsk
+reach maximum audience for instructing in rst
 '''
 
 [REQ-purpose-config]

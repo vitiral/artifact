@@ -312,7 +312,7 @@ pub fn load_dir(path: &Path,
                 None => continue,
                 Some(ext) => ext,
             };
-            if ext != "rsk" { // only load rsk files
+            if ext != "rst" { // only load rst files
                 continue
             }
             match load_file(fpath.as_path(), artifacts, settings, variables) {
@@ -324,7 +324,7 @@ pub fn load_dir(path: &Path,
             };
         }
     };
-    // don't recurse if no .rsk files are found
+    // don't recurse if no .rst files are found
     if num_loaded > 0 {
         for dir in dirs_to_load {
             if loaded_dirs.contains(dir.as_path()) {

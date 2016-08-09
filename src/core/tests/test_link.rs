@@ -15,7 +15,7 @@ fn test_basic_link() {
     let req_name = Rc::new(ArtNameRc::from_str("REQ-1").unwrap().parent().unwrap());
 
     // get te artifacts
-    let num = load_toml(&path, TOML_RSK, &mut artifacts, &mut settings, &mut variables).unwrap();
+    let num = load_toml(&path, TOML_RST, &mut artifacts, &mut settings, &mut variables).unwrap();
     for sname in &["REQ-foo", "SPC-foo", "TST-foo", "SPC-bar"] {
         let art = artifacts.get_mut(&ArtNameRc::from_str(sname).unwrap()).unwrap();
         art.loc = Some(Loc{path: path.clone(), line_col: (1, 2)});

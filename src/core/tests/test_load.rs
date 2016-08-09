@@ -112,7 +112,7 @@ fn test_load_toml() {
     assert_eq!(variables.len(), 0);
 
     // #TST-artifact-load: basic loading unit tests
-    let num = load_toml(&path, TOML_RSK, &mut artifacts, &mut settings, &mut variables).unwrap();
+    let num = load_toml(&path, TOML_RST, &mut artifacts, &mut settings, &mut variables).unwrap();
     let locs = HashMap::from_iter(
         vec![(ArtName::from_str("SPC-foo").unwrap(), Loc::fake()),
              (ArtName::from_str("SPC-bar").unwrap(), Loc::fake())]);
@@ -165,7 +165,7 @@ fn test_load_toml() {
     // must be loaded afterwards, uses already existing artifacts
     assert!(load_toml(&path, TOML_OVERLAP, &mut artifacts, &mut settings, &mut variables).is_err());
 
-    let num = load_toml(&path, TOML_RSK2, &mut artifacts, &mut settings, &mut variables).unwrap();
+    let num = load_toml(&path, TOML_RST2, &mut artifacts, &mut settings, &mut variables).unwrap();
     assert_eq!(num, 3);
     assert!(artifacts.contains_key(&ArtName::from_str("REQ-baz").unwrap()));
     assert!(artifacts.contains_key(&ArtName::from_str("RSK-foo-2").unwrap()));

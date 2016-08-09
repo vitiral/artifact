@@ -9,11 +9,11 @@ use super::types::*;
 pub fn get_matches<'a, I, T>(args: I) -> ClapResult<ArgMatches<'a>>
     where I: IntoIterator<Item=T>, T: Into<OsString> {
     // [#SPC-ui-cmdline-cmd-help]
-    App::new("rsk")
+    App::new("rst")
         .version("0.0.1")
-        .about("the requirements tracking tool made for developers. Call `rsk init -t` for \
+        .about("the requirements tracking tool made for developers. Call `rst init -t` for \
                 a tutorial")
-        .author("https://github.com/vitiral/rsk")
+        .author("https://github.com/vitiral/rst")
         .settings(&[AS::SubcommandRequiredElseHelp, AS::VersionlessSubcommands,
                     AS::DeriveDisplayOrder, AS::ColoredHelp])
         .arg(Arg::with_name("v")

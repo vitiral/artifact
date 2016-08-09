@@ -13,7 +13,7 @@ fn test_line_length() {
         ("set 3", data::settings_4::DATA),
         ("tst_load.py", data::test_load_py::DATA),
         ("tut_md", data::tutorial_md::DATA),
-        ("tut_rsk", data::tutorial_rsk::DATA)];
+        ("tut_rst", data::tutorial_rst::DATA)];
 
     for (fname, f) in files {
         for (i, l) in f.split('\n').enumerate() {

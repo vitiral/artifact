@@ -51,8 +51,8 @@ text = 'bar'
 disabled = false
 ";
 
-// valid rsk file
-pub static TOML_RSK: &'static str = "
+// valid rst file
+pub static TOML_RST: &'static str = "
 [settings]
 disabled = false
 artifact_paths = ['{cwd}/data/empty']
@@ -76,7 +76,7 @@ text = 'bar'
 partof = 'REQ-parts-p1'
 ";
 
-pub static TOML_RSK2: &'static str = "
+pub static TOML_RST2: &'static str = "
 [settings]
 artifact_paths = ['test/path']
 [REQ-baz]

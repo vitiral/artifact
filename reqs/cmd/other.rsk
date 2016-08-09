@@ -1,7 +1,7 @@
 [REQ-cmd]
 partof = "REQ-2-[ui, ui-[cmd, help]]"
 text = '''
-The rsk cmdline interface will provide submodules to meet the requirements
+The rst cmdline interface will provide submodules to meet the requirements
 defined in REQ-2-ui such as:
 
  - init: initialize the current repository
@@ -13,9 +13,9 @@ defined in REQ-2-ui such as:
 [REQ-tutorial]
 partof = "REQ-2-ui-tutorial"
 text = '''
-There **shall** be a tutorial that helps the user learn about rsk.
+There **shall** be a tutorial that helps the user learn about rst.
 
-The tutorial should be interactive and guide the user first through the basics of rsk
+The tutorial should be interactive and guide the user first through the basics of rst
 and then through recording the requirements and design specifications of a simple
 project.
 '''
@@ -23,7 +23,7 @@ project.
 [SPC-tutorial]
 text = '''
 Key points that should be hit during the tutorial are:
-- how to use `rsk` and the `ls` cmd
+- how to use `rst` and the `ls` cmd
 - basics of setting the paths to load docs
 - creating requirements
 - creating specifications
@@ -47,8 +47,8 @@ This will make the tutorial uniform and easier to read.
 
 [REQ-init]
 text = '''
-`rsk init` is the primary first command that will be run by the user when they
-want to create a rsk project. It will initialize a `.rsk` folder in the cwd
+`rst init` is the primary first command that will be run by the user when they
+want to create a rst project. It will initialize a `.rst` folder in the cwd
 (giving an error if the cwd is already initialized) and will give the user basic
 instructions on how to create requirements and where to get more information.
 '''

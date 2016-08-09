@@ -3,7 +3,7 @@ pub use std::path::{PathBuf, Path};
 pub use std::fs;
 use super::types::*;
 
-const SETTINGS_RSK: &'static str = r#"[settings]
+const SETTINGS_RST: &'static str = r#"[settings]
 artifact_paths = ["{repo}/reqs"]
 code_paths = []
 exclude_code_paths = []
@@ -13,10 +13,10 @@ exclude_code_paths = []
 # There are two variables that can be used anywhere:
 # - {cwd}: the path to the directory of the file using it
 # - {repo}: the path to the current repository, which is the closest
-#    directory (searching down) that contains a ".rsk" folder
+#    directory (searching down) that contains a ".rst" folder
 "#;
 
-const PURPOSE_RSK: &'static str = r#"# project purpose and definition documentation
+const PURPOSE_RST: &'static str = r#"# project purpose and definition documentation
 [REQ-purpose]
 text = '''
 The purpose of this project is...
@@ -41,7 +41,7 @@ pub fn do_init(path: &Path) -> io::Result<()> {
                 } else {
                     let p = e.path();
                     let fname = p.file_name().unwrap().to_str().unwrap();
-                    if fname == ".rsk" {
+                    if fname == ".rst" {
                         true
                     } else {
                         false
@@ -49,23 +49,23 @@ pub fn do_init(path: &Path) -> io::Result<()> {
                 }
             }
         });
-    let repo = path.join(".rsk");
+    let repo = path.join(".rst");
     let reqs = path.join("reqs");
     if !exists {
         try!(fs::create_dir(&repo));
         let _ = fs::create_dir(&reqs);
 
         // create settings
-        let settings = repo.join("settings.rsk");
-        let purpose = reqs.join("purpose.rsk");
+        let settings = repo.join("settings.rst");
+        let purpose = reqs.join("purpose.rst");
         let mut f = try!(fs::File::create(&settings));
-        f.write_all(SETTINGS_RSK.as_ref()).unwrap();
+        f.write_all(SETTINGS_RST.as_ref()).unwrap();
         let mut f = try!(fs::File::create(purpose));
-        f.write_all(PURPOSE_RSK.as_ref()).unwrap();
-        println!("rsk initialized at {} with artifacts at {}",
+        f.write_all(PURPOSE_RST.as_ref()).unwrap();
+        println!("rst initialized at {} with artifacts at {}",
                  settings.display(), reqs.display());
     } else {
-        println!("rsk already initialized at {}", repo.display());
+        println!("rst already initialized at {}", repo.display());
     }
     Ok(())
 }
