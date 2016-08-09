@@ -1,5 +1,5 @@
 [root]
-name = "rsk"
+name = "rst"
 version = "0.1.2"
 dependencies = [
  "ansi_term 0.7.5 (registry+https://github.com/rust-lang/crates.io-index)",
