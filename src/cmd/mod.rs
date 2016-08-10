@@ -111,7 +111,7 @@ pub fn cmd<'a, W, I, T>(w: &mut W, args: I)
     if let Some(ls) = matches.subcommand_matches("ls") {
         info!("Calling the ls command");
         let (search, fmtset, search_set) = ls::get_ls_cmd(&ls).unwrap();
-        ls::do_ls(w, &search, &artifacts, &fmtset, &search_set, &settings);
+        ls::do_ls(w, &cwd, &search, &artifacts, &fmtset, &search_set, &settings);
     } else {
         write!(w, "{} {}: use -h to show help",
                Green.bold().paint("rst"),

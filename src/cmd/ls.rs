@@ -1,5 +1,6 @@
 
 use super::types::*;
+use super::fmt as cmdfmt;
 
 /// Get the ls subcommand, which is what creates the command
 /// for the cmdline
@@ -246,6 +247,7 @@ pub fn get_ls_cmd(matches: &ArgMatches) -> Result<(String, FmtSettings, SearchSe
 
 /// perform the ls command given the inputs
 pub fn do_ls<W: Write>(w: &mut W,
+                       cwd: &Path,
                        search: &str,
                        artifacts: &Artifacts,
                        fmt_set: &FmtSettings,
@@ -293,6 +295,9 @@ pub fn do_ls<W: Write>(w: &mut W,
     }
 
 
+    if !fmt_set.long {
+        cmdfmt::write_table_header(w, &fmt_set, &settings);
+    }
     let mut displayed = ArtNames::new();
     for name in names {
         let art = match artifacts.get(&name) {
@@ -307,7 +312,7 @@ pub fn do_ls<W: Write>(w: &mut W,
             continue;
         }
         let f = ui::fmt_artifact(&name, artifacts, &fmt_set, fmt_set.recurse, &mut displayed);
-        f.write(w, artifacts, &settings, 0).unwrap(); // FIXME: unwrap
+        f.write(w, cwd, artifacts, &settings, 0).unwrap(); // FIXME: unwrap
     }
     if dne.len() > 0 {
         error!("The following artifacts do not exist: {:?}", dne);
