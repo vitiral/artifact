@@ -51,14 +51,20 @@ fn test_ls() {
     let (mut fmt_set, mut search_set, mut settings) = (FmtSettings::default(),
                                                        SearchSettings::default(),
                                                        Settings::default());
-    let artifacts = Artifacts::from_iter(vec![
+    let mut artifacts = Artifacts::from_iter(vec![
         Artifact::from_str("[REQ-foo]\n").unwrap(),
         Artifact::from_str("[SPC-foo]\n").unwrap(),
         Artifact::from_str("[TST-foo]\n").unwrap(),
         ]);
     fmt_set.color = true;
     let mut w: Vec<u8> = Vec::new();
+    let cwd = PathBuf::from("src/foo");
+    let reqs_path = PathBuf::from("reqs/foo.toml");
+    for (_, a) in artifacts.iter_mut() {
+        a.path = reqs_path.clone();
+    }
     ls::do_ls(&mut w,
+              &cwd,
               "req-foo", // case does not matter
               &artifacts,
               &fmt_set,
@@ -71,7 +77,7 @@ fn test_ls() {
     /// just pass it in and copy-paste
     fn debug_bytes(bytes: &Vec<u8>) {
         thread::sleep(time::Duration::new(0, 2e8 as u32));
-        println!("Debug {}:");
+        println!("Debug:");
         for b in bytes {
             print!("{}", *b as char);
         }

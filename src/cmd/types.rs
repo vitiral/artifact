@@ -6,6 +6,7 @@ pub use std::iter::FromIterator;
 // stdlib
 pub use std::collections::{HashSet, HashMap};
 pub use std::process::exit;
+pub use std::path::{Path, PathBuf};
 
 // string processing
 pub use std::io;

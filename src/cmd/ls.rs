@@ -246,6 +246,7 @@ pub fn get_ls_cmd(matches: &ArgMatches) -> Result<(String, FmtSettings, SearchSe
 
 /// perform the ls command given the inputs
 pub fn do_ls<W: Write>(w: &mut W,
+                       cwd: &Path,
                        search: &str,
                        artifacts: &Artifacts,
                        fmt_set: &FmtSettings,
