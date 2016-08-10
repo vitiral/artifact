@@ -163,7 +163,7 @@ if __name__ == '__main__':
 ```
  - `python2 src/hello.py`: it says hello world! That is good design :)
  - `vim ~/.rst/settings.toml` and add `"{repo}/src"` to `code_paths`
- - `rst ls -L` to show this lovely status report
+ - `rst ls` to show this lovely status report
 
 ![rst ls example](http://i.imgur.com/GrDFLxr.png?1)
 
