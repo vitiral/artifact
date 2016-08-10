@@ -5,7 +5,6 @@ use super::super::ls;
 
 use std::thread;
 use std::time;
-use std::ffi::OsStr;
 
 
 #[test]
@@ -77,7 +76,9 @@ fn test_ls() {
     }
     /// if the format changes, you can use this to help create the test for color
     /// just pass it in and copy-paste (validating that it looks right first of course...)
+    #[allow(dead_code)]
     fn debug_bytes(bytes: &Vec<u8>) {
+        // sleep for a bit so stderr passes us
         thread::sleep(time::Duration::new(0, 2e8 as u32));
         println!("Debug:");
         for b in bytes {

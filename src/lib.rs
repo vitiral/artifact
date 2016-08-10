@@ -1,6 +1,3 @@
-use std::io;
-use std::env;
-
 // # logger config
 extern crate fern;
 
@@ -52,8 +49,4 @@ pub fn init_logger(quiet: bool, verbosity: u8, stderr: bool) -> Result<(), fern:
         level: level,
     };
     fern::init_global_logger(logger_config, log::LogLevelFilter::Trace)
-}
-
-fn main() {
-    cmd::cmd(&mut io::stdout(), env::args());
 }

@@ -119,12 +119,12 @@ pub fn relative_path(path: &Path, relative_to_dir: &Path) -> PathBuf {
         }
         if !still_alike {
             match zipped {
-                EoB::Both(a, b) => {
+                EoB::Both(a, _) => {
                     relative.push("..");
                     remaining.push(a.as_ref());
                 },
                 EoB::Left(a) => remaining.push(a.as_ref()),
-                EoB::Right(b) => relative.push(".."),
+                EoB::Right(_) => relative.push(".."),
             }
         }
     }
