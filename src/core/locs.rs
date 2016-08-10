@@ -1,3 +1,4 @@
+use std::io;
 use super::types::*;
 
 lazy_static!{
@@ -88,8 +89,13 @@ pub fn find_locs_file(path: &Path,
         Ok(mut f) => match f.read_to_string(&mut text) {
             Ok(_) => {},
             Err(e) => {
-                error!("while reading from <{}>: {}", path.display(), e);
-                return true;
+                if e.kind() == io::ErrorKind::InvalidData {
+                    // non-utf8 is not considered a failure
+                    warn!("while reading from <{}>: {}", path.display(), e);
+                } else {
+                    error!("while reading from <{}>: {}", path.display(), e);
+                    return true;
+                }
             }
         },
         Err(e) => {
