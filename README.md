@@ -1,6 +1,8 @@
 # rst: requirements as easy as abc
-**rst** is a requirements tracking tool made for developers. It is an acronym for
-"Requirements, Specifications and Tests". **rst** is pronounced like "wrist"
+**rst** is a [requirements tracking](https://en.m.wikipedia.org/wiki/Software_requirements_specification) 
+tool made for developers. It is an acronym for "Requirements, Specifications and Tests". 
+
+**rst** is pronounced like "wrist"
 
 ## Tutorial
 Once installed run `rst -h` on the cmdline to view the help message. `rst tutorial` 
