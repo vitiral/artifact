@@ -10,7 +10,7 @@ pub fn get_matches<'a, I, T>(args: I) -> ClapResult<ArgMatches<'a>>
     where I: IntoIterator<Item=T>, T: Into<OsString> {
     // [#SPC-ui-cmdline-cmd-help]
     App::new("rst")
-        .version("0.0.1")
+        .version(env!("CARGO_PKG_VERSION"))
         .about("the requirements tracking tool made for developers. Call `rst init -t` for \
                 a tutorial")
         .author("https://github.com/vitiral/rst")
