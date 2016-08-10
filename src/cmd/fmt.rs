@@ -31,10 +31,11 @@ impl FmtArtifact {
         };
 
         // format the completeness and name
-        let completed_str = ((artifact.completed * 100.) as i64).to_string();
-        let tested_str = ((artifact.tested * 100.) as i64).to_string();
+        let completed_str = ((artifact.completed * 100.) as u8).to_string();
+        let tested_str = ((artifact.tested * 100.) as u8).to_string();
+        let completed_len = completed_str.len();
+        let tested_len = tested_str.len();
         if settings.color {
-
             // #SPC-ls-color]
             let (d_sym, d_perc, t_sym, t_perc, name) = if artifact.completed >= 1. &&
                     artifact.tested >= 1. {
@@ -88,12 +89,12 @@ impl FmtArtifact {
             } else {
                 try!(write!(w, "|{}{}| ", d_sym, t_sym));
                 // format completed %
-                for _ in 0..(5 - d_perc.len()) {
+                for _ in 0..(3 - completed_len) {
                     try!(w.write_all(" ".as_ref()));
                 }
                 try!(write!(w, "{}% ", d_perc));
                 // format tested %
-                for _ in 0..(5 - t_perc.len()) {
+                for _ in 0..(3 - tested_len) {
                     try!(w.write_all(" ".as_ref()));
                 }
                 try!(write!(w, "{}% ", t_perc));
@@ -214,3 +215,34 @@ impl FmtArtifact {
     }
 }
 
+pub fn write_table_header<W: io::Write> (
+        w: &mut W,
+        fmt_set: &FmtSettings,
+        settings: &Settings) {
+    let mut header = String::new();
+    header.write_str("|  | DONE TEST | ARTIFACT NAME").unwrap();
+    for _ in 0..33 {
+        header.push(' ');
+    }
+    if fmt_set.parts {
+        header.write_str("| PARTS   ").unwrap();
+    }
+    if fmt_set.partof {
+        header.write_str("| PARTOF   ").unwrap();
+    }
+    if fmt_set.loc_path {
+        header.write_str("| IMPLEMENTED   ").unwrap();
+    }
+    if fmt_set.path {
+        header.write_str("| DEFINED   ").unwrap();
+    }
+    if fmt_set.text {
+        header.write_str("| TEXT").unwrap();
+    }
+    header.push('\n');
+    if settings.color {
+        write!(w, "{}", Style::new().bold().paint(header)).unwrap();
+    } else {
+        write!(w, "{}", header).unwrap();
+    }
+}

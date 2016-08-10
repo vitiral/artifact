@@ -10,6 +10,7 @@ pub use std::path::{Path, PathBuf};
 
 // string processing
 pub use std::io;
+pub use ansi_term::Style;
 pub use ansi_term::Colour::{Red, Blue, Green, Yellow};
 pub use regex::{Regex, RegexBuilder};
 

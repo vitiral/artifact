@@ -1,5 +1,6 @@
 
 use super::types::*;
+use super::fmt as cmdfmt;
 
 /// Get the ls subcommand, which is what creates the command
 /// for the cmdline
@@ -294,6 +295,9 @@ pub fn do_ls<W: Write>(w: &mut W,
     }
 
 
+    if !fmt_set.long {
+        cmdfmt::write_table_header(w, &fmt_set, &settings);
+    }
     let mut displayed = ArtNames::new();
     for name in names {
         let art = match artifacts.get(&name) {

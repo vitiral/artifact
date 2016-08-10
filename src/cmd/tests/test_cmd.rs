@@ -51,17 +51,19 @@ fn test_ls() {
     let (mut fmt_set, mut search_set, mut settings) = (FmtSettings::default(),
                                                        SearchSettings::default(),
                                                        Settings::default());
-    let mut artifacts = Artifacts::from_iter(vec![
-        Artifact::from_str("[REQ-foo]\n").unwrap(),
-        Artifact::from_str("[SPC-foo]\n").unwrap(),
-        Artifact::from_str("[TST-foo]\n").unwrap(),
-        ]);
+    let mut artifacts = core::load::load_toml_simple("[REQ-foo]\n[SPC-foo]\n[TST-foo]\n");
+    core::link::link_named_partofs(&mut artifacts);
+    core::link::link_parents(&mut artifacts);
+    core::link::validate_partof(&artifacts).unwrap();
+    core::link::link_parts(&mut artifacts);
     fmt_set.color = true;
     let mut w: Vec<u8> = Vec::new();
     let cwd = PathBuf::from("src/foo");
     let reqs_path = PathBuf::from("reqs/foo.toml");
     for (_, a) in artifacts.iter_mut() {
         a.path = reqs_path.clone();
+        a.completed = 1.;
+        a.tested = 0.5;
     }
     ls::do_ls(&mut w,
               &cwd,
@@ -74,7 +76,7 @@ fn test_ls() {
         Vec::from_iter(b.iter().cloned())
     }
     /// if the format changes, you can use this to help create the test for color
-    /// just pass it in and copy-paste
+    /// just pass it in and copy-paste (validating that it looks right first of course...)
     fn debug_bytes(bytes: &Vec<u8>) {
         thread::sleep(time::Duration::new(0, 2e8 as u32));
         println!("Debug:");
@@ -84,6 +86,8 @@ fn test_ls() {
         for b in bytes {
             match *b {
                 // 9 => print!("{}", *b as char), // TAB
+                b'\n' => print!("\\n"),
+                b'\r' => print!("\\r"),
                 32...126 => print!("{}", *b as char), // visible ASCII
                 _ => print!(r"\x{:0>2x}", b),
 
@@ -91,7 +95,7 @@ fn test_ls() {
         }
         println!("");
     }
-    debug_bytes(&w);
-    let expected = b"|\x1b[1;31m-\x1b[0m\x1b[1;31m-\x1b[0m|  \x1b[1;31m-100\x1b[0m%  \x1b[1;31m-100\x1b[0m% | \x1b[1;4;31mreq-foo\x1b[0m                                       |  | ../../reqs/foo.toml \x0a";
+    // debug_bytes(&w);
+    let expected = b"\x1b[1m|  | DONE TEST | ARTIFACT NAME                                 | PARTS   | DEFINED   \n\x1b[0m|\x1b[1;34mD\x1b[0m\x1b[1;33m-\x1b[0m| \x1b[1;34m100\x1b[0m%  \x1b[1;33m50\x1b[0m% | \x1b[1;4;34mreq-foo\x1b[0m                                       | \x1b[34mSPC-foo\x1b[0m | ../../reqs/foo.toml \n";
     assert_eq!(vb(expected), w);
 }
