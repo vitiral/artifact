@@ -83,9 +83,12 @@ by simply re-running the first line.
 If you have rust and cargo installed (recommendation: install them with
 [rustup](https://github.com/rust-lang-nursery/rustup.rs)), simply execute:
 ```
-cargo install rst
+cargo install rst_app
 ```
 and follow any directions it tells you to.
+
+> Note: this library was renamed to rst_app to not conflict with a future ReStructredText
+> library. See [#6](https://github.com/vitiral/rst/issues/6)
 
 # Ultra Simple Tutorial
 > **For a full tutorial, install rst and run `rst tutorial`**
