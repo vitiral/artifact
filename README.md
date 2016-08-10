@@ -1,10 +1,10 @@
 # rst: requirements as easy as abc
-**rst** is a requirements tracking tool made for developers and stands for
-"Requirements, Specifications and Tests". **rst** is pronounced "wrist"
+**rst** is a requirements tracking tool made for developers. It is an acronym for
+"Requirements, Specifications and Tests". **rst** is pronounced like "wrist"
 
 ## Tutorial
-Once installed call `rst -h` and see the help message. `rst tutorial` will start the
-interactive tutorial.
+Once installed run `rst -h` on the cmdline to view the help message. `rst tutorial` 
+will start the interactive tutorial.
 
 ## Purpose
 Requirements and design-documentation are probably the most important components of
@@ -28,9 +28,9 @@ test coverage.
 
 If you like or use **rst** please star:star: it on 
 [github](https://github.com/vitiral/rst) and mention it to friends and colleagues. 
-It is my belief that requirements tracking needs to be as second nature for 
-developers as revision control and unit testing has become. I hope that by building 
-better software we can all make the world just a little bit better.
+It is my belief that requirements tracking needs to be as second nature as revision 
+control and unit testing has become. I hope that by building better software we can 
+all make the world just a little bit better.
 
 If you find bugs or have any suggestions, please open an issue here:
 [bug tracker](https://github.com/vitiral/rst/issues)

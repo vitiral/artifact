@@ -125,7 +125,9 @@ pub fn do_tutorial(part: u8) -> io::Result<()> {
         // delete anything we shouldn't
         match try!(fs::read_dir(&CWD)).next() {
             Some(_) => {
-                println!("ERROR: can only start the rst tutorial in an empty directory");
+                println!("ERROR: can only start the rst tutorial in an empty directory. \
+                          To make an empty directory and change-dir to it, run:\n    \
+                          mkdir ~/tryrst; cd ~/tryrst");
                 return Ok(());
             }
             None => {}  // empty directory, what we want
