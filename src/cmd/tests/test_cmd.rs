@@ -3,13 +3,16 @@ use super::super::types::*;
 use super::super::matches::*;
 use super::super::ls;
 
+use std::ffi::OsStr;
+
+
 #[test]
 /// partof: #TST-ls-interface
 fn test_get_matches() {
     let args = vec!["rst", "ls", "-l"];
     let matches = get_matches(&args).unwrap();
-    let (search, fmtset, search_set) = ls::get_ls_cmd(
-        matches.subcommand_matches("ls").unwrap()).unwrap();
+    let (search, fmtset, search_set) = ls::get_ls_cmd(matches.subcommand_matches("ls").unwrap())
+                                           .unwrap();
     assert_eq!(search, "");
     assert_eq!(fmtset.long, true);
     assert_eq!(fmtset.recurse, 0);
@@ -18,8 +21,8 @@ fn test_get_matches() {
     // test that -A works
     let args = vec!["rst", "ls", "all", "-AP"];
     let matches = get_matches(&args).unwrap();
-    let (search, fmtset, search_set) = ls::get_ls_cmd(
-        matches.subcommand_matches("ls").unwrap()).unwrap();
+    let (search, fmtset, search_set) = ls::get_ls_cmd(matches.subcommand_matches("ls").unwrap())
+                                           .unwrap();
     assert_eq!(search, "all");
     assert_eq!(fmtset.long, false);
     assert_eq!(fmtset.parts, false);
@@ -32,8 +35,8 @@ fn test_get_matches() {
     // #TST-ls-search
     let args = vec!["rst", "ls", "regex", "-p", "TNL"];
     let matches = get_matches(&args).unwrap();
-    let (search, _, search_set) = ls::get_ls_cmd(
-        matches.subcommand_matches("ls").unwrap()).unwrap();
+    let (search, _, search_set) = ls::get_ls_cmd(matches.subcommand_matches("ls").unwrap())
+                                      .unwrap();
     assert_eq!(search, "regex");
     assert!(search_set.text);
     assert!(search_set.name);
@@ -43,22 +46,35 @@ fn test_get_matches() {
 
 #[test]
 fn test_ls() {
-    let (mut fmt_set, mut search_set, mut settings) = (
-        FmtSettings::default(),
-        SearchSettings::default(),
-        Settings::default(),
-    );
+    let (mut fmt_set, mut search_set, mut settings) = (FmtSettings::default(),
+                                                       SearchSettings::default(),
+                                                       Settings::default());
     let artifacts = Artifacts::from_iter(vec![
         Artifact::from_str("[REQ-foo]\n").unwrap(),
         Artifact::from_str("[SPC-foo]\n").unwrap(),
         Artifact::from_str("[TST-foo]\n").unwrap(),
         ]);
+    fmt_set.color = true;
     let mut w: Vec<u8> = Vec::new();
-    ls::do_ls(
-        &mut w,
-        "req-foo", // case does not matter
-        &artifacts,
-        &fmt_set,
-        &search_set,
-        &settings);
+    ls::do_ls(&mut w,
+              "req-foo", // case does not matter
+              &artifacts,
+              &fmt_set,
+              &search_set,
+              &settings);
+    fn vb(b: &'static [u8]) -> Vec<u8> {
+        Vec::from_iter(b.iter().cloned())
+    }
+    fn debug_bytes(bytes: &Vec<u8>) {
+        println!("Debug:");
+        for b in bytes {
+            match *b {
+                1...127 => print!("{}", *b as char),
+                _ => print!(r"<{}>", b),
+            }
+        }
+        println!("");
+    }
+    debug_bytes(&w);
+    assert_eq!(vb(b"hi"), w);
 }
