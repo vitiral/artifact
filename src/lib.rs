@@ -23,7 +23,7 @@ extern crate ansi_term;
 
 pub mod core;
 pub mod ui;
-mod cmd;
+pub mod cmd;
 
 
 pub const VERSION: &'static str = env!("CARGO_PKG_VERSION");
