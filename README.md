@@ -165,7 +165,7 @@ if __name__ == '__main__':
  - `vim ~/.rst/settings.toml` and add `"{repo}/src"` to `code_paths`
  - `rst ls -L` to show this lovely status report
 
-![rst ls example](http://imgur.com/GrDFLxr)
+![rst ls example](http://i.imgur.com/GrDFLxr.png?1)
 
 As you can see, we've finished our specs and tests for saying hello to the world,
 but not to the aliens. It would be good to know if you had finished the second part
