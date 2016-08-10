@@ -116,13 +116,14 @@ there **shall** be way to say hello to the world. All of it.
 
 [SPC-world]
 text = '''
-The hello-world function shall say hello by printing it on the cmdline
+The hello-world function shall say hello by printing it on 
+the cmdline
 '''
 
 [TST-world]
 text = '''
-To make this testable, there will be an intermediary function that can
-test it before printing.
+To make this testable, there will be an intermediary 
+function that can test it before printing.
 '''
 
 [REQ-aliens]
@@ -147,11 +148,13 @@ def _hello_world():
     return "hello world!"
 
 def test_greeting():
-    ''' partof: #TST-world '''
+    ''' test that the greeting works as expected
+    partof: #TST-world '''
     assert _hello_world() == "hello world!"
 
 def hello_world():
-    ''' partof: #SPC-world '''
+    ''' say hello to the world
+    partof: #SPC-world '''
     print _hello_world()
 
 if __name__ == '__main__':
@@ -160,18 +163,9 @@ if __name__ == '__main__':
 ```
  - `python2 src/hello.py`: it says hello world! That is good design :)
  - `vim ~/.rst/settings.toml` and add `"{repo}/src"` to `code_paths`
- - `rst ls -L` to show this lovely status report (run on your own computer for color):
-```
-|--|    50%    50% | REQ
-|--|     0%     0% | REQ-aliens
-|--|    50%    50% | REQ-purpose
-|DT|   100%   100% | REQ-world
-|--|    50%    50% | SPC
-|--|     0%     0% | SPC-aliens
-|DT|   100%   100% | SPC-world   | <L:$CWD/src/hello.py(12:16)>
-|DT|   100%   100% | TST
-|DT|   100%   100% | TST-world   | <L:$CWD/src/hello.py(8:16)>
-```
+ - `rst ls -L` to show this lovely status report
+
+![rst ls example](http://imgur.com/GrDFLxr)
 
 As you can see, we've finished our specs and tests for saying hello to the world,
 but not to the aliens. It would be good to know if you had finished the second part
