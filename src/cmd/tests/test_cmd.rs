@@ -92,6 +92,6 @@ fn test_ls() {
         println!("");
     }
     debug_bytes(&w);
-    let expected = b"|\x1b[1;31m-\x1b[0m\x1b[1;31m-\x1b[0m|  \x1b[1;31m-100\x1b[0m%  \x1b[1;31m-100\x1b[0m% | \x1b[1;4;31mreq-foo\x1b[0m                                       |  | from_str \x0a";
+    let expected = b"|\x1b[1;31m-\x1b[0m\x1b[1;31m-\x1b[0m|  \x1b[1;31m-100\x1b[0m%  \x1b[1;31m-100\x1b[0m% | \x1b[1;4;31mreq-foo\x1b[0m                                       |  | ../../reqs/foo.toml \x0a";
     assert_eq!(vb(expected), w);
 }

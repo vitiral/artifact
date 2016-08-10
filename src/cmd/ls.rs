@@ -308,7 +308,7 @@ pub fn do_ls<W: Write>(w: &mut W,
             continue;
         }
         let f = ui::fmt_artifact(&name, artifacts, &fmt_set, fmt_set.recurse, &mut displayed);
-        f.write(w, artifacts, &settings, 0).unwrap(); // FIXME: unwrap
+        f.write(w, cwd, artifacts, &settings, 0).unwrap(); // FIXME: unwrap
     }
     if dne.len() > 0 {
         error!("The following artifacts do not exist: {:?}", dne);

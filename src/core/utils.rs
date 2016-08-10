@@ -4,6 +4,7 @@ use std::fmt;
 use strfmt;
 
 use super::types::*;
+use itertools::{Itertools, EitherOrBoth as EoB};
 
 pub fn do_strfmt(s: &str, vars: &HashMap<String, String>, fpath: &PathBuf)
              -> LoadResult<String> {
@@ -101,3 +102,48 @@ pub fn find_and_insert_repo(dir: &Path, repo_map: &mut HashMap<PathBuf, PathBuf>
     Ok(())
 }
 
+
+/// get the path relative to the realative_to_dir
+/// for example (foo/bar.txt, bar/baz) => ../../foot/bar.txt
+pub fn relative_path(path: &Path, relative_to_dir: &Path) -> PathBuf {
+    let mut relative = PathBuf::new();
+    let mut remaining = PathBuf::new();
+    let mut still_alike = true;
+    for zipped in path.components().zip_longest(relative_to_dir.components()) {
+        if still_alike {
+            still_alike = match zipped {
+                EoB::Both(a, b) => a == b,  // consume idential part of path
+                EoB::Left(_) => false,  // relative_to_dir is root of path
+                _ => unreachable!("paths have no identical root"),
+            }
+        }
+        if !still_alike {
+            match zipped {
+                EoB::Both(a, b) => {
+                    relative.push("..");
+                    remaining.push(a.as_ref());
+                },
+                EoB::Left(a) => remaining.push(a.as_ref()),
+                EoB::Right(b) => relative.push(".."),
+            }
+        }
+    }
+    relative.extend(remaining.iter());
+    relative
+}
+
+#[test]
+fn test_relative_path() {
+    assert_eq!(relative_path(&PathBuf::from("/foo/bar/txt.t"),
+                             &PathBuf::from("/foo/bar/")),
+               PathBuf::from("txt.t"));
+    assert_eq!(relative_path(&PathBuf::from("/foo/bar/baz/txt.t"),
+                             &PathBuf::from("/foo/bar/")),
+               PathBuf::from("baz/txt.t"));
+    assert_eq!(relative_path(&PathBuf::from("foo/bar/txt.t"),
+                             &PathBuf::from("foo/baz/")),
+               PathBuf::from("../bar/txt.t"));
+    assert_eq!(relative_path(&PathBuf::from("/home/user/projects/what/src/foo/bar.txt"),
+                             &PathBuf::from("/home/user/projects/what/reqs/left/right/a/b/c/")),
+               PathBuf::from("../../../../../../src/foo/bar.txt"));
+}

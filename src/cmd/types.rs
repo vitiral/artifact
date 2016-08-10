@@ -18,6 +18,7 @@ pub use clap::{Arg, App, SubCommand, ArgMatches, AppSettings as AS, Result as Cl
 
 // module types
 pub use super::super::core;
+pub use super::super::core::utils;
 pub use super::super::core::{
     Settings, Artifact, Artifacts,
     ArtType, Loc,

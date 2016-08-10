@@ -6,7 +6,8 @@ impl FmtArtifact {
     /// write the formatted version of the artifact to the
     /// cmdline writter
     /// [#SPC-ui-cmdline-ls-flags-impl-formatting]
-    pub fn write<W: io::Write> (&self, w: &mut W, artifacts: &Artifacts,
+    pub fn write<W: io::Write> (&self, w: &mut W, cwd: &Path,
+                                artifacts: &Artifacts,
                                 settings: &Settings, indent: u8)
                                 -> io::Result<()> {
         let nfno = indent > 0 && self.name_only(); // not-first-name-only
@@ -126,7 +127,7 @@ impl FmtArtifact {
                 if self.long {
                     w.write_all("\n    ".as_ref()).unwrap();
                 }
-                try!(p.write(w, artifacts, settings, indent + 1));
+                try!(p.write(w, cwd, artifacts, settings, indent + 1));
                 num_written += 1;
                 if !self.long && num_written < parts.len() {
                     w.write_all(", ".as_ref()).unwrap();
@@ -144,7 +145,7 @@ impl FmtArtifact {
                     try!(w.write_all(", ".as_ref()));
                 }
                 first = false;
-                try!(p.write(w, artifacts, settings, indent + 1));
+                try!(p.write(w, cwd, artifacts, settings, indent + 1));
             }
             self.write_end(w);
         }
@@ -163,8 +164,14 @@ impl FmtArtifact {
         // format where the artifact is defined
         if let Some(ref path) = self.path {
             self.write_header(w, "\n * defined-at: ", settings);
-            try!(w.write_all(path.to_string_lossy().as_ref().as_ref()));
-            self.write_end(w)
+            let path = if *path != PathBuf::from("PARENT") {
+                utils::relative_path(path.as_path(), cwd)
+            } else {
+                path.to_path_buf()
+            };
+            // try!(w.write_all(path.to_string_lossy().as_ref().as_ref()));
+            try!(write!(w, "{}", path.display()));
+            self.write_end(w);
         }
 
         // format the text
