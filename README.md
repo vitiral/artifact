@@ -95,9 +95,9 @@ this would be the process.
 
  - `mkdir` and `cd`to an empty folder
  - `rst init`
- - `vim reqs/design.rst` and write my requirements and design
+ - `vim reqs/design.toml` and write my requirements and design
 ```
-# reqs/design.rst
+# reqs/design.toml
 [REQ-purpose]
 text = '''
 we need to be able to say hello to both the world and aliens
@@ -154,7 +154,7 @@ if __name__ == '__main__':
     hello_world()
 ```
  - `python2 src/hello.py`: it says hello world! That is good design :)
- - `vim ~/.rst/settings.rst` and add `"{repo}/src"` to `code_paths`
+ - `vim ~/.rst/settings.toml` and add `"{repo}/src"` to `code_paths`
  - `rst ls -L` to show this lovely status report (run on your own computer for color):
 ```
 |--|    50%    50% | REQ
