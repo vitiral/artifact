@@ -3,6 +3,8 @@ use super::super::types::*;
 use super::super::matches::*;
 use super::super::ls;
 
+use std::thread;
+use std::time;
 use std::ffi::OsStr;
 
 
@@ -65,16 +67,25 @@ fn test_ls() {
     fn vb(b: &'static [u8]) -> Vec<u8> {
         Vec::from_iter(b.iter().cloned())
     }
+    /// if the format changes, you can use this to help create the test for color
+    /// just pass it in and copy-paste
     fn debug_bytes(bytes: &Vec<u8>) {
-        println!("Debug:");
+        thread::sleep(time::Duration::new(0, 2e8 as u32));
+        println!("Debug {}:");
+        for b in bytes {
+            print!("{}", *b as char);
+        }
         for b in bytes {
             match *b {
-                1...127 => print!("{}", *b as char),
-                _ => print!(r"<{}>", b),
+                // 9 => print!("{}", *b as char), // TAB
+                32...126 => print!("{}", *b as char), // visible ASCII
+                _ => print!(r"\x{:0>2x}", b),
+
             }
         }
         println!("");
     }
     debug_bytes(&w);
-    assert_eq!(vb(b"hi"), w);
+    let expected = b"|\x1b[1;31m-\x1b[0m\x1b[1;31m-\x1b[0m|  \x1b[1;31m-100\x1b[0m%  \x1b[1;31m-100\x1b[0m% | \x1b[1;4;31mreq-foo\x1b[0m                                       |  | from_str \x0a";
+    assert_eq!(vb(expected), w);
 }
