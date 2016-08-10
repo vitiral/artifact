@@ -177,6 +177,19 @@ documents. I have a few parting words of advice for using the tool:
 
 Other than that, good luck!
 
+
+##################################################
+# Additional Resources
+It is the plan of this author to write a "hacker's intro to requirements" book
+in the github wiki of this project. Until then, here are some useful references
+
+## Wikipedia page:
+> https://en.m.wikipedia.org/wiki/Software_requirements_specification
+
+This is an excellent introduction to the purpose of writing requirements
+as well as an initial template for how you might structure your requirements.
+Well worth the read for any developer.
+
 ##################################################
 # Summary and Final Words
 
@@ -185,4 +198,5 @@ This tutorial took you part of the way through developing a simple project using
 you are most comftorable. Have some fun with the rst tool, try to break it. If
 you manage to break it or have any suggestions, please open a ticket at:
 https://github.com/vitiral/rst/issues
+
 "##;
