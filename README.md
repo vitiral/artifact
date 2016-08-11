@@ -137,6 +137,7 @@ text = '''
 I think we should use SETI or something
 '''
 ```
+Okay, now that we've written our requirements and design, let's start coding!
  - `mkdir src`
  - `vim src/hello.py` and write my program
 ```
