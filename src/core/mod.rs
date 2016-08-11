@@ -39,10 +39,7 @@ pub fn init_logger_test() {
 
 
 
-/// do all core loading operations defined in SPC-core-load-parts
-/// includes loading and validating raw data, resolving and applying
-/// variables, and linking artifacts
-/// LOC-core-load-path
+/// Load all items from the toml file at path
 pub fn load_path(path: &Path) -> LoadResult<(Artifacts, Settings, HashMap<ArtName, Loc>)>{
     let start = time::get_time();
     info!("loading path: {}", path.to_string_lossy().as_ref());

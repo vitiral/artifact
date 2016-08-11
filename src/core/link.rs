@@ -3,7 +3,6 @@
 use super::types::*;
 
 pub fn do_links(artifacts: &mut Artifacts) -> LoadResult<()> {
-    // LOC-core-load-parts-4:<auto-creation of missing prefix artifacts>
     link_named_partofs(artifacts); // MUST come before parents are created
     create_parents(artifacts);
     link_parents(artifacts);

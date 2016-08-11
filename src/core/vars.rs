@@ -107,7 +107,6 @@ pub fn resolve_vars(variables: &mut Variables) -> LoadResult<()> {
 }
 
 /// use the variables to fill in the text fields of all artifacts
-/// LOC-artifacts-vars
 pub fn fill_text_fields(artifacts: &mut Artifacts,
                         variables: &mut Variables,
                         repo_map: &mut HashMap<PathBuf, PathBuf>)
