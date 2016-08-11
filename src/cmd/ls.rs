@@ -59,7 +59,7 @@ pub fn get_subcommand<'a, 'b>() -> App<'a, 'b> {
 pub fn _get_percent(s: &str) -> Result<(Option<bool>, Option<u8>), String> {
     let mut s = s;
     let mut lt = None;
-    if s.len() == 0 {
+    if s.is_empty() {
         return Ok((lt, None));
     }
     let mut had_sign = true;
@@ -76,11 +76,11 @@ pub fn _get_percent(s: &str) -> Result<(Option<bool>, Option<u8>), String> {
     if had_sign {
         // the first char was either < or >
         s = s.split_at(1).1;
-        if s.len() == 0 {
+        if s.is_empty() {
             return Ok((lt, None));
         }
     }
-    if s.len() == 0 {
+    if s.is_empty() {
         return Ok((lt, None));
     }
     match s.parse::<u8>() {
@@ -104,18 +104,15 @@ fn get_percent(s: &str) -> Result<PercentSearch, String> {
                     perc: 100,
                 }
             } else if perc.is_none() {
-                match lt.unwrap() {
-                    true => {
-                        PercentSearch {
-                            lt: true,
-                            perc: 0,
-                        }
+                if lt.unwrap() {
+                    PercentSearch {
+                        lt: true,
+                        perc: 0,
                     }
-                    false => {
-                        PercentSearch {
-                            lt: false,
-                            perc: 100,
-                        }
+                } else {
+                    PercentSearch {
+                        lt: false,
+                        perc: 100,
                     }
                 }
             } else {
@@ -222,16 +219,12 @@ pub fn get_ls_cmd(matches: &ArgMatches) -> Result<(String, FmtSettings, SearchSe
         _ => unreachable!(),
     };
     debug!("tested: {:?}", search_set.tested);
-    match matches.value_of("completed") {
-        Some(c) => search_set.completed = try!(get_percent(c)),
-        None => {}
+    if let Some(c) = matches.value_of("completed") {
+        search_set.completed = try!(get_percent(c))
     }
-    match matches.value_of("tested") {
-        Some(t) => {
-            debug!("got tested: {}", t);
-            search_set.tested = try!(get_percent(t));
-        }
-        None => {}
+    if let Some(t) = matches.value_of("tested") {
+        debug!("got tested: {}", t);
+        search_set.tested = try!(get_percent(t));
     }
     debug!("tested: {:?}", search_set.tested);
 
@@ -263,7 +256,7 @@ pub fn do_ls<W: Write>(w: &mut W,
     let pat_case;
     if search_set.use_regex {
         // names to use are determined by filtering the regex
-        let pat = RegexBuilder::new(&search)
+        let pat = RegexBuilder::new(search)
                       .case_insensitive(true)
                       .compile();
         pat_case = match pat {
@@ -273,17 +266,17 @@ pub fn do_ls<W: Write>(w: &mut W,
                 exit(1);
             }
         };
-        names.extend(artifacts.keys().map(|n| n.clone()));
+        names.extend(artifacts.keys().cloned());
         names.sort();
     } else {
         // names to use are determined from the beginning
-        names.extend(ArtNames::from_str(&search).unwrap());
+        names.extend(ArtNames::from_str(search).unwrap());
         names.sort();
         debug!("artifact names selected: {:?}", names);
         pat_case = Regex::new("").unwrap();
     }
     debug!("fmt_set empty: {}", fmt_set.is_empty());
-    if names.len() == 0 && search.len() == 0 {
+    if names.is_empty() && search.is_empty() {
         names.extend(artifacts.keys().cloned());
         names.sort();
     }
@@ -312,7 +305,7 @@ pub fn do_ls<W: Write>(w: &mut W,
         let f = ui::fmt_artifact(&name, artifacts, &fmt_set, fmt_set.recurse, &mut displayed);
         f.write(w, cwd, artifacts, &settings, 0).unwrap(); // FIXME: unwrap
     }
-    if dne.len() > 0 {
+    if !dne.is_empty() {
         error!("The following artifacts do not exist: {:?}", dne);
         exit(1);
     }

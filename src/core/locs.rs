@@ -138,27 +138,20 @@ fn find_locs_dir(path: &PathBuf, loaded_dirs: &mut HashSet<PathBuf>,
         };
         if ftype.is_dir() {
             dirs_to_load.push(fpath.clone());
-        } else if ftype.is_file() {
-            match find_locs_file(&fpath, locs) {
-                true => error = true,
-                false => {},
-            }
+        } else if ftype.is_file() && find_locs_file(&fpath, locs) {
+            error = true
         }
     };
 
     for d in dirs_to_load {
-        if loaded_dirs.contains(&d) {
-            continue;
-        }
-        match find_locs_dir(&d, loaded_dirs, locs) {
-            true => error = true,
-            false => {},
+        if !loaded_dirs.contains(&d) && find_locs_dir(&d, loaded_dirs, locs) {
+            error = true
         }
     }
     error
 }
 
-/// search through the code_paths in settings to find all valid locs
+/// search through the `code_paths` in settings to find all valid locs
 /// partof: #SPC-loc
 pub fn find_locs(settings: &mut Settings) -> LoadResult<HashMap<ArtName, Loc>> {
     info!("parsing code files for artifacts...");
@@ -166,7 +159,7 @@ pub fn find_locs(settings: &mut Settings) -> LoadResult<HashMap<ArtName, Loc>> {
     let mut loaded_dirs: HashSet<PathBuf> = HashSet::from_iter(
         settings.exclude_code_paths.iter().map(|p| p.to_path_buf()));
     // first make sure the excluded directories exist
-    for d in loaded_dirs.iter() {
+    for d in &loaded_dirs {
         if !d.exists() {
             let mut msg = String::new();
             write!(msg, "excluded path {} does not exist!", d.display()).unwrap();
@@ -174,15 +167,14 @@ pub fn find_locs(settings: &mut Settings) -> LoadResult<HashMap<ArtName, Loc>> {
         }
     }
     debug!("initial excluded code paths: {:?}", loaded_dirs);
-    while settings.code_paths.len() > 0 {
+    while !settings.code_paths.is_empty() {
         let dir = settings.code_paths.pop_front().unwrap(); // it has len, it better pop!
         if loaded_dirs.contains(&dir) {
             continue
         }
         debug!("Loading from code: {:?}", dir);
-        match find_locs_dir(&dir, &mut loaded_dirs, &mut locs) {
-            false => {},
-            true => return Err(LoadError::new("encountered errors while finding locations".to_string())),
+        if find_locs_dir(&dir, &mut loaded_dirs, &mut locs) {
+            return Err(LoadError::new("encountered errors while finding locations".to_string()))
         }
     }
     Ok(locs)

@@ -40,11 +40,7 @@ pub fn do_init(path: &Path) -> io::Result<()> {
                 } else {
                     let p = e.path();
                     let fname = p.file_name().unwrap().to_str().unwrap();
-                    if fname == ".rst" {
-                        true
-                    } else {
-                        false
-                    }
+                    fname == ".rst"
                 }
             }
         });

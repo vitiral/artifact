@@ -122,14 +122,11 @@ pub fn do_tutorial(part: u8) -> io::Result<()> {
         debug!("cwd is not a tutorial");
         // make sure the directory is empty -- we don't want to
         // delete anything we shouldn't
-        match try!(fs::read_dir(&CWD)).next() {
-            Some(_) => {
-                println!("ERROR: can only start the rst tutorial in an empty directory. \
-                          To make an empty directory and change-dir to it, run:\n    \
-                          mkdir ~/tryrst; cd ~/tryrst");
-                return Ok(());
-            }
-            None => {}  // empty directory, what we want
+        if try!(fs::read_dir(&CWD)).next().is_some() {
+            println!("ERROR: can only start the rst tutorial in an empty directory. \
+                      To make an empty directory and change-dir to it, run:\n    \
+                      mkdir ~/tryrst; cd ~/tryrst");
+            return Ok(());
         }
     } else {
         debug!("cwd is already a tutorial")

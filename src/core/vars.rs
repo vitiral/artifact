@@ -35,12 +35,9 @@ pub fn resolve_default_vars(vars: &Variables, fpath: &Path,
                 continue;
             }
         };
-        match variables.insert(k.clone(), var) {
-            Some(_) => {
-                error!("global var {:?} exists twice, one at {:?}", k, fpath);
-                error = true;
-            }
-            None => {}
+        if variables.insert(k.clone(), var).is_some() {
+            error!("global var {:?} exists twice, one at {:?}", k, fpath);
+            error = true;
         }
     }
     if error {
@@ -55,19 +52,19 @@ pub fn resolve_default_vars(vars: &Variables, fpath: &Path,
 pub fn resolve_vars(variables: &mut Variables) -> LoadResult<()> {
     // keep resolving variables until all are resolved
     let mut msg = String::new();
-    let mut keys: Vec<String> = variables.keys().map(|s| s.clone()).collect();
+    let mut keys: Vec<String> = variables.keys().cloned().collect();
     let mut errors = Vec::new();
     let mut num_changed;
     let mut remove_keys = DEFAULT_GLOBALS.clone();
     loop {
         keys = keys.iter().filter(|k| !remove_keys.contains(k.as_str()))
-            .map(|s| s.clone()).collect();
+            .cloned().collect();
         num_changed = 0;
         errors.clear();
         remove_keys.clear();
         for k in &keys {
             let var = variables.remove(k.as_str()).unwrap();
-            match strfmt::strfmt(var.as_str(), &variables) {
+            match strfmt::strfmt(var.as_str(), variables) {
                 Ok(s) => {
                     // TODO: being able to know whether changes were made would remove need
                     // to compare input to output
@@ -94,12 +91,12 @@ pub fn resolve_vars(variables: &mut Variables) -> LoadResult<()> {
             }
         }
         if num_changed == 0 {  // no items changed, we are either done or failed
-            if errors.len() == 0 {
+            if errors.is_empty() {
                 break;
             } else {
                 // unresolved errors
                 keys = keys.iter().filter(|k| !remove_keys.contains(k.as_str()))
-                    .map(|s| s.clone()).collect();
+                    .cloned().collect();
                 write!(msg, "Could not resolve some globals: {:?}\ngot related errors: {:?}",
                        keys, errors).unwrap();
                 return Err(LoadError::new(msg));
@@ -128,11 +125,11 @@ pub fn fill_text_fields(artifacts: &mut Artifacts,
                             .to_str().expect("utf-path").to_string());
 
         // evaluate text
-        match strfmt::strfmt(art.text.as_str(), &variables) {
+        match strfmt::strfmt(art.text.as_str(), variables) {
             Ok(t) => art.text = t,
             Err(err) => errors.push(("text field", err)),
         };
-        if errors.len() > 0 {
+        if !errors.is_empty() {
             error!(" resolving variables on [{:?}] {} failed: {:?}", art.path, name, errors);
             error = true;
         }

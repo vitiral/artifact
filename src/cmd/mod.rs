@@ -43,7 +43,7 @@ pub fn get_loglevel(matches: &ArgMatches) -> Option<(u8, bool)> {
 }
 
 
-pub fn cmd<'a, W, I, T>(w: &mut W, args: I) -> i32
+pub fn cmd<W, I, T>(w: &mut W, args: I) -> i32
     where I: IntoIterator<Item=T>,
           T: Into<OsString>,
           W: io::Write {
@@ -117,7 +117,7 @@ pub fn cmd<'a, W, I, T>(w: &mut W, args: I) -> i32
 
     if let Some(ls) = matches.subcommand_matches("ls") {
         info!("Calling the ls command");
-        let (search, fmtset, search_set) = ls::get_ls_cmd(&ls).unwrap();
+        let (search, fmtset, search_set) = ls::get_ls_cmd(ls).unwrap();
         ls::do_ls(w, &cwd, &search, &artifacts, &fmtset, &search_set, &settings);
     } else if let Some(_) = matches.subcommand_matches("check") {
         info!("Calling the check command");

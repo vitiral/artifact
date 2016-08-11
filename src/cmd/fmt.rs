@@ -1,4 +1,4 @@
-//! methods to format the FmtArtifact object and write it to a stream
+//! methods to format the `FmtArtifact` object and write it to a stream
 
 use super::types::*;
 
@@ -116,15 +116,13 @@ impl FmtArtifact {
                     }
                 }
             }
+        } else if nfno {
+            try!(write!(w, "{}", &self.name.raw));
         } else {
-            if nfno {
-                try!(write!(w, "{}", &self.name.raw));
-            } else {
-                let d_sym = if artifact.completed >= 1. {"D"} else {"-"};
-                let t_sym = if artifact.tested >= 1. {"T"} else {"-"};
-                try!(write!(w, "|{}{}| {:>3}% {:>3}% | {:<45} ", d_sym, t_sym,
-                            completed_str, tested_str, &self.name.raw));
-            }
+            let d_sym = if artifact.completed >= 1. {"D"} else {"-"};
+            let t_sym = if artifact.tested >= 1. {"T"} else {"-"};
+            try!(write!(w, "|{}{}| {:>3}% {:>3}% | {:<45} ", d_sym, t_sym,
+                        completed_str, tested_str, &self.name.raw));
         }
 
         if nfno {
@@ -134,14 +132,12 @@ impl FmtArtifact {
         // format the parts
         if let Some(ref parts) = self.parts {
             self.write_header(w, "\n * parts: ", settings);
-            let mut num_written = 0;
-            for p in parts {
+            for (n, p) in parts.iter().enumerate() {
                 if self.long {
                     w.write_all("\n    ".as_ref()).unwrap();
                 }
                 try!(p.write(w, cwd, artifacts, settings, indent + 1));
-                num_written += 1;
-                if !self.long && num_written < parts.len() {
+                if !self.long && n + 1 < parts.len() {
                     w.write_all(", ".as_ref()).unwrap();
                 }
             }
@@ -185,7 +181,7 @@ impl FmtArtifact {
         // TODO: use markdown to apply styles to the text
         if let Some(ref text) = self.text {
             self.write_header(w, "\n * text:\n    ", settings);
-            let lines: Vec<_> = text.split("\n").collect();
+            let lines: Vec<_> = text.split('\n').collect();
             let text = lines.join("\n    ");
             w.write_all(text.as_ref()).unwrap();
         }
