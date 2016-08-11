@@ -118,16 +118,15 @@ pub fn cmd<W, I, T>(w: &mut W, args: I) -> i32
     if let Some(ls) = matches.subcommand_matches("ls") {
         info!("Calling the ls command");
         let (search, fmtset, search_set) = ls::get_ls_cmd(ls).unwrap();
-        ls::do_ls(w, &cwd, &search, &artifacts, &fmtset, &search_set, &settings);
+        ls::do_ls(w, &cwd, &search, &artifacts, &fmtset, &search_set, &settings)
     } else if let Some(_) = matches.subcommand_matches("check") {
         info!("Calling the check command");
-        return check::do_check(w, &cwd, &artifacts, &dne_locs, &settings);
-    }
-    else {
+        check::do_check(w, &cwd, &artifacts, &dne_locs, &settings)
+    } else {
         write!(w, "{} {}: use -h to show help",
                Green.bold().paint("rst"),
                Green.paint(VERSION)).unwrap();
+        0
     }
-    return 0;
 }
 

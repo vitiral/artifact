@@ -244,7 +244,7 @@ pub fn do_ls<W: Write>(w: &mut W,
                        artifacts: &Artifacts,
                        fmt_set: &FmtSettings,
                        search_set: &SearchSettings,
-                       settings: &Settings) {
+                       settings: &Settings) -> i32 {
     let mut dne: Vec<ArtNameRc> = Vec::new();
     let mut names: Vec<ArtNameRc> = Vec::new();
     let mut fmt_set = (*fmt_set).clone();
@@ -263,14 +263,20 @@ pub fn do_ls<W: Write>(w: &mut W,
             Ok(p) => p,
             Err(e) => {
                 error!("Invalid pattern: {}", e.to_string());
-                exit(1);
+                return 1;
             }
         };
         names.extend(artifacts.keys().cloned());
         names.sort();
     } else {
         // names to use are determined from the beginning
-        names.extend(ArtNames::from_str(search).unwrap());
+        names.extend(match ArtNames::from_str(search) {
+            Ok(n) => n,
+            Err(e) => {
+                error!("{}", e);
+                return 1;
+            }
+        });
         names.sort();
         debug!("artifact names selected: {:?}", names);
         pat_case = Regex::new("").unwrap();
@@ -307,6 +313,7 @@ pub fn do_ls<W: Write>(w: &mut W,
     }
     if !dne.is_empty() {
         error!("The following artifacts do not exist: {:?}", dne);
-        exit(1);
+        return 1;
     }
+    0
 }
