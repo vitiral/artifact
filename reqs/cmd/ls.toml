@@ -11,11 +11,6 @@ the default outputs of `ls` should try to be easy to parse by tools like
 grep as it can be.
 '''
 [SPC-ls]
-[TST-ls]
-text = '''
-There **shall** be a test which inputs various settings into ls
-and validates that the output is as expected.
-'''
 
 [SPC-ls-args]
 text = '''
@@ -110,3 +105,10 @@ searching is selected, it will be interpreted as a perl regexp
 '''
 [TST-ls-search]
 text = "validate that the args are interpreted correctly"
+
+[TST-ls-out]
+partof = "SPC-ls-[color, search]"
+text = '''
+There **shall** be a test which inputs various settings into ls
+and tests that the output is as expected
+'''

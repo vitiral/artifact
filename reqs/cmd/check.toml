@@ -23,11 +23,6 @@ The design will be as follows:
     during their execution, which will be displayed
  - analysis will be done on the artifacts to retrieve the remaining information
 '''
-[TST-check]
-text = '''
-simply load up an environment that displays all the errors and validate that
-they are displayed in a reasonable way.
-'''
 
 [SPC-check-load]
 text = '''
@@ -46,4 +41,10 @@ a requirement or test anything. They can be found by asking:
     - is the artifact NOT a `partof` either a RSK or a SPC?
  - OR is the artifact a RSK or a SPC?
      - is the artifact NOT a `partof` a REQ?
+'''
+[TST-check]
+partof = "SPC-check-[load, hanging]"
+text = '''
+simply load up an environment that displays all the errors and validate that
+they are displayed in a reasonable way.
 '''

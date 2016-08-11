@@ -123,7 +123,7 @@ partof = 'REQ-dne'
     let expected = b"\x1b[1;31m\nFound partof names that do not exist:\n\x1b[0m\x1b[31m    REQ-invalid-parts [../../reqs/foo.toml]: {REQ-DNE}\n\x1b[0m\x1b[1;31m\nArtifacts partof contains at least one recursive reference:\n\x1b[0m    SPC-unresolvable              : [SPC-UNRESOLVABLE-1-1]\n    SPC-unresolvable-1            : [SPC-UNRESOLVABLE]\n    SPC-unresolvable-1-1          : [SPC-UNRESOLVABLE-1]\n\x1b[1;31m\nFound implementation links in the code that do not exist:\n\x1b[0m\x1b[31m    ../../fake:\n\x1b[0m\x1b[31m    - (42:0)\x1b[0m SPC-dne\n\x1b[1;31m\nHanging artifacts found (top-level but not partof a higher type):\n\x1b[0m    ../../reqs/foo.toml           : SPC-unresolvable\n\n";
     assert_eq!(vb(expected), w);
 
-    // #TST-ls
+    // #TST-ls-out
     // do default list, looking for only req-foo
     w.clear();
     ls::do_ls(&mut w,
