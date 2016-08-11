@@ -61,6 +61,7 @@ text = 'tst for foo'
 [TST-foo_bar]
 partof = 'SPC-foo'
 text = 'tst for foo_bar'
+[TST-no_analysis]
 ");
     let reqs_path = PathBuf::from("reqs/foo.toml");
     for (n, a) in artifacts.iter_mut() {
@@ -73,6 +74,11 @@ text = 'tst for foo_bar'
         }
     }
     core::link::do_links(&mut artifacts).unwrap();
+    {
+        let a = artifacts.get_mut(&ArtName::from_str("tst-no_analysis").unwrap()).unwrap();
+        a.completed = -1.;
+        a.tested = -1.;
+    }
     fmt_set.color = true;
     let mut w: Vec<u8> = Vec::new();
     let cwd = PathBuf::from("src/foo");
@@ -152,5 +158,18 @@ text = 'tst for foo_bar'
     let expected = b"\x1b[1m|  | DONE TEST | ARTIFACT NAME                                 | PARTS   | PARTOF   | IMPLEMENTED   | DEFINED   | TEXT\n\x1b[0m|\x1b[1;34mD\x1b[0m\x1b[1;33m-\x1b[0m| \x1b[1;34m100\x1b[0m%  \x1b[1;33m50\x1b[0m% | \x1b[1;4;34mREQ-foo\x1b[0m                                       | \x1b[34mSPC-foo\x1b[0m | \x1b[34mREQ\x1b[0m | ../../reqs/foo.toml | req for foo \n|\x1b[1;34mD\x1b[0m\x1b[1;33m-\x1b[0m| \x1b[1;34m100\x1b[0m%  \x1b[1;33m50\x1b[0m% | \x1b[1;4;34mSPC\x1b[0m                                           | \x1b[34mSPC-foo\x1b[0m |  | PARENT | AUTO \n";
     assert_eq!(vb(expected), w);
 
+    // check what happens when the completedness hasn't been found
+    w.clear();
+    search_set.use_regex = false;
+    search_set.parts = false; // use name
+    ls::do_ls(&mut w,
+              &cwd,
+              "TST-no_analysis",
+              &artifacts,
+              &fmt_set,
+              &search_set,
+              &settings);
     // debug_bytes(&w);
+    let expected = b"\x1b[1m|  | DONE TEST | ARTIFACT NAME                                 | PARTS   | PARTOF   | IMPLEMENTED   | DEFINED   | TEXT\n\x1b[0m|\x1b[1;5;31m!\x1b[0m\x1b[1;5;31m!\x1b[0m|  \x1b[1;5;31m-1\x1b[0m%  \x1b[1;5;31m-1\x1b[0m% | \x1b[1;4;31mTST-no_analysis\x1b[0m                               |  | \x1b[31mTST\x1b[0m | ../../reqs/foo.toml | \n";
+    assert_eq!(vb(expected), w);
 }

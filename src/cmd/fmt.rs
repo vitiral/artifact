@@ -30,8 +30,16 @@ impl FmtArtifact {
         };
 
         // format the completeness and name
-        let completed_str = ((artifact.completed * 100.) as u8).to_string();
-        let tested_str = ((artifact.tested * 100.) as u8).to_string();
+        let completed_str = if artifact.completed < 0. {
+            "-1".to_string()
+        } else {
+            ((artifact.completed * 100.) as u8).to_string()
+        };
+        let tested_str = if artifact.tested < 0. {
+            "-1".to_string()
+        } else {
+            ((artifact.tested * 100.) as u8).to_string()
+        };
         let completed_len = completed_str.len();
         let tested_len = tested_str.len();
         if settings.color {
@@ -57,6 +65,8 @@ impl FmtArtifact {
                 } else if artifact.completed >= 0.4 {
                     score += 1;
                     (Yellow.bold().paint("-"), Yellow.bold().paint(completed_str))
+                } else if artifact.completed < 0. {
+                    (Red.bold().blink().paint("!"), Red.bold().blink().paint(completed_str))
                 } else {
                     (Red.bold().paint("-"), Red.bold().paint(completed_str))
                 };
@@ -66,6 +76,8 @@ impl FmtArtifact {
                 } else if artifact.tested >= 0.5 {
                     score += 1;
                     (Yellow.bold().paint("-"), Yellow.bold().paint(tested_str))
+                } else if artifact.tested < 0. {
+                    (Red.bold().blink().paint("!"), Red.bold().blink().paint(tested_str))
                 } else {
                     (Red.bold().paint("-"), Red.bold().paint(tested_str))
                 };
