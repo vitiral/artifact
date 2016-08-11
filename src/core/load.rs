@@ -428,7 +428,6 @@ pub fn load_raw(path: &Path)
                                   path.to_string_lossy().as_ref()));
     }
 
-    // #SPC-core-load-parts-1:<load and validate all paths recursively>
     while !settings.paths.is_empty() {
         let dir = settings.paths.pop_front().unwrap(); // it has len, it better pop!
         if loaded_dirs.contains(&dir) {

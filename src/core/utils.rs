@@ -73,8 +73,8 @@ pub fn find_repo(dir: &Path) -> Option<PathBuf> {
     }
 }
 
-/// LOC-find-repo:<given a path, find the closest dir with the repo identifier
-///     and keep track of it>
+/// given a path, find the closest dir with the repo identifier
+/// and keep track of it
 pub fn find_and_insert_repo(dir: &Path, repo_map: &mut HashMap<PathBuf, PathBuf>)
                         -> LoadResult<()> {
     let mut must_insert = false;

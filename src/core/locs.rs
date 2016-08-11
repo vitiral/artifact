@@ -18,7 +18,7 @@ pub fn find_locs_text(path: &Path,
     let mut start_col = 0;
     let (mut pos, mut line, mut col) = (0, 1, 0); // line starts at 1
     // pretty simple parse tree... just do it ourselves!
-    // Looking for #LOC-[a-z0-9_-] case insensitive
+    // Looking for #ART-[a-z0-9_-] case insensitive
     for c in text.chars() {
         if prev == *SPC || prev == *TST {  // TODO: I'm sure this is not as fast as possible
             if prev_char == ' ' {
