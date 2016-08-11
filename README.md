@@ -44,7 +44,6 @@ that needs to be changed if it improves usability.
 
 **Future improvements include:**
  - Additional command line tools
-     - status: analyze artifacts and display any errors and a summary
      - export: export artifacts to json, csv, html and other formats
      - tests: cmd for viewing and querying executed tests in relationship 
          to defined tests (see Test Tracking)
@@ -167,6 +166,8 @@ if __name__ == '__main__':
 
 ![rst ls example](http://i.imgur.com/GrDFLxr.png?1)
 
+ - `rst check` to validate that there are no errors
+
 As you can see, we've finished our specs and tests for saying hello to the world,
 but not to the aliens. It would be good to know if you had finished the second part
 when the aliens arrive and **rst** can help you do that!
@@ -186,7 +187,6 @@ $ rst ls -c '<' -T
  - REQ-2-ui-markdown        : when displaying to the user, all text fields **will** be processed as a simple markdown format
  - REQ-2-ui-tutorial        : rst **will** provide an interactive tutorial to learn rst as well as the basics of why to use requirements tracking in the first place.
  - REQ-2-ui-web             : rst **will** provide a HTTP web server which can host up-to-date requirements as well as provide a REST-JSON API server for tracking test execution over a period of time.
- - REQ-status               : The `status` command gives the user information on any errors that exist in the project artifacts such as:
  - REQ-tutorial             : There **shall** be a tutorial that helps the user learn about rst.
 
 If you want to see items that have been mostly complete but have not been tested,

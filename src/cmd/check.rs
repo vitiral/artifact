@@ -31,7 +31,7 @@ pub fn do_check<W: Write>(w: &mut W,
         }
     }
 
-    // display artifacts with invalid parts
+    // display artifacts with invalid partof names
     let mut displayed_header = false;
     for (name, artifact) in artifacts.iter() {
         invalid_partof.clear();
@@ -45,7 +45,7 @@ pub fn do_check<W: Write>(w: &mut W,
             let mut msg = String::new();
             if !displayed_header {
                 displayed_header = true;
-                paint_it_bold(w, settings, "\n# Found partof names that do not exist:\n");
+                paint_it_bold(w, settings, "\nFound partof names that do not exist:\n");
             }
             write!(msg, "    {} [{}]: {:?}\n",
                    name, utils::relative_path(&artifact.path, cwd).display(),
@@ -54,8 +54,8 @@ pub fn do_check<W: Write>(w: &mut W,
         }
     }
 
-    // display unresolvable parts
-    let mut unresolved: Vec<(ArtNameRc, &Artifact)> = Vec::from_iter(
+    // display unresolvable partof names
+    let unresolved: Vec<(ArtNameRc, &Artifact)> = Vec::from_iter(
         artifacts.iter()
             .filter(|a| a.1.completed < 0. || a.1.tested < 0.)
             .map(|n| (n.0.clone(), n.1)));
@@ -65,9 +65,6 @@ pub fn do_check<W: Write>(w: &mut W,
 
     if unresolved.len() > 0 {
         error = 1;
-        unresolved.sort_by(|a, b| a.0.cmp(&b.0));
-        let mut msg = String::new();
-
         let mut unresolved_partof: HashMap<ArtNameRc, HashSet<ArtNameRc>> = HashMap::new();
         for &(ref name, artifact) in unresolved.iter() {
             let partof: HashSet<_> = artifact.partof
@@ -78,6 +75,7 @@ pub fn do_check<W: Write>(w: &mut W,
                 .collect();
             unresolved_partof.insert(name.clone(), partof);
         }
+
         // reduce unresolved partof to only items that have at least one value
         let mut resolved_names: HashSet<ArtNameRc> = HashSet::new();
         let mut remove_names = Vec::new();
@@ -116,7 +114,7 @@ pub fn do_check<W: Write>(w: &mut W,
                 break;
             }
         }
-        paint_it_bold(w, settings, "Artifact partof contains at least one recursive reference:\n");
+        paint_it_bold(w, settings, "\nArtifacts partof contains at least one recursive reference:\n");
         let mut unresolved_partof: Vec<_> = unresolved_partof
             .drain()
             .map(|mut v| (v.0, v.1.drain().collect::<Vec<_>>()))
@@ -125,8 +123,8 @@ pub fn do_check<W: Write>(w: &mut W,
         for (name, partof) in unresolved_partof.drain(0..) {
             let mut msg = String::new();
             write!(msg, "    {:<30}: {:?}\n",
-                   name.to_string(), partof);
-            write!(w, "{}", msg);
+                   name.to_string(), partof).unwrap();
+            write!(w, "{}", msg).unwrap();
         }
     }
 
@@ -141,7 +139,7 @@ pub fn do_check<W: Write>(w: &mut W,
             }
             invalid_locs.get_mut(&loc.path).unwrap().push((name.clone(), loc.clone()));
         }
-        let header = "\n# Found implementation links in the code that do not exist:\n";
+        let header = "\nFound implementation links in the code that do not exist:\n";
         paint_it_bold(w, settings, header);
         let mut invalid_locs: Vec<(PathBuf, Vec<(ArtName, Loc)>)> = Vec::from_iter(
             invalid_locs.drain());
@@ -158,7 +156,6 @@ pub fn do_check<W: Write>(w: &mut W,
                 paint_it(w, settings, &loc_str);
                 write!(w, " {}\n", name).unwrap();
             }
-            write!(w, "\n").unwrap();
         }
     }
     // find hanging artifacts
@@ -195,21 +192,21 @@ pub fn do_check<W: Write>(w: &mut W,
         paint_it_bold(w, settings, msg);
         for (h, p) in hanging {
             let mut msg = String::new();
-            write!(msg, "    {:<30}: {}\n", utils::relative_path(p, cwd).display(), h);
-            write!(w, "{}", msg);
+            write!(msg, "    {:<30}: {}\n", utils::relative_path(p, cwd).display(), h).unwrap();
+            write!(w, "{}", msg).unwrap();
         }
     }
 
     if error == 0 {
         let mut msg = String::new();
-        write!(msg, "rst check: no errors found in {}\n", cwd.display());
+        write!(msg, "rst check: no errors found in {}\n", cwd.display()).unwrap();
         if settings.color {
             write!(w, "{}", Green.paint(msg)).unwrap();
         } else {
             write!(w, "{}", msg).unwrap();
         }
     } else {
-        write!(w, "\n");
+        write!(w, "\n").unwrap();
     }
     error
 }

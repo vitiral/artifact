@@ -1,7 +1,6 @@
 //! module that discovers artifact's links
 
 use super::types::*;
-use ui;
 
 pub fn do_links(artifacts: &mut Artifacts) -> LoadResult<()> {
     // LOC-core-load-parts-4:<auto-creation of missing prefix artifacts>

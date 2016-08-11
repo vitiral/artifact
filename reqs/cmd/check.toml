@@ -7,6 +7,13 @@ the project artifacts such as:
  - extra "locations" provided in the code
  - "hanging" RSK or SPC artifacts which are not partof a REQ
  - "hanging" TST artifacts which are not partof a RSK or SPC
+
+Note: "check" was chosen over "status" because it does NOT mimick the `git status`
+command, which doesn't return errors (and isn't meant as a check). It is more
+like a compile checker or linter -- in which "check" makes more sense.
+
+This command is intended to be used along with automated testing before PR, etc are
+merged into a stable branch.
 '''
 
 [SPC-check]
@@ -16,12 +23,11 @@ The design will be as follows:
     during their execution, which will be displayed
  - analysis will be done on the artifacts to retrieve the remaining information
 '''
-
-
-[SPC-unresolvable]
-partof = "SPC-unresolvable-1-1"
-[SPC-unresolvable-1]
-[SPC-unresolvable-1-1]
+[TST-check]
+text = '''
+simply load up an environment that displays all the errors and validate that
+they are displayed in a reasonable way.
+'''
 
 [SPC-check-load]
 text = '''
