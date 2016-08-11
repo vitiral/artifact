@@ -3,6 +3,22 @@
 use super::types::*;
 use ui;
 
+pub fn do_links(artifacts: &mut Artifacts) -> LoadResult<()> {
+    // LOC-core-load-parts-4:<auto-creation of missing prefix artifacts>
+    link_named_partofs(artifacts); // MUST come before parents are created
+    create_parents(artifacts);
+    link_parents(artifacts);
+
+    // [#TST-core-artifact-attrs-partof-vaidate]
+    try!(validate_partof(artifacts));
+
+    // LOC-core-load-parts-5:<linking of artifacts>
+    link_parts(artifacts);
+    set_completed(artifacts);
+    set_tested(artifacts);
+    Ok(())
+}
+
 /// create parents for all artifacts that have no parents
 pub fn create_parents(artifacts: &mut Artifacts) {
     let mut create_names: ArtNames = HashSet::new();

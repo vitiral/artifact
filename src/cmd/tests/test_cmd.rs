@@ -47,30 +47,37 @@ fn test_get_matches() {
 
 #[test]
 fn test_ls() {
-    let (mut fmt_set, mut search_set, mut settings) = (FmtSettings::default(),
-                                                       SearchSettings::default(),
-                                                       Settings::default());
-    let mut artifacts = core::load::load_toml_simple("[REQ-foo]\n[SPC-foo]\n[TST-foo]\n");
-    core::link::link_named_partofs(&mut artifacts);
-    core::link::link_parents(&mut artifacts);
-    core::link::validate_partof(&artifacts).unwrap();
-    core::link::link_parts(&mut artifacts);
+    let (mut fmt_set, mut search_set, settings) = (FmtSettings::default(),
+                                                   SearchSettings::default(),
+                                                   Settings::default());
+    let mut artifacts = core::load::load_toml_simple(r"
+[REQ-foo]
+text = 'req for foo'
+[SPC-foo]
+text = 'spc for foo'
+[TST-foo]
+text = 'tst for foo'
+[TST-foo_bar]
+partof = 'SPC-foo'
+text = 'tst for foo_bar'
+");
+    let reqs_path = PathBuf::from("reqs/foo.toml");
+    for (n, a) in artifacts.iter_mut() {
+        a.path = reqs_path.clone();
+        if n.as_ref() == &ArtName::from_str("spc-foo").unwrap() {
+            a.loc = Some(Loc::fake());
+        }
+        if n.as_ref() == &ArtName::from_str("tst-foo").unwrap() {
+            a.loc = Some(Loc::fake());
+        }
+    }
+    core::link::do_links(&mut artifacts).unwrap();
     fmt_set.color = true;
     let mut w: Vec<u8> = Vec::new();
     let cwd = PathBuf::from("src/foo");
-    let reqs_path = PathBuf::from("reqs/foo.toml");
-    for (_, a) in artifacts.iter_mut() {
-        a.path = reqs_path.clone();
-        a.completed = 1.;
-        a.tested = 0.5;
-    }
-    ls::do_ls(&mut w,
-              &cwd,
-              "req-foo", // case does not matter
-              &artifacts,
-              &fmt_set,
-              &search_set,
-              &settings);
+
+
+    // define helper functions
     fn vb(b: &'static [u8]) -> Vec<u8> {
         Vec::from_iter(b.iter().cloned())
     }
@@ -96,7 +103,53 @@ fn test_ls() {
         }
         println!("");
     }
-    // debug_bytes(&w);
+
+
+    // do default list, looking for only req-foo
+    ls::do_ls(&mut w,
+              &cwd,
+              "req-foo",
+              &artifacts,
+              &fmt_set,
+              &search_set,
+              &settings);
     let expected = b"\x1b[1m|  | DONE TEST | ARTIFACT NAME                                 | PARTS   | DEFINED   \n\x1b[0m|\x1b[1;34mD\x1b[0m\x1b[1;33m-\x1b[0m| \x1b[1;34m100\x1b[0m%  \x1b[1;33m50\x1b[0m% | \x1b[1;4;34mreq-foo\x1b[0m                                       | \x1b[34mSPC-foo\x1b[0m | ../../reqs/foo.toml \n";
     assert_eq!(vb(expected), w);
+
+    // do default list with color disabled
+    w.clear();
+    fmt_set.color = false;
+    ls::do_ls(&mut w,
+              &cwd,
+              "req-foo",
+              &artifacts,
+              &fmt_set,
+              &search_set,
+              &settings);
+    debug_bytes(&w);
+    let expected = b"|  | DONE TEST | ARTIFACT NAME                                 | PARTS   | DEFINED   \n|D-| 100%  50% | req-foo                                       | SPC-foo | ../../reqs/foo.toml \n";
+    assert_eq!(vb(expected), w);
+
+    // ls all fields
+    // do a search in only parts using regex s.c
+    w.clear();
+    fmt_set.color = true;
+    fmt_set.path = true;
+    fmt_set.parts = true;
+    fmt_set.partof = true;
+    fmt_set.loc_path = true;
+    fmt_set.text = true;
+    search_set.use_regex = true;
+    search_set.parts = true;
+    ls::do_ls(&mut w,
+              &cwd,
+              "s.c",
+              &artifacts,
+              &fmt_set,
+              &search_set,
+              &settings);
+    let expected = b"\x1b[1m|  | DONE TEST | ARTIFACT NAME                                 | PARTS   | PARTOF   | IMPLEMENTED   | DEFINED   | TEXT\n\x1b[0m|\x1b[1;34mD\x1b[0m\x1b[1;33m-\x1b[0m| \x1b[1;34m100\x1b[0m%  \x1b[1;33m50\x1b[0m% | \x1b[1;4;34mREQ-foo\x1b[0m                                       | \x1b[34mSPC-foo\x1b[0m | \x1b[34mREQ\x1b[0m | ../../reqs/foo.toml | req for foo \n|\x1b[1;34mD\x1b[0m\x1b[1;33m-\x1b[0m| \x1b[1;34m100\x1b[0m%  \x1b[1;33m50\x1b[0m% | \x1b[1;4;34mSPC\x1b[0m                                           | \x1b[34mSPC-foo\x1b[0m |  | PARENT | AUTO \n";
+    assert_eq!(vb(expected), w);
+
+    // debug_bytes(&w);
 }

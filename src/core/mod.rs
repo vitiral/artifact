@@ -54,18 +54,8 @@ pub fn load_path(path: &Path) -> LoadResult<(Artifacts, Settings)>{
     let locs = try!(locs::find_locs(&mut settings));
     locs::attach_locs(&mut artifacts, &locs);
 
-    // LOC-core-load-parts-4:<auto-creation of missing prefix artifacts>
-    link::link_named_partofs(&mut artifacts); // MUST come before parents are created
-    link::create_parents(&mut artifacts);
-    link::link_parents(&mut artifacts);
-
-    // [#TST-core-artifact-attrs-partof-vaidate]
-    try!(link::validate_partof(&artifacts));
-
-    // LOC-core-load-parts-5:<linking of artifacts>
-    link::link_parts(&mut artifacts);
-    link::set_completed(&mut artifacts);
-    link::set_tested(&mut artifacts);
+    // do all links
+    try!(link::do_links(&mut artifacts));
     let total = time::get_time() - start;
     info!("Done loading: {} artifacts loaded successfullly in {:.3} seconds",
           artifacts.len(), total.num_milliseconds() as f64 * 1e-3);

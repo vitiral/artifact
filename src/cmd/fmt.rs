@@ -111,7 +111,7 @@ impl FmtArtifact {
             } else {
                 let d_sym = if artifact.completed >= 1. {"D"} else {"-"};
                 let t_sym = if artifact.tested >= 1. {"T"} else {"-"};
-                try!(write!(w, "|{}{}|{:>3}% {:>3}%| {:<45}", d_sym, t_sym,
+                try!(write!(w, "|{}{}| {:>3}% {:>3}% | {:<45} ", d_sym, t_sym,
                             completed_str, tested_str, &self.name.raw));
             }
         }
