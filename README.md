@@ -9,7 +9,7 @@ Once installed run `rst -h` on the cmdline to view the help message. `rst tutori
 will start the interactive tutorial.
 
 ## Purpose
-Requirements and design-documentation are probably the most important components of
+Requirements and design documentation are probably the most important components of
 writing quality software. Without them it can be very difficult to develop and
 maintain the product you were aiming to create. However, there are no open source
 tools (or proprietary tools for that matter) that make this process simple, easy
@@ -170,8 +170,8 @@ if __name__ == '__main__':
  - `rst check` to validate that there are no errors
 
 As you can see, we've finished our specs and tests for saying hello to the world,
-but not to the aliens. It would be good to know if you had finished the second part
-when the aliens arrive and **rst** can help you do that!
+but not to the aliens. If the aliens arrived, it would be nice to know whether you
+can say hello -- **rst** can help you do that!
 
 # Future development
 Here is a snapshot (0.1.0) of items yet to be started:
