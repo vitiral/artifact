@@ -36,8 +36,8 @@ pub fn get_vecstr(tbl: &Table, attr: &str, default: &Vec<String>) -> Option<Vec<
         Some(&Value::Array(ref a)) => {
             let mut out: Vec<String> = Vec::with_capacity(a.len());
             for v in a {
-                match v {
-                    &Value::String(ref s) => out.push(s.clone()),
+                match *v {
+                    Value::String(ref s) => out.push(s.clone()),
                     _ => return None,  // error: invalid type
                 }
             }
@@ -69,7 +69,7 @@ impl Settings {
         let invalid_attrs: Vec<_> = tbl.keys()
                                        .filter(|k| !SETTINGS_ATTRS.contains(k.as_str()))
                                        .collect();
-        if invalid_attrs.len() > 0 {
+        if !invalid_attrs.is_empty() {
             let mut msg = String::new();
             write!(msg, "invalid attributes in settings: {:?}", invalid_attrs).unwrap();
             return Err(LoadError::new(msg));
@@ -91,9 +91,9 @@ impl Settings {
             disabled: check_type!(get_attr!(tbl, "disabled", false, Boolean),
                                   "disabled",
                                   "settings"),
-            paths: str_paths.iter().map(|s| PathBuf::from(s)).collect(),
-            code_paths: code_paths.iter().map(|s| PathBuf::from(s)).collect(),
-            exclude_code_paths: exclude_code_paths.iter().map(|s| PathBuf::from(s)).collect(),
+            paths: str_paths.iter().map(PathBuf::from).collect(),
+            code_paths: code_paths.iter().map(PathBuf::from).collect(),
+            exclude_code_paths: exclude_code_paths.iter().map(PathBuf::from).collect(),
             color: true,
         })
     }
@@ -125,8 +125,8 @@ impl Artifact {
         }
         let (name, value) = table.iter().next().unwrap();
         let name = try!(ArtName::from_str(name));
-        let value = match value {
-            &Value::Table(ref t) => t,
+        let value = match *value {
+            Value::Table(ref t) => t,
             _ => return Err(LoadError::new("must contain a single table".to_string())),
         };
         let artifact = try!(Artifact::from_table(&name, &Path::new("from_str"), value));
@@ -140,7 +140,7 @@ impl Artifact {
         let invalid_attrs: Vec<_> = tbl.keys()
                                        .filter(|k| !ARTIFACT_ATTRS.contains(k.as_str()))
                                        .collect();
-        if invalid_attrs.len() > 0 {
+        if !invalid_attrs.is_empty() {
             let mut msg = String::new();
             write!(msg, "{} has invalid attributes: {:?}", name, invalid_attrs).unwrap();
             return Err(LoadError::new(msg));
@@ -211,8 +211,8 @@ pub fn load_file_table(file_table: &mut Table,
     for (name, value) in file_table.iter() {
         let aname = try!(ArtName::from_str(name));
         // get the artifact table
-        let art_tbl: &Table = match value {
-            &Value::Table(ref t) => t,
+        let art_tbl: &Table = match *value {
+            Value::Table(ref t) => t,
             _ => {
                 write!(&mut msg, "All top-level values must be a table: {}", name).unwrap();
                 return Err(LoadError::new(String::from_utf8(msg).unwrap()));
@@ -236,7 +236,7 @@ pub fn load_file_table(file_table: &mut Table,
         artifacts.insert(Rc::new(aname), artifact);
         num_loaded += 1;
     }
-    return Ok(num_loaded);
+    Ok(num_loaded)
 }
 
 pub fn load_toml_simple(text: &str) -> Artifacts {
@@ -348,23 +348,23 @@ pub fn load_dir(path: &Path,
         }
     }
     if error {
-        return Err(LoadError::new("ERROR: some files failed to load".to_string()));
+        Err(LoadError::new("ERROR: some files failed to load".to_string()))
     } else {
         Ok(num_loaded)
     }
 }
 
-/// push settings found (loaded_settings) into a main settings object
-/// repo_map is a pre-compiled hashset mapping dirs->repo_path (for performance)
+/// push settings found (`loaded_settings`) into a main settings object
+/// `repo_map` is a pre-compiled hashset mapping `dirs->repo_path` (for performance)
 /// partof: #SPC-settings-resolve
 pub fn resolve_settings(settings: &mut Settings,
                         repo_map: &mut HashMap<PathBuf, PathBuf>,
-                        loaded_settings: &Vec<(PathBuf, Settings)>)
+                        loaded_settings: &[(PathBuf, Settings)])
                         -> LoadResult<()> {
     // now resolve all path names
     let mut vars: HashMap<String, String> = HashMap::new();
     for ps in loaded_settings.iter() {
-        let ref settings_item: &Settings = &ps.1;
+        let settings_item: &Settings = &ps.1;
 
         let fpath = ps.0.clone();
         let cwd = fpath.parent().unwrap();
@@ -379,7 +379,7 @@ pub fn resolve_settings(settings: &mut Settings,
                     try!(utils::get_path_str(repo.as_path())).to_string());
 
         // push resolved paths
-        for p in settings_item.paths.iter() {
+        for p in &settings_item.paths {
             let p = try!(utils::do_strfmt(p.to_str().unwrap(), &vars, &fpath));
             settings.paths.push_back(PathBuf::from(p));
         }
@@ -387,13 +387,13 @@ pub fn resolve_settings(settings: &mut Settings,
         // TODO: it is possible to be able to use all global variables in code_paths
         //    but then it must be done in a separate step
         // push resolved code_paths
-        for p in settings_item.code_paths.iter() {
+        for p in &settings_item.code_paths {
             let p = try!(utils::do_strfmt(p.to_str().unwrap(), &vars, &fpath));
             settings.code_paths.push_back(PathBuf::from(p));
         }
 
         // push resolved exclude_code_paths
-        for p in settings_item.exclude_code_paths.iter() {
+        for p in &settings_item.exclude_code_paths {
             let p = try!(utils::do_strfmt(p.to_str().unwrap(), &vars, &fpath));
             settings.exclude_code_paths.push_back(PathBuf::from(p));
         }
@@ -428,8 +428,8 @@ pub fn load_raw(path: &Path)
                                   path.to_string_lossy().as_ref()));
     }
 
-    // load and validate all paths recursively
-    while settings.paths.len() > 0 {
+    // #SPC-core-load-parts-1:<load and validate all paths recursively>
+    while !settings.paths.is_empty() {
         let dir = settings.paths.pop_front().unwrap(); // it has len, it better pop!
         if loaded_dirs.contains(&dir) {
             continue;

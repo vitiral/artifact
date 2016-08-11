@@ -1,17 +1,11 @@
 use super::types::*;
 
-/// format ArtNames in a reasonable way
-pub fn fmt_names(names: &Vec<ArtNameRc>) -> String {
-    if names.len() == 0 {
+/// format `ArtNames` in a reasonable way
+pub fn fmt_names(names: &[ArtNameRc]) -> String {
+    if names.is_empty() {
         return "".to_string();
     }
-    let mut s = String::new();
-    for n in names {
-        write!(s, "{}, ", n.raw).unwrap();
-    }
-    let len = s.len();
-    s.truncate(len - 2); // remove last ", "
-    s
+    names.iter().map(|n| &n.raw).cloned().collect::<Vec<_>>().join(", ")
 }
 
 /// use several configuration options and pieces of data to represent
@@ -33,7 +27,7 @@ pub fn fmt_artifact(name: &ArtNameRc, artifacts: &Artifacts, fmtset: &FmtSetting
                 part = FmtArtifact::default();
                 part.name = p.clone();
             } else {
-                part = fmt_artifact(&p, artifacts, fmtset, recurse - 1, displayed);
+                part = fmt_artifact(p, artifacts, fmtset, recurse - 1, displayed);
                 displayed.insert(p.clone());
             }
             parts.push(part);
@@ -42,7 +36,7 @@ pub fn fmt_artifact(name: &ArtNameRc, artifacts: &Artifacts, fmtset: &FmtSetting
         out.parts = Some(parts);
     }
     if fmtset.partof {
-        let mut partof = artifact.partof.iter().map(|p| p.clone()).collect::<Vec<ArtNameRc>>();
+        let mut partof = artifact.partof.iter().cloned().collect::<Vec<ArtNameRc>>();
         partof.sort();
         let partof = partof.drain(0..)
             .map(|n| FmtArtifact{name: n, ..FmtArtifact::default()})

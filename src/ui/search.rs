@@ -3,7 +3,7 @@ use super::types::*;
 
 lazy_static!{
     pub static ref VALID_SEARCH_FIELDS: HashSet<char> = HashSet::from_iter(
-        ['N', 'D', 'P', 'O', 'L', 'R', 'T', 'A'].iter().map(|s| s.clone()));
+        ['N', 'D', 'P', 'O', 'L', 'R', 'T', 'A'].iter().cloned());
 }
 
 impl SearchSettings {
@@ -27,7 +27,7 @@ impl SearchSettings {
         let invalid: HashSet<char> = pattern.difference(&VALID_SEARCH_FIELDS)
                                             .cloned()
                                             .collect();
-        if invalid.len() > 0 {
+        if !invalid.is_empty() {
             let mut msg = String::new();
             write!(msg, "Unknown search fields in pattern: {:?}", invalid).unwrap();
             return Err(msg);
@@ -78,19 +78,16 @@ pub fn show_artifact(name: &ArtName,
         || (ss.tested.lt && tested > ss.tested.perc)
         || (!ss.tested.lt && tested < ss.tested.perc) {
         false
-    } else if !ss.use_regex {
-        true
-    } else if (ss.name && pat_case.is_match(&name.raw))
+    } else {
+        !ss.use_regex
+        || (ss.name && pat_case.is_match(&name.raw))
         || (ss.parts && matches_name(pat_case, &art.parts))
         || (ss.partof && matches_name(pat_case, &art.partof))
         || (ss.loc && match art.loc.as_ref() {
              None => false,
              Some(l) => pat_case.is_match(l.path.to_string_lossy().as_ref()),
-        })
-        || (ss.text && pat_case.is_match(&art.text)) {
-        true
-    } else {
-        false
+           })
+        || (ss.text && pat_case.is_match(&art.text))
     }
 }
 

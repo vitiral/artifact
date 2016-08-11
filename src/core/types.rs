@@ -90,7 +90,7 @@ impl ArtName {
         }
         let out = ArtName {
             raw: s.to_string(),
-            value: value.split("-").map(|s| s.to_string()).collect(),
+            value: value.split('-').map(|s| s.to_string()).collect(),
         };
         try!(out.find_type_maybe()); // ensure the type is valid
         Ok(out)
@@ -112,7 +112,7 @@ impl ArtName {
     }
 
     pub fn get_type(&self) -> ArtType {
-        return self.find_type_maybe().unwrap();
+        self.find_type_maybe().unwrap()
     }
 
     /// see: SPC-artifact-partof-2
@@ -262,7 +262,7 @@ fn _parse_names<I>(raw: &mut I, in_brackets: bool) -> LoadResult<Vec<String>>
         }
     }
     strout.write_str(&current).unwrap();
-    Ok(strout.split(",").filter(|s| s != &"").map(|s| s.to_string()).collect())
+    Ok(strout.split(',').filter(|s| s != &"").map(|s| s.to_string()).collect())
 }
 
 #[test]

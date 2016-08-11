@@ -106,13 +106,13 @@ mod tests {
 pub fn validate_partof(artifacts: &Artifacts) -> LoadResult<()> {
     let mut error = false;
     for (name, artifact) in artifacts.iter() {
-        for partof in artifact.partof.iter() {
+        for partof in &artifact.partof {
             let n_type = name.get_type();
             let p_type = partof.get_type();
             match (&n_type, &p_type) {
-                (&ArtType::REQ, &ArtType::REQ) => {}
-                (&ArtType::RSK, &ArtType::RSK) | (&ArtType::RSK, &ArtType::REQ) => {}
-                (&ArtType::SPC, &ArtType::SPC) | (&ArtType::SPC, &ArtType::REQ) => {}
+                (&ArtType::REQ, &ArtType::REQ) |
+                (&ArtType::RSK, &ArtType::RSK) | (&ArtType::RSK, &ArtType::REQ) |
+                (&ArtType::SPC, &ArtType::SPC) | (&ArtType::SPC, &ArtType::REQ) |
                 (&ArtType::TST, &ArtType::TST) |
                 (&ArtType::TST, &ArtType::RSK) |
                 (&ArtType::TST, &ArtType::SPC) => {}
@@ -141,7 +141,7 @@ pub fn link_parts(artifacts: &mut Artifacts) -> u64 {
     let mut artifact_parts: HashMap<ArtNameRc, ArtNames> = HashMap::new();
     for (name, artifact) in artifacts.iter() {
         // get the artifacts this is a `partof`, this artifact should be in all of their `parts`
-        for partof in artifact.partof.iter() {
+        for partof in &artifact.partof {
             if !artifacts.contains_key(partof) {
                 debug!("[{:?}] {} has invalid partof = {}",
                       artifact.path,
@@ -169,11 +169,11 @@ pub fn link_parts(artifacts: &mut Artifacts) -> u64 {
 
 /// discover how complete and how tested all artifacts are (or are not!)
 pub fn set_completed(artifacts: &mut Artifacts) -> usize {
-    let mut names = ArtNames::from_iter(artifacts.keys().map(|n| n.clone()));
+    let mut names = ArtNames::from_iter(artifacts.keys().cloned());
     let mut known = ArtNames::new();
     let mut found = ArtNames::new();
-    while names.len() > 0 {
-        for name in names.iter() {
+    while !names.is_empty() {
+        for name in &names {
             // 0 means didn't find anything, 1 means calculate, 2 means 100%, 3 means 0%
             let mut got_it = 0;
             // create scope to use artifacts and modify it later
@@ -186,7 +186,7 @@ pub fn set_completed(artifacts: &mut Artifacts) -> usize {
                     }
                     _ => {}
                 }
-                if got_it == 0 && artifact.parts.len() == 0 {
+                if got_it == 0 && artifact.parts.is_empty() {
                     got_it = 3; // no parts and no loc == 0% complete
                 } else if got_it == 0 && artifact.parts.iter().all(|n| known.contains(n)) {
                     got_it = 1;
@@ -203,7 +203,7 @@ pub fn set_completed(artifacts: &mut Artifacts) -> usize {
                         let completed: Vec<f32> = if artifact.ty == ArtType::SPC {
                             artifact.parts
                                     .iter()
-                                    .filter(|n| artifacts.get(n.clone()).unwrap().ty != ArtType::TST)
+                                    .filter(|n| artifacts.get(*n).unwrap().ty != ArtType::TST)
                                     .map(|n| artifacts.get(n).unwrap().completed)
                                     .collect()
                         } else {
@@ -231,7 +231,7 @@ pub fn set_completed(artifacts: &mut Artifacts) -> usize {
                 known.insert(name.clone());
             }
         }
-        if found.len() == 0 {
+        if found.is_empty() {
             break;
         }
         for name in found.drain() {
@@ -243,7 +243,7 @@ pub fn set_completed(artifacts: &mut Artifacts) -> usize {
 
 /// Find the amount each artifact is tested
 pub fn set_tested(artifacts: &mut Artifacts) -> usize {
-    let mut names = ArtNames::from_iter(artifacts.keys().map(|n| n.clone()));
+    let mut names = ArtNames::from_iter(artifacts.keys().cloned());
     let mut known = ArtNames::new();
     let mut found = ArtNames::new();
 
@@ -253,7 +253,7 @@ pub fn set_tested(artifacts: &mut Artifacts) -> usize {
             artifact.tested = artifact.completed;
             names.remove(name);
             known.insert(name.clone());
-        } else if artifact.parts.len() == 0 {
+        } else if artifact.parts.is_empty() {
             artifact.tested = 0.0;
             names.remove(name);
             known.insert(name.clone());
@@ -261,8 +261,8 @@ pub fn set_tested(artifacts: &mut Artifacts) -> usize {
     }
 
     // everythign else is just the sum of their parts
-    while names.len() > 0 {
-        for name in names.iter() {
+    while !names.is_empty() {
+        for name in &names {
             let mut got_it = false;
             {
                 let artifact = artifacts.get(name).unwrap();
@@ -283,7 +283,7 @@ pub fn set_tested(artifacts: &mut Artifacts) -> usize {
                 known.insert(name.clone());
             }
         }
-        if found.len() == 0 {
+        if found.is_empty() {
             break;
         }
         for name in found.drain() {

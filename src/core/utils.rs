@@ -8,13 +8,13 @@ use itertools::{Itertools, EitherOrBoth as EoB};
 
 pub fn do_strfmt(s: &str, vars: &HashMap<String, String>, fpath: &PathBuf)
              -> LoadResult<String> {
-    match strfmt::strfmt(s, &vars) {
+    match strfmt::strfmt(s, vars) {
         Ok(s) => Ok(s),
         Err(e) => {
             let mut msg = String::new();
             write!(msg, "ERROR at {}: {}", fpath.to_string_lossy().as_ref(), e.to_string())
                 .unwrap();
-            return Err(LoadError::new(msg));
+            Err(LoadError::new(msg))
         }
     }
 }
@@ -30,7 +30,7 @@ pub fn strfmt_ignore_missing<T: fmt::Display>(fmtstr: &str, vars: &HashMap<Strin
     strfmt::strfmt_map(fmtstr, &formatter)
 }
 
-pub fn get_path_str<'a>(path: &'a Path) -> LoadResult<&'a str> {
+pub fn get_path_str(path: &Path) -> LoadResult<&str> {
     match path.to_str() {
         Some(p) => Ok(p),
         None => Err(LoadError::new(
@@ -81,7 +81,7 @@ pub fn find_and_insert_repo(dir: &Path, repo_map: &mut HashMap<PathBuf, PathBuf>
     let repo = match repo_map.get(dir) {
         Some(r) => r.to_path_buf(),
         None => {
-            let r = match find_repo(&dir) {
+            let r = match find_repo(dir) {
                 Some(r) => r,
                 None => {
                     let mut msg = String::new();
@@ -103,7 +103,7 @@ pub fn find_and_insert_repo(dir: &Path, repo_map: &mut HashMap<PathBuf, PathBuf>
 }
 
 
-/// get the path relative to the realative_to_dir
+/// get the path relative to the `realative_to_dir`
 /// for example (foo/bar.txt, bar/baz) => ../../foot/bar.txt
 pub fn relative_path(path: &Path, relative_to_dir: &Path) -> PathBuf {
     let mut relative = PathBuf::new();
