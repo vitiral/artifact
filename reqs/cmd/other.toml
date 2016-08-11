@@ -54,11 +54,3 @@ instructions on how to create requirements and where to get more information.
 '''
 [SPC-init]
 
-[REQ-status]
-text = '''
-The `status` command gives the user information on any errors that exist in
-the project artifacts such as:
-
- 1. invalid artifacts in partof
- 2. extra "locations" provided in the code
-'''

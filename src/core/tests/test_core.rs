@@ -26,7 +26,7 @@ fn test_load_path() {
     assert!(load_path(TINVALID_DIR.join(&PathBuf::from("attr")).as_path()).is_err());
     assert!(load_path(TINVALID_DIR.join(&PathBuf::from("same_names")).as_path()).is_err());
 
-    let (artifacts, settings) = load_path(TSIMPLE_DIR.as_path()).unwrap();
+    let (artifacts, settings, dne_locs) = load_path(TSIMPLE_DIR.as_path()).unwrap();
     assert!(artifacts.contains_key(&ArtName::from_str("REQ-purpose").unwrap()));
 
     let req_purpose = artifacts.get(&ArtName::from_str("REQ-purpose").unwrap()).unwrap();
@@ -59,6 +59,9 @@ fn test_load_path() {
     debug!("checking loc");
     assert_eq!(spc_loc.loc.iter().next().unwrap().line_col, (4, 4));
     assert_eq!(spc_lvl1.loc.iter().next().unwrap().line_col, (3, 3));
+
+    assert!(dne_locs.contains_key(&ArtName::from_str("SPC-dne").unwrap()));
+    assert!(dne_locs.contains_key(&ArtName::from_str("TST-dne").unwrap()));
 
     // TODO: more validation
     // TODO: need to check that completeness makes sense: TST-core-load-loc-resolve

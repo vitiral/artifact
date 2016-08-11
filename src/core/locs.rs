@@ -189,13 +189,19 @@ pub fn find_locs(settings: &mut Settings) -> LoadResult<HashMap<ArtName, Loc>> {
     Ok(locs)
 }
 
-/// attach the locations to the artifacts. Separated to allow for easy threading
-pub fn attach_locs(artifacts: &mut Artifacts, locs: &HashMap<ArtName, Loc>) {
-    for (lname, loc) in locs {
-        let artifact = match artifacts.get_mut(lname) {
+/// attach the locations to the artifacts, returning locations that were not used.
+pub fn attach_locs(artifacts: &mut Artifacts, mut locs: HashMap<ArtName, Loc>)
+                   -> HashMap<ArtName, Loc> {
+    let mut dne: HashMap<ArtName, Loc> = HashMap::new();
+    for (lname, loc) in locs.drain() {
+        let artifact = match artifacts.get_mut(&lname) {
             Some(a) => a,
-            None => continue,
+            None => {
+                dne.insert(lname, loc);
+                continue;
+            },
         };
-        artifact.loc = Some(loc.clone());
+        artifact.loc = Some(loc);
     }
+    dne
 }

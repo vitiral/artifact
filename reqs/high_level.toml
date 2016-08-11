@@ -258,7 +258,7 @@ navigate and view linked components
 '''
 
 [REQ-2-ui-web]
-partof = "REQ-1-ui-web"
+partof = "REQ-1-web"
 text = '''
 rst **will** provide an HTTP web server for searching and viewing artifacts,
 as well as searching and viewing test execution data.

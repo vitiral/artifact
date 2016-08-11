@@ -1,4 +1,5 @@
 use std::path::Path;
+use std::collections::HashMap;
 
 use time;
 
@@ -41,7 +42,7 @@ pub fn init_logger_test() {
 /// includes loading and validating raw data, resolving and applying
 /// variables, and linking artifacts
 /// LOC-core-load-path
-pub fn load_path(path: &Path) -> LoadResult<(Artifacts, Settings)>{
+pub fn load_path(path: &Path) -> LoadResult<(Artifacts, Settings, HashMap<ArtName, Loc>)>{
     let start = time::get_time();
     info!("loading path: {}", path.to_string_lossy().as_ref());
     let (mut artifacts, mut settings, loaded_vars, mut repo_map) = try!(load::load_raw(path));
@@ -52,13 +53,13 @@ pub fn load_path(path: &Path) -> LoadResult<(Artifacts, Settings)>{
 
     info!("finding and attaching locations");
     let locs = try!(locs::find_locs(&mut settings));
-    locs::attach_locs(&mut artifacts, &locs);
+    let dne_locs = locs::attach_locs(&mut artifacts, locs);
 
     // do all links
     try!(link::do_links(&mut artifacts));
     let total = time::get_time() - start;
     info!("Done loading: {} artifacts loaded successfullly in {:.3} seconds",
           artifacts.len(), total.num_milliseconds() as f64 * 1e-3);
-    Ok((artifacts, settings))
+    Ok((artifacts, settings, dne_locs))
 }
 

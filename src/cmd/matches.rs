@@ -2,6 +2,7 @@
 use std::ffi::OsString;
 
 use super::ls;
+use super::status;
 use super::init;
 use super::tutorial;
 use super::types::*;
@@ -29,5 +30,6 @@ pub fn get_matches<'a, I, T>(args: I) -> ClapResult<ArgMatches<'a>>
         .subcommand(tutorial::get_subcommand())
         .subcommand(init::get_subcommand())
         .subcommand(ls::get_subcommand())
+        .subcommand(status::get_subcommand())
         .get_matches_from_safe(args)
 }

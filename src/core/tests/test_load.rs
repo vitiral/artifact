@@ -116,7 +116,7 @@ fn test_load_toml() {
     let locs = HashMap::from_iter(
         vec![(ArtName::from_str("SPC-foo").unwrap(), Loc::fake()),
              (ArtName::from_str("SPC-bar").unwrap(), Loc::fake())]);
-    attach_locs(&mut artifacts, &locs);
+    attach_locs(&mut artifacts, locs);
     assert_eq!(num, 8);
     assert!(artifacts.contains_key(&ArtName::from_str("REQ-foo").unwrap()));
     assert!(artifacts.contains_key(&ArtName::from_str("SPC-foo").unwrap()));

@@ -19,6 +19,7 @@ use ansi_term::Colour::Green;
 mod types;
 mod matches;
 mod ls;
+mod status;
 mod fmt;
 mod init;
 mod tutorial;
@@ -100,7 +101,7 @@ pub fn cmd<'a, W, I, T>(w: &mut W, args: I)
     let cfg = repo.join(".rst");
     debug!("using cfg dir {:?}", cfg);
 
-    let (artifacts, settings) = match core::load_path(cfg.as_path()) {
+    let (artifacts, settings, dne_locs) = match core::load_path(cfg.as_path()) {
         Ok(v) => v,
         Err(err) => {
             error!("{}", err);
@@ -112,7 +113,11 @@ pub fn cmd<'a, W, I, T>(w: &mut W, args: I)
         info!("Calling the ls command");
         let (search, fmtset, search_set) = ls::get_ls_cmd(&ls).unwrap();
         ls::do_ls(w, &cwd, &search, &artifacts, &fmtset, &search_set, &settings);
-    } else {
+    } else if let Some(_) = matches.subcommand_matches("status") {
+        info!("Calling the status command");
+        status::do_status(w, &cwd, &artifacts, &dne_locs).unwrap();
+    }
+    else {
         write!(w, "{} {}: use -h to show help",
                Green.bold().paint("rst"),
                Green.paint(VERSION)).unwrap();

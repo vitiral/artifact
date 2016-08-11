@@ -67,7 +67,7 @@ impl Loc {
 
 impl fmt::Display for Loc {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "<L:{}({}:{})>", self.path.display(),
+        write!(f, "{}({}:{})", self.path.display(),
                     self.line_col.0, self.line_col.1)
     }
 }

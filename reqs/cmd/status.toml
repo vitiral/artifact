@@ -1,0 +1,46 @@
+[REQ-status]
+text = '''
+The `status` command gives the user information on any errors that exist in
+the project artifacts such as:
+ - invalid artifacts in partof
+ - extra "locations" provided in the code
+ - "hanging requirements", which are REQs that are not specifying anything (no specs)
+ - "top level" RSK or SPC artifacts which are not partof a REQ
+ - "top level" TST artifacts which are not partof a RSK or SPC
+'''
+
+[SPC-status]
+text = '''
+The design will be as follows:
+ - existing functions in `core` will return information if they find it
+    during their execution, which will be displayed
+ - analysis will be done on the artifacts to retrieve the remaining information
+'''
+
+[SPC-status-load]
+text = '''
+The errors found during loading shall be displayed. This includes:
+ - invalid artifacts in partof fields
+ - extra "locations" provided in code
+'''
+
+[SPC-status-hanging]
+text = '''
+hanging reqs will be detected by simply checking:
+ - is the artifact a REQ?
+ - does the artifact have no `parts`?
+
+If the answer is yes to both, then it is a hanging requirement.
+'''
+
+[SPC-status-toplvl]
+text = '''
+the converse of hanging artifacts is artifacts which are "top level" but do not fulfill
+a requirement or test anything. They can be found by asking:
+ - if the artfact is a REQ, skip
+ - is the artifact's parent the root type? (RSK, SPC, TST)
+ - is the artifact a TST?
+    - is the artifact a `partof` either a RSK or a SPC?
+ - OR is the artifact a RSK or a SPC?
+     - is the artifact a `partof` a REQ?
+'''
