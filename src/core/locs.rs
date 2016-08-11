@@ -76,7 +76,6 @@ pub fn find_locs_text(path: &Path,
     error
 }
 
-/// [#SPC-core-load-loc-text]
 /// given text, the path to the text, and the locations to add onto
 /// extract all the locations from the text and return whether there
 /// was an error

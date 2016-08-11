@@ -10,7 +10,7 @@ import csv
 
 class Question(object):
     ''' represents a question and can be asked
-    partof: #SPC-question
+    partof: $SPC-question
     '''
     def __init__(self, question, answer):
         self.question = question.strip()
@@ -34,7 +34,7 @@ class Question(object):
 
 def validate_questions(questions):
     ''' given a list of questions, validate them according to spec
-    partof: #SPC-load-validate
+    partof: $SPC-load-validate
     '''
     # check for duplicats
     all_qs = [q.question for q in questions]
@@ -65,7 +65,7 @@ def load_io(f):
 
 def load_path(path):
     ''' given a path, load a list of validated questions
-    partof: #SPC-load-format
+    partof: $SPC-load-format
     '''
     with open(path, 'rb') as f:
         return load_io(f)

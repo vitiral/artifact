@@ -9,10 +9,8 @@ pub fn do_links(artifacts: &mut Artifacts) -> LoadResult<()> {
     create_parents(artifacts);
     link_parents(artifacts);
 
-    // [#TST-core-artifact-attrs-partof-vaidate]
     try!(validate_partof(artifacts));
 
-    // LOC-core-load-parts-5:<linking of artifacts>
     link_parts(artifacts);
     set_completed(artifacts);
     set_tested(artifacts);
@@ -42,7 +40,7 @@ pub fn create_parents(artifacts: &mut Artifacts) {
     for name in create_names.drain() {
         let art = Artifact {
             ty: name.get_type(),
-            path: PathBuf::from("PARENT"),
+            path: PARENT_PATH.clone(),
             text: "AUTO".to_string(),
             partof: HashSet::new(),
             parts: HashSet::new(),
@@ -106,7 +104,6 @@ mod tests {
 }
 
 
-/// [#SPC-core-links-valid]
 pub fn validate_partof(artifacts: &Artifacts) -> LoadResult<()> {
     let mut error = false;
     for (name, artifact) in artifacts.iter() {
@@ -121,7 +118,6 @@ pub fn validate_partof(artifacts: &Artifacts) -> LoadResult<()> {
                 (&ArtType::TST, &ArtType::RSK) |
                 (&ArtType::TST, &ArtType::SPC) => {}
                 (_, _) => {
-                    // [#SPC-core-artifact-attrs-partof-validate]
                     error!("[{:?}:{}]: {:?} can not be a partof {:?}",
                            artifact.path,
                            name,
@@ -140,7 +136,6 @@ pub fn validate_partof(artifacts: &Artifacts) -> LoadResult<()> {
 
 /// traverse all artifacts and their `partof` members and cross-link them to
 /// the artifact's `parts` members
-/// [#SPC-core-artifact-attrs-parts-link]
 pub fn link_parts(artifacts: &mut Artifacts) -> u64 {
     // get all the parts, linked by name
     let mut warnings: u64 = 0;
@@ -174,7 +169,6 @@ pub fn link_parts(artifacts: &mut Artifacts) -> u64 {
 
 
 /// discover how complete and how tested all artifacts are (or are not!)
-/// [#SPC-core-coverage-percent-done]
 pub fn set_completed(artifacts: &mut Artifacts) -> usize {
     let mut names = ArtNames::from_iter(artifacts.keys().map(|n| n.clone()));
     let mut known = ArtNames::new();
@@ -191,7 +185,6 @@ pub fn set_completed(artifacts: &mut Artifacts) -> usize {
                     (&Some(_), &ArtType::SPC) | (&Some(_), &ArtType::TST) => {
                         got_it = 2;
                     }
-                    // [#SPC-core-artifact-attrs-loc-invalid]
                     (&Some(_), ty @ _) => warn!("[{:?}:{}] has loc set but is of type {:?}",
                                                     artifact.path, name, ty),
                     _ => {}
@@ -272,7 +265,6 @@ pub fn set_completed(artifacts: &mut Artifacts) -> usize {
 }
 
 /// Find the amount each artifact is tested
-/// [#SPC-core-coverage-percent-tested]
 pub fn set_tested(artifacts: &mut Artifacts) -> usize {
     let mut names = ArtNames::from_iter(artifacts.keys().map(|n| n.clone()));
     let mut known = ArtNames::new();

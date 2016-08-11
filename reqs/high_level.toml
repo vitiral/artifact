@@ -5,6 +5,7 @@ text = "high level requirements"
 [SPC-2]
 text = "high level design specifications"
 [RSK-2]
+partof = "REQ-2"
 text = "high level risks"
 [TST-2]
 text = "high level test design"

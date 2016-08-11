@@ -14,7 +14,6 @@ lazy_static!{
 
 /// resolves default vars from a file (cwd and repo)
 /// and inserts into variables
-/// #SPC-core-vars-resolve-default
 pub fn resolve_default_vars(vars: &Variables, fpath: &Path,
                             variables: &mut Variables,
                             repo_map: &mut HashMap<PathBuf, PathBuf>)
@@ -31,7 +30,6 @@ pub fn resolve_default_vars(vars: &Variables, fpath: &Path,
         let var = match utils::strfmt_ignore_missing(v.as_str(), &fmtvars) {
             Ok(v) => v,
             Err(e) => {
-                // [#SPC-core-load-error-vars-1]
                 error!("error formatting: {}", e.to_string());
                 error = true;
                 continue;
@@ -39,7 +37,6 @@ pub fn resolve_default_vars(vars: &Variables, fpath: &Path,
         };
         match variables.insert(k.clone(), var) {
             Some(_) => {
-                // [#SPC-core-load-error-vars-2]
                 error!("global var {:?} exists twice, one at {:?}", k, fpath);
                 error = true;
             }
@@ -47,7 +44,6 @@ pub fn resolve_default_vars(vars: &Variables, fpath: &Path,
         }
     }
     if error {
-        // [#SPC-core-load-error-vars-return-1]
         return Err(LoadError::new("errors while resolving default variables".to_string()));
     }
     Ok(())
@@ -56,7 +52,6 @@ pub fn resolve_default_vars(vars: &Variables, fpath: &Path,
 /// continues to resolve variables until all are resolved
 /// - done if no vars were resolved in a pass and no errors
 /// - error if no vars were resolved in a pass and there were errors
-/// #SPC-core-vars-resolve-user
 pub fn resolve_vars(variables: &mut Variables) -> LoadResult<()> {
     // keep resolving variables until all are resolved
     let mut msg = String::new();
@@ -91,7 +86,6 @@ pub fn resolve_vars(variables: &mut Variables) -> LoadResult<()> {
                         return Err(LoadError::new(e.to_string()));
                     },
                     strfmt::FmtError::KeyError(_) => {
-                        // [#SPC-core-load-error-vars-3]
                         errors.push(k.clone());
                         // reinsert original value
                         variables.insert(k.clone(), var);
@@ -104,7 +98,6 @@ pub fn resolve_vars(variables: &mut Variables) -> LoadResult<()> {
                 break;
             } else {
                 // unresolved errors
-                // [#SPC-core-load-error-vars-return-2]
                 keys = keys.iter().filter(|k| !remove_keys.contains(k.as_str()))
                     .map(|s| s.clone()).collect();
                 write!(msg, "Could not resolve some globals: {:?}\ngot related errors: {:?}",
@@ -140,14 +133,12 @@ pub fn fill_text_fields(artifacts: &mut Artifacts,
             Err(err) => errors.push(("text field", err)),
         };
         if errors.len() > 0 {
-            // [#SPC-core-load-error-text-3]
             error!(" resolving variables on [{:?}] {} failed: {:?}", art.path, name, errors);
             error = true;
         }
     }
 
     if error {
-        // [#SPC-core-load-error-text-return]
         return Err(LoadError::new("failure to resolve artifact text fields".to_string()));
     }
     trace!("Done filling");

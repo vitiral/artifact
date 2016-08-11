@@ -11,9 +11,7 @@
 - #SPC-0-done
 - #TST-0-done
 - #SPC-0-language
-- #TST-0-language
 - #SPC-0-format
-- #TST-0-format
 - #SPC-1-versioning
 - #TST-1-versioning
 - #SPC-2-modules

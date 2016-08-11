@@ -16,7 +16,6 @@ use toml::{Parser, Value, Table};
 // // Tests
 
 #[test]
-/// #TST-core-artifact-name-check:<check that name combinations raise correct errors>
 fn test_artifact_name() {
     // valid names
     for name in vec!["REQ-foo", "REQ-foo-2", "REQ-foo2", "REQ-foo2", "REQ-foo-bar-2_3",
@@ -37,20 +36,17 @@ fn test_get_attr() {
     let df_tbl = Table::new();
     let ref df_vec: Vec<String> = Vec::new();
 
-    // #TST-core-load-attrs-unit-1-a:<Test loading valid existing types>
     let test = get_attr!(tbl_good, "REQ-bar", df_tbl, Table).unwrap();
     assert!(get_attr!(&test, "disabled", false, Boolean).unwrap() == false);
     assert!(get_attr!(&test, "disabled", true, Boolean).unwrap() == false);
     assert!(get_attr!(&test, "text", df_str, String).unwrap() == "bar");
     assert!(get_attr!(&test, "text", df_str, String).unwrap() == "bar");
 
-    // #TST-core-load-attrs-unit-2:<Test loading invalid existing types>
     assert!(get_attr!(&test, "disabled", df_str, String).is_none());
     assert!(get_attr!(&test, "text", false, Boolean).is_none());
     assert!(get_vecstr(&test, "text", df_vec).is_none());
     let test = get_attr!(tbl_good, "SPC-foo", Table::new(), Table).unwrap();
 
-    // #TST-core-load-attrs-unit-3:<Test loading valid default types>
     let test = get_attr!(tbl_good, "REQ-foo", Table::new(), Table).unwrap();
     assert!(get_attr!(&test, "disabled", false, Boolean).unwrap() == false);
     assert!(get_attr!(&test, "text", df_str, String).unwrap() == "");
@@ -211,8 +207,6 @@ fn test_load_raw() {
     let tst_lvl2 = artifacts.get(&ArtName::from_str("TST-lvl-2").unwrap()).unwrap();
 
     // deep loading
-    // #TST-core-load-path
-    // #TST-core-load-dir-unit-4
     assert!(!artifacts.contains_key(&ArtName::from_str("REQ-unreachable").unwrap()));
 
     let req_deep = artifacts.get(&ArtName::from_str("REQ-deep").unwrap()).unwrap();
@@ -223,6 +217,5 @@ fn test_load_raw() {
     let lvl1_dir = TSIMPLE_DIR.join(PathBuf::from("lvl_1"));
     let lvl1_dir_str = lvl1_dir.as_path().to_str().unwrap().to_string();
 
-    // #TST-core-load-dir-unit-5
     assert_eq!(spc_lvl1.text, "level one does FOO");
 }

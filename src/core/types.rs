@@ -30,7 +30,6 @@ pub type Artifacts = HashMap<ArtNameRc, Artifact>;
 pub type ArtNameRc = Rc<ArtName>;
 pub type ArtNames = HashSet<ArtNameRc>;
 
-// #SPC-core-vars-struct
 pub type Variables = HashMap<String, String>;
 
 lazy_static!{
@@ -38,10 +37,10 @@ lazy_static!{
     // cannot end with "-"
     pub static ref ART_VALID: Regex = Regex::new(
         r"(REQ|SPC|RSK|TST|LOC)(-[A-Z0-9_-]*[A-Z0-9_])?\z").unwrap();
+    pub static ref PARENT_PATH: PathBuf = PathBuf::from("PARENT");
 }
 
-#[derive(Debug, Clone, Eq, PartialEq)]
-/// #SPC-core-artifact-types:<valid artifact types>
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub enum ArtType {
     REQ,
     SPC,
@@ -49,7 +48,6 @@ pub enum ArtType {
     TST,
 }
 
-/// #SPC-core-artifact-attrs-loc<Location data type>
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub struct Loc {
     pub path: PathBuf,
@@ -98,7 +96,6 @@ impl ArtName {
         Ok(out)
     }
 
-    /// #SPC-core-artifact-types-check:<find a valid type or error>
     fn find_type_maybe(&self) -> LoadResult<ArtType> {
         let ty = self.value.get(0).unwrap();
         match ty.as_str() {
@@ -126,6 +123,11 @@ impl ArtName {
         let mut value = self.value.clone();
         value.pop().unwrap();
         Some(ArtName{raw: value.join("-"), value: value})
+    }
+
+    /// return whether this artifact is the root type
+    pub fn is_root(&self) -> bool {
+        self.value.len() == 1
     }
 
     pub fn parent_rc(&self) -> Option<ArtNameRc> {
@@ -157,7 +159,6 @@ impl ArtName {
 }
 
 #[test]
-/// [#TST-core-artifact-name-parent]
 fn test_artname_parent() {
     let name = ArtName::from_str("REQ-foo-bar-b").unwrap();
     let parent = name.parent().unwrap();
@@ -304,7 +305,6 @@ impl LoadFromStr for ArtNames {
 
 
 
-/// #SPC-core-artifact-struct:<artifact definition>
 /// The Artifact type. This encapsulates
 /// REQ, SPC, RSK, and TST artifacts and
 /// contains space to link them
@@ -321,8 +321,13 @@ pub struct Artifact {
     pub tested: f32, // tested ratio (calculated)
 }
 
+impl Artifact {
+    pub fn is_parent(&self) -> bool {
+        self.path == PARENT_PATH.as_path()
+    }
+}
+
 #[derive(Debug, Default, Clone)]
-/// #SPC-core-settings-struct
 pub struct Settings {
     pub disabled: bool,
     pub paths: VecDeque<PathBuf>,

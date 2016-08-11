@@ -164,8 +164,8 @@ pub fn do_tutorial(part: u8) -> io::Result<()> {
                 create_dir(&SRC_DIR);
                 create_dir(&TESTS_DIR);
                 try!(write_file(&SETTINGS_TOML, data::settings_4::DATA));
-                try!(write_file(&LOAD_PY, data::load_py::DATA));
-                try!(write_file(&TEST_LOAD_PY, data::test_load_py::DATA));
+                try!(write_file(&LOAD_PY, &data::load_py::DATA.replace("$", "#")));
+                try!(write_file(&TEST_LOAD_PY, &data::test_load_py::DATA.replace("$", "#")));
                 try!(write_file(&EXAMPLE_CSV, data::example_csv::DATA));
                 try!(write_file(&INIT_PY, ""));
                 try!(write_file(&TEST_INIT_PY, ""));

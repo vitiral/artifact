@@ -1,15 +1,14 @@
 
 use std::ffi::OsString;
 
-use super::ls;
-use super::status;
 use super::init;
 use super::tutorial;
+use super::ls;
+use super::check;
 use super::types::*;
 
 pub fn get_matches<'a, I, T>(args: I) -> ClapResult<ArgMatches<'a>>
     where I: IntoIterator<Item=T>, T: Into<OsString> {
-    // [#SPC-ui-cmdline-cmd-help]
     App::new("rst")
         .version(env!("CARGO_PKG_VERSION"))
         .about("the requirements tracking tool made for developers. Call `rst init -t` for \
@@ -30,6 +29,6 @@ pub fn get_matches<'a, I, T>(args: I) -> ClapResult<ArgMatches<'a>>
         .subcommand(tutorial::get_subcommand())
         .subcommand(init::get_subcommand())
         .subcommand(ls::get_subcommand())
-        .subcommand(status::get_subcommand())
+        .subcommand(check::get_subcommand())
         .get_matches_from_safe(args)
 }

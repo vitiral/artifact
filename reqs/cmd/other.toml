@@ -6,12 +6,12 @@ defined in REQ-2-ui such as:
 
  - init: initialize the current repository
  - tutorial: begin an interactive tutorial for the user
- - ls: show artifacts and their status
- - status: give a status on the current artifacts
+ - ls: show artifacts and their fields
+ - check: check the project for errors
 '''
 
 [REQ-tutorial]
-partof = "REQ-2-ui-tutorial"
+partof = "REQ-2-ui-tutorial, REQ-cmd"
 text = '''
 There **shall** be a tutorial that helps the user learn about rst.
 

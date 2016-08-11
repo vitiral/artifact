@@ -188,7 +188,6 @@ fn test_get_percent() {
 
 /// get all the information from the user input
 pub fn get_ls_cmd(matches: &ArgMatches) -> Result<(String, FmtSettings, SearchSettings), String> {
-    // [#SPC-ui-cmdline-ls-flags-impl-create]
     let mut fmt_set = FmtSettings::default();
     fmt_set.long = matches.is_present("long");
     // fmt_set.recurse = matches.value_of("recursive").unwrap().parse::<u8>().unwrap();
@@ -285,7 +284,6 @@ pub fn do_ls<W: Write>(w: &mut W,
     }
     debug!("fmt_set empty: {}", fmt_set.is_empty());
     if names.len() == 0 && search.len() == 0 {
-        // [#SPC-ui-cmdline-ls-flags-empty]
         names.extend(artifacts.keys().cloned());
         names.sort();
     }

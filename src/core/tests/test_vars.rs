@@ -37,10 +37,8 @@ fn test_resolve_vars() {
         loaded_vars.insert("bar".to_string(), "{foo}/BAR".to_string());
         loaded_vars.insert("bar-2".to_string(), "{bar}/BAR2".to_string());
 
-        // #TST-core-vars-resolve-default
         resolve_default_vars(&loaded_vars, fpath.as_path(), &mut variables,
                              &mut repo_map).unwrap();
-        // #TST-core-vars-resolve-user
         resolve_vars(&mut variables).unwrap();
         let foo = TSIMPLE_DIR.join("FOO");
         let bar = foo.join("BAR");
@@ -65,7 +63,6 @@ $SPC-who
 #[test]
 /// partof: #TST-loc
 fn test_resolve_loc_text() {
-    // [#TST-core-load-loc-text]
     let mut locs: HashMap<ArtName, Loc> = HashMap::new();
     let path = PathBuf::from("hi/there");
     let loc_test = LOC_TEST.replace("$", "#");

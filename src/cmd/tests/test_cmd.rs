@@ -46,6 +46,7 @@ fn test_get_matches() {
 
 
 #[test]
+/// #TST-ls
 fn test_ls() {
     let (mut fmt_set, mut search_set, settings) = (FmtSettings::default(),
                                                    SearchSettings::default(),

@@ -17,7 +17,6 @@ pub use super::super::core::{
     LoadFromStr};
 
 /// settings for what to format
-/// [#SPC-core-fmt-settings]
 #[derive(Debug, Default, Clone, PartialEq, Eq)]
 pub struct FmtSettings {
     pub long: bool,
@@ -42,7 +41,6 @@ impl FmtSettings {
 /// format an artifact for cmdline, html, or anything else
 /// purposely doesn't contain items that are *always* displayed
 /// such as completed or tested
-/// [#SPC-core-fmt-artifact]
 #[derive(Debug, Default)]
 pub struct FmtArtifact {
     pub long: bool,

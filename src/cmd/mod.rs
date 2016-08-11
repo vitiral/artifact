@@ -19,7 +19,7 @@ use ansi_term::Colour::Green;
 mod types;
 mod matches;
 mod ls;
-mod status;
+mod check;
 mod fmt;
 mod init;
 mod tutorial;
@@ -43,7 +43,7 @@ pub fn get_loglevel(matches: &ArgMatches) -> Option<(u8, bool)> {
 }
 
 
-pub fn cmd<'a, W, I, T>(w: &mut W, args: I)
+pub fn cmd<'a, W, I, T>(w: &mut W, args: I) -> i32
     where I: IntoIterator<Item=T>,
           T: Into<OsString>,
           W: io::Write {
@@ -51,14 +51,17 @@ pub fn cmd<'a, W, I, T>(w: &mut W, args: I)
         Ok(m) => m,
         Err(e) => {
             write!(w, "{}", e).unwrap();
-            return;
+            return 2;
         }
     };
 
     // initialze the logger
     match get_loglevel(&matches) {
         Some((v, q)) => init_logger(q, v, true).unwrap(),
-        None => return,
+        None => {
+            println!("ERROR: could not find loglevel");
+            return 2;
+        }
     };
 
     // If init is selected, do that
@@ -67,9 +70,12 @@ pub fn cmd<'a, W, I, T>(w: &mut W, args: I)
         info!("Calling the init command");
         match init::do_init(&cwd) {
             Ok(_) => {},
-            Err(e) => println!("ERROR: {}", e),
+            Err(e) => {
+                println!("ERROR: {}", e);
+                return 1;
+            }
         }
-        return;
+        return 0;
     }
 
     // If tutorial is selected, do that
@@ -79,7 +85,7 @@ pub fn cmd<'a, W, I, T>(w: &mut W, args: I)
             Ok(c) => c,
             Err(e) => {
                 println!("ERROR: {}", e);
-                return;
+                return 1;
             },
         };
         tutorial::do_tutorial(c).unwrap();
@@ -87,7 +93,7 @@ pub fn cmd<'a, W, I, T>(w: &mut W, args: I)
         //     Ok(_) => {},
         //     Err(e) => println!("ERROR: {}", e),
         // }
-        return;
+        return 0;
     }
 
     // load the artifacts
@@ -95,7 +101,7 @@ pub fn cmd<'a, W, I, T>(w: &mut W, args: I)
         Some(r) => r,
         None => {
             println!("Could not find .rst folder. Try running `rst init -t`");
-            return;
+            return 1;
         }
     };
     let cfg = repo.join(".rst");
@@ -105,7 +111,7 @@ pub fn cmd<'a, W, I, T>(w: &mut W, args: I)
         Ok(v) => v,
         Err(err) => {
             error!("{}", err);
-            return;
+            return 1;
         }
     };
 
@@ -113,14 +119,15 @@ pub fn cmd<'a, W, I, T>(w: &mut W, args: I)
         info!("Calling the ls command");
         let (search, fmtset, search_set) = ls::get_ls_cmd(&ls).unwrap();
         ls::do_ls(w, &cwd, &search, &artifacts, &fmtset, &search_set, &settings);
-    } else if let Some(_) = matches.subcommand_matches("status") {
-        info!("Calling the status command");
-        status::do_status(w, &cwd, &artifacts, &dne_locs).unwrap();
+    } else if let Some(_) = matches.subcommand_matches("check") {
+        info!("Calling the check command");
+        return check::do_check(w, &cwd, &artifacts, &dne_locs, &settings);
     }
     else {
         write!(w, "{} {}: use -h to show help",
                Green.bold().paint("rst"),
                Green.paint(VERSION)).unwrap();
     }
+    return 0;
 }
 

@@ -23,7 +23,8 @@ pub use core::types::{
     Artifact, Artifacts,
     ArtType, Loc,
     ArtName, ArtNameRc, ArtNames,
-    Settings, LoadFromStr};
+    Settings, LoadFromStr,
+    PARENT_PATH};
 pub use core::load::load_toml;
 
 #[cfg(test)]

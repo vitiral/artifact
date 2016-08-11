@@ -48,7 +48,7 @@ pub fn get_vecstr(tbl: &Table, attr: &str, default: &Vec<String>) -> Option<Vec<
     }
 }
 
-/// #TST-core-load-table-check:<check the type to make sure it matches>
+/// check the type to make sure it matches
 macro_rules! check_type {
     ($value: expr, $attr: expr, $name: expr) => {
         match $value {
@@ -177,7 +177,6 @@ pub fn load_file_table(file_table: &mut Table,
     match file_table.remove("settings") {
         Some(Value::Table(t)) => {
             let lset = try!(Settings::from_table(&t));
-            // [#SPC-core-settings-disabled]
             if lset.disabled {
                 return Ok(0);
             }
@@ -228,7 +227,6 @@ pub fn load_file_table(file_table: &mut Table,
                 .unwrap();
             return Err(LoadError::new(String::from_utf8(msg).unwrap()));
         }
-        // [#SPC-core-artifact-attrs-disabled]
         if check_type!(get_attr!(art_tbl, "disabled", false, Boolean),
                        "disabled",
                        name) {
@@ -264,7 +262,6 @@ pub fn load_toml(path: &Path,
 
 /// given a file path load the artifacts
 ///
-/// #SPC-core-load-file
 pub fn load_file(path: &Path,
                  artifacts: &mut Artifacts,
                  settings: &mut Vec<(PathBuf, Settings)>,
@@ -351,7 +348,6 @@ pub fn load_dir(path: &Path,
         }
     }
     if error {
-        // [#SPC-core-load-error-file-return]
         return Err(LoadError::new("ERROR: some files failed to load".to_string()));
     } else {
         Ok(num_loaded)
@@ -432,7 +428,7 @@ pub fn load_raw(path: &Path)
                                   path.to_string_lossy().as_ref()));
     }
 
-    // #SPC-core-load-parts-1:<load and validate all paths recursively>
+    // load and validate all paths recursively
     while settings.paths.len() > 0 {
         let dir = settings.paths.pop_front().unwrap(); // it has len, it better pop!
         if loaded_dirs.contains(&dir) {

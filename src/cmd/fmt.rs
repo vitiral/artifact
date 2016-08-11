@@ -5,7 +5,6 @@ use super::types::*;
 impl FmtArtifact {
     /// write the formatted version of the artifact to the
     /// cmdline writter
-    /// [#SPC-ui-cmdline-ls-flags-impl-formatting]
     pub fn write<W: io::Write> (&self, w: &mut W, cwd: &Path,
                                 artifacts: &Artifacts,
                                 settings: &Settings, indent: u8)
@@ -165,12 +164,7 @@ impl FmtArtifact {
         // format where the artifact is defined
         if let Some(ref path) = self.path {
             self.write_header(w, "\n * defined-at: ", settings);
-            let path = if *path != PathBuf::from("PARENT") {
-                utils::relative_path(path.as_path(), cwd)
-            } else {
-                path.to_path_buf()
-            };
-            // try!(w.write_all(path.to_string_lossy().as_ref().as_ref()));
+            let path = utils::relative_path(path.as_path(), cwd);
             try!(write!(w, "{}", path.display()));
             self.write_end(w);
         }

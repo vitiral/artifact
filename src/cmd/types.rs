@@ -24,7 +24,7 @@ pub use super::super::core::{
     Settings, Artifact, Artifacts,
     ArtType, Loc,
     ArtName, ArtNameRc, ArtNames,
-    LoadFromStr};
+    LoadFromStr, PARENT_PATH};
 pub use super::super::ui;
 pub use super::super::ui::{FmtSettings, FmtArtifact, PercentSearch, SearchSettings};
 
