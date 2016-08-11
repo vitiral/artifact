@@ -144,7 +144,7 @@ pub fn link_parts(artifacts: &mut Artifacts) -> u64 {
         // get the artifacts this is a `partof`, this artifact should be in all of their `parts`
         for partof in artifact.partof.iter() {
             if !artifacts.contains_key(partof) {
-                warn!("[{:?}] {} has invalid partof = {}",
+                debug!("[{:?}] {} has invalid partof = {}",
                       artifact.path,
                       name,
                       partof);
@@ -185,8 +185,6 @@ pub fn set_completed(artifacts: &mut Artifacts) -> usize {
                     (&Some(_), &ArtType::SPC) | (&Some(_), &ArtType::TST) => {
                         got_it = 2;
                     }
-                    (&Some(_), ty @ _) => warn!("[{:?}:{}] has loc set but is of type {:?}",
-                                                    artifact.path, name, ty),
                     _ => {}
                 }
                 if got_it == 0 && artifact.parts.len() == 0 {
@@ -241,26 +239,6 @@ pub fn set_completed(artifacts: &mut Artifacts) -> usize {
             names.remove(&name);
         }
     }
-    if names.len() != 0 {
-        let mut ordered = Vec::from_iter(names.iter());
-        ordered.sort();
-
-        // warn!("could not resolve tested % for: [{}]", ordered.iter().map(|n| n.raw.clone())
-        //       .join(", "));
-        warn!("could not resolve completed % for Artifacts:");
-        for name in ordered {
-            let artifact = artifacts.get(name).unwrap();
-            let mut unknown: Vec<_> = artifact.parts
-                                              .iter()
-                                              .filter(|n| !known.contains(n.clone()))
-                                              .cloned()
-                                              .collect();
-            unknown.sort();
-            warn!(" - {} could not resolve parts: {}",
-                  name,
-                  ui::fmt_names(&unknown));
-        }
-    }
     names.len()
 }
 
@@ -311,26 +289,6 @@ pub fn set_tested(artifacts: &mut Artifacts) -> usize {
         }
         for name in found.drain() {
             names.remove(&name);
-        }
-    }
-    if names.len() != 0 {
-        let mut ordered = Vec::from_iter(names.iter());
-        ordered.sort();
-
-        // warn!("could not resolve tested % for: [{}]", ordered.iter().map(|n| n.raw.clone())
-        //       .join(", "));
-        warn!("could not resolve tested % for Artifacts:");
-        for name in ordered {
-            let artifact = artifacts.get(name).unwrap();
-            let mut unknown: Vec<_> = artifact.parts
-                .iter()
-                .filter(|n| !known.contains(n.clone()))
-                .cloned()
-                .collect();
-            unknown.sort();
-            warn!(" - {} could not resolve parts: {}",
-                  name,
-                  ui::fmt_names(&unknown));
         }
     }
     names.len()

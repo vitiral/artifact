@@ -17,6 +17,12 @@ The design will be as follows:
  - analysis will be done on the artifacts to retrieve the remaining information
 '''
 
+
+[SPC-unresolvable]
+partof = "SPC-unresolvable-1-1"
+[SPC-unresolvable-1]
+[SPC-unresolvable-1-1]
+
 [SPC-check-load]
 text = '''
 The errors found during loading shall be displayed. This includes:
@@ -31,7 +37,7 @@ a requirement or test anything. They can be found by asking:
  - is the artfact NOT a REQ?
  - is the artifact's parent the root type? (RSK, SPC, TST)
  - is the artifact a TST?
-    - is the artifact a `partof` either a RSK or a SPC?
+    - is the artifact NOT a `partof` either a RSK or a SPC?
  - OR is the artifact a RSK or a SPC?
-     - is the artifact a `partof` a REQ?
+     - is the artifact NOT a `partof` a REQ?
 '''

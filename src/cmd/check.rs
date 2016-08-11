@@ -23,7 +23,15 @@ pub fn do_check<W: Write>(w: &mut W,
             write!(w, "{}", msg).unwrap();
         }
     }
+    fn paint_it_bold<W: Write>(w: &mut W, settings: &Settings, msg: &str) {
+        if settings.color {
+            write!(w, "{}", Red.bold().paint(msg)).unwrap();
+        } else {
+            write!(w, "{}", msg).unwrap();
+        }
+    }
 
+    // display artifacts with invalid parts
     let mut displayed_header = false;
     for (name, artifact) in artifacts.iter() {
         invalid_partof.clear();
@@ -36,13 +44,89 @@ pub fn do_check<W: Write>(w: &mut W,
             error = 1;
             let mut msg = String::new();
             if !displayed_header {
-                write!(msg, "\n# Found partof names that do not exist:\n").unwrap();
                 displayed_header = true;
+                paint_it_bold(w, settings, "\n# Found partof names that do not exist:\n");
             }
             write!(msg, "    {} [{}]: {:?}\n",
                    name, utils::relative_path(&artifact.path, cwd).display(),
                    invalid_partof).unwrap();
             paint_it(w, settings, &msg);
+        }
+    }
+
+    // display unresolvable parts
+    let mut unresolved: Vec<(ArtNameRc, &Artifact)> = Vec::from_iter(
+        artifacts.iter()
+            .filter(|a| a.1.completed < 0. || a.1.tested < 0.)
+            .map(|n| (n.0.clone(), n.1)));
+    let unknown_names: HashSet<ArtNameRc> = HashSet::from_iter(
+        unresolved.iter()
+            .map(|u| u.0.clone()));
+
+    if unresolved.len() > 0 {
+        error = 1;
+        unresolved.sort_by(|a, b| a.0.cmp(&b.0));
+        let mut msg = String::new();
+
+        let mut unresolved_partof: HashMap<ArtNameRc, HashSet<ArtNameRc>> = HashMap::new();
+        for &(ref name, artifact) in unresolved.iter() {
+            let partof: HashSet<_> = artifact.partof
+                .iter()
+                .filter(|n| !artifacts.contains_key(n.as_ref())
+                        || unknown_names.contains(n.as_ref()))
+                .cloned()
+                .collect();
+            unresolved_partof.insert(name.clone(), partof);
+        }
+        // reduce unresolved partof to only items that have at least one value
+        let mut resolved_names: HashSet<ArtNameRc> = HashSet::new();
+        let mut remove_names = Vec::new();
+        let mut just_resolved = Vec::new();
+        loop {
+            just_resolved.clear();
+            let mut did_something = false;
+            for (name, partof) in unresolved_partof.iter_mut() {
+                // find names in partof that have no unresolved partofs and remove them
+                remove_names.clear();
+                for p in partof.iter() {
+                    if resolved_names.contains(p) {
+                        remove_names.push(p.clone());
+                    }
+                }
+                if remove_names.len() > 0 {
+                    did_something = true;
+                }
+                for p in remove_names.iter() {
+                    partof.remove(p);
+                }
+
+                // if this artifact has no unresolved partofs, then it is considered resolved
+                if partof.len() == 0 {
+                    resolved_names.insert(name.clone());
+                    just_resolved.push(name.clone());
+                }
+            }
+            if just_resolved.len() > 0 {
+                did_something = true;
+            }
+            for r in just_resolved.iter() {
+                unresolved_partof.remove(r);
+            }
+            if !did_something {
+                break;
+            }
+        }
+        paint_it_bold(w, settings, "Artifact partof contains at least one recursive reference:\n");
+        let mut unresolved_partof: Vec<_> = unresolved_partof
+            .drain()
+            .map(|mut v| (v.0, v.1.drain().collect::<Vec<_>>()))
+            .collect();
+        unresolved_partof.sort_by(|a, b| a.0.cmp(&b.0));
+        for (name, partof) in unresolved_partof.drain(0..) {
+            let mut msg = String::new();
+            write!(msg, "    {:<30}: {:?}\n",
+                   name.to_string(), partof);
+            write!(w, "{}", msg);
         }
     }
 
@@ -58,11 +142,7 @@ pub fn do_check<W: Write>(w: &mut W,
             invalid_locs.get_mut(&loc.path).unwrap().push((name.clone(), loc.clone()));
         }
         let header = "\n# Found implementation links in the code that do not exist:\n";
-        if settings.color {
-            write!(w, "{}", Red.bold().paint(header)).unwrap();
-        } else {
-            write!(w, "{}", header).unwrap();
-        }
+        paint_it_bold(w, settings, header);
         let mut invalid_locs: Vec<(PathBuf, Vec<(ArtName, Loc)>)> = Vec::from_iter(
             invalid_locs.drain());
         invalid_locs.sort_by(|a, b| a.0.cmp(&b.0));
@@ -83,7 +163,6 @@ pub fn do_check<W: Write>(w: &mut W,
     }
     // find hanging artifacts
     // partof: #SPC-check-hanging
-
     fn partof_types(a: &Artifact, types: &HashSet<ArtType>) -> bool {
         for p in a.partof.iter() {
             if types.contains(&p.get_type()) {
@@ -112,12 +191,12 @@ pub fn do_check<W: Write>(w: &mut W,
     hanging.sort_by(|a, b| a.1.cmp(b.1));
     if hanging.len() > 0 {
         error = 1;
-        let msg = "Hanging artifacts found (top-level but not partof a higher type):\n";
-        paint_it(w, settings, msg);
+        let msg = "\nHanging artifacts found (top-level but not partof a higher type):\n";
+        paint_it_bold(w, settings, msg);
         for (h, p) in hanging {
             let mut msg = String::new();
             write!(msg, "    {:<30}: {}\n", utils::relative_path(p, cwd).display(), h);
-            paint_it(w, settings, &msg);
+            write!(w, "{}", msg);
         }
     }
 
@@ -129,6 +208,8 @@ pub fn do_check<W: Write>(w: &mut W,
         } else {
             write!(w, "{}", msg).unwrap();
         }
+    } else {
+        write!(w, "\n");
     }
     error
 }
