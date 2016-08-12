@@ -18,3 +18,7 @@ pub mod load_toml;
 pub mod settings_4;
 pub mod load_py;
 pub mod test_load_py;
+
+// part 5
+pub mod load_py2;
+pub mod load_toml2;

@@ -7,6 +7,7 @@ created. This is so that it can update the files to be interactive. If you are
 taking notes or creating other artifacts, you should do so in separate files
 than the ones created.
 
+
 ##################################################
 # Tutorial Stage 2: high-level requirements and design specifications
 > Run `rst tutorial 2` to reset the local directory to this stage
@@ -80,6 +81,7 @@ there is only one.
 
 Once you are done, continue onto stage 3.
 
+
 ##################################################
 # Tutorial Stage 3: detailed design and test design of the loading function
 > Run `rst tutorial 3` to reset the local directory to this stage
@@ -108,6 +110,7 @@ parent of other artifacts.
 This document details quite a bit of the design specifications, risks and tests
 in order to create this function. Let's actually get to work and start coding.
 That is the focus of the next part
+
 
 ##################################################
 # Tutorial Stage 4: writing and linking code
@@ -154,28 +157,55 @@ there for TST artifacts.
     WARN messages. You can use this feature to help you ensure your artifact
     links are correct.
 
+
+##################################################
+# Tutorial Stage 5: handling errors
+> Run `rst tutorial 5` to start this stage of the tutorial
+
+A few changes have been made to your local directory:
+ - `reqs/load.toml` has been changed to have a bunch of errors
+ - `src/load.py` has been changed to include a few errors as well.
+
+So far in the tutorial things have been done correctly -- but what if you
+are new, or what if you have to refactor?
+
+Here we are in the middle of refactoring our code and requirements a bit... but
+we've messed some things up. It's your job to fix them. How to begin?
+
+First of all, we can use what we already know. `rst ls` can help a lot for
+refactors. It can answer the question "why is that REQ at 0%? It is implemented
+somewhere!"
+
+There is a cmd specifically for finding errors in a project,
+and that is `rst check`
+
+`rst check` analyzes your project for errors. Some errors it finds are:
+ - invalid `partof` fields: if you've renamed (or misspelled) an artifact but
+    forgotten to update artifacts that were parts of it, this will help you.
+ - dangling locations in code: you might THINK writing $SPC-awesome-func
+    in your code links to something, but unless that spec actually exists
+    it isn't doing anything. `rst check` has your back.
+ - recursive links: rsk's completeness algorithm doesn't work if there are
+    recursive partof links (i.e. A is partof B which is partof A)
+    `rst check` will help you narrow down where these are comming from
+ - hanging artifacts: if you've written a SPC but haven't linked
+    it to a REQ, then you probably want to (otherwise what exactly are you
+    specifying?). The same goes for tests that are not testing any specs.
+
+> ## Exercise:
+> use `rst check` to find errors and fix them. Keep running `rst check` until
+> there are no errors, then run `rst ls` to see if the current status makes
+> sense.
+
+Feel free to explore at this point -- the interactive tutorial is over so this
+is your project now. Enjoy!
+
+
 ##################################################
 # Documenting your own project
-
 To start documenting your own project, run `rst init` in your project and edit
 `.rst/settings.toml` with the paths to find your code-implementations and
-documents. I have a few parting words of advice for using the tool:
-
- 1. keep your artifacts high level -- don't try to design every detail using
-    rst.
-       Using rst does not mean that you don't have to leave code comments!
- 2. keep names short and simple. Avoid unnecessary nesting. If you have web and
-      cmdline ui elements, consider naming them just `REQ-web` and `REQ-cmd`
-      instead of `REQ-ui-web` and `REQ-ui-cmd`. Trying to nest too deep can
-      quickly get confusing.
- 3. use `rst ls` liberally, and check for and fix warning messages!
- 4. don't be afraid to refactor your artifacts. It is actually easier than it
-      might sound, as **rst** will help you find broken links and incomplete
-      items in real time. Not to mention that if you use revision control
-      (you should), your artifacts can be tracked with your project -- no more
-      having your documents and your code be wildly out of sync!
-
-Other than that, good luck!
+documents.
 
 
 ##################################################
@@ -190,13 +220,33 @@ This is an excellent introduction to the purpose of writing requirements
 as well as an initial template for how you might structure your requirements.
 Well worth the read for any developer.
 
+
 ##################################################
 # Summary and Final Words
 
+Here are a few parting words of advice:
+
+ 1. Still write a good README and other documentation for your users --
+      requirements SHOULD be used for bringing developers of your project up
+      to speed but they aren't the best format for general users.
+ 2. Keep your artifacts fairly high level -- don't try to design every detail
+      using rst. Using rst does not mean that you shouldn't use code comments!
+ 3. Use `rst ls` and `rst check` liberally, and fix those error messages!
+ 4. Keep names short and simple. Avoid unnecessary nesting. If you have web and
+      cmdline ui elements, consider naming them just `REQ-web` and `REQ-cmd`
+      instead of `REQ-ui-web` and `REQ-ui-cmd`. Trying to nest too deep can
+      quickly get confusing.
+ 5. Don't be afraid to refactor your artifacts. It is actually easier than it
+      might sound, as rst will help you find broken links and incomplete
+      items in real time. Not to mention that if you use revision control
+      (you should), your artifacts can be tracked with your project -- no more
+      having your documents and your code be wildly out of sync!
+
 This tutorial took you part of the way through developing a simple project using
 **rst**. I leave it as an exercise to finish the project in whichever language
-you are most comftorable. Have some fun with the rst tool, try to break it. If
-you manage to break it or have any suggestions, please open a ticket at:
+you are most comfortable. Have some fun with the rst tool, try to break it. If
+you find bugs or have any suggestions, please open a ticket at:
 https://github.com/vitiral/rst/issues
 
+Good luck!
 "##;

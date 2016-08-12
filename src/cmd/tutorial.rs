@@ -22,11 +22,11 @@ pub fn get_tutorial_cmd(matches: &ArgMatches) -> Result<u8, String> {
         Ok(p) => p,
         Err(e) => return Err(e.to_string()),
     };
-    if 1 <= part && part <= 4 {
+    if 1 <= part && part <= 5 {
         Ok(part)
     } else {
         let mut msg = String::new();
-        write!(msg, "part must be between 1 and 4. Got: {}", part).unwrap();
+        write!(msg, "part must be between 1 and 5. Got: {}", part).unwrap();
         Err(msg)
     }
 }
@@ -142,7 +142,7 @@ pub fn do_tutorial(part: u8) -> io::Result<()> {
         try!(write_file(&TUTORIAL_TOML, data::tutorial_toml::DATA));
     } else {
         create_dir(&REQS_DIR);
-        try!(write_file(&TUTORIAL_MD, data::tutorial_md::DATA));
+        try!(write_file(&TUTORIAL_MD, &data::tutorial_md::DATA.replace("$", "#")));
         try!(write_file(&CAPITOLS_CSV, data::capitols_csv::DATA));
         try!(write_file(&EXERCISE_HTM, data::exercise_htm::DATA));
         try!(write_file(&PURPOSE_TOML, data::purpose_toml::DATA));
@@ -155,17 +155,25 @@ pub fn do_tutorial(part: u8) -> io::Result<()> {
                 println!("  Tutorial part 3: open tutorial.md with a text editor and see part 3");
             }
             try!(write_file(&SETTINGS_TOML, data::settings_2::DATA)); // same settings
-            try!(write_file(&LOAD_TOML, data::load_toml::DATA));
-            if part == 4 {
-                println!("  Tutorial part 4: open tutorial.md with a text editor and see part 4");
+            if part != 5 {
+                try!(write_file(&LOAD_TOML, data::load_toml::DATA));
+            }
+            if part >= 4 {
                 create_dir(&SRC_DIR);
                 create_dir(&TESTS_DIR);
                 try!(write_file(&SETTINGS_TOML, data::settings_4::DATA));
-                try!(write_file(&LOAD_PY, &data::load_py::DATA.replace("$", "#")));
                 try!(write_file(&TEST_LOAD_PY, &data::test_load_py::DATA.replace("$", "#")));
                 try!(write_file(&EXAMPLE_CSV, data::example_csv::DATA));
                 try!(write_file(&INIT_PY, ""));
                 try!(write_file(&TEST_INIT_PY, ""));
+                if part == 4 {
+                    println!("  Tutorial part 4: open tutorial.md with a text editor and see part 4");
+                    try!(write_file(&LOAD_PY, &data::load_py::DATA.replace("$", "#")));
+                } else {
+                    println!("  Tutorial part 5: open tutorial.md with a text editor and see part 5");
+                    try!(write_file(&LOAD_TOML, data::load_toml2::DATA));
+                    try!(write_file(&LOAD_PY, &data::load_py2::DATA.replace("$", "#")));
+                }
             }
         }
     }
