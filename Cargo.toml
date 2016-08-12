@@ -1,6 +1,6 @@
 [package]
 name = "rst_app"
-version = "0.2.0"
+version = "0.2.1"
 description = "rst: requirements as easy as abc"
 repository = "https://github.com/vitiral/rst"
 readme = "README.md"
