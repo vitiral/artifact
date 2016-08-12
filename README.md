@@ -51,12 +51,12 @@ that needs to be changed if it improves usability.
      (rst currently only supports tracking implementaiton, not execution)
  - Web UI frontend to make it easy for non-devs to view requirements
 
-## Installation
+# Installation
 
 There are currently two installation options: downloading a cross-linux
 binary or installing through Cargo.
 
-### Linux Binary
+## Linux Binary
 All we will be doing is downloading [this file](https://github.com/vitiral/rst/raw/master/target/x86_64-unknown-linux-musl/release/rst), 
 `chmod a+x` it, and putting it in a directory on your `$PATH`
 
@@ -77,7 +77,7 @@ export PATH="$HOME/bin:$PATH"
 Now run `source ~/.bashrc`. You should now be able to run `rst -h` from anywhere. Update **rst**
 by simply re-running the first line.
 
-### Cross Platform with [cargo](https://github.com/rust-lang/cargo)
+## Cross Platform with [cargo](https://github.com/rust-lang/cargo)
 > Note: neither windows or mac are tested. If you try either, whether it works or not,
 > please open an [issue](https://github.com/vitiral/rst/issues) to let us know!
 
