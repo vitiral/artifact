@@ -142,7 +142,7 @@ pub fn do_tutorial(part: u8) -> io::Result<()> {
         try!(write_file(&TUTORIAL_TOML, data::tutorial_toml::DATA));
     } else {
         create_dir(&REQS_DIR);
-        try!(write_file(&TUTORIAL_MD, &data::tutorial_md::DATA.replace("$", "#")));
+        try!(write_file(&TUTORIAL_MD, data::tutorial_md::DATA));
         try!(write_file(&CAPITOLS_CSV, data::capitols_csv::DATA));
         try!(write_file(&EXERCISE_HTM, data::exercise_htm::DATA));
         try!(write_file(&PURPOSE_TOML, data::purpose_toml::DATA));
@@ -162,17 +162,17 @@ pub fn do_tutorial(part: u8) -> io::Result<()> {
                 create_dir(&SRC_DIR);
                 create_dir(&TESTS_DIR);
                 try!(write_file(&SETTINGS_TOML, data::settings_4::DATA));
-                try!(write_file(&TEST_LOAD_PY, &data::test_load_py::DATA.replace("$", "#")));
+                try!(write_file(&TEST_LOAD_PY, data::test_load_py::DATA));
                 try!(write_file(&EXAMPLE_CSV, data::example_csv::DATA));
                 try!(write_file(&INIT_PY, ""));
                 try!(write_file(&TEST_INIT_PY, ""));
                 if part == 4 {
                     println!("  Tutorial part 4: open tutorial.md with a text editor and see part 4");
-                    try!(write_file(&LOAD_PY, &data::load_py::DATA.replace("$", "#")));
+                    try!(write_file(&LOAD_PY, data::load_py::DATA));
                 } else {
                     println!("  Tutorial part 5: open tutorial.md with a text editor and see part 5");
                     try!(write_file(&LOAD_TOML, data::load_toml2::DATA));
-                    try!(write_file(&LOAD_PY, &data::load_py2::DATA.replace("$", "#")));
+                    try!(write_file(&LOAD_PY, data::load_py2::DATA));
                 }
             }
         }

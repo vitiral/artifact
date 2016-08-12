@@ -182,7 +182,7 @@ and that is `rst check`
 `rst check` analyzes your project for errors. Some errors it finds are:
  - invalid `partof` fields: if you've renamed (or misspelled) an artifact but
     forgotten to update artifacts that were parts of it, this will help you.
- - dangling locations in code: you might THINK writing $SPC-awesome-func
+ - dangling locations in code: you might THINK writing #SPC-awesome-func
     in your code links to something, but unless that spec actually exists
     it isn't doing anything. `rst check` has your back.
  - recursive links: rsk's completeness algorithm doesn't work if there are
