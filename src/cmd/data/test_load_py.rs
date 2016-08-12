@@ -10,7 +10,7 @@ script_dir = os.path.split(__file__)[0]
 
 class TestLoadIo(unittest.TestCase):
     def test_basic(self):
-        ''' partof: $TST-load-csv '''
+        ''' partof: #TST-load-csv '''
         text = '''\
         one,1
         two,2
@@ -36,7 +36,7 @@ class TestLoadIo(unittest.TestCase):
         self.assertEqual(result, expected)
 
     def test_invalid_columns(self):
-        ''' partof: $TST-load-unit-colums '''
+        ''' partof: #TST-load-unit-colums '''
         # extra ',' after 1
         text = '''\
         one,1,
@@ -46,7 +46,7 @@ class TestLoadIo(unittest.TestCase):
             load.load_io(StringIO(text))
 
     def test_duplicate(self):
-        ''' partof: $TST-load-unit-duplicate '''
+        ''' partof: #TST-load-unit-duplicate '''
         # extra ',' after 1
         text = '''\
         one,1,
