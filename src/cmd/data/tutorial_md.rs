@@ -176,16 +176,25 @@ First of all, we can use what we already know. `rst ls` can help a lot for
 refactors. It can answer the question "why is that REQ at 0%? It is implemented
 somewhere!"
 
-There is a cmd specifically for finding errors in a project,
-and that is `rst check`
+Well, let's try it for this project:
 
-`rst check` analyzes your project for errors. Some errors it finds are:
+    # note: -OD displayes "partof | defined-at" instead of "parts | defined-at"
+    rst ls -OD
+
+Holy errors batman, That's a lot of red!
+
+We can see that `rst ls` is not the right tool for the job -- from looking at
+the number of errors, it would be very difficult to know where we need to
+start. `rst check` is the command we want. It analyzes your project for
+errors and displays them in a way that makes them easier to fix. Some of
+the errors it finds are:
+
  - invalid `partof` fields: if you've renamed (or misspelled) an artifact but
     forgotten to update artifacts that were parts of it, this will help you.
  - dangling locations in code: you might THINK writing #SPC-awesome-func
     in your code links to something, but unless that spec actually exists
     it isn't doing anything. `rst check` has your back.
- - recursive links: rsk's completeness algorithm doesn't work if there are
+ - recursive links: rst's completeness algorithm doesn't work if there are
     recursive partof links (i.e. A is partof B which is partof A)
     `rst check` will help you narrow down where these are comming from
  - hanging artifacts: if you've written a SPC but haven't linked
@@ -226,9 +235,10 @@ Well worth the read for any developer.
 
 Here are a few parting words of advice:
 
- 1. Still write a good README and other documentation for your users --
-      requirements SHOULD be used for bringing developers of your project up
-      to speed but they aren't the best format for general users.
+ 1. Even when using requirements, you should still write a good README and other
+      documentation for your users -- requirements SHOULD be used for bringing
+      developers of your project up to speed but they aren't the best format for
+      general users.
  2. Keep your artifacts fairly high level -- don't try to design every detail
       using rst. Using rst does not mean that you shouldn't use code comments!
  3. Use `rst ls` and `rst check` liberally, and fix those error messages!
@@ -240,7 +250,7 @@ Here are a few parting words of advice:
       might sound, as rst will help you find broken links and incomplete
       items in real time. Not to mention that if you use revision control
       (you should), your artifacts can be tracked with your project -- no more
-      having your documents and your code be wildly out of sync!
+      having your documentation and your code be wildly out of sync!
 
 This tutorial took you part of the way through developing a simple project using
 **rst**. I leave it as an exercise to finish the project in whichever language
