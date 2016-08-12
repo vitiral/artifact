@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/vitiral/rst.svg?branch=master)](https://travis-ci.org/vitiral/rst)
 # rst: requirements as easy as abc
 **rst** is a [requirements tracking](https://en.m.wikipedia.org/wiki/Software_requirements_specification) 
 tool made for developers. It is an acronym for "Requirements, Specifications and Tests". 
