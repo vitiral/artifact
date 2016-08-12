@@ -69,7 +69,7 @@ Run this in the terminal to download the **rst** binary into `~/bin`:
 mkdir -p ~/bin && wget -q https://github.com/vitiral/rst/raw/master/target/x86_64-unknown-linux-musl/release/rst -O ~/bin/rst && chmod a+x ~/bin/rst
 ```
 
-Now add `~/bin` to your `$PATH` in `.bashrc`. With a text editor, copy/paste this to the end:
+Now add `~/bin` to your `$PATH` in `~/.bashrc`. With a text editor, copy/paste this to the end:
 ```
 export PATH="$HOME/bin:$PATH"
 ```
