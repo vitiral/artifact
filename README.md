@@ -46,9 +46,8 @@ that needs to be changed if it improves usability.
 **Future improvements include:**
  - Additional command line tools
      - export: export artifacts to json, csv, html and other formats
-     - tests: cmd for viewing and querying executed tests in relationship 
-         to defined tests (see Test Tracking)
  - Test Tracking: REST API with DB backend for tracking test execution
+     plus cmdline utility and webui for viewing test execution.
      (rst currently only supports tracking implementaiton, not execution)
  - Web UI frontend to make it easy for non-devs to view requirements
 
