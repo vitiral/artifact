@@ -171,7 +171,6 @@ impl Artifact {
         }
 
         Ok(Artifact {
-            ty: name.get_type(),
             path: path.to_path_buf(),
             text: raw.text.unwrap_or(String::new()),
             partof: try!(ArtNames::from_str(

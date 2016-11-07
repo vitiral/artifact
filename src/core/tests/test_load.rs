@@ -152,8 +152,9 @@ fn test_load_toml() {
 
     {
         // #TST-artifact-attrs-defaults
-        let art = artifacts.get(&ArtName::from_str("RSK-foo").unwrap()).unwrap();
-        assert_eq!(art.ty, ArtType::RSK);
+        let rsk_foo = ArtName::from_str("RSK-foo").unwrap();
+        let art = artifacts.get(&rsk_foo).unwrap();
+        assert_eq!(rsk_foo.ty, ArtType::RSK);
         assert_eq!(art.path, path);
         assert_eq!(art.text, "");
         let expected: ArtNames = HashSet::new();
@@ -163,8 +164,9 @@ fn test_load_toml() {
         assert_eq!(art.tested, -1.0);
 
         // test non-defaults
-        let art = artifacts.get(&ArtName::from_str("SPC-bar").unwrap()).unwrap();
-        assert_eq!(art.ty, ArtType::SPC);
+        let spc_bar = ArtName::from_str("SPC-bar").unwrap();
+        let art = artifacts.get(&spc_bar).unwrap();
+        assert_eq!(spc_bar.ty, ArtType::SPC);
         assert_eq!(art.path, path);
         assert_eq!(art.text, "bar");
 

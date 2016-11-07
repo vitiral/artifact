@@ -162,7 +162,7 @@ pub fn do_check<W: Write>(w: &mut W,
     // partof: #SPC-check-hanging
     fn partof_types(a: &Artifact, types: &HashSet<ArtType>) -> bool {
         for p in a.partof.iter() {
-            if types.contains(&p.get_type()) {
+            if types.contains(&p.ty) {
                 return true;
             }
         }
@@ -173,7 +173,7 @@ pub fn do_check<W: Write>(w: &mut W,
 
     let mut hanging: Vec<(ArtNameRc, &Path)> = Vec::new();
     for (name, artifact) in artifacts.iter() {
-        let ty = name.get_type();
+        let ty = name.ty;
         if (ty != ArtType::REQ) && !artifact.is_parent() && !name.is_root()
                 && name.parent().unwrap().is_root() {
             if match ty {

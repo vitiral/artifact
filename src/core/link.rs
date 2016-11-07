@@ -37,7 +37,6 @@ pub fn create_parents(artifacts: &mut Artifacts) {
 
     for name in create_names.drain() {
         let art = Artifact {
-            ty: name.get_type(),
             path: PARENT_PATH.clone(),
             text: "AUTO".to_string(),
             partof: HashSet::new(),
@@ -106,8 +105,8 @@ pub fn validate_partof(artifacts: &Artifacts) -> LoadResult<()> {
     let mut error = false;
     for (name, artifact) in artifacts.iter() {
         for partof in &artifact.partof {
-            let n_type = name.get_type();
-            let p_type = partof.get_type();
+            let n_type = name.ty;
+            let p_type = partof.ty;
             match (&n_type, &p_type) {
                 (&ArtType::REQ, &ArtType::REQ) |
                 (&ArtType::RSK, &ArtType::RSK) | (&ArtType::RSK, &ArtType::REQ) |
@@ -179,7 +178,7 @@ pub fn set_completed(artifacts: &mut Artifacts) -> usize {
             {
                 let artifact = artifacts.get(name).unwrap();
                 // SPC and TST artifacts are done if loc is set
-                match (&artifact.loc, &artifact.ty) {
+                match (&artifact.loc, &name.ty) {
                     (&Some(_), &ArtType::SPC) | (&Some(_), &ArtType::TST) => {
                         got_it = 2;
                     }
@@ -199,10 +198,10 @@ pub fn set_completed(artifacts: &mut Artifacts) -> usize {
                     artifacts.get_mut(name).unwrap().completed = {
                         let artifact = artifacts.get(name).unwrap();
                         // get the completed values, ignoring TSTs that are part of SPCs
-                        let completed: Vec<f32> = if artifact.ty == ArtType::SPC {
+                        let completed: Vec<f32> = if name.ty == ArtType::SPC {
                             artifact.parts
                                     .iter()
-                                    .filter(|n| artifacts.get(*n).unwrap().ty != ArtType::TST)
+                                    .filter(|n| n.ty != ArtType::TST)
                                     .map(|n| artifacts.get(n).unwrap().completed)
                                     .collect()
                         } else {
@@ -248,7 +247,7 @@ pub fn set_tested(artifacts: &mut Artifacts) -> usize {
 
     // TST.tested === TST.completed by definition
     for (name, artifact) in artifacts.iter_mut() {
-        if artifact.ty == ArtType::TST && artifact.completed >= 0.0 {
+        if name.ty == ArtType::TST && artifact.completed >= 0.0 {
             artifact.tested = artifact.completed;
             names.remove(name);
             known.insert(name.clone());

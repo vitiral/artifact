@@ -4,6 +4,7 @@ pub use std::io::{Read, Write};
 pub use std::fmt::Write as WriteStr;
 pub use std::iter::FromIterator;
 pub use std::clone::Clone;
+pub use std::default::Default;
 pub use std::convert::AsRef;
 pub use std::str::FromStr;
 
@@ -40,7 +41,7 @@ lazy_static!{
     pub static ref PARENT_PATH: PathBuf = PathBuf::from("PARENT");
 }
 
-#[derive(Debug, Clone, Eq, PartialEq, Hash)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
 pub enum ArtType {
     REQ,
     SPC,
@@ -73,10 +74,23 @@ impl fmt::Display for Loc {
 /// Definition of an artifact name, with Traits for hashing,
 /// displaying, etc
 /// partof: #SPC-artifact-name (.1)
-#[derive(Default, Clone)]
+#[derive(Clone)]
 pub struct ArtName {
     pub raw: String,
     pub value: Vec<String>,
+    pub ty: ArtType,
+}
+
+fn _get_type(value: &str, raw: &str) -> LoadResult<ArtType> {
+    match value {
+        "REQ" => Ok(ArtType::REQ),
+        "SPC" => Ok(ArtType::SPC),
+        "RSK" => Ok(ArtType::RSK),
+        "TST" => Ok(ArtType::TST),
+        _ => Err(LoadError::new(format!(
+            "name must start with REQ, RSK, SPC or TST: {}",
+            raw))),
+    }
 }
 
 
@@ -88,31 +102,13 @@ impl ArtName {
         if !ART_VALID.is_match(&value) {
             return Err(LoadError::new("invalid artifact name: ".to_string() + s));
         }
-        let out = ArtName {
+        let value: Vec<String> = value.split('-').map(|s| s.to_string()).collect();
+        let ty_str: String = value[0].clone();
+        Ok(ArtName {
             raw: s.to_string(),
-            value: value.split('-').map(|s| s.to_string()).collect(),
-        };
-        try!(out.find_type_maybe()); // ensure the type is valid
-        Ok(out)
-    }
-
-    fn find_type_maybe(&self) -> LoadResult<ArtType> {
-        let ty = self.value.get(0).unwrap();
-        match ty.as_str() {
-            "REQ" => Ok(ArtType::REQ),
-            "SPC" => Ok(ArtType::SPC),
-            "RSK" => Ok(ArtType::RSK),
-            "TST" => Ok(ArtType::TST),
-            _ => {
-                Err(LoadError::new("Artifact name is invalid, must start with REQ, SPC, etc. Got: "
-                                       .to_string() +
-                                   self.raw.as_str()))
-            }
-        }
-    }
-
-    pub fn get_type(&self) -> ArtType {
-        self.find_type_maybe().unwrap()
+            value: value,
+            ty: try!(_get_type(&ty_str, s)),
+        })
     }
 
     /// see: SPC-artifact-partof-2
@@ -122,7 +118,7 @@ impl ArtName {
         }
         let mut value = self.value.clone();
         value.pop().unwrap();
-        Some(ArtName{raw: value.join("-"), value: value})
+        Some(ArtName{raw: value.join("-"), value: value, ty: self.ty})
     }
 
     /// return whether this artifact is the root type
@@ -142,7 +138,7 @@ impl ArtName {
         if self.value.len() <= 1 {
             return vec![];
         }
-        let ty = self.get_type();
+        let ty = self.ty;
         match ty {
             ArtType::TST => vec![self._get_named_partof("SPC")],
             ArtType::SPC => vec![self._get_named_partof("REQ")],
@@ -169,6 +165,12 @@ fn test_artname_parent() {
     let req = ArtName::from_str("REQ-2").unwrap().parent().unwrap();
     assert_eq!(parent, req);
     assert!(parent.parent().is_none());
+}
+
+impl Default for ArtName {
+    fn default() -> ArtName {
+        ArtName::from_str("REQ-default").unwrap()
+    }
 }
 
 impl fmt::Display for ArtName {
@@ -311,7 +313,6 @@ impl LoadFromStr for ArtNames {
 #[derive(Clone, Debug)]
 pub struct Artifact {
     // directly loaded types
-    pub ty: ArtType,
     pub path: PathBuf,
     pub text: String,
     pub partof: ArtNames,
