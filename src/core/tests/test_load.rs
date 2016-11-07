@@ -2,6 +2,8 @@
 
 use std::ascii::AsciiExt;
 
+use rustc_serialize::Decodable;
+
 use super::*;  // data directory constants
 use super::super::init_logger_test;
 use super::super::types::*;
@@ -11,7 +13,7 @@ use super::super::locs::*;
 
 use strfmt;
 use regex::Regex;
-use toml::{Parser, Value, Table};
+use toml::{Parser, Value, Table, Decoder};
 
 // // Tests
 
@@ -79,6 +81,29 @@ fn test_settings() {
                                  ).is_err());
 }
 
+#[test]
+fn test_load_raw_impl() {
+    // this is just a sanity-check/playground for how to implement
+    // loading using toml decoder
+    let text = r#"
+    [REQ-one]
+    partof = "REQ-1"
+    text = '''
+    I am text
+    '''
+    "#;
+    let file_table = Parser::new(text).parse().unwrap();
+    let mut artifacts: HashMap<String, RawArtifact> = HashMap::new();
+    for (name, value) in file_table.iter() {
+        let mut decoder = Decoder::new(value.clone());
+        let raw = RawArtifact::decode(&mut decoder).unwrap();
+        artifacts.insert(name.clone(), raw);
+    }
+    assert_eq!(artifacts.get("REQ-one").unwrap().text, 
+               Some("    I am text\n    ".to_string()));
+    assert_eq!(artifacts.get("REQ-one").unwrap().partof, 
+               Some("REQ-1".to_string()));
+}
 
 #[test]
 fn test_load_toml() {

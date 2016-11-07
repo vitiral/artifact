@@ -10,6 +10,7 @@ extern crate itertools;
 extern crate regex;
 extern crate strfmt;
 extern crate time;
+extern crate rustc_serialize;
 extern crate toml;
 
 // # ui-cmdline crates

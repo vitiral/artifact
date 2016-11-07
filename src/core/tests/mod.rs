@@ -54,18 +54,15 @@ disabled = false
 // valid rst file
 pub static TOML_RST: &'static str = "
 [settings]
-disabled = false
 artifact_paths = ['{cwd}/data/empty']
 
 [REQ-foo]
-disabled = false
 [SPC-foo]
 [RSK-foo]
 [TST-foo]
 partof = 'SPC-dne'
 
 [SPC-bar]
-disabled = false
 partof = 'REQ-[foo, bar-[1,2]]'
 text = 'bar'
 

@@ -1,12 +1,33 @@
 //! loadrs
 //! loading of raw artifacts from files and text
 
+use std::iter::Iterator;
+
+use rustc_serialize::{Decodable};
+
 use super::types::*;
 use super::vars;
 
 use super::utils;
 
-use toml::{Parser, Value, Table};
+use toml::{Parser, Value, Table, Decoder};
+
+#[derive(Debug, RustcEncodable, RustcDecodable)]
+pub struct RawArtifact {
+    pub partof: Option<String>,
+    pub text: Option<String>,
+}
+
+
+#[derive(Debug, RustcEncodable, RustcDecodable)]
+pub struct RawSettings {
+    pub disabled: Option<bool>,
+    pub artifact_paths: Option<Vec<String>>,
+    pub code_paths: Option<Vec<String>>,
+    pub exclude_code_paths: Option<Vec<String>>,
+    pub color: Option<bool>,
+}
+
 
 lazy_static!{
     pub static ref ARTIFACT_ATTRS: HashSet<String> = HashSet::from_iter(
@@ -66,35 +87,35 @@ impl Settings {
     /// Load a settings object from a TOML Table
     /// partof: #SPC-settings-load
     pub fn from_table(tbl: &Table) -> LoadResult<Settings> {
-        let invalid_attrs: Vec<_> = tbl.keys()
-                                       .filter(|k| !SETTINGS_ATTRS.contains(k.as_str()))
-                                       .collect();
-        if !invalid_attrs.is_empty() {
-            let mut msg = String::new();
-            write!(msg, "invalid attributes in settings: {:?}", invalid_attrs).unwrap();
+        let value = Value::Table(tbl.clone());
+        let mut decoder = Decoder::new(value);
+        let raw = match RawSettings::decode(&mut decoder) {
+            Ok(v) => v,
+            Err(e) => return Err(LoadError::new(format!(
+                "error loading settings: {}", e))),
+        };
+
+        if let Some(invalid) = decoder.toml {
+            let msg = format!("Invalid attributes in settings: {:?}", invalid);
             return Err(LoadError::new(msg));
         }
 
-        let df_vec = Vec::new();
-        let str_paths: Vec<String> = check_type!(get_vecstr(tbl, "artifact_paths", &df_vec),
-                                                 "artifact_paths",
-                                                 "settings");
-        let code_paths: Vec<String> = check_type!(get_vecstr(tbl, "code_paths", &df_vec),
-                                                  "code_paths",
-                                                  "settings");
-        let exclude_code_paths: Vec<String> = check_type!(get_vecstr(tbl,
-                                                                     "exclude_code_paths",
-                                                                     &df_vec),
-                                                          "exclude_code_paths",
-                                                          "settings");
+        fn to_paths(paths: Vec<String>) -> VecDeque<PathBuf>  {
+            paths.iter().map(PathBuf::from).collect()
+        }
+
         Ok(Settings {
-            disabled: check_type!(get_attr!(tbl, "disabled", false, Boolean),
-                                  "disabled",
-                                  "settings"),
-            paths: str_paths.iter().map(PathBuf::from).collect(),
-            code_paths: code_paths.iter().map(PathBuf::from).collect(),
-            exclude_code_paths: exclude_code_paths.iter().map(PathBuf::from).collect(),
-            color: true,
+            disabled: raw.disabled.unwrap_or(false),
+            paths: raw.artifact_paths 
+                .map(|v| to_paths(v))
+                .unwrap_or(VecDeque::new()),
+            code_paths: raw.code_paths
+                .map(|v| to_paths(v))
+                .unwrap_or(VecDeque::new()),
+            exclude_code_paths: raw.exclude_code_paths
+                .map(|v| to_paths(v))
+                .unwrap_or(VecDeque::new()),
+            color: raw.color.unwrap_or(true),
         })
     }
 }
@@ -136,24 +157,25 @@ impl Artifact {
     /// Create an artifact object from a toml Table
     /// partof: #SPC-artifact-load
     fn from_table(name: &ArtName, path: &Path, tbl: &Table) -> LoadResult<Artifact> {
-        let df_str = "".to_string();
-        let invalid_attrs: Vec<_> = tbl.keys()
-                                       .filter(|k| !ARTIFACT_ATTRS.contains(k.as_str()))
-                                       .collect();
-        if !invalid_attrs.is_empty() {
-            let mut msg = String::new();
-            write!(msg, "{} has invalid attributes: {:?}", name, invalid_attrs).unwrap();
-            return Err(LoadError::new(msg));
+        let value = Value::Table(tbl.clone());
+        let mut decoder = Decoder::new(value);
+        let raw = match RawArtifact::decode(&mut decoder) {
+            Ok(v) => v,
+            Err(e) => return Err(LoadError::new(format!(
+                "{} has invalid attribute type: {}", name, e))),
+        };
+
+        if let Some(invalid) = decoder.toml {
+            return Err(LoadError::new(format!(
+                "{} has invalid attributes: {:?}", name, invalid)));
         }
 
-        // partf: #SPC-artifact-partof-1: explicitly set artifact
-        let partof_str = check_type!(get_attr!(tbl, "partof", df_str, String), "partof", name);
         Ok(Artifact {
-            // loaded vars
             ty: name.get_type(),
             path: path.to_path_buf(),
-            text: check_type!(get_attr!(tbl, "text", df_str, String), "text", name),
-            partof: try!(ArtNames::from_str(&partof_str)),
+            text: raw.text.unwrap_or(String::new()),
+            partof: try!(ArtNames::from_str(
+                &raw.partof.unwrap_or(String::new()))),
             loc: None,
 
             // calculated vars
