@@ -8,6 +8,7 @@ defined in REQ-2-ui such as:
  - tutorial: begin an interactive tutorial for the user
  - ls: show artifacts and their fields
  - check: check the project for errors
+ - fmt: format the *.toml files to be correct.
 '''
 
 [REQ-tutorial]

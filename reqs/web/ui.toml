@@ -1,0 +1,39 @@
+[REQ-web]
+partof = "REQ-2-web"
+text = '''
+Requirements of web page:
+ - backend and webpage shall be packaged in rst itself (no external dependencies)
+ - webpage will be fast and performant
+ - webpage shall provide first-order validation, similar to rst's first checks
+ - editing shall utilize the same workflow as is used when editing text
+ - there shall be an option to disable editing (read-only)
+ - webpage shall be able to view test execution data
+'''
+
+[REQ-web-validation]
+text = '''
+The webpage shall validate the following:
+- invalid names (i.e. doesn't start with REQ/TST/etc or has non-ASCII chars)
+- invalid partof links (i.e. TST -> REQ)
+
+The webpage **shall not** validate the following:
+- recursive references (but will help debug them)
+'''
+
+[REQ-web-edit]
+text = '''
+The editing functionality of the web page **will** be very similar to
+the expreience on the cmdline, leveraging benefits that the web provides
+
+The general workflow will be:
+- developer creates a new branch in their revision control to edit
+    requirements
+- developer starts server with `rst server IP_ADDR`
+- developer and team make edits to the requirements via the web
+- changes are reflected directly in the text
+- developer makes commits (via cmdline) as needed
+- when team is done, developer commits local changes and submits code review
+- team and larger org review the pull request using the same tools and process
+    they normally use for reviewing code
+'''
+

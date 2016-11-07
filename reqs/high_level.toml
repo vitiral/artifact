@@ -258,25 +258,25 @@ rst's various ui methods **will** provide simple methods to
 navigate and view linked components
 '''
 
-[REQ-2-ui-web]
-partof = "REQ-1-web"
-text = '''
-rst **will** provide an HTTP web server for searching and viewing artifacts,
-as well as searching and viewing test execution data.
-
-The displayed web pages **will** be constructed in an easy-to-read and
-easy to use format.
-
-The web interface **will not** be able to add or delete artifacts (this may
-or may not happen in a later major release).
-'''
-
 [REQ-2-rest]
 text = '''
 rst **will** provide a REST API server for other applications to report
 test execution data to it. rst **will** store the test execution data in
 a database and provide interfaces for viewing it through both the cmdline
 and web ui's
+'''
+
+[REQ-2-web]
+partof = "REQ-1-web"
+text = '''
+rst's web-ui will support the following functionality:
+ - searching and viewing artifacts
+    - this must be highly performant and allow simulationious
+        multiple users
+ - viewing executed test data
+ - editing artifacts will be similar to editing text
+    - the performance of editing is not as important, as it is intended
+        to be run locally and used by a small group
 '''
 
 ##################################################
@@ -292,7 +292,7 @@ rst **may** utilize the serialization internally for web interactions.
 '''
 
 ##################################################
-# High level performance requierments
+# High level performance requirements
 [REQ-2-performance]
 partof = "REQ-1-scale"
 text = '''

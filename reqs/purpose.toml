@@ -204,7 +204,8 @@ text = '''
 rst **will** provide simple methods to interact and view it's data
 '''
 
-[REQ-1-ui-cmd]
+[REQ-1-cmd]
+partof = "REQ-1-ui"
 text = '''
 rst's primarily purpose **should** be to support text based and cmdline
 workflows. rst **will** provide a cmd line utilitie to use rst features,
@@ -215,10 +216,10 @@ common command line tools like bash, git, etc whenever possible.
 '''
 
 [REQ-1-web]
+partof = "REQ-1-ui"
 text = '''
-rst **will** provide a web-based frontend to support:
- - searching and viewing artifacts
- - viewing executed test data
+rst **shall** provide a web-based frontend who's ui will leverage
+web-specific technology
 '''
 
 [REQ-1-interop]
