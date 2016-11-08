@@ -7,6 +7,14 @@ readme = "README.md"
 keywords = ["cmdline", "tool", "requirements", "documentation", "testing"]
 authors = ["Garrett Berg <vitiral@gmail.com>"]
 license = "LGPL-3.0+"
+build = "build.rs"
+
+[features]
+default = ["serde_codegen"]
+unstable = ["serde_derive"]
+
+[build-dependencies]
+serde_codegen = { version = "0.8", optional = true }
 
 [dependencies]
 # general
@@ -21,6 +29,9 @@ strfmt = "0.1"
 time = "0.1"
 rustc-serialize = "0.3"
 toml = "0.2"
+serde = "0.8"
+serde_derive = { version = "0.8", optional = true }
+serde_json = "0.8"
 
 # ui
 ansi_term = "0.7"

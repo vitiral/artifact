@@ -25,15 +25,152 @@ text = '''
 The editing functionality of the web page **will** be very similar to
 the expreience on the cmdline, leveraging benefits that the web provides
 
+There were two possible options when considering editing functionality.
+Because the "Local Server App" is more inline with rst's requirements
+and workflow, it is the direction we are going.
+
+# Traditional Web Edit App
+The traditional approach would be to create a credential-based multi-user 
+tool allowing a whole organiztion to edit the requirements in parallel 
+from a single instance. The tool would probably use a database backend
+and have to integrate directly into revision control in order to specify
+which user edited a certain requirement, etc.
+
+The workflow would be:
+ - admin clones the requirements repo and creates a new branch
+ - admin starts the server
+ - entire organization can then edit requirements directly
+ - admin has to periodically: 
+    - (probably) stop the server
+    - apply changes to files
+    - merge with the master branch
+    - make sure the merges 
+    - (probably) start the server
+
+## Advantages
+The traditional web-ui is more familiar and may be what a team or
+organization is expecting
+
+## Disadvantages
+Although it seems simpler at first (mostly because it is known), it is NOT
+simple to integrate it with the text-based nature of rst that expects
+revision control be be completely handled by the user (an advantage of being
+text based).
+
+rst is intended to allow separate teams to work on their own subset of
+requirements and only merge with the larger org when they are done. This is
+almost impossible with a traditional web-server approach.
+
+
+# Local Server App
+The local server approach would be to make it ultra-simple to run
+the web-ui for a developer and all edits would be made directly to the
+files. As a result, edits might be slow -- but since only small teams
+would be working on their branch's server, speed is not critical.
+
+In this approach authentication is not necessary (although can possibly
+be added).
+
 The general workflow will be:
 - developer creates a new branch in their revision control to edit
     requirements
 - developer starts server with `rst server IP_ADDR`
 - developer and team make edits to the requirements via the web
 - changes are reflected directly in the text
-- developer makes commits (via cmdline) as needed
+- developer makes commits (via cmdline) when needed
 - when team is done, developer commits local changes and submits code review
-- team and larger org review the pull request using the same tools and process
-    they normally use for reviewing code
+- team and larger org review the code review using the same tools and process
+    they normally use for reviewing code. 
+- When done, code gets merged in.
+
+## Advantages
+- more inline with rst's workflow
+- simpler for any developer to run
+- easier to merge changes (changes reflected directly in text)
+
+## Disadvantages
+- lower performance
+- might not work the way some newcomers expect
 '''
 
+[REQ-web-folder]
+text = '''
+Developer and QA's shall have the ability to interact with the folder
+structure of the requirements. They should be able to:
+ 1. collape/expand files and folders
+ 2. creat new folders
+ 3. creat new files
+ 4. drag-and-drop artifacts from one file to the other
+ 5. drag-and-drop the position of artifacts within a file
+ 6. drag-and-drop files from one folder to another
+ 7. drag-and-drop folders from one folder to another
+ 8. select multiple requirements to move them together
+ 9. do any move/create operation without needing confirmation
+      (updateds to backend automatically)
+
+They should NOT be able to:
+ 10. move files while any unsaved edits are outstanding
+ 11. move an artifact at the same time as another user
+'''
+
+[REQ-web-link]
+text = '''
+While a single page view is the most common, the detailed view
+shall provide a labeled permanant link that goes to a view
+where only that artifact is displayed. This allows documents and communications
+to link to a specific artifact when that is desired.
+'''
+
+[SPC-web]
+text = '''
+The web interface **shall** be a single-page with 3 distinct views:
+ 1. folder structure allowing viewing the folder-layout of the requirements
+      and drag/drop their location
+ 2. read-only medium-detail list with a search bar, giving the user a more 
+      detailed overview of the requirements in a folder or in general
+ 3. edit view for a single requirement, allowing the user to edit all aspects
+      of the artifact that can be edited
+
+In addition, there shall be the following components:
+ 1. a search bar on the top for filtering out files/artifacts
+ 2. a save button on the bottom for applying changes
+ 3. a reload button on the bottom for refreshing the data
+
+In general, the data in the UI should be linked together such that changes
+to any item get reflected across all items instantaniously.
+'''
+
+[SPC-web-edit]
+text = '''
+The editing functionality aims to be as simple and user friendly as possible, 
+both for implemenation and for how users use the web-edit tool.
+
+Impotant design decisions include:
+ 1. When should the app sync with the backend? Should it be different
+        for different operations (i.e. moving vs editing)
+ 2. How should the app "refresh" data that has changed?
+ 3. What happens if changes have been made by another user when
+        submitting an edit?
+
+'''
+
+[SPC-web-link]
+text = '''
+In order to make getting permanant links simple, a bit of trickery will
+be performed:
+ - all rendered ArtName objects will cause that artifact to be displayed
+    in the edit view when they are clicked normally
+ - however, they will have a hotlink where-by when you right-click+copy-link
+    you will get the permanant link
+'''
+
+[SPC-web-folder]
+text = '''
+There are a lot of fairly complex requirements here, so a library will
+definitely have to be used.
+
+The current design is that the library 
+[dragula](https://github.com/bevacqua/angular-dragula)
+will be used to accomplish the drag-and-dropping and multi-select
+requirements, which are the core challenges.
+'''

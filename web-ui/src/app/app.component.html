@@ -1,0 +1,11 @@
+<h1>
+  {{title}}
+</h1>
+
+<ul>
+    <li>first line</li>
+    <li *ngFor="let check of checkFor" >
+        {{check}}
+    </li>
+</ul>
+<artifact [model]="artifact"></artifact>

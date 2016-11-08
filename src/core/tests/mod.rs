@@ -20,6 +20,7 @@ mod test_load;
 mod test_vars;
 mod test_link;
 mod test_core;
+mod test_serde;
 
 // Data and helpers
 
