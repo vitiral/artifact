@@ -1,12 +1,12 @@
 [package]
 name = "rst_app"
 version = "0.2.1"
-description = "rst: requirements as easy as abc"
+description = "rst: the requirements tracking tool made for developers"
 repository = "https://github.com/vitiral/rst"
 readme = "README.md"
 keywords = ["cmdline", "tool", "requirements", "documentation", "testing"]
 authors = ["Garrett Berg <vitiral@gmail.com>"]
-license = "MIT"
+license = "LGPL-3.0+"
 
 [dependencies]
 # general
