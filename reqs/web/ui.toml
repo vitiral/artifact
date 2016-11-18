@@ -20,12 +20,12 @@ The webpage **shall not** validate the following:
 - recursive references (but will help debug them)
 '''
 
-[REQ-web-edit]
+[REQ-web-user]
 text = '''
-The editing functionality of the web page **will** be very similar to
+The user experience of the web page **will** be very similar to
 the expreience on the cmdline, leveraging benefits that the web provides
 
-There were two possible options when considering editing functionality.
+There were two possible options when considering user functionality.
 Because the "Local Server App" is more inline with rst's requirements
 and workflow, it is the direction we are going.
 
@@ -64,8 +64,8 @@ almost impossible with a traditional web-server approach.
 
 # Local Server App
 The local server approach would be to make it ultra-simple to run
-the web-ui for a developer and all edits would be made directly to the
-files. As a result, edits might be slow -- but since only small teams
+the web-ui using the cmdline tool and all edits would be made directly to the
+local files. As a result, edits might be slow -- but since only small teams
 would be working on their branch's server, speed is not critical.
 
 In this approach authentication is not necessary (although can possibly
@@ -93,84 +93,29 @@ The general workflow will be:
 - might not work the way some newcomers expect
 '''
 
-[REQ-web-folder]
+[REQ-web-view]
 text = '''
-Developer and QA's shall have the ability to interact with the folder
-structure of the requirements. They should be able to:
- 1. collape/expand files and folders
- 2. creat new folders
- 3. creat new files
- 4. drag-and-drop artifacts from one file to the other
- 5. drag-and-drop the position of artifacts within a file
- 6. drag-and-drop files from one folder to another
- 7. drag-and-drop folders from one folder to another
- 8. select multiple requirements to move them together
- 9. do any move/create operation without needing confirmation
-      (updateds to backend automatically)
+The web interface **shall** be composed of three views:
+ 1. **folder view** allowing viewing the folder-layout of the requirements
+      and drag/drop their location
+ 2. **list view** read-only collapsable-detail list with a search bar, giving 
+      the user a more detailed overview of the requirements in a folder or in 
+      general
+ 3. **edit view** for a single requirement, allowing the user to edit all 
+      aspects of the artifact that can be edited
 
-They should NOT be able to:
- 10. move files while any unsaved edits are outstanding
- 11. move an artifact at the same time as another user
-'''
+In addition, there shall always be a refresh button and navigation header.
 
-[REQ-web-link]
-text = '''
-While a single page view is the most common, the detailed view
-shall provide a labeled permanant link that goes to a view
-where only that artifact is displayed. This allows documents and communications
-to link to a specific artifact when that is desired.
+Eventually, there **should** be a single page that can display all these views.
+MVP **shall** be to display them all separately (and separate displays will 
+always be supported)
 '''
 
 [SPC-web]
 text = '''
-The web interface **shall** be a single-page with 3 distinct views:
- 1. folder structure allowing viewing the folder-layout of the requirements
-      and drag/drop their location
- 2. read-only medium-detail list with a search bar, giving the user a more 
-      detailed overview of the requirements in a folder or in general
- 3. edit view for a single requirement, allowing the user to edit all aspects
-      of the artifact that can be edited
-
-In addition, there shall be the following components:
- 1. a search bar on the top for filtering out files/artifacts
- 2. a save button on the bottom for applying changes
- 3. a reload button on the bottom for refreshing the data
-
-In general, the data in the UI should be linked together such that changes
-to any item get reflected across all items instantaniously.
-'''
-
-[SPC-web-edit]
-text = '''
-The editing functionality aims to be as simple and user friendly as possible, 
-both for implemenation and for how users use the web-edit tool.
-
-Impotant design decisions include:
- 1. When should the app sync with the backend? Should it be different
-        for different operations (i.e. moving vs editing)
- 2. How should the app "refresh" data that has changed?
- 3. What happens if changes have been made by another user when
-        submitting an edit?
-
-'''
-
-[SPC-web-link]
-text = '''
-In order to make getting permanant links simple, a bit of trickery will
-be performed:
- - all rendered ArtName objects will cause that artifact to be displayed
-    in the edit view when they are clicked normally
- - however, they will have a hotlink where-by when you right-click+copy-link
-    you will get the permanant link
-'''
-
-[SPC-web-folder]
-text = '''
-There are a lot of fairly complex requirements here, so a library will
-definitely have to be used.
-
-The current design is that the library 
-[dragula](https://github.com/bevacqua/angular-dragula)
-will be used to accomplish the drag-and-dropping and multi-select
-requirements, which are the core challenges.
+The web design shall be split into two parts:
+- front end written in elm-lang as a single-page application
+- back end just extends the rst code with a RESTful API, allowing
+    the user to view/add/modify/delete artifacts through simple
+    API calls
 '''
