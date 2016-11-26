@@ -16,6 +16,7 @@
 */
 
 use std::ffi::OsString;
+use std::clone;
 
 use super::init;
 use super::tutorial;
@@ -24,7 +25,9 @@ use super::check;
 use super::types::*;
 
 pub fn get_matches<'a, I, T>(args: I) -> ClapResult<ArgMatches<'a>>
-    where I: IntoIterator<Item=T>, T: Into<OsString> {
+    where I: IntoIterator<Item=T>, 
+          T: Into<OsString> + clone::Clone
+{
     App::new("rst")
         .version(env!("CARGO_PKG_VERSION"))
         .about("the requirements tracking tool made for developers. Call `rst init -t` for \

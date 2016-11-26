@@ -24,6 +24,7 @@
 
 use std::env;
 use std::io;
+use std::clone;
 use std::ffi::OsString;
 
 use core;
@@ -61,8 +62,9 @@ pub fn get_loglevel(matches: &ArgMatches) -> Option<(u8, bool)> {
 
 pub fn cmd<W, I, T>(w: &mut W, args: I) -> i32
     where I: IntoIterator<Item=T>,
-          T: Into<OsString>,
-          W: io::Write {
+          T: Into<OsString> + clone::Clone,
+          W: io::Write 
+{
     let matches = match matches::get_matches(args) {
         Ok(m) => m,
         Err(e) => {
