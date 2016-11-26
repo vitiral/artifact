@@ -67,7 +67,7 @@ macro_rules! get_attr {
 }
 
 /// only one type is in an array, so make this custom
-pub fn get_vecstr(tbl: &Table, attr: &str, default: &Vec<String>) -> Option<Vec<String>> {
+pub fn get_vecstr(tbl: &Table, attr: &str, default: &[String]) -> Option<Vec<String>> {
     match tbl.get(attr) {
         // if the value is in the table, try to get it's elements
         Some(&Value::Array(ref a)) => {
@@ -80,7 +80,7 @@ pub fn get_vecstr(tbl: &Table, attr: &str, default: &Vec<String>) -> Option<Vec<
             }
             Some(out)
         }
-        None => Some(default.clone()), // value doesn't exist, return default
+        None => Some(Vec::from(default)), // value doesn't exist, return default
         _ => None,  // error: invalid type
     }
 }
@@ -121,16 +121,16 @@ impl Settings {
         }
 
         Ok(Settings {
-            disabled: raw.disabled.unwrap_or(false),
+            disabled: raw.disabled.unwrap_or_default(),
             paths: raw.artifact_paths 
-                .map(|v| to_paths(v))
-                .unwrap_or(VecDeque::new()),
+                .map(to_paths)
+                .unwrap_or_default(),
             code_paths: raw.code_paths
-                .map(|v| to_paths(v))
-                .unwrap_or(VecDeque::new()),
+                .map(to_paths)
+                .unwrap_or_default(),
             exclude_code_paths: raw.exclude_code_paths
-                .map(|v| to_paths(v))
-                .unwrap_or(VecDeque::new()),
+                .map(to_paths)
+                .unwrap_or_default(),
             color: raw.color.unwrap_or(true),
         })
     }
@@ -188,9 +188,9 @@ impl Artifact {
 
         Ok(Artifact {
             path: path.to_path_buf(),
-            text: raw.text.unwrap_or(String::new()),
+            text: raw.text.unwrap_or_default(),
             partof: try!(ArtNames::from_str(
-                &raw.partof.unwrap_or(String::new()))),
+                &raw.partof.unwrap_or_default())),
             loc: None,
 
             // calculated vars
@@ -440,6 +440,7 @@ pub fn resolve_settings(settings: &mut Settings,
 
 /// given a valid path, load all paths given by the settings recursively
 /// partof: #SPC-load-raw
+#[allow(type_complexity)]  // TODO: probably remove this
 pub fn load_raw(path: &Path)
                 -> LoadResult<(Artifacts,
                                Settings,

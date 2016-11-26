@@ -253,6 +253,7 @@ pub fn get_ls_cmd(matches: &ArgMatches) -> Result<(String, FmtSettings, SearchSe
     Ok((search, fmt_set, search_set))
 }
 
+#[allow(trivial_regex)]
 /// perform the ls command given the inputs
 pub fn do_ls<W: Write>(w: &mut W,
                        cwd: &Path,

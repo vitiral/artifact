@@ -84,7 +84,7 @@ pub fn cmd<W, I, T>(w: &mut W, args: I) -> i32
 
     // If init is selected, do that
     let cwd = env::current_dir().unwrap();
-    if let Some(_) = matches.subcommand_matches("init") {
+    if matches.subcommand_matches("init").is_some() {
         info!("Calling the init command");
         match init::do_init(&cwd) {
             Ok(_) => {},
@@ -137,7 +137,7 @@ pub fn cmd<W, I, T>(w: &mut W, args: I) -> i32
         info!("Calling the ls command");
         let (search, fmtset, search_set) = ls::get_ls_cmd(ls).unwrap();
         ls::do_ls(w, &cwd, &search, &artifacts, &fmtset, &search_set, &settings)
-    } else if let Some(_) = matches.subcommand_matches("check") {
+    } else if matches.subcommand_matches("check").is_some() {
         info!("Calling the check command");
         check::do_check(w, &cwd, &artifacts, &dne_locs, &settings)
     } else {

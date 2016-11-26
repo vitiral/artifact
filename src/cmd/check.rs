@@ -22,41 +22,44 @@ pub fn get_subcommand<'a, 'b>() -> App<'a, 'b> {
         .settings(&[AS::DeriveDisplayOrder, AS::ColoredHelp])
 }
 
+// Helper functions
+fn paint_it<W: Write>(w: &mut W, settings: &Settings, msg: &str) {
+    if settings.color {
+        write!(w, "{}", Red.paint(msg)).unwrap();
+    } else {
+        write!(w, "{}", msg).unwrap();
+    }
+}
+fn paint_it_bold<W: Write>(w: &mut W, settings: &Settings, msg: &str) {
+    if settings.color {
+        write!(w, "{}", Red.bold().paint(msg)).unwrap();
+    } else {
+        write!(w, "{}", msg).unwrap();
+    }
+}
+
+// check command
+#[allow(cyclomatic_complexity)]  // TODO: break this up
 pub fn do_check<W: Write>(w: &mut W,
-                           cwd: &Path,
-                           artifacts: &Artifacts,
-                           dne_locs: &HashMap<ArtName, Loc>,
-                           settings: &Settings) -> i32 {
+                          cwd: &Path,
+                          artifacts: &Artifacts,
+                          dne_locs: &HashMap<ArtName, Loc>,
+                          settings: &Settings) -> i32 {
     let mut error: i32 = 0;
     // display invalid partof names and locations
     // partof: #SPC-check-load
     let mut invalid_partof = ArtNames::new();
 
-    fn paint_it<W: Write>(w: &mut W, settings: &Settings, msg: &str) {
-        if settings.color {
-            write!(w, "{}", Red.paint(msg)).unwrap();
-        } else {
-            write!(w, "{}", msg).unwrap();
-        }
-    }
-    fn paint_it_bold<W: Write>(w: &mut W, settings: &Settings, msg: &str) {
-        if settings.color {
-            write!(w, "{}", Red.bold().paint(msg)).unwrap();
-        } else {
-            write!(w, "{}", msg).unwrap();
-        }
-    }
-
     // display artifacts with invalid partof names
     let mut displayed_header = false;
     for (name, artifact) in artifacts.iter() {
         invalid_partof.clear();
-        for p in artifact.partof.iter() {
+        for p in &artifact.partof {
             if !artifacts.contains_key(p) {
                 invalid_partof.insert(p.clone());
             }
         }
-        if invalid_partof.len() > 0 {
+        if !invalid_partof.is_empty() {
             error = 1;
             let mut msg = String::new();
             if !displayed_header {
@@ -79,10 +82,10 @@ pub fn do_check<W: Write>(w: &mut W,
         unresolved.iter()
             .map(|u| u.0.clone()));
 
-    if unresolved.len() > 0 {
+    if !unresolved.is_empty() {
         error = 1;
         let mut unresolved_partof: HashMap<ArtNameRc, HashSet<ArtNameRc>> = HashMap::new();
-        for &(ref name, artifact) in unresolved.iter() {
+        for &(ref name, artifact) in &unresolved {
             let partof: HashSet<_> = artifact.partof
                 .iter()
                 .filter(|n| !artifacts.contains_key(n.as_ref())
@@ -99,7 +102,7 @@ pub fn do_check<W: Write>(w: &mut W,
         loop {
             just_resolved.clear();
             let mut did_something = false;
-            for (name, partof) in unresolved_partof.iter_mut() {
+            for (name, partof) in &mut unresolved_partof {
                 // find names in partof that have no unresolved partofs and remove them
                 remove_names.clear();
                 for p in partof.iter() {
@@ -107,23 +110,23 @@ pub fn do_check<W: Write>(w: &mut W,
                         remove_names.push(p.clone());
                     }
                 }
-                if remove_names.len() > 0 {
+                if !remove_names.is_empty() {
                     did_something = true;
                 }
-                for p in remove_names.iter() {
+                for p in &remove_names {
                     partof.remove(p);
                 }
 
                 // if this artifact has no unresolved partofs, then it is considered resolved
-                if partof.len() == 0 {
+                if partof.is_empty() {
                     resolved_names.insert(name.clone());
                     just_resolved.push(name.clone());
                 }
             }
-            if just_resolved.len() > 0 {
+            if !just_resolved.is_empty() {
                 did_something = true;
             }
-            for r in just_resolved.iter() {
+            for r in &just_resolved {
                 unresolved_partof.remove(r);
             }
             if !did_something {
@@ -145,7 +148,7 @@ pub fn do_check<W: Write>(w: &mut W,
     }
 
     // display invalid locations
-    if dne_locs.len() > 0 {
+    if !dne_locs.is_empty() {
         error = 1;
         // reorganize them by file
         let mut invalid_locs: HashMap<PathBuf, Vec<(ArtName, Loc)>> = HashMap::new();
@@ -177,7 +180,7 @@ pub fn do_check<W: Write>(w: &mut W,
     // find hanging artifacts
     // partof: #SPC-check-hanging
     fn partof_types(a: &Artifact, types: &HashSet<ArtType>) -> bool {
-        for p in a.partof.iter() {
+        for p in &a.partof {
             if types.contains(&p.ty) {
                 return true;
             }
@@ -191,18 +194,17 @@ pub fn do_check<W: Write>(w: &mut W,
     for (name, artifact) in artifacts.iter() {
         let ty = name.ty;
         if (ty != ArtType::REQ) && !artifact.is_parent() && !name.is_root()
-                && name.parent().unwrap().is_root() {
-            if match ty {
-                ArtType::TST => !partof_types(artifact, &rsk_spc_types),
-                ArtType::SPC | ArtType::RSK=> !partof_types(artifact, &req_types),
-                _ => unreachable!(),
-            } {
-                hanging.push((name.clone(), &artifact.path));
-            }
+                && name.parent().unwrap().is_root() 
+                && match ty {
+                    ArtType::TST => !partof_types(artifact, &rsk_spc_types),
+                    ArtType::SPC | ArtType::RSK=> !partof_types(artifact, &req_types),
+                    _ => unreachable!(),
+                } {
+            hanging.push((name.clone(), &artifact.path));
         }
     }
     hanging.sort_by(|a, b| a.1.cmp(b.1));
-    if hanging.len() > 0 {
+    if !hanging.is_empty() {
         error = 1;
         let msg = "\nHanging artifacts found (top-level but not partof a higher type):\n";
         paint_it_bold(w, settings, msg);

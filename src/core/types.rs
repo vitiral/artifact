@@ -211,10 +211,6 @@ impl PartialEq for ArtName {
     fn eq(&self, other: &ArtName) -> bool {
         self.value == other.value
     }
-
-    fn ne(&self, other: &ArtName) -> bool {
-        self.value != other.value
-    }
 }
 
 impl Eq for ArtName {}

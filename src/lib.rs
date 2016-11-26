@@ -14,6 +14,7 @@
     You should have received a copy of the Lesser GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+#![allow(unknown_lints)]  // need for clippy lints
 // # logger config
 extern crate fern;
 
