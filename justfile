@@ -25,6 +25,9 @@ publish: clippy check test build
 	git tag -a "v{{version}}" -m "v{{version}}"
 	git push origin --tags
 
+echo:
+	echo "v{{version}}"
+
 clippy:
 	rustup run nightly cargo clippy
 
@@ -33,3 +36,4 @@ install-clippy:
 
 install-nightly:
 	rustup install nightly
+
