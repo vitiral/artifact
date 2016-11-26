@@ -22,6 +22,7 @@ use super::init;
 use super::tutorial;
 use super::ls;
 use super::check;
+use super::server;
 use super::types::*;
 
 pub fn get_matches<'a, I, T>(args: I) -> ClapResult<ArgMatches<'a>>
@@ -49,5 +50,6 @@ pub fn get_matches<'a, I, T>(args: I) -> ClapResult<ArgMatches<'a>>
         .subcommand(init::get_subcommand())
         .subcommand(ls::get_subcommand())
         .subcommand(check::get_subcommand())
+        .subcommand(server::get_subcommand())
         .get_matches_from_safe(args)
 }

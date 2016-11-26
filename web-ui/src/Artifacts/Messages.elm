@@ -8,7 +8,7 @@ type Msg
   = NewArtifacts (List Artifact)
   | ShowArtifacts
   | ShowArtifact ArtifactId
-  | ChangeLevel ArtifactId Int
+  --| ChangeLevel ArtifactId Int
   | SaveArtifact (Result Http.Error Artifact)
 
 

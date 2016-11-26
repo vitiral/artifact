@@ -10,10 +10,11 @@ pub struct LocData {
 pub struct ArtifactData {
     pub id: u64,
     pub name: String,
+    pub path: String,
     pub text: String,
     pub partof: Vec<String>,
     pub parts: Vec<String>,
-    pub loc: LocData,
+    pub loc: Option<LocData>,
     pub completed: f32,
     pub tested: f32,
 }

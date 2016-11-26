@@ -7,7 +7,7 @@ import Json.Decode.Pipeline exposing (decode, required, optional, hardcoded)
 import Task
 import Messages exposing (AppMsg(..))
 import Artifacts.Messages exposing (..)
-import Artifacts.Models exposing (ArtifactId, Artifact, ArtifactsResponse)
+import Artifacts.Models exposing (ArtifactId, Artifact, Loc, ArtifactsResponse)
 import JsonRpc exposing (RpcError, formatJsonRpcError)
 
 url = "http://localhost:4000/json-rpc"
@@ -91,7 +91,9 @@ memberEncoded artifact =
     attrs =
       [ ( "id", Encode.int artifact.id )
       , ( "name", Encode.string artifact.name )
-      , ( "level", Encode.int artifact.level)
+      , ( "path", Encode.string artifact.path )
+      , ( "text", Encode.string artifact.text )
+      --, ( "partof", (Encode.list Encode.string) artifact.partof )
       ]
   in
     Encode.object attrs
@@ -123,7 +125,20 @@ collectionDecoder =
 
 memberDecoder : Decode.Decoder Artifact
 memberDecoder =
-  Decode.map3 Artifact
-    (Decode.field "id" Decode.int)
-    (Decode.field "name" Decode.string)
-    (Decode.field "level" Decode.int)
+  decode Artifact
+    |> required "id" Decode.int
+    |> required "name" Decode.string
+    |> required "path" Decode.string
+    |> required "text" Decode.string
+    |> required "partof" (Decode.list Decode.string)
+    |> required "parts" (Decode.list Decode.string)
+    |> required "loc" (Decode.nullable locDecoder)
+    |> required "completed" Decode.float
+    |> required "tested" Decode.float
+
+locDecoder : Decode.Decoder Loc
+locDecoder =
+  decode Loc
+    |> required "path" Decode.string
+    |> required "row" Decode.int
+    |> required "col" Decode.int

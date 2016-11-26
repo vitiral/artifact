@@ -6,17 +6,22 @@ import JsonRpc exposing (RpcError)
 type alias ArtifactId =
   Int
 
+type alias Loc =
+  { path : String
+  , row : Int
+  , col : Int
+  }
+
 type alias Artifact =
   { id : ArtifactId
   , name : String
-  , level : Int
-  }
-
-new : Artifact
-new =
-  { id = 0
-  , name = ""
-  , level = 1
+  , path : String
+  , text : String
+  , partof : List String
+  , parts : List String
+  , loc : Maybe Loc
+  , completed : Float
+  , tested : Float
   }
 
 type alias ArtifactsResponse =

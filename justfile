@@ -14,6 +14,9 @@ filter PATTERN:
 clippy:
 	CARGO_TARGET_DIR={{target}}/nightly rustup run nightly cargo clippy
 
+server:
+	CARGO_TARGET_DIR={{target}}/nightly rustup run nightly cargo run -- server
+
 check:
 	cargo run -- check  # run's rst's check on the requirements
 

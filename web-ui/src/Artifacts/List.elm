@@ -33,7 +33,6 @@ list settings artifacts =
           [ tr []  -- table row
             [ th [] [ text "Id" ] -- table header
             , th [] [ text "Name" ]
-            , th [] [ text "Level" ]
             , th [] [ text "Actions" ]
             ]
           ]
@@ -46,7 +45,6 @@ artifactRow settings artifact =
   tr []
     [ td [] [ text (toString artifact.id) ]
     , td [] [ text artifact.name ]
-    , td [] [ text (toString artifact.level) ]
     , td []
       [ seeBtn settings artifact ] 
     ]
@@ -57,4 +55,4 @@ seeBtn settings artifact =
     [ class "btn regular"
     , onClick (ArtifactsMsg <| ShowArtifact artifact.id)
     ]
-    [ i [ class "fa fa-pencil mr1" ] [], text "Edit" ]
+    [ i [ class <| if settings.readonly then "fa fa-eye mr1" else "fa fa-pencil mr1" ] [], text "Edit" ]

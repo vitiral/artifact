@@ -12,7 +12,7 @@ fn test_serde() {
         text: "text".to_string(),
         partof: Vec::from_iter(vec!["partof-1".to_string()]),
         parts: Vec::from_iter(vec!["part-1".to_string()]),
-        loc: LocData { path: "path".to_string(), row: 10, col: 10 },
+        loc: Some(LocData { path: "path".to_string(), row: 10, col: 10 }),
         completed: 0.,
         tested: 0.,
     };

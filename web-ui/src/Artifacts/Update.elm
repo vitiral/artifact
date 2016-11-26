@@ -22,10 +22,10 @@ update msg artifacts =
     ShowArtifact id ->
       ( artifacts, Navigation.newUrl ("#artifacts/" ++ (toString id)) )
 
-    ChangeLevel id amount ->
-      ( artifacts
-      , Cmd.batch (changeLevelCommands id amount artifacts)
-      )
+    --ChangeLevel id amount ->
+    --  ( artifacts
+    --  , Cmd.batch (changeLevelCommands id amount artifacts)
+    --  )
 
     SaveArtifact result -> case result of
       Err err ->
@@ -37,15 +37,15 @@ update msg artifacts =
         , Cmd.none )
 
 
-changeLevelCommands artifactId howMuch artifacts =
-  let
-    cmdForArtifact existingArtifact =
-      if existingArtifact.id == artifactId then
-        save { existingArtifact | level = existingArtifact.level + howMuch }
-      else
-        Cmd.none
-  in
-    List.map cmdForArtifact artifacts
+--changeLevelCommands artifactId howMuch artifacts =
+--  let
+--    cmdForArtifact existingArtifact =
+--      if existingArtifact.id == artifactId then
+--        save { existingArtifact | level = existingArtifact.level + howMuch }
+--      else
+--        Cmd.none
+--  in
+--    List.map cmdForArtifact artifacts
 
 updateArtifact updatedArtifact artifacts =
   let

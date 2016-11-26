@@ -41,6 +41,7 @@ mod fmt;
 mod init;
 mod tutorial;
 mod data;  // data mostly for the tutorial
+mod server;
 
 #[cfg(test)]
 mod tests;
@@ -140,6 +141,10 @@ pub fn cmd<W, I, T>(w: &mut W, args: I) -> i32
     } else if matches.subcommand_matches("check").is_some() {
         info!("Calling the check command");
         check::do_check(w, &cwd, &artifacts, &dne_locs, &settings)
+    } else if matches.subcommand_matches("server").is_some() {
+        // TODO: pull out info?
+        server::run_server();
+        0
     } else {
         write!(w, "{} {}: use -h to show help",
                Green.bold().paint("rst"),

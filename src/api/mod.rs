@@ -1,18 +1,16 @@
-#![feature(proc_macro)]
-
 use std::ops::Deref;
 use std::io::Read;
 use std::str;
 use std::sync::Mutex;
 
-extern crate rustc_serialize;
-#[macro_use] extern crate nickel;
-#[macro_use] extern crate lazy_static;
-extern crate jsonrpc_core;
+//extern crate rustc_serialize;
+//#[macro_use] extern crate nickel;
+//#[macro_use] extern crate lazy_static;
+//extern crate jsonrpc_core;
 
-#[macro_use] extern crate serde;
-#[macro_use] extern crate serde_derive;
-extern crate serde_json;
+//#[macro_use] extern crate serde;
+//#[macro_use] extern crate serde_derive;
+//extern crate serde_json;
 
 use nickel::{
     Request, Response, MiddlewareResult,
@@ -21,29 +19,25 @@ use nickel::{
     JsonBody};
 use nickel::status::StatusCode;
 
+use core::{ArtifactData, LocData};
+
 mod handler;
 
 lazy_static! {
     //#[derive(RustcDecodable, RustcEncodable, Serialize, Deserialize, Debug)]
-    static ref ARTIFACTS: Mutex<Vec<Artifact>> = Mutex::new(vec![
-        Artifact {
+    static ref ARTIFACTS: Mutex<Vec<ArtifactData>> = Mutex::new(vec![
+        ArtifactData {
             id: 1,
-            name: "Sally".to_string(),
-            level: 2,
-        },
-        Artifact {
-            id: 2,
-            name: "Lance".to_string(),
-            level: 1,
+            name: "REQ-foo".to_string(),
+            path: "path/to/definition".to_string(),
+            text: "text\nnew line".to_string(),
+            partof: vec!["REQ-partof1".to_string()],
+            parts: vec!["REQ-parts1".to_string()],
+            loc: None,
+            completed: 0.0,
+            tested: 0.0,
         },
     ]);
-}
-
-#[derive(RustcDecodable, RustcEncodable, Serialize, Deserialize, Eq, PartialEq, Debug)]
-struct Artifact {
-    pub id: u64,
-    pub name: String,
-    pub level: i64,
 }
 
 fn setup_headers(res: &mut Response) {
@@ -94,7 +88,7 @@ fn handle_artifacts<'a> (req: &mut Request, mut res: Response<'a>)
 }
 
 
-fn main() {
+pub fn start_api() {
     let endpoint = "/json-rpc";
     let mut server = Nickel::new();
 

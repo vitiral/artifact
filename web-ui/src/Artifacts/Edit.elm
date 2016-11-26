@@ -35,21 +35,22 @@ formLevel settings artifact =
     [ class "clearfix py1" ]
     [ div [ class "col col-5" ] [ text "Level" ]
     , div [ class "col col-7" ]
-      [ span [ class "h2 bold" ] [ text (toString artifact.level) ]
-      , btnLevelDecrease artifact
-      , btnLevelIncrease artifact
+      [
+      --[ span [ class "h2 bold" ] [ text (toString artifact.level) ]
+      --, btnLevelDecrease artifact
+      --, btnLevelIncrease artifact
       ]
     ]
 
-btnLevelDecrease : Artifact -> Html AppMsg 
-btnLevelDecrease artifact =
-  a [ class "btn ml1 h1", onClick (ArtifactsMsg <| ChangeLevel artifact.id -1) ]
-    [ i [ class "fa fa-minus-circle" ] [] ]
+--btnLevelDecrease : Artifact -> Html AppMsg 
+--btnLevelDecrease artifact =
+--  a [ class "btn ml1 h1", onClick (ArtifactsMsg <| ChangeLevel artifact.id -1) ]
+--    [ i [ class "fa fa-minus-circle" ] [] ]
 
-btnLevelIncrease : Artifact -> Html AppMsg 
-btnLevelIncrease artifact =
-  a [ class "btn ml1 h1", onClick (ArtifactsMsg <| ChangeLevel artifact.id 1) ]
-    [ i [ class "fa fa-plus-circle" ] [] ]
+--btnLevelIncrease : Artifact -> Html AppMsg 
+--btnLevelIncrease artifact =
+--  a [ class "btn ml1 h1", onClick (ArtifactsMsg <| ChangeLevel artifact.id 1) ]
+--    [ i [ class "fa fa-plus-circle" ] [] ]
 
 listBtn : Html AppMsg
 listBtn =

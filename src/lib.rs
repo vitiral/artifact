@@ -16,6 +16,7 @@
 */
 #![allow(unknown_lints)]  // need for clippy lints
 #![cfg_attr(feature = "serde_derive", feature(proc_macro))]
+#![cfg_attr(feature = "serde_derive", feature(custom_derive))]
 // # logger config
 extern crate fern;
 
@@ -35,7 +36,11 @@ extern crate toml;
 extern crate clap;
 extern crate ansi_term;
 
-// serde hybrid requirements
+// # web-api crates
+#[macro_use] extern crate nickel;
+extern crate jsonrpc_core;
+
+// # serde hybrid requirements
 #[cfg(feature = "serde_derive")]
 #[macro_use]
 extern crate serde_derive;
@@ -53,6 +58,7 @@ include!(concat!(env!("OUT_DIR"), "/serde_types.rs"));
 pub mod core;
 pub mod ui;
 pub mod cmd;
+mod api;
 
 
 pub const VERSION: &'static str = env!("CARGO_PKG_VERSION");

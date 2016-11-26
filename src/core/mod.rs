@@ -31,7 +31,11 @@ pub mod link;
 pub mod locs;
 
 // serialization
+#[cfg(feature = "serde_codegen")]
 include!(concat!(env!("OUT_DIR"), "/serde_types.rs"));
+
+#[cfg(feature = "serde_derive")] 
+include!("serde_types.in.rs");
 
 #[cfg(test)]
 mod tests;
