@@ -1,27 +1,24 @@
-# this is a comment
+version = `sed -En 's/version = "([^"]+)"/\1/p' Cargo.toml`
 
-test: build
-	cargo test --lib
-
-filter PATTERN:
-	cargo test --lib {{PATTERN}}
-
-backtrace:
-	RUST_BACKTRACE=1 cargo test --lib
+target = "$PWD/target"
 
 build:
-	cargo build
+	CARGO_TARGET_DIR={{target}}/stable rustup run stable cargo build
+
+test: build
+	RUST_BACKTRACE=1 CARGO_TARGET_DIR={{target}}/stable rustup run stable cargo test --lib
+
+filter PATTERN:
+	RUST_BACKTRACE=1 CARGO_TARGET_DIR={{target}}/stable rustup run stable cargo test --lib {{PATTERN}}
 
 clippy:
-	rustup run nightly cargo clippy
+	CARGO_TARGET_DIR={{target}}/nightly rustup run nightly cargo clippy
 
 check:
 	cargo run -- check  # run's rst's check on the requirements
 
 check-all: clippy test check
 	echo "checked all"
-
-version = `sed -En 's/version = "([^"]+)"/\1/p' Cargo.toml`
 
 publish: clippy test check build
 	git branch | grep '* master'
