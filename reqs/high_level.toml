@@ -212,7 +212,7 @@ the coverage analysis
 partof = "REQ-1-ui"
 
 [REQ-2-ui-cmd]
-partof = "REQ-1-ui-cmd"
+partof = "REQ-1-cmd"
 text = '''
 rst **will** provide a simple but complete cmd line utility which has multiple
 modules for accomplishing everything in REQ-2-ui.
