@@ -28,7 +28,7 @@ list settings artifacts =
     len = List.length artifacts
     settings_list = List.repeat len settings
   in
-    div [ class "p2" ]  -- consider class=overflow-scroll
+    div [ class "p2" ]
       [ table []
         [ thead [] -- thead == table-header object
           [ tr []  -- table row

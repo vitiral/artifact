@@ -54,3 +54,7 @@ artifactsUrl =
 artifactUrl : ArtifactId -> String
 artifactUrl id =
   "#artifacts/" ++ (toString id)
+
+artifactNameUrl name =
+  "#artifacts/name/" ++ name
+

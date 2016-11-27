@@ -7,10 +7,11 @@ import String
 import Html exposing (..)
 import Html.Attributes exposing (class, href, title)
 import Html.Events exposing (onClick)
+import Navigation
 
-import Messages exposing (AppMsg(..))
+import Messages exposing (AppMsg(..), Route(..))
 import Models exposing (Settings)
-import Artifacts.Models exposing (Artifact, artifactUrl)
+import Artifacts.Models exposing (Artifact, artifactUrl, artifactNameUrl)
 import Artifacts.Messages exposing (Msg(..))
 
 completion : Artifact -> Html AppMsg
@@ -63,13 +64,13 @@ implementedBasic settings artifact =
 
 parts : Settings -> Artifact -> Html AppMsg
 parts settings artifact =
-  ul [] (List.map (\p -> li [] [ text p ]) artifact.parts)
+  ul [] (List.map (\p -> li [ class "underline" ] [ seeArtifactName p ]) artifact.parts)
 
 
 -- TODO: allow editing when not readonly
 partof : Settings -> Artifact -> Html AppMsg
 partof settings artifact =
-  ul [] (List.map (\p -> li [] [ text p ]) artifact.partof)
+  ul [] (List.map (\p -> li [ class "underline" ] [ seeArtifactName p ]) artifact.partof)
 
 textPiece : Settings -> Artifact -> Html AppMsg
 textPiece settings artifact =
@@ -93,9 +94,20 @@ seeArtifact settings artifact =
       , onClick (ArtifactsMsg <| ShowArtifact artifact.id)
       , href (artifactUrl artifact.id)
       ]
-      [ text artifact.name
+      [ text (artifact.name ++ "  ")
       , i [ class <| if ro then "bold fa fa-eye mr1" else "bold fa fa-pencil mr1" 
         , href (artifactUrl artifact.id) 
         ] []
       
       ]
+
+seeArtifactName : String -> Html AppMsg
+seeArtifactName name =
+  let
+    url = (artifactNameUrl name)
+  in 
+    span 
+      [ href url
+      , onClick ( RouteChange (ArtifactNameRoute name) ) 
+      ] [ text name ]
+ 

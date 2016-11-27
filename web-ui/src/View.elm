@@ -23,6 +23,16 @@ page model =
     ArtifactRoute id ->
       artifactEditPage model id
 
+    ArtifactNameRoute name ->
+      let
+        id_maybe = List.filter (\a -> a.name == name) model.artifacts
+      in
+        case List.head id_maybe of
+          Just artifact ->
+            artifactEditPage model artifact.id
+          Nothing -> 
+            notFoundView
+
     NotFoundRoute ->
       notFoundView
 

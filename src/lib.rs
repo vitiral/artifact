@@ -37,8 +37,10 @@ extern crate clap;
 extern crate ansi_term;
 
 // # web-api crates
-#[macro_use] extern crate nickel;
-extern crate jsonrpc_core;
+#[cfg_attr(feature = "web-api", macro_use)] 
+#[cfg(feature = "web-api")]
+extern crate nickel;
+#[cfg(feature = "web-api")] extern crate jsonrpc_core;
 
 // # serde hybrid requirements
 #[cfg(feature = "serde_derive")]
@@ -58,6 +60,8 @@ include!(concat!(env!("OUT_DIR"), "/serde_types.rs"));
 pub mod core;
 pub mod ui;
 pub mod cmd;
+
+#[cfg(feature = "web-api")]
 mod api;
 
 

@@ -11,6 +11,7 @@ matchers =
   UP.oneOf
     [ UP.map ArtifactsRoute UP.top
     , UP.map ArtifactRoute (UP.s "artifacts" </> UP.int)
+    , UP.map ArtifactNameRoute (UP.s "artifacts/name" </> UP.string)
     , UP.map ArtifactsRoute (UP.s "artifacts")
     ]
 

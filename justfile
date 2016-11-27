@@ -21,6 +21,8 @@ check:
 	cargo run -- check  # run's rst's check on the requirements
 
 check-all: clippy test check
+	# also test with only minimal features enabled
+	RUST_BACKTRACE=1 CARGO_TARGET_DIR={{target}}/stable rustup run stable cargo test --lib --features "minimal" --no-default-features
 	echo "checked all"
 
 publish: clippy test check build

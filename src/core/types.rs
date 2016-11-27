@@ -41,6 +41,13 @@ use std::ascii::AsciiExt;
 use std::hash::{Hash, Hasher};
 use std::cmp::{PartialEq, Ord, PartialOrd, Ordering};
 
+// for this lib
+use std::sync::atomic::{AtomicUsize, Ordering as AtomicOrdering};
+lazy_static!{    
+    pub static ref INCREMENTING_ID: AtomicUsize = AtomicUsize::new(0);
+}
+use super::{ArtifactData, LocData};
+
 // definition of new types
 pub type LoadResult<T> = Result<T, LoadError>;
 pub type Artifacts = HashMap<ArtNameRc, Artifact>;
@@ -337,6 +344,22 @@ pub struct Artifact {
 impl Artifact {
     pub fn is_parent(&self) -> bool {
         self.path == PARENT_PATH.as_path()
+    }
+
+    pub fn to_data(&self, name: &ArtNameRc) -> ArtifactData {
+        ArtifactData {
+            id: INCREMENTING_ID.fetch_add(1, AtomicOrdering::SeqCst) as u64,
+            name: name.raw.clone(),
+            path: self.path.to_string_lossy().to_string(),
+            text: self.text.clone(),
+            partof: self.partof.iter().map(|n| n.raw.clone()).collect(),
+            parts: self.parts.iter().map(|n| n.raw.clone()).collect(),
+            loc: self.loc.as_ref().map(
+                |l| LocData {path: l.path.to_string_lossy().to_string(), 
+                             row: l.line_col.0 as u64, col: l.line_col.1 as u64}),
+            completed: self.completed,
+            tested: self.tested,
+        }
     }
 }
 

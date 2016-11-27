@@ -32,7 +32,7 @@ lazy_static! {
             path: "path/to/definition".to_string(),
             text: "text\nnew line".to_string(),
             partof: vec!["REQ-partof1".to_string(), "REQ-partof2".to_string()],
-            parts: vec!["REQ-parts1".to_string(), "REQ-parts2".to_string()],
+            parts: vec!["REQ-bar".to_string(), "REQ-parts2".to_string()],
             loc: None,
             completed: 0.0,
             tested: 0.0,
@@ -42,7 +42,7 @@ lazy_static! {
             name: "REQ-bar".to_string(),
             path: "path/to/definition".to_string(),
             text: "text\nnew line".to_string(),
-            partof: vec!["REQ-partof1".to_string(), "REQ-partof2".to_string()],
+            partof: vec!["REQ-foo".to_string(), "REQ-partof2".to_string()],
             parts: vec!["REQ-parts1".to_string(), "REQ-parts2".to_string()],
             loc: Some( LocData{path: "path/implemented/at".to_string(), row: 42, col: 66}),
             completed: 0.0,
@@ -99,7 +99,13 @@ fn handle_artifacts<'a> (req: &mut Request, mut res: Response<'a>)
 }
 
 
-pub fn start_api() {
+pub fn start_api(artifacts: Vec<ArtifactData>, addr: &str) {
+    {
+        let mut locked = ARTIFACTS.lock().unwrap();
+        let global: &mut Vec<ArtifactData> = locked.as_mut();
+        *global = artifacts;
+    }
+
     let endpoint = "/json-rpc";
     let mut server = Nickel::new();
 
@@ -111,5 +117,5 @@ pub fn start_api() {
         "ok"
     });
 
-    server.listen("127.0.0.1:4000").expect("canot connect to port");
+    server.listen(addr).expect("canot connect to port");
 }

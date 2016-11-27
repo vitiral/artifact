@@ -141,9 +141,9 @@ pub fn cmd<W, I, T>(w: &mut W, args: I) -> i32
     } else if matches.subcommand_matches("check").is_some() {
         info!("Calling the check command");
         check::do_check(w, &cwd, &artifacts, &dne_locs, &settings)
-    } else if matches.subcommand_matches("server").is_some() {
-        // TODO: pull out info?
-        server::run_server();
+    } else if let Some(mat) = matches.subcommand_matches("server") {
+        let addr = server::get_cmd(mat);
+        server::run_server(&artifacts, &addr);
         0
     } else {
         write!(w, "{} {}: use -h to show help",
