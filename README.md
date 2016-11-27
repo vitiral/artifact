@@ -1,12 +1,12 @@
 [![Build Status](https://travis-ci.org/vitiral/rst.svg?branch=master)](https://travis-ci.org/vitiral/rst)
 # rst: requirements as easy as abc
-**rst** is a [requirements tracking](https://en.m.wikipedia.org/wiki/Software_requirements_specification) 
-tool made for developers. It is an acronym for "Requirements, Specifications and Tests". 
+**rst** is a [requirements tracking](https://en.m.wikipedia.org/wiki/Software_requirements_specification)
+tool made for developers. It is an acronym for "Requirements, Specifications and Tests".
 
 **rst** is pronounced like "wrist"
 
 ## Tutorial
-Once installed run `rst -h` on the cmdline to view the help message. `rst tutorial` 
+Once installed run `rst -h` on the cmdline to view the help message. `rst tutorial`
 will start the interactive tutorial.
 
 ## Purpose
@@ -16,9 +16,9 @@ maintain the product you were aiming to create. However, there are no open sourc
 tools (or proprietary tools for that matter) that make this process simple, easy
 and fun. **rst** aims to do that by giving you a:
 
- 1. simple text-based format to write your requirements in 
-      ([TOML](https://github.com/toml-lang/toml)). This makes it easy to track 
-      your requirements with the rest of your project using standard revision 
+ 1. simple text-based format to write your requirements in
+      ([TOML](https://github.com/toml-lang/toml)). This makes it easy to track
+      your requirements with the rest of your project using standard revision
       control tools (git, hg, etc)
  2. workflow that is easy for developers to integrate with
  3. UI that is familar and useful -- helping the developer track their own progress
@@ -29,10 +29,10 @@ the core developer in tracking their progress. **rst** aims to bridge that gap,
 giving you a simple tool that you can use to track your project completeness and
 test coverage.
 
-If you like or use **rst** please star:star: it on 
-[github](https://github.com/vitiral/rst) and mention it to friends and colleagues. 
-It is my belief that requirements tracking needs to be as second nature as revision 
-control and unit testing has become. I hope that by building better software we can 
+If you like or use **rst** please star:star: it on
+[github](https://github.com/vitiral/rst) and mention it to friends and colleagues.
+It is my belief that requirements tracking needs to be as second nature as revision
+control and unit testing has become. I hope that by building better software we can
 all make the world just a little bit better.
 
 If you find bugs or have any suggestions, please open an issue here:
@@ -53,33 +53,13 @@ that needs to be changed if it improves usability.
 
 # Installation
 
-There are currently two installation options: downloading a cross-linux
-binary or installing through Cargo.
+The are currently two options: download a release from the
+**[release page](https://github.com/vitiral/rst/releases)**
+or install via rust's package manager, cargo.
 
-## Linux Binary
-All we will be doing is downloading [this file](https://github.com/vitiral/rst/raw/master/target/x86_64-unknown-linux-musl/release/rst), 
-`chmod a+x` it, and putting it in a directory on your `$PATH`
-
-If you know what all this means, just do that.
-
-**OR follow these directions**
-
-Run this in the terminal to download the **rst** binary into `~/bin`:
-```
-mkdir -p ~/bin && wget -q https://github.com/vitiral/rst/raw/master/target/x86_64-unknown-linux-musl/release/rst -O ~/bin/rst && chmod a+x ~/bin/rst
-```
-
-Now add `~/bin` to your `$PATH` in `~/.bashrc`. With a text editor, copy/paste this to the end:
-```
-export PATH="$HOME/bin:$PATH"
-```
-
-Now run `source ~/.bashrc`. You should now be able to run `rst -h` from anywhere. Update **rst**
-by simply re-running the first line.
-
-## Cross Platform with [cargo](https://github.com/rust-lang/cargo)
-> Note: neither windows or mac are tested. If you try either, whether it works or not,
-> please open an [issue](https://github.com/vitiral/rst/issues) to let us know!
+## Installing with [cargo](https://github.com/rust-lang/cargo)
+> Note: windows is not tested. If you try it, whether it works or not,
+> please open an [issue](https://github.com/vitiral/rst/issues) to let me know!
 
 If you have rust and cargo installed (recommendation: install them with
 [rustup](https://github.com/rust-lang-nursery/rustup.rs)), simply execute:
@@ -115,13 +95,13 @@ there **shall** be way to say hello to the world. All of it.
 
 [SPC-world]
 text = '''
-The hello-world function shall say hello by printing it on 
+The hello-world function shall say hello by printing it on
 the cmdline
 '''
 
 [TST-world]
 text = '''
-To make this testable, there will be an intermediary 
+To make this testable, there will be an intermediary
 function that can test it before printing.
 '''
 
