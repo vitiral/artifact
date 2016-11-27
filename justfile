@@ -5,7 +5,7 @@ target = "$PWD/target"
 build:
 	CARGO_TARGET_DIR={{target}}/stable rustup run stable cargo build
 
-test: build
+test:
 	RUST_BACKTRACE=1 CARGO_TARGET_DIR={{target}}/stable rustup run stable cargo test --lib
 
 filter PATTERN:

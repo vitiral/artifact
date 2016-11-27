@@ -7,7 +7,8 @@ import Json.Decode.Pipeline exposing (decode, required, optional, hardcoded)
 import Task
 import Messages exposing (AppMsg(..))
 import Artifacts.Messages exposing (..)
-import Artifacts.Models exposing (ArtifactId, Artifact, Loc, ArtifactsResponse)
+import Artifacts.Models exposing (
+  ArtifactId, Artifact, Loc, ArtifactsResponse, defaultConfig)
 import JsonRpc exposing (RpcError, formatJsonRpcError)
 
 url = "http://localhost:4000/json-rpc"
@@ -135,6 +136,7 @@ memberDecoder =
     |> required "loc" (Decode.nullable locDecoder)
     |> required "completed" Decode.float
     |> required "tested" Decode.float
+    |> hardcoded defaultConfig
 
 locDecoder : Decode.Decoder Loc
 locDecoder =

@@ -1,13 +1,14 @@
 module Artifacts.Edit exposing (..)
 
 import Html exposing (..)
-import Html.Attributes exposing (class, value, href)
+import Html.Attributes exposing (class, style, value, href, readonly, rows, cols)
 import Html.Events exposing (onClick)
 
 import Models exposing (Settings)
 import Artifacts.Models exposing (..)
 import Messages exposing (AppMsg(..))
 import Artifacts.Messages exposing (..)
+import Artifacts.View as View
 
 view : Settings -> Artifact -> Html AppMsg
 view settings model =
@@ -26,31 +27,40 @@ form : Settings -> Artifact -> Html AppMsg
 form settings artifact =
   div [ class "m3" ]
     [ h1 [] [ text artifact.name ]
-    , formLevel settings artifact
-    ]
-
-formLevel : Settings -> Artifact -> Html AppMsg
-formLevel settings artifact =
-  div
-    [ class "clearfix py1" ]
-    [ div [ class "col col-5" ] [ text "Level" ]
-    , div [ class "col col-7" ]
-      [
-      --[ span [ class "h2 bold" ] [ text (toString artifact.level) ]
-      --, btnLevelDecrease artifact
-      --, btnLevelIncrease artifact
+    , div [ class "clearfix py1" ]
+      [ formColumnOne settings artifact
+      , formColumnTwo settings artifact
       ]
     ]
 
---btnLevelDecrease : Artifact -> Html AppMsg 
---btnLevelDecrease artifact =
---  a [ class "btn ml1 h1", onClick (ArtifactsMsg <| ChangeLevel artifact.id -1) ]
---    [ i [ class "fa fa-minus-circle" ] [] ]
+formColumnOne settings artifact =
+  div [ class "col col-6" ]
+    [ View.completion artifact
+    , View.defined settings artifact
+    , View.implemented settings artifact
+    , div [ class "clearfix py1" ] 
+      [
+      div [ class "col col-6" ] 
+        [ h3 [] [ text "Parts" ]
+        , View.parts settings artifact
+        ]
+      , div [ class "col col-6" ] 
+        [ h3 [] [ text "Partof" ]
+        , View.partof settings artifact
+        ]
+      ]
+    ]
 
---btnLevelIncrease : Artifact -> Html AppMsg 
---btnLevelIncrease artifact =
---  a [ class "btn ml1 h1", onClick (ArtifactsMsg <| ChangeLevel artifact.id 1) ]
---    [ i [ class "fa fa-plus-circle" ] [] ]
+
+formColumnTwo settings artifact =
+  div [ class "col col-6" ] 
+    [ h3 [] [ text "Text" ]
+    , textarea 
+      [ class "h3" -- class=h3 otherwise it is really tiny for some reason
+      , rows 35, cols 80, readonly settings.readonly ] 
+      [ text artifact.text ]
+    ]
+
 
 listBtn : Html AppMsg
 listBtn =

@@ -7,7 +7,9 @@ import Messages exposing (AppMsg(AppError))
 import JsonRpc exposing (RpcError)
 import Artifacts.Messages exposing (Msg(..))
 import Artifacts.Models exposing 
-  (Artifact, ArtifactId, ArtifactsResponse)
+  (Artifact, ArtifactId, ArtifactConfig
+  , ArtifactsResponse
+  , artifactUrl, artifactsUrl)
 import Artifacts.Commands exposing (save)
 
 update : Msg -> List Artifact -> ( List Artifact, Cmd AppMsg )
@@ -17,10 +19,13 @@ update msg artifacts =
       ( newArtifacts, Cmd.none )
 
     ShowArtifacts ->
-      ( artifacts, Navigation.newUrl "#artifacts" )
+      ( artifacts, Navigation.newUrl artifactsUrl )
 
     ShowArtifact id ->
-      ( artifacts, Navigation.newUrl ("#artifacts/" ++ (toString id)) )
+      ( artifacts, Navigation.newUrl (artifactUrl id) )
+
+    SetExpand id setConfig value ->
+      ( setExpand artifacts id setConfig value, Cmd.none)
 
     --ChangeLevel id amount ->
     --  ( artifacts
@@ -46,6 +51,23 @@ update msg artifacts =
 --        Cmd.none
 --  in
 --    List.map cmdForArtifact artifacts
+
+setExpand : 
+    List Artifact -> ArtifactId -> 
+    (ArtifactConfig -> Bool -> ArtifactConfig)
+    -> Bool -> List Artifact
+setExpand artifacts id setConfig value  =
+  let
+    select art =
+      if art.id == id then
+        let
+          newConfig = setConfig art.config value
+        in 
+          { art | config = newConfig }
+      else
+        art
+  in
+    List.map select artifacts
 
 updateArtifact updatedArtifact artifacts =
   let

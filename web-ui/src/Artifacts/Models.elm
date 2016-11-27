@@ -22,6 +22,15 @@ type alias Artifact =
   , loc : Maybe Loc
   , completed : Float
   , tested : Float
+  , config: ArtifactConfig
+  }
+
+type alias ArtifactConfig =
+  { partsExpanded : Bool
+  , partofExpanded : Bool
+  , pathExpanded : Bool
+  , locExpanded : Bool
+  , textExpanded : Bool
   }
 
 type alias ArtifactsResponse =
@@ -29,3 +38,19 @@ type alias ArtifactsResponse =
   , error: Maybe RpcError
   }
 
+
+defaultConfig : ArtifactConfig
+defaultConfig =
+  { partsExpanded = False
+  , partofExpanded = False
+  , pathExpanded = False
+  , locExpanded = False
+  , textExpanded = False
+  }
+
+artifactsUrl =
+  "#artifacts" 
+
+artifactUrl : ArtifactId -> String
+artifactUrl id =
+  "#artifacts/" ++ (toString id)

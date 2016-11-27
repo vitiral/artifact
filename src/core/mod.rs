@@ -36,6 +36,7 @@ include!(concat!(env!("OUT_DIR"), "/serde_types.rs"));
 
 #[cfg(feature = "serde_derive")] 
 include!("serde_types.in.rs");
+mod serialize;
 
 #[cfg(test)]
 mod tests;

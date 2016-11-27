@@ -9,6 +9,7 @@ fn test_serde() {
     let artifact = ArtifactData {
         id: 10,
         name: "name".to_string(),
+        path: "path".to_string(),
         text: "text".to_string(),
         partof: Vec::from_iter(vec!["partof-1".to_string()]),
         parts: Vec::from_iter(vec!["part-1".to_string()]),
