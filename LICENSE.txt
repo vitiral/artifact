@@ -165,7 +165,7 @@ permanent authorization for you to choose that version for the
 Library.
 
 --------------------------------------------------------------------------------
-                End License Text
+                End GNU License Text
 
 # Code boilerplate
 /*  rst: the requirements tracking tool made for developers

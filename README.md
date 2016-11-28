@@ -175,3 +175,12 @@ clone this repo and run:
 ```
 rst ls -c '>50' -t '<99' -T
 ```
+
+# License
+The rst file format (the format of the toml files, artifact name, etc) is
+licensed under the CC0 (Creative Commons Public Domain) License. Any person can
+use the format for any reason without the need for even attribution (attribution
+is appreciated though!)
+
+The rst library and web-ui are licensed under the LGPLv3+, except for files
+which say otherwise in their header. See LICENSE.txt for more information.
