@@ -1,9 +1,9 @@
 environment:
   global:
     # This will be used as part of the zipfile name
-    # TODO change the project name
+    # DONE change the project name
     PROJECT_NAME: rst
-  # TODO feel free to delete targets/channels you don't need
+  # DONE feel free to delete targets/channels you don't need
   matrix:
     # Stable channel
     - TARGET: i686-pc-windows-gnu
@@ -30,18 +30,18 @@ install:
 build: false
 
 # Equivalent to Travis' `script` phase
+# DONE modify this phase as you see fit
 test_script:
   - cargo build --verbose
-  - cargo run
-  - cargo test
   - cargo run -- check
+  - cargo test
 
 before_deploy:
   # Generate artifacts for release
   - cargo build --release
   - mkdir staging
-  # TODO update this part to copy the artifacts that make sense for your project
-  - copy target\release\hello.exe staging
+  # DONE update this part to copy the artifacts that make sense for your project
+  - copy target\release\rst.exe staging
   - cd staging
     # release zipfile will look like 'rust-everywhere-v1.2.3-x86_64-pc-windows-msvc'
   - 7z a ../%PROJECT_NAME%-%APPVEYOR_REPO_TAG_NAME%-%TARGET%.zip *
@@ -51,20 +51,19 @@ deploy:
   description: 'Windows release'
   # All the zipped artifacts will be deployed
   artifact: /.*\.zip/
-  # BIG TODO
-  # TODO Regenerate this auth_token for your project, this one won't work for you. Here's how:
+  # DONE Regenerate this auth_token for your project, this one won't work for you. Here's how:
   # - Go to 'https://github.com/settings/tokens/new' and generate a Token with only the
   # `public_repo` scope enabled
   # - Then go to 'https://ci.appveyor.com/tools/encrypt' and enter the newly generated token.
   # - Enter the "encrypted value" below
   auth_token:
-    secure: xv0gNKR4j8Zyr3yFkqBADMdkR/6CMOp5ixVFc1uf8SHOndhTXHns4dPpQJKS6MWx
+    secure: e2pyiI8N9p6VD2W2ZdetwUTm7FsBBQ7E7dsHpR3b5GzH+qE2JgjS9XYRjo72SwwF
   provider: GitHub
   # deploy when a new tag is pushed and only on the stable channel
   on:
     # channel to use to produce the release artifacts
     # NOTE make sure you only release *once* per target
-    # TODO you may want to pick a different channel
+    # DONE you may want to pick a different channel
     CHANNEL: stable
     appveyor_repo_tag: true
 
@@ -73,4 +72,4 @@ branches:
     - master
     # IMPORTANT Regex to match tags. Required, or appveyor may not trigger deploys when a new tag
     # is pushed. This regex matches semantic versions like v1.2.3-rc4+2016.02.22
-- /^v\d+\.\d+\.\d+.*$/
+    - /^v\d+\.\d+\.\d+.*$/
