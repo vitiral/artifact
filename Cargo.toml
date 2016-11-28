@@ -1,6 +1,6 @@
 [package]
 name = "rst_app"
-version = "0.2.7"
+version = "0.2.8"
 description = "rst: the requirements tracking tool made for developers"
 repository = "https://github.com/vitiral/rst"
 readme = "README.md"
