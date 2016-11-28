@@ -23,7 +23,7 @@ check-all: clippy test check
 publish: clippy test check build
 	git branch | grep '* master'
 	git diff --no-ext-diff --quiet --exit-code
-	rustup run stable cargo build --release --target=x86_64-unknown-linux-musl
+	#rustup run stable cargo build --release --target=x86_64-unknown-linux-musl
 	#cargo publish
 	git push origin master
 	git tag -a "v{{version}}" -m "v{{version}}"
