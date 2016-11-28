@@ -7,7 +7,6 @@ import Artifacts.Models exposing (ArtifactId)
 
 type Route
   = ArtifactsRoute
-  | ArtifactRoute ArtifactId
   | ArtifactNameRoute String
   | NotFoundRoute
   

@@ -4,60 +4,60 @@ import Html exposing (..)
 import Html.Attributes exposing (class, style, value, href, readonly, rows, cols)
 import Html.Events exposing (onClick)
 
-import Models exposing (Settings)
+import Models exposing (Model)
 import Artifacts.Models exposing (..)
 import Messages exposing (AppMsg(..))
 import Artifacts.Messages exposing (..)
 import Artifacts.View as View
 
-view : Settings -> Artifact -> Html AppMsg
-view settings model =
+view : Model -> Artifact -> Html AppMsg
+view model artifact =
   div []
     [ nav model
-    , form settings model
+    , form model artifact
     ]
 
-nav : Artifact -> Html AppMsg
-nav artifact =
+nav : Model -> Html AppMsg
+nav model =
   div [ class "clearfix mb2 white bg-black p1" ]
     [ listBtn ]
 
 
-form : Settings -> Artifact -> Html AppMsg
-form settings artifact =
+form : Model -> Artifact -> Html AppMsg
+form model artifact =
   div [ class "m3" ]
-    [ h1 [] [ text artifact.name ]
+    [ h1 [] [ text artifact.raw_name ]
     , div [ class "clearfix py1" ]
-      [ formColumnOne settings artifact
-      , formColumnTwo settings artifact
+      [ formColumnOne model artifact
+      , formColumnTwo model artifact
       ]
     ]
 
-formColumnOne settings artifact =
+formColumnOne model artifact =
   div [ class "col col-6" ]
     [ View.completion artifact
-    , View.defined settings artifact
-    , View.implemented settings artifact
+    , View.defined model artifact
+    , View.implemented model artifact
     , div [ class "clearfix py1" ] 
       [
       div [ class "col col-6" ] 
         [ h3 [] [ text "Parts" ]
-        , View.parts settings artifact
+        , View.parts model artifact
         ]
       , div [ class "col col-6" ] 
         [ h3 [] [ text "Partof" ]
-        , View.partof settings artifact
+        , View.partof model artifact
         ]
       ]
     ]
 
 
-formColumnTwo settings artifact =
+formColumnTwo model artifact =
   div [ class "col col-6" ] 
     [ h3 [] [ text "Text" ]
     , textarea 
       [ class "h3" -- class=h3 otherwise it is really tiny for some reason
-      , rows 35, cols 80, readonly settings.readonly ] 
+      , rows 35, cols 80, readonly model.settings.readonly ] 
       [ text artifact.text ]
     ]
 

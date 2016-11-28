@@ -22,7 +22,7 @@ update msg model =
         )
 
     RouteChange route ->
-      ( { model | route = route }, Cmd.none )
+      ( { model | route = route } , Cmd.none )
 
     -- TODO: these should do some kind of command to clear the
     -- error later

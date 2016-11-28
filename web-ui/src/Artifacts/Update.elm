@@ -1,28 +1,33 @@
 module Artifacts.Update exposing (..)
 
+import String
 import Navigation
-
 import Http exposing (Error(..))
+
 import Messages exposing (AppMsg(AppError))
 import JsonRpc exposing (RpcError)
 import Artifacts.Messages exposing (Msg(..))
 import Artifacts.Models exposing 
   (Artifact, ArtifactId, ArtifactConfig
   , ArtifactsResponse
-  , artifactUrl, artifactsUrl)
+  , artifactsUrl, artifactNameUrl
+  , realName)
 import Artifacts.Commands exposing (save)
 
 update : Msg -> List Artifact -> ( List Artifact, Cmd AppMsg )
 update msg artifacts =
   case msg of
     NewArtifacts newArtifacts ->
-      ( newArtifacts, Cmd.none )
+      let
+        calcName = \a -> {a | name = realName a.raw_name }
+      in
+        ( List.map calcName newArtifacts, Cmd.none )
 
     ShowArtifacts ->
       ( artifacts, Navigation.newUrl artifactsUrl )
 
-    ShowArtifact id ->
-      ( artifacts, Navigation.newUrl (artifactUrl id) )
+    ShowArtifact name ->
+      ( artifacts, Navigation.newUrl <| artifactNameUrl <| String.toLower (realName name) )
 
     SetExpand id setConfig value ->
       ( setExpand artifacts id setConfig value, Cmd.none)

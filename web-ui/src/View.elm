@@ -5,26 +5,22 @@ import Messages exposing (AppMsg(..), Route(..))
 import Models exposing (Model)
 import Artifacts.List
 import Artifacts.Edit
-import Artifacts.Models exposing (ArtifactId)
-
+import Artifacts.Models exposing (ArtifactId, realName)
 
 view : Model -> Html AppMsg
 view model =
   div []
     [ page model ]
 
-
 page : Model -> Html AppMsg
 page model =
   case model.route of
     ArtifactsRoute ->
-      Artifacts.List.view model.settings model.artifacts
+      Artifacts.List.view model model.artifacts
 
-    ArtifactRoute id ->
-      artifactEditPage model id
-
-    ArtifactNameRoute name ->
+    ArtifactNameRoute raw_name ->
       let
+        name = realName raw_name
         id_maybe = List.filter (\a -> a.name == name) model.artifacts
       in
         case List.head id_maybe of
@@ -46,7 +42,7 @@ artifactEditPage model id =
   in
       case maybeArtifact of
         Just artifact ->
-          Artifacts.Edit.view model.settings artifact
+          Artifacts.Edit.view model artifact
 
         Nothing ->
           notFoundView
@@ -54,6 +50,6 @@ artifactEditPage model id =
 notFoundView : Html a
 notFoundView =
   div []
-    [ text "Route Not Found"
+    [ text "Artifact Name Not Found"
     ]
 

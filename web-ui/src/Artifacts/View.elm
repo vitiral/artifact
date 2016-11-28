@@ -10,8 +10,8 @@ import Html.Events exposing (onClick)
 import Navigation
 
 import Messages exposing (AppMsg(..), Route(..))
-import Models exposing (Settings)
-import Artifacts.Models exposing (Artifact, artifactUrl, artifactNameUrl)
+import Models exposing (Model)
+import Artifacts.Models exposing (Artifact, artifactNameUrl, realName)
 import Artifacts.Messages exposing (Msg(..))
 
 completion : Artifact -> Html AppMsg
@@ -28,32 +28,32 @@ completion artifact =
     ]
 
 completedPerc artifact =
-  text (toString (artifact.completed * 100) ++ "%")
+  text <| (String.left 3 (toString (artifact.completed * 100))) ++ "%"
 
 testedPerc artifact =
-  text (toString (artifact.tested * 100) ++ "%")
+  text <| (String.left 3 (toString (artifact.tested * 100))) ++ "%"
 
-defined : Settings -> Artifact -> Html AppMsg
-defined settings artifact =
+defined : Model -> Artifact -> Html AppMsg
+defined model artifact =
   div [] 
   [ span [class "bold" ] [ text "Defined at: " ]
   , text artifact.path
   ]
 
-implemented : Settings -> Artifact -> Html m
-implemented settings artifact =
+implemented : Model -> Artifact -> Html m
+implemented model artifact =
   div [] 
     (case artifact.loc of
       Just loc ->
         [ span [class "bold" ] [ text "Implemented at: " ]
-        , implementedBasic settings artifact
+        , implementedBasic model artifact
         ]
       Nothing ->
         []
     )
 
-implementedBasic : Settings -> Artifact -> Html m
-implementedBasic settings artifact = 
+implementedBasic : Model -> Artifact -> Html m
+implementedBasic model artifact = 
   (case artifact.loc of 
     Just loc ->
       text (loc.path ++ " (" ++ (toString loc.row) 
@@ -62,20 +62,21 @@ implementedBasic settings artifact =
     Nothing ->
       span [class "italic" ] [ text "not directly implemented" ])
 
-parts : Settings -> Artifact -> Html AppMsg
-parts settings artifact =
-  ul [] (List.map (\p -> li [ class "underline" ] [ seeArtifactName p ]) artifact.parts)
+parts : Model -> Artifact -> Html AppMsg
+parts model artifact =
+  ul [] (List.map (\p -> li [ class "underline" ] [ seeArtifactName model p ]) artifact.parts)
 
 
 -- TODO: allow editing when not readonly
-partof : Settings -> Artifact -> Html AppMsg
-partof settings artifact =
-  ul [] (List.map (\p -> li [ class "underline" ] [ seeArtifactName p ]) artifact.partof)
+partof : Model -> Artifact -> Html AppMsg
+partof model artifact =
+  ul [] (List.map (\p -> li [ class "underline" ] [ seeArtifactName model p ]) artifact.partof)
 
-textPiece : Settings -> Artifact -> Html AppMsg
-textPiece settings artifact =
+-- TODO: don't wrap text
+textPiece : Model -> Artifact -> Html AppMsg
+textPiece model artifact =
   let
-    ro = settings.readonly
+    ro = model.settings.readonly
     text_part = String.left 200 artifact.text
     t = if (String.length artifact.text) > 200 then
       text_part ++ " ..."
@@ -84,30 +85,38 @@ textPiece settings artifact =
   in
     text text_part
 
-seeArtifact : Settings -> Artifact -> Html AppMsg
-seeArtifact settings artifact =
+seeArtifact : Model -> Artifact -> Html AppMsg
+seeArtifact model artifact =
   let
-    ro = settings.readonly
+    ro = model.settings.readonly
   in
     button 
       [ class "btn bold"
-      , onClick (ArtifactsMsg <| ShowArtifact artifact.id)
-      , href (artifactUrl artifact.id)
+      , onClick (ArtifactsMsg <| ShowArtifact <| artifact.name)
+      , href (artifactNameUrl artifact.name)
       ]
-      [ text (artifact.name ++ "  ")
+      [ text (artifact.raw_name ++ "  ")
       , i [ class <| if ro then "bold fa fa-eye mr1" else "bold fa fa-pencil mr1" 
-        , href (artifactUrl artifact.id) 
+        , href (artifactNameUrl artifact.name) 
         ] []
       
       ]
 
-seeArtifactName : String -> Html AppMsg
-seeArtifactName name =
+-- TODO: do color and other special stuff for non-existent names
+seeArtifactName : Model -> String -> Html AppMsg
+seeArtifactName model name =
   let
+    hasName = \a -> a.name == (realName name)
+    exists = case List.head <| List.filter hasName model.artifacts of
+      Just _ -> True
+      Nothing -> False
+
     url = (artifactNameUrl name)
   in 
-    span 
-      [ href url
-      , onClick ( RouteChange (ArtifactNameRoute name) ) 
-      ] [ text name ]
- 
+    if exists then
+      span 
+        [ href url
+        , onClick ( RouteChange <| ArtifactNameRoute <| realName name ) 
+        ] [ text name ]
+    else
+      span [ title "Name not found" ] [ text name ]

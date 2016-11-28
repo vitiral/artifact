@@ -128,7 +128,8 @@ memberDecoder : Decode.Decoder Artifact
 memberDecoder =
   decode Artifact
     |> required "id" Decode.int
-    |> required "name" Decode.string
+    |> hardcoded "DEFAULT_NAME" -- converted name
+    |> required "name" Decode.string -- raw name
     |> required "path" Decode.string
     |> required "text" Decode.string
     |> required "partof" (Decode.list Decode.string)
