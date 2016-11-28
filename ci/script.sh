@@ -4,7 +4,7 @@ set -ex
 
 . $(dirname $0)/utils.sh
 
-# TODO modify this function as you see fit
+# DONE modify this function as you see fit
 # PROTIP Always pass `--target $TARGET` to cargo commands, this makes cargo output build artifacts
 # to target/$TARGET/{debug,release} which can reduce the number of needed conditionals in the
 # `before_deploy`/packaging phase

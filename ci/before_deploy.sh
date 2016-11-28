@@ -14,7 +14,7 @@ mk_tarball() {
     local td=$(mktempd)
     local out_dir=$(pwd)
 
-    # copy the artifacts that make sense for your project
+    # DONE update this part to copy the artifacts that make sense for your project
     # NOTE All Cargo build artifacts will be under the 'target/$TARGET/{debug,release}'
     cp target/$TARGET/release/rst $td
 
@@ -34,7 +34,7 @@ mk_tarball() {
 # XXX This .deb packaging is minimal -- just to make your app installable via `dpkg` -- and doesn't
 # fully conform to Debian packaging guideliens (`lintian` raises a few warnings/errors)
 mk_deb() {
-    # package the artifacts that make sense for your project
+    # DONE update this part to package the artifacts that make sense for your project
     dobin target/$TARGET/release/rst
 }
 

@@ -54,7 +54,7 @@ main() {
     install_standard_crates
     configure_cargo
 
-    # if you need to install extra stuff add it here
+    # DONE if you need to install extra stuff add it here
 }
 
 main
