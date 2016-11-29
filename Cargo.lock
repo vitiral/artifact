@@ -17,7 +17,7 @@ dependencies = [
  "serde_derive 0.8.19 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde_json 0.8.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "strfmt 0.1.5 (registry+https://github.com/rust-lang/crates.io-index)",
- "tar 0.3.4 (registry+https://github.com/rust-lang/crates.io-index)",
+ "tar 0.4.9 (registry+https://github.com/rust-lang/crates.io-index)",
  "tempdir 0.3.5 (registry+https://github.com/rust-lang/crates.io-index)",
  "time 0.1.35 (registry+https://github.com/rust-lang/crates.io-index)",
  "toml 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -447,12 +447,12 @@ dependencies = [
 
 [[package]]
 name = "tar"
-version = "0.3.4"
+version = "0.4.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "filetime 0.1.10 (registry+https://github.com/rust-lang/crates.io-index)",
  "libc 0.2.17 (registry+https://github.com/rust-lang/crates.io-index)",
- "winapi 0.2.8 (registry+https://github.com/rust-lang/crates.io-index)",
+ "xattr 0.1.10 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
@@ -603,6 +603,14 @@ name = "winapi-build"
 version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 
+[[package]]
+name = "xattr"
+version = "0.1.10"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+dependencies = [
+ "libc 0.2.17 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
 [metadata]
 "checksum aho-corasick 0.5.3 (registry+https://github.com/rust-lang/crates.io-index)" = "ca972c2ea5f742bfce5687b9aef75506a764f61d37f8f649047846a9686ddb66"
 "checksum ansi_term 0.7.5 (registry+https://github.com/rust-lang/crates.io-index)" = "30275ad0ad84ec1c06dde3b3f7d23c6006b7d76d61a85e7060b426b747eff70d"
@@ -657,7 +665,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 "checksum syntex_errors 0.50.0 (registry+https://github.com/rust-lang/crates.io-index)" = "84822a1178204a191239ad844599f8c85c128cf9f4173397def4eb46b55b0aa1"
 "checksum syntex_pos 0.50.0 (registry+https://github.com/rust-lang/crates.io-index)" = "a43abded5057c75bac8555e46ec913ce502efb418267b1ab8e9783897470c7db"
 "checksum syntex_syntax 0.50.0 (registry+https://github.com/rust-lang/crates.io-index)" = "6ef781e4b60f03431f1b5b59843546ce60ae029a787770cf8e0969ac1fd063a5"
-"checksum tar 0.3.4 (registry+https://github.com/rust-lang/crates.io-index)" = "6c6822c3d8ba96e87e15ca454a3db0d0915e7f0b52046b15604f6d50f40bad0e"
+"checksum tar 0.4.9 (registry+https://github.com/rust-lang/crates.io-index)" = "0c9048e27119ff1fcf5b0e147ca0936d911b607d87440b042d4ecaa111b523ee"
 "checksum tempdir 0.3.5 (registry+https://github.com/rust-lang/crates.io-index)" = "87974a6f5c1dfb344d733055601650059a3363de2a6104819293baff662132d6"
 "checksum term 0.4.4 (registry+https://github.com/rust-lang/crates.io-index)" = "3deff8a2b3b6607d6d7cc32ac25c0b33709453ca9cceac006caac51e963cf94a"
 "checksum thread-id 2.0.0 (registry+https://github.com/rust-lang/crates.io-index)" = "a9539db560102d1cef46b8b78ce737ff0bb64e7e18d35b2a5688f7d097d0ff03"
@@ -680,3 +688,4 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 "checksum vec_map 0.6.0 (registry+https://github.com/rust-lang/crates.io-index)" = "cac5efe5cb0fa14ec2f84f83c701c562ee63f6dcc680861b21d65c682adfb05f"
 "checksum winapi 0.2.8 (registry+https://github.com/rust-lang/crates.io-index)" = "167dc9d6949a9b857f3451275e911c3f44255842c1f7a76f33c55103a909087a"
 "checksum winapi-build 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)" = "2d315eee3b34aca4797b2da6b13ed88266e6d612562a0c46390af8299fc699bc"
+"checksum xattr 0.1.10 (registry+https://github.com/rust-lang/crates.io-index)" = "06d6f0e8fd6536f3c623afab15488d87cf3a5dbb907361a22c05d739881136d7"

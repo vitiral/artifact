@@ -3,28 +3,25 @@ version = `sed -En 's/version = "([^"]+)"/\1/p' Cargo.toml`
 target = "$PWD/target"
 
 build:
-	CARGO_TARGET_DIR={{target}}/stable rustup run stable cargo build
+	CARGO_TARGET_DIR={{target}}/stable rustup run stable cargo build --features "web"
 
 test:
-	RUST_BACKTRACE=1 CARGO_TARGET_DIR={{target}}/stable rustup run stable cargo test --lib
+	RUST_BACKTRACE=1 CARGO_TARGET_DIR={{target}}/stable rustup run stable cargo test --lib --features "web"
 
 filter PATTERN:
-	RUST_BACKTRACE=1 CARGO_TARGET_DIR={{target}}/stable rustup run stable cargo test --lib {{PATTERN}}
+	RUST_BACKTRACE=1 CARGO_TARGET_DIR={{target}}/stable rustup run stable cargo test --lib {{PATTERN}} --features "web"
 
 clippy:
-	CARGO_TARGET_DIR={{target}}/nightly rustup run nightly cargo clippy
+	CARGO_TARGET_DIR={{target}}/nightly rustup run nightly cargo clippy --features "web"
 
 server:
-	(cd web-ui; npm run build)
-	(cd web-ui/dist; tar -cvf ../../target/web-ui.tar *)
 	CARGO_TARGET_DIR={{target}}/nightly rustup run nightly cargo run --features "web" -- -v server
 
 check:
-	cargo run -- check  # run's rst's check on the requirements
+	# TODO: replace with just using the binary
+	cargo run --features "web" -- check  # run's rst's check on the requirements
 
 check-all: clippy test check
-	# also test with only minimal features enabled
-	RUST_BACKTRACE=1 CARGO_TARGET_DIR={{target}}/stable rustup run stable cargo test --lib --features "minimal" --no-default-features
 	echo "checked all"
 
 publish: clippy test check build
