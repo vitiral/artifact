@@ -32,6 +32,12 @@ publish: clippy test check build
 	git tag -a "v{{version}}" -m "v{{version}}"
 	git push origin --tags
 
+publish-fast:
+	cargo publish --no-verify
+	git push origin master
+	git tag -a "v{{version}}" -m "v{{version}}"
+	git push origin --tags
+
 install-clippy:
 	rustup run nightly cargo install clippy -f
 
