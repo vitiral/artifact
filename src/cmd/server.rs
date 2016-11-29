@@ -11,7 +11,7 @@ use super::super::api;
 pub fn get_subcommand<'a, 'b>() -> App<'a, 'b> {
     SubCommand::with_name("server")
         .about("start the web-ui server")
-        .settings(&[AS::DeriveDisplayOrder, AS::ColoredHelp])
+        .settings(&[AS::DeriveDisplayOrder, COLOR])
         .arg(Arg::with_name("addr")
                  .help("full address to start server on. Default='127.0.0.1:8000'")
                  .use_delimiter(false))

@@ -28,7 +28,7 @@ use super::data;
 pub fn get_subcommand<'a, 'b>() -> App<'a, 'b> {
     SubCommand::with_name("tutorial")
         .about("start the interactive tutorial")
-        .settings(&[AS::DeriveDisplayOrder, AS::ColoredHelp])
+        .settings(&[AS::DeriveDisplayOrder, COLOR])
         .arg(Arg::with_name("part").help("the part to set the tutorial at"))
 }
 

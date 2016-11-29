@@ -44,3 +44,4 @@ pub use super::super::core::{
 pub use super::super::ui;
 pub use super::super::ui::{FmtSettings, FmtArtifact, PercentSearch, SearchSettings};
 
+pub const COLOR: AS = AS::ColorAuto;

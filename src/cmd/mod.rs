@@ -134,6 +134,8 @@ pub fn cmd<W, I, T>(w: &mut W, args: I) -> i32
         }
     };
 
+    debug!("settings={:?}", settings);
+
     if let Some(ls) = matches.subcommand_matches("ls") {
         info!("Calling the ls command");
         let (search, fmtset, search_set) = ls::get_ls_cmd(ls).unwrap();

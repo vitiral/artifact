@@ -372,6 +372,12 @@ pub struct Settings {
     pub color: bool,
 }
 
+#[cfg(not(windows))]
+const DEFAULT_COLOR: bool = true;
+
+#[cfg(windows)]
+const DEFAULT_COLOR: bool = false;
+
 impl Settings {
     pub fn new() -> Settings {
         Settings {
@@ -379,7 +385,7 @@ impl Settings {
             paths: VecDeque::new(),
             code_paths: VecDeque::new(),
             exclude_code_paths: VecDeque::new(),
-            color: true,
+            color: DEFAULT_COLOR,
         }
     }
 }

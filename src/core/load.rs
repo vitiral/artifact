@@ -99,6 +99,17 @@ macro_rules! check_type {
     }
 }
 
+#[cfg(not(windows))]
+fn get_color(raw: &RawSettings) -> bool {
+    raw.color.unwrap_or(true)
+}
+
+#[cfg(windows)]
+/// color always disabled for windows
+fn get_color(raw: &RawSettings) -> bool {
+    false
+}
+
 impl Settings {
     /// Load a settings object from a TOML Table
     /// partof: #SPC-settings-load
@@ -116,22 +127,19 @@ impl Settings {
             return Err(LoadError::new(msg));
         }
 
-        fn to_paths(paths: Vec<String>) -> VecDeque<PathBuf>  {
-            paths.iter().map(PathBuf::from).collect()
+        fn to_paths(paths: &Option<Vec<String>>) -> VecDeque<PathBuf>  {
+            match paths {
+                &Some(ref p) => p.iter().map(PathBuf::from).collect(),
+                &None => VecDeque::new(),
+            }
         }
 
         Ok(Settings {
             disabled: raw.disabled.unwrap_or_default(),
-            paths: raw.artifact_paths 
-                .map(to_paths)
-                .unwrap_or_default(),
-            code_paths: raw.code_paths
-                .map(to_paths)
-                .unwrap_or_default(),
-            exclude_code_paths: raw.exclude_code_paths
-                .map(to_paths)
-                .unwrap_or_default(),
-            color: raw.color.unwrap_or(true),
+            paths: to_paths(&raw.artifact_paths),
+            code_paths: to_paths(&raw.code_paths),
+            exclude_code_paths: to_paths(&raw.exclude_code_paths),
+            color: get_color(&raw),
         })
     }
 }

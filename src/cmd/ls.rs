@@ -24,7 +24,7 @@ use super::fmt as cmdfmt;
 pub fn get_subcommand<'a, 'b>() -> App<'a, 'b> {
     SubCommand::with_name("ls")
         .about("list artifacts according to various parameters")
-        .settings(&[AS::DeriveDisplayOrder, AS::ColoredHelp])
+        .settings(&[AS::DeriveDisplayOrder, COLOR])
         .arg(Arg::with_name("search")
                  .help("artifact names given in form `REQ-foo-[bar, baz-[1,2]]` OR pearl regexp \
                         pattern if -p is given")
@@ -199,6 +199,16 @@ fn test_get_percent() {
 
 }
 
+#[cfg(not(windows))]
+fn get_color(matches: &ArgMatches) -> bool {
+    !matches.is_present("plain")
+}
+
+#[cfg(windows)]
+fn get_color(matches: &ArgMatches) -> bool {
+    false
+}
+
 /// get all the information from the user input
 pub fn get_ls_cmd(matches: &ArgMatches) -> Result<(String, FmtSettings, SearchSettings), String> {
     let mut fmt_set = FmtSettings::default();
@@ -209,7 +219,7 @@ pub fn get_ls_cmd(matches: &ArgMatches) -> Result<(String, FmtSettings, SearchSe
     fmt_set.partof = matches.is_present("partof");
     fmt_set.loc_path = matches.is_present("loc");
     fmt_set.text = matches.is_present("text");
-    fmt_set.color = !matches.is_present("plain");
+    fmt_set.color = get_color(matches);
     if matches.is_present("all") {
         // reverse everything
         fmt_set.path = !fmt_set.path;

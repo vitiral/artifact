@@ -35,7 +35,7 @@ pub fn get_matches<'a, I, T>(args: I) -> ClapResult<ArgMatches<'a>>
                 a tutorial")
         .author("https://github.com/vitiral/rst")
         .settings(&[AS::SubcommandRequiredElseHelp, AS::VersionlessSubcommands,
-                    AS::DeriveDisplayOrder, AS::ColoredHelp])
+                    AS::DeriveDisplayOrder, COLOR])
         .arg(Arg::with_name("v")
              .short("v")
              .multiple(true)

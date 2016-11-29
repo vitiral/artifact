@@ -19,7 +19,7 @@ use super::types::*;
 pub fn get_subcommand<'a, 'b>() -> App<'a, 'b> {
     SubCommand::with_name("check")
         .about("check for any errors in the project")
-        .settings(&[AS::DeriveDisplayOrder, AS::ColoredHelp])
+        .settings(&[AS::DeriveDisplayOrder, COLOR])
 }
 
 // Helper functions

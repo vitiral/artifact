@@ -11,3 +11,4 @@
 artifact_paths = ["{repo}/reqs"]
 code_paths = ["{repo}/src", "{repo}/reqs"]
 exclude_code_paths = ["{repo}/src/core/tests/data", "{repo}/src/cmd/data"]
+color = false

@@ -63,7 +63,6 @@ pub fn init_logger_test() {
 }
 
 
-
 /// Load all items from the toml file at path
 pub fn load_path(path: &Path) -> LoadResult<(Artifacts, Settings, HashMap<ArtName, Loc>)>{
     let start = time::get_time();

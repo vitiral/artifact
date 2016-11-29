@@ -41,7 +41,7 @@ pub fn get_subcommand<'a, 'b>() -> App<'a, 'b> {
     // #SPC-init
     SubCommand::with_name("init")
         .about("initiailze the repository in the cwd")
-        .settings(&[AS::DeriveDisplayOrder, AS::ColoredHelp])
+        .settings(&[AS::DeriveDisplayOrder, COLOR])
 }
 
 pub fn do_init(path: &Path) -> io::Result<()> {

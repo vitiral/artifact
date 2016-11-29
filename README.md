@@ -184,3 +184,4 @@ is appreciated though!)
 
 The rst library and web-ui are licensed under the LGPLv3+, except for files
 which say otherwise in their header. See LICENSE.txt for more information.
+
