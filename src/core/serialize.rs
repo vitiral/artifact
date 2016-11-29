@@ -8,6 +8,10 @@
 //! MIT License
 //! Copyright (c) 2016 Garrett Berg
 //! Copyright (c) 2014 Alex Crichton
+//! 
+
+// TODO: use this for fmting files
+#![allow(dead_code)]
 
 use std::fmt::Write;
 use std::fmt;
@@ -15,7 +19,7 @@ use toml::{Value, Table};
 
 /// print a toml Table prettily -- strings with newlines are printed
 /// with the tripple quote syntax
-pub fn pretty_toml<'a>(tbl: Table) -> Result<String, fmt::Error> {
+pub fn pretty_toml(tbl: Table) -> Result<String, fmt::Error> {
     let mut out = String::new();
     {
         let mut pp = PrettyPrinter { output: &mut out, stack: Vec::new() };
@@ -74,19 +78,16 @@ impl<'a, 'b> PrettyPrinter<'a, 'b> {
         }
         // now go through the table and format the other tables
         for (i, (k, v)) in table.iter().enumerate() {
-            match *v {
-                Value::Table(ref inner) => {
-                    // store the stack so that we can write
-                    // [table.foo.bar]
-                    self.stack.push(k);
-                    if space_out_first || i != 0 {
-                        try!(write!(self.output, "\n"));
-                    }
-                    try!(writeln!(self.output, "[{}]", Key(&self.stack)));
-                    try!(self.print(inner));
-                    self.stack.pop();
+            if let Value::Table(ref inner) = *v {
+                // store the stack so that we can write
+                // [table.foo.bar]
+                self.stack.push(k);
+                if space_out_first || i != 0 {
+                    try!(write!(self.output, "\n"));
                 }
-                _ => {},
+                try!(writeln!(self.output, "[{}]", Key(&self.stack)));
+                try!(self.print(inner));
+                self.stack.pop();
             }
         }
         Ok(())

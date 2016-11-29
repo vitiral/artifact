@@ -1,5 +1,4 @@
 use std::ascii::AsciiExt;
-use std::ops::Deref;
 use std::io::Read;
 use std::str;
 use std::sync::Mutex;
@@ -16,9 +15,7 @@ use std::sync::Mutex;
 use nickel::{
     Request, Response, MiddlewareResult,
     Nickel, HttpRouter, MediaType,
-    StaticFilesHandler,
-    // Traits
-    JsonBody};
+    StaticFilesHandler};
 use nickel::status::StatusCode;
 use tar::Archive;
 use tempdir::TempDir;
@@ -110,7 +107,7 @@ pub fn start_api(artifacts: Vec<ArtifactData>, addr: &str) {
         let mut locked = ARTIFACTS.lock().unwrap();
         let global: &mut Vec<ArtifactData> = locked.as_mut();
         let compare_by = |a: &ArtifactData| a.name.replace(" ", "").to_ascii_uppercase();
-        global.sort_by(|a, b| compare_by(a).cmp(&compare_by(&b)));
+        global.sort_by(|a, b| compare_by(a).cmp(&compare_by(b)));
         *global = artifacts;
     }
     let tmp_dir = TempDir::new("rst-web-ui").expect("unable to create temporary directory");

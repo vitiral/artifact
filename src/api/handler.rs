@@ -1,9 +1,4 @@
-
-use std::ops::{Deref, DerefMut};
-
-use serde::de::Deserialize;
-use jsonrpc_core::{IoHandler, SyncMethodCommand, Params, Value, Error, ErrorCode};
-use rustc_serialize::json;
+use jsonrpc_core::{IoHandler, SyncMethodCommand, Params, Value, Error};
 use serde_json;
 
 use core::ArtifactData;
@@ -19,24 +14,11 @@ fn init_rpc_handler() -> IoHandler {
     handler
 }
 
-// helper methods
 
-fn get_artifact<'a>(artifacts: &'a mut Vec<ArtifactData>, id: u64) 
-        -> Result<&'a mut ArtifactData, String> {
-    match artifacts.iter_mut().filter(|p| p.id == id).next() {
-        Some(a) => Ok(a),
-        None => {
-            println!("- id not found: {}", id);
-            Err(format!("Artifact {} not found", id))
-        },
-    }
-}
-
-
-/// GetArtifacts Handler
+/// `GetArtifacts` API Handler
 struct GetArtifacts;
 impl SyncMethodCommand for GetArtifacts {
-    fn execute(&self, params: Params) -> Result<Value, Error> {
+    fn execute(&self, _: Params) -> Result<Value, Error> {
         println!("* GetArtifacts");
         let locked = ARTIFACTS.lock().unwrap();
         let artifacts: &Vec<ArtifactData> = locked.as_ref();
@@ -45,21 +27,37 @@ impl SyncMethodCommand for GetArtifacts {
     }
 }
 
-fn parse_error(desc: &str) -> Error {
-    Error {
-        code: ErrorCode::ParseError,
-        message: desc.to_string(),
-        data: None,
-    }
-}
+// helper methods for UpdateArtifacts
 
-fn invalid_params(desc: &str) -> Error {
-    Error {
-        code: ErrorCode::InvalidParams,
-        message: desc.to_string(),
-        data: None,
-    }
-}
+//fn invalid_params(desc: &str) -> Error {
+//    Error {
+//        code: ErrorCode::InvalidParams,
+//        message: desc.to_string(),
+//        data: None,
+//    }
+//}
+
+
+//fn get_artifact<'a>(artifacts: &'a mut Vec<ArtifactData>, id: u64) 
+//        -> Result<&'a mut ArtifactData, String> {
+//    match artifacts.iter_mut().filter(|p| p.id == id).next() {
+//        Some(a) => Ok(a),
+//        None => {
+//            println!("- id not found: {}", id);
+//            Err(format!("Artifact {} not found", id))
+//        },
+//    }
+//}
+
+
+//fn parse_error(desc: &str) -> Error {
+//    Error {
+//        code: ErrorCode::ParseError,
+//        message: desc.to_string(),
+//        data: None,
+//    }
+//}
+
 
 // /// UpdateArtifacts Handler
 //struct UpdateArtifacts;
