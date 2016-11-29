@@ -16,13 +16,18 @@ use std::sync::Mutex;
 use nickel::{
     Request, Response, MiddlewareResult,
     Nickel, HttpRouter, MediaType,
+    StaticFilesHandler,
     // Traits
     JsonBody};
 use nickel::status::StatusCode;
+use tar::Archive;
+use tempdir::TempDir;
 
 use core::{ArtifactData, LocData};
 
 mod handler;
+
+const WEB_FRONTEND_TAR: &'static [u8] = include_bytes!("../../target/web-ui.tar");
 
 lazy_static! {
     //#[derive(RustcDecodable, RustcEncodable, Serialize, Deserialize, Debug)]
@@ -108,6 +113,11 @@ pub fn start_api(artifacts: Vec<ArtifactData>, addr: &str) {
         global.sort_by(|a, b| compare_by(a).cmp(&compare_by(&b)));
         *global = artifacts;
     }
+    let tmp_dir = TempDir::new("rst-web-ui").expect("unable to create temporary directory");
+    info!("unpacking web-ui at: {}", tmp_dir.path().display());
+    //let web_ui_tar = temp_dir.path().join("web-ui.tar");
+    let mut archive = Archive::new(WEB_FRONTEND_TAR);
+    archive.unpack(&tmp_dir).expect("unable to unpack web frontend");
 
     let endpoint = "/json-rpc";
     let mut server = Nickel::new();
@@ -119,6 +129,9 @@ pub fn start_api(artifacts: Vec<ArtifactData>, addr: &str) {
         res.set(StatusCode::Ok);
         "ok"
     });
+
+    //server.utilize(StaticFilesHandler::new("web-ui/dist"));
+    server.utilize(StaticFilesHandler::new(&tmp_dir));
 
     server.listen(addr).expect("canot connect to port");
 }

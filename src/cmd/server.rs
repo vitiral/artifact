@@ -1,9 +1,9 @@
 
 use super::types::*;
 use super::fmt as cmdfmt;
-use super::super::core::{ArtifactData, Artifact};
+use super::super::core::{ArtifactData};
 
-#[cfg(feature = "web-api")]
+#[cfg(feature = "web")]
 use super::super::api;
 
 /// Get the server subcommand for the cmdline
@@ -23,14 +23,14 @@ pub fn get_cmd(matches: &ArgMatches) -> String {
     matches.value_of("addr").unwrap_or("127.0.0.1:4000").to_string()
 }
 
-#[cfg(feature = "web-api")]
+#[cfg(feature = "web")]
 pub fn run_server(artifacts: &Artifacts, addr: &str) {
     let data: Vec<ArtifactData> = artifacts
         .iter().map(|(name, model)| model.to_data(&name)).collect();
     api::start_api(data, addr);
 }
 
-#[cfg(not(feature = "web-api"))]
-pub fn run_server() {
+#[cfg(not(feature = "web"))]
+pub fn run_server(artifacts: &Artifacts, addr: &str) {
     println!("this instance of rst was not compiled with the server enabled");
 }

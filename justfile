@@ -15,7 +15,9 @@ clippy:
 	CARGO_TARGET_DIR={{target}}/nightly rustup run nightly cargo clippy
 
 server:
-	CARGO_TARGET_DIR={{target}}/nightly rustup run nightly cargo run -- server
+	(cd web-ui; npm run build)
+	(cd web-ui/dist; tar -cvf ../../target/web-ui.tar *)
+	CARGO_TARGET_DIR={{target}}/nightly rustup run nightly cargo run --features "web" -- -v server
 
 check:
 	cargo run -- check  # run's rst's check on the requirements
