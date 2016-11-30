@@ -21,13 +21,21 @@ check:
 	# TODO: replace with just using the binary
 	cargo run --features "web" -- check  # run's rst's check on the requirements
 
+
+build-web:
+	(cd web-ui; npm run build)
+	(cd web-ui/dist; tar -cvf ../../target/web-ui.tar *)
+
 check-all: clippy test check
 	echo "checked all"
 
-publish: clippy test check build
+git-verify:
 	git branch | grep '* master'
 	git diff --no-ext-diff --quiet --exit-code
-	cargo publish
+
+publish: git-verify build-web clippy test check build
+	git commit -a -m "v{{version}} release"
+	cargo publish --no-verify
 	git push origin master
 	git tag -a "v{{version}}" -m "v{{version}}"
 	git push origin --tags
