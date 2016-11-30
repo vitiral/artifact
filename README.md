@@ -19,9 +19,10 @@ and fun. **rst** aims to do that by giving you a:
  1. simple text-based format to write your requirements in
       ([TOML](https://github.com/toml-lang/toml)). This makes it easy to track
       your requirements with the rest of your project using standard revision
-      control tools (git, hg, etc)
- 2. workflow that is easy for developers to integrate with
- 3. UI that is familar and useful -- helping the developer track their own progress
+      control tools (git, hg, etc) and code reviews
+ 2. workflow that is easy for developers to integrate with and a web-ui to allow
+      team collaboration and presentations.
+ 3. UI that is familiar and useful -- helping the developer track their own progress
       from requirements -> design -> implementation -> testing
 
 It is hard to keep documentation up to date, especially when it doesn't aid
@@ -49,27 +50,33 @@ that needs to be changed if it improves usability.
  - Test Tracking: REST API with DB backend for tracking test execution
      plus cmdline utility and webui for viewing test execution.
      (rst currently only supports tracking implementaiton, not execution)
- - Web UI frontend to make it easy for non-devs to view requirements
+ - The Web UI is currently read-only. It will be able to edit soon.
 
 # Installation
 
-The are currently two options: download a release from the
-**[release page](https://github.com/vitiral/rst/releases)**
-or install via rust's package manager, cargo.
+rst is compiled for linux, mac and windows. You can find releases on the
+**[github release page](https://github.com/vitiral/rst/releases)**.
+
+For Linux and Mac simply download and unpack the tarball to somewhere in your
+[PATH](http://www.troubleshooters.com/linux/prepostpath.htm) with `tar -zxvf RELEASE.tar.gz`
+
+For Windows, simply download the exe and run it.
+
+After installing, you should be able to run `rst -h` from the sh or cmd window
 
 ## Installing with [cargo](https://github.com/rust-lang/cargo)
-> Note: windows is not tested. If you try it, whether it works or not,
-> please open an [issue](https://github.com/vitiral/rst/issues) to let me know!
 
-If you have rust and cargo installed (recommendation: install them with
-[rustup](https://github.com/rust-lang-nursery/rustup.rs)), simply execute:
-```
-cargo install rst_app
-```
-and follow any directions it tells you to.
+- First, install rust and cargo with [rustup](https://github.com/rust-lang-nursery/rustup.rs)
+- If you want the web-ui, also install [node.js](https://nodejs.org/en/) by downloading or
+    via your package manager
+- If you want the web-ui, run `npm install -g elm webpack`
+- clone the source code and cd: `git clone https://github.com/vitiral/rst.git; cd rst`
+- compile the code: `cargo build --release --features web`
 
-> Note: this library was renamed to rst_app to not conflict with a future ReStructredText
-> library. See [#6](https://github.com/vitiral/rst/issues/6)
+> Note: you can leave of "--features web" if you only want the command line ui
+
+> Note: on windows, you will have to manually compile the javascript code.
+> Simply `cd web-ui; npm run build` and it will be compiled.
 
 # Ultra Simple Tutorial
 > **For a full tutorial, install rst and run `rst tutorial`**
@@ -148,6 +155,7 @@ if __name__ == '__main__':
 ![rst ls example](http://i.imgur.com/GrDFLxr.png?1)
 
  - `rst check` to validate that there are no errors
+ - `rst server` to host my requirements on a server and view it via my browser
 
 As you can see, we've finished our specs and tests for saying hello to the world,
 but not to the aliens. If the aliens arrived, it would be nice to know whether you
@@ -166,9 +174,6 @@ $ rst ls -c '<' -T
  - REQ-2-performance        : rst **will** aim to be as performant as is "reasonable" in both memory and cpu usage.
  - REQ-2-performance-store  : rst **will** use a serialized file to speed up processing of data. Once a file has been processed, it's **will** be able to be loaded from the file instead of re-parsed.
  - REQ-2-ui-markdown        : when displaying to the user, all text fields **will** be processed as a simple markdown format
- - REQ-2-ui-tutorial        : rst **will** provide an interactive tutorial to learn rst as well as the basics of why to use requirements tracking in the first place.
- - REQ-2-ui-web             : rst **will** provide a HTTP web server which can host up-to-date requirements as well as provide a REST-JSON API server for tracking test execution over a period of time.
- - REQ-tutorial             : There **shall** be a tutorial that helps the user learn about rst.
 
 If you want to see items that have been mostly complete but have not been tested,
 clone this repo and run:
@@ -176,7 +181,7 @@ clone this repo and run:
 rst ls -c '>50' -t '<99' -T
 ```
 
-# License
+# Licensing
 The rst file format (the format of the toml files, artifact name, etc) is
 licensed under the CC0 (Creative Commons Public Domain) License. Any person can
 use the format for any reason without the need for even attribution (attribution

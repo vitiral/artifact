@@ -27,9 +27,9 @@ run_test_suite() {
     #    export RUST_TEST_THREADS=1
     #fi
 
-    cargo build --target $TARGET --verbose
-    cargo run --target $TARGET -- check
-    cargo test --target $TARGET
+    cargo build --target $TARGET --verbose --features web
+    cargo run --target $TARGET --features web -- check
+    cargo test --target $TARGET --features web
 
     # sanity check the file type
     file target/$TARGET/debug/rst
