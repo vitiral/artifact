@@ -30,12 +30,13 @@ mod web {
     }
 
     pub fn package_web_ui() {
-        let cwd = env::current_dir().unwrap();
-        let web_dir = cwd.join("web-ui");
+        let repo = Path::new(file!()).parent().unwrap();
+        println!("repo path: {}", repo.display());
+        let web_dir = repo.join("web-ui");
         build_web_ui(&web_dir);
 
         let dist_dir = web_dir.join("dist");
-        let tarfile = cwd.join("target").join("web-ui.tar");
+        let tarfile = repo.join("target").join("web-ui.tar");
 
         fs::remove_file(&tarfile).ok();
         let tarfile_fp = fs::File::create(&tarfile).expect("could not create tarfile");

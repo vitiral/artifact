@@ -48,6 +48,10 @@ EOF
     fi
 }
 
+install_elm() {
+	npm install -g elm webpack
+}
+
 main() {
     install_c_toolchain
     install_rustup
@@ -55,6 +59,7 @@ main() {
     configure_cargo
 
     # DONE if you need to install extra stuff add it here
+	install_elm
 }
 
 main
