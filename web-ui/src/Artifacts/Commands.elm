@@ -4,15 +4,15 @@ import Http
 import Json.Decode as Decode
 import Json.Encode as Encode
 import Json.Decode.Pipeline exposing (decode, required, optional, hardcoded)
-import Task
 import Messages exposing (AppMsg(..))
 import Models exposing (Model)
 import Artifacts.Messages exposing (..)
 import Artifacts.Models exposing (
-  ArtifactId, Artifact, Loc, ArtifactsResponse, defaultConfig)
+  ArtifactId, Text, Artifact, Loc, ArtifactsResponse, defaultConfig)
 import JsonRpc exposing (RpcError, formatJsonRpcError)
 
 --url = "http://localhost:4000/json-rpc"
+endpoint : String
 endpoint = "/json-rpc"
 -- COMMANDS
 
@@ -94,8 +94,18 @@ memberEncoded artifact =
       [ ( "id", Encode.int artifact.id )
       , ( "name", Encode.string artifact.name )
       , ( "path", Encode.string artifact.path )
-      , ( "text", Encode.string artifact.text )
+      , ( "text", textEncoded artifact.text )
       --, ( "partof", (Encode.list Encode.string) artifact.partof )
+      ]
+  in
+    Encode.object attrs
+
+textEncoded : Text -> Encode.Value
+textEncoded text =
+  let
+    attrs = 
+      [ ( "raw", Encode.string text.raw )
+      , ( "value", Encode.string text.value )
       ]
   in
     Encode.object attrs
@@ -132,13 +142,19 @@ memberDecoder =
     |> hardcoded "DEFAULT_NAME" -- converted name
     |> required "name" Decode.string -- raw name
     |> required "path" Decode.string
-    |> required "text" Decode.string
+    |> required "text" textDecoder
     |> required "partof" (Decode.list Decode.string)
     |> required "parts" (Decode.list Decode.string)
     |> required "loc" (Decode.nullable locDecoder)
     |> required "completed" Decode.float
     |> required "tested" Decode.float
     |> hardcoded defaultConfig
+
+textDecoder : Decode.Decoder Text
+textDecoder =
+  decode Text
+    |> required "raw" Decode.string
+    |> required "value" Decode.string
 
 locDecoder : Decode.Decoder Loc
 locDecoder =

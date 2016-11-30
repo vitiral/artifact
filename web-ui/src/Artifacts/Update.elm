@@ -2,7 +2,6 @@ module Artifacts.Update exposing (..)
 
 import String
 import Navigation
-import Http exposing (Error(..))
 
 import Messages exposing (AppMsg(AppError))
 import JsonRpc exposing (RpcError)

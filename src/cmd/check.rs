@@ -42,9 +42,10 @@ fn paint_it_bold<W: Write>(w: &mut W, settings: &Settings, msg: &str) {
 #[allow(cyclomatic_complexity)]  // TODO: break this up
 pub fn do_check<W: Write>(w: &mut W,
                           cwd: &Path,
-                          artifacts: &Artifacts,
-                          dne_locs: &HashMap<ArtName, Loc>,
-                          settings: &Settings) -> i32 {
+                          project: &Project) -> i32 {
+    let artifacts = &project.artifacts;
+    let settings = &project.settings;
+
     let mut error: i32 = 0;
     // display invalid partof names and locations
     // partof: #SPC-check-load
@@ -148,11 +149,11 @@ pub fn do_check<W: Write>(w: &mut W,
     }
 
     // display invalid locations
-    if !dne_locs.is_empty() {
+    if !project.dne_locs.is_empty() {
         error = 1;
         // reorganize them by file
         let mut invalid_locs: HashMap<PathBuf, Vec<(ArtName, Loc)>> = HashMap::new();
-        for (name, loc) in dne_locs {
+        for (name, loc) in &project.dne_locs {
             if !invalid_locs.contains_key(&loc.path) {
                 invalid_locs.insert(loc.path.clone(), Vec::new());
             }

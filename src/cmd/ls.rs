@@ -268,14 +268,14 @@ pub fn get_ls_cmd(matches: &ArgMatches) -> Result<(String, FmtSettings, SearchSe
 pub fn do_ls<W: Write>(w: &mut W,
                        cwd: &Path,
                        search: &str,
-                       artifacts: &Artifacts,
                        fmt_set: &FmtSettings,
                        search_set: &SearchSettings,
-                       settings: &Settings) -> i32 {
+                       project: &Project) -> i32 {
     let mut dne: Vec<ArtNameRc> = Vec::new();
     let mut names: Vec<ArtNameRc> = Vec::new();
+    let artifacts = &project.artifacts;
+    let mut settings = project.settings.clone();
     let mut fmt_set = (*fmt_set).clone();
-    let mut settings = (*settings).clone();
 
     // load settings from cmdline inputs
     settings.color = fmt_set.color;

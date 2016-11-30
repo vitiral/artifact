@@ -107,56 +107,51 @@ fn test_load_raw_impl() {
 
 #[test]
 fn test_load_toml() {
-    let mut artifacts = Artifacts::new();
-    let mut settings: Vec<(PathBuf, Settings)> = Vec::new();
-    let mut variables: Vec<(PathBuf, Variables)> = Vec::new();
+    let mut p = Project::new();
 
     let path = PathBuf::from("hi/there");
 
     // #TST-load-toml-invalid
-    assert!(load_toml(&path, TOML_BAD, &mut artifacts, &mut settings, &mut variables).is_err());
-    assert!(load_toml(&path, TOML_BAD_JSON, &mut artifacts, &mut settings, &mut variables).is_err());
-    assert!(load_toml(&path, TOML_BAD_ATTR1, &mut artifacts,
-                      &mut settings, &mut variables).is_err());
-    assert!(load_toml(&path, TOML_BAD_ATTR2, &mut artifacts,
-                      &mut settings, &mut variables).is_err());
-    assert!(load_toml(&path, TOML_BAD_NAMES1, &mut artifacts,
-                      &mut settings, &mut variables).is_err());
-    assert!(load_toml(&path, TOML_BAD_NAMES2, &mut artifacts,
-                      &mut settings, &mut variables).is_err());
+    assert!(load_toml(&path, TOML_BAD, &mut p).is_err());
+    assert!(load_toml(&path, TOML_BAD_JSON, &mut p).is_err());
+    assert!(load_toml(&path, TOML_BAD_ATTR1, &mut p).is_err());
+    assert!(load_toml(&path, TOML_BAD_ATTR2, &mut p).is_err());
+    assert!(load_toml(&path, TOML_BAD_NAMES1, &mut p).is_err());
+    assert!(load_toml(&path, TOML_BAD_NAMES2, &mut p).is_err());
 
     // #TST-disabled-1
-    assert_eq!(load_toml(&path, TOML_DISABLED, &mut artifacts,
-                         &mut settings, &mut variables).unwrap(), 0);
-    assert_eq!(artifacts.len(), 0);
-    assert_eq!(settings.len(), 0);
-    assert_eq!(variables.len(), 0);
+    assert_eq!(load_toml(&path, TOML_DISABLED, &mut p).unwrap(), 0);
+    assert_eq!(p.artifacts.len(), 0);
+    assert_eq!(p.settings_map.len(), 0);
+    assert_eq!(p.variables_map.len(), 0);
 
     // #TST-artifact-load: basic loading unit tests
-    let num = load_toml(&path, TOML_RST, &mut artifacts, &mut settings, &mut variables).unwrap();
+    let num = load_toml(&path, TOML_RST, &mut p).unwrap();
+
     let locs = HashMap::from_iter(
         vec![(ArtName::from_str("SPC-foo").unwrap(), Loc::fake()),
              (ArtName::from_str("SPC-bar").unwrap(), Loc::fake())]);
-    attach_locs(&mut artifacts, locs);
+    let dne_locs = attach_locs(&mut p.artifacts, locs);
     assert_eq!(num, 8);
-    assert!(artifacts.contains_key(&ArtName::from_str("REQ-foo").unwrap()));
-    assert!(artifacts.contains_key(&ArtName::from_str("SPC-foo").unwrap()));
-    assert!(artifacts.contains_key(&ArtName::from_str("RSK-foo").unwrap()));
-    assert!(artifacts.contains_key(&ArtName::from_str("TST-foo").unwrap()));
-    assert!(artifacts.contains_key(&ArtName::from_str("SPC-bar").unwrap()));
+    assert_eq!(dne_locs.len(), 0);
+    assert!(p.artifacts.contains_key(&ArtName::from_str("REQ-foo").unwrap()));
+    assert!(p.artifacts.contains_key(&ArtName::from_str("SPC-foo").unwrap()));
+    assert!(p.artifacts.contains_key(&ArtName::from_str("RSK-foo").unwrap()));
+    assert!(p.artifacts.contains_key(&ArtName::from_str("TST-foo").unwrap()));
+    assert!(p.artifacts.contains_key(&ArtName::from_str("SPC-bar").unwrap()));
 
     // will be loaded later
-    assert!(!artifacts.contains_key(&ArtName::from_str("REQ-baz").unwrap()));
-    assert!(!artifacts.contains_key(&ArtName::from_str("RSK-foo-2").unwrap()));
-    assert!(!artifacts.contains_key(&ArtName::from_str("TST-foo-2").unwrap()));
+    assert!(!p.artifacts.contains_key(&ArtName::from_str("REQ-baz").unwrap()));
+    assert!(!p.artifacts.contains_key(&ArtName::from_str("RSK-foo-2").unwrap()));
+    assert!(!p.artifacts.contains_key(&ArtName::from_str("TST-foo-2").unwrap()));
 
     {
         // #TST-artifact-attrs-defaults
         let rsk_foo = ArtName::from_str("RSK-foo").unwrap();
-        let art = artifacts.get(&rsk_foo).unwrap();
+        let art = p.artifacts.get(&rsk_foo).unwrap();
         assert_eq!(rsk_foo.ty, ArtType::RSK);
         assert_eq!(art.path, path);
-        assert_eq!(art.text, "");
+        assert_eq!(art.text.raw, "");
         let expected: ArtNames = HashSet::new();
         assert_eq!(art.partof, expected);
         assert_eq!(art.loc, None);
@@ -165,10 +160,10 @@ fn test_load_toml() {
 
         // test non-defaults
         let spc_bar = ArtName::from_str("SPC-bar").unwrap();
-        let art = artifacts.get(&spc_bar).unwrap();
+        let art = p.artifacts.get(&spc_bar).unwrap();
         assert_eq!(spc_bar.ty, ArtType::SPC);
         assert_eq!(art.path, path);
-        assert_eq!(art.text, "bar");
+        assert_eq!(art.text.raw, "bar");
 
         // #TST-artifact-partof-1: test loading of partof
         let expected = ["REQ-Foo", "REQ-Bar-1", "REQ-Bar-2"]
@@ -180,28 +175,29 @@ fn test_load_toml() {
         assert_eq!(art.tested, -1.0);
 
         // see TST-settings-load
-        let set = &settings.iter().next().unwrap().1;
+        let set = &p.settings_map.iter().next().unwrap().1;
         assert_eq!(set.paths, VecDeque::from_iter(vec![PathBuf::from("{cwd}/data/empty")]));
-
     }
 
     // must be loaded afterwards, uses already existing artifacts
-    assert!(load_toml(&path, TOML_OVERLAP, &mut artifacts, &mut settings, &mut variables).is_err());
+    assert!(load_toml(&path, TOML_OVERLAP, &mut p).is_err());
 
-    let num = load_toml(&path, TOML_RST2, &mut artifacts, &mut settings, &mut variables).unwrap();
+    let num = load_toml(&path, TOML_RST2, &mut p).unwrap();
     assert_eq!(num, 3);
-    assert!(artifacts.contains_key(&ArtName::from_str("REQ-baz").unwrap()));
-    assert!(artifacts.contains_key(&ArtName::from_str("RSK-foo-2").unwrap()));
-    assert!(artifacts.contains_key(&ArtName::from_str("TST-foo-2").unwrap()));
+    assert!(p.artifacts.contains_key(&ArtName::from_str("REQ-baz").unwrap()));
+    assert!(p.artifacts.contains_key(&ArtName::from_str("RSK-foo-2").unwrap()));
+    assert!(p.artifacts.contains_key(&ArtName::from_str("TST-foo-2").unwrap()));
 }
 
 /// do the raw load with variable resolultion
 pub fn load_raw_extra(path: &Path)
                       -> LoadResult<(Artifacts, Settings)> {
-    let (mut artifacts, settings, loaded_vars, mut repo_map) = try!(load_raw(path));
-    let mut variables = try!(vars::resolve_loaded_vars(loaded_vars, &mut repo_map));
-    try!(vars::fill_text_fields(&mut artifacts, &mut variables, &mut repo_map));
-    Ok((artifacts, settings))
+    let mut project = try!(load_raw(path));
+    let mut variables = try!(vars::resolve_loaded_vars(
+            &project.variables_map, &mut project.repo_map));
+    try!(vars::fill_text_fields(
+            &mut project.artifacts, &mut project.variables, &mut project.repo_map));
+    Ok((project.artifacts, project.settings))
 }
 
 #[test]
@@ -244,5 +240,5 @@ fn test_load_raw() {
     let lvl1_dir = TSIMPLE_DIR.join(PathBuf::from("lvl_1"));
     let lvl1_dir_str = lvl1_dir.as_path().to_str().unwrap().to_string();
 
-    assert_eq!(spc_lvl1.text, "level one does FOO");
+    assert_eq!(spc_lvl1.text.value, "level one does FOO");
 }

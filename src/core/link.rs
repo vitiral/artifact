@@ -54,7 +54,7 @@ pub fn create_parents(artifacts: &mut Artifacts) {
     for name in create_names.drain() {
         let art = Artifact {
             path: PARENT_PATH.clone(),
-            text: "AUTO".to_string(),
+            text: Text::new("AUTO"),
             partof: HashSet::new(),
             parts: HashSet::new(),
             loc: None,

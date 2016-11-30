@@ -196,7 +196,7 @@ impl Artifact {
 
         Ok(Artifact {
             path: path.to_path_buf(),
-            text: raw.text.unwrap_or_default(),
+            text: Text::new(&raw.text.unwrap_or_default()),
             partof: try!(ArtNames::from_str(
                 &raw.partof.unwrap_or_default())),
             loc: None,
@@ -212,9 +212,7 @@ impl Artifact {
 /// Load artifacts and settings from a toml Table
 pub fn load_file_table(file_table: &mut Table,
                        path: &Path,
-                       artifacts: &mut Artifacts,
-                       settings: &mut Vec<(PathBuf, Settings)>,
-                       variables: &mut Vec<(PathBuf, Variables)>)
+                       project: &mut Project)
                        -> LoadResult<u64> {
     let mut msg: Vec<u8> = Vec::new();
     let mut num_loaded: u64 = 0;
@@ -225,7 +223,7 @@ pub fn load_file_table(file_table: &mut Table,
             if lset.disabled {
                 return Ok(0);
             }
-            settings.push((path.to_path_buf(), lset));
+            project.settings_map.insert(path.to_path_buf(), lset);
         }
         None => {}
         _ => return Err(LoadError::new("settings must be a Table".to_string())),
@@ -233,21 +231,19 @@ pub fn load_file_table(file_table: &mut Table,
 
     match file_table.remove("globals") {
         Some(Value::Table(t)) => {
-            let mut lvars = Variables::new();
+            let mut variables = Variables::new();
             for (k, v) in t {
                 if vars::DEFAULT_GLOBALS.contains(k.as_str()) {
                     return Err(LoadError::new("cannot use variables: repo, cwd".to_string()));
                 }
-                lvars.insert(k.clone(),
-                             match v {
-                                 Value::String(s) => s.to_string(),
-                                 _ => {
-                                     return Err(LoadError::new(k.to_string() +
-                                                               " global var must be of type str"))
-                                 }
-                             });
+                let value = match v {
+                    Value::String(s) => s.to_string(),
+                    _ => return Err(LoadError::new(
+                        format!("{} global var must be of type str", k)))
+                };
+                variables.insert(k.clone(), value);
             }
-            variables.push((path.to_path_buf(), lvars));
+            project.variables_map.insert(path.to_path_buf(), variables);
         }
         None => {}
         _ => return Err(LoadError::new("globals must be a Table".to_string())),
@@ -264,7 +260,7 @@ pub fn load_file_table(file_table: &mut Table,
             }
         };
         // check for overlap
-        if let Some(overlap) = artifacts.get(&aname) {
+        if let Some(overlap) = project.artifacts.get(&aname) {
             write!(&mut msg,
                    "Overlapping key found <{}> other key at: {}",
                    name,
@@ -278,40 +274,32 @@ pub fn load_file_table(file_table: &mut Table,
             continue;
         }
         let artifact = try!(Artifact::from_table(&aname, path, art_tbl));
-        artifacts.insert(Rc::new(aname), artifact);
+        project.artifacts.insert(Rc::new(aname), artifact);
         num_loaded += 1;
     }
     Ok(num_loaded)
 }
 
 pub fn load_toml_simple(text: &str) -> Artifacts {
-    let mut artifacts = Artifacts::new();
-    let mut settings: Vec<(PathBuf, Settings)> = Vec::new();
-    let mut variables: Vec<(PathBuf, Variables)> = Vec::new();
+    let mut project = Project::new();
     let path = PathBuf::from("test");
-    load_toml(&path, text, &mut artifacts, &mut settings, &mut variables).unwrap();
-    artifacts
+    load_toml(&path, text, &mut project).unwrap();
+    project.artifacts
 }
 
 /// Given text load the artifacts
 pub fn load_toml(path: &Path,
                  text: &str,
-                 artifacts: &mut Artifacts,
-                 settings: &mut Vec<(PathBuf, Settings)>,
-                 variables: &mut Vec<(PathBuf, Variables)>)
+                 project: &mut Project)
                  -> LoadResult<u64> {
     // parse the text
     let mut table = try!(parse_toml(text));
-    load_file_table(&mut table, path, artifacts, settings, variables)
+    load_file_table(&mut table, path, project)
 }
 
 /// given a file path load the artifacts
 ///
-pub fn load_file(path: &Path,
-                 artifacts: &mut Artifacts,
-                 settings: &mut Vec<(PathBuf, Settings)>,
-                 variables: &mut Vec<(PathBuf, Variables)>)
-                 -> LoadResult<u64> {
+pub fn load_file(path: &Path, project: &mut Project) -> LoadResult<u64> {
     // let mut text: Vec<u8> = Vec::new();
 
     // read the text
@@ -322,7 +310,7 @@ pub fn load_file(path: &Path,
         write!(msg, "Error loading path {:?}: {}", path, err).unwrap();
         Err(LoadError::new(msg))
     }));
-    load_toml(path, &text, artifacts, settings, variables)
+    load_toml(path, &text, project)
 }
 
 /// recursively load a directory, ensuring that sub-directories don't get
@@ -335,9 +323,7 @@ pub fn load_file(path: &Path,
 /// partof: #SPC-load-dir
 pub fn load_dir(path: &Path,
                 loaded_dirs: &mut HashSet<PathBuf>,
-                artifacts: &mut Artifacts,
-                settings: &mut Vec<(PathBuf, Settings)>,
-                variables: &mut Vec<(PathBuf, Variables)>)
+                project: &mut Project)
                 -> LoadResult<u64> {
     loaded_dirs.insert(path.to_path_buf());
     // TDOO: if load_path.is_dir()
@@ -371,22 +357,23 @@ pub fn load_dir(path: &Path,
                 // only load toml files
                 continue;
             }
-            match load_file(fpath.as_path(), artifacts, settings, variables) {
+            match load_file(fpath.as_path(), project) {
                 Ok(n) => num_loaded += n,
                 Err(err) => {
                     error!("while loading from <{}>: {}", fpath.display(), err);
                     error = true;
                 }
             };
+            project.files.insert(fpath.to_path_buf());
         }
     }
-    // don't recurse if no .toml files are found
+    // only recurse if .toml files with data were found
     if num_loaded > 0 {
         for dir in dirs_to_load {
             if loaded_dirs.contains(dir.as_path()) {
                 continue;
             }
-            match load_dir(dir.as_path(), loaded_dirs, artifacts, settings, variables) {
+            match load_dir(dir.as_path(), loaded_dirs, project) {
                 Ok(n) => num_loaded += n,
                 Err(_) => error = true,
             }
@@ -402,14 +389,12 @@ pub fn load_dir(path: &Path,
 /// push settings found (`loaded_settings`) into a main settings object
 /// `repo_map` is a pre-compiled hashset mapping `dirs->repo_path` (for performance)
 /// partof: #SPC-settings-resolve
-pub fn resolve_settings(settings: &mut Settings,
-                        repo_map: &mut HashMap<PathBuf, PathBuf>,
-                        loaded_settings: &[(PathBuf, Settings)])
-                        -> LoadResult<()> {
+pub fn resolve_settings(project: &mut Project) 
+        -> LoadResult<()> {
     // now resolve all path names
     let mut vars: HashMap<String, String> = HashMap::new();
-    for ps in loaded_settings.iter() {
-        let settings_item: &Settings = &ps.1;
+    for ps in project.settings_map.iter() {
+        let file_settings: &Settings = &ps.1;
 
         let fpath = ps.0.clone();
         let cwd = fpath.parent().unwrap();
@@ -418,91 +403,98 @@ pub fn resolve_settings(settings: &mut Settings,
         // TODO: for full windows compatibility you will probably want to support OsStr
         // here... I just don't want to yet
         vars.insert("cwd".to_string(), cwd_str.to_string());
-        try!(utils::find_and_insert_repo(cwd, repo_map));
-        let repo = repo_map.get(cwd).unwrap();
+        try!(utils::find_and_insert_repo(cwd, &mut project.repo_map));
+        let repo = project.repo_map.get(cwd).unwrap();
         vars.insert("repo".to_string(),
                     try!(utils::get_path_str(repo.as_path())).to_string());
 
         // push resolved paths
-        for p in &settings_item.paths {
+        for p in &file_settings.paths {
             let p = try!(utils::do_strfmt(p.to_str().unwrap(), &vars, &fpath));
-            settings.paths.push_back(PathBuf::from(p));
+            project.settings.paths.push_back(PathBuf::from(p));
         }
 
         // TODO: it is possible to be able to use all global variables in code_paths
         //    but then it must be done in a separate step
         // push resolved code_paths
-        for p in &settings_item.code_paths {
+        for p in &file_settings.code_paths {
             let p = try!(utils::do_strfmt(p.to_str().unwrap(), &vars, &fpath));
-            settings.code_paths.push_back(PathBuf::from(p));
+            project.settings.code_paths.push_back(PathBuf::from(p));
         }
 
         // push resolved exclude_code_paths
-        for p in &settings_item.exclude_code_paths {
+        for p in &file_settings.exclude_code_paths {
             let p = try!(utils::do_strfmt(p.to_str().unwrap(), &vars, &fpath));
-            settings.exclude_code_paths.push_back(PathBuf::from(p));
+            project.settings.exclude_code_paths.push_back(PathBuf::from(p));
         }
     }
     Ok(())
 }
 
+fn extend_settings(
+        full: &mut HashMap<PathBuf, Settings>, 
+        dir: &HashMap<PathBuf, Settings>)
+        -> LoadResult<()> {
+    for (p, s) in dir.iter() {
+        if let Some(e) = full.insert(p.clone(), s.clone()) {
+            return Err(LoadError::new(format!(
+                "Internal Error: file loaded twice: {}", p.display())));
+        }
+    }
+    Ok(())
+}
+
+
 /// given a valid path, load all paths given by the settings recursively
 /// partof: #SPC-load-raw
 #[allow(type_complexity)]  // TODO: probably remove this
-pub fn load_raw(path: &Path)
-                -> LoadResult<(Artifacts,
-                               Settings,
-                               Vec<(PathBuf, Variables)>,
-                               HashMap<PathBuf, PathBuf>)> {
-    let mut artifacts = Artifacts::new();
-    let mut settings = Settings::new();
+pub fn load_raw(path: &Path) -> LoadResult<Project> {
+    let mut project = Project::new();
     let mut loaded_dirs: HashSet<PathBuf> = HashSet::new(); // see SPC-load-dir, RSK-2-load-loop
-    let mut loaded_settings: Vec<(PathBuf, Settings)> = Vec::new();
-    let mut loaded_vars: Vec<(PathBuf, Variables)> = Vec::new();
-    // repo_map maps directories to their found base-repositories
-    let mut repo_map: HashMap<PathBuf, PathBuf> = HashMap::new();
-    let mut msg = String::new();
+    let mut full_settings_map: HashMap<PathBuf, Settings> = HashMap::new();
 
     info!("Loading artifact files:");
     if path.is_file() {
-        try!(load_file(path, &mut artifacts, &mut loaded_settings, &mut loaded_vars));
-        try!(resolve_settings(&mut settings, &mut repo_map, &loaded_settings));
+        try!(load_file(path, &mut project));
+        extend_settings(&mut full_settings_map, &project.settings_map);
+        try!(resolve_settings(&mut project));
+        project.files.insert(path.to_path_buf());
     } else if path.is_dir() {
-        settings.paths.push_back(path.to_path_buf());
+        project.settings.paths.push_back(path.to_path_buf());
     } else {
         return Err(LoadError::new("File is not valid type: ".to_string() +
                                   path.to_string_lossy().as_ref()));
     }
 
-    while !settings.paths.is_empty() {
-        let dir = settings.paths.pop_front().unwrap(); // it has len, it better pop!
+    while !project.settings.paths.is_empty() {
+        let dir = project.settings.paths.pop_front().unwrap(); // it has len, it better pop!
         if loaded_dirs.contains(&dir) {
             continue;
         }
         debug!("Loading artifacts: {:?}", dir);
-        loaded_settings.clear();
+        // we only need to resolve settings one dir at a time
+        project.settings_map.clear();
         loaded_dirs.insert(dir.to_path_buf());
-        match load_dir(dir.as_path(),
-                       &mut loaded_dirs,
-                       &mut artifacts,
-                       &mut loaded_settings,
-                       &mut loaded_vars) {
+        match load_dir(dir.as_path(), &mut loaded_dirs, &mut project) {
             Ok(n) => n,
             Err(err) => {
-                write!(msg,
-                       "Error loading <{}>: {}",
-                       dir.to_string_lossy().as_ref(),
-                       err)
-                    .unwrap();
-                return Err(LoadError::new(msg));
+                return Err(LoadError::new(format!(
+                   "Error loading <{}>: {}",
+                   dir.to_string_lossy().as_ref(),
+                   err)))
+
             }
         };
 
         // resolve the project-level settings after each directory is recursively loaded
         // so that we can find new artifact_paths
         // see: SPC-settings-resolve
-        try!(resolve_settings(&mut settings, &mut repo_map, &loaded_settings));
+        try!(extend_settings(&mut full_settings_map, &project.settings_map));
+        try!(resolve_settings(&mut project));
     }
 
-    Ok((artifacts, settings, loaded_vars, repo_map))
+    project.variables = try!(vars::resolve_loaded_vars(
+        &project.variables_map, &mut project.repo_map));
+    project.settings_map = full_settings_map;
+    Ok(project)
 }

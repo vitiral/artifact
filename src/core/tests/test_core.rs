@@ -26,7 +26,9 @@ fn test_load_path() {
     assert!(load_path(TINVALID_DIR.join(&PathBuf::from("attr")).as_path()).is_err());
     assert!(load_path(TINVALID_DIR.join(&PathBuf::from("same_names")).as_path()).is_err());
 
-    let (artifacts, settings, dne_locs) = load_path(TSIMPLE_DIR.as_path()).unwrap();
+    // TODO: make assertions regarding files
+    let p = load_path(TSIMPLE_DIR.as_path()).unwrap();
+    let (artifacts, dne_locs) = (p.artifacts, p.dne_locs);
     assert!(artifacts.contains_key(&ArtName::from_str("REQ-purpose").unwrap()));
 
     let req_purpose = artifacts.get(&ArtName::from_str("REQ-purpose").unwrap()).unwrap();
@@ -53,7 +55,7 @@ fn test_load_path() {
     let lvl1_dir = TSIMPLE_DIR.join(PathBuf::from("lvl_1"));
     let lvl1_dir_str = lvl1_dir.as_path().to_str().unwrap().to_string();
 
-    assert_eq!(spc_lvl1.text, "level one does FOO");
+    assert_eq!(spc_lvl1.text.value, "level one does FOO");
     assert_eq!(spc_lvl1.loc.as_ref().unwrap().path, src_dir.join(PathBuf::from("lvl_1.rs")));
 
     debug!("checking loc");

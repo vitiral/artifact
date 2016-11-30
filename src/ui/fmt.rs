@@ -48,11 +48,11 @@ pub fn fmt_artifact(name: &ArtNameRc, artifacts: &Artifacts, fmtset: &FmtSetting
     }
     if fmtset.text {
         if fmtset.long {
-            out.text = Some(artifact.text.clone());
+            out.text = Some(artifact.text.value.clone());
         } else {
             // return only the first "line" according to markdown
             let mut s = String::new();
-            for l in artifact.text.lines() {
+            for l in artifact.text.value.lines() {
                 let l = l.trim();
                 if l == "" {
                     break;

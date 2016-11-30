@@ -14,8 +14,8 @@
     You should have received a copy of the Lesser GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-use std::path::Path;
-use std::collections::HashMap;
+use std::path::{Path, PathBuf};
+use std::collections::{HashMap, HashSet};
 
 use time;
 
@@ -45,6 +45,7 @@ mod tests;
 pub use core::utils::find_repo;
 pub use core::types::{
     LoadResult, LoadError,
+    Project,
     Artifact, Artifacts,
     ArtType, Loc,
     ArtName, ArtNameRc, ArtNames,
@@ -62,26 +63,27 @@ pub fn init_logger_test() {
     }
 }
 
-
 /// Load all items from the toml file at path
-pub fn load_path(path: &Path) -> LoadResult<(Artifacts, Settings, HashMap<ArtName, Loc>)>{
+pub fn load_path(path: &Path) 
+        -> LoadResult<Project>{
     let start = time::get_time();
     info!("loading path: {}", path.to_string_lossy().as_ref());
-    let (mut artifacts, mut settings, loaded_vars, mut repo_map) = try!(load::load_raw(path));
+    let mut project = try!(load::load_raw(path));
 
     info!("resolving and filling variables");
-    let mut variables = try!(vars::resolve_loaded_vars(loaded_vars, &mut repo_map));
-    try!(vars::fill_text_fields(&mut artifacts, &mut variables, &mut repo_map));
+    try!(vars::fill_text_fields(
+        &mut project.artifacts, &mut project.variables, 
+        &mut project.repo_map));
 
     info!("finding and attaching locations");
-    let locs = try!(locs::find_locs(&mut settings));
-    let dne_locs = locs::attach_locs(&mut artifacts, locs);
+    let locs = try!(locs::find_locs(&mut project.settings));
+    project.dne_locs = locs::attach_locs(&mut project.artifacts, locs);
 
     // do all links
-    try!(link::do_links(&mut artifacts));
+    try!(link::do_links(&mut project.artifacts));
     let total = time::get_time() - start;
     info!("Done loading: {} artifacts loaded successfullly in {:.3} seconds",
-          artifacts.len(), total.num_milliseconds() as f64 * 1e-3);
-    Ok((artifacts, settings, dne_locs))
+          project.artifacts.len(), total.num_milliseconds() as f64 * 1e-3);
+    Ok(project)
 }
 

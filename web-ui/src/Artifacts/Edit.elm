@@ -39,14 +39,13 @@ formColumnOne model artifact =
     , View.defined model artifact
     , View.implemented model artifact
     , div [ class "clearfix py1" ] 
-      [
-      div [ class "col col-6" ] 
-        [ h3 [] [ text "Parts" ]
-        , View.parts model artifact
-        ]
-      , div [ class "col col-6" ] 
+      [ div [ class "col col-6" ] 
         [ h3 [] [ text "Partof" ]
         , View.partof model artifact
+        ]
+      , div [ class "col col-6" ] 
+        [ h3 [] [ text "Parts" ]
+        , View.parts model artifact
         ]
       ]
     ]
@@ -58,7 +57,7 @@ formColumnTwo model artifact =
     , textarea 
       [ class "h3" -- class=h3 otherwise it is really tiny for some reason
       , rows 35, cols 80, readonly model.settings.readonly ] 
-      [ text artifact.text ]
+      [ text artifact.text.value ]
     ]
 
 

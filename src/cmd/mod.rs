@@ -126,26 +126,26 @@ pub fn cmd<W, I, T>(w: &mut W, args: I) -> i32
     let cfg = repo.join(".rst");
     debug!("using cfg dir {:?}", cfg);
 
-    let (artifacts, settings, dne_locs) = match core::load_path(cfg.as_path()) {
-        Ok(v) => v,
+    let project = match core::load_path(cfg.as_path()) {
+        Ok(p) => p,
         Err(err) => {
             error!("{}", err);
             return 1;
         }
     };
 
-    debug!("settings={:?}", settings);
+    debug!("settings={:?}", project.settings);
 
     if let Some(ls) = matches.subcommand_matches("ls") {
         info!("Calling the ls command");
         let (search, fmtset, search_set) = ls::get_ls_cmd(ls).unwrap();
-        ls::do_ls(w, &cwd, &search, &artifacts, &fmtset, &search_set, &settings)
+        ls::do_ls(w, &cwd, &search, &fmtset, &search_set, &project)
     } else if matches.subcommand_matches("check").is_some() {
         info!("Calling the check command");
-        check::do_check(w, &cwd, &artifacts, &dne_locs, &settings)
+        check::do_check(w, &cwd, &project)
     } else if let Some(mat) = matches.subcommand_matches("server") {
         let addr = server::get_cmd(mat);
-        server::run_server(&artifacts, &addr);
+        server::run_server(&project, &addr);
         0
     } else {
         write!(w, "{} {}: use -h to show help",

@@ -164,10 +164,14 @@ partof = 'REQ-dne'
 
     let dne_locs: HashMap<_, _> = HashMap::from_iter(vec![(ArtName::from_str("SPC-dne").unwrap(),
                                                            Loc::fake())]);
+    let mut project = Project::new();
+    project.artifacts = artifacts;
+    project.settings = settings;
+    project.dne_locs = dne_locs;
 
     // #TST-check
     w.clear();
-    check::do_check(&mut w, &cwd, &artifacts, &dne_locs, &settings);
+    check::do_check(&mut w, &cwd, &project);
     debug_bytes(&w, LS_SPC_DNE);
     assert_eq!(vb(LS_SPC_DNE), w);
 
@@ -177,10 +181,9 @@ partof = 'REQ-dne'
     ls::do_ls(&mut w,
               &cwd,
               "req-foo",
-              &artifacts,
               &fmt_set,
               &search_set,
-              &settings);
+              &project);
     debug_bytes(&w, LS_REQ_FOO);
     assert_eq!(vb(LS_REQ_FOO), w);
 
@@ -190,10 +193,9 @@ partof = 'REQ-dne'
     ls::do_ls(&mut w,
               &cwd,
               "req-foo",
-              &artifacts,
               &fmt_set,
               &search_set,
-              &settings);
+              &project);
     //debug_bytes(&w, expected);
     assert_eq!(vb(LS_REQ_FOO_NO_COL), w);
 
@@ -211,10 +213,9 @@ partof = 'REQ-dne'
     ls::do_ls(&mut w,
               &cwd,
               "s.c.*foo",
-              &artifacts,
               &fmt_set,
               &search_set,
-              &settings);
+              &project);
     debug_bytes(&w, LS_S_C_STAR_FOO);
     assert_eq!(vb(LS_S_C_STAR_FOO), w);
 }

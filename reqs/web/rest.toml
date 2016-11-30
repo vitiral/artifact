@@ -14,115 +14,115 @@ It shall have the following endpoints:
 '''
 
 
-#[SPC-web-api]
-#text = '''
-#The `artifacts` endpoint shall have the following API.
+[SPC-web-api]
+text = '''
+The `artifacts` endpoint shall have the following API.
 
-#Note: 
-#- The -32600 (Invalid Request) error will be returned
-#    if the data types do not match for any request
-#- All other errors are -32602 (Invalid params)
-#- The `message` for Invalid Request errors is always "xParamError",
-#    the `data` contains the details:
-#```
-#{"xErrorMsg1": [InvalidValues1], "xErrorMsg2": [InvalidValues2]"
-#```
+Note: 
+- The -32600 (Invalid Request) error will be returned
+    if the data types do not match for any request
+- All other errors are -32602 (Invalid params)
+- The `message` for Invalid Request errors is always "xParamError",
+    the `data` contains the details:
+```
+{{"xErrorMsg1": [InvalidValues1], "xErrorMsg2": [InvalidValues2]"}}
+```
 
-## GetArtifacts
-#params:
-#- ids: list[int]: ids to get
-#- names: list[string]: names to get
-#- filterIds: list[int]: return all artifacts except for ones with
-#    ids in this set
-#- getAllIds: bool: if True, includes a list of all valid
-#    ids in the response
-#- NONE: if none of the above are given, all artifacts are returned
-#    (but not all ids)
+# GetArtifacts
+params:
+- ids: list[int]: ids to get
+- names: list[string]: names to get
+- filterIds: list[int]: return all artifacts except for ones with
+    ids in this set
+- getAllIds: bool: if True, includes a list of all valid
+    ids in the response
+- NONE: if none of the above are given, all artifacts are returned
+    (but not all ids)
 
-#result:
-#- artifacts list[Artifact]: List containing requested artifacts
-#- ids: list[int]: this contains all artifact ids if 
-#    getAllIds==true, else null
+result:
+- artifacts list[Artifact]: List containing requested artifacts
+- ids: list[int]: this contains all artifact ids if 
+    getAllIds==true, else null
     
-#error:
-#- xIdsNotFound error if any ids don't exist
-#- xNameNotFound error if any names don't exist
+error:
+- xIdsNotFound error if any ids don't exist
+- xNameNotFound error if any names don't exist
 
-#Notes:
-#`filterIds` is used to retrieve new artifacts every time an
-#artifact is modified. It allows the frontend to only request
-#the information it needs.
+Notes:
+`filterIds` is used to retrieve new artifacts every time an
+artifact is modified. It allows the frontend to only request
+the information it needs.
 
-#All artifacts are guaranteed to have a unique id, but their
-#id changes whenever they are modified.
+All artifacts are guaranteed to have a unique id, but their
+id changes whenever they are modified.
 
-#`getAllIds` is used for the frontend to validate that it has
-#the correct artifacts.
-
-
-## UpdateArtifacts
-#params:
-#- artifacts: list[Artifact]: artifact objects with updated data
-
-#result:
-#- True on success
-
-#error:
-#- xIdsNotFound error if any ids don't exist (anymore)
-#- xFilesNotFound error if an artifact contains a 
-#    non-existant file
-#- xInvalidName for invalid artifact name
-#- xInvalidPartof for invalid partof name
-
-#Notes:
-#whenever an artifact is changed on the backend, it's id is bumped.
-
-## CreateArtifacts
-#params:
-#- artifacts: list[Artifact]: new artifact objects that have their
-#    id set to 0
-
-#result:
-#- True on success
-
-#error:
-#- xInvalidIds error if the id value != 0
-#    on any Artifact
-#- xNameExists error if any of the artifact
-#    names already exist
-#- xInvalidName for invalid artifact name
-#- xInvalidPartof for invalid partof name
+`getAllIds` is used for the frontend to validate that it has
+the correct artifacts.
 
 
-## DeleteArtifacts
-#params:
-#- ids: list[int]: list of artifact ids to delete
+# UpdateArtifacts
+params:
+- artifacts: list[Artifact]: artifact objects with updated data
 
-#result:
-#- True on sucess
+result:
+- True on success
 
-#error:
-#- xIdsNotFound error if any ids don't exist
+error:
+- xIdsNotFound error if any ids don't exist (anymore)
+- xFilesNotFound error if an artifact contains a 
+    non-existant file
+- xInvalidName for invalid artifact name
+- xInvalidPartof for invalid partof name
+
+Notes:
+whenever an artifact is changed on the backend, it's id is bumped.
+
+# CreateArtifacts
+params:
+- artifacts: list[Artifact]: new artifact objects that have their
+    id set to 0
+
+result:
+- True on success
+
+error:
+- xInvalidIds error if the id value != 0
+    on any Artifact
+- xNameExists error if any of the artifact
+    names already exist
+- xInvalidName for invalid artifact name
+- xInvalidPartof for invalid partof name
 
 
-## CreateFiles
-#params:
-#- paths: list[string]: relative paths to create
+# DeleteArtifacts
+params:
+- ids: list[int]: list of artifact ids to delete
 
-#error:
-#- xFolderNotFound if any folders in the path don't exist
-#- xPathExists if the path is used
-#- xInvalidExt if the file doesn't end in `.toml`
+result:
+- True on sucess
+
+error:
+- xIdsNotFound error if any ids don't exist
 
 
-## CreateFolders
-#params:
-#- paths: list[string]: relative paths to create folders
+# CreateFiles
+params:
+- paths: list[string]: relative paths to create
 
-#error:
-#- xFolderNotFound if any folders don't exist
-#- xPathExists if the path is used
-#- xPathOutOfBounds if the path would not be found
-#    within the `artifact_paths` variable
+error:
+- xFolderNotFound if any folders in the path don't exist
+- xPathExists if the path is used
+- xInvalidExt if the file doesn't end in `.toml`
 
-#'''
+
+# CreateFolders
+params:
+- paths: list[string]: relative paths to create folders
+
+error:
+- xFolderNotFound if any folders don't exist
+- xPathExists if the path is used
+- xPathOutOfBounds if the path would not be found
+    within the `artifact_paths` variable
+
+'''

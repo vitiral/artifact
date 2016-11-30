@@ -1,9 +1,5 @@
 module Update exposing (..)
 
-import Http
-import Navigation
-
-
 import Messages exposing (AppMsg(..), formatHttpError)
 import Models exposing (Model, appendError)
 import Artifacts.Update

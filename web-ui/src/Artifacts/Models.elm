@@ -14,12 +14,17 @@ type alias Loc =
   , col : Int
   }
 
+type alias Text =
+  { raw: String
+  , value: String
+  }
+
 type alias Artifact =
   { id : ArtifactId
   , name : String
   , raw_name : String
   , path : String
-  , text : String
+  , text : Text
   , partof : List String
   , parts : List String
   , loc : Maybe Loc

@@ -87,7 +87,7 @@ pub fn show_artifact(name: &ArtName,
              None => false,
              Some(l) => pat_case.is_match(l.path.to_string_lossy().as_ref()),
            })
-        || (ss.text && pat_case.is_match(&art.text))
+        || (ss.text && pat_case.is_match(&art.text.value))
     }
 }
 

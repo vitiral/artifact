@@ -37,6 +37,7 @@ pub use clap::{Arg, App, SubCommand, ArgMatches, AppSettings as AS, Result as Cl
 pub use super::super::core;
 pub use super::super::core::utils;
 pub use super::super::core::{
+    Project,
     Settings, Artifact, Artifacts,
     ArtType, Loc,
     ArtName, ArtNameRc, ArtNames,

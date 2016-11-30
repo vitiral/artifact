@@ -23,13 +23,11 @@ pub fn get_cmd(matches: &ArgMatches) -> String {
 }
 
 #[cfg(feature = "web")]
-pub fn run_server(artifacts: &Artifacts, addr: &str) {
-    let data: Vec<ArtifactData> = artifacts
-        .iter().map(|(name, model)| model.to_data(name)).collect();
-    api::start_api(data, addr);
+pub fn run_server(project: &Project, addr: &str) {
+    api::start_api(project, addr);
 }
 
 #[cfg(not(feature = "web"))]
-pub fn run_server(artifacts: &Artifacts, addr: &str) {
+pub fn run_server(project: &Project, addr: &str) {
     println!("this instance of rst was not compiled with the server enabled");
 }

@@ -8,18 +8,19 @@ use super::super::link::*;
 
 #[test]
 fn test_basic_link() {
-    let mut artifacts = Artifacts::new();
-    let mut settings: Vec<(PathBuf, Settings)> = Vec::new();
-    let mut variables: Vec<(PathBuf, Variables)> = Vec::new();
+    let mut project = Project::new();
     let path = PathBuf::from("hi/there");
     let req_name = Rc::new(ArtNameRc::from_str("REQ-1").unwrap().parent().unwrap());
 
     // get te artifacts
-    let num = load_toml(&path, TOML_RST, &mut artifacts, &mut settings, &mut variables).unwrap();
+    let num = load_toml(&path, TOML_RST, &mut project).unwrap();
+
+    let mut artifacts = project.artifacts;
     for sname in &["REQ-foo", "SPC-foo", "TST-foo", "SPC-bar"] {
         let art = artifacts.get_mut(&ArtNameRc::from_str(sname).unwrap()).unwrap();
         art.loc = Some(Loc{path: path.clone(), line_col: (1, 2)});
     }
+
 
     link_named_partofs(&mut artifacts);
 
@@ -80,13 +81,12 @@ fn test_basic_link() {
 
 #[test]
 fn test_link_completed_tested() {
-    let mut artifacts = Artifacts::new();
-    let mut settings: Vec<(PathBuf, Settings)> = Vec::new();
-    let mut variables: Vec<(PathBuf, Variables)> = Vec::new();
+    let mut project = Project::new();
     let path = PathBuf::from("hi/there");
     let req_name = Rc::new(ArtNameRc::from_str("REQ-1").unwrap().parent().unwrap());
 
-    let num = load_toml(&path, TOML_LINK, &mut artifacts, &mut settings, &mut variables).unwrap();
+    let num = load_toml(&path, TOML_LINK, &mut project).unwrap();
+    let mut artifacts = project.artifacts;
     for sname in &["SPC-core-bob-1", "TST-core-bob-1-a", "TST-core-bob-1-b-2",
                    "SPC-core-bob-2-b", "TST-core-bob-2-a"] {
         let art = artifacts.get_mut(&ArtNameRc::from_str(sname).unwrap()).unwrap();

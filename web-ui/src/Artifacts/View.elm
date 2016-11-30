@@ -7,7 +7,6 @@ import String
 import Html exposing (..)
 import Html.Attributes exposing (class, href, title)
 import Html.Events exposing (onClick)
-import Navigation
 
 import Messages exposing (AppMsg(..), Route(..))
 import Models exposing (Model)
@@ -77,8 +76,8 @@ textPiece : Model -> Artifact -> Html AppMsg
 textPiece model artifact =
   let
     ro = model.settings.readonly
-    text_part = String.left 200 artifact.text
-    t = if (String.length artifact.text) > 200 then
+    text_part = String.left 200 artifact.text.value
+    t = if (String.length artifact.text.value) > 200 then
       text_part ++ " ..."
     else
       text_part

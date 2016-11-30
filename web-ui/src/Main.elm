@@ -26,6 +26,7 @@ subscriptions model =
 
 -- MAIN
 
+main : Program Flags Model AppMsg
 main =
     Navigation.programWithFlags Routing.routerMsg
       { init = init

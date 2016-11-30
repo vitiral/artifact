@@ -140,8 +140,8 @@ pub fn fill_text_fields(artifacts: &mut Artifacts,
                             .to_str().expect("utf-path").to_string());
 
         // evaluate text
-        match strfmt::strfmt(art.text.as_str(), variables) {
-            Ok(t) => art.text = t,
+        match strfmt::strfmt(art.text.value.as_str(), variables) {
+            Ok(t) => art.text.value = t,
             Err(err) => errors.push(("text field", err)),
         };
         if !errors.is_empty() {
@@ -160,12 +160,12 @@ pub fn fill_text_fields(artifacts: &mut Artifacts,
 /// resolve raw loaded variables, replacing default and user-defined globals
 /// recursively
 /// partof: #SPC-vars
-pub fn resolve_loaded_vars(mut loaded_vars: Vec<(PathBuf, Variables)>,
+pub fn resolve_loaded_vars(variables_map: &HashMap<PathBuf, Variables>,
                            repo_map: &mut HashMap<PathBuf, PathBuf>)
                            -> LoadResult<Variables> {
     let mut variables = Variables::new();
     debug!("Resolving default globals in variables, see SPC-vars.1");
-    for pv in loaded_vars.drain(0..) {
+    for pv in variables_map.iter() {
         let p = pv.0;
         let v = pv.1;
         try!(resolve_default_vars(&v, p.as_path(), &mut variables, repo_map));

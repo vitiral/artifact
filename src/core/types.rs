@@ -46,7 +46,7 @@ use std::sync::atomic::{AtomicUsize, Ordering as AtomicOrdering};
 lazy_static!{    
     pub static ref INCREMENTING_ID: AtomicUsize = AtomicUsize::new(0);
 }
-use super::{ArtifactData, LocData};
+pub use super::{ArtifactData, LocData, Text};
 
 // definition of new types
 pub type LoadResult<T> = Result<T, LoadError>;
@@ -62,6 +62,43 @@ lazy_static!{
     pub static ref ART_VALID: Regex = Regex::new(
         r"(REQ|SPC|RSK|TST)(-[A-Z0-9_-]*[A-Z0-9_])?\z").unwrap();
     pub static ref PARENT_PATH: PathBuf = PathBuf::from("PARENT");
+}
+
+/// used for artifact ids
+fn get_unique_id() -> usize {
+    INCREMENTING_ID.fetch_add(1, AtomicOrdering::SeqCst)
+}
+
+/// represents the results and all the data necessary 
+/// to reconstruct a loaded project
+pub struct Project {
+    pub artifacts: Artifacts,
+    pub settings: Settings,
+    pub variables: Variables,
+    pub files: HashSet<PathBuf>,
+    pub dne_locs: HashMap<ArtName, Loc>,
+
+    // preserved locations where each piece is from
+    // note: artifacts have path member
+    pub settings_map: HashMap<PathBuf, Settings>,
+    pub variables_map: HashMap<PathBuf, Variables>,
+    pub repo_map: HashMap<PathBuf, PathBuf>,
+}
+
+impl Project {
+    pub fn new() -> Project {
+        Project {
+            artifacts: Artifacts::new(),
+            settings: Settings::new(),
+            variables: Variables::new(),
+            files: HashSet::new(),
+            dne_locs: HashMap::new(),
+
+            settings_map: HashMap::new(),
+            variables_map: HashMap::new(),
+            repo_map: HashMap::new(),
+        }
+    }
 }
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
@@ -322,9 +359,17 @@ impl LoadFromStr for ArtNames {
         }
         Ok(out)
     }
+
 }
 
-
+impl Text {
+    pub fn new(raw: &str) -> Text {
+        Text {
+            raw: raw.to_string(),
+            value: raw.to_string(),
+        }
+    }
+}
 
 /// The Artifact type. This encapsulates
 /// REQ, SPC, RSK, and TST artifacts and
@@ -333,7 +378,7 @@ impl LoadFromStr for ArtNames {
 pub struct Artifact {
     // directly loaded types
     pub path: PathBuf,
-    pub text: String,
+    pub text: Text,
     pub partof: ArtNames,
     pub parts: ArtNames,
     pub loc: Option<Loc>,
@@ -348,7 +393,7 @@ impl Artifact {
 
     pub fn to_data(&self, name: &ArtNameRc) -> ArtifactData {
         ArtifactData {
-            id: INCREMENTING_ID.fetch_add(1, AtomicOrdering::SeqCst) as u64,
+            id: get_unique_id() as u64,
             name: name.raw.clone(),
             path: self.path.to_string_lossy().to_string(),
             text: self.text.clone(),
@@ -361,7 +406,26 @@ impl Artifact {
             tested: self.tested,
         }
     }
+
+    pub fn from_data(data: &ArtifactData) -> LoadResult<(ArtNameRc, Artifact)> {
+        let name = try!(ArtNameRc::from_str(&data.name));
+        let mut partof: HashSet<ArtNameRc> = HashSet::new();
+        for p in &data.partof {
+            let pname = try!(ArtNameRc::from_str(p));
+            partof.insert(pname);
+        }
+        Ok((name, Artifact {
+            path: PathBuf::from(&data.path),
+            text: data.text.clone(),
+            partof: partof,
+            loc: None,
+            parts: HashSet::new(),
+            completed: -1.0,
+            tested: -1.0,
+        }))
+    }
 }
+
 
 #[derive(Debug, Default, Clone)]
 pub struct Settings {
