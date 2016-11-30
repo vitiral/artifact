@@ -19,7 +19,7 @@ fn init_rpc_handler() -> IoHandler {
 struct GetArtifacts;
 impl SyncMethodCommand for GetArtifacts {
     fn execute(&self, _: Params) -> Result<Value, Error> {
-        println!("* GetArtifacts");
+        info!("GetArtifacts called");
         let locked = ARTIFACTS.lock().unwrap();
         let artifacts: &Vec<ArtifactData> = locked.as_ref();
         let value = serde_json::to_value(artifacts);

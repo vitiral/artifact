@@ -26,7 +26,7 @@ use core::{ArtifactData, LocData};
 
 mod handler;
 
-const WEB_FRONTEND_TAR: &'static [u8] = include_bytes!("../../target/web-ui.tar");
+const WEB_FRONTEND_TAR: &'static [u8] = include_bytes!("web-ui.tar");
 
 lazy_static! {
     //#[derive(RustcDecodable, RustcEncodable, Serialize, Deserialize, Debug)]
@@ -75,7 +75,7 @@ fn handle_artifacts<'a> (req: &mut Request, mut res: Response<'a>)
         -> MiddlewareResult<'a> 
 {
     setup_headers(&mut res);
-    println!("* handle json-rpc request");
+    debug!("handling json-rpc request");
 
     let mut body = vec![];
     req.origin.read_to_end(&mut body).unwrap();
@@ -87,16 +87,16 @@ fn handle_artifacts<'a> (req: &mut Request, mut res: Response<'a>)
         },
     };
 
-    println!("- request: {:?}", body);
+    trace!("request: {:?}", body);
     match handler::RPC_HANDLER.handle_request_sync(body) {
         Some(body) => {
-            println!("- response {}", body);
+            trace!("- response {}", body);
             config_json_res(&mut res);
             res.send(body)
         },
         None => {
             let msg = "InternalServerError: Got None from json-rpc handler";
-            println!("{}", msg);
+            error!("{}", msg);
             res.set(StatusCode::InternalServerError);
             res.send(msg)
         }

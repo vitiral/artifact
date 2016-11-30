@@ -24,7 +24,7 @@ check:
 
 build-web:
 	(cd web-ui; npm run build)
-	(cd web-ui/dist; tar -cvf ../../target/web-ui.tar *)
+	(cd web-ui/dist; tar -cvf ../../src/api/web-ui.tar *)
 
 check-all: clippy test check
 	echo "checked all"
