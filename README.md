@@ -57,12 +57,13 @@ that needs to be changed if it improves usability.
 rst is compiled for linux, mac and windows. You can find releases on the
 **[github release page](https://github.com/vitiral/rst/releases)**.
 
-For Linux and Mac simply download and unpack the tarball to somewhere in your
-[PATH](http://www.troubleshooters.com/linux/prepostpath.htm) with `tar -zxvf RELEASE.tar.gz`
+For Linux and Mac simply download and unpack the tarball with
+`tar -zxvf RELEASE.tar.gz`. Then put it somewhere in your
+[PATH](http://unix.stackexchange.com/questions/26047/how-to-correctly-add-a-path-to-path)
 
-For Windows, simply download the exe and run it.
-
-After installing, you should be able to run `rst -h` from the sh or cmd window
+For Windows, simply download the zip, unzip it and run `./rst.exe` via git-bash
+or some other linux emulator. It seems that the \*windows-gnu.zip works the best
+for windows10.
 
 ## Installing with [cargo](https://github.com/rust-lang/cargo)
 
