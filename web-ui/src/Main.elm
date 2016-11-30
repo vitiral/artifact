@@ -9,11 +9,16 @@ import Update exposing (update)
 import Routing
 import Artifacts.Commands exposing (fetchAll)
 
-init : Navigation.Location -> (Model, Cmd AppMsg)
-init location =
-    (initialModel (Routing.router location)
-    , fetchAll )
+type alias Flags =
+  { addr: String
+  }
 
+init : Flags -> Navigation.Location -> (Model, Cmd AppMsg)
+init flags location =
+    let
+      model = initialModel flags.addr <| Routing.router location
+    in
+      ( model, fetchAll model )
 
 subscriptions : Model -> Sub AppMsg
 subscriptions model =
@@ -22,7 +27,7 @@ subscriptions model =
 -- MAIN
 
 main =
-    Navigation.program Routing.routerMsg
+    Navigation.programWithFlags Routing.routerMsg
       { init = init
       , view = view
       , update = update

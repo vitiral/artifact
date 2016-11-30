@@ -1,5 +1,7 @@
+use std::fs;
+use std::path;
 use std::ascii::AsciiExt;
-use std::io::Read;
+use std::io::{Read, Write, Seek, SeekFrom};
 use std::str;
 use std::sync::Mutex;
 
@@ -101,6 +103,26 @@ fn handle_artifacts<'a> (req: &mut Request, mut res: Response<'a>)
     }
 }
 
+fn unpack_app(dir: &path::Path, addr: &str) {
+    info!("unpacking web-ui at: {}", dir.display());
+    let mut archive = Archive::new(WEB_FRONTEND_TAR);
+    archive.unpack(&dir).expect("unable to unpack web frontend");
+
+    // replace the default ip address with the real one
+    let app_js_path = dir.join("app.js");
+    let mut app_js = fs::OpenOptions::new()
+        .read(true)
+        .write(true)
+        .open(app_js_path).expect("couldn't open app.js");
+    let mut text = String::new();
+    app_js.read_to_string(&mut text).expect("app.js couldn't be read");
+    app_js.seek(SeekFrom::Start(0)).unwrap();    
+    app_js.set_len(0).unwrap(); // delete what is there
+    // the elm app uses a certain address by default, replace it
+    //app_js.write_all(text.replace("http://localhost:3733", addr).as_bytes()).unwrap();
+    app_js.write_all(text.replace("localhost:3733", addr).as_bytes()).unwrap();
+    app_js.flush().unwrap();
+}
 
 pub fn start_api(artifacts: Vec<ArtifactData>, addr: &str) {
     {
@@ -110,11 +132,13 @@ pub fn start_api(artifacts: Vec<ArtifactData>, addr: &str) {
         global.sort_by(|a, b| compare_by(a).cmp(&compare_by(b)));
         *global = artifacts;
     }
-    let tmp_dir = TempDir::new("rst-web-ui").expect("unable to create temporary directory");
-    info!("unpacking web-ui at: {}", tmp_dir.path().display());
-    //let web_ui_tar = temp_dir.path().join("web-ui.tar");
-    let mut archive = Archive::new(WEB_FRONTEND_TAR);
-    archive.unpack(&tmp_dir).expect("unable to unpack web frontend");
+    // it is important that tmp_dir never goes out of scope
+    // or the webapp will be deleted!
+    let tmp_dir = TempDir::new("rst-web-ui")
+        .expect("unable to create temporary directory");
+    let app_dir = tmp_dir.path();
+    debug!("unpacking webapp in {}", app_dir.display());
+    unpack_app(app_dir, addr);
 
     let endpoint = "/json-rpc";
     let mut server = Nickel::new();
@@ -130,5 +154,5 @@ pub fn start_api(artifacts: Vec<ArtifactData>, addr: &str) {
     //server.utilize(StaticFilesHandler::new("web-ui/dist"));
     server.utilize(StaticFilesHandler::new(&tmp_dir));
 
-    server.listen(addr).expect("canot connect to port");
+    server.listen(addr).expect("cannot connect to port");
 }

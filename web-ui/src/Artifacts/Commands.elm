@@ -6,24 +6,25 @@ import Json.Encode as Encode
 import Json.Decode.Pipeline exposing (decode, required, optional, hardcoded)
 import Task
 import Messages exposing (AppMsg(..))
+import Models exposing (Model)
 import Artifacts.Messages exposing (..)
 import Artifacts.Models exposing (
   ArtifactId, Artifact, Loc, ArtifactsResponse, defaultConfig)
 import JsonRpc exposing (RpcError, formatJsonRpcError)
 
-url = "http://localhost:4000/json-rpc"
-
+--url = "http://localhost:4000/json-rpc"
+endpoint = "/json-rpc"
 -- COMMANDS
 
-fetchAll : Cmd AppMsg
-fetchAll =
+fetchAll : Model -> Cmd AppMsg
+fetchAll model =
   let
     request = Http.request
       { method = "PUT"
       , headers = 
         [ Http.header "Content-Type" "application/json"
         ]
-      , url = url
+      , url = model.addr ++ endpoint
       , body = Http.jsonBody <| getArtifactsRequestEncoded 1
       , expect = Http.expectJson getArtifactsResponseDecoder
       , timeout = Nothing
@@ -51,8 +52,8 @@ newArtifactsMsg result =
 
 
 -- TODO: this needs to actually work...
-save : Artifact -> Cmd AppMsg
-save artifact = 
+save : Model -> Artifact -> Cmd AppMsg
+save model artifact = 
   let
     body = Http.jsonBody (memberEncoded artifact)
 
@@ -61,7 +62,7 @@ save artifact =
       , headers = 
         [ Http.header "Content-Type" "application/json"
         ]
-      , url = url
+      , url = model.addr ++ endpoint
       , body = body
       , expect = Http.expectJson memberDecoder
       , timeout = Nothing
