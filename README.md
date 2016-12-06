@@ -1,12 +1,13 @@
 [![Build Status](https://travis-ci.org/vitiral/rst.svg?branch=master)](https://travis-ci.org/vitiral/rst)
 # rst: the requirements tracking tool made for developers
+
 **rst** is a [requirements tracking](https://en.m.wikipedia.org/wiki/Software_requirements_specification)
 tool made for developers. It is an acronym for "Requirements, Specifications and Tests".
 
 **rst** is pronounced like "wrist"
 
 If you have any questions, [open an issue](https://github.com/vitiral/rst/issues) or
-[chat in gitter](https://gitter.im/rst-app/Lobby)
+[![Join the chat at https://gitter.im/rst-app/Lobby](https://badges.gitter.im/rst-app/Lobby.svg)](https://gitter.im/rst-app/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 ## Tutorial
 Once installed run `rst -h` on the cmdline to view the help message. `rst tutorial`
