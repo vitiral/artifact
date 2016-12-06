@@ -5,6 +5,9 @@ tool made for developers. It is an acronym for "Requirements, Specifications and
 
 **rst** is pronounced like "wrist"
 
+If you have any questions, [open an issue](https://github.com/vitiral/rst/issues) or
+[chat in gitter](https://gitter.im/rst-app/Lobby)
+
 ## Tutorial
 Once installed run `rst -h` on the cmdline to view the help message. `rst tutorial`
 will start the interactive tutorial.
