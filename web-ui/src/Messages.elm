@@ -3,7 +3,6 @@ module Messages exposing (..)
 import Http
 
 import Artifacts.Messages
-import Artifacts.Models exposing (ArtifactId)
 
 type Route
   = ArtifactsRoute

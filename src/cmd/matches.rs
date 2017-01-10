@@ -17,6 +17,7 @@
 
 use std::ffi::OsString;
 use std::clone;
+use std::env;
 
 use super::init;
 use super::tutorial;
@@ -45,6 +46,11 @@ pub fn get_matches<'a, I, T>(args: I) -> ClapResult<ArgMatches<'a>>
              .short("q")
              .long("quiet")
              .help("if set no output will be printed")
+             .global(true))
+        .arg(Arg::with_name("work-tree")
+             .long("work-tree")
+             .help("use a different working tree instead of cwd")
+             .takes_value(true)
              .global(true))
         .subcommand(tutorial::get_subcommand())
         .subcommand(init::get_subcommand())

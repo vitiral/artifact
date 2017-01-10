@@ -60,7 +60,7 @@ lazy_static!{
     // must start with artifact type, followed by "-", followed by at least 1 valid character
     // cannot end with "-"
     pub static ref ART_VALID: Regex = Regex::new(
-        r"(REQ|SPC|RSK|TST)(-[A-Z0-9_-]*[A-Z0-9_])?\z").unwrap();
+        r"^(REQ|SPC|RSK|TST)(-[A-Z0-9_-]*[A-Z0-9_])?$").unwrap();
     pub static ref PARENT_PATH: PathBuf = PathBuf::from("PARENT");
 }
 

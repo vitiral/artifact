@@ -5,6 +5,13 @@ import Regex
 import JsonRpc exposing (RpcError)
 
 
+spacePat : Regex.Regex
+spacePat = Regex.regex " "
+
+artifactValidPat : Regex.Regex
+artifactValidPat = Regex.regex "^(REQ|SPC|RSK|TST)(-[A-Z0-9_-]*[A-Z0-9_])?$"
+
+
 type alias ArtifactId =
   Int
 
@@ -19,14 +26,18 @@ type alias Text =
   , value: String
   }
 
+type alias Name =
+  { raw: String
+  , value: String
+  }
+
 type alias Artifact =
   { id : ArtifactId
-  , name : String
-  , raw_name : String
+  , name : Name
   , path : String
   , text : Text
-  , partof : List String
-  , parts : List String
+  , partof : List Name
+  , parts : List Name
   , loc : Maybe Loc
   , completed : Float
   , tested : Float
@@ -56,6 +67,7 @@ defaultConfig =
   }
 
 
+artifactsUrl : String
 artifactsUrl =
   "#artifacts" 
 
@@ -63,14 +75,41 @@ artifactsUrl =
 --artifactUrl id =
 --  "#artifacts/" ++ (toString id)
 
+artifactNameUrl : String -> String
 artifactNameUrl name =
   "#artifacts/" ++ name
 
+
 -- get the real name from a raw name
-realName : String -> String
-realName name =
+indexNameUnchecked : String -> String
+indexNameUnchecked name =
   let
-    replaced = Regex.replace Regex.All (Regex.regex " ") (\_ -> "") name
+    replaced = Regex.replace Regex.All spacePat (\_ -> "") name
   in
     String.toUpper replaced
 
+
+-- get the real name from a raw name
+-- return Err if name is invalid
+indexName : String -> Result String String
+indexName name =
+  let
+    index = indexNameUnchecked name
+  in
+    if Regex.contains artifactValidPat index then
+      Ok index
+    else
+      Err ("Invalid name: " ++ name)
+
+initName : String -> Result String Name
+initName name =
+  let
+    value = indexName name
+  in
+    case value of
+      Ok value -> Ok <|
+        { raw = name
+        , value = value
+        }
+      Err err ->
+        Err err

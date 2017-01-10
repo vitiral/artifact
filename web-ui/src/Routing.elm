@@ -1,6 +1,5 @@
 module Routing exposing (router, routerMsg)
 
-import String
 import Navigation
 import UrlParser as UP exposing ((</>))
 import Messages exposing (AppMsg(..), Route(..))

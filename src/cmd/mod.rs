@@ -23,6 +23,7 @@
 //! that the user may want to execute
 
 use std::env;
+use std::path;
 use std::io;
 use std::clone;
 use std::ffi::OsString;
@@ -83,11 +84,19 @@ pub fn cmd<W, I, T>(w: &mut W, args: I) -> i32
         }
     };
 
+    let work_tree = match matches.value_of("work-tree") {
+        Some(w) => path::PathBuf::from(w),
+        None => env::current_dir().unwrap(),
+    };
+    if !work_tree.is_dir() {
+        println!("ERROR: work-tree {} is not a directory", work_tree.display());
+        return 1;
+    }
+    
     // If init is selected, do that
-    let cwd = env::current_dir().unwrap();
     if matches.subcommand_matches("init").is_some() {
         info!("Calling the init command");
-        match init::do_init(&cwd) {
+        match init::do_init(&work_tree) {
             Ok(_) => {},
             Err(e) => {
                 println!("ERROR: {}", e);
@@ -116,7 +125,7 @@ pub fn cmd<W, I, T>(w: &mut W, args: I) -> i32
     }
 
     // load the artifacts
-    let repo = match core::find_repo(cwd.as_path()) {
+    let repo = match core::find_repo(work_tree.as_path()) {
         Some(r) => r,
         None => {
             println!("Could not find .rst folder. Try running `rst init -t`");
@@ -139,10 +148,10 @@ pub fn cmd<W, I, T>(w: &mut W, args: I) -> i32
     if let Some(ls) = matches.subcommand_matches("ls") {
         info!("Calling the ls command");
         let (search, fmtset, search_set) = ls::get_ls_cmd(ls).unwrap();
-        ls::do_ls(w, &cwd, &search, &fmtset, &search_set, &project)
+        ls::do_ls(w, &work_tree, &search, &fmtset, &search_set, &project)
     } else if matches.subcommand_matches("check").is_some() {
         info!("Calling the check command");
-        check::do_check(w, &cwd, &project)
+        check::do_check(w, &work_tree, &project)
     } else if let Some(mat) = matches.subcommand_matches("server") {
         let addr = server::get_cmd(mat);
         server::run_server(&project, &addr);

@@ -1,0 +1,20 @@
+# project purpose and definition documentation
+[REQ-purpose]
+text = '''
+The purpose of this project is to run an example project and test with selenium
+'''
+
+[REQ-layout]
+text = '''
+This project will have a couple requirements and some linking so that we
+can investigate with selenium
+'''
+
+[SPC-layout]
+text = "This is literally just a partof REQ-layout"
+
+[TST-layout]
+text = "ditto"
+
+[SPC-alone]
+text = "this spc is not partof anything"

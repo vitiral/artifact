@@ -5,12 +5,12 @@ Generic view methods that can be used in multiple places (List, Edit, etc)
 
 import String
 import Html exposing (..)
-import Html.Attributes exposing (class, href, title)
+import Html.Attributes exposing (class, href, title, id)
 import Html.Events exposing (onClick)
 
 import Messages exposing (AppMsg(..), Route(..))
 import Models exposing (Model)
-import Artifacts.Models exposing (Artifact, artifactNameUrl, realName)
+import Artifacts.Models exposing (Artifact, artifactNameUrl, indexName, indexNameUnchecked)
 import Artifacts.Messages exposing (Msg(..))
 
 completion : Artifact -> Html AppMsg
@@ -26,9 +26,11 @@ completion artifact =
       ]
     ]
 
+completedPerc : Artifact -> Html msg
 completedPerc artifact =
   text <| (String.left 3 (toString (artifact.completed * 100))) ++ "%"
 
+testedPerc : Artifact -> Html msg
 testedPerc artifact =
   text <| (String.left 3 (toString (artifact.tested * 100))) ++ "%"
 
@@ -63,13 +65,23 @@ implementedBasic model artifact =
 
 parts : Model -> Artifact -> Html AppMsg
 parts model artifact =
-  ul [] (List.map (\p -> li [ class "underline" ] [ seeArtifactName model p ]) artifact.parts)
+  let
+    rawParts = List.map (\p -> p.raw) artifact.parts
+  in
+    ul
+      [ id ("parts_" ++ artifact.name.value) ] 
+      (List.map (\p -> li [ class "underline" ] [ seeArtifactName model p ]) rawParts)
 
 
 -- TODO: allow editing when not readonly
 partof : Model -> Artifact -> Html AppMsg
 partof model artifact =
-  ul [] (List.map (\p -> li [ class "underline" ] [ seeArtifactName model p ]) artifact.partof)
+  let
+    rawPartof = List.map (\p -> p.raw) artifact.partof
+  in
+    ul 
+      [ id ("partof_" ++ artifact.name.value) ] 
+      (List.map (\p -> li [ class "underline" ] [ seeArtifactName model p ]) rawPartof)
 
 -- TODO: don't wrap text
 textPiece : Model -> Artifact -> Html AppMsg
@@ -91,12 +103,13 @@ seeArtifact model artifact =
   in
     button 
       [ class "btn bold"
-      , onClick (ArtifactsMsg <| ShowArtifact <| artifact.name)
-      , href (artifactNameUrl artifact.name)
+      , onClick (ArtifactsMsg <| ShowArtifact <| artifact.name.value)
+      , href (artifactNameUrl artifact.name.value)
+      , id artifact.name.value
       ]
-      [ text (artifact.raw_name ++ "  ")
+      [ text (artifact.name.raw ++ "  ")
       , i [ class <| if ro then "bold fa fa-eye mr1" else "bold fa fa-pencil mr1" 
-        , href (artifactNameUrl artifact.name) 
+        , href (artifactNameUrl artifact.name.value) 
         ] []
       
       ]
@@ -105,7 +118,8 @@ seeArtifact model artifact =
 seeArtifactName : Model -> String -> Html AppMsg
 seeArtifactName model name =
   let
-    hasName = \a -> a.name == (realName name)
+    indexName = indexNameUnchecked name
+    hasName = \a -> a.name.value == indexName
     exists = case List.head <| List.filter hasName model.artifacts of
       Just _ -> True
       Nothing -> False
@@ -115,7 +129,7 @@ seeArtifactName model name =
     if exists then
       span 
         [ href url
-        , onClick ( RouteChange <| ArtifactNameRoute <| realName name ) 
+        , onClick ( RouteChange <| ArtifactNameRoute <| indexNameUnchecked name ) 
         ] [ text name ]
     else
       span [ title "Name not found" ] [ text name ]

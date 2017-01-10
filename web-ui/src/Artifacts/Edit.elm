@@ -1,7 +1,7 @@
 module Artifacts.Edit exposing (..)
 
 import Html exposing (..)
-import Html.Attributes exposing (class, style, value, href, readonly, rows, cols)
+import Html.Attributes exposing (class, style, value, href, readonly, rows, cols, id)
 import Html.Events exposing (onClick)
 
 import Models exposing (Model)
@@ -26,13 +26,14 @@ nav model =
 form : Model -> Artifact -> Html AppMsg
 form model artifact =
   div [ class "m3" ]
-    [ h1 [] [ text artifact.raw_name ]
+    [ h1 [id "ehead"] [ text artifact.name.raw ]
     , div [ class "clearfix py1" ]
       [ formColumnOne model artifact
       , formColumnTwo model artifact
       ]
     ]
 
+formColumnOne : Model -> Artifact -> Html AppMsg
 formColumnOne model artifact =
   div [ class "col col-6" ]
     [ View.completion artifact
@@ -51,12 +52,15 @@ formColumnOne model artifact =
     ]
 
 
+formColumnTwo : Model -> Artifact -> Html AppMsg
 formColumnTwo model artifact =
   div [ class "col col-6" ] 
     [ h3 [] [ text "Text" ]
     , textarea 
       [ class "h3" -- class=h3 otherwise it is really tiny for some reason
-      , rows 35, cols 80, readonly model.settings.readonly ] 
+      , rows 35, cols 80, readonly model.settings.readonly 
+      , id ("text_" ++ artifact.name.value)
+      ] 
       [ text artifact.text.value ]
     ]
 

@@ -2,11 +2,22 @@ version = `sed -En 's/version = "([^"]+)"/\1/p' Cargo.toml`
 
 target = "$PWD/target"
 
-build:
+build-rust:
 	CARGO_TARGET_DIR={{target}}/stable rustup run stable cargo build --features "web"
 
-test:
+build-web:
+	(cd web-ui; npm run build)
+	(cd web-ui/dist; tar -cvf ../../src/api/web-ui.tar *)
+
+build: build-web build-rust 
+
+test-rust:
 	RUST_BACKTRACE=1 CARGO_TARGET_DIR={{target}}/stable rustup run stable cargo test --lib --features "web"
+
+test-web: build-web
+	(cd web-ui; elm test)
+
+test: test-web test-rust
 
 filter PATTERN:
 	RUST_BACKTRACE=1 CARGO_TARGET_DIR={{target}}/stable rustup run stable cargo test --lib {{PATTERN}} --features "web"
@@ -14,17 +25,18 @@ filter PATTERN:
 clippy:
 	CARGO_TARGET_DIR={{target}}/nightly rustup run nightly cargo clippy --features "web"
 
-server:
+example-server: build-web
+	(CARGO_TARGET_DIR={{target}}/nightly rustup run nightly cargo run --features "web" -- --work-tree web-ui/e2e_tests/ex_proj -v server)
+
+test-e2e:
+	(cd web-ui; py2t e2e_tests/basic.py)
+
+server: build-web
 	CARGO_TARGET_DIR={{target}}/nightly rustup run nightly cargo run --features "web" -- -v server
 
 check:
 	# TODO: replace with just using the binary
 	cargo run --features "web" -- check  # run's rst's check on the requirements
-
-
-build-web:
-	(cd web-ui; npm run build)
-	(cd web-ui/dist; tar -cvf ../../src/api/web-ui.tar *)
 
 check-all: clippy test check
 	echo "checked all"

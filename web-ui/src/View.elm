@@ -5,7 +5,7 @@ import Messages exposing (AppMsg(..), Route(..))
 import Models exposing (Model)
 import Artifacts.List
 import Artifacts.Edit
-import Artifacts.Models exposing (ArtifactId, realName)
+import Artifacts.Models exposing (ArtifactId, indexNameUnchecked)
 
 view : Model -> Html AppMsg
 view model =
@@ -20,8 +20,9 @@ page model =
 
     ArtifactNameRoute raw_name ->
       let
-        name = realName raw_name
-        id_maybe = List.filter (\a -> a.name == name) model.artifacts
+        -- TODO: should fail if invalid name
+        name = indexNameUnchecked raw_name
+        id_maybe = List.filter (\a -> a.name.value == name) model.artifacts
       in
         case List.head id_maybe of
           Just artifact ->

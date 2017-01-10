@@ -1,7 +1,7 @@
 module Artifacts.List exposing (..)
 
 import Html exposing (..)
-import Html.Attributes exposing (class, width)
+import Html.Attributes exposing (class, width, id)
 import Html.Events exposing (onClick)
 
 import Messages exposing (AppMsg(..))
@@ -24,9 +24,16 @@ nav artifacts =
     [ div [ class "left p2" ] [ text "Artifacts" ]
     ]
 
+base_width : Int
 base_width = 400
+
+w1 : Attribute msg
 w1 = width base_width
+
+w2 : Attribute msg
 w2 = width (base_width * 2)
+
+w3 : Attribute msg
 w3 = width (base_width * 3)
 
 list : Model -> List Artifact -> Html AppMsg
@@ -34,21 +41,21 @@ list model artifacts =
   let
     len = List.length artifacts
     model_list = List.repeat len model
-    key = \a b -> compare a.name b.name
+    key = \a b -> compare a.name.value b.name.value
     sorted = List.sortWith key artifacts
   in
     div [ class "p2" ]
       [ table []
         [ thead [] -- thead == table-header object
           [ tr []  -- table row
-            [ th [ class "bold", w1] [ text "Compl" ]
-            , th [ class "bold", w1 ] [ text "Tested" ]
-            , th [ class "bold", w2 ] [ text "Name" ]
-            , th [ class "bold", w2 ] [ text "Parts" ]
-            , th [ class "bold", w2 ] [ text "Part Of" ]
-            , th [ class "bold", w2 ] [ text "Def At" ]
-            , th [ class "bold", w2 ] [ text "Impl At" ]
-            , th [ class "bold", w3 ] [ text "Text" ]
+            [ th [ class "bold", w1, id "th_completed" ] [ text "Compl" ]
+            , th [ class "bold", w1, id "th_tested"    ] [ text "Tested" ]
+            , th [ class "bold", w2, id "th_name"      ] [ text "Name" ]
+            , th [ class "bold", w2, id "th_parts"     ] [ text "Parts" ]
+            , th [ class "bold", w2, id "th_partof"    ] [ text "Part Of" ]
+            , th [ class "bold", w2, id "th_path"      ] [ text "Def At" ]
+            , th [ class "bold", w2, id "th_loc"       ] [ text "Impl At" ]
+            , th [ class "bold", w3, id "th_text"      ] [ text "Text" ]
             ]
           ]
         , tbody [] (List.map2 artifactRow model_list sorted)
@@ -86,7 +93,7 @@ artifactRow model artifact =
       artifact.config.textExpanded 
       model artifact textView textConfig
   in
-    tr []
+    tr [ id ("row_" ++ artifact.name.value) ]
       [ td [s, w1] [ View.completedPerc artifact ]
       , td [s, w1] [ View.testedPerc artifact ]
       , td [s, w2] [ View.seeArtifact model artifact ]

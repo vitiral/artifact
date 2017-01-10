@@ -8,8 +8,25 @@ import Messages exposing (AppMsg(..))
 import Models exposing (Model)
 import Artifacts.Messages exposing (..)
 import Artifacts.Models exposing (
-  ArtifactId, Text, Artifact, Loc, ArtifactsResponse, defaultConfig)
+  ArtifactId, Text, Artifact, Loc, ArtifactsResponse, defaultConfig, 
+  Name, initName)
 import JsonRpc exposing (RpcError, formatJsonRpcError)
+
+isErr : Result e a -> Bool
+isErr x =
+  case x of
+    Ok _ -> False
+    Err _ -> True
+
+isOk : Result e a -> Bool
+isOk x =
+  not (isErr x)
+
+resultAsValue : Result String String -> String
+resultAsValue x =
+  case x of
+    Ok r -> r
+    Err e -> e
 
 --url = "http://localhost:4000/json-rpc"
 endpoint : String
@@ -90,12 +107,14 @@ getArtifactsRequestEncoded id =
 memberEncoded : Artifact -> Encode.Value
 memberEncoded artifact =
   let
+    partof = List.map (\p -> p.raw) artifact.partof
+
     attrs =
       [ ( "id", Encode.int artifact.id )
-      , ( "name", Encode.string artifact.name )
+      , ( "name", Encode.string artifact.name.raw )
       , ( "path", Encode.string artifact.path )
       , ( "text", textEncoded artifact.text )
-      --, ( "partof", (Encode.list Encode.string) artifact.partof )
+      , ( "partof", Encode.list (List.map Encode.string partof) )
       ]
   in
     Encode.object attrs
@@ -139,16 +158,28 @@ memberDecoder : Decode.Decoder Artifact
 memberDecoder =
   decode Artifact
     |> required "id" Decode.int
-    |> hardcoded "DEFAULT_NAME" -- converted name
-    |> required "name" Decode.string -- raw name
+    |> required "name" nameDecoder
     |> required "path" Decode.string
     |> required "text" textDecoder
-    |> required "partof" (Decode.list Decode.string)
-    |> required "parts" (Decode.list Decode.string)
+    |> required "partof" (Decode.list nameDecoder)
+    |> required "parts" (Decode.list nameDecoder)
     |> required "loc" (Decode.nullable locDecoder)
     |> required "completed" Decode.float
     |> required "tested" Decode.float
     |> hardcoded defaultConfig
+
+nameDecoder : Decode.Decoder Name
+nameDecoder = Decode.andThen nameDecoderValue Decode.string
+
+nameDecoderValue : String -> Decode.Decoder Name
+nameDecoderValue name =
+  case initName name of
+    Ok name -> 
+      decode Name
+        |> hardcoded name.raw
+        |> hardcoded name.value
+    Err err ->
+      Decode.fail err
 
 textDecoder : Decode.Decoder Text
 textDecoder =
