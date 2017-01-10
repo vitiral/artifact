@@ -17,11 +17,8 @@
 #![allow(non_upper_case_globals)]
 #![allow(non_snake_case)]
 
-pub use std::fs;
-pub use std::io::Read;
-pub use std::env;
+use dev_prefix::*;
 use super::types::*;
-
 use super::data;
 
 /// return the cmdline subcommand
@@ -33,7 +30,7 @@ pub fn get_subcommand<'a, 'b>() -> App<'a, 'b> {
 }
 
 /// parse the matches to create the cmd
-pub fn get_tutorial_cmd(matches: &ArgMatches) -> Result<u8, String> {
+pub fn get_tutorial_cmd(matches: &ArgMatches) -> result::Result<u8, String> {
     let part = match matches.value_of("part").unwrap_or("1").parse::<u8>() {
         Ok(p) => p,
         Err(e) => return Err(e.to_string()),

@@ -17,33 +17,13 @@
 //! loadrs
 //! loading of raw artifacts from files and text
 
-use std::iter::Iterator;
-
 use rustc_serialize::{Decodable};
-
-use super::types::*;
-use super::vars;
-
-use super::utils;
-
 use toml::{Parser, Value, Table, Decoder};
 
-#[derive(Debug, RustcEncodable, RustcDecodable)]
-pub struct RawArtifact {
-    pub partof: Option<String>,
-    pub text: Option<String>,
-}
-
-
-#[derive(Debug, RustcEncodable, RustcDecodable)]
-pub struct RawSettings {
-    pub disabled: Option<bool>,
-    pub artifact_paths: Option<Vec<String>>,
-    pub code_paths: Option<Vec<String>>,
-    pub exclude_code_paths: Option<Vec<String>>,
-    pub color: Option<bool>,
-}
-
+use dev_prefix::*;
+use super::types::*;
+use super::vars;
+use super::utils;
 
 lazy_static!{
     pub static ref ARTIFACT_ATTRS: HashSet<String> = HashSet::from_iter(
@@ -90,11 +70,8 @@ macro_rules! check_type {
     ($value: expr, $attr: expr, $name: expr) => {
         match $value {
             Some(v) => v,
-            None => {
-                let mut msg = Vec::new();
-                write!(&mut msg, "{} has invalid attribute: {}", $name, $attr).unwrap();
-                return Err(LoadError::new(String::from_utf8(msg).unwrap()));
-            }
+            None => return Err(ErrorKind::InvalidAttr(
+                $name.to_string(), $attr.to_string()).into()),
         }
     }
 }
@@ -113,18 +90,14 @@ fn get_color(raw: &RawSettings) -> bool {
 impl Settings {
     /// Load a settings object from a TOML Table
     /// partof: #SPC-settings-load
-    pub fn from_table(tbl: &Table) -> LoadResult<Settings> {
+    pub fn from_table(tbl: &Table) -> Result<(RawSettings, Settings)> {
         let value = Value::Table(tbl.clone());
         let mut decoder = Decoder::new(value);
-        let raw = match RawSettings::decode(&mut decoder) {
-            Ok(v) => v,
-            Err(e) => return Err(LoadError::new(format!(
-                "error loading settings: {}", e))),
-        };
+        let raw = RawSettings::decode(&mut decoder)
+            .chain_err(|| "invalid settings")?;
 
         if let Some(invalid) = decoder.toml {
-            let msg = format!("Invalid attributes in settings: {:?}", invalid);
-            return Err(LoadError::new(msg));
+            return Err(ErrorKind::InvalidSettings(format!("{:?}", invalid)).into());
         }
 
         fn to_paths(paths: &Option<Vec<String>>) -> VecDeque<PathBuf>  {
@@ -133,65 +106,68 @@ impl Settings {
                 None => VecDeque::new(),
             }
         }
-
-        Ok(Settings {
+        let settings = Settings {
             disabled: raw.disabled.unwrap_or_default(),
             paths: to_paths(&raw.artifact_paths),
             code_paths: to_paths(&raw.code_paths),
             exclude_code_paths: to_paths(&raw.exclude_code_paths),
             color: get_color(&raw),
-        })
+        };
+
+        Ok((raw, settings))
     }
 }
 
 
 /// parse toml using a std error for this library
-fn parse_toml(toml: &str) -> LoadResult<Table> {
+fn parse_toml(toml: &str) -> Result<Table> {
     let mut parser = Parser::new(toml);
     match parser.parse() {
         Some(table) => Ok(table),
         None => {
-            let mut msg = String::new();
+            let mut locs = String::new();
             for e in &parser.errors {
                 let (line, col) = parser.to_linecol(e.lo);
-                write!(msg, "[{}:{}] {}, ", line, col, e.desc).unwrap();
+                write!(locs, "[{}:{}] {}, ", line, col, e.desc).unwrap();
             }
-            Err(LoadError::new(msg))
+            Err(ErrorKind::TomlParse(locs).into())
         }
     }
 }
 
 impl Artifact {
     /// from_str is mosty used to make testing and one-off development easier
-    pub fn from_str(toml: &str) -> LoadResult<(ArtNameRc, Artifact)> {
+    pub fn from_str(toml: &str) -> Result<(ArtNameRc, Artifact)> {
         let table = try!(parse_toml(toml));
         if table.len() != 1 {
-            return Err(LoadError::new("must contain a single table".to_string()));
+            return Err(ErrorKind::Load("must contain a single table".to_string()).into());
         }
         let (name, value) = table.iter().next().unwrap();
         let name = try!(ArtName::from_str(name));
         let value = match *value {
             Value::Table(ref t) => t,
-            _ => return Err(LoadError::new("must contain a single table".to_string())),
+            _ => return Err(ErrorKind::Load("must contain a single table".to_string()).into()),
         };
         let artifact = try!(Artifact::from_table(&name, &Path::new("from_str"), value));
-        Ok((Rc::new(name), artifact))
+        Ok((Arc::new(name), artifact))
     }
 
     /// Create an artifact object from a toml Table
     /// partof: #SPC-artifact-load
-    fn from_table(name: &ArtName, path: &Path, tbl: &Table) -> LoadResult<Artifact> {
+    fn from_table(name: &ArtName, path: &Path, tbl: &Table) 
+        -> Result<Artifact> 
+    {
         let value = Value::Table(tbl.clone());
         let mut decoder = Decoder::new(value);
         let raw = match RawArtifact::decode(&mut decoder) {
             Ok(v) => v,
-            Err(e) => return Err(LoadError::new(format!(
-                "{} has invalid attribute type: {}", name, e))),
+            Err(e) => return Err(ErrorKind::InvalidArtifact(
+                name.to_string(), e.to_string()).into()),
         };
 
         if let Some(invalid) = decoder.toml {
-            return Err(LoadError::new(format!(
-                "{} has invalid attributes: {:?}", name, invalid)));
+            return Err(ErrorKind::InvalidArtifact(
+                name.to_string(), format!("invalid attrs: {}", invalid)).into());
         }
 
         Ok(Artifact {
@@ -213,20 +189,22 @@ impl Artifact {
 pub fn load_file_table(file_table: &mut Table,
                        path: &Path,
                        project: &mut Project)
-                       -> LoadResult<u64> {
+                       -> Result<u64> {
     let mut msg: Vec<u8> = Vec::new();
     let mut num_loaded: u64 = 0;
 
     match file_table.remove("settings") {
         Some(Value::Table(t)) => {
-            let lset = try!(Settings::from_table(&t));
-            if lset.disabled {
+            let (raw, settings) = try!(Settings::from_table(&t));
+            project.raw_settings_map.insert(path.to_path_buf(), raw);
+            if settings.disabled {
                 return Ok(0);
             }
-            project.settings_map.insert(path.to_path_buf(), lset);
+            project.settings_map.insert(path.to_path_buf(), settings);
         }
         None => {}
-        _ => return Err(LoadError::new("settings must be a Table".to_string())),
+        _ => return Err(ErrorKind::InvalidSettings(
+            "settings must be a Table".to_string()).into()),
     }
 
     match file_table.remove("globals") {
@@ -234,19 +212,20 @@ pub fn load_file_table(file_table: &mut Table,
             let mut variables = Variables::new();
             for (k, v) in t {
                 if vars::DEFAULT_GLOBALS.contains(k.as_str()) {
-                    return Err(LoadError::new("cannot use variables: repo, cwd".to_string()));
+                    return Err(ErrorKind::InvalidVariable(
+                        "cannot use variables: repo, cwd".to_string()).into());
                 }
                 let value = match v {
                     Value::String(s) => s.to_string(),
-                    _ => return Err(LoadError::new(
-                        format!("{} global var must be of type str", k)))
+                    _ => return Err(ErrorKind::InvalidVariable(
+                        format!("{} global var must be of type str", k)).into())
                 };
                 variables.insert(k.clone(), value);
             }
             project.variables_map.insert(path.to_path_buf(), variables);
         }
         None => {}
-        _ => return Err(LoadError::new("globals must be a Table".to_string())),
+        _ => return Err(ErrorKind::InvalidVariable("globals must be a Table".to_string()).into()),
     }
 
     for (name, value) in file_table.iter() {
@@ -256,7 +235,7 @@ pub fn load_file_table(file_table: &mut Table,
             Value::Table(ref t) => t,
             _ => {
                 write!(&mut msg, "All top-level values must be a table: {}", name).unwrap();
-                return Err(LoadError::new(String::from_utf8(msg).unwrap()));
+                return Err(ErrorKind::Load(String::from_utf8(msg).unwrap()).into());
             }
         };
         // check for overlap
@@ -266,7 +245,7 @@ pub fn load_file_table(file_table: &mut Table,
                    name,
                    overlap.path.display())
                 .unwrap();
-            return Err(LoadError::new(String::from_utf8(msg).unwrap()));
+            return Err(ErrorKind::Load(String::from_utf8(msg).unwrap()).into());
         }
         if check_type!(get_attr!(art_tbl, "disabled", false, Boolean),
                        "disabled",
@@ -274,7 +253,7 @@ pub fn load_file_table(file_table: &mut Table,
             continue;
         }
         let artifact = try!(Artifact::from_table(&aname, path, art_tbl));
-        project.artifacts.insert(Rc::new(aname), artifact);
+        project.artifacts.insert(Arc::new(aname), artifact);
         num_loaded += 1;
     }
     Ok(num_loaded)
@@ -291,7 +270,7 @@ pub fn load_toml_simple(text: &str) -> Artifacts {
 pub fn load_toml(path: &Path,
                  text: &str,
                  project: &mut Project)
-                 -> LoadResult<u64> {
+                 -> Result<u64> {
     // parse the text
     let mut table = try!(parse_toml(text));
     load_file_table(&mut table, path, project)
@@ -299,17 +278,14 @@ pub fn load_toml(path: &Path,
 
 /// given a file path load the artifacts
 ///
-pub fn load_file(path: &Path, project: &mut Project) -> LoadResult<u64> {
+pub fn load_file(path: &Path, project: &mut Project) -> Result<u64> {
     // let mut text: Vec<u8> = Vec::new();
 
     // read the text
     let mut text = String::new();
     let mut fp = fs::File::open(path).unwrap();
-    try!(fp.read_to_string(&mut text).or_else(|err| {
-        let mut msg = String::new();
-        write!(msg, "Error loading path {:?}: {}", path, err).unwrap();
-        Err(LoadError::new(msg))
-    }));
+    fp.read_to_string(&mut text).chain_err(|| 
+        format!("Error loading path {}", path.display()))?;
     load_toml(path, &text, project)
 }
 
@@ -324,17 +300,15 @@ pub fn load_file(path: &Path, project: &mut Project) -> LoadResult<u64> {
 pub fn load_dir(path: &Path,
                 loaded_dirs: &mut HashSet<PathBuf>,
                 project: &mut Project)
-                -> LoadResult<u64> {
+                -> Result<u64> {
     loaded_dirs.insert(path.to_path_buf());
     // TDOO: if load_path.is_dir()
     let mut num_loaded: u64 = 0;
     let mut error = false;
     // for entry in WalkDir::new(&path).into_iter().filter_map(|e| e.ok()) {
     let mut dirs_to_load: Vec<PathBuf> = Vec::new();
-    let read_dir = match fs::read_dir(path) {
-        Ok(d) => d,
-        Err(err) => return Err(LoadError::new("E001: ".to_string() + &err.to_string())),
-    };
+    let read_dir = fs::read_dir(path).chain_err(|| format!(
+        "could not get dir: {}", path.display()))?;
     // process all the files in the directory. Process directories later
     for entry in read_dir.filter_map(|e| e.ok()) {
         let fpath = entry.path();
@@ -380,7 +354,7 @@ pub fn load_dir(path: &Path,
         }
     }
     if error {
-        Err(LoadError::new("ERROR: some files failed to load".to_string()))
+        Err(ErrorKind::Load("some files failed to load".to_string()).into())
     } else {
         Ok(num_loaded)
     }
@@ -390,7 +364,7 @@ pub fn load_dir(path: &Path,
 /// `repo_map` is a pre-compiled hashset mapping `dirs->repo_path` (for performance)
 /// partof: #SPC-settings-resolve
 pub fn resolve_settings(project: &mut Project) 
-        -> LoadResult<()> {
+        -> Result<()> {
     // now resolve all path names
     let mut vars: HashMap<String, String> = HashMap::new();
     for ps in project.settings_map.iter() {
@@ -434,11 +408,11 @@ pub fn resolve_settings(project: &mut Project)
 fn extend_settings(
         full: &mut HashMap<PathBuf, Settings>, 
         dir: &HashMap<PathBuf, Settings>)
-        -> LoadResult<()> {
+        -> Result<()> {
     for (p, s) in dir.iter() {
         if let Some(e) = full.insert(p.clone(), s.clone()) {
-            return Err(LoadError::new(format!(
-                "Internal Error: file loaded twice: {}", p.display())));
+            return Err(ErrorKind::Load(format!(
+                "Internal Error: file loaded twice: {}", p.display())).into());
         }
     }
     Ok(())
@@ -448,7 +422,7 @@ fn extend_settings(
 /// given a valid path, load all paths given by the settings recursively
 /// partof: #SPC-load-raw
 #[allow(type_complexity)]  // TODO: probably remove this
-pub fn load_raw(path: &Path) -> LoadResult<Project> {
+pub fn load_raw(path: &Path) -> Result<Project> {
     let mut project = Project::new();
     let mut loaded_dirs: HashSet<PathBuf> = HashSet::new(); // see SPC-load-dir, RSK-2-load-loop
     let mut full_settings_map: HashMap<PathBuf, Settings> = HashMap::new();
@@ -456,14 +430,14 @@ pub fn load_raw(path: &Path) -> LoadResult<Project> {
     info!("Loading artifact files:");
     if path.is_file() {
         try!(load_file(path, &mut project));
-        extend_settings(&mut full_settings_map, &project.settings_map);
+        try!(extend_settings(&mut full_settings_map, &project.settings_map));
         try!(resolve_settings(&mut project));
         project.files.insert(path.to_path_buf());
     } else if path.is_dir() {
         project.settings.paths.push_back(path.to_path_buf());
     } else {
-        return Err(LoadError::new("File is not valid type: ".to_string() +
-                                  path.to_string_lossy().as_ref()));
+        return Err(ErrorKind::Load("File is not valid type: ".to_string() +
+                                  path.to_string_lossy().as_ref()).into());
     }
 
     while !project.settings.paths.is_empty() {
@@ -478,10 +452,10 @@ pub fn load_raw(path: &Path) -> LoadResult<Project> {
         match load_dir(dir.as_path(), &mut loaded_dirs, &mut project) {
             Ok(n) => n,
             Err(err) => {
-                return Err(LoadError::new(format!(
+                return Err(ErrorKind::Load(format!(
                    "Error loading <{}>: {}",
                    dir.to_string_lossy().as_ref(),
-                   err)))
+                   err)).into())
 
             }
         };
@@ -498,3 +472,4 @@ pub fn load_raw(path: &Path) -> LoadResult<Project> {
     project.settings_map = full_settings_map;
     Ok(project)
 }
+

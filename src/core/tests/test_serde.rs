@@ -6,7 +6,7 @@ use super::super::*;
 
 #[test]
 fn test_serde() {
-    let mut artifact = ArtifactData {
+    let artifact = ArtifactData {
         id: 10,
         name: "name".to_string(),
         path: "path".to_string(),

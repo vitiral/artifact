@@ -1,20 +1,7 @@
-// Traits
+use dev_prefix::*;
+pub use core::prefix::*;
+
 pub use std::rc::Rc;
-pub use std::io::Write;
-pub use std::fmt::Write as FmtWrite;
-pub use std::iter::FromIterator;
-
-pub use std::path::{Path, PathBuf};
-pub use std::collections::{HashMap, HashSet, VecDeque};
-
-// modules
-pub use regex::{Regex, RegexBuilder};
-
-pub use super::super::core::{
-    Settings, Artifact, Artifacts,
-    ArtType, Loc,
-    ArtName, ArtNameRc, ArtNames,
-    LoadFromStr};
 
 /// settings for what to format
 #[derive(Debug, Default, Clone, PartialEq, Eq)]

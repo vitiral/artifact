@@ -33,6 +33,7 @@ pub struct ArtifactData {
     pub tested: f32,
 }
 
+#[allow(non_camel_case_types)]
 pub enum RpcErrors {
     xIdsNotFound,
     xFilesNotFound,

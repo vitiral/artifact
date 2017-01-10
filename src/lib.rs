@@ -17,11 +17,13 @@
 #![allow(unknown_lints)]  // need for clippy lints
 #![cfg_attr(feature = "serde_derive", feature(proc_macro))]
 #![cfg_attr(feature = "serde_derive", feature(custom_derive))]
+#![recursion_limit = "1024"]
 // # logger config
 extern crate fern;
 
 // # general crates
 extern crate itertools;
+#[macro_use] extern crate error_chain;
 #[macro_use] extern crate lazy_static;
 #[macro_use] extern crate log;
 
@@ -59,6 +61,7 @@ include!("serde_types.in.rs");
 include!(concat!(env!("OUT_DIR"), "/serde_types.rs"));
 
 // modules
+pub mod dev_prefix;
 pub mod core;
 pub mod ui;
 pub mod cmd;

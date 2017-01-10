@@ -1,4 +1,4 @@
-use std::io;
+use dev_prefix::*;
 use super::types::*;
 
 lazy_static!{
@@ -153,7 +153,7 @@ fn find_locs_dir(path: &PathBuf, loaded_dirs: &mut HashSet<PathBuf>,
 
 /// search through the `code_paths` in settings to find all valid locs
 /// partof: #SPC-loc
-pub fn find_locs(settings: &mut Settings) -> LoadResult<HashMap<ArtName, Loc>> {
+pub fn find_locs(settings: &mut Settings) -> Result<HashMap<ArtName, Loc>> {
     info!("parsing code files for artifacts...");
     let mut locs: HashMap<ArtName, Loc> = HashMap::new();
     let mut loaded_dirs: HashSet<PathBuf> = HashSet::from_iter(
@@ -161,9 +161,8 @@ pub fn find_locs(settings: &mut Settings) -> LoadResult<HashMap<ArtName, Loc>> {
     // first make sure the excluded directories exist
     for d in &loaded_dirs {
         if !d.exists() {
-            let mut msg = String::new();
-            write!(msg, "excluded path {} does not exist!", d.display()).unwrap();
-            return Err(LoadError::new(msg));
+            let msg = format!("{} <excluded_paths>", d.display());
+            return Err(ErrorKind::PathNotFound(msg).into());
         }
     }
     debug!("initial excluded code paths: {:?}", loaded_dirs);
@@ -174,7 +173,7 @@ pub fn find_locs(settings: &mut Settings) -> LoadResult<HashMap<ArtName, Loc>> {
         }
         debug!("Loading from code: {:?}", dir);
         if find_locs_dir(&dir, &mut loaded_dirs, &mut locs) {
-            return Err(LoadError::new("encountered errors while finding locations".to_string()))
+            return Err(ErrorKind::LocNotFound.into())
         }
     }
     Ok(locs)

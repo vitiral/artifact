@@ -1,18 +1,21 @@
-use std::collections::{HashMap, HashSet};
-use std::ops::{Deref, DerefMut};
-use std::path;
 
-use jsonrpc_core::{IoHandler, SyncMethodCommand, Params, Value, Error, ErrorCode};
+use dev_prefix::*;
+use jsonrpc_core::{IoHandler, SyncMethodCommand, Params, Value, Error as RpcError, ErrorCode};
 use serde_json;
 
-use core::{Artifact, Artifacts, ArtifactData, ArtNameRc};
-use super::{ARTIFACTS, ARTIFACT_FILES};
+use core::prefix::*;
+use core;
+
+use super::{ARTIFACTS, PROJECT};
 
 const X_IDS_NOT_FOUND: &'static str = "xIdsNotFound";
 const X_INVALID_NAME: &'static str = "xInvalidName";
 const X_FILES_NOT_FOUND: &'static str = "xFilesNotFound";
+const X_PROCESS_ERROR: &'static str = "xProcessError";
 const X_MULTIPLE_ERRORS: &'static str = "xMultipleErrors";
 const X_CODE: i64 = -32000;
+
+const SERVER_ERROR: ErrorCode = ErrorCode::ServerError(X_CODE);
 
 lazy_static! {
     pub static ref RPC_HANDLER: IoHandler = init_rpc_handler();
@@ -27,7 +30,7 @@ fn init_rpc_handler() -> IoHandler {
 /// `GetArtifacts` API Handler
 struct GetArtifacts;
 impl SyncMethodCommand for GetArtifacts {
-    fn execute(&self, _: Params) -> Result<Value, Error> {
+    fn execute(&self, _: Params) -> result::Result<Value, RpcError> {
         info!("GetArtifacts called");
         let locked = ARTIFACTS.lock().unwrap();
         let artifacts: &Vec<ArtifactData> = locked.as_ref();
@@ -38,16 +41,16 @@ impl SyncMethodCommand for GetArtifacts {
 
 // helper methods for UpdateArtifacts
 
-fn invalid_params(desc: &str) -> Error {
-    Error {
+fn invalid_params(desc: &str) -> RpcError {
+    RpcError {
         code: ErrorCode::InvalidParams,
         message: desc.to_string(),
         data: None,
     }
 }
 
-fn parse_error(desc: &str) -> Error {
-    Error {
+fn parse_error(desc: &str) -> RpcError {
+    RpcError {
         code: ErrorCode::ParseError,
         message: desc.to_string(),
         data: None,
@@ -57,7 +60,7 @@ fn parse_error(desc: &str) -> Error {
 /// convert an artifact from it's data representation
 /// to it's internal artifact representation
 fn convert_artifact(artifact_data: &ArtifactData) 
-    -> Result<(ArtNameRc, Artifact), String> 
+    -> result::Result<(ArtNameRc, Artifact), String> 
 {
     Artifact::from_data(&artifact_data).map_err(|err| err.to_string())
 }
@@ -65,7 +68,7 @@ fn convert_artifact(artifact_data: &ArtifactData)
  /// UpdateArtifacts Handler
 struct UpdateArtifacts;
 impl SyncMethodCommand for UpdateArtifacts {
-    fn execute(&self, params: Params) -> Result<Value, Error> {
+    fn execute(&self, params: Params) -> result::Result<Value, RpcError> {
         info!("* UpdateArtifacts");
 
         let new_artifacts = match params {
@@ -80,20 +83,20 @@ impl SyncMethodCommand for UpdateArtifacts {
         };
 
         let mut artifacts = ARTIFACTS.lock().unwrap();
-        let files = ARTIFACT_FILES.lock().unwrap();
+        let project = PROJECT.lock().unwrap();
 
         let mut map_artifacts: HashMap<u64, ArtifactData> = artifacts.iter_mut()
             .map(|a| (a.id, a.clone())).collect();
 
         let mut save_artifacts: Artifacts = Artifacts::new();
         // insert the new artifacts and check errors first
-        let mut files_not_found: Vec<path::PathBuf> = Vec::new();
+        let mut files_not_found: Vec<PathBuf> = Vec::new();
         let mut ids_not_found: Vec<u64> = Vec::new();
         let mut name_errors: Vec<String> = Vec::new();
 
         for new_artifact in new_artifacts {
-            let path = path::PathBuf::from(&new_artifact.path);
-            if !files.contains(&path) {
+            let path = PathBuf::from(&new_artifact.path);
+            if !project.files.contains(&path) {
                 files_not_found.push(path);
             }
             // remove artifact ids that are getting updated
@@ -131,8 +134,8 @@ impl SyncMethodCommand for UpdateArtifacts {
             err = Some(X_MULTIPLE_ERRORS);
         }
         if let Some(msg) = err {
-            return Err(Error {
-                code: ErrorCode::ServerError(X_CODE),
+            return Err(RpcError {
+                code: SERVER_ERROR,
                 message: msg.to_string(),
                 data: Some(serde_json::to_value(data)),
             });
@@ -141,8 +144,8 @@ impl SyncMethodCommand for UpdateArtifacts {
         for art_data in map_artifacts.values() {
             let (n, a) = match convert_artifact(art_data) {
                 Ok(v) => v,
-                Err(msg) => return Err(Error {
-                    code: ErrorCode::InternalError,
+                Err(msg) => return Err(RpcError {
+                    code: SERVER_ERROR,
                     message: format!(
                         "Could not convert artifact back {:?}, GOT ERROR: {}",
                         art_data, msg),
@@ -153,6 +156,16 @@ impl SyncMethodCommand for UpdateArtifacts {
         }
 
         // process the new set of artifacts to make sure they are valid
+        let mut new_project = project.clone();
+        new_project.artifacts = save_artifacts;
+
+        if let Err(err) = core::process_project(&mut new_project) {
+            return Err(RpcError {
+                code: SERVER_ERROR,
+                message: err.to_string(),
+                data: None,
+            });
+        }
 
         // TODO: 
         // save artifacts to files and then overwrite *artifacts

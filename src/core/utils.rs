@@ -14,25 +14,17 @@
     You should have received a copy of the Lesser GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-use std::env;
-use std::fmt;
 
 use strfmt;
 
+use dev_prefix::*;
 use super::types::*;
 use itertools::{Itertools, EitherOrBoth as EoB};
 
 pub fn do_strfmt(s: &str, vars: &HashMap<String, String>, fpath: &PathBuf)
-             -> LoadResult<String> {
-    match strfmt::strfmt(s, vars) {
-        Ok(s) => Ok(s),
-        Err(e) => {
-            let mut msg = String::new();
-            write!(msg, "ERROR at {}: {}", fpath.to_string_lossy().as_ref(), e.to_string())
-                .unwrap();
-            Err(LoadError::new(msg))
-        }
-    }
+             -> Result<String> {
+    strfmt::strfmt(s, vars).chain_err(|| format!(
+        "ERROR at {}: {}", fpath.display(), s.to_string()))
 }
 
 pub fn strfmt_ignore_missing<T: fmt::Display>(fmtstr: &str, vars: &HashMap<String, T>)
@@ -46,12 +38,10 @@ pub fn strfmt_ignore_missing<T: fmt::Display>(fmtstr: &str, vars: &HashMap<Strin
     strfmt::strfmt_map(fmtstr, &formatter)
 }
 
-pub fn get_path_str(path: &Path) -> LoadResult<&str> {
+pub fn get_path_str(path: &Path) -> Result<&str> {
     match path.to_str() {
         Some(p) => Ok(p),
-        None => Err(LoadError::new(
-            "detected invalid unicode in path name: ".to_string() +
-                path.to_string_lossy().as_ref())),
+        None => Err(ErrorKind::InvalidUnicode(format!("{}", path.display())).into()),
     }
 }
 
@@ -92,7 +82,7 @@ pub fn find_repo(dir: &Path) -> Option<PathBuf> {
 /// given a path, find the closest dir with the repo identifier
 /// and keep track of it
 pub fn find_and_insert_repo(dir: &Path, repo_map: &mut HashMap<PathBuf, PathBuf>)
-                        -> LoadResult<()> {
+                        -> Result<()> {
     let mut must_insert = false;
     let repo = match repo_map.get(dir) {
         Some(r) => r.to_path_buf(),
@@ -100,10 +90,8 @@ pub fn find_and_insert_repo(dir: &Path, repo_map: &mut HashMap<PathBuf, PathBuf>
             let r = match find_repo(dir) {
                 Some(r) => r,
                 None => {
-                    let mut msg = String::new();
-                    write!(msg, "dir is not part of a repo: {}", dir.to_string_lossy().as_ref())
-                        .unwrap();
-                    return Err(LoadError::new(msg));
+                    let msg = format!("dir is not part of a repo: {}", dir.display());
+                    return Err(ErrorKind::Load(msg).into());
                 }
             };
             // can't do this here because of borrowing rules... have to use must_insert

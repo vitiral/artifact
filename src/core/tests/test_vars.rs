@@ -1,12 +1,11 @@
 #![allow(dead_code, unused_imports, unused_variables)]
 
-use std::env;
-
+use dev_prefix::*;
 use super::*;  // data directory constants
-use super::super::types::*;
-use super::super::vars::*;
-use super::super::locs::*;
-use super::super::utils;
+use core::types::*;
+use core::vars::*;
+use core::locs::*;
+use core::utils;
 use super::super::super::init_logger;
 
 #[test]

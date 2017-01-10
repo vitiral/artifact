@@ -16,6 +16,7 @@
 */
 //! methods to format the `FmtArtifact` object and write it to a stream
 
+use dev_prefix::*;
 use super::types::*;
 
 impl FmtArtifact {

@@ -1,6 +1,5 @@
 
 use super::types::*;
-use super::super::core::{ArtifactData};
 
 #[cfg(feature = "web")]
 use super::super::api;
@@ -23,11 +22,11 @@ pub fn get_cmd(matches: &ArgMatches) -> String {
 }
 
 #[cfg(feature = "web")]
-pub fn run_server(project: &Project, addr: &str) {
+pub fn run_server(project: Project, addr: &str) {
     api::start_api(project, addr);
 }
 
 #[cfg(not(feature = "web"))]
-pub fn run_server(project: &Project, addr: &str) {
+pub fn run_server(project: Project, addr: &str) {
     println!("this instance of rst was not compiled with the server enabled");
 }

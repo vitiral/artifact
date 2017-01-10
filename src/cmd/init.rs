@@ -14,7 +14,7 @@
     You should have received a copy of the Lesser GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-pub use std::fs;
+use dev_prefix::*;
 use super::types::*;
 
 const SETTINGS_TOML: &'static str = r#"[settings]

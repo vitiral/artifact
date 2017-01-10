@@ -1,11 +1,5 @@
-use std::fs;
-use std::path;
-use std::ascii::AsciiExt;
-use std::io::{Read, Write, Seek, SeekFrom};
-use std::ops::DerefMut;
-use std::str;
+use dev_prefix::*;
 use std::sync::Mutex;
-use std::collections::{HashMap, HashSet};
 
 //extern crate rustc_serialize;
 //#[macro_use] extern crate nickel;
@@ -24,7 +18,7 @@ use nickel::status::StatusCode;
 use tar::Archive;
 use tempdir::TempDir;
 
-use core::{Project, ArtifactData, LocData};
+use core::{Project, ArtifactData};
 
 mod handler;
 
@@ -33,7 +27,7 @@ const WEB_FRONTEND_TAR: &'static [u8] = include_bytes!("web-ui.tar");
 lazy_static! {
     //#[derive(RustcDecodable, RustcEncodable, Serialize, Deserialize, Debug)]
     static ref ARTIFACTS: Mutex<Vec<ArtifactData>> = Mutex::new(Vec::new());
-    static ref ARTIFACT_FILES: Mutex<HashSet<path::PathBuf>> = Mutex::new(HashSet::new());
+    static ref PROJECT: Mutex<Project> = Mutex::new(Project::new());
 }
 
 fn setup_headers(res: &mut Response) {
@@ -83,7 +77,7 @@ fn handle_artifacts<'a> (req: &mut Request, mut res: Response<'a>)
     }
 }
 
-fn unpack_app(dir: &path::Path, addr: &str) {
+fn unpack_app(dir: &Path, addr: &str) {
     info!("unpacking web-ui at: {}", dir.display());
     let mut archive = Archive::new(WEB_FRONTEND_TAR);
     archive.unpack(&dir).expect("unable to unpack web frontend");
@@ -105,12 +99,12 @@ fn unpack_app(dir: &path::Path, addr: &str) {
 }
 
 /// start the json-rpc API server
-pub fn start_api(project: &Project, addr: &str) {
+pub fn start_api(project: Project, addr: &str) {
     // store artifacts and files into global mutex
     
-    let artifacts: Vec<ArtifactData> = project.artifacts
-        .iter().map(|(name, model)| model.to_data(name)).collect();
     {
+        let artifacts: Vec<ArtifactData> = project.artifacts
+            .iter().map(|(name, model)| model.to_data(name)).collect();
         let mut locked = ARTIFACTS.lock().unwrap();
         let global: &mut Vec<ArtifactData> = locked.deref_mut();
         let compare_by = |a: &ArtifactData| a.name.replace(" ", "").to_ascii_uppercase();
@@ -118,10 +112,9 @@ pub fn start_api(project: &Project, addr: &str) {
         *global = artifacts;
     }
     {
-        // TODO: store project globally, not files
-        let mut locked = ARTIFACT_FILES.lock().unwrap();
+        let mut locked = PROJECT.lock().unwrap();
         let global = locked.deref_mut();
-        *global = project.files.clone();
+        *global = project;
     }
     // it is important that tmp_dir never goes out of scope
     // or the webapp will be deleted!

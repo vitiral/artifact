@@ -14,21 +14,21 @@
     You should have received a copy of the Lesser GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-use std::path::{Path, PathBuf};
-use std::collections::{HashMap, HashSet};
-
 use time;
-
+use dev_prefix::*;
 
 // General
+pub mod prefix;
 pub mod types;
 
 // for loading
 pub mod utils;
-#[macro_use] pub mod load;  // macro use so the macro can be tested
+#[macro_use] pub mod load;  // macro_use so the macro can be tested
+pub mod save;
 pub mod vars;
 pub mod link;
 pub mod locs;
+pub mod name;
 
 // serialization
 #[cfg(feature = "serde_codegen")]
@@ -42,16 +42,18 @@ mod serialize;
 mod tests;
 
 // export for other modules to use
+pub use core::load::load_toml;
 pub use core::utils::find_repo;
 pub use core::types::{
-    LoadResult, LoadError,
+    Result, Error, ErrorKind,
     Project,
     Artifact, Artifacts,
     ArtType, Loc,
     ArtName, ArtNameRc, ArtNames,
-    Settings, LoadFromStr,
+    Settings, 
+    LoadFromStr,
     PARENT_PATH};
-pub use core::load::load_toml;
+pub use core::save::save_project;
 
 #[cfg(test)]
 use super::init_logger;
@@ -63,13 +65,9 @@ pub fn init_logger_test() {
     }
 }
 
-/// Load all items from the toml file at path
-pub fn load_path(path: &Path) 
-        -> LoadResult<Project>{
-    let start = time::get_time();
-    info!("loading path: {}", path.to_string_lossy().as_ref());
-    let mut project = try!(load::load_raw(path));
-
+/// intermediate function during load_path to reprocess
+/// a re-created project
+pub fn process_project(project: &mut Project) -> Result<()> {
     info!("resolving and filling variables");
     try!(vars::fill_text_fields(
         &mut project.artifacts, &mut project.variables, 
@@ -81,6 +79,19 @@ pub fn load_path(path: &Path)
 
     // do all links
     try!(link::do_links(&mut project.artifacts));
+
+    Ok(())
+}
+
+/// Load all items from the toml file at path
+pub fn load_path(path: &Path) 
+        -> Result<Project>{
+    let start = time::get_time();
+    info!("loading path: {}", path.to_string_lossy().as_ref());
+    let mut project = try!(load::load_raw(path));
+
+    try!(process_project(&mut project));
+
     let total = time::get_time() - start;
     info!("Done loading: {} artifacts loaded successfullly in {:.3} seconds",
           project.artifacts.len(), total.num_milliseconds() as f64 * 1e-3);

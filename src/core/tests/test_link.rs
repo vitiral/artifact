@@ -1,5 +1,4 @@
-use std::ascii::AsciiExt;
-
+use dev_prefix::*;
 use super::*;  // data directory constants
 use super::super::types::*;
 use super::super::load::*;
@@ -10,7 +9,7 @@ use super::super::link::*;
 fn test_basic_link() {
     let mut project = Project::new();
     let path = PathBuf::from("hi/there");
-    let req_name = Rc::new(ArtNameRc::from_str("REQ-1").unwrap().parent().unwrap());
+    let req_name = Arc::new(ArtNameRc::from_str("REQ-1").unwrap().parent().unwrap());
 
     // get te artifacts
     let num = load_toml(&path, TOML_RST, &mut project).unwrap();
@@ -83,7 +82,7 @@ fn test_basic_link() {
 fn test_link_completed_tested() {
     let mut project = Project::new();
     let path = PathBuf::from("hi/there");
-    let req_name = Rc::new(ArtNameRc::from_str("REQ-1").unwrap().parent().unwrap());
+    let req_name = Arc::new(ArtNameRc::from_str("REQ-1").unwrap().parent().unwrap());
 
     let num = load_toml(&path, TOML_LINK, &mut project).unwrap();
     let mut artifacts = project.artifacts;

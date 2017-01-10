@@ -1,18 +1,16 @@
 #![allow(dead_code, unused_imports, unused_variables)]
 
-use std::ascii::AsciiExt;
-
 use rustc_serialize::Decodable;
 
+use dev_prefix::*;
 use super::*;  // data directory constants
 use super::super::init_logger_test;
-use super::super::types::*;
-use super::super::load::*;
-use super::super::vars;
-use super::super::locs::*;
+use core::types::*;
+use core::load::*;
+use core::vars;
+use core::locs::*;
 
 use strfmt;
-use regex::Regex;
 use toml::{Parser, Value, Table, Decoder};
 
 // // Tests
@@ -59,7 +57,7 @@ fn test_get_attr() {
 fn test_settings() {
     let tbl_good = parse_text(TOML_GOOD);
     let df_tbl = Table::new();
-    let set = Settings::from_table(
+    let (_, set) = Settings::from_table(
         &get_attr!(tbl_good, "settings", df_tbl, Table).unwrap()).unwrap();
     assert!(set.paths == VecDeque::from_iter(
                 vec![PathBuf::from("{cwd}/test"), PathBuf::from("{repo}/test")]));
@@ -191,9 +189,9 @@ fn test_load_toml() {
 
 /// do the raw load with variable resolultion
 pub fn load_raw_extra(path: &Path)
-                      -> LoadResult<(Artifacts, Settings)> {
+                      -> Result<(Artifacts, Settings)> {
     let mut project = try!(load_raw(path));
-    let mut variables = try!(vars::resolve_loaded_vars(
+    let variables = try!(vars::resolve_loaded_vars(
             &project.variables_map, &mut project.repo_map));
     try!(vars::fill_text_fields(
             &mut project.artifacts, &mut project.variables, &mut project.repo_map));

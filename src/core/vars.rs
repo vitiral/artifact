@@ -18,6 +18,7 @@
 //! used by the load module to resolve and apply loaded variables
 //! also contains settings resolution because it is similar
 
+use dev_prefix::*;
 use super::types::*;
 use super::utils;
 
@@ -33,7 +34,7 @@ lazy_static!{
 pub fn resolve_default_vars(vars: &Variables, fpath: &Path,
                             variables: &mut Variables,
                             repo_map: &mut HashMap<PathBuf, PathBuf>)
-                            -> LoadResult<()> {
+                            -> Result<()> {
     let cwd = fpath.parent().unwrap();
     let mut fmtvars = Variables::new();
     fmtvars.insert("cwd".to_string(), cwd.to_str().unwrap().to_string());
@@ -57,7 +58,8 @@ pub fn resolve_default_vars(vars: &Variables, fpath: &Path,
         }
     }
     if error {
-        return Err(LoadError::new("errors while resolving default variables".to_string()));
+        return Err(ErrorKind::InvalidVariable(
+            "errors while resolving default variables".to_string()).into());
     }
     Ok(())
 }
@@ -65,7 +67,7 @@ pub fn resolve_default_vars(vars: &Variables, fpath: &Path,
 /// continues to resolve variables until all are resolved
 /// - done if no vars were resolved in a pass and no errors
 /// - error if no vars were resolved in a pass and there were errors
-pub fn resolve_vars(variables: &mut Variables) -> LoadResult<()> {
+pub fn resolve_vars(variables: &mut Variables) -> Result<()> {
     // keep resolving variables until all are resolved
     let mut msg = String::new();
     let mut keys: Vec<String> = variables.keys().cloned().collect();
@@ -95,9 +97,8 @@ pub fn resolve_vars(variables: &mut Variables) -> LoadResult<()> {
                 }
 
                 Err(e) => match e {
-                    strfmt::FmtError::Invalid(e) | strfmt::FmtError::TypeError(e) => {
-                        return Err(LoadError::new(e.to_string()));
-                    },
+                    strfmt::FmtError::Invalid(_) | strfmt::FmtError::TypeError(_) =>
+                        return Err(ErrorKind::StrFmt(e).into()),
                     strfmt::FmtError::KeyError(_) => {
                         errors.push(k.clone());
                         // reinsert original value
@@ -113,9 +114,10 @@ pub fn resolve_vars(variables: &mut Variables) -> LoadResult<()> {
                 // unresolved errors
                 keys = keys.iter().filter(|k| !remove_keys.contains(k.as_str()))
                     .cloned().collect();
-                write!(msg, "Could not resolve some globals: {:?}\ngot related errors: {:?}",
-                       keys, errors).unwrap();
-                return Err(LoadError::new(msg));
+                let msg = format!(
+                    "Could not resolve some globals: {:?}\ngot related errors: {:?}",
+                   keys, errors);
+                return Err(ErrorKind::InvalidVariable(msg).into());
             }
         }
     }
@@ -126,7 +128,7 @@ pub fn resolve_vars(variables: &mut Variables) -> LoadResult<()> {
 pub fn fill_text_fields(artifacts: &mut Artifacts,
                         variables: &mut Variables,
                         repo_map: &mut HashMap<PathBuf, PathBuf>)
-                        -> LoadResult<()> {
+                        -> Result<()> {
     // resolve all text blocks in artifacts
     let mut error = false;
     let mut errors: Vec<(&str, strfmt::FmtError)> = Vec::new();
@@ -151,7 +153,7 @@ pub fn fill_text_fields(artifacts: &mut Artifacts,
     }
 
     if error {
-        return Err(LoadError::new("failure to resolve artifact text fields".to_string()));
+        return Err(ErrorKind::InvalidTextVariables.into());
     }
     trace!("Done filling");
     Ok(())
@@ -162,7 +164,7 @@ pub fn fill_text_fields(artifacts: &mut Artifacts,
 /// partof: #SPC-vars
 pub fn resolve_loaded_vars(variables_map: &HashMap<PathBuf, Variables>,
                            repo_map: &mut HashMap<PathBuf, PathBuf>)
-                           -> LoadResult<Variables> {
+                           -> Result<Variables> {
     let mut variables = Variables::new();
     debug!("Resolving default globals in variables, see SPC-vars.1");
     for pv in variables_map.iter() {

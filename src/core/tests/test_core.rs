@@ -1,6 +1,5 @@
 #![allow(dead_code, unused_imports, unused_variables)]
 
-use std::ascii::AsciiExt;
 use std::fs;
 use std::clone::Clone;
 use std::path::{Path, PathBuf};

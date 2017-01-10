@@ -15,16 +15,13 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-use std::ffi::OsString;
-use std::clone;
-use std::env;
-
+use dev_prefix::*;
+use super::types::*;
 use super::init;
 use super::tutorial;
 use super::ls;
 use super::check;
 use super::server;
-use super::types::*;
 
 pub fn get_matches<'a, I, T>(args: I) -> ClapResult<ArgMatches<'a>>
     where I: IntoIterator<Item=T>, 

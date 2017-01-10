@@ -1,0 +1,20 @@
+
+[REQ-save]
+partof = "REQ-2-rest"
+text = '''
+There shall be a method for formatting and saving a user's artifact files 
+according to a simple standard. This includes:
+ - formatting the `partof` field to be sorted and bracketed
+ - formatting all text fields to use the multiline text blocks
+
+The user will use this functionality in:
+ - a `fmt` command on the cmd line
+ - update functionality on the web api/ui, which will write a formatted
+    file
+'''
+
+[SPC-save]
+text = '''
+There **shall** be a fmt function which formats all files in a project to
+the standard defined in REQ-fmt. This will be called `save_project`
+'''

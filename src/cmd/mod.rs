@@ -154,7 +154,7 @@ pub fn cmd<W, I, T>(w: &mut W, args: I) -> i32
         check::do_check(w, &work_tree, &project)
     } else if let Some(mat) = matches.subcommand_matches("server") {
         let addr = server::get_cmd(mat);
-        server::run_server(&project, &addr);
+        server::run_server(project, &addr);
         0
     } else {
         write!(w, "{} {}: use -h to show help",

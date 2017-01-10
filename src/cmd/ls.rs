@@ -15,6 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+use dev_prefix::*;
 use super::types::*;
 use super::fmt as cmdfmt;
 
@@ -72,7 +73,7 @@ pub fn get_subcommand<'a, 'b>() -> App<'a, 'b> {
 }
 
 /// return (lt, percent) returning None when there is no value
-pub fn _get_percent(s: &str) -> Result<(Option<bool>, Option<u8>), String> {
+pub fn _get_percent(s: &str) -> result::Result<(Option<bool>, Option<u8>), String> {
     let mut s = s;
     let mut lt = None;
     if s.is_empty() {
@@ -111,7 +112,7 @@ pub fn _get_percent(s: &str) -> Result<(Option<bool>, Option<u8>), String> {
     }
 }
 
-fn get_percent(s: &str) -> Result<PercentSearch, String> {
+fn get_percent(s: &str) -> result::Result<PercentSearch, String> {
     Ok(match _get_percent(s) {
         Ok((lt, perc)) => {
             if lt.is_none() && perc.is_none() {
@@ -210,7 +211,7 @@ fn get_color(matches: &ArgMatches) -> bool {
 }
 
 /// get all the information from the user input
-pub fn get_ls_cmd(matches: &ArgMatches) -> Result<(String, FmtSettings, SearchSettings), String> {
+pub fn get_ls_cmd(matches: &ArgMatches) -> result::Result<(String, FmtSettings, SearchSettings), String> {
     let mut fmt_set = FmtSettings::default();
     fmt_set.long = matches.is_present("long");
     // fmt_set.recurse = matches.value_of("recursive").unwrap().parse::<u8>().unwrap();

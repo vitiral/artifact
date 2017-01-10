@@ -16,9 +16,10 @@
 */
 //! module that discovers artifact's links
 
+use dev_prefix::*;
 use super::types::*;
 
-pub fn do_links(artifacts: &mut Artifacts) -> LoadResult<()> {
+pub fn do_links(artifacts: &mut Artifacts) -> Result<()> {
     link_named_partofs(artifacts); // MUST come before parents are created
     create_parents(artifacts);
     link_parents(artifacts);
@@ -84,7 +85,7 @@ pub fn link_named_partofs(artifacts: &mut Artifacts) {
     for (name, artifact) in artifacts.iter_mut() {
         for p in name.named_partofs() {
             if artifacts_keys.contains(&p) {
-                artifact.partof.insert(Rc::new(p));
+                artifact.partof.insert(Arc::new(p));
             }
         }
     }
@@ -92,6 +93,7 @@ pub fn link_named_partofs(artifacts: &mut Artifacts) {
 
 #[cfg(test)]
 mod tests {
+    use dev_prefix::*;
     use super::*;
     use super::super::types::*;
     use core::load::load_toml_simple;
@@ -117,7 +119,7 @@ mod tests {
 }
 
 
-pub fn validate_partof(artifacts: &Artifacts) -> LoadResult<()> {
+pub fn validate_partof(artifacts: &Artifacts) -> Result<()> {
     let mut error = false;
     for (name, artifact) in artifacts.iter() {
         for partof in &artifact.partof {
@@ -142,7 +144,7 @@ pub fn validate_partof(artifacts: &Artifacts) -> LoadResult<()> {
         }
     }
     if error {
-        return Err(LoadError::new("Some artifacts have invalid partof attributes".to_string()));
+        return Err(ErrorKind::InvalidPartof.into())
     }
     Ok(())
 }

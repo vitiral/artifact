@@ -1,4 +1,5 @@
 
+use dev_prefix::*;
 use super::types::*;
 
 lazy_static!{
@@ -21,7 +22,7 @@ impl SearchSettings {
         }
     }
 
-    pub fn from_str(s: &str) -> Result<SearchSettings, String> {
+    pub fn from_str(s: &str) -> result::Result<SearchSettings, String> {
         let pattern = HashSet::from_iter(s.chars());
         debug!("got search pattern: {:?}", pattern);
         let invalid: HashSet<char> = pattern.difference(&VALID_SEARCH_FIELDS)
