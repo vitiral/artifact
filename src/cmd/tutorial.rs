@@ -30,7 +30,7 @@ pub fn get_subcommand<'a, 'b>() -> App<'a, 'b> {
 }
 
 /// parse the matches to create the cmd
-pub fn get_tutorial_cmd(matches: &ArgMatches) -> result::Result<u8, String> {
+pub fn get_cmd(matches: &ArgMatches) -> result::Result<u8, String> {
     let part = match matches.value_of("part").unwrap_or("1").parse::<u8>() {
         Ok(p) => p,
         Err(e) => return Err(e.to_string()),
@@ -68,7 +68,7 @@ fn create_dir(path: &PathBuf) {
 
 /// run the tutorial
 /// partof: #SPC-tutorial
-pub fn do_tutorial(part: u8) -> io::Result<()> {
+pub fn run_cmd(part: u8) -> io::Result<()> {
     let CWD: PathBuf = env::current_dir().unwrap();
     let RST_DIR: PathBuf = CWD.join(PathBuf::from(".rst"));
     let REQS_DIR: PathBuf = CWD.join(PathBuf::from("reqs"));

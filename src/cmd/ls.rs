@@ -17,7 +17,7 @@
 
 use dev_prefix::*;
 use super::types::*;
-use super::fmt as cmdfmt;
+use super::display;
 
 /// Get the ls subcommand, which is what creates the command
 /// for the cmdline
@@ -211,7 +211,8 @@ fn get_color(matches: &ArgMatches) -> bool {
 }
 
 /// get all the information from the user input
-pub fn get_ls_cmd(matches: &ArgMatches) -> result::Result<(String, FmtSettings, SearchSettings), String> {
+pub fn get_cmd(matches: &ArgMatches) 
+        -> result::Result<(String, FmtSettings, SearchSettings), String> {
     let mut fmt_set = FmtSettings::default();
     fmt_set.long = matches.is_present("long");
     // fmt_set.recurse = matches.value_of("recursive").unwrap().parse::<u8>().unwrap();
@@ -266,12 +267,14 @@ pub fn get_ls_cmd(matches: &ArgMatches) -> result::Result<(String, FmtSettings, 
 
 #[allow(trivial_regex)]
 /// perform the ls command given the inputs
-pub fn do_ls<W: Write>(w: &mut W,
-                       cwd: &Path,
-                       search: &str,
-                       fmt_set: &FmtSettings,
-                       search_set: &SearchSettings,
-                       project: &Project) -> i32 {
+pub fn run_cmd<W: Write>(
+        w: &mut W,
+        cwd: &Path,
+        search: &str,
+        fmt_set: &FmtSettings,
+        search_set: &SearchSettings,
+        project: &Project) 
+        -> i32 {
     let mut dne: Vec<ArtNameRc> = Vec::new();
     let mut names: Vec<ArtNameRc> = Vec::new();
     let artifacts = &project.artifacts;
@@ -319,9 +322,8 @@ pub fn do_ls<W: Write>(w: &mut W,
         fmt_set.path = true;
     }
 
-
     if !fmt_set.long {
-        cmdfmt::write_table_header(w, &fmt_set, &settings);
+        display::write_table_header(w, &fmt_set, &settings);
     }
     let mut displayed = ArtNames::new();
     for name in names {

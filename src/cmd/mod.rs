@@ -38,6 +38,7 @@ mod types;
 mod matches;
 mod ls;
 mod check;
+mod display;
 mod fmt;
 mod init;
 mod tutorial;
@@ -96,7 +97,7 @@ pub fn cmd<W, I, T>(w: &mut W, args: I) -> i32
     // If init is selected, do that
     if matches.subcommand_matches("init").is_some() {
         info!("Calling the init command");
-        match init::do_init(&work_tree) {
+        match init::run_cmd(&work_tree) {
             Ok(_) => {},
             Err(e) => {
                 println!("ERROR: {}", e);
@@ -109,18 +110,14 @@ pub fn cmd<W, I, T>(w: &mut W, args: I) -> i32
     // If tutorial is selected, do that
     if let Some(t) = matches.subcommand_matches("tutorial") {
         info!("Calling the tutorial command");
-        let c = match tutorial::get_tutorial_cmd(t) {
+        let c = match tutorial::get_cmd(t) {
             Ok(c) => c,
             Err(e) => {
                 println!("ERROR: {}", e);
                 return 1;
             },
         };
-        tutorial::do_tutorial(c).unwrap();
-        // match tutorial::do_tutorial(c) {
-        //     Ok(_) => {},
-        //     Err(e) => println!("ERROR: {}", e),
-        // }
+        tutorial::run_cmd(c).unwrap();
         return 0;
     }
 
@@ -147,14 +144,14 @@ pub fn cmd<W, I, T>(w: &mut W, args: I) -> i32
 
     if let Some(ls) = matches.subcommand_matches("ls") {
         info!("Calling the ls command");
-        let (search, fmtset, search_set) = ls::get_ls_cmd(ls).unwrap();
-        ls::do_ls(w, &work_tree, &search, &fmtset, &search_set, &project)
+        let (search, fmtset, search_set) = ls::get_cmd(ls).unwrap();
+        ls::run_cmd(w, &work_tree, &search, &fmtset, &search_set, &project)
     } else if matches.subcommand_matches("check").is_some() {
         info!("Calling the check command");
-        check::do_check(w, &work_tree, &project)
+        check::run_cmd(w, &work_tree, &project)
     } else if let Some(mat) = matches.subcommand_matches("server") {
         let addr = server::get_cmd(mat);
-        server::run_server(project, &addr);
+        server::run_cmd(project, &addr);
         0
     } else {
         write!(w, "{} {}: use -h to show help",

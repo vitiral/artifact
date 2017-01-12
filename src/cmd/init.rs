@@ -44,7 +44,7 @@ pub fn get_subcommand<'a, 'b>() -> App<'a, 'b> {
         .settings(&[AS::DeriveDisplayOrder, COLOR])
 }
 
-pub fn do_init(path: &Path) -> io::Result<()> {
+pub fn run_cmd(path: &Path) -> io::Result<()> {
     let mut read_dir = try!(fs::read_dir(path));
     let exists = read_dir.any(|e|
         match e {

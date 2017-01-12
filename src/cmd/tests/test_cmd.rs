@@ -14,8 +14,8 @@ use std::time;
 fn test_get_matches() {
     let args = vec!["rst", "ls", "-l"];
     let matches = get_matches(&args).unwrap();
-    let (search, fmtset, search_set) = ls::get_ls_cmd(matches.subcommand_matches("ls").unwrap())
-                                           .unwrap();
+    let (search, fmtset, search_set) = 
+        ls::get_cmd(matches.subcommand_matches("ls").unwrap()).unwrap();
     assert_eq!(search, "");
     assert_eq!(fmtset.long, true);
     assert_eq!(fmtset.recurse, 0);
@@ -24,7 +24,7 @@ fn test_get_matches() {
     // test that -A works
     let args = vec!["rst", "ls", "all", "-AP"];
     let matches = get_matches(&args).unwrap();
-    let (search, fmtset, search_set) = ls::get_ls_cmd(matches.subcommand_matches("ls").unwrap())
+    let (search, fmtset, search_set) = ls::get_cmd(matches.subcommand_matches("ls").unwrap())
                                            .unwrap();
     assert_eq!(search, "all");
     assert_eq!(fmtset.long, false);
@@ -38,7 +38,7 @@ fn test_get_matches() {
     // #TST-ls-search
     let args = vec!["rst", "ls", "regex", "-p", "TNL"];
     let matches = get_matches(&args).unwrap();
-    let (search, _, search_set) = ls::get_ls_cmd(matches.subcommand_matches("ls").unwrap())
+    let (search, _, search_set) = ls::get_cmd(matches.subcommand_matches("ls").unwrap())
                                       .unwrap();
     assert_eq!(search, "regex");
     assert!(search_set.text);
@@ -172,14 +172,14 @@ partof = 'REQ-dne'
 
     // #TST-check
     w.clear();
-    check::do_check(&mut w, &cwd, &project);
+    check::run_cmd(&mut w, &cwd, &project);
     debug_bytes(&w, LS_SPC_DNE);
     assert_eq!(vb(LS_SPC_DNE), w);
 
     // #TST-ls-out
     // do default list, looking for only req-foo
     w.clear();
-    ls::do_ls(&mut w,
+    ls::run_cmd(&mut w,
               &cwd,
               "req-foo",
               &fmt_set,
@@ -191,7 +191,7 @@ partof = 'REQ-dne'
     // do default list with color disabled
     w.clear();
     fmt_set.color = false;
-    ls::do_ls(&mut w,
+    ls::run_cmd(&mut w,
               &cwd,
               "req-foo",
               &fmt_set,
@@ -211,7 +211,7 @@ partof = 'REQ-dne'
     fmt_set.text = true;
     search_set.use_regex = true;
     search_set.parts = true;
-    ls::do_ls(&mut w,
+    ls::run_cmd(&mut w,
               &cwd,
               "s.c.*foo",
               &fmt_set,
