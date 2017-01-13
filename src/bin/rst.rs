@@ -21,5 +21,12 @@ use std::process;
 
 use rst_app::cmd;
 fn main() {
-    process::exit(cmd::cmd(&mut io::stdout(), env::args()));
+    let rc = match cmd::cmd(&mut io::stdout(), env::args()) {
+        Err(e) => {
+            println!("ERROR: {}", e);
+            1
+        }
+        Ok(()) => 0
+    };
+    process::exit(rc)
 }
