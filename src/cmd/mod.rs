@@ -22,14 +22,10 @@
 //! as well as functions which map easily to cmdline methods
 //! that the user may want to execute
 
-use std::env;
-use std::path;
-use std::io;
-use std::clone;
-use std::ffi::OsString;
-
-use core;
+use dev_prefix::*;
+use super::init_logger;
 use super::VERSION;
+use core;
 
 use clap::ArgMatches;
 use ansi_term::Colour::Green;
@@ -48,7 +44,6 @@ mod server;
 #[cfg(test)]
 mod tests;
 
-use super::init_logger;
 
 pub fn get_loglevel(matches: &ArgMatches) -> Option<(u8, bool)> {
     let verbosity = match matches.occurrences_of("v") {
@@ -63,7 +58,7 @@ pub fn get_loglevel(matches: &ArgMatches) -> Option<(u8, bool)> {
 }
 
 
-pub fn cmd<W, I, T>(w: &mut W, args: I) -> i32
+pub fn cmd<W, I, T>(w: &mut W, args: I) -> Result<()>
     where I: IntoIterator<Item=T>,
           T: Into<OsString> + clone::Clone,
           W: io::Write 
@@ -72,26 +67,23 @@ pub fn cmd<W, I, T>(w: &mut W, args: I) -> i32
         Ok(m) => m,
         Err(e) => {
             write!(w, "{}", e).unwrap();
-            return 2;
+            return Err(ErrorKind::CmdError(e.to_string()).into());
         }
     };
 
     // initialze the logger
     match get_loglevel(&matches) {
         Some((v, q)) => init_logger(q, v, true).unwrap(),
-        None => {
-            println!("ERROR: could not find loglevel");
-            return 2;
-        }
+        None => panic!("could not find loglevel"),
     };
 
     let work_tree = match matches.value_of("work-tree") {
-        Some(w) => path::PathBuf::from(w),
+        Some(w) => PathBuf::from(w),
         None => env::current_dir().unwrap(),
     };
     if !work_tree.is_dir() {
         println!("ERROR: work-tree {} is not a directory", work_tree.display());
-        return 1;
+        return Err(ErrorKind::CmdError("TODO".to_string()).into());
     }
     
     // If init is selected, do that
@@ -101,10 +93,10 @@ pub fn cmd<W, I, T>(w: &mut W, args: I) -> i32
             Ok(_) => {},
             Err(e) => {
                 println!("ERROR: {}", e);
-                return 1;
+                return Err(ErrorKind::CmdError("TODO".to_string()).into());
             }
         }
-        return 0;
+        return Ok(());
     }
 
     // If tutorial is selected, do that
@@ -114,11 +106,11 @@ pub fn cmd<W, I, T>(w: &mut W, args: I) -> i32
             Ok(c) => c,
             Err(e) => {
                 println!("ERROR: {}", e);
-                return 1;
+                return Err(ErrorKind::CmdError("TODO".to_string()).into());
             },
         };
         tutorial::run_cmd(c).unwrap();
-        return 0;
+        return Ok(());
     }
 
     // load the artifacts
@@ -126,7 +118,7 @@ pub fn cmd<W, I, T>(w: &mut W, args: I) -> i32
         Some(r) => r,
         None => {
             println!("Could not find .rst folder. Try running `rst init -t`");
-            return 1;
+            return Err(ErrorKind::CmdError("TODO".to_string()).into());
         }
     };
     let cfg = repo.join(".rst");
@@ -136,7 +128,7 @@ pub fn cmd<W, I, T>(w: &mut W, args: I) -> i32
         Ok(p) => p,
         Err(err) => {
             error!("{}", err);
-            return 1;
+            return Err(ErrorKind::CmdError("TODO".to_string()).into());
         }
     };
 
@@ -152,12 +144,12 @@ pub fn cmd<W, I, T>(w: &mut W, args: I) -> i32
     } else if let Some(mat) = matches.subcommand_matches("server") {
         let addr = server::get_cmd(mat);
         server::run_cmd(project, &addr);
-        0
+        return Ok(());
     } else {
         write!(w, "{} {}: use -h to show help",
                Green.bold().paint("rst"),
                Green.paint(VERSION)).unwrap();
-        0
+        return Ok(());
     }
 }
 

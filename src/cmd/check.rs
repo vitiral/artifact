@@ -43,7 +43,7 @@ fn paint_it_bold<W: Write>(w: &mut W, settings: &Settings, msg: &str) {
 #[allow(cyclomatic_complexity)]  // TODO: break this up
 pub fn run_cmd<W: Write>(w: &mut W,
                           cwd: &Path,
-                          project: &Project) -> i32 {
+                          project: &Project) -> Result<()> {
     let artifacts = &project.artifacts;
     let settings = &project.settings;
 
@@ -228,5 +228,10 @@ pub fn run_cmd<W: Write>(w: &mut W,
     } else {
         write!(w, "\n").unwrap();
     }
-    error
+    if error != 0 { 
+        Err(ErrorKind::CmdError("errors found during ls, see logs"
+                                .to_string()).into())
+    } else {
+        Ok(())
+    }
 }

@@ -21,12 +21,15 @@ pub fn get_cmd(matches: &ArgMatches) -> String {
     matches.value_of("addr").unwrap_or("127.0.0.1:4000").to_string()
 }
 
+// TODO: should technically return result
+// need to do conditional compilation on types
+// to auto-convert web errors
 #[cfg(feature = "web")]
-pub fn run_server(project: Project, addr: &str) {
+pub fn run_cmd(project: Project, addr: &str) {
     api::start_api(project, addr);
 }
 
 #[cfg(not(feature = "web"))]
-pub fn run_server(project: Project, addr: &str) {
+pub fn run_cmd(project: Project, addr: &str) {
     println!("this instance of rst was not compiled with the server enabled");
 }

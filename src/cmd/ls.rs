@@ -274,7 +274,7 @@ pub fn run_cmd<W: Write>(
         fmt_set: &FmtSettings,
         search_set: &SearchSettings,
         project: &Project) 
-        -> i32 {
+        -> Result<()> {
     let mut dne: Vec<ArtNameRc> = Vec::new();
     let mut names: Vec<ArtNameRc> = Vec::new();
     let artifacts = &project.artifacts;
@@ -293,8 +293,8 @@ pub fn run_cmd<W: Write>(
         pat_case = match pat {
             Ok(p) => p,
             Err(e) => {
-                error!("Invalid pattern: {}", e.to_string());
-                return 1;
+                return Err(ErrorKind::CmdError(format!(
+                    "Invalid pattern: {}", e)).into());
             }
         };
         names.extend(artifacts.keys().cloned());
@@ -305,7 +305,8 @@ pub fn run_cmd<W: Write>(
             Ok(n) => n,
             Err(e) => {
                 error!("{}", e);
-                return 1;
+                return Err(ErrorKind::CmdError(format!(
+                    "{}", e)).into());
             }
         });
         names.sort();
@@ -342,8 +343,8 @@ pub fn run_cmd<W: Write>(
         f.write(w, cwd, artifacts, &settings, 0).unwrap(); // FIXME: unwrap
     }
     if !dne.is_empty() {
-        error!("The following artifacts do not exist: {:?}", dne);
-        return 1;
+        return Err(ErrorKind::NameNotFound(format!(
+            "The following artifacts do not exist: {:?}", dne)).into());
     }
-    0
+    Ok(())
 }

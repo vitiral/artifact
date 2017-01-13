@@ -16,8 +16,8 @@
 */
 //! project wide types
  
-use std::sync::atomic::{AtomicUsize, Ordering as AtomicOrdering};
 use dev_prefix::*;
+use std::sync::atomic::{AtomicUsize, Ordering as AtomicOrdering};
 pub use super::{ArtifactData, LocData, Text};
 
 pub type Artifacts = HashMap<ArtNameRc, Artifact>;
@@ -25,78 +25,6 @@ pub type ArtNameRc = Arc<ArtName>;
 pub type ArtNames = HashSet<ArtNameRc>;
 pub type Variables = HashMap<String, String>;
 
-error_chain! {
-    types {
-        Error, ErrorKind, ResultExt, Result;
-    }
-
-    links {
-        // no external error chains (yet)
-    }
-
-    foreign_links {
-        TomlDecode(::toml::DecodeError);
-        Io(::std::io::Error);
-        Fmt(fmt::Error);
-        StrFmt(::strfmt::FmtError);
-    }
-
-    errors {
-        // Loading errors
-        Load(desc: String) {
-            description("Misc error while loading artifacts")
-            display("Error loading: {}", desc)
-        }
-        TomlParse(locs: String) {
-            description("Error while parsing TOML file")
-            display("Error parsing TOML: {}", locs)
-        }
-        MissingTable {
-            description("Must contain a single table")
-        }
-        InvalidName(desc: String) {
-            description("invalid artifact name")
-            display("invalid artifact name: \"{}\"", desc)
-        }
-        InvalidAttr(name: String, attr: String) {
-            description("artifact has invalid attribute")
-            display("Artifact {} has invalid attribute: {}", name, attr)
-        }
-        InvalidSettings(desc: String) {
-            description("invalid settings")
-            display("invalid settings: {}", desc)
-        }
-        InvalidArtifact(name: String, desc: String) {
-            description("invalid artifact")
-            display("artifact {} is invalid: {}", name, desc)
-        }
-        InvalidVariable(desc: String) {
-            description("invalid variable")
-            display("invalid variable: {}", desc)
-        }
-
-        // Processing errors
-        InvalidTextVariables {
-            description("couldn't resolve some text variables")
-        }
-        InvalidPartof {
-            description("Some artifacts have invalid partof attributes")
-        }
-        LocNotFound {
-            description("errors while finding implementation locations")
-        }
-        InvalidUnicode(path: String) {
-            description("we do not yet support non-unicode paths")
-            display("invalid unicode in path: {}", path)
-        }
-
-        // Misc errors
-        PathNotFound(desc: String) {
-            description("invalid path")
-            display("Path does not exist: {}", desc)
-        }
-    }
-}
 
 lazy_static!{
     // must start with artifact type, followed by "-", followed by at least 1 valid character

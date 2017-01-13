@@ -1,5 +1,4 @@
 pub use core::{
-    Result, Error, ErrorKind,
     Project,
     Artifact, Artifacts,
     ArtType, Loc,

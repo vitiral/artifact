@@ -45,7 +45,6 @@ mod tests;
 pub use core::load::load_toml;
 pub use core::utils::find_repo;
 pub use core::types::{
-    Result, Error, ErrorKind,
     Project,
     Artifact, Artifacts,
     ArtType, Loc,

@@ -61,6 +61,7 @@ include!("serde_types.in.rs");
 include!(concat!(env!("OUT_DIR"), "/serde_types.rs"));
 
 // modules
+pub mod types;
 pub mod dev_prefix;
 pub mod core;
 pub mod ui;
@@ -69,10 +70,13 @@ pub mod cmd;
 #[cfg(feature = "web")]
 mod api;
 
+use std::result;
+pub use types::*;
 
 pub const VERSION: &'static str = env!("CARGO_PKG_VERSION");
 
-pub fn init_logger(quiet: bool, verbosity: u8, stderr: bool) -> Result<(), fern::InitError> {
+pub fn init_logger(quiet: bool, verbosity: u8, stderr: bool) 
+        -> result::Result<(), fern::InitError> {
     let level = if quiet {log::LogLevelFilter::Off } else {
         match verbosity {
             0 => log::LogLevelFilter::Warn,

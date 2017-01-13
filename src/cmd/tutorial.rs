@@ -68,7 +68,7 @@ fn create_dir(path: &PathBuf) {
 
 /// run the tutorial
 /// partof: #SPC-tutorial
-pub fn run_cmd(part: u8) -> io::Result<()> {
+pub fn run_cmd(part: u8) -> Result<()> {
     let CWD: PathBuf = env::current_dir().unwrap();
     let RST_DIR: PathBuf = CWD.join(PathBuf::from(".rst"));
     let REQS_DIR: PathBuf = CWD.join(PathBuf::from("reqs"));
@@ -135,7 +135,9 @@ pub fn run_cmd(part: u8) -> io::Result<()> {
         debug!("cwd is not a tutorial");
         // make sure the directory is empty -- we don't want to
         // delete anything we shouldn't
-        if try!(fs::read_dir(&CWD)).next().is_some() {
+        if fs::read_dir(&CWD)
+                .chain_err(|| format!("could not read dir: {}", CWD.display()))?
+                .next().is_some() {
             println!("ERROR: can only start the rst tutorial in an empty directory. \
                       To make an empty directory and change-dir to it, run:\n    \
                       mkdir ~/tryrst; cd ~/tryrst");

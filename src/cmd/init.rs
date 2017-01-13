@@ -44,8 +44,9 @@ pub fn get_subcommand<'a, 'b>() -> App<'a, 'b> {
         .settings(&[AS::DeriveDisplayOrder, COLOR])
 }
 
-pub fn run_cmd(path: &Path) -> io::Result<()> {
-    let mut read_dir = try!(fs::read_dir(path));
+pub fn run_cmd(path: &Path) -> Result<()> {
+    let mut read_dir = fs::read_dir(path)
+        .chain_err(|| format!("dir: {}", path.display()))?;
     let exists = read_dir.any(|e|
         match e {
             Err(_) => false,
@@ -62,15 +63,18 @@ pub fn run_cmd(path: &Path) -> io::Result<()> {
     let repo = path.join(".rst");
     let reqs = path.join("reqs");
     if !exists {
-        try!(fs::create_dir(&repo));
+        fs::create_dir(&repo)
+            .chain_err(|| format!("create dir: {}", repo.display()))?;
         let _ = fs::create_dir(&reqs);
 
         // create settings
         let settings = repo.join("settings.toml");
         let purpose = reqs.join("purpose.toml");
-        let mut f = try!(fs::File::create(&settings));
+        let mut f = fs::File::create(&settings)
+            .chain_err(|| format!("create file: {}", settings.display()))?;
         f.write_all(SETTINGS_TOML.as_ref()).unwrap();
-        let mut f = try!(fs::File::create(purpose));
+        let mut f = fs::File::create(&purpose)
+            .chain_err(|| format!("create file: {}", purpose.display()))?;
         f.write_all(PURPOSE_TOML.as_ref()).unwrap();
         println!("rst initialized at {} with artifacts at {}",
                  settings.display(), reqs.display());
