@@ -1,7 +1,6 @@
 
 use super::types::*;
 
-#[cfg(feature = "web")]
 use super::super::api;
 
 /// Get the server subcommand for the cmdline
@@ -24,12 +23,6 @@ pub fn get_cmd(matches: &ArgMatches) -> String {
 // TODO: should technically return result
 // need to do conditional compilation on types
 // to auto-convert web errors
-#[cfg(feature = "web")]
 pub fn run_cmd(project: Project, addr: &str) {
     api::start_api(project, addr);
-}
-
-#[cfg(not(feature = "web"))]
-pub fn run_cmd(project: Project, addr: &str) {
-    println!("this instance of rst was not compiled with the server enabled");
 }

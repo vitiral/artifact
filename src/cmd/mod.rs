@@ -144,7 +144,7 @@ pub fn cmd<W, I, T>(w: &mut W, args: I) -> Result<()>
     } else if let Some(mat) = matches.subcommand_matches("server") {
         let addr = server::get_cmd(mat);
         server::run_cmd(project, &addr);
-        return Ok(());
+        Ok(())
     } else {
         write!(w, "{} {}: use -h to show help",
                Green.bold().paint("rst"),

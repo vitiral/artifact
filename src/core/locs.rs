@@ -158,14 +158,7 @@ pub fn find_locs(settings: &mut Settings) -> Result<HashMap<ArtName, Loc>> {
     let mut locs: HashMap<ArtName, Loc> = HashMap::new();
     let mut loaded_dirs: HashSet<PathBuf> = HashSet::from_iter(
         settings.exclude_code_paths.iter().map(|p| p.to_path_buf()));
-    // first make sure the excluded directories exist
-    for d in &loaded_dirs {
-        if !d.exists() {
-            let msg = format!("{} <excluded_paths>", d.display());
-            return Err(ErrorKind::PathNotFound(msg).into());
-        }
-    }
-    debug!("initial excluded code paths: {:?}", loaded_dirs);
+    debug!("excluded code paths: {:?}", loaded_dirs);
     while !settings.code_paths.is_empty() {
         let dir = settings.code_paths.pop_front().unwrap(); // it has len, it better pop!
         if loaded_dirs.contains(&dir) {

@@ -22,10 +22,10 @@
 extern crate fern;
 
 // # general crates
-extern crate itertools;
 #[macro_use] extern crate error_chain;
 #[macro_use] extern crate lazy_static;
 #[macro_use] extern crate log;
+extern crate itertools;
 
 // # core crates
 extern crate regex;
@@ -38,25 +38,21 @@ extern crate toml;
 extern crate clap;
 extern crate ansi_term;
 
-// # web crates
-#[cfg_attr(feature = "web", macro_use)] 
-#[cfg(feature = "web")]
-extern crate nickel;
-#[cfg(feature = "web")] extern crate jsonrpc_core;
+// # web api crates
+#[macro_use] extern crate nickel;
+extern crate jsonrpc_core;
+
+// # for web front end
 #[cfg(feature = "web")] extern crate tempdir;
 #[cfg(feature = "web")] extern crate tar;
 
 // # serde hybrid requirements
 #[cfg(feature = "serde_derive")]
-#[macro_use]
-extern crate serde_derive;
-
+#[macro_use] extern crate serde_derive;
 extern crate serde;
 extern crate serde_json;
-
 #[cfg(feature = "serde_derive")]
 include!("serde_types.in.rs");
-
 #[cfg(feature = "serde_codegen")]
 include!(concat!(env!("OUT_DIR"), "/serde_types.rs"));
 
@@ -67,7 +63,6 @@ pub mod core;
 pub mod ui;
 pub mod cmd;
 
-#[cfg(feature = "web")]
 mod api;
 
 use std::result;

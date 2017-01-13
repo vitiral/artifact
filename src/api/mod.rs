@@ -15,13 +15,15 @@ use nickel::{
     Nickel, HttpRouter, MediaType,
     StaticFilesHandler};
 use nickel::status::StatusCode;
-use tar::Archive;
-use tempdir::TempDir;
+
+#[cfg(feature = "web")] use tar::Archive;
+#[cfg(feature = "web")] use tempdir::TempDir;
 
 use core::{Project, ArtifactData};
 
 mod handler;
 
+#[cfg(feature = "web")]
 const WEB_FRONTEND_TAR: &'static [u8] = include_bytes!("web-ui.tar");
 
 lazy_static! {
@@ -77,8 +79,19 @@ fn handle_artifacts<'a> (req: &mut Request, mut res: Response<'a>)
     }
 }
 
-fn unpack_app(dir: &Path, addr: &str) {
+#[cfg(feature = "web")]
+/// host the frontend web-server, returning the tempdir where it the
+/// static files are being held. It is important that this tempdir
+/// always be owned, ortherwise the files will be deleted!
+fn host_frontend(server: &mut Nickel, addr: &str) 
+        -> TempDir {
+    // it is important that tmp_dir never goes out of scope
+    // or the webapp will be deleted!
+    let tmp_dir = TempDir::new("rst-web-ui")
+        .expect("unable to create temporary directory");
+    let dir = tmp_dir.path().to_path_buf(); // we have to clone this because *borrow*
     info!("unpacking web-ui at: {}", dir.display());
+
     let mut archive = Archive::new(WEB_FRONTEND_TAR);
     archive.unpack(&dir).expect("unable to unpack web frontend");
 
@@ -93,12 +106,21 @@ fn unpack_app(dir: &Path, addr: &str) {
     app_js.seek(SeekFrom::Start(0)).unwrap();    
     app_js.set_len(0).unwrap(); // delete what is there
     // the elm app uses a certain address by default, replace it
-    //app_js.write_all(text.replace("http://localhost:3733", addr).as_bytes()).unwrap();
     app_js.write_all(text.replace("localhost:3733", addr).as_bytes()).unwrap();
     app_js.flush().unwrap();
+
+    server.utilize(StaticFilesHandler::new(&dir));
+    println!("hosting web ui at {}", addr);
+    tmp_dir
+}
+
+#[cfg(not(feature = "web"))]
+fn host_frontend(_: &Nickel, _: &str) {
+    info!("not hosting web ui: feature \"web\" was not enabled at compile time");
 }
 
 /// start the json-rpc API server
+#[allow(unused_variables)] // need to hold ownership of tmp_dir
 pub fn start_api(project: Project, addr: &str) {
     // store artifacts and files into global mutex
     
@@ -116,13 +138,6 @@ pub fn start_api(project: Project, addr: &str) {
         let global = locked.deref_mut();
         *global = project;
     }
-    // it is important that tmp_dir never goes out of scope
-    // or the webapp will be deleted!
-    let tmp_dir = TempDir::new("rst-web-ui")
-        .expect("unable to create temporary directory");
-    let app_dir = tmp_dir.path();
-    debug!("unpacking webapp in {}", app_dir.display());
-    unpack_app(app_dir, addr);
 
     let endpoint = "/json-rpc";
     let mut server = Nickel::new();
@@ -135,8 +150,9 @@ pub fn start_api(project: Project, addr: &str) {
         "ok"
     });
 
-    //server.utilize(StaticFilesHandler::new("web-ui/dist"));
-    server.utilize(StaticFilesHandler::new(&tmp_dir));
+    // host the frontend files using a static file handler
+    // and own the tmpdir for as long as needed
+    let tmp_dir = host_frontend(&mut server, addr);
 
     server.listen(addr).expect("cannot connect to port");
 }
