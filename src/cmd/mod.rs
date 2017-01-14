@@ -38,7 +38,6 @@ mod display;
 mod fmt;
 mod init;
 mod tutorial;
-mod data;  // data mostly for the tutorial
 mod server;
 
 #[cfg(test)]
@@ -109,12 +108,12 @@ pub fn cmd<W, I, T>(w: &mut W, args: I) -> Result<()>
                 return Err(ErrorKind::CmdError("TODO".to_string()).into());
             },
         };
-        tutorial::run_cmd(c).unwrap();
+        tutorial::run_cmd(&work_tree, c).unwrap();
         return Ok(());
     }
 
     // load the artifacts
-    let repo = match core::find_repo(work_tree.as_path()) {
+    let repo = match core::find_repo(&work_tree) {
         Some(r) => r,
         None => {
             println!("Could not find .rst folder. Try running `rst init -t`");
@@ -124,7 +123,7 @@ pub fn cmd<W, I, T>(w: &mut W, args: I) -> Result<()>
     let cfg = repo.join(".rst");
     debug!("using cfg dir {:?}", cfg);
 
-    let project = match core::load_path(cfg.as_path()) {
+    let project = match core::load_path(&cfg) {
         Ok(p) => p,
         Err(err) => {
             error!("{}", err);

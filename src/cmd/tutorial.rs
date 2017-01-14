@@ -19,7 +19,6 @@
 
 use dev_prefix::*;
 use super::types::*;
-use super::data;
 
 /// return the cmdline subcommand
 pub fn get_subcommand<'a, 'b>() -> App<'a, 'b> {
@@ -53,10 +52,10 @@ fn remove_files_force(files: &HashSet<PathBuf>) {
 }
 
 /// write to a file with logging
-fn write_file(path: &PathBuf, data: &str) -> io::Result<()> {
+fn write_file(path: &PathBuf, data: &[u8]) -> io::Result<()> {
     trace!("creating file: {}", path.display());
     let mut f = try!(fs::File::create(path.as_path()));
-    try!(f.write_all(data.as_ref()));
+    try!(f.write_all(data));
     Ok(())
 }
 
@@ -66,23 +65,46 @@ fn create_dir(path: &PathBuf) {
     let _ = fs::create_dir(path);
 }
 
+// static files that are compiled into the binary for command `tutorial`
+pub const D_TUTORIAL_TOML: &'static [u8] = include_bytes!("data/tutorial.toml");
+pub const D_TUTORIAL_MD: &'static [u8] = include_bytes!("data/tutorial.md");
+
+pub const D_CAPITOLS_CSV: &'static [u8] = include_bytes!("data/capitols.csv");
+pub const D_FLASH_CARD_CHALLENGE_HTM: &'static [u8] = include_bytes!(
+    "data/flash-card-challenge.htm");
+pub const D_HIGH_LEVEL_TOML: &'static [u8] = include_bytes!("data/high_level.toml");
+pub const D_PURPOSE_TOML: &'static [u8] = include_bytes!("data/purpose.toml");
+
+pub const D_LOAD_1_PY: &'static [u8] = include_bytes!("data/load-1.py");
+pub const D_LOAD_1_TOML: &'static [u8] = include_bytes!("data/load-1.toml");
+pub const D_LOAD_2_PY: &'static [u8] = include_bytes!("data/load-2.py");
+pub const D_LOAD_2_TOML: &'static [u8] = include_bytes!("data/load-2.toml");
+pub const D_TEST_LOAD_PY: &'static [u8] = include_bytes!("data/test_load.py");
+pub const D_TEST_DATA_CSV: &'static [u8] = include_bytes!("data/test_data.csv");
+
+pub const D_SETTINGS_1_TOML: &'static [u8] = include_bytes!("data/settings-1.toml");
+pub const D_SETTINGS_2_TOML: &'static [u8] = include_bytes!("data/settings-2.toml");
+pub const D_SETTINGS_4_TOML: &'static [u8] = include_bytes!("data/settings-4.toml");
+
+
+
 /// run the tutorial
 /// partof: #SPC-tutorial
-pub fn run_cmd(part: u8) -> Result<()> {
-    let CWD: PathBuf = env::current_dir().unwrap();
-    let RST_DIR: PathBuf = CWD.join(PathBuf::from(".rst"));
-    let REQS_DIR: PathBuf = CWD.join(PathBuf::from("reqs"));
-    let SRC_DIR: PathBuf = CWD.join(PathBuf::from("flash"));
+pub fn run_cmd(cwd: &Path, part: u8) -> Result<()> {
+    //let CWD: PathBuf = env::current_dir().unwrap();
+    let RST_DIR: PathBuf = cwd.join(PathBuf::from(".rst"));
+    let REQS_DIR: PathBuf = cwd.join(PathBuf::from("reqs"));
+    let SRC_DIR: PathBuf = cwd.join(PathBuf::from("flash"));
     let TESTS_DIR: PathBuf = SRC_DIR.join(PathBuf::from("tests"));
 
     // .toml file paths
     let SETTINGS_TOML: PathBuf = RST_DIR.join(PathBuf::from("settings.toml"));
 
     // cwd file paths
-    let TUTORIAL_TOML: PathBuf = CWD.join(PathBuf::from("tutorial.toml"));
-    let TUTORIAL_MD: PathBuf = CWD.join(PathBuf::from("tutorial.md"));
-    let CAPITOLS_CSV: PathBuf = CWD.join(PathBuf::from("capitols.csv"));
-    let EXERCISE_HTM: PathBuf = CWD.join(PathBuf::from("flash_card_challenge.htm"));
+    let TUTORIAL_TOML: PathBuf = cwd.join(PathBuf::from("tutorial.toml"));
+    let TUTORIAL_MD: PathBuf = cwd.join(PathBuf::from("tutorial.md"));
+    let CAPITOLS_CSV: PathBuf = cwd.join(PathBuf::from("capitols.csv"));
+    let FLASH_CARD_CHALLENGE_HTM: PathBuf = cwd.join(PathBuf::from("flash_card_challenge.htm"));
 
     // reqs file paths
     let PURPOSE_TOML: PathBuf = REQS_DIR.join(PathBuf::from("purpose.toml"));
@@ -96,7 +118,7 @@ pub fn run_cmd(part: u8) -> Result<()> {
     // tests file paths
     let TEST_INIT_PY: PathBuf = TESTS_DIR.join(PathBuf::from("__init__.py"));
     let TEST_LOAD_PY: PathBuf = TESTS_DIR.join(PathBuf::from("test_load.py"));
-    let EXAMPLE_CSV: PathBuf = TESTS_DIR.join(PathBuf::from("example.csv"));
+    let TEST_DATA_CSV: PathBuf = TESTS_DIR.join(PathBuf::from("example.csv"));
 
     let PART_1_FILES: HashSet<PathBuf> = HashSet::from_iter(vec![SETTINGS_TOML.clone(),
                                                                  TUTORIAL_TOML.clone()]);
@@ -104,7 +126,7 @@ pub fn run_cmd(part: u8) -> Result<()> {
     let PART_2_FILES: HashSet<PathBuf> = HashSet::from_iter(vec![SETTINGS_TOML.clone(),
                                                                  TUTORIAL_MD.clone(),
                                                                  CAPITOLS_CSV.clone(),
-                                                                 EXERCISE_HTM.clone(),
+                                                                 FLASH_CARD_CHALLENGE_HTM.clone(),
                                                                  PURPOSE_TOML.clone(),
                                                                  HIGH_LEVEL_TOML.clone()]);
 
@@ -130,13 +152,13 @@ pub fn run_cmd(part: u8) -> Result<()> {
         }
         Err(_) => false,
     };
-    debug!("running with cwd: {}", CWD.display());
+    debug!("running with cwd: {}", cwd.display());
     if !already_tutorial {
         debug!("cwd is not a tutorial");
         // make sure the directory is empty -- we don't want to
         // delete anything we shouldn't
-        if fs::read_dir(&CWD)
-                .chain_err(|| format!("could not read dir: {}", CWD.display()))?
+        if fs::read_dir(&cwd)
+                .chain_err(|| format!("could not read dir: {}", cwd.display()))?
                 .next().is_some() {
             println!("ERROR: can only start the rst tutorial in an empty directory. \
                       To make an empty directory and change-dir to it, run:\n    \
@@ -152,42 +174,47 @@ pub fn run_cmd(part: u8) -> Result<()> {
     create_dir(&RST_DIR);
     println!("## Tutorial Loaded!");
     if part == 1 {
+        // stage 1: example toml file with self-description
         println!("  Tutorial part 1: open tutorial.toml with a text editor");
-        try!(write_file(&SETTINGS_TOML, data::settings_1::DATA));
-        try!(write_file(&TUTORIAL_TOML, data::tutorial_toml::DATA));
+        try!(write_file(&SETTINGS_TOML, D_SETTINGS_1_TOML));
+        try!(write_file(&TUTORIAL_TOML, D_TUTORIAL_TOML));
     } else {
         create_dir(&REQS_DIR);
-        try!(write_file(&TUTORIAL_MD, data::tutorial_md::DATA));
-        try!(write_file(&CAPITOLS_CSV, data::capitols_csv::DATA));
-        try!(write_file(&EXERCISE_HTM, data::exercise_htm::DATA));
-        try!(write_file(&PURPOSE_TOML, data::purpose_toml::DATA));
-        try!(write_file(&HIGH_LEVEL_TOML, data::high_level_toml::DATA));
+        try!(write_file(&TUTORIAL_MD, D_TUTORIAL_MD));
+        try!(write_file(&CAPITOLS_CSV, D_CAPITOLS_CSV));
+        try!(write_file(&FLASH_CARD_CHALLENGE_HTM, D_FLASH_CARD_CHALLENGE_HTM));
+        try!(write_file(&PURPOSE_TOML, D_PURPOSE_TOML));
+        try!(write_file(&HIGH_LEVEL_TOML, D_HIGH_LEVEL_TOML));
         if part == 2 {
+            // stage 2: purpose document
             println!("  Tutorial part 2: open tutorial.md with a text editor and see part 2");
-            try!(write_file(&SETTINGS_TOML, data::settings_2::DATA));
+            try!(write_file(&SETTINGS_TOML, D_SETTINGS_2_TOML));
         } else {
             if part == 3 {
+                // stage 3: load.toml detailed design
                 println!("  Tutorial part 3: open tutorial.md with a text editor and see part 3");
             }
-            try!(write_file(&SETTINGS_TOML, data::settings_2::DATA)); // same settings
+            try!(write_file(&SETTINGS_TOML, D_SETTINGS_2_TOML)); // same settings as 2
             if part != 5 {
-                try!(write_file(&LOAD_TOML, data::load_toml::DATA));
+                try!(write_file(&LOAD_TOML, D_LOAD_1_TOML));
             }
             if part >= 4 {
+                // stage 4: implementing and linking code
                 create_dir(&SRC_DIR);
                 create_dir(&TESTS_DIR);
-                try!(write_file(&SETTINGS_TOML, data::settings_4::DATA));
-                try!(write_file(&TEST_LOAD_PY, data::test_load_py::DATA));
-                try!(write_file(&EXAMPLE_CSV, data::example_csv::DATA));
-                try!(write_file(&INIT_PY, ""));
-                try!(write_file(&TEST_INIT_PY, ""));
+                try!(write_file(&SETTINGS_TOML, D_SETTINGS_4_TOML));
+                try!(write_file(&TEST_LOAD_PY, D_TEST_LOAD_PY));
+                try!(write_file(&TEST_DATA_CSV, D_TEST_DATA_CSV));
+                try!(write_file(&INIT_PY, b""));
+                try!(write_file(&TEST_INIT_PY, b""));
                 if part == 4 {
                     println!("  Tutorial part 4: open tutorial.md with a text editor and see part 4");
-                    try!(write_file(&LOAD_PY, data::load_py::DATA));
+                    try!(write_file(&LOAD_PY, D_LOAD_1_PY));
                 } else {
+                    // stage 5: handling errors
                     println!("  Tutorial part 5: open tutorial.md with a text editor and see part 5");
-                    try!(write_file(&LOAD_TOML, data::load_toml2::DATA));
-                    try!(write_file(&LOAD_PY, data::load_py2::DATA));
+                    try!(write_file(&LOAD_TOML, D_LOAD_2_TOML));
+                    try!(write_file(&LOAD_PY, D_LOAD_2_PY));
                 }
             }
         }

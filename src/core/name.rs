@@ -43,11 +43,11 @@ impl ArtName {
             return Err(ErrorKind::InvalidName(s.to_string()).into());
         }
         let value: Vec<String> = value.split('-').map(|s| s.to_string()).collect();
-        let ty_str: String = value[0].clone();
+        let ty = _get_type(&value[0], s)?;
         Ok(ArtName {
             raw: s.to_string(),
             value: value,
-            ty: try!(_get_type(&ty_str, s)),
+            ty: ty,
         })
     }
 

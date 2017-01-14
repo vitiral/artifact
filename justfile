@@ -6,36 +6,37 @@ target = "$PWD/target"
 ##################################################
 # build commands
 build: # build app with web=false
-	CARGO_TARGET_DIR={{target}}/stable rustup run stable cargo build
+	cargo build
+	echo "built binary to: target/stable/debug/rst"
 
 build-elm: # build just elm (not rust)
 	(cd web-ui; npm run build)
 	(cd web-ui/dist; tar -cvf ../../src/api/web-ui.tar *)
 
 build-web: build-elm # build and bundle app with web=true
-	CARGO_TARGET_DIR={{target}}/stable rustup run stable cargo build --features "web"
+	cargo build --features "web"
 
 build-all: build build-web # just used for testing that you can build both
 
 ##################################################
 # unit testing/linting commands
 test: # do tests with web=false
-	RUST_BACKTRACE=1 CARGO_TARGET_DIR={{target}}/stable rustup run stable cargo test --lib
+	RUST_BACKTRACE=1 cargo test --lib
 
 test-web: # do tests with web=true
 	(cd web-ui; elm test)
-	RUST_BACKTRACE=1 CARGO_TARGET_DIR={{target}}/stable rustup run stable cargo test --lib --features "web"
+	RUST_BACKTRACE=1 cargo test --lib --features "web"
 
 test-all: test test-web # test all build configurations
 
 filter PATTERN: # run only specific tests
-	RUST_BACKTRACE=1 CARGO_TARGET_DIR={{target}}/stable rustup run stable cargo test --lib {{PATTERN}} --features "web"
+	RUST_BACKTRACE=1 cargo test --lib {{PATTERN}} --features "web"
 
 lint: # run linter
-	CARGO_TARGET_DIR={{target}}/nightly rustup run nightly cargo clippy --features "web"
+	cargo clippy --features "web"
 	
 test-server: build-elm # run the test-server for e2e testing, still in development
-	(CARGO_TARGET_DIR={{target}}/nightly rustup run nightly cargo run --features "web" -- --work-tree web-ui/e2e_tests/ex_proj -v server)
+	(cargo run --features "web" -- --work-tree web-ui/e2e_tests/ex_proj -v server)
 
 test-e2e: # run e2e tests, still in development
 	(cd web-ui; py2t e2e_tests/basic.py)
@@ -44,13 +45,13 @@ test-e2e: # run e2e tests, still in development
 # running commands
 
 api: # run the api server (without the web-ui)
-	CARGO_TARGET_DIR={{target}}/stable rustup run stable cargo run -- -v server
+	cargo run -- -v server
 
 frontend: build-elm  # run the full frontend
-	CARGO_TARGET_DIR={{target}}/nightly rustup run nightly cargo run --features "web" -- -v server
+	cargo run --features "web" -- -v server
 
 self-check: # build self and run `rst check` using own binary
-	CARGO_TARGET_DIR={{target}}/nightly rustup run nightly cargo run -- check
+	cargo run -- check
 
 ##################################################
 # release command

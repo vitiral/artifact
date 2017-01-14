@@ -1,4 +1,3 @@
-pub static DATA: &'static str = r##"
 '''
 csv loading module
 
@@ -69,4 +68,3 @@ def load_path(path):
     '''
     with open(path, 'rb') as f:
         return load_io(f)
-"##;

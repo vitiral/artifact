@@ -1,4 +1,3 @@
-pub static DATA: &'static str = r##"
 import os
 import unittest
 from StringIO import StringIO
@@ -35,8 +34,22 @@ class TestLoadIo(unittest.TestCase):
         ]
         self.assertEqual(result, expected)
 
+    # Required unit tests
+    # partof: #TST-load-unit
+
     def test_invalid_columns(self):
-        ''' partof: #TST-load-unit-colums '''
+        '''
+        see: TST-load-unit
+
+        Note: it's nice to include that a unit test is part of a larger
+        test definition. From personal experience, it is not fun to
+        define every possible tiny test as a full rst item -- it clutters
+        up your requirements documentation for no reason.
+
+        Even still, in code it is good to specify why a test is being
+        done, so just putting a "see: TST-load-unit" line can be helpful
+        to those reading your code.
+        '''
         # extra ',' after 1
         text = '''\
         one,1,
@@ -46,7 +59,7 @@ class TestLoadIo(unittest.TestCase):
             load.load_io(StringIO(text))
 
     def test_duplicate(self):
-        ''' partof: #TST-load-unit-duplicate '''
+        ''' see: TST-load-unit '''
         # extra ',' after 1
         text = '''\
         one,1,
@@ -70,4 +83,3 @@ class TestLoadIo(unittest.TestCase):
             load.Question("three", "3"),
         ]
         self.assertEqual(result, expected)
-"##;

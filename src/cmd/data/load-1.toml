@@ -1,6 +1,4 @@
-
-pub static DATA: &'static str = r##"
-[REQ-question-duplicate]
+[REQ-duplicate]
 partof = "REQ-purpose-learning"
 text = '''
 duplicates **shall not** be allowed, as they would be extremely confusing
@@ -18,17 +16,10 @@ The `Question` class **shall** be the primary datatype used for questions
 in the application. Quetions shall:
  - store the question and answer
  - provide a method `ask` to ask the user the question
-     and validate the answer
-'''
-
-[SPC-load-path]
-partof = "SPC-load-validate"
-text = '''
-the load function shall take a path and return a list of questions
+	and validate the answer
 '''
 
 [SPC-load-format]
-partof = "SPC-load-path"
 text = '''
 The format of the csv file **shall** be a csv file of the form:
 ```
@@ -39,7 +30,7 @@ Where whitespace is ignored
 '''
 
 [SPC-load-validate]
-partof = "REQ-question-duplicate, SPC-load-format"
+partof = "REQ-duplicate, SPC-load-format"
 text = '''
 input questions **shall** be validated to meet the
 linked requirements, printing and returning an error
@@ -52,24 +43,27 @@ text = '''
 A user could give invalid data. Input data must be checked
 for validity and an error must be raised if invalid.
 '''
+
 [TST-load]
 partof = "RSK-load"
 text = '''
-Plaintext tests related to loading the questions.
+There **will** be plaintext tests related to loading the questions.
+
 > Note: this is automatically linked to SPC-load,
 > but RSK links must be explicit
 '''
-[TST-load-unit-colums]
+
+[TST-load-unit]
 partof = "SPC-load-validate"
-text = "test invalid number of colums"
-[TST-load-unit-duplicate]
-partof = "SPC-load-validate"
-text = "test duplicate names"
+text = '''
+At least the following unit tests **will** be implemented:
+- test invalid number of columns
+- test duplicate names
+'''
 
 [TST-load-csv]
-partof = "SPC-load-[format, loads]"
+partof = "SPC-load-format"
 text = '''
-lesser tests that validate that a full csv file load works
-(other funcationality validated by TST-load-unit)
+There **will** be tests that validate that a simple csv 
+file load works.
 '''
-"##;

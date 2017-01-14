@@ -12,7 +12,7 @@ information.
 Use the **[Issue Tracker](https://github.com/vitiral/rst/issues)** if you find any bugs
 or have major questions.
 
-## Installation
+## Installation and Tutorial
 See the [User Guide](https://github.com/vitiral/rst/wiki/User-Guide) on the wiki.
 
 ### Beta Notice

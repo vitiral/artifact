@@ -1,4 +1,3 @@
-pub static DATA: &'static str = r##"
 [REQ-purpose]
 text = '''
 Write a flash card quizzer from scratch and learn about rst
@@ -20,10 +19,9 @@ text file, allowing for any thing to be quizzed on easily
 
 [REQ-purpose-learning]
 text = '''
-The flash program should do things in a way that is most condusive to learning,
-such as:
+The flash program should do things in a way that is most condusive to learning
+the desired subject. This includes:
  - doing items in a random order
  - doing missed items more often
  - telling the answer after a guess is missed
 '''
-"##;
