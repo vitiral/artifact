@@ -1,4 +1,4 @@
-# In depth rst cmdline tutorial
+# Interactive rst tutorial
 Welcome to the in depth rst tutorial! This tutorial is designed to be run
 interactively, guiding you through the requirements gathering, detailed
 design phase, and implementaiton of a project -- as well as fixing issues
@@ -15,14 +15,14 @@ than the ones created, or use revision control like git as you progress
 (recommended).
 
 --------------------------------------------------
-# Tutorial Stage 1: follow along document
+## Tutorial Stage 1: follow along document
 Just run `rst tutorial` and read the created `tutorial.toml` file that
 is created. This will give you an overview of rst syntax and how to write
 artifacts.
 
 --------------------------------------------------
-# Tutorial Stage 2: high-level requirements and design specifications
-> Run `rst tutorial 2` to reset the local directory to this stage
+## Tutorial Stage 2: high-level requirements and design specifications
+> **Run `rst tutorial 2` to reset the local directory to this stage**
 
 A few changes have been made to your local directory:
  - `tutorial.toml` has been removed
@@ -49,7 +49,7 @@ In addition, purpose statements allow you to specify what your project will
 accomplish, but then complete it in pieces. **rst** will help you track which
 part is complete!
 
-> ## Exercise 1:
+> ### Exercise 1:
 > Review `reqs/purpose.toml` and make sure it makes sense. Does this accurately
 > summarize the application we are trying to build? Are there any purpose
 > requirements missing?
@@ -62,7 +62,7 @@ should be approached before you actually write any code. It also allows you to
 write out "TODOs" that you think **should** be done, but you maybe won't get
 done in your minimum viable product.
 
-> ## Exercise 2:
+> ### Exercise 2:
 > Review the `reqs/high_level.toml` document. Which items do you think should be
 > done immediately, and which will have to wait?
 
@@ -86,7 +86,7 @@ format (`-l`)
 Try `rst ls purpose -p` to search for all items with "purpose" in the name, you
 can see that three purpose requirements appear.
 
-> ## Exercise 3:
+> ### Exercise 3:
 > Play around with the `rst ls` command a little more to get used to it, we will
 > be using it a lot. Get help with:
 > ```
@@ -97,13 +97,13 @@ Once you are done, continue onto stage 3.
 
 
 --------------------------------------------------
-# Tutorial Stage 3: detailed design and test design of the loading function
-> Run `rst tutorial 3` to reset the local directory to this stage
+## Tutorial Stage 3: detailed design and test design of the loading function
+> **Run `rst tutorial 3` to reset the local directory to this stage**
 
 A few changes have been made to your local directory:
  - `reqs/load.toml` has been created
 
-> ## Exercise 1:
+> ### Exercise 1:
 > Read through `reqs/load.toml` and see if the general plan makes sense to you.
 > What would you change? Feel free to make any edits you think should be
 > made. You can always return it to it's original state with `rst tutorial 3`
@@ -118,7 +118,7 @@ From there you can see the parts that have to be implemented for SPC-load
 to be considered done. Note that SPC-LOAD was auto-created because it is a
 parent of other artifacts.
 
-> ## Exercise 2:
+> ### Exercise 2:
 > Explore each part of SPC-LOAD using the `rst ls` cmd.
 
 `load.toml` details quite a bit of the design specifications, risks and tests
@@ -127,8 +127,8 @@ coding.
 
 
 --------------------------------------------------
-# Tutorial Stage 4: writing and linking code
-> Run `rst tutorial 4` to start this stage of the tutorial
+## Tutorial Stage 4: writing and linking code
+> **Run `rst tutorial 4` to start this stage of the tutorial**
 
 A few changes have been made to your local directory:
  - `flash/` has been created with two files, `__init__.py`
@@ -160,7 +160,7 @@ is implemented and confirm that the information is correct.
 Head to `flash/tests/test_load.py` and notice that similar tags can be found
 there for TST artifacts.
 
-## Exercises
+### Exercises
  1. run `rst ls ARTIFACT` on an artifact that is tagged in source. Now change
     the tag so that it is mispelled and run it again. Did the completeness
     change?
@@ -168,11 +168,13 @@ there for TST artifacts.
    `reqs/`. Notice that invalid names blink red on your terminal and you get
     WARN messages. You can use this feature to help you ensure your artifact
     links are correct.
+ 3. we will be learning about `rst check` in the next step. Try it now with
+    the changes you've made
 
 
 --------------------------------------------------
-# Tutorial Stage 5: handling errors
-> Run `rst tutorial 5` to start this stage of the tutorial
+## Tutorial Stage 5: handling errors
+> **Run `rst tutorial 5` to start this stage of the tutorial**
 
 A few changes have been made to your local directory:
  - `reqs/load.toml` has been changed to have a bunch of errors
@@ -205,7 +207,7 @@ the errors it finds are:
 
  - invalid `partof` fields: if you've renamed (or misspelled) an artifact but
     forgot to update artifacts that were parts of it, this will help you.
- - dangling locations in code: you might THINK writing #SPC-awesome-func
+ - dangling locations in code: you might THINK writing `#SPC-awesome-func`
     in your code links to something, but unless that spec actually exists
     it isn't doing anything. `rst check` has your back.
  - recursive links: rst's completeness algorithm doesn't work if there are
@@ -215,24 +217,24 @@ the errors it finds are:
     it to a REQ, then you probably want to (otherwise what exactly are you
     specifying?). The same goes for tests that are not testing any specs.
 
-> ## Exercise:
+> ### Exercise:
 > use `rst check` to find errors and fix them. Keep running `rst check` and
 > fixing errors until there are no errors, then run `rst ls` to see if the
 > current status makes sense.
 
 --------------------------------------------------
-# Documenting your own project
+## Documenting your own project
 To start documenting your own project, run `rst init` in your project and edit
 `.rst/settings.toml` with the paths to find your code-implementations and
 documents.
 
 
 --------------------------------------------------
-# Additional Resources
+## Additional Resources
 It is the plan of this author to write a "hacker's intro to requirements" book
 in the github wiki of this project. Until then, here are some useful references
 
-## Wikipedia page:
+### Wikipedia page:
 > https://en.m.wikipedia.org/wiki/Software_requirements_specification
 
 This is an excellent introduction to the purpose of writing requirements
@@ -241,7 +243,7 @@ Well worth the read for any developer.
 
 
 --------------------------------------------------
-# Summary and Final Words
+## Summary and Final Words
 
 Here are a few parting words of advice:
 
@@ -269,3 +271,6 @@ it. If you find bugs or have any suggestions, please open a ticket at:
 https://github.com/vitiral/rst/issues
 
 Good luck!
+
+[1]:
+[2]:
