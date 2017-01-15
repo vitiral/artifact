@@ -24,7 +24,7 @@ use core::{Project, ArtifactData};
 mod handler;
 
 #[cfg(feature = "web")]
-const WEB_FRONTEND_TAR: &'static [u8] = include_bytes!("web-ui.tar");
+const WEB_FRONTEND_TAR: &'static [u8] = include_bytes!("data/web-ui.tar");
 
 lazy_static! {
     //#[derive(RustcDecodable, RustcEncodable, Serialize, Deserialize, Debug)]

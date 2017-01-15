@@ -11,7 +11,7 @@ build: # build app with web=false
 
 build-elm: # build just elm (not rust)
 	(cd web-ui; npm run build)
-	(cd web-ui/dist; tar -cvf ../../src/api/web-ui.tar *)
+	(cd web-ui/dist; tar -cvf ../../src/api/data/web-ui.tar *)
 
 build-web: build-elm # build and bundle app with web=true
 	cargo build --features "web"
