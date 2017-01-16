@@ -18,7 +18,7 @@ use dev_prefix::*;
 use super::types::*;
 
 const SETTINGS_TOML: &'static str = r#"[settings]
-artifact_paths = ["{repo}/reqs"]
+artifact_paths = ["{repo}/design"]
 code_paths = []
 exclude_code_paths = []
 
@@ -61,15 +61,15 @@ pub fn run_cmd(path: &Path) -> Result<()> {
             }
         });
     let repo = path.join(".rst");
-    let reqs = path.join("reqs");
+    let design = path.join("design");
     if !exists {
         fs::create_dir(&repo)
             .chain_err(|| format!("create dir: {}", repo.display()))?;
-        let _ = fs::create_dir(&reqs);
+        let _ = fs::create_dir(&design);
 
         // create settings
         let settings = repo.join("settings.toml");
-        let purpose = reqs.join("purpose.toml");
+        let purpose = design.join("purpose.toml");
         let mut f = fs::File::create(&settings)
             .chain_err(|| format!("create file: {}", settings.display()))?;
         f.write_all(SETTINGS_TOML.as_ref()).unwrap();
@@ -77,7 +77,7 @@ pub fn run_cmd(path: &Path) -> Result<()> {
             .chain_err(|| format!("create file: {}", purpose.display()))?;
         f.write_all(PURPOSE_TOML.as_ref()).unwrap();
         println!("rst initialized at {} with artifacts at {}",
-                 settings.display(), reqs.display());
+                 settings.display(), design.display());
     } else {
         println!("rst already initialized at {}", repo.display());
     }

@@ -93,7 +93,7 @@ pub const D_SETTINGS_4_TOML: &'static [u8] = include_bytes!("data/settings-4.tom
 pub fn run_cmd(cwd: &Path, part: u8) -> Result<()> {
     //let CWD: PathBuf = env::current_dir().unwrap();
     let RST_DIR: PathBuf = cwd.join(PathBuf::from(".rst"));
-    let REQS_DIR: PathBuf = cwd.join(PathBuf::from("reqs"));
+    let DESIGN_DIR: PathBuf = cwd.join(PathBuf::from("design"));
     let SRC_DIR: PathBuf = cwd.join(PathBuf::from("flash"));
     let TESTS_DIR: PathBuf = SRC_DIR.join(PathBuf::from("tests"));
 
@@ -106,10 +106,10 @@ pub fn run_cmd(cwd: &Path, part: u8) -> Result<()> {
     let CAPITOLS_CSV: PathBuf = cwd.join(PathBuf::from("capitols.csv"));
     let FLASH_CARD_CHALLENGE_HTM: PathBuf = cwd.join(PathBuf::from("flash_card_challenge.htm"));
 
-    // reqs file paths
-    let PURPOSE_TOML: PathBuf = REQS_DIR.join(PathBuf::from("purpose.toml"));
-    let HIGH_LEVEL_TOML: PathBuf = REQS_DIR.join(PathBuf::from("high_level.toml"));
-    let LOAD_TOML: PathBuf = REQS_DIR.join(PathBuf::from("load.toml"));
+    // design file paths
+    let PURPOSE_TOML: PathBuf = DESIGN_DIR.join(PathBuf::from("purpose.toml"));
+    let HIGH_LEVEL_TOML: PathBuf = DESIGN_DIR.join(PathBuf::from("high_level.toml"));
+    let LOAD_TOML: PathBuf = DESIGN_DIR.join(PathBuf::from("load.toml"));
 
     // src file paths
     let INIT_PY: PathBuf = SRC_DIR.join(PathBuf::from("__init__.py"));
@@ -179,7 +179,7 @@ pub fn run_cmd(cwd: &Path, part: u8) -> Result<()> {
         try!(write_file(&SETTINGS_TOML, D_SETTINGS_1_TOML));
         try!(write_file(&TUTORIAL_TOML, D_TUTORIAL_TOML));
     } else {
-        create_dir(&REQS_DIR);
+        create_dir(&DESIGN_DIR);
         try!(write_file(&TUTORIAL_MD, D_TUTORIAL_MD));
         try!(write_file(&CAPITOLS_CSV, D_CAPITOLS_CSV));
         try!(write_file(&FLASH_CARD_CHALLENGE_HTM, D_FLASH_CARD_CHALLENGE_HTM));

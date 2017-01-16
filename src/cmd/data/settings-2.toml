@@ -7,6 +7,6 @@
 # - {cwd}: the path to the directory of the file
 # - {repo}: the path to the current repository, which is the closest
 #    directory that contains a ".rst" folder
-artifact_paths = ['{repo}/reqs']
+artifact_paths = ['{repo}/design']
 code_paths = []
 exclude_code_paths = []

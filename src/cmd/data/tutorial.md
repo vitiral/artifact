@@ -27,7 +27,7 @@ artifacts.
 A few changes have been made to your local directory:
  - `tutorial.toml` has been removed
  - the `flash_card_challenge.htm` file has been added
- - the `reqs/` folder has been added with `purpose.toml` and `high_level.toml`
+ - the `design/` folder has been added with `purpose.toml` and `high_level.toml`
      in it
  - `.rst/settings.toml` has been updated with a new `artifact_paths`
 
@@ -36,7 +36,7 @@ Open `flash_card_challenge.htm` in a browser (or go
 and skim through the project that we will be executing. Don't worry! You don't
 need to know python to follow along with this tutorial.
 
-Now open `reqs/purpose.toml`. This is a rough attempt to translate the ideas
+Now open `design/purpose.toml`. This is a rough attempt to translate the ideas
 in `flash_card_challenge.htm` into purpose statements.
 
 Purpose statements are important because they document why your project even
@@ -50,9 +50,9 @@ accomplish, but then complete it in pieces. **rst** will help you track which
 part is complete!
 
 > ### Exercise 1:
-> Review `reqs/purpose.toml` and make sure it makes sense. Does this accurately
-> summarize the application we are trying to build? Are there any purpose
-> requirements missing?
+> Review `design/purpose.toml` and make sure it makes sense. Does this
+> accurately summarize the application we are trying to build? Are there any
+> purpose requirements missing?
 
 Now open `high_level.toml` in the same directory. This is mostly the high-level
 specifications and requirements of the command/program itself.
@@ -63,8 +63,8 @@ write out "TODOs" that you think **should** be done, but you maybe won't get
 done in your minimum viable product.
 
 > ### Exercise 2:
-> Review the `reqs/high_level.toml` document. Which items do you think should be
-> done immediately, and which will have to wait?
+> Review the `design/high_level.toml` document. Which items do you think should
+> be done immediately, and which will have to wait?
 
 Now run:
 ```
@@ -101,11 +101,11 @@ Once you are done, continue onto stage 3.
 > **Run `rst tutorial 3` to reset the local directory to this stage**
 
 A few changes have been made to your local directory:
- - `reqs/load.toml` has been created
+ - `design/load.toml` has been created
 
 > ### Exercise 1:
-> Read through `reqs/load.toml` and see if the general plan makes sense to you.
-> What would you change? Feel free to make any edits you think should be
+> Read through `design/load.toml` and see if the general plan makes sense to
+> you. What would you change? Feel free to make any edits you think should be
 > made. You can always return it to it's original state with `rst tutorial 3`
 
 The first task we are going to address is how we load the questions into
@@ -165,7 +165,7 @@ there for TST artifacts.
     the tag so that it is mispelled and run it again. Did the completeness
     change?
  2. do the same thing for an arifact in the `partof` field for a file in
-   `reqs/`. Notice that invalid names blink red on your terminal and you get
+   `design/`. Notice that invalid names blink red on your terminal and you get
     WARN messages. You can use this feature to help you ensure your artifact
     links are correct.
  3. we will be learning about `rst check` in the next step. Try it now with
@@ -177,7 +177,7 @@ there for TST artifacts.
 > **Run `rst tutorial 5` to start this stage of the tutorial**
 
 A few changes have been made to your local directory:
- - `reqs/load.toml` has been changed to have a bunch of errors
+ - `design/load.toml` has been changed to have a bunch of errors
  - `src/load.py` has been changed to include a few errors as well.
 
 So far in the tutorial things have been done correctly -- but what if you
