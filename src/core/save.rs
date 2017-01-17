@@ -17,14 +17,10 @@
 //! loadrs
 //! loading of raw artifacts from files and text
 
-use rustc_serialize::{Decodable};
-use toml::{encode, Parser, Value, Table, Decoder};
+use toml::{encode, Table};
 
 use dev_prefix::*;
 use super::types::*;
-use super::vars;
-use super::utils;
-use super::load;
 
 /// save a project to it's files
 /// see: #SPC-save
@@ -53,16 +49,12 @@ pub fn save_project(project: &mut Project) -> Result<()> {
         }
         let tbl = files.get_mut(&artifact.path).unwrap();
 
-        let partof = match artifact.partof.is_empty() {
-            true => None,
-            false => Some(artifact.partof.iter().map(|p| p.raw.clone())
-                          .collect::<Vec<_>>()),
-        };
         let raw = RawArtifact {
-            partof: None, // TODO: use partof
-            text: match artifact.text.raw.is_empty() {
-                true => Some(artifact.text.raw.clone()),
-                false => None,
+            partof: None,
+            text: if artifact.text.raw.is_empty() {
+                Some(artifact.text.raw.clone())
+            } else {
+                None
             },
         };
         tbl.insert(name.raw.clone(), encode(&raw));

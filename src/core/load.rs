@@ -137,6 +137,7 @@ fn parse_toml(toml: &str) -> Result<Table> {
 
 impl Artifact {
     /// from_str is mosty used to make testing and one-off development easier
+    #[allow(should_implement_trait)]
     pub fn from_str(toml: &str) -> Result<(ArtNameRc, Artifact)> {
         let table = try!(parse_toml(toml));
         if table.len() != 1 {
@@ -260,7 +261,7 @@ pub fn load_file_table(file_table: &mut Table,
 }
 
 pub fn load_toml_simple(text: &str) -> Artifacts {
-    let mut project = Project::new();
+    let mut project = Project::default();
     let path = PathBuf::from("test");
     load_toml(&path, text, &mut project).unwrap();
     project.artifacts
@@ -367,8 +368,8 @@ pub fn resolve_settings(project: &mut Project)
         -> Result<()> {
     // now resolve all path names
     let mut vars: HashMap<String, String> = HashMap::new();
-    for ps in project.settings_map.iter() {
-        let file_settings: &Settings = &ps.1;
+    for ps in &project.settings_map {
+        let file_settings: &Settings = ps.1;
 
         let fpath = ps.0.clone();
         let cwd = fpath.parent().unwrap();
@@ -378,7 +379,7 @@ pub fn resolve_settings(project: &mut Project)
         // here... I just don't want to yet
         vars.insert("cwd".to_string(), cwd_str.to_string());
         try!(utils::find_and_insert_repo(cwd, &mut project.repo_map));
-        let repo = project.repo_map.get(cwd).unwrap();
+        let repo = &project.repo_map[cwd];
         vars.insert("repo".to_string(),
                     try!(utils::get_path_str(repo.as_path())).to_string());
 
@@ -410,7 +411,7 @@ fn extend_settings(
         dir: &HashMap<PathBuf, Settings>)
         -> Result<()> {
     for (p, s) in dir.iter() {
-        if let Some(e) = full.insert(p.clone(), s.clone()) {
+        if full.insert(p.clone(), s.clone()).is_some() {
             return Err(ErrorKind::Load(format!(
                 "Internal Error: file loaded twice: {}", p.display())).into());
         }
@@ -423,7 +424,7 @@ fn extend_settings(
 /// partof: #SPC-load-raw
 #[allow(type_complexity)]  // TODO: probably remove this
 pub fn load_raw(path: &Path) -> Result<Project> {
-    let mut project = Project::new();
+    let mut project = Project::default();
     let mut loaded_dirs: HashSet<PathBuf> = HashSet::new(); // see SPC-load-dir, RSK-2-load-loop
     let mut full_settings_map: HashMap<PathBuf, Settings> = HashMap::new();
 

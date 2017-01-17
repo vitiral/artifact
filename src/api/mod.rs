@@ -12,10 +12,10 @@ use std::sync::Mutex;
 
 use nickel::{
     Request, Response, MiddlewareResult,
-    Nickel, HttpRouter, MediaType,
-    StaticFilesHandler};
+    Nickel, HttpRouter, MediaType};
 use nickel::status::StatusCode;
 
+#[cfg(feature = "web")] use nickel::{StaticFilesHandler};
 #[cfg(feature = "web")] use tar::Archive;
 #[cfg(feature = "web")] use tempdir::TempDir;
 
@@ -29,7 +29,7 @@ const WEB_FRONTEND_TAR: &'static [u8] = include_bytes!("data/web-ui.tar");
 lazy_static! {
     //#[derive(RustcDecodable, RustcEncodable, Serialize, Deserialize, Debug)]
     static ref ARTIFACTS: Mutex<Vec<ArtifactData>> = Mutex::new(Vec::new());
-    static ref PROJECT: Mutex<Project> = Mutex::new(Project::new());
+    static ref PROJECT: Mutex<Project> = Mutex::new(Project::default());
 }
 
 fn setup_headers(res: &mut Response) {

@@ -34,10 +34,9 @@ fn _get_type(value: &str, raw: &str) -> Result<ArtType> {
     }
 }
 
-impl ArtName {
-    /// parse name from string and handle errors
-    /// see: SPC-artifact-name.2
-    pub fn from_str(s: &str) -> Result<ArtName> {
+impl FromStr for ArtName {
+    type Err = Error;
+    fn from_str(s: &str) -> Result<ArtName> {
         let value = s.to_ascii_uppercase().replace(' ', "");
         if !ART_VALID.is_match(&value) {
             return Err(ErrorKind::InvalidName(s.to_string()).into());
@@ -50,6 +49,11 @@ impl ArtName {
             ty: ty,
         })
     }
+}
+
+impl ArtName {
+    /// parse name from string and handle errors
+    /// see: SPC-artifact-name.2
 
     /// see: SPC-artifact-partof-2
     pub fn parent(&self) -> Option<ArtName> {
@@ -82,8 +86,7 @@ impl ArtName {
         match ty {
             ArtType::TST => vec![self._get_named_partof("SPC")],
             ArtType::SPC => vec![self._get_named_partof("REQ")],
-            ArtType::RSK => vec![],
-            ArtType::REQ => vec![],
+            ArtType::RSK | ArtType::REQ => vec![],
         }
     }
 
@@ -258,11 +261,11 @@ impl NamePiece {
                 // found (at least) two parts with the same prefix
                 // store the part in raw without it's prefix
                 let i = pieces.len() - 1;  // wow, you can't do this inline...
-                pieces[i].raw.push(part.split_first().unwrap().1.iter().map(|n| n.clone()).collect())
+                pieces[i].raw.push(part.split_first().unwrap().1.iter().cloned().collect())
             } else {
                 // we found a new prefix, create a new piece to store it
                 prefix = part[0].clone();
-                let raw = part.iter().skip(1).map(|n| n.clone()).collect();
+                let raw = part.iter().skip(1).cloned().collect();
                 let piece = NamePiece::from(prefix.clone(), vec![raw]);
                 pieces.push(piece);
             }

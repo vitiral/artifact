@@ -212,7 +212,7 @@ fn get_color(matches: &ArgMatches) -> bool {
 
 /// get all the information from the user input
 pub fn get_cmd(matches: &ArgMatches) 
-        -> result::Result<(String, FmtSettings, SearchSettings), String> {
+        -> Result<(String, FmtSettings, SearchSettings)> {
     let mut fmt_set = FmtSettings::default();
     fmt_set.long = matches.is_present("long");
     // fmt_set.recurse = matches.value_of("recursive").unwrap().parse::<u8>().unwrap();
@@ -241,7 +241,7 @@ pub fn get_cmd(matches: &ArgMatches)
 
     // #SPC-ls-search
     let mut search_set = match (matches.is_present("pattern"), matches.value_of("pattern")) {
-        (true, Some(p)) => try!(SearchSettings::from_str(p)),
+        (true, Some(p)) => SearchSettings::from_str(p)?,
         (true, None) => SearchSettings::from_str("N").unwrap(),
         (false, None) => SearchSettings::new(),
         _ => unreachable!(),

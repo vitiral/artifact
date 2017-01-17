@@ -64,7 +64,7 @@ pub fn init_logger_test() {
     }
 }
 
-/// intermediate function during load_path to reprocess
+/// intermediate function during `load_path` to reprocess
 /// a re-created project
 pub fn process_project(project: &mut Project) -> Result<()> {
     info!("resolving and filling variables");

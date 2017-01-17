@@ -46,7 +46,7 @@ pub trait LoadFromStr: Sized {
 
 /// represents the results and all the data necessary 
 /// to reconstruct a loaded project
-#[derive(Debug, Clone)]
+#[derive(Debug, Default, Clone)]
 pub struct Project {
     pub artifacts: Artifacts,
     pub settings: Settings,
@@ -60,23 +60,6 @@ pub struct Project {
     pub raw_settings_map: HashMap<PathBuf, RawSettings>,
     pub variables_map: HashMap<PathBuf, Variables>,
     pub repo_map: HashMap<PathBuf, PathBuf>,
-}
-
-impl Project {
-    pub fn new() -> Project {
-        Project {
-            artifacts: Artifacts::new(),
-            settings: Settings::new(),
-            variables: Variables::new(),
-            files: HashSet::new(),
-            dne_locs: HashMap::new(),
-
-            settings_map: HashMap::new(),
-            raw_settings_map: HashMap::new(),
-            variables_map: HashMap::new(),
-            repo_map: HashMap::new(),
-        }
-    }
 }
 
 #[derive(Debug, Clone, RustcEncodable, RustcDecodable)]

@@ -11,7 +11,7 @@ use super::{ARTIFACTS, PROJECT};
 const X_IDS_NOT_FOUND: &'static str = "xIdsNotFound";
 const X_INVALID_NAME: &'static str = "xInvalidName";
 const X_FILES_NOT_FOUND: &'static str = "xFilesNotFound";
-const X_PROCESS_ERROR: &'static str = "xProcessError";
+//const X_PROCESS_ERROR: &'static str = "xProcessError";
 const X_MULTIPLE_ERRORS: &'static str = "xMultipleErrors";
 const X_CODE: i64 = -32000;
 
@@ -62,11 +62,14 @@ fn parse_error(desc: &str) -> RpcError {
 fn convert_artifact(artifact_data: &ArtifactData) 
     -> result::Result<(ArtNameRc, Artifact), String> 
 {
-    Artifact::from_data(&artifact_data).map_err(|err| err.to_string())
+    Artifact::from_data(artifact_data).map_err(|err| err.to_string())
 }
 
- /// UpdateArtifacts Handler
+ /// `UpdateArtifacts` Handler
+#[allow(dead_code)]
 struct UpdateArtifacts;
+#[allow(dead_code)]
+#[allow(useless_let_if_seq)]
 impl SyncMethodCommand for UpdateArtifacts {
     fn execute(&self, params: Params) -> result::Result<Value, RpcError> {
         info!("* UpdateArtifacts");
@@ -173,7 +176,7 @@ impl SyncMethodCommand for UpdateArtifacts {
         
         
         // Finally, return ALL the artifacts (the client's cache is outdated)
-        return Ok(serde_json::to_value("true"));
+        Ok(serde_json::to_value("true"))
     //    let id = match parse_id(req) {
     //        Ok(id) => id,
     //        Err(e) => {

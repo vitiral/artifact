@@ -172,8 +172,8 @@ partof = 'REQ-dne'
 
     // #TST-check
     w.clear();
-    check::run_cmd(&mut w, &cwd, &project);
-    debug_bytes(&w, LS_SPC_DNE);
+    assert!(check::run_cmd(&mut w, &cwd, &project).is_err());
+    //debug_bytes(&w, LS_SPC_DNE);
     assert_eq!(vb(LS_SPC_DNE), w);
 
     // #TST-ls-out
@@ -184,8 +184,8 @@ partof = 'REQ-dne'
               "req-foo",
               &fmt_set,
               &search_set,
-              &project);
-    debug_bytes(&w, LS_REQ_FOO);
+              &project).unwrap();
+    //debug_bytes(&w, LS_REQ_FOO);
     assert_eq!(vb(LS_REQ_FOO), w);
 
     // do default list with color disabled
@@ -196,7 +196,7 @@ partof = 'REQ-dne'
               "req-foo",
               &fmt_set,
               &search_set,
-              &project);
+              &project).unwrap();
     //debug_bytes(&w, expected);
     assert_eq!(vb(LS_REQ_FOO_NO_COL), w);
 
@@ -216,7 +216,7 @@ partof = 'REQ-dne'
               "s.c.*foo",
               &fmt_set,
               &search_set,
-              &project);
-    debug_bytes(&w, LS_S_C_STAR_FOO);
+              &project).unwrap();
+    //debug_bytes(&w, LS_S_C_STAR_FOO);
     assert_eq!(vb(LS_S_C_STAR_FOO), w);
 }

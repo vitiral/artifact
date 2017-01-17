@@ -69,7 +69,6 @@ pub fn resolve_default_vars(vars: &Variables, fpath: &Path,
 /// - error if no vars were resolved in a pass and there were errors
 pub fn resolve_vars(variables: &mut Variables) -> Result<()> {
     // keep resolving variables until all are resolved
-    let mut msg = String::new();
     let mut keys: Vec<String> = variables.keys().cloned().collect();
     let mut errors = Vec::new();
     let mut num_changed;

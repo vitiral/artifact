@@ -22,16 +22,20 @@ impl SearchSettings {
         }
     }
 
-    pub fn from_str(s: &str) -> result::Result<SearchSettings, String> {
+}
+
+impl FromStr for SearchSettings {
+    type Err = Error;
+
+    fn from_str(s: &str) -> Result<SearchSettings> {
         let pattern = HashSet::from_iter(s.chars());
         debug!("got search pattern: {:?}", pattern);
         let invalid: HashSet<char> = pattern.difference(&VALID_SEARCH_FIELDS)
                                             .cloned()
                                             .collect();
         if !invalid.is_empty() {
-            let mut msg = String::new();
-            write!(msg, "Unknown search fields in pattern: {:?}", invalid).unwrap();
-            return Err(msg);
+            return Err(ErrorKind::CmdError(format!(
+                "Unknown search fields in pattern: {:?}", invalid)).into());
         }
         let mut set = SearchSettings {
             use_regex: true,

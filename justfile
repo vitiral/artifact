@@ -33,7 +33,7 @@ filter PATTERN: # run only specific tests
 	RUST_BACKTRACE=1 cargo test --lib {{PATTERN}} --features "web"
 
 lint: # run linter
-	cargo clippy --features "web"
+	CARGO_TARGET_DIR={{target}}/nightly rustup run nightly cargo clippy --features "web"
 	
 test-server: build-elm # run the test-server for e2e testing, still in development
 	(cargo run --features "web" -- --work-tree web-ui/e2e_tests/ex_proj -v server)
