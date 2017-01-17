@@ -1,21 +1,21 @@
 /*  rst: the requirements tracking tool made for developers
-    Copyright (C) 2016  Garrett Berg <@vitiral, vitiral@gmail.com>
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the Lesser GNU General Public License as published 
-    by the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the Lesser GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ * Copyright (C) 2016  Garrett Berg <@vitiral, vitiral@gmail.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the Lesser GNU General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the Lesser GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * */
 //! project wide types
- 
+
 use dev_prefix::*;
 use std::sync::atomic::{AtomicUsize, Ordering as AtomicOrdering};
 pub use super::{ArtifactData, LocData, Text};
@@ -44,7 +44,7 @@ pub trait LoadFromStr: Sized {
     fn from_str(s: &str) -> Result<Self>;
 }
 
-/// represents the results and all the data necessary 
+/// represents the results and all the data necessary
 /// to reconstruct a loaded project
 #[derive(Debug, Default, Clone)]
 pub struct Project {
@@ -102,8 +102,11 @@ impl Loc {
 
 impl fmt::Display for Loc {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}({}:{})", self.path.display(),
-                    self.line_col.0, self.line_col.1)
+        write!(f,
+               "{}({}:{})",
+               self.path.display(),
+               self.line_col.0,
+               self.line_col.1)
     }
 }
 
@@ -155,9 +158,13 @@ impl Artifact {
             text: self.text.clone(),
             partof: self.partof.iter().map(|n| n.raw.clone()).collect(),
             parts: self.parts.iter().map(|n| n.raw.clone()).collect(),
-            loc: self.loc.as_ref().map(
-                |l| LocData {path: l.path.to_string_lossy().to_string(), 
-                             row: l.line_col.0 as u64, col: l.line_col.1 as u64}),
+            loc: self.loc.as_ref().map(|l| {
+                LocData {
+                    path: l.path.to_string_lossy().to_string(),
+                    row: l.line_col.0 as u64,
+                    col: l.line_col.1 as u64,
+                }
+            }),
             completed: self.completed,
             tested: self.tested,
         }
@@ -170,7 +177,8 @@ impl Artifact {
             let pname = try!(ArtNameRc::from_str(p));
             partof.insert(pname);
         }
-        Ok((name, Artifact {
+        Ok((name,
+            Artifact {
             path: PathBuf::from(&data.path),
             text: data.text.clone(),
             partof: partof,
@@ -209,4 +217,3 @@ impl Settings {
         }
     }
 }
-

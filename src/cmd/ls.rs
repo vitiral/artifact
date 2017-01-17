@@ -1,19 +1,19 @@
 /*  rst: the requirements tracking tool made for developers
-    Copyright (C) 2016  Garrett Berg <@vitiral, vitiral@gmail.com>
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the Lesser GNU General Public License as published 
-    by the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the Lesser GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ * Copyright (C) 2016  Garrett Berg <@vitiral, vitiral@gmail.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the Lesser GNU General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the Lesser GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * */
 
 use dev_prefix::*;
 use super::types::*;
@@ -27,48 +27,48 @@ pub fn get_subcommand<'a, 'b>() -> App<'a, 'b> {
         .about("list artifacts according to various parameters")
         .settings(&[AS::DeriveDisplayOrder, COLOR])
         .arg(Arg::with_name("search")
-                 .help("artifact names given in form `REQ-foo-[bar, baz-[1,2]]` OR pearl regexp \
-                        pattern if -p is given")
-                 .use_delimiter(false))
+            .help("artifact names given in form `REQ-foo-[bar, baz-[1,2]]` OR pearl regexp \
+                   pattern if -p is given")
+            .use_delimiter(false))
         .arg(Arg::with_name("pattern")
-                 .short("p")
-                 .help("search FIELDS using pearl regexp SEARCH.")
-                 .value_name("FIELDS")
-                 .takes_value(true)
-                 .max_values(1)
-                 .min_values(0))
+            .short("p")
+            .help("search FIELDS using pearl regexp SEARCH.")
+            .value_name("FIELDS")
+            .takes_value(true)
+            .max_values(1)
+            .min_values(0))
         .arg(Arg::with_name("long")
-                 .short("l")
-                 .help("print items in the 'long form'"))
+            .short("l")
+            .help("print items in the 'long form'"))
         .arg(Arg::with_name("completed")
-                 .short("c")
-                 .help("filter by completeness (ie `<45`), < and > are inclusive, '>' == `>100`")
-                 .takes_value(true))
+            .short("c")
+            .help("filter by completeness (ie `<45`), < and > are inclusive, '>' == `>100`")
+            .takes_value(true))
         .arg(Arg::with_name("tested")
-                 .short("t")
-                 .help("give a filter for the testedness in %. see '-c'")
-                 .takes_value(true))
+            .short("t")
+            .help("give a filter for the testedness in %. see '-c'")
+            .takes_value(true))
         .arg(Arg::with_name("all")
-                 .short("A")
-                 .help("If set, additional flags will be *deactivated* instead of activated"))
+            .short("A")
+            .help("If set, additional flags will be *deactivated* instead of activated"))
         .arg(Arg::with_name("path")
-                 .short("D")
-                 .help("display the path where the artifact is defined"))
+            .short("D")
+            .help("display the path where the artifact is defined"))
         .arg(Arg::with_name("parts")
-                 .short("P")
-                 .help("display the parts of the artifact"))
+            .short("P")
+            .help("display the parts of the artifact"))
         .arg(Arg::with_name("partof")
-                 .short("O")
-                 .help("display the artifacts which this artifact is a partof"))
+            .short("O")
+            .help("display the artifacts which this artifact is a partof"))
         .arg(Arg::with_name("loc")
-                 .short("L")
-                 .help("display location name"))
+            .short("L")
+            .help("display location name"))
         .arg(Arg::with_name("text")
-                 .short("T")
-                 .help("display the text description of this artifact (first line only if not -l)"))
+            .short("T")
+            .help("display the text description of this artifact (first line only if not -l)"))
         .arg(Arg::with_name("plain")
-                 .long("plain")
-                 .help("do not display color in the output"))
+            .long("plain")
+            .help("do not display color in the output"))
 
 }
 
@@ -87,7 +87,7 @@ pub fn _get_percent(s: &str) -> result::Result<(Option<bool>, Option<u8>), Strin
         _ => {
             return Err("percent must be of the form: [SIGN]NUM where NUM is between 0 and 100 and \
                         SIGN is an optional < or >"
-                           .to_string())
+                .to_string())
         }
     }
     if had_sign {
@@ -211,8 +211,7 @@ fn get_color(matches: &ArgMatches) -> bool {
 }
 
 /// get all the information from the user input
-pub fn get_cmd(matches: &ArgMatches) 
-        -> Result<(String, FmtSettings, SearchSettings)> {
+pub fn get_cmd(matches: &ArgMatches) -> Result<(String, FmtSettings, SearchSettings)> {
     let mut fmt_set = FmtSettings::default();
     fmt_set.long = matches.is_present("long");
     // fmt_set.recurse = matches.value_of("recursive").unwrap().parse::<u8>().unwrap();
@@ -230,7 +229,8 @@ pub fn get_cmd(matches: &ArgMatches)
         fmt_set.loc_path = !fmt_set.loc_path;
         fmt_set.text = !fmt_set.text;
     } else if fmt_set.long &&
-       !(fmt_set.path || fmt_set.parts || fmt_set.partof || fmt_set.loc_path || fmt_set.text) {
+              !(fmt_set.path || fmt_set.parts || fmt_set.partof || fmt_set.loc_path ||
+                fmt_set.text) {
         // if long is specified but no other display attributes are specified
         fmt_set.path = true;
         fmt_set.parts = true;
@@ -267,14 +267,13 @@ pub fn get_cmd(matches: &ArgMatches)
 
 #[allow(trivial_regex)]
 /// perform the ls command given the inputs
-pub fn run_cmd<W: Write>(
-        w: &mut W,
-        cwd: &Path,
-        search: &str,
-        fmt_set: &FmtSettings,
-        search_set: &SearchSettings,
-        project: &Project) 
-        -> Result<()> {
+pub fn run_cmd<W: Write>(w: &mut W,
+                         cwd: &Path,
+                         search: &str,
+                         fmt_set: &FmtSettings,
+                         search_set: &SearchSettings,
+                         project: &Project)
+                         -> Result<()> {
     let mut dne: Vec<ArtNameRc> = Vec::new();
     let mut names: Vec<ArtNameRc> = Vec::new();
     let artifacts = &project.artifacts;
@@ -288,13 +287,12 @@ pub fn run_cmd<W: Write>(
     if search_set.use_regex {
         // names to use are determined by filtering the regex
         let pat = RegexBuilder::new(search)
-                      .case_insensitive(true)
-                      .compile();
+            .case_insensitive(true)
+            .compile();
         pat_case = match pat {
             Ok(p) => p,
             Err(e) => {
-                return Err(ErrorKind::CmdError(format!(
-                    "Invalid pattern: {}", e)).into());
+                return Err(ErrorKind::CmdError(format!("Invalid pattern: {}", e)).into());
             }
         };
         names.extend(artifacts.keys().cloned());
@@ -305,8 +303,7 @@ pub fn run_cmd<W: Write>(
             Ok(n) => n,
             Err(e) => {
                 error!("{}", e);
-                return Err(ErrorKind::CmdError(format!(
-                    "{}", e)).into());
+                return Err(ErrorKind::CmdError(format!("{}", e)).into());
             }
         });
         names.sort();
@@ -343,8 +340,9 @@ pub fn run_cmd<W: Write>(
         f.write(w, cwd, artifacts, &settings, 0).unwrap(); // FIXME: unwrap
     }
     if !dne.is_empty() {
-        return Err(ErrorKind::NameNotFound(format!(
-            "The following artifacts do not exist: {:?}", dne)).into());
+        return Err(ErrorKind::NameNotFound(format!("The following artifacts do not exist: {:?}",
+                                                   dne))
+            .into());
     }
     Ok(())
 }

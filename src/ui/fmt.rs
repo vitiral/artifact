@@ -12,8 +12,12 @@ pub fn fmt_names(names: &[ArtNameRc]) -> String {
 /// use several configuration options and pieces of data to represent
 /// how the artifact should be formatted
 /// partof: #SPC-ui-fmt
-pub fn fmt_artifact(name: &ArtNameRc, artifacts: &Artifacts, fmtset: &FmtSettings,
-                recurse: u8, displayed: &mut ArtNames) -> FmtArtifact {
+pub fn fmt_artifact(name: &ArtNameRc,
+                    artifacts: &Artifacts,
+                    fmtset: &FmtSettings,
+                    recurse: u8,
+                    displayed: &mut ArtNames)
+                    -> FmtArtifact {
     let artifact = artifacts.get(name).unwrap();
     let mut out = FmtArtifact::default();
     out.long = fmtset.long;
@@ -40,7 +44,7 @@ pub fn fmt_artifact(name: &ArtNameRc, artifacts: &Artifacts, fmtset: &FmtSetting
         let mut partof = artifact.partof.iter().cloned().collect::<Vec<ArtNameRc>>();
         partof.sort();
         let partof = partof.drain(0..)
-            .map(|n| FmtArtifact{name: n, ..FmtArtifact::default()})
+            .map(|n| FmtArtifact { name: n, ..FmtArtifact::default() })
             .collect();
         out.partof = Some(partof);
     }

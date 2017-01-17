@@ -29,15 +29,18 @@ fn test_resolve_vars() {
 
     let fpath = TSIMPLE_DIR.join(PathBuf::from("fake.toml"));
 
-    for i in 0..3 { // do it a few times
+    for i in 0..3 {
+        // do it a few times
         loaded_vars.clear();
         variables.clear();
-        loaded_vars.insert("foo".to_string(), PathBuf::from("{repo}").join("FOO").to_string_lossy().to_string());
-        loaded_vars.insert("bar".to_string(), PathBuf::from("{foo}").join("BAR").to_string_lossy().to_string());
-        loaded_vars.insert("bar-2".to_string(), PathBuf::from("{bar}").join("BAR2").to_string_lossy().to_string());
+        loaded_vars.insert("foo".to_string(),
+                           PathBuf::from("{repo}").join("FOO").to_string_lossy().to_string());
+        loaded_vars.insert("bar".to_string(),
+                           PathBuf::from("{foo}").join("BAR").to_string_lossy().to_string());
+        loaded_vars.insert("bar-2".to_string(),
+                           PathBuf::from("{bar}").join("BAR2").to_string_lossy().to_string());
 
-        resolve_default_vars(&loaded_vars, fpath.as_path(), &mut variables,
-                             &mut repo_map).unwrap();
+        resolve_default_vars(&loaded_vars, fpath.as_path(), &mut variables, &mut repo_map).unwrap();
         resolve_vars(&mut variables).unwrap();
         let foo = TSIMPLE_DIR.join("FOO");
         let bar = foo.join("BAR");
@@ -75,9 +78,9 @@ fn test_resolve_loc_text() {
     let tst_long = locs.get(&ArtName::from_str("TST-foo-what-where-2-b-3").unwrap()).unwrap();
     let spc_error = locs.get(&ArtName::from_str("SPC-core-load-erro").unwrap()).unwrap();
 
-    assert_eq!(spc_who.line_col,     (1, 0));
-    assert_eq!(spc_what.line_col,    (2, 4));
-    assert_eq!(spc_where.line_col,   (3, 4));
-    assert_eq!(tst_long.line_col,    (4, 15));
-    assert_eq!(spc_error.line_col,   (6, 4));
+    assert_eq!(spc_who.line_col, (1, 0));
+    assert_eq!(spc_what.line_col, (2, 4));
+    assert_eq!(spc_where.line_col, (3, 4));
+    assert_eq!(tst_long.line_col, (4, 15));
+    assert_eq!(spc_error.line_col, (6, 4));
 }

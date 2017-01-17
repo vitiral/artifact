@@ -1,19 +1,19 @@
 /*  rst: the requirements tracking tool made for developers
-    Copyright (C) 2016  Garrett Berg <@vitiral, vitiral@gmail.com>
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the Lesser GNU General Public License as published 
-    by the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the Lesser GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ * Copyright (C) 2016  Garrett Berg <@vitiral, vitiral@gmail.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the Lesser GNU General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the Lesser GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * */
 #![allow(unknown_lints)]  // need for clippy lints
 #![cfg_attr(feature = "serde_derive", feature(proc_macro))]
 #![cfg_attr(feature = "serde_derive", feature(custom_derive))]
@@ -22,9 +22,12 @@
 extern crate fern;
 
 // # general crates
-#[macro_use] extern crate error_chain;
-#[macro_use] extern crate lazy_static;
-#[macro_use] extern crate log;
+#[macro_use]
+extern crate error_chain;
+#[macro_use]
+extern crate lazy_static;
+#[macro_use]
+extern crate log;
 extern crate itertools;
 
 // # core crates
@@ -39,16 +42,20 @@ extern crate clap;
 extern crate ansi_term;
 
 // # web api crates
-#[macro_use] extern crate nickel;
+#[macro_use]
+extern crate nickel;
 extern crate jsonrpc_core;
 
 // # for web front end
-#[cfg(feature = "web")] extern crate tempdir;
-#[cfg(feature = "web")] extern crate tar;
+#[cfg(feature = "web")]
+extern crate tempdir;
+#[cfg(feature = "web")]
+extern crate tar;
 
 // # serde hybrid requirements
 #[cfg(feature = "serde_derive")]
-#[macro_use] extern crate serde_derive;
+#[macro_use]
+extern crate serde_derive;
 extern crate serde;
 extern crate serde_json;
 #[cfg(feature = "serde_derive")]
@@ -70,9 +77,13 @@ pub use types::*;
 
 pub const VERSION: &'static str = env!("CARGO_PKG_VERSION");
 
-pub fn init_logger(quiet: bool, verbosity: u8, stderr: bool) 
-        -> result::Result<(), fern::InitError> {
-    let level = if quiet {log::LogLevelFilter::Off } else {
+pub fn init_logger(quiet: bool,
+                   verbosity: u8,
+                   stderr: bool)
+                   -> result::Result<(), fern::InitError> {
+    let level = if quiet {
+        log::LogLevelFilter::Off
+    } else {
         match verbosity {
             0 => log::LogLevelFilter::Warn,
             1 => log::LogLevelFilter::Info,

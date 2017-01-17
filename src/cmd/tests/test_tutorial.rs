@@ -10,7 +10,7 @@ lazy_static! {
 }
 
 #[test]
-/// just test some assumptions, like that the different "levels" 
+/// just test some assumptions, like that the different "levels"
 /// of files aren't equal and that toml files can be loaded
 /// by rst
 fn test_basic() {
@@ -36,8 +36,8 @@ fn test_basic() {
     for (i, toml) in toml_files.iter().enumerate() {
         let mut project = Project::new();
         let text = str::from_utf8(toml).unwrap();
-        load::load_toml(&p, text, &mut project).expect(
-            &format!("could not load tutorial toml at index: {}", i));
+        load::load_toml(&p, text, &mut project)
+            .expect(&format!("could not load tutorial toml at index: {}", i));
     }
 }
 

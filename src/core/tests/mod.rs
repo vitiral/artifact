@@ -125,6 +125,6 @@ pub fn parse_text(t: &str) -> Table {
 pub fn get_table<'a>(tbl: &'a Table, attr: &str) -> &'a Table {
     match tbl.get(attr).unwrap() {
         &Value::Table(ref t) => t,
-        _ => unreachable!()
+        _ => unreachable!(),
     }
 }

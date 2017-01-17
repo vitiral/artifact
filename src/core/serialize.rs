@@ -1,14 +1,14 @@
 //! This whole file was pretty much copy/pasted from
 //! https://github.com/alexcrichton/toml-rs/
 //! folder src/display.rs
-//! 
+//!
 //! This file is therefore Licensed under the MIT
 //! License, not the license of rst
-//! 
+//!
 //! MIT License
 //! Copyright (c) 2016 Garrett Berg
 //! Copyright (c) 2014 Alex Crichton
-//! 
+//!
 
 // TODO: use this for fmting files
 #![allow(dead_code)]
@@ -22,7 +22,10 @@ use toml::{Value, Table};
 pub fn pretty_toml(tbl: Table) -> Result<String, fmt::Error> {
     let mut out = String::new();
     {
-        let mut pp = PrettyPrinter { output: &mut out, stack: Vec::new() };
+        let mut pp = PrettyPrinter {
+            output: &mut out,
+            stack: Vec::new(),
+        };
         try!(pp.print(&tbl));
     }
     Ok(out)
@@ -96,7 +99,7 @@ impl<'a, 'b> PrettyPrinter<'a, 'b> {
 
 /// pretty printer for making multi-line text prettier
 /// uses a String instead of the formatter from before
-struct PrettyPrinter<'a, 'b:'a> {
+struct PrettyPrinter<'a, 'b: 'a> {
     output: &'b mut String,
     stack: Vec<&'a str>,
 }
@@ -126,13 +129,12 @@ fn write_str(f: &mut fmt::Formatter, s: &str) -> fmt::Result {
 impl<'a> fmt::Display for Key<'a> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         for (i, part) in self.0.iter().enumerate() {
-            if i != 0 { try!(write!(f, ".")); }
+            if i != 0 {
+                try!(write!(f, "."));
+            }
             let ok = part.chars().all(|c| {
                 match c {
-                    'a' ... 'z' |
-                    'A' ... 'Z' |
-                    '0' ... '9' |
-                    '-' | '_' => true,
+                    'a'...'z' | 'A'...'Z' | '0'...'9' | '-' | '_' => true,
                     _ => false,
                 }
             });
@@ -152,7 +154,7 @@ impl<'a> fmt::Display for Key<'a> {
 
 #[test]
 fn test_pretty() {
-    // examples of the form (input, expected output). If expected output==None, 
+    // examples of the form (input, expected output). If expected output==None,
     // then it == input
     let mut examples = vec![
 // toml keeps pretty strings
@@ -197,6 +199,7 @@ b_second = " woot "
             Some(ref r) => r,
             None => value,
         };
-        assert_eq!((i, pretty_toml(parse_text(value)).unwrap()), (i, expected.to_string()));
+        assert_eq!((i, pretty_toml(parse_text(value)).unwrap()),
+                   (i, expected.to_string()));
     }
 }

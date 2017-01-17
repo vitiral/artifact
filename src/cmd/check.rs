@@ -1,19 +1,19 @@
 /*  rst: the requirements tracking tool made for developers
-    Copyright (C) 2016  Garrett Berg <@vitiral, vitiral@gmail.com>
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the Lesser GNU General Public License as published 
-    by the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the Lesser GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ * Copyright (C) 2016  Garrett Berg <@vitiral, vitiral@gmail.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the Lesser GNU General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the Lesser GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * */
 use dev_prefix::*;
 use super::types::*;
 
@@ -41,9 +41,7 @@ fn paint_it_bold<W: Write>(w: &mut W, settings: &Settings, msg: &str) {
 
 // check command
 #[allow(cyclomatic_complexity)]  // TODO: break this up
-pub fn run_cmd<W: Write>(w: &mut W,
-                         cwd: &Path,
-                         project: &Project) -> Result<()> {
+pub fn run_cmd<W: Write>(w: &mut W, cwd: &Path, project: &Project) -> Result<()> {
     let artifacts = &project.artifacts;
     let settings = &project.settings;
 
@@ -68,21 +66,22 @@ pub fn run_cmd<W: Write>(w: &mut W,
                 displayed_header = true;
                 paint_it_bold(w, settings, "\nFound partof names that do not exist:\n");
             }
-            write!(msg, "    {} [{}]: {:?}\n",
-                   name, utils::relative_path(&artifact.path, cwd).display(),
-                   invalid_partof).unwrap();
+            write!(msg,
+                   "    {} [{}]: {:?}\n",
+                   name,
+                   utils::relative_path(&artifact.path, cwd).display(),
+                   invalid_partof)
+                .unwrap();
             paint_it(w, settings, &msg);
         }
     }
 
     // display unresolvable partof names
-    let unresolved: Vec<(ArtNameRc, &Artifact)> = Vec::from_iter(
-        artifacts.iter()
-            .filter(|a| a.1.completed < 0. || a.1.tested < 0.)
-            .map(|n| (n.0.clone(), n.1)));
-    let unknown_names: HashSet<ArtNameRc> = HashSet::from_iter(
-        unresolved.iter()
-            .map(|u| u.0.clone()));
+    let unresolved: Vec<(ArtNameRc, &Artifact)> = Vec::from_iter(artifacts.iter()
+        .filter(|a| a.1.completed < 0. || a.1.tested < 0.)
+        .map(|n| (n.0.clone(), n.1)));
+    let unknown_names: HashSet<ArtNameRc> = HashSet::from_iter(unresolved.iter()
+        .map(|u| u.0.clone()));
 
     if !unresolved.is_empty() {
         error = 1;
@@ -90,8 +89,9 @@ pub fn run_cmd<W: Write>(w: &mut W,
         for &(ref name, artifact) in &unresolved {
             let partof: HashSet<_> = artifact.partof
                 .iter()
-                .filter(|n| !artifacts.contains_key(n.as_ref())
-                        || unknown_names.contains(n.as_ref()))
+                .filter(|n| {
+                    !artifacts.contains_key(n.as_ref()) || unknown_names.contains(n.as_ref())
+                })
                 .cloned()
                 .collect();
             unresolved_partof.insert(name.clone(), partof);
@@ -135,16 +135,16 @@ pub fn run_cmd<W: Write>(w: &mut W,
                 break;
             }
         }
-        paint_it_bold(w, settings, "\nArtifacts partof contains at least one recursive reference:\n");
-        let mut unresolved_partof: Vec<_> = unresolved_partof
-            .drain()
+        paint_it_bold(w,
+                      settings,
+                      "\nArtifacts partof contains at least one recursive reference:\n");
+        let mut unresolved_partof: Vec<_> = unresolved_partof.drain()
             .map(|mut v| (v.0, v.1.drain().collect::<Vec<_>>()))
             .collect();
         unresolved_partof.sort_by(|a, b| a.0.cmp(&b.0));
         for (name, partof) in unresolved_partof.drain(0..) {
             let mut msg = String::new();
-            write!(msg, "    {:<30}: {:?}\n",
-                   name.to_string(), partof).unwrap();
+            write!(msg, "    {:<30}: {:?}\n", name.to_string(), partof).unwrap();
             write!(w, "{}", msg).unwrap();
         }
     }
@@ -162,13 +162,16 @@ pub fn run_cmd<W: Write>(w: &mut W,
         }
         let header = "\nFound implementation links in the code that do not exist:\n";
         paint_it_bold(w, settings, header);
-        let mut invalid_locs: Vec<(PathBuf, Vec<(ArtName, Loc)>)> = Vec::from_iter(
-            invalid_locs.drain());
+        let mut invalid_locs: Vec<(PathBuf, Vec<(ArtName, Loc)>)> =
+            Vec::from_iter(invalid_locs.drain());
         invalid_locs.sort_by(|a, b| a.0.cmp(&b.0));
         for (path, mut locs) in invalid_locs.drain(0..) {
             // sort by where they appear in the file
             let mut pathstr = String::new();
-            write!(pathstr, "    {}:\n", utils::relative_path(&path, cwd).display()).unwrap();
+            write!(pathstr,
+                   "    {}:\n",
+                   utils::relative_path(&path, cwd).display())
+                .unwrap();
             paint_it(w, settings, &pathstr);
             locs.sort_by(|a, b| a.1.line_col.cmp(&b.1.line_col));
             for (name, loc) in locs {
@@ -195,13 +198,13 @@ pub fn run_cmd<W: Write>(w: &mut W,
     let mut hanging: Vec<(ArtNameRc, &Path)> = Vec::new();
     for (name, artifact) in artifacts.iter() {
         let ty = name.ty;
-        if (ty != ArtType::REQ) && !artifact.is_parent() && !name.is_root()
-                && name.parent().unwrap().is_root() 
-                && match ty {
-                    ArtType::TST => !partof_types(artifact, &rsk_spc_types),
-                    ArtType::SPC | ArtType::RSK=> !partof_types(artifact, &req_types),
-                    _ => unreachable!(),
-                } {
+        if (ty != ArtType::REQ) && !artifact.is_parent() && !name.is_root() &&
+           name.parent().unwrap().is_root() &&
+           match ty {
+            ArtType::TST => !partof_types(artifact, &rsk_spc_types),
+            ArtType::SPC | ArtType::RSK => !partof_types(artifact, &req_types),
+            _ => unreachable!(),
+        } {
             hanging.push((name.clone(), &artifact.path));
         }
     }
@@ -212,7 +215,11 @@ pub fn run_cmd<W: Write>(w: &mut W,
         paint_it_bold(w, settings, msg);
         for (h, p) in hanging {
             let mut msg = String::new();
-            write!(msg, "    {:<30}: {}\n", utils::relative_path(p, cwd).display(), h).unwrap();
+            write!(msg,
+                   "    {:<30}: {}\n",
+                   utils::relative_path(p, cwd).display(),
+                   h)
+                .unwrap();
             write!(w, "{}", msg).unwrap();
         }
     }
@@ -228,9 +235,8 @@ pub fn run_cmd<W: Write>(w: &mut W,
     } else {
         write!(w, "\n").unwrap();
     }
-    if error != 0 { 
-        Err(ErrorKind::CmdError("errors found during ls, see logs"
-                                .to_string()).into())
+    if error != 0 {
+        Err(ErrorKind::CmdError("errors found during ls, see logs".to_string()).into())
     } else {
         Ok(())
     }

@@ -35,8 +35,8 @@ fn test_load_path() {
     // load all artifacts that should exist
     let req_lvl1 = artifacts.get(&ArtName::from_str("REQ-lvl-1").unwrap()).unwrap();
     let spc_lvl1 = artifacts.get(&ArtName::from_str("SPC-lvl-1").unwrap()).unwrap();
-    let spc_dne  = artifacts.get(&ArtName::from_str("SPC-loc-dne").unwrap()).unwrap();
-    let spc_loc  = artifacts.get(&ArtName::from_str("SPC-loc").unwrap()).unwrap();
+    let spc_dne = artifacts.get(&ArtName::from_str("SPC-loc-dne").unwrap()).unwrap();
+    let spc_loc = artifacts.get(&ArtName::from_str("SPC-loc").unwrap()).unwrap();
 
     let req_lvl2 = artifacts.get(&ArtName::from_str("REQ-lvl-2").unwrap()).unwrap();
     let spc_lvl2 = artifacts.get(&ArtName::from_str("SPC-lvl-2").unwrap()).unwrap();
@@ -55,7 +55,8 @@ fn test_load_path() {
     let lvl1_dir_str = lvl1_dir.as_path().to_str().unwrap().to_string();
 
     assert_eq!(spc_lvl1.text.value, "level one does FOO");
-    assert_eq!(spc_lvl1.loc.as_ref().unwrap().path, src_dir.join(PathBuf::from("lvl_1.rs")));
+    assert_eq!(spc_lvl1.loc.as_ref().unwrap().path,
+               src_dir.join(PathBuf::from("lvl_1.rs")));
 
     debug!("checking loc");
     assert_eq!(spc_loc.loc.iter().next().unwrap().line_col, (4, 4));

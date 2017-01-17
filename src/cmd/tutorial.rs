@@ -1,19 +1,19 @@
 /*  rst: the requirements tracking tool made for developers
-    Copyright (C) 2016  Garrett Berg <@vitiral, vitiral@gmail.com>
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the Lesser GNU General Public License as published 
-    by the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the Lesser GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ * Copyright (C) 2016  Garrett Berg <@vitiral, vitiral@gmail.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the Lesser GNU General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the Lesser GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * */
 #![allow(non_upper_case_globals)]
 #![allow(non_snake_case)]
 
@@ -70,8 +70,8 @@ pub const D_TUTORIAL_TOML: &'static [u8] = include_bytes!("data/tutorial.toml");
 pub const D_TUTORIAL_MD: &'static [u8] = include_bytes!("data/tutorial.md");
 
 pub const D_CAPITOLS_CSV: &'static [u8] = include_bytes!("data/capitols.csv");
-pub const D_FLASH_CARD_CHALLENGE_HTM: &'static [u8] = include_bytes!(
-    "data/flash-card-challenge.htm");
+pub const D_FLASH_CARD_CHALLENGE_HTM: &'static [u8] = include_bytes!("data/flash-card-challenge.\
+                                                                      htm");
 pub const D_HIGH_LEVEL_TOML: &'static [u8] = include_bytes!("data/high_level.toml");
 pub const D_PURPOSE_TOML: &'static [u8] = include_bytes!("data/purpose.toml");
 
@@ -91,7 +91,7 @@ pub const D_SETTINGS_4_TOML: &'static [u8] = include_bytes!("data/settings-4.tom
 /// run the tutorial
 /// partof: #SPC-tutorial
 pub fn run_cmd(cwd: &Path, part: u8) -> Result<()> {
-    //let CWD: PathBuf = env::current_dir().unwrap();
+    // let CWD: PathBuf = env::current_dir().unwrap();
     let RST_DIR: PathBuf = cwd.join(PathBuf::from(".rst"));
     let DESIGN_DIR: PathBuf = cwd.join(PathBuf::from("design"));
     let SRC_DIR: PathBuf = cwd.join(PathBuf::from("flash"));
@@ -158,8 +158,9 @@ pub fn run_cmd(cwd: &Path, part: u8) -> Result<()> {
         // make sure the directory is empty -- we don't want to
         // delete anything we shouldn't
         if fs::read_dir(&cwd)
-                .chain_err(|| format!("could not read dir: {}", cwd.display()))?
-                .next().is_some() {
+            .chain_err(|| format!("could not read dir: {}", cwd.display()))?
+            .next()
+            .is_some() {
             println!("ERROR: can only start the rst tutorial in an empty directory. \
                       To make an empty directory and change-dir to it, run:\n    \
                       mkdir ~/tryrst; cd ~/tryrst");
@@ -208,11 +209,13 @@ pub fn run_cmd(cwd: &Path, part: u8) -> Result<()> {
                 try!(write_file(&INIT_PY, b""));
                 try!(write_file(&TEST_INIT_PY, b""));
                 if part == 4 {
-                    println!("  Tutorial part 4: open tutorial.md with a text editor and see part 4");
+                    println!("  Tutorial part 4: open tutorial.md with a text editor and see \
+                              part 4");
                     try!(write_file(&LOAD_PY, D_LOAD_1_PY));
                 } else {
                     // stage 5: handling errors
-                    println!("  Tutorial part 5: open tutorial.md with a text editor and see part 5");
+                    println!("  Tutorial part 5: open tutorial.md with a text editor and see \
+                              part 5");
                     try!(write_file(&LOAD_TOML, D_LOAD_2_TOML));
                     try!(write_file(&LOAD_PY, D_LOAD_2_PY));
                 }

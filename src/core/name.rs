@@ -1,19 +1,19 @@
 /*  rst: the requirements tracking tool made for developers
-    Copyright (C) 2016  Garrett Berg <@vitiral, vitiral@gmail.com>
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the Lesser GNU General Public License as published 
-    by the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the Lesser GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ * Copyright (C) 2016  Garrett Berg <@vitiral, vitiral@gmail.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the Lesser GNU General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the Lesser GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * */
 //! module for defining logic for parsing and collapsing artifact names
 
 use dev_prefix::*;
@@ -28,9 +28,12 @@ fn _get_type(value: &str, raw: &str) -> Result<ArtType> {
         "SPC" => Ok(ArtType::SPC),
         "RSK" => Ok(ArtType::RSK),
         "TST" => Ok(ArtType::TST),
-        _ => Err(ErrorKind::InvalidName(format!(
-            "name must start with REQ-, RSK-, SPC- or TST-: {}",
-            raw)).into()),
+        _ => {
+            Err(ErrorKind::InvalidName(format!("name must start with REQ-, RSK-, SPC- or TST-: \
+                                                {}",
+                                               raw))
+                .into())
+        }
     }
 }
 
@@ -62,7 +65,11 @@ impl ArtName {
         }
         let mut value = self.value.clone();
         value.pop().unwrap();
-        Some(ArtName{raw: value.join("-"), value: value, ty: self.ty})
+        Some(ArtName {
+            raw: value.join("-"),
+            value: value,
+            ty: self.ty,
+        })
     }
 
     /// return whether this artifact is the root type
@@ -142,7 +149,7 @@ impl PartialEq for ArtName {
 
 impl Eq for ArtName {}
 
-impl Ord  for ArtName {
+impl Ord for ArtName {
     fn cmp(&self, other: &Self) -> Ordering {
         self.value.cmp(&other.value)
     }
@@ -171,7 +178,6 @@ impl LoadFromStr for ArtNames {
         }
         Ok(out)
     }
-
 }
 
 
@@ -191,19 +197,20 @@ pub fn parse_names<I>(raw: &mut I, in_brackets: bool) -> Result<Vec<String>>
             None => {
                 if in_brackets {
                     // SPC-names.2: do validation
-                    return Err(ErrorKind::InvalidName(
-                        "brackets are not closed".to_string()).into());
+                    return Err(ErrorKind::InvalidName("brackets are not closed".to_string())
+                        .into());
                 }
                 break;
             }
         };
         match c {
-            ' ' | '\n' | '\r' => {}, // ignore whitespace
+            ' ' | '\n' | '\r' => {} // ignore whitespace
             '[' => {
                 if current == "" {
                     // SPC-names.2: more validation
                     let msg = "cannot have '[' after characters ',' or ']'\
-                               or at start of string".to_string();
+                               or at start of string"
+                        .to_string();
                     return Err(ErrorKind::InvalidName(msg).into());
                 }
                 // SPC-names.3: recurse for brackets
@@ -312,7 +319,7 @@ impl NamePiece {
             }
             if last_i != 0 {
                 w.write_str("]").unwrap();
-            } 
+            }
         }
         if !is_last {
             w.write_str(", ").unwrap();
@@ -325,7 +332,8 @@ impl NamePiece {
 pub fn collapse_names(mut names: Vec<String>) -> String {
     names.sort();
     let names: Vec<Vec<String>> = names.iter()
-        .map(|n| n.split('-').map(|s| s.to_string()).collect()).collect();
+        .map(|n| n.split('-').map(|s| s.to_string()).collect())
+        .collect();
     let mut piece = NamePiece {
         raw: names,
         prefix: String::new(),
@@ -354,13 +362,10 @@ fn do_test_parse_collapse(user: &str, expected_collapsed: &[&str]) {
 fn test_parse_names() {
     do_test_parse_collapse("hi, ho", &["hi", "ho"]);
     do_test_parse_collapse("hi-[he, ho]", &["hi-he", "hi-ho"]);
-    do_test_parse_collapse(
-        "he-[ha-[ha, he], hi, ho], hi-[he, ho]",
-        &["he-ha-ha", "he-ha-he", "he-hi", "he-ho", "hi-he", "hi-ho"]);
+    do_test_parse_collapse("he-[ha-[ha, he], hi, ho], hi-[he, ho]",
+                           &["he-ha-ha", "he-ha-he", "he-hi", "he-ho", "hi-he", "hi-ho"]);
     assert!(parse_names(&mut "[]".chars(), false).is_err());
     assert!(parse_names(&mut "[hi]".chars(), false).is_err());
     assert!(parse_names(&mut "hi-[ho, [he]]".chars(), false).is_err());
     assert!(parse_names(&mut "hi-[ho, he".chars(), false).is_err());
 }
-
-

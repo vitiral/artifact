@@ -1,19 +1,19 @@
 /*  rst: the requirements tracking tool made for developers
-    Copyright (C) 2016  Garrett Berg <@vitiral, vitiral@gmail.com>
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the Lesser GNU General Public License as published 
-    by the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the Lesser GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ * Copyright (C) 2016  Garrett Berg <@vitiral, vitiral@gmail.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the Lesser GNU General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the Lesser GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * */
 
 use strfmt;
 
@@ -21,14 +21,13 @@ use dev_prefix::*;
 use super::types::*;
 use itertools::{Itertools, EitherOrBoth as EoB};
 
-pub fn do_strfmt(s: &str, vars: &HashMap<String, String>, fpath: &PathBuf)
-             -> Result<String> {
-    strfmt::strfmt(s, vars).chain_err(|| format!(
-        "ERROR at {}: {}", fpath.display(), s.to_string()))
+pub fn do_strfmt(s: &str, vars: &HashMap<String, String>, fpath: &PathBuf) -> Result<String> {
+    strfmt::strfmt(s, vars).chain_err(|| format!("ERROR at {}: {}", fpath.display(), s.to_string()))
 }
 
-pub fn strfmt_ignore_missing<T: fmt::Display>(fmtstr: &str, vars: &HashMap<String, T>)
-                                              -> strfmt::Result<String>{
+pub fn strfmt_ignore_missing<T: fmt::Display>(fmtstr: &str,
+                                              vars: &HashMap<String, T>)
+                                              -> strfmt::Result<String> {
     let formatter = |mut fmt: strfmt::Formatter| {
         match vars.get(fmt.key) {
             Some(v) => fmt.str(v.to_string().as_str()),
@@ -59,16 +58,17 @@ pub fn find_repo(dir: &Path) -> Option<PathBuf> {
             Ok(d) => d,
             Err(_) => return None,
         };
-        if read_dir.any(|e|
-                        match e {
-                            Err(_) => false,
-                            Ok(e) => {
-                                let p = e.path();
-                                let fname = p.file_name().unwrap().to_str().unwrap();
-                                // trace!("fname: {:?}", fname);
-                                fname == ".rst" && p.is_dir()
-                            }
-                        }) {
+        if read_dir.any(|e| {
+            match e {
+                Err(_) => false,
+                Ok(e) => {
+                    let p = e.path();
+                    let fname = p.file_name().unwrap().to_str().unwrap();
+                    // trace!("fname: {:?}", fname);
+                    fname == ".rst" && p.is_dir()
+                }
+            }
+        }) {
             return Some(dir.to_path_buf());
         }
         dir = match dir.parent() {
@@ -81,8 +81,7 @@ pub fn find_repo(dir: &Path) -> Option<PathBuf> {
 
 /// given a path, find the closest dir with the repo identifier
 /// and keep track of it
-pub fn find_and_insert_repo(dir: &Path, repo_map: &mut HashMap<PathBuf, PathBuf>)
-                        -> Result<()> {
+pub fn find_and_insert_repo(dir: &Path, repo_map: &mut HashMap<PathBuf, PathBuf>) -> Result<()> {
     let mut must_insert = false;
     let repo = match repo_map.get(dir) {
         Some(r) => r.to_path_buf(),
@@ -98,7 +97,7 @@ pub fn find_and_insert_repo(dir: &Path, repo_map: &mut HashMap<PathBuf, PathBuf>
             // repo_map.insert(dir.to_path_buf(), r.to_path_buf());
             must_insert = true;
             r.to_path_buf()
-        },
+        }
     };
     if must_insert {
         repo_map.insert(dir.to_path_buf(), repo);
@@ -129,7 +128,7 @@ pub fn relative_path(path: &Path, relative_to_dir: &Path) -> PathBuf {
                 EoB::Both(a, _) => {
                     relative.push("..");
                     remaining.push(a.as_ref());
-                },
+                }
                 EoB::Left(a) => remaining.push(a.as_ref()),
                 EoB::Right(_) => relative.push(".."),
             }
@@ -147,8 +146,7 @@ fn test_relative_path() {
     assert_eq!(relative_path(&PathBuf::from("/foo/bar/baz/txt.t"),
                              &PathBuf::from("/foo/bar/")),
                PathBuf::from("baz/txt.t"));
-    assert_eq!(relative_path(&PathBuf::from("foo/bar/txt.t"),
-                             &PathBuf::from("foo/baz/")),
+    assert_eq!(relative_path(&PathBuf::from("foo/bar/txt.t"), &PathBuf::from("foo/baz/")),
                PathBuf::from("../bar/txt.t"));
     assert_eq!(relative_path(&PathBuf::from("/home/user/projects/what/src/foo/bar.txt"),
                              &PathBuf::from("/home/user/projects/what/reqs/left/right/a/b/c/")),

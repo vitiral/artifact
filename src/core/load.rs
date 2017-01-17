@@ -1,23 +1,23 @@
 /*  rst: the requirements tracking tool made for developers
-    Copyright (C) 2016  Garrett Berg <@vitiral, vitiral@gmail.com>
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the Lesser GNU General Public License as published 
-    by the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the Lesser GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ * Copyright (C) 2016  Garrett Berg <@vitiral, vitiral@gmail.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the Lesser GNU General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the Lesser GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * */
 //! loadrs
 //! loading of raw artifacts from files and text
 
-use rustc_serialize::{Decodable};
+use rustc_serialize::Decodable;
 use toml::{Parser, Value, Table, Decoder};
 
 use dev_prefix::*;
@@ -93,14 +93,13 @@ impl Settings {
     pub fn from_table(tbl: &Table) -> Result<(RawSettings, Settings)> {
         let value = Value::Table(tbl.clone());
         let mut decoder = Decoder::new(value);
-        let raw = RawSettings::decode(&mut decoder)
-            .chain_err(|| "invalid settings")?;
+        let raw = RawSettings::decode(&mut decoder).chain_err(|| "invalid settings")?;
 
         if let Some(invalid) = decoder.toml {
             return Err(ErrorKind::InvalidSettings(format!("{:?}", invalid)).into());
         }
 
-        fn to_paths(paths: &Option<Vec<String>>) -> VecDeque<PathBuf>  {
+        fn to_paths(paths: &Option<Vec<String>>) -> VecDeque<PathBuf> {
             match *paths {
                 Some(ref p) => p.iter().map(PathBuf::from).collect(),
                 None => VecDeque::new(),
@@ -155,27 +154,26 @@ impl Artifact {
 
     /// Create an artifact object from a toml Table
     /// partof: #SPC-artifact-load
-    fn from_table(name: &ArtName, path: &Path, tbl: &Table) 
-        -> Result<Artifact> 
-    {
+    fn from_table(name: &ArtName, path: &Path, tbl: &Table) -> Result<Artifact> {
         let value = Value::Table(tbl.clone());
         let mut decoder = Decoder::new(value);
         let raw = match RawArtifact::decode(&mut decoder) {
             Ok(v) => v,
-            Err(e) => return Err(ErrorKind::InvalidArtifact(
-                name.to_string(), e.to_string()).into()),
+            Err(e) => {
+                return Err(ErrorKind::InvalidArtifact(name.to_string(), e.to_string()).into())
+            }
         };
 
         if let Some(invalid) = decoder.toml {
-            return Err(ErrorKind::InvalidArtifact(
-                name.to_string(), format!("invalid attrs: {}", invalid)).into());
+            return Err(ErrorKind::InvalidArtifact(name.to_string(),
+                                                  format!("invalid attrs: {}", invalid))
+                .into());
         }
 
         Ok(Artifact {
             path: path.to_path_buf(),
             text: Text::new(&raw.text.unwrap_or_default()),
-            partof: try!(ArtNames::from_str(
-                &raw.partof.unwrap_or_default())),
+            partof: try!(ArtNames::from_str(&raw.partof.unwrap_or_default())),
             loc: None,
 
             // calculated vars
@@ -187,10 +185,7 @@ impl Artifact {
 }
 
 /// Load artifacts and settings from a toml Table
-pub fn load_file_table(file_table: &mut Table,
-                       path: &Path,
-                       project: &mut Project)
-                       -> Result<u64> {
+pub fn load_file_table(file_table: &mut Table, path: &Path, project: &mut Project) -> Result<u64> {
     let mut msg: Vec<u8> = Vec::new();
     let mut num_loaded: u64 = 0;
 
@@ -204,8 +199,7 @@ pub fn load_file_table(file_table: &mut Table,
             project.settings_map.insert(path.to_path_buf(), settings);
         }
         None => {}
-        _ => return Err(ErrorKind::InvalidSettings(
-            "settings must be a Table".to_string()).into()),
+        _ => return Err(ErrorKind::InvalidSettings("settings must be a Table".to_string()).into()),
     }
 
     match file_table.remove("globals") {
@@ -213,13 +207,18 @@ pub fn load_file_table(file_table: &mut Table,
             let mut variables = Variables::new();
             for (k, v) in t {
                 if vars::DEFAULT_GLOBALS.contains(k.as_str()) {
-                    return Err(ErrorKind::InvalidVariable(
-                        "cannot use variables: repo, cwd".to_string()).into());
+                    return Err(ErrorKind::InvalidVariable("cannot use variables: repo, cwd"
+                            .to_string())
+                        .into());
                 }
                 let value = match v {
                     Value::String(s) => s.to_string(),
-                    _ => return Err(ErrorKind::InvalidVariable(
-                        format!("{} global var must be of type str", k)).into())
+                    _ => {
+                        return Err(ErrorKind::InvalidVariable(format!("{} global var must be of \
+                                                                       type str",
+                                                                      k))
+                            .into())
+                    }
                 };
                 variables.insert(k.clone(), value);
             }
@@ -268,10 +267,7 @@ pub fn load_toml_simple(text: &str) -> Artifacts {
 }
 
 /// Given text load the artifacts
-pub fn load_toml(path: &Path,
-                 text: &str,
-                 project: &mut Project)
-                 -> Result<u64> {
+pub fn load_toml(path: &Path, text: &str, project: &mut Project) -> Result<u64> {
     // parse the text
     let mut table = try!(parse_toml(text));
     load_file_table(&mut table, path, project)
@@ -285,8 +281,8 @@ pub fn load_file(path: &Path, project: &mut Project) -> Result<u64> {
     // read the text
     let mut text = String::new();
     let mut fp = fs::File::open(path).unwrap();
-    fp.read_to_string(&mut text).chain_err(|| 
-        format!("Error loading path {}", path.display()))?;
+    fp.read_to_string(&mut text)
+        .chain_err(|| format!("Error loading path {}", path.display()))?;
     load_toml(path, &text, project)
 }
 
@@ -308,8 +304,8 @@ pub fn load_dir(path: &Path,
     let mut error = false;
     // for entry in WalkDir::new(&path).into_iter().filter_map(|e| e.ok()) {
     let mut dirs_to_load: Vec<PathBuf> = Vec::new();
-    let read_dir = fs::read_dir(path).chain_err(|| format!(
-        "could not get dir: {}", path.display()))?;
+    let read_dir =
+        fs::read_dir(path).chain_err(|| format!("could not get dir: {}", path.display()))?;
     // process all the files in the directory. Process directories later
     for entry in read_dir.filter_map(|e| e.ok()) {
         let fpath = entry.path();
@@ -364,8 +360,7 @@ pub fn load_dir(path: &Path,
 /// push settings found (`loaded_settings`) into a main settings object
 /// `repo_map` is a pre-compiled hashset mapping `dirs->repo_path` (for performance)
 /// partof: #SPC-settings-resolve
-pub fn resolve_settings(project: &mut Project) 
-        -> Result<()> {
+pub fn resolve_settings(project: &mut Project) -> Result<()> {
     // now resolve all path names
     let mut vars: HashMap<String, String> = HashMap::new();
     for ps in &project.settings_map {
@@ -406,14 +401,14 @@ pub fn resolve_settings(project: &mut Project)
     Ok(())
 }
 
-fn extend_settings(
-        full: &mut HashMap<PathBuf, Settings>, 
-        dir: &HashMap<PathBuf, Settings>)
-        -> Result<()> {
+fn extend_settings(full: &mut HashMap<PathBuf, Settings>,
+                   dir: &HashMap<PathBuf, Settings>)
+                   -> Result<()> {
     for (p, s) in dir.iter() {
         if full.insert(p.clone(), s.clone()).is_some() {
-            return Err(ErrorKind::Load(format!(
-                "Internal Error: file loaded twice: {}", p.display())).into());
+            return Err(ErrorKind::Load(format!("Internal Error: file loaded twice: {}",
+                                               p.display()))
+                .into());
         }
     }
     Ok(())
@@ -438,7 +433,8 @@ pub fn load_raw(path: &Path) -> Result<Project> {
         project.settings.paths.push_back(path.to_path_buf());
     } else {
         return Err(ErrorKind::Load("File is not valid type: ".to_string() +
-                                  path.to_string_lossy().as_ref()).into());
+                                   path.to_string_lossy().as_ref())
+            .into());
     }
 
     while !project.settings.paths.is_empty() {
@@ -453,11 +449,10 @@ pub fn load_raw(path: &Path) -> Result<Project> {
         match load_dir(dir.as_path(), &mut loaded_dirs, &mut project) {
             Ok(n) => n,
             Err(err) => {
-                return Err(ErrorKind::Load(format!(
-                   "Error loading <{}>: {}",
-                   dir.to_string_lossy().as_ref(),
-                   err)).into())
-
+                return Err(ErrorKind::Load(format!("Error loading <{}>: {}",
+                                                   dir.to_string_lossy().as_ref(),
+                                                   err))
+                    .into())
             }
         };
 
@@ -468,9 +463,8 @@ pub fn load_raw(path: &Path) -> Result<Project> {
         try!(resolve_settings(&mut project));
     }
 
-    project.variables = try!(vars::resolve_loaded_vars(
-        &project.variables_map, &mut project.repo_map));
+    project.variables = try!(vars::resolve_loaded_vars(&project.variables_map,
+                                                       &mut project.repo_map));
     project.settings_map = full_settings_map;
     Ok(project)
 }
-

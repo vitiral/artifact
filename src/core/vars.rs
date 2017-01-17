@@ -1,19 +1,19 @@
 /*  rst: the requirements tracking tool made for developers
-    Copyright (C) 2016  Garrett Berg <@vitiral, vitiral@gmail.com>
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the Lesser GNU General Public License as published 
-    by the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the Lesser GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ * Copyright (C) 2016  Garrett Berg <@vitiral, vitiral@gmail.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the Lesser GNU General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the Lesser GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * */
 //! vars module
 //! used by the load module to resolve and apply loaded variables
 //! also contains settings resolution because it is similar
@@ -31,7 +31,8 @@ lazy_static!{
 
 /// resolves default vars from a file (cwd and repo)
 /// and inserts into variables
-pub fn resolve_default_vars(vars: &Variables, fpath: &Path,
+pub fn resolve_default_vars(vars: &Variables,
+                            fpath: &Path,
                             variables: &mut Variables,
                             repo_map: &mut HashMap<PathBuf, PathBuf>)
                             -> Result<()> {
@@ -39,8 +40,12 @@ pub fn resolve_default_vars(vars: &Variables, fpath: &Path,
     let mut fmtvars = Variables::new();
     fmtvars.insert("cwd".to_string(), cwd.to_str().unwrap().to_string());
     try!(utils::find_and_insert_repo(cwd, repo_map));
-    fmtvars.insert("repo".to_string(), repo_map.get(cwd).unwrap()
-                     .to_str().unwrap().to_string());
+    fmtvars.insert("repo".to_string(),
+                   repo_map.get(cwd)
+                       .unwrap()
+                       .to_str()
+                       .unwrap()
+                       .to_string());
     let mut error = false;
     for (k, v) in vars {
         // format only the cwd and repo variables
@@ -58,8 +63,9 @@ pub fn resolve_default_vars(vars: &Variables, fpath: &Path,
         }
     }
     if error {
-        return Err(ErrorKind::InvalidVariable(
-            "errors while resolving default variables".to_string()).into());
+        return Err(ErrorKind::InvalidVariable("errors while resolving default variables"
+                .to_string())
+            .into());
     }
     Ok(())
 }
@@ -74,8 +80,10 @@ pub fn resolve_vars(variables: &mut Variables) -> Result<()> {
     let mut num_changed;
     let mut remove_keys = DEFAULT_GLOBALS.clone();
     loop {
-        keys = keys.iter().filter(|k| !remove_keys.contains(k.as_str()))
-            .cloned().collect();
+        keys = keys.iter()
+            .filter(|k| !remove_keys.contains(k.as_str()))
+            .cloned()
+            .collect();
         num_changed = 0;
         errors.clear();
         remove_keys.clear();
@@ -95,27 +103,32 @@ pub fn resolve_vars(variables: &mut Variables) -> Result<()> {
                     variables.insert(k.clone(), s);
                 }
 
-                Err(e) => match e {
-                    strfmt::FmtError::Invalid(_) | strfmt::FmtError::TypeError(_) =>
-                        return Err(ErrorKind::StrFmt(e).into()),
-                    strfmt::FmtError::KeyError(_) => {
-                        errors.push(k.clone());
-                        // reinsert original value
-                        variables.insert(k.clone(), var);
-                    },
+                Err(e) => {
+                    match e {
+                        strfmt::FmtError::Invalid(_) |
+                        strfmt::FmtError::TypeError(_) => return Err(ErrorKind::StrFmt(e).into()),
+                        strfmt::FmtError::KeyError(_) => {
+                            errors.push(k.clone());
+                            // reinsert original value
+                            variables.insert(k.clone(), var);
+                        }
+                    }
                 }
             }
         }
-        if num_changed == 0 {  // no items changed, we are either done or failed
+        if num_changed == 0 {
+            // no items changed, we are either done or failed
             if errors.is_empty() {
                 break;
             } else {
                 // unresolved errors
-                keys = keys.iter().filter(|k| !remove_keys.contains(k.as_str()))
-                    .cloned().collect();
-                let msg = format!(
-                    "Could not resolve some globals: {:?}\ngot related errors: {:?}",
-                   keys, errors);
+                keys = keys.iter()
+                    .filter(|k| !remove_keys.contains(k.as_str()))
+                    .cloned()
+                    .collect();
+                let msg = format!("Could not resolve some globals: {:?}\ngot related errors: {:?}",
+                                  keys,
+                                  errors);
                 return Err(ErrorKind::InvalidVariable(msg).into());
             }
         }
@@ -136,9 +149,14 @@ pub fn fill_text_fields(artifacts: &mut Artifacts,
         errors.clear();
         let cwd = art.path.parent().expect("no-path-parent").to_path_buf();
         try!(utils::find_and_insert_repo(&cwd, repo_map));
-        variables.insert("cwd".to_string(), cwd.to_str().expect("utf-path").to_string());
-        variables.insert("repo".to_string(), repo_map.get(&cwd).expect("repo_map")
-                            .to_str().expect("utf-path").to_string());
+        variables.insert("cwd".to_string(),
+                         cwd.to_str().expect("utf-path").to_string());
+        variables.insert("repo".to_string(),
+                         repo_map.get(&cwd)
+                             .expect("repo_map")
+                             .to_str()
+                             .expect("utf-path")
+                             .to_string());
 
         // evaluate text
         match strfmt::strfmt(art.text.value.as_str(), variables) {
@@ -146,7 +164,10 @@ pub fn fill_text_fields(artifacts: &mut Artifacts,
             Err(err) => errors.push(("text field", err)),
         };
         if !errors.is_empty() {
-            error!(" resolving variables on [{:?}] {} failed: {:?}", art.path, name, errors);
+            error!(" resolving variables on [{:?}] {} failed: {:?}",
+                   art.path,
+                   name,
+                   errors);
             error = true;
         }
     }

@@ -18,15 +18,22 @@ use toml::{Parser, Value, Table, Decoder};
 #[test]
 fn test_artifact_name() {
     // valid names
-    for name in vec!["REQ-foo", "REQ-foo-2", "REQ-foo2", "REQ-foo2", "REQ-foo-bar-2_3",
-                     "SPC-foo", "RSK-foo", "TST-foo"] {
+    for name in vec!["REQ-foo",
+                     "REQ-foo-2",
+                     "REQ-foo2",
+                     "REQ-foo2",
+                     "REQ-foo-bar-2_3",
+                     "SPC-foo",
+                     "RSK-foo",
+                     "TST-foo"] {
         assert!(ArtName::from_str(name).is_ok());
     }
     for name in vec!["REQ-foo*", "REQ-foo\n", "REQ-foo-"] {
         assert!(ArtName::from_str(name).is_err())
     }
     // remove spaces
-    assert_eq!(ArtName::from_str("   R E Q    -    f   o  o   ").unwrap().value, ["REQ", "FOO"]);
+    assert_eq!(ArtName::from_str("   R E Q    -    f   o  o   ").unwrap().value,
+               ["REQ", "FOO"]);
 }
 
 #[test]
@@ -57,12 +64,12 @@ fn test_get_attr() {
 fn test_settings() {
     let tbl_good = parse_text(TOML_GOOD);
     let df_tbl = Table::new();
-    let (_, set) = Settings::from_table(
-        &get_attr!(tbl_good, "settings", df_tbl, Table).unwrap()).unwrap();
-    assert!(set.paths == VecDeque::from_iter(
-                vec![PathBuf::from("{cwd}/test"), PathBuf::from("{repo}/test")]));
-    assert!(set.code_paths == VecDeque::from_iter(
-        vec![PathBuf::from("{cwd}/src"), PathBuf::from("{repo}/src2")]));
+    let (_, set) = Settings::from_table(&get_attr!(tbl_good, "settings", df_tbl, Table).unwrap())
+        .unwrap();
+    assert!(set.paths ==
+            VecDeque::from_iter(vec![PathBuf::from("{cwd}/test"), PathBuf::from("{repo}/test")]));
+    assert!(set.code_paths ==
+            VecDeque::from_iter(vec![PathBuf::from("{cwd}/src"), PathBuf::from("{repo}/src2")]));
     assert!(set.disabled == false);
 
     // see: 4
@@ -74,9 +81,8 @@ fn test_settings() {
     let tbl_invalid = parse_text(toml_invalid);
     let df_tbl = Table::new();
 
-    assert!(Settings::from_table(&get_attr!(tbl_invalid,
-                                            "settings", df_tbl, Table).unwrap()
-                                 ).is_err());
+    assert!(Settings::from_table(&get_attr!(tbl_invalid, "settings", df_tbl, Table).unwrap())
+        .is_err());
 }
 
 #[test]
@@ -97,9 +103,9 @@ fn test_load_raw_impl() {
         let raw = RawArtifact::decode(&mut decoder).unwrap();
         artifacts.insert(name.clone(), raw);
     }
-    assert_eq!(artifacts.get("REQ-one").unwrap().text, 
+    assert_eq!(artifacts.get("REQ-one").unwrap().text,
                Some("    I am text\n    ".to_string()));
-    assert_eq!(artifacts.get("REQ-one").unwrap().partof, 
+    assert_eq!(artifacts.get("REQ-one").unwrap().partof,
                Some("REQ-1".to_string()));
 }
 
@@ -126,9 +132,8 @@ fn test_load_toml() {
     // #TST-artifact-load: basic loading unit tests
     let num = load_toml(&path, TOML_RST, &mut p).unwrap();
 
-    let locs = HashMap::from_iter(
-        vec![(ArtName::from_str("SPC-foo").unwrap(), Loc::fake()),
-             (ArtName::from_str("SPC-bar").unwrap(), Loc::fake())]);
+    let locs = HashMap::from_iter(vec![(ArtName::from_str("SPC-foo").unwrap(), Loc::fake()),
+                                       (ArtName::from_str("SPC-bar").unwrap(), Loc::fake())]);
     let dne_locs = attach_locs(&mut p.artifacts, locs);
     assert_eq!(num, 8);
     assert_eq!(dne_locs.len(), 0);
@@ -165,7 +170,9 @@ fn test_load_toml() {
 
         // #TST-artifact-partof-1: test loading of partof
         let expected = ["REQ-Foo", "REQ-Bar-1", "REQ-Bar-2"]
-            .iter().map(|n| ArtNameRc::from_str(n).unwrap()).collect();
+            .iter()
+            .map(|n| ArtNameRc::from_str(n).unwrap())
+            .collect();
         assert_eq!(art.partof, expected);
         let expected = Loc::fake();
         assert_eq!(art.loc.as_ref().unwrap(), &expected);
@@ -174,7 +181,8 @@ fn test_load_toml() {
 
         // see TST-settings-load
         let set = &p.settings_map.iter().next().unwrap().1;
-        assert_eq!(set.paths, VecDeque::from_iter(vec![PathBuf::from("{cwd}/data/empty")]));
+        assert_eq!(set.paths,
+                   VecDeque::from_iter(vec![PathBuf::from("{cwd}/data/empty")]));
     }
 
     // must be loaded afterwards, uses already existing artifacts
@@ -188,13 +196,12 @@ fn test_load_toml() {
 }
 
 /// do the raw load with variable resolultion
-pub fn load_raw_extra(path: &Path)
-                      -> Result<(Artifacts, Settings)> {
+pub fn load_raw_extra(path: &Path) -> Result<(Artifacts, Settings)> {
     let mut project = try!(load_raw(path));
-    let variables = try!(vars::resolve_loaded_vars(
-            &project.variables_map, &mut project.repo_map));
-    try!(vars::fill_text_fields(
-            &mut project.artifacts, &mut project.variables, &mut project.repo_map));
+    let variables = try!(vars::resolve_loaded_vars(&project.variables_map, &mut project.repo_map));
+    try!(vars::fill_text_fields(&mut project.artifacts,
+                                &mut project.variables,
+                                &mut project.repo_map));
     Ok((project.artifacts, project.settings))
 }
 
@@ -221,7 +228,7 @@ fn test_load_raw() {
     // see valid.1
     let req_lvl1 = artifacts.get(&ArtName::from_str("REQ-lvl-1").unwrap()).unwrap();
     let spc_lvl1 = artifacts.get(&ArtName::from_str("SPC-lvl-1").unwrap()).unwrap();
-    let spc_loc  = artifacts.get(&ArtName::from_str("SPC-loc").unwrap()).unwrap();
+    let spc_loc = artifacts.get(&ArtName::from_str("SPC-loc").unwrap()).unwrap();
 
     let req_lvl2 = artifacts.get(&ArtName::from_str("REQ-lvl-2").unwrap()).unwrap();
     let spc_lvl2 = artifacts.get(&ArtName::from_str("SPC-lvl-2").unwrap()).unwrap();

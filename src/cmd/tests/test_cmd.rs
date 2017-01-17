@@ -14,8 +14,8 @@ use std::time;
 fn test_get_matches() {
     let args = vec!["rst", "ls", "-l"];
     let matches = get_matches(&args).unwrap();
-    let (search, fmtset, search_set) = 
-        ls::get_cmd(matches.subcommand_matches("ls").unwrap()).unwrap();
+    let (search, fmtset, search_set) = ls::get_cmd(matches.subcommand_matches("ls").unwrap())
+        .unwrap();
     assert_eq!(search, "");
     assert_eq!(fmtset.long, true);
     assert_eq!(fmtset.recurse, 0);
@@ -25,7 +25,7 @@ fn test_get_matches() {
     let args = vec!["rst", "ls", "all", "-AP"];
     let matches = get_matches(&args).unwrap();
     let (search, fmtset, search_set) = ls::get_cmd(matches.subcommand_matches("ls").unwrap())
-                                           .unwrap();
+        .unwrap();
     assert_eq!(search, "all");
     assert_eq!(fmtset.long, false);
     assert_eq!(fmtset.parts, false);
@@ -38,8 +38,7 @@ fn test_get_matches() {
     // #TST-ls-search
     let args = vec!["rst", "ls", "regex", "-p", "TNL"];
     let matches = get_matches(&args).unwrap();
-    let (search, _, search_set) = ls::get_cmd(matches.subcommand_matches("ls").unwrap())
-                                      .unwrap();
+    let (search, _, search_set) = ls::get_cmd(matches.subcommand_matches("ls").unwrap()).unwrap();
     assert_eq!(search, "regex");
     assert!(search_set.text);
     assert!(search_set.name);
@@ -94,9 +93,8 @@ fn repr_bytes(bytes: &[u8]) {
 
 #[test]
 fn test_cmds() {
-    let (mut fmt_set, mut search_set, mut settings) = (FmtSettings::default(),
-                                                       SearchSettings::default(),
-                                                       Settings::default());
+    let (mut fmt_set, mut search_set, mut settings) =
+        (FmtSettings::default(), SearchSettings::default(), Settings::default());
     let mut artifacts = core::load::load_toml_simple(r"
 [REQ-foo]
 text = 'req for foo'
@@ -173,31 +171,21 @@ partof = 'REQ-dne'
     // #TST-check
     w.clear();
     assert!(check::run_cmd(&mut w, &cwd, &project).is_err());
-    //debug_bytes(&w, LS_SPC_DNE);
+    // debug_bytes(&w, LS_SPC_DNE);
     assert_eq!(vb(LS_SPC_DNE), w);
 
     // #TST-ls-out
     // do default list, looking for only req-foo
     w.clear();
-    ls::run_cmd(&mut w,
-              &cwd,
-              "req-foo",
-              &fmt_set,
-              &search_set,
-              &project).unwrap();
-    //debug_bytes(&w, LS_REQ_FOO);
+    ls::run_cmd(&mut w, &cwd, "req-foo", &fmt_set, &search_set, &project).unwrap();
+    // debug_bytes(&w, LS_REQ_FOO);
     assert_eq!(vb(LS_REQ_FOO), w);
 
     // do default list with color disabled
     w.clear();
     fmt_set.color = false;
-    ls::run_cmd(&mut w,
-              &cwd,
-              "req-foo",
-              &fmt_set,
-              &search_set,
-              &project).unwrap();
-    //debug_bytes(&w, expected);
+    ls::run_cmd(&mut w, &cwd, "req-foo", &fmt_set, &search_set, &project).unwrap();
+    // debug_bytes(&w, expected);
     assert_eq!(vb(LS_REQ_FOO_NO_COL), w);
 
     // ls all fields
@@ -211,12 +199,7 @@ partof = 'REQ-dne'
     fmt_set.text = true;
     search_set.use_regex = true;
     search_set.parts = true;
-    ls::run_cmd(&mut w,
-              &cwd,
-              "s.c.*foo",
-              &fmt_set,
-              &search_set,
-              &project).unwrap();
-    //debug_bytes(&w, LS_S_C_STAR_FOO);
+    ls::run_cmd(&mut w, &cwd, "s.c.*foo", &fmt_set, &search_set, &project).unwrap();
+    // debug_bytes(&w, LS_S_C_STAR_FOO);
     assert_eq!(vb(LS_S_C_STAR_FOO), w);
 }

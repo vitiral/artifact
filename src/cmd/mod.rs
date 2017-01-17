@@ -1,19 +1,19 @@
 /*  rst: the requirements tracking tool made for developers
-    Copyright (C) 2016  Garrett Berg <@vitiral, vitiral@gmail.com>
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the Lesser GNU General Public License as published 
-    by the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the Lesser GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ * Copyright (C) 2016  Garrett Berg <@vitiral, vitiral@gmail.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the Lesser GNU General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the Lesser GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * */
 //! cmdline: utilities and methods to display information on the
 //! command line
 //!
@@ -58,9 +58,9 @@ pub fn get_loglevel(matches: &ArgMatches) -> Option<(u8, bool)> {
 
 
 pub fn cmd<W, I, T>(w: &mut W, args: I) -> Result<()>
-    where I: IntoIterator<Item=T>,
+    where I: IntoIterator<Item = T>,
           T: Into<OsString> + clone::Clone,
-          W: io::Write 
+          W: io::Write
 {
     let matches = match matches::get_matches(args) {
         Ok(m) => m,
@@ -81,15 +81,16 @@ pub fn cmd<W, I, T>(w: &mut W, args: I) -> Result<()>
         None => env::current_dir().unwrap(),
     };
     if !work_tree.is_dir() {
-        println!("ERROR: work-tree {} is not a directory", work_tree.display());
+        println!("ERROR: work-tree {} is not a directory",
+                 work_tree.display());
         return Err(ErrorKind::CmdError("TODO".to_string()).into());
     }
-    
+
     // If init is selected, do that
     if matches.subcommand_matches("init").is_some() {
         info!("Calling the init command");
         match init::run_cmd(&work_tree) {
-            Ok(_) => {},
+            Ok(_) => {}
             Err(e) => {
                 println!("ERROR: {}", e);
                 return Err(ErrorKind::CmdError("TODO".to_string()).into());
@@ -106,7 +107,7 @@ pub fn cmd<W, I, T>(w: &mut W, args: I) -> Result<()>
             Err(e) => {
                 println!("ERROR: {}", e);
                 return Err(ErrorKind::CmdError("TODO".to_string()).into());
-            },
+            }
         };
         tutorial::run_cmd(&work_tree, c).unwrap();
         return Ok(());
@@ -145,10 +146,11 @@ pub fn cmd<W, I, T>(w: &mut W, args: I) -> Result<()>
         server::run_cmd(project, &addr);
         Ok(())
     } else {
-        write!(w, "{} {}: use -h to show help",
+        write!(w,
+               "{} {}: use -h to show help",
                Green.bold().paint("rst"),
-               Green.paint(VERSION)).unwrap();
+               Green.paint(VERSION))
+            .unwrap();
         return Ok(());
     }
 }
-

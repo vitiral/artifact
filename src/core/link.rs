@@ -1,19 +1,19 @@
 /*  rst: the requirements tracking tool made for developers
-    Copyright (C) 2016  Garrett Berg <@vitiral, vitiral@gmail.com>
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the Lesser GNU General Public License as published 
-    by the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the Lesser GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ * Copyright (C) 2016  Garrett Berg <@vitiral, vitiral@gmail.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the Lesser GNU General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the Lesser GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * */
 //! module that discovers artifact's links
 
 use dev_prefix::*;
@@ -110,10 +110,10 @@ mod tests {
         let rsk_one = ArtNameRc::from_str("RSK-one").unwrap();
         link_named_partofs(&mut artifacts);
         assert_eq!(artifacts.get(&req_one).unwrap().partof, ArtNames::new());
-        assert_eq!(artifacts.get(&spc_one).unwrap().partof, ArtNames::from_iter(
-            vec![req_one.clone()]));
-        assert_eq!(artifacts.get(&tst_one).unwrap().partof, ArtNames::from_iter(
-            vec![spc_one.clone()]));
+        assert_eq!(artifacts.get(&spc_one).unwrap().partof,
+                   ArtNames::from_iter(vec![req_one.clone()]));
+        assert_eq!(artifacts.get(&tst_one).unwrap().partof,
+                   ArtNames::from_iter(vec![spc_one.clone()]));
         assert_eq!(artifacts.get(&rsk_one).unwrap().partof, ArtNames::new());
     }
 }
@@ -127,8 +127,10 @@ pub fn validate_partof(artifacts: &Artifacts) -> Result<()> {
             let p_type = partof.ty;
             match (&n_type, &p_type) {
                 (&ArtType::REQ, &ArtType::REQ) |
-                (&ArtType::RSK, &ArtType::RSK) | (&ArtType::RSK, &ArtType::REQ) |
-                (&ArtType::SPC, &ArtType::SPC) | (&ArtType::SPC, &ArtType::REQ) |
+                (&ArtType::RSK, &ArtType::RSK) |
+                (&ArtType::RSK, &ArtType::REQ) |
+                (&ArtType::SPC, &ArtType::SPC) |
+                (&ArtType::SPC, &ArtType::REQ) |
                 (&ArtType::TST, &ArtType::TST) |
                 (&ArtType::TST, &ArtType::RSK) |
                 (&ArtType::TST, &ArtType::SPC) => {}
@@ -144,7 +146,7 @@ pub fn validate_partof(artifacts: &Artifacts) -> Result<()> {
         }
     }
     if error {
-        return Err(ErrorKind::InvalidPartof.into())
+        return Err(ErrorKind::InvalidPartof.into());
     }
     Ok(())
 }
@@ -160,9 +162,9 @@ pub fn link_parts(artifacts: &mut Artifacts) -> u64 {
         for partof in &artifact.partof {
             if !artifacts.contains_key(partof) {
                 debug!("[{:?}] {} has invalid partof = {}",
-                      artifact.path,
-                      name,
-                      partof);
+                       artifact.path,
+                       name,
+                       partof);
                 warnings += 1;
                 continue;
             }
@@ -197,7 +199,8 @@ pub fn set_completed(artifacts: &mut Artifacts) -> usize {
                 let artifact = artifacts.get(name).unwrap();
                 // SPC and TST artifacts are done if loc is set
                 match (&artifact.loc, &name.ty) {
-                    (&Some(_), &ArtType::SPC) | (&Some(_), &ArtType::TST) => {
+                    (&Some(_), &ArtType::SPC) |
+                    (&Some(_), &ArtType::TST) => {
                         got_it = 2;
                     }
                     _ => {}
@@ -218,15 +221,15 @@ pub fn set_completed(artifacts: &mut Artifacts) -> usize {
                         // get the completed values, ignoring TSTs that are part of SPCs
                         let completed: Vec<f32> = if name.ty == ArtType::SPC {
                             artifact.parts
-                                    .iter()
-                                    .filter(|n| n.ty != ArtType::TST)
-                                    .map(|n| artifacts.get(n).unwrap().completed)
-                                    .collect()
+                                .iter()
+                                .filter(|n| n.ty != ArtType::TST)
+                                .map(|n| artifacts.get(n).unwrap().completed)
+                                .collect()
                         } else {
                             artifact.parts
-                                    .iter()
-                                    .map(|n| artifacts.get(n).unwrap().completed)
-                                    .collect()
+                                .iter()
+                                .map(|n| artifacts.get(n).unwrap().completed)
+                                .collect()
                         };
                         // now completed is just the sum of it's valid parts
                         match completed.len() {
@@ -290,9 +293,9 @@ pub fn set_tested(artifacts: &mut Artifacts) -> usize {
                 artifacts.get_mut(name).unwrap().tested = {
                     let artifact = artifacts.get(name).unwrap();
                     artifact.parts
-                            .iter()
-                            .map(|n| artifacts.get(n).unwrap().tested)
-                            .fold(0.0, |sum, x| sum + x) /
+                        .iter()
+                        .map(|n| artifacts.get(n).unwrap().tested)
+                        .fold(0.0, |sum, x| sum + x) /
                     artifact.parts.len() as f32
                 };
                 found.insert(name.clone());

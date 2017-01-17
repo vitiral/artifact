@@ -6,10 +6,7 @@ lazy_static!{
     pub static ref TST: VecDeque<char> = VecDeque::from_iter(vec!['#', 'T', 'S', 'T', '-']);
 }
 
-pub fn find_locs_text(path: &Path,
-                      text: &str,
-                      locs: &mut HashMap<ArtName, Loc>)
-                      -> bool {
+pub fn find_locs_text(path: &Path, text: &str, locs: &mut HashMap<ArtName, Loc>) -> bool {
     let mut error = false;
     let text = text;
     let mut prev: VecDeque<char> = VecDeque::with_capacity(5);
@@ -20,7 +17,8 @@ pub fn find_locs_text(path: &Path,
     // pretty simple parse tree... just do it ourselves!
     // Looking for #ART-[a-z0-9_-] case insensitive
     for c in text.chars() {
-        if prev == *SPC || prev == *TST {  // TODO: I'm sure this is not as fast as possible
+        if prev == *SPC || prev == *TST {
+            // TODO: I'm sure this is not as fast as possible
             if prev_char == ' ' {
                 start_pos = pos - 5;
                 start_col = col - 5;
@@ -29,8 +27,10 @@ pub fn find_locs_text(path: &Path,
                 'a'...'z' | 'A'...'Z' | '0'...'9' | '-' | '_' => {
                     prev_char = c;  // still reading a valid artifact name
                 }
-                _ => {  // valid #ART is finished
-                    if prev_char != ' ' { // "SPC- ", etc is actually invalid
+                _ => {
+                    // valid #ART is finished
+                    if prev_char != ' ' {
+                        // "SPC- ", etc is actually invalid
                         let art_start = start_pos + 1; // + 1 because of '#'
                         let (_, end) = text.split_at(art_start);
                         // if last char is '-' ignore it
@@ -42,13 +42,15 @@ pub fn find_locs_text(path: &Path,
                         debug!("Found loc: {}", locname);
                         let loc = Loc {
                             path: path.to_path_buf(),
-                            line_col: (line, start_col)
+                            line_col: (line, start_col),
                         };
                         match locs.insert(locname, loc) {
-                            None => {},
+                            None => {}
                             Some(l) => {
                                 error!("detected overlapping loc {} in files: {:?} and {}",
-                                        name, l, path.display());
+                                       name,
+                                       l,
+                                       path.display());
                                 error = true;
                             }
                         }
@@ -56,7 +58,7 @@ pub fn find_locs_text(path: &Path,
                     }
                     prev.pop_front();
                     prev.push_back(c);
-                },
+                }
             }
         } else {
             if prev.len() == 5 {
@@ -79,34 +81,35 @@ pub fn find_locs_text(path: &Path,
 /// given text, the path to the text, and the locations to add onto
 /// extract all the locations from the text and return whether there
 /// was an error
-pub fn find_locs_file(path: &Path,
-                      locs: &mut HashMap<ArtName, Loc>)
-                      -> bool {
+pub fn find_locs_file(path: &Path, locs: &mut HashMap<ArtName, Loc>) -> bool {
     debug!("resolving locs at: {:?}", path);
     let mut text = String::new();
     match fs::File::open(path) {
-        Ok(mut f) => match f.read_to_string(&mut text) {
-            Ok(_) => {},
-            Err(e) => {
-                if e.kind() == io::ErrorKind::InvalidData {
-                    // non-utf8 is not considered a failure
-                    warn!("while reading from <{}>: {}", path.display(), e);
-                } else {
-                    error!("while reading from <{}>: {}", path.display(), e);
-                    return true;
+        Ok(mut f) => {
+            match f.read_to_string(&mut text) {
+                Ok(_) => {}
+                Err(e) => {
+                    if e.kind() == io::ErrorKind::InvalidData {
+                        // non-utf8 is not considered a failure
+                        warn!("while reading from <{}>: {}", path.display(), e);
+                    } else {
+                        error!("while reading from <{}>: {}", path.display(), e);
+                        return true;
+                    }
                 }
             }
-        },
+        }
         Err(e) => {
             error!("while loading from <{}>: {}", path.display(), e);
             return true;
-        },
+        }
     }
     find_locs_text(path, &text, locs)
 }
 
 /// recursively find all locs given a directory
-fn find_locs_dir(path: &PathBuf, loaded_dirs: &mut HashSet<PathBuf>,
+fn find_locs_dir(path: &PathBuf,
+                 loaded_dirs: &mut HashSet<PathBuf>,
                  locs: &mut HashMap<ArtName, Loc>)
                  -> bool {
     loaded_dirs.insert(path.to_path_buf());
@@ -123,9 +126,11 @@ fn find_locs_dir(path: &PathBuf, loaded_dirs: &mut HashSet<PathBuf>,
         let fpath = entry.path();
         // don't parse .toml files for locations
         match fpath.extension() {
-            None => {},
-            Some(ext) => if ext == "toml" {
-                continue
+            None => {}
+            Some(ext) => {
+                if ext == "toml" {
+                    continue;
+                }
             }
         }
         let ftype = match entry.file_type() {
@@ -141,7 +146,7 @@ fn find_locs_dir(path: &PathBuf, loaded_dirs: &mut HashSet<PathBuf>,
         } else if ftype.is_file() && find_locs_file(&fpath, locs) {
             error = true
         }
-    };
+    }
 
     for d in dirs_to_load {
         if !loaded_dirs.contains(&d) && find_locs_dir(&d, loaded_dirs, locs) {
@@ -156,24 +161,25 @@ fn find_locs_dir(path: &PathBuf, loaded_dirs: &mut HashSet<PathBuf>,
 pub fn find_locs(settings: &mut Settings) -> Result<HashMap<ArtName, Loc>> {
     info!("parsing code files for artifacts...");
     let mut locs: HashMap<ArtName, Loc> = HashMap::new();
-    let mut loaded_dirs: HashSet<PathBuf> = HashSet::from_iter(
-        settings.exclude_code_paths.iter().map(|p| p.to_path_buf()));
+    let mut loaded_dirs: HashSet<PathBuf> =
+        HashSet::from_iter(settings.exclude_code_paths.iter().map(|p| p.to_path_buf()));
     debug!("excluded code paths: {:?}", loaded_dirs);
     while !settings.code_paths.is_empty() {
         let dir = settings.code_paths.pop_front().unwrap(); // it has len, it better pop!
         if loaded_dirs.contains(&dir) {
-            continue
+            continue;
         }
         debug!("Loading from code: {:?}", dir);
         if find_locs_dir(&dir, &mut loaded_dirs, &mut locs) {
-            return Err(ErrorKind::LocNotFound.into())
+            return Err(ErrorKind::LocNotFound.into());
         }
     }
     Ok(locs)
 }
 
 /// attach the locations to the artifacts, returning locations that were not used.
-pub fn attach_locs(artifacts: &mut Artifacts, mut locs: HashMap<ArtName, Loc>)
+pub fn attach_locs(artifacts: &mut Artifacts,
+                   mut locs: HashMap<ArtName, Loc>)
                    -> HashMap<ArtName, Loc> {
     let mut dne: HashMap<ArtName, Loc> = HashMap::new();
     for (lname, loc) in locs.drain() {
@@ -182,7 +188,7 @@ pub fn attach_locs(artifacts: &mut Artifacts, mut locs: HashMap<ArtName, Loc>)
             None => {
                 dne.insert(lname, loc);
                 continue;
-            },
+            }
         };
         artifact.loc = Some(loc);
     }

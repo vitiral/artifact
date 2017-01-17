@@ -1,5 +1,5 @@
 //! stdlib and external library prefix for core module
-// TODO: this should be it's own crate.... maybe
+//! TODO: this should be it's own crate.... maybe
 
 // stdlib traits
 pub use std::ascii::AsciiExt;  // to_ascii_uppercase(), etc

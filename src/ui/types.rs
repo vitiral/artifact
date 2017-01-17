@@ -18,9 +18,7 @@ pub struct FmtSettings {
 
 impl FmtSettings {
     pub fn is_empty(&self) -> bool {
-        !self.long && !self.path && !self.parts
-            && !self.partof && !self.loc_path
-            && !self.text
+        !self.long && !self.path && !self.parts && !self.partof && !self.loc_path && !self.text
     }
 }
 

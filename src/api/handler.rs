@@ -11,7 +11,7 @@ use super::{ARTIFACTS, PROJECT};
 const X_IDS_NOT_FOUND: &'static str = "xIdsNotFound";
 const X_INVALID_NAME: &'static str = "xInvalidName";
 const X_FILES_NOT_FOUND: &'static str = "xFilesNotFound";
-//const X_PROCESS_ERROR: &'static str = "xProcessError";
+// const X_PROCESS_ERROR: &'static str = "xProcessError";
 const X_MULTIPLE_ERRORS: &'static str = "xMultipleErrors";
 const X_CODE: i64 = -32000;
 
@@ -59,13 +59,11 @@ fn parse_error(desc: &str) -> RpcError {
 
 /// convert an artifact from it's data representation
 /// to it's internal artifact representation
-fn convert_artifact(artifact_data: &ArtifactData) 
-    -> result::Result<(ArtNameRc, Artifact), String> 
-{
+fn convert_artifact(artifact_data: &ArtifactData) -> result::Result<(ArtNameRc, Artifact), String> {
     Artifact::from_data(artifact_data).map_err(|err| err.to_string())
 }
 
- /// `UpdateArtifacts` Handler
+/// `UpdateArtifacts` Handler
 #[allow(dead_code)]
 struct UpdateArtifacts;
 #[allow(dead_code)]
@@ -75,13 +73,17 @@ impl SyncMethodCommand for UpdateArtifacts {
         info!("* UpdateArtifacts");
 
         let new_artifacts = match params {
-            Params::Map(dict) => match dict.get("artifacts") {
-                Some(value) => match serde_json::from_value::<Vec<ArtifactData>>(value.clone()) {
-                    Ok(a) => a,
-                    Err(e) => return Err(parse_error(&format!("{}", e))),
-                },
-                None => return Err(invalid_params("missing 'artifacts' param")),
-            },
+            Params::Map(dict) => {
+                match dict.get("artifacts") {
+                    Some(value) => {
+                        match serde_json::from_value::<Vec<ArtifactData>>(value.clone()) {
+                            Ok(a) => a,
+                            Err(e) => return Err(parse_error(&format!("{}", e))),
+                        }
+                    }
+                    None => return Err(invalid_params("missing 'artifacts' param")),
+                }
+            }
             _ => return Err(invalid_params("params must have 'artifacts' key")),
         };
 
@@ -89,7 +91,8 @@ impl SyncMethodCommand for UpdateArtifacts {
         let project = PROJECT.lock().unwrap();
 
         let mut map_artifacts: HashMap<u64, ArtifactData> = artifacts.iter_mut()
-            .map(|a| (a.id, a.clone())).collect();
+            .map(|a| (a.id, a.clone()))
+            .collect();
 
         let mut save_artifacts: Artifacts = Artifacts::new();
         // insert the new artifacts and check errors first
@@ -111,7 +114,7 @@ impl SyncMethodCommand for UpdateArtifacts {
                 Err(err) => {
                     name_errors.push(err);
                     continue;
-                },
+                }
             };
             save_artifacts.insert(n, a);
         }
@@ -122,15 +125,19 @@ impl SyncMethodCommand for UpdateArtifacts {
         if !name_errors.is_empty() {
             data.insert("nameErrors", name_errors);
             err = Some(X_INVALID_NAME);
-        } 
+        }
         if !files_not_found.is_empty() {
-            data.insert("filesNotFound", files_not_found.iter()
-                .map(|f| format!("{}", f.display())).collect());
+            data.insert("filesNotFound",
+                        files_not_found.iter()
+                            .map(|f| format!("{}", f.display()))
+                            .collect());
             err = Some(X_FILES_NOT_FOUND);
-        } 
+        }
         if !ids_not_found.is_empty() {
-            data.insert("idsNotFound", ids_not_found.iter()
-                .map(u64::to_string).collect());
+            data.insert("idsNotFound",
+                        ids_not_found.iter()
+                            .map(u64::to_string)
+                            .collect());
             err = Some(X_IDS_NOT_FOUND);
         }
         if data.len() > 1 {
@@ -147,13 +154,15 @@ impl SyncMethodCommand for UpdateArtifacts {
         for art_data in map_artifacts.values() {
             let (n, a) = match convert_artifact(art_data) {
                 Ok(v) => v,
-                Err(msg) => return Err(RpcError {
-                    code: SERVER_ERROR,
-                    message: format!(
-                        "Could not convert artifact back {:?}, GOT ERROR: {}",
-                        art_data, msg),
-                    data: None,
-                }),
+                Err(msg) => {
+                    return Err(RpcError {
+                        code: SERVER_ERROR,
+                        message: format!("Could not convert artifact back {:?}, GOT ERROR: {}",
+                                         art_data,
+                                         msg),
+                        data: None,
+                    })
+                }
             };
             save_artifacts.insert(n, a);
         }
@@ -170,48 +179,48 @@ impl SyncMethodCommand for UpdateArtifacts {
             });
         }
 
-        // TODO: 
+        // TODO:
         // save artifacts to files and then overwrite *artifacts
         // with the new values
-        
-        
+
+
         // Finally, return ALL the artifacts (the client's cache is outdated)
         Ok(serde_json::to_value("true"))
-    //    let id = match parse_id(req) {
-    //        Ok(id) => id,
-    //        Err(e) => {
-    //            res.set(StatusCode::NotFound);
-    //            return res.send(e);
-    //        },
-    //    };
-    //    let mut locked = ARTIFACTS.lock().unwrap();
-    //    let artifact = match get_artifact(locked.as_mut(), id) {
-    //        Ok(a) => a,
-    //        Err(e) => {
-    //            res.set(StatusCode::NotFound);
-    //            return res.send(e);
-    //        },
-    //    };
-    //    let new = match req.json_as::<Artifact>() {
-    //        Ok(a) => a,
-    //        Err(e) => {
-    //            res.set(StatusCode::BadRequest);
-    //            return res.send(format!("{}", e));
-    //        },
-    //    };
-    //    if new.id != id {
-    //        res.set(StatusCode::BadRequest);
-    //        return res.send("cannot change artifact's id");
-    //    }
-    //    if new == *artifact {
-    //        res.set(StatusCode::NotModified);
-    //        return res.send("not modified");
-    //    }
-    //    *artifact = new;
-    //    let data = json::as_pretty_json(artifact);
-    //    let str_data = format!("{}", data);
-    //    println!("* PUT /artifacts/{} success", id);
-    //    config_json_res(&mut res);
-    //    res.send(str_data)
+        //    let id = match parse_id(req) {
+        //        Ok(id) => id,
+        //        Err(e) => {
+        //            res.set(StatusCode::NotFound);
+        //            return res.send(e);
+        //        },
+        //    };
+        //    let mut locked = ARTIFACTS.lock().unwrap();
+        //    let artifact = match get_artifact(locked.as_mut(), id) {
+        //        Ok(a) => a,
+        //        Err(e) => {
+        //            res.set(StatusCode::NotFound);
+        //            return res.send(e);
+        //        },
+        //    };
+        //    let new = match req.json_as::<Artifact>() {
+        //        Ok(a) => a,
+        //        Err(e) => {
+        //            res.set(StatusCode::BadRequest);
+        //            return res.send(format!("{}", e));
+        //        },
+        //    };
+        //    if new.id != id {
+        //        res.set(StatusCode::BadRequest);
+        //        return res.send("cannot change artifact's id");
+        //    }
+        //    if new == *artifact {
+        //        res.set(StatusCode::NotModified);
+        //        return res.send("not modified");
+        //    }
+        //    *artifact = new;
+        //    let data = json::as_pretty_json(artifact);
+        //    let str_data = format!("{}", data);
+        //    println!("* PUT /artifacts/{} success", id);
+        //    config_json_res(&mut res);
+        //    res.send(str_data)
     }
 }

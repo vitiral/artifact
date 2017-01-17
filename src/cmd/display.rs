@@ -1,20 +1,20 @@
 
 /*  rst: the requirements tracking tool made for developers
-    Copyright (C) 2016  Garrett Berg <@vitiral, vitiral@gmail.com>
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the Lesser GNU General Public License as published 
-    by the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the Lesser GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ * Copyright (C) 2016  Garrett Berg <@vitiral, vitiral@gmail.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the Lesser GNU General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the Lesser GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * */
 //! methods to format the `FmtArtifact` object and write it to a stream
 
 use dev_prefix::*;
@@ -24,10 +24,13 @@ impl FmtArtifact {
     /// write the formatted version of the artifact to the
     /// cmdline writter
     #[allow(cyclomatic_complexity)]  // TODO: break this up
-    pub fn write<W: io::Write> (&self, w: &mut W, cwd: &Path,
-                                artifacts: &Artifacts,
-                                settings: &Settings, indent: u8)
-                                -> io::Result<()> {
+    pub fn write<W: io::Write>(&self,
+                               w: &mut W,
+                               cwd: &Path,
+                               artifacts: &Artifacts,
+                               settings: &Settings,
+                               indent: u8)
+                               -> io::Result<()> {
         let nfno = indent > 0 && self.name_only(); // not-first-name-only
         if !self.name_only() {
             for _ in 0..(indent * 2) {
@@ -64,14 +67,16 @@ impl FmtArtifact {
         if settings.color {
             // #SPC-ls-color]
             let (d_sym, d_perc, t_sym, t_perc, name) = if artifact.completed >= 1. &&
-                    artifact.tested >= 1. {
+                                                          artifact.tested >= 1. {
                 let name = if nfno {
                     Green.paint(self.name.raw.as_str())
                 } else {
                     Green.bold().underline().paint(self.name.raw.as_str())
                 };
-                (Green.bold().paint("D"), Green.bold().paint(completed_str),
-                 Green.bold().paint("T"), Green.bold().paint(tested_str),
+                (Green.bold().paint("D"),
+                 Green.bold().paint(completed_str),
+                 Green.bold().paint("T"),
+                 Green.bold().paint(tested_str),
                  name)
             } else {
                 let mut score = 0;
@@ -138,10 +143,15 @@ impl FmtArtifact {
         } else if nfno {
             try!(write!(w, "{}", &self.name.raw));
         } else {
-            let d_sym = if artifact.completed >= 1. {"D"} else {"-"};
-            let t_sym = if artifact.tested >= 1. {"T"} else {"-"};
-            try!(write!(w, "|{}{}| {:>3}% {:>3}% | {:<45} ", d_sym, t_sym,
-                        completed_str, tested_str, &self.name.raw));
+            let d_sym = if artifact.completed >= 1. { "D" } else { "-" };
+            let t_sym = if artifact.tested >= 1. { "T" } else { "-" };
+            try!(write!(w,
+                        "|{}{}| {:>3}% {:>3}% | {:<45} ",
+                        d_sym,
+                        t_sym,
+                        completed_str,
+                        tested_str,
+                        &self.name.raw));
         }
 
         if nfno {
@@ -209,7 +219,7 @@ impl FmtArtifact {
         Ok(())
     }
 
-    fn write_header<W: io::Write> (&self, w: &mut W, msg: &str, settings: &Settings) {
+    fn write_header<W: io::Write>(&self, w: &mut W, msg: &str, settings: &Settings) {
         if self.long {
             if settings.color {
                 write!(w, "{}", Green.paint(msg)).unwrap();
@@ -221,25 +231,21 @@ impl FmtArtifact {
         }
     }
 
-    fn write_end<W: io::Write> (&self, w: &mut W) {
+    fn write_end<W: io::Write>(&self, w: &mut W) {
         w.write_all(" ".as_ref()).unwrap();
     }
 
     /// return whether this object is only the name
     /// if it is, it is formatted differently
     fn name_only(&self) -> bool {
-        match (&self.path, &self.parts, &self.partof,
-               &self.loc, &self.text) {
+        match (&self.path, &self.parts, &self.partof, &self.loc, &self.text) {
             (&None, &None, &None, &None, &None) => true,
             _ => false,
         }
     }
 }
 
-pub fn write_table_header<W: io::Write> (
-        w: &mut W,
-        fmt_set: &FmtSettings,
-        settings: &Settings) {
+pub fn write_table_header<W: io::Write>(w: &mut W, fmt_set: &FmtSettings, settings: &Settings) {
     let mut header = String::new();
     header.write_str("|  | DONE TEST | ARTIFACT NAME").unwrap();
     for _ in 0..33 {

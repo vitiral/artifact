@@ -17,11 +17,16 @@ impl SearchSettings {
             partof: false,
             loc: false,
             text: false,
-            completed: PercentSearch{lt: false, perc: 0},
-            tested: PercentSearch{lt: false, perc: 0},
+            completed: PercentSearch {
+                lt: false,
+                perc: 0,
+            },
+            tested: PercentSearch {
+                lt: false,
+                perc: 0,
+            },
         }
     }
-
 }
 
 impl FromStr for SearchSettings {
@@ -31,11 +36,12 @@ impl FromStr for SearchSettings {
         let pattern = HashSet::from_iter(s.chars());
         debug!("got search pattern: {:?}", pattern);
         let invalid: HashSet<char> = pattern.difference(&VALID_SEARCH_FIELDS)
-                                            .cloned()
-                                            .collect();
+            .cloned()
+            .collect();
         if !invalid.is_empty() {
-            return Err(ErrorKind::CmdError(format!(
-                "Unknown search fields in pattern: {:?}", invalid)).into());
+            return Err(ErrorKind::CmdError(format!("Unknown search fields in pattern: {:?}",
+                                                   invalid))
+                .into());
         }
         let mut set = SearchSettings {
             use_regex: true,
@@ -45,8 +51,14 @@ impl FromStr for SearchSettings {
             partof: pattern.contains(&'O'),
             loc: pattern.contains(&'L'),
             text: pattern.contains(&'T'),
-            completed: PercentSearch{lt: false, perc: 0},
-            tested: PercentSearch{lt: false, perc: 0},
+            completed: PercentSearch {
+                lt: false,
+                perc: 0,
+            },
+            tested: PercentSearch {
+                lt: false,
+                perc: 0,
+            },
         };
         if pattern.contains(&'A') {
             set.name = !set.name;
@@ -78,21 +90,20 @@ pub fn show_artifact(name: &ArtName,
     let ss = search_settings;
     let completed = (art.completed * 100.0).round() as u8;
     let tested = (art.tested * 100.0).round() as u8;
-    if (ss.completed.lt && completed > ss.completed.perc)
-        || (!ss.completed.lt && completed < ss.completed.perc)
-        || (ss.tested.lt && tested > ss.tested.perc)
-        || (!ss.tested.lt && tested < ss.tested.perc) {
+    if (ss.completed.lt && completed > ss.completed.perc) ||
+       (!ss.completed.lt && completed < ss.completed.perc) ||
+       (ss.tested.lt && tested > ss.tested.perc) ||
+       (!ss.tested.lt && tested < ss.tested.perc) {
         false
     } else {
-        !ss.use_regex
-        || (ss.name && pat_case.is_match(&name.raw))
-        || (ss.parts && matches_name(pat_case, &art.parts))
-        || (ss.partof && matches_name(pat_case, &art.partof))
-        || (ss.loc && match art.loc.as_ref() {
-             None => false,
-             Some(l) => pat_case.is_match(l.path.to_string_lossy().as_ref()),
-           })
-        || (ss.text && pat_case.is_match(&art.text.value))
+        !ss.use_regex || (ss.name && pat_case.is_match(&name.raw)) ||
+        (ss.parts && matches_name(pat_case, &art.parts)) ||
+        (ss.partof && matches_name(pat_case, &art.partof)) ||
+        (ss.loc &&
+         match art.loc.as_ref() {
+            None => false,
+            Some(l) => pat_case.is_match(l.path.to_string_lossy().as_ref()),
+        }) || (ss.text && pat_case.is_match(&art.text.value))
     }
 }
 
@@ -101,7 +112,8 @@ pub fn show_artifact(name: &ArtName,
 fn test_show_artfact() {
     let mut req_one = Artifact::from_str("[REQ-one]
             partof = 'REQ-base'
-            text = 'hello bob'").unwrap();
+            text = 'hello bob'")
+        .unwrap();
     let req_two = Artifact::from_str("[REQ-two]\ntext = 'goodbye joe'").unwrap();
     req_one.1.tested = 0.2;
     req_one.1.completed = 0.8;
@@ -111,12 +123,21 @@ fn test_show_artfact() {
 
     // test percentage search
     let mut settings_little_tested = SearchSettings::new();
-    settings_little_tested.tested = PercentSearch{lt: false, perc: 10};
+    settings_little_tested.tested = PercentSearch {
+        lt: false,
+        perc: 10,
+    };
     assert!(show_artifact(&req_one.0, &req_one.1, &search_bob, &settings_little_tested));
 
     let mut settings_ct = SearchSettings::new();
-    settings_ct.completed = PercentSearch{lt: false, perc: 50};
-    settings_ct.tested = PercentSearch{lt: false, perc: 50};
+    settings_ct.completed = PercentSearch {
+        lt: false,
+        perc: 50,
+    };
+    settings_ct.tested = PercentSearch {
+        lt: false,
+        perc: 50,
+    };
     assert!(!show_artifact(&req_one.0, &req_one.1, &search_bob, &settings_ct));
 
     // test regex search
@@ -131,4 +152,3 @@ fn test_show_artfact() {
     assert!(!show_artifact(&req_one.0, &req_one.1, &search_bob, &settings_name));
     assert!(!show_artifact(&req_one.0, &req_one.1, &search_two, &settings_nt));
 }
-

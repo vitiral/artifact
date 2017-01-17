@@ -1,19 +1,19 @@
 /*  rst: the requirements tracking tool made for developers
-    Copyright (C) 2016  Garrett Berg <@vitiral, vitiral@gmail.com>
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the Lesser GNU General Public License as published 
-    by the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the Lesser GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ * Copyright (C) 2016  Garrett Berg <@vitiral, vitiral@gmail.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the Lesser GNU General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the Lesser GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * */
 use dev_prefix::*;
 use super::types::*;
 
@@ -45,26 +45,23 @@ pub fn get_subcommand<'a, 'b>() -> App<'a, 'b> {
 }
 
 pub fn run_cmd(path: &Path) -> Result<()> {
-    let mut read_dir = fs::read_dir(path)
-        .chain_err(|| format!("dir: {}", path.display()))?;
-    let exists = read_dir.any(|e|
-        match e {
-            Err(_) => false,
-            Ok(e) => {
-                if !e.file_type().unwrap().is_dir() {
-                    false
-                } else {
-                    let p = e.path();
-                    let fname = p.file_name().unwrap().to_str().unwrap();
-                    fname == ".rst"
-                }
+    let mut read_dir = fs::read_dir(path).chain_err(|| format!("dir: {}", path.display()))?;
+    let exists = read_dir.any(|e| match e {
+        Err(_) => false,
+        Ok(e) => {
+            if !e.file_type().unwrap().is_dir() {
+                false
+            } else {
+                let p = e.path();
+                let fname = p.file_name().unwrap().to_str().unwrap();
+                fname == ".rst"
             }
-        });
+        }
+    });
     let repo = path.join(".rst");
     let design = path.join("design");
     if !exists {
-        fs::create_dir(&repo)
-            .chain_err(|| format!("create dir: {}", repo.display()))?;
+        fs::create_dir(&repo).chain_err(|| format!("create dir: {}", repo.display()))?;
         let _ = fs::create_dir(&design);
 
         // create settings
@@ -73,11 +70,12 @@ pub fn run_cmd(path: &Path) -> Result<()> {
         let mut f = fs::File::create(&settings)
             .chain_err(|| format!("create file: {}", settings.display()))?;
         f.write_all(SETTINGS_TOML.as_ref()).unwrap();
-        let mut f = fs::File::create(&purpose)
-            .chain_err(|| format!("create file: {}", purpose.display()))?;
+        let mut f =
+            fs::File::create(&purpose).chain_err(|| format!("create file: {}", purpose.display()))?;
         f.write_all(PURPOSE_TOML.as_ref()).unwrap();
         println!("rst initialized at {} with artifacts at {}",
-                 settings.display(), design.display());
+                 settings.display(),
+                 design.display());
     } else {
         println!("rst already initialized at {}", repo.display());
     }
