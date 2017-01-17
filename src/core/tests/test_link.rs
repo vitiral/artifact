@@ -7,7 +7,7 @@ use super::super::link::*;
 
 #[test]
 fn test_basic_link() {
-    let mut project = Project::new();
+    let mut project = Project::default();
     let path = PathBuf::from("hi/there");
     let req_name = Arc::new(ArtNameRc::from_str("REQ-1").unwrap().parent().unwrap());
 
@@ -94,7 +94,7 @@ fn test_basic_link() {
 
 #[test]
 fn test_link_completed_tested() {
-    let mut project = Project::new();
+    let mut project = Project::default();
     let path = PathBuf::from("hi/there");
     let req_name = Arc::new(ArtNameRc::from_str("REQ-1").unwrap().parent().unwrap());
 

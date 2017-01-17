@@ -111,7 +111,7 @@ fn test_load_raw_impl() {
 
 #[test]
 fn test_load_toml() {
-    let mut p = Project::new();
+    let mut p = Project::default();
 
     let path = PathBuf::from("hi/there");
 

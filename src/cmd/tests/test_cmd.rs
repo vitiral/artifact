@@ -163,7 +163,7 @@ partof = 'REQ-dne'
 
     let dne_locs: HashMap<_, _> = HashMap::from_iter(vec![(ArtName::from_str("SPC-dne").unwrap(),
                                                            Loc::fake())]);
-    let mut project = Project::new();
+    let mut project = Project::default();
     project.artifacts = artifacts;
     project.settings = settings;
     project.dne_locs = dne_locs;

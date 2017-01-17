@@ -34,7 +34,7 @@ fn test_basic() {
 
     let p = Path::new("foo");
     for (i, toml) in toml_files.iter().enumerate() {
-        let mut project = Project::new();
+        let mut project = Project::default();
         let text = str::from_utf8(toml).unwrap();
         load::load_toml(&p, text, &mut project)
             .expect(&format!("could not load tutorial toml at index: {}", i));
