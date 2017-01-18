@@ -18,7 +18,7 @@
 //! loading of raw artifacts from files and text
 //!
 use toml::{encode, Table};
-use difference::{Difference as Diff, diff};
+use difference::{Changeset};
 
 use dev_prefix::*;
 use super::types::*;
@@ -34,7 +34,7 @@ pub struct ProjectText(HashMap<PathBuf, String>);
 pub enum PathDiff {
     DoesNotExist,
     NotUtf8,
-    Diff(Vec<Diff>),
+    Changeset(Changeset),
     None,
 }
 
@@ -148,9 +148,11 @@ impl ProjectText {
                 }
             };
 
-            let d = match diff(original, text, "\n") {
-                (0, _) => PathDiff::None,
-                (_, d) => PathDiff::Diff(d),
+            let ch = Changeset::new(original, text, "\n");
+            let d = if ch.distance == 0 {
+                PathDiff::None
+            } else {
+                PathDiff::Changeset(ch)
             };
             out.insert(path.clone(), d);
         }

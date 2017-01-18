@@ -26,25 +26,29 @@ pub fn get_subcommand<'a, 'b>() -> App<'a, 'b> {
         //     .help("only get the diff printed to stdout"))
         .arg(Arg::with_name("list")
              .short("l")
-             .help("only list files that will be affected"))
+             .help("list files that will be affected and exit"))
+        .arg(Arg::with_name("diff")
+             .short("d")
+             .help("print out the diff stdout and exit"))
         .arg(Arg::with_name("write")
              .short("w")
              .help("If a file's formatting is different from rst fmt,
-                    overwrite it with rst fmt's vesion.
-                    NOTE: THIS COULD EAT YOUR LAUNDRY"))
+                    overwrite it with rst fmt's vesion"))
         .settings(&[AS::DeriveDisplayOrder, COLOR])
 }
 
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub enum Cmd {
     List,
     Write,
+    Diff,
 }
 
 pub fn get_cmd(matches: &ArgMatches) -> Result<Cmd> {
     if matches.is_present("list") {
         Ok(Cmd::List)
-        // } else if matches.is_present("diff") {
-        //    Ok(Cmd::Diff)
+    } else if matches.is_present("diff") {
+        Ok(Cmd::Diff)
     } else if matches.is_present("write") {
         Ok(Cmd::Write)
     } else {
@@ -57,17 +61,38 @@ pub fn get_cmd(matches: &ArgMatches) -> Result<Cmd> {
 /// partof: #SPC-fmt
 pub fn run_cmd(cfg: &Path, project: &Project, cmd: &Cmd) -> Result<()> {
     let ptext = ProjectText::from_project(project)?;
+    let indent = if *cmd == Cmd::Diff {
+        // str.repeat would be great....
+        (0..50).map(|_| "#").collect::<String>() + "\n# "
+    } else {
+        "".to_string()
+    };
     match *cmd {
-        Cmd::List => {
+        Cmd::List | Cmd::Diff => {
             // just list the files that will change
-            let diff = ptext.diff()?;
-            for (path, value) in diff {
+            let project_diff = ptext.diff()?;
+            for (path, value) in project_diff {
                 match value {
                     PathDiff::NotUtf8 => {
                         return Err(ErrorKind::InvalidUnicode(format!("{}", path.display())).into())
                     }
                     PathDiff::None => {}
-                    _ => println!("{}", path.display()),
+                    // TODO: need to handle case where file is deleted...
+                    // neither of these should happen for our use case
+                    PathDiff::DoesNotExist => {
+                        panic!("unexpected new file: {}", path.display());
+                        //println!("{}new file: {}", indent, path.display());
+                    },
+                    PathDiff::Changeset(changeset) => {
+                        let disp = if *cmd == Cmd::Diff {
+                            format!("{}", changeset)
+                        } else {
+                            "".to_string()
+                        };
+                        let header = Style::new().bold().paint(format!(
+                            "{}{}", indent, path.display()));
+                        print!("{}\n{}", header, disp);
+                    }
                 }
             }
             Ok(())
