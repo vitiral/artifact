@@ -22,7 +22,7 @@ fn test_basic() {
     assert_ne!(tut::D_LOAD_1_TOML, tut::D_LOAD_2_TOML);
 
     let toml_files = vec![
-        tut::D_TUTORIAL_TOML, 
+        tut::D_TUTORIAL_TOML,
         tut::D_HIGH_LEVEL_TOML,
         tut::D_PURPOSE_TOML,
         tut::D_LOAD_1_TOML,

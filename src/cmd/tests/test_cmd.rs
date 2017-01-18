@@ -47,29 +47,71 @@ fn test_get_matches() {
 
 
 #[cfg(not(windows))]
-const LS_SPC_DNE: &'static [u8] = b"\x1b[1;31m\nFound partof names that do not exist:\n\x1b[0m\x1b[31m    REQ-invalid-parts [../../reqs/foo.toml]: {REQ-DNE}\n\x1b[0m\x1b[1;31m\nArtifacts partof contains at least one recursive reference:\n\x1b[0m    SPC-unresolvable              : [SPC-UNRESOLVABLE-1-1]\n    SPC-unresolvable-1            : [SPC-UNRESOLVABLE]\n    SPC-unresolvable-1-1          : [SPC-UNRESOLVABLE-1]\n\x1b[1;31m\nFound implementation links in the code that do not exist:\n\x1b[0m\x1b[31m    ../../fake:\n\x1b[0m\x1b[31m    - (42:0)\x1b[0m SPC-dne\n\x1b[1;31m\nHanging artifacts found (top-level but not partof a higher type):\n\x1b[0m    ../../reqs/foo.toml           : SPC-unresolvable\n\n";
+const LS_SPC_DNE: &'static [u8] = b"\x1b[1;31m\nFound partof names that do not \
+exist:\n\x1b[0m\x1b[31m    REQ-invalid-parts [../../reqs/foo.toml]: {REQ-DNE}\
+\n\x1b[0m\x1b[1;31m\nArtifacts partof contains at least one recursive reference:\
+\n\x1b[0m    SPC-unresolvable              : [SPC-UNRESOLVABLE-1-1]\n    \
+SPC-unresolvable-1            : [SPC-UNRESOLVABLE]\n    \
+SPC-unresolvable-1-1          : [SPC-UNRESOLVABLE-1]\n\x1b[1;31m\nFound \
+implementation links in the code that do not exist:\n\x1b[0m\x1b[31m    \
+../../fake:\n\x1b[0m\x1b[31m    - (42:0)\x1b[0m SPC-dne\n\x1b[1;31m\n\
+Hanging artifacts found (top-level but not partof a higher type):\
+\n\x1b[0m    ../../reqs/foo.toml           : SPC-unresolvable\n\n";
 
 #[cfg(windows)]
-const LS_SPC_DNE: &'static [u8] = b"\nFound partof names that do not exist:\n    REQ-invalid-parts [..\\..\\reqs\\foo.toml]: {REQ-DNE}\n\nArtifacts partof contains at least one recursive reference:\n    SPC-unresolvable              : [SPC-UNRESOLVABLE-1-1]\n    SPC-unresolvable-1            : [SPC-UNRESOLVABLE]\n    SPC-unresolvable-1-1          : [SPC-UNRESOLVABLE-1]\n\nFound implementation links in the code that do not exist:\n    ..\\..\\fake:\n    - (42:0) SPC-dne\n\nHanging artifacts found (top-level but not partof a higher type):\n    ..\\..\\reqs\\foo.toml           : SPC-unresolvable\n\n";
+const LS_SPC_DNE: &'static [u8] = b"\nFound partof names that do not exist:\n    REQ-invalid-parts \
+[..\\..\\reqs\\foo.toml]: {REQ-DNE}\n\nArtifacts partof contains at least \
+one recursive reference:\n    SPC-unresolvable              : \
+[SPC-UNRESOLVABLE-1-1]\n    SPC-unresolvable-1            : \
+[SPC-UNRESOLVABLE]\n    SPC-unresolvable-1-1          : [SPC-UNRESOLVABLE-1]\
+\n\nFound implementation links in the code that do not exist:\n    \
+..\\..\\fake:\n    - (42:0) SPC-dne\n\nHanging artifacts found (top-level but not \
+partof a higher type):\n    ..\\..\\reqs\\foo.toml           : \
+SPC-unresolvable\n\n";
 
 #[cfg(not(windows))]
-const LS_REQ_FOO: &'static [u8] = b"\x1b[1m|  | DONE TEST | ARTIFACT NAME                                 | PARTS   | DEFINED   \n\x1b[0m|\x1b[1;34mD\x1b[0m\x1b[1;33m-\x1b[0m| \x1b[1;34m100\x1b[0m%  \x1b[1;33m50\x1b[0m% | \x1b[1;4;34mreq-foo\x1b[0m                                       | \x1b[34mSPC-foo\x1b[0m | ../../reqs/foo.toml \n";
+const LS_REQ_FOO: &'static [u8] =
+    b"\x1b[1m|  | DONE TEST | ARTIFACT NAME                                 | \
+PARTS   | DEFINED   \n\x1b[0m|\x1b[1;34mD\x1b[0m\x1b[1;33m-\x1b[0m| \
+\x1b[1;34m100\x1b[0m%  \x1b[1;33m50\x1b[0m% | \x1b[1;4;34mreq-foo\x1b\
+[0m                                       | \x1b[34mSPC-foo\x1b[0m | \
+../../reqs/foo.toml \n";
 
 #[cfg(windows)]
-const LS_REQ_FOO: &'static [u8] = b"|  | DONE TEST | ARTIFACT NAME                                 | PARTS   | DEFINED   \n|D-| 100%  50% | req-foo                                       | SPC-foo | ..\\..\\reqs\\foo.toml \n";
+const LS_REQ_FOO: &'static [u8] =
+    b"|  | DONE TEST | ARTIFACT NAME                                 | PARTS   \
+| DEFINED   \n|D-| 100%  50% | req-foo                                       | \
+SPC-foo | ..\\..\\reqs\\foo.toml \n";
 
 
 #[cfg(not(windows))]
-const LS_REQ_FOO_NO_COL: &'static [u8] = b"|  | DONE TEST | ARTIFACT NAME                                 | PARTS   | DEFINED   \n|D-| 100%  50% | req-foo                                       | SPC-foo | ../../reqs/foo.toml \n";
+const LS_REQ_FOO_NO_COL: &'static [u8] =
+    b"|  | DONE TEST | ARTIFACT NAME                                 | PARTS   | \
+DEFINED   \n|D-| 100%  50% | req-foo                                       | \
+SPC-foo | ../../reqs/foo.toml \n";
 
 #[cfg(windows)]
 const LS_REQ_FOO_NO_COL: &'static [u8] = LS_REQ_FOO;
 
 #[cfg(not(windows))]
-const LS_S_C_STAR_FOO: &'static [u8] = b"\x1b[1m|  | DONE TEST | ARTIFACT NAME                                 | PARTS   | PARTOF   | IMPLEMENTED   | DEFINED   | TEXT\n\x1b[0m|\x1b[1;34mD\x1b[0m\x1b[1;33m-\x1b[0m| \x1b[1;34m100\x1b[0m%  \x1b[1;33m50\x1b[0m% | \x1b[1;4;34mREQ-foo\x1b[0m                                       | \x1b[34mSPC-foo\x1b[0m | \x1b[33mREQ\x1b[0m | ../../reqs/foo.toml | req for foo \n|\x1b[1;5;31m!\x1b[0m\x1b[1;5;31m!\x1b[0m|  \x1b[1;5;31m-1\x1b[0m%  \x1b[1;5;31m-1\x1b[0m% | \x1b[1;4;31mSPC\x1b[0m                                           | \x1b[34mSPC-foo\x1b[0m, \x1b[31mSPC-unresolvable\x1b[0m |  | PARENT | AUTO \n";
+const LS_S_C_STAR_FOO: &'static [u8] =
+    b"\x1b[1m|  | DONE TEST | ARTIFACT NAME                                 | \
+PARTS   | PARTOF   | IMPLEMENTED   | DEFINED   | TEXT\n\x1b[0m|\x1b[1;34mD\x1b\
+[0m\x1b[1;33m-\x1b[0m| \x1b[1;34m100\x1b[0m%  \x1b[1;33m50\x1b[0m% | \x1b\
+[1;4;34mREQ-foo\x1b[0m                                       | \x1b[34mSPC-foo\
+\x1b[0m | \x1b[33mREQ\x1b[0m | ../../reqs/foo.toml | req for foo \n|\x1b\
+[1;5;31m!\x1b[0m\x1b[1;5;31m!\x1b[0m|  \x1b[1;5;31m-1\x1b[0m%  \x1b[1;5;31m-1\
+\x1b[0m% | \x1b[1;4;31mSPC\x1b[0m                                           | \
+\x1b[34mSPC-foo\x1b[0m, \x1b[31mSPC-unresolvable\x1b[0m |  | PARENT | AUTO \n";
 
 #[cfg(windows)]
-const LS_S_C_STAR_FOO: &'static [u8] = b"|  | DONE TEST | ARTIFACT NAME                                 | PARTS   | PARTOF   | IMPLEMENTED   | DEFINED   | TEXT\n|D-| 100%  50% | REQ-foo                                       | SPC-foo | REQ | ..\\..\\reqs\\foo.toml | req for foo \n|--|  -1%  -1% | SPC                                           | SPC-foo, SPC-unresolvable |  | PARENT | AUTO \n";
+const LS_S_C_STAR_FOO: &'static [u8] =
+    b"|  | DONE TEST | ARTIFACT NAME                                 | PARTS   | \
+PARTOF   | IMPLEMENTED   | DEFINED   | TEXT\n|D-| 100%  50% | \
+REQ-foo                                       | SPC-foo | REQ | \
+..\\..\\reqs\\foo.toml | req for foo \n|--|  -1%  -1% | \
+SPC                                           | SPC-foo, SPC-unresolvable |  | \
+PARENT | AUTO \n";
 
 #[cfg(not(windows))]
 const COLOR_IF_POSSIBLE: bool = true;
@@ -171,7 +213,7 @@ partof = 'REQ-dne'
     // #TST-check
     w.clear();
     assert!(check::run_cmd(&mut w, &cwd, &project).is_err());
-    // debug_bytes(&w, LS_SPC_DNE);
+    debug_bytes(&w, LS_SPC_DNE);
     assert_eq!(vb(LS_SPC_DNE), w);
 
     // #TST-ls-out

@@ -183,7 +183,7 @@ text = "this is some text"
 (r##"[example]
 b_second = ''' woot '''
 a_first = "hello world"
-"##, 
+"##,
 Some(r##"[example]
 a_first = "hello world"
 b_second = " woot "

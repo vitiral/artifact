@@ -56,6 +56,13 @@ self-check: # build self and run `rst check` using own binary
 ##################################################
 # release command
 
+clean: 
+	find . -name "*.bk" -type f -delete
+
+fmt:
+	cargo fmt
+	just clean
+
 check: # check the requirements using pre-compiled binary installed on PATH
 	rst check
 
