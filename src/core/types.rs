@@ -62,13 +62,142 @@ pub struct Project {
     pub repo_map: HashMap<PathBuf, PathBuf>,
 }
 
-#[derive(Debug, Clone, RustcEncodable, RustcDecodable)]
+fn names_equal(a: &Artifacts, b: &Artifacts) -> Result<()> {
+    let a_keys: HashSet<ArtNameRc> = a.keys().cloned().collect();
+    let b_keys: HashSet<ArtNameRc> = b.keys().cloned().collect();
+    if b_keys != a_keys {
+        let missing = a_keys.symmetric_difference(&b_keys)
+            .collect::<Vec<_>>();
+        Err(ErrorKind::NotEqual(format!("missing names: {:?}", missing)).into())
+    } else {
+        Ok(())
+    }
+}
+
+/// assert that the attributes are equal on the artifact
+/// if they are not, then find what is different and include
+/// in the error description.
+///
+/// This is very expensive for values that differ
+fn attr_equal<T, F>(attr: &str, a: &Artifacts, b: &Artifacts, get_attr: &F) -> Result<()>
+    where T: Debug + PartialEq,
+          F: Fn(&Artifact) -> &T
+{
+    let mut diff: Vec<String> = Vec::new();
+
+    for (a_name, a_art) in a.iter() {
+        let b_art = b.get(a_name).unwrap();
+        let a_attr = get_attr(a_art);
+        let b_attr = get_attr(b_art);
+        if a_attr != b_attr {
+            let mut a_str = format!("{:?}", a_attr);
+            let mut b_str = format!("{:?}", b_attr);
+            a_str.truncate(50);
+            b_str.truncate(50);
+            diff.push(format!("({}, {}!={})", a_name, a_str, b_str));
+        }
+    }
+
+    if diff.is_empty() {
+        Ok(())
+    } else {
+        Err(ErrorKind::NotEqual(format!("{} different: {:?}", attr, diff)).into())
+    }
+}
+
+/// num *approximately* equal
+fn num_equal<F>(attr: &str, a: &Artifacts, b: &Artifacts, get_num: &F) -> Result<()>
+    where F: Fn(&Artifact) -> f32
+{
+    let mut diff: Vec<String> = Vec::new();
+    fn thous(f: f32) -> i64 {
+        (f * 1000.) as i64
+    }
+
+    for (a_name, a_art) in a.iter() {
+        let b_art = b.get(a_name).unwrap();
+        let a_attr = get_num(a_art);
+        let b_attr = get_num(b_art);
+        if thous(a_attr) != thous(b_attr) {
+            let mut a_str = format!("{:?}", a_attr);
+            let mut b_str = format!("{:?}", b_attr);
+            a_str.truncate(50);
+            b_str.truncate(50);
+            diff.push(format!("({}, {}!={})", a_name, a_str, b_str));
+        }
+    }
+
+    if diff.is_empty() {
+        Ok(())
+    } else {
+        Err(ErrorKind::NotEqual(format!("{} different: {:?}", attr, diff)).into())
+    }
+}
+
+fn proj_attr_equal<T>(attr: &str, a: &T, b: &T) -> Result<()>
+    where T: Debug + PartialEq
+{
+    if a != b {
+        Err(ErrorKind::NotEqual(format!("{} FIRST:\n{:?}\n\nSECOND:\n{:?}", attr, a, b)).into())
+    } else {
+        Ok(())
+    }
+}
+
+
+impl Project {
+    /// better than equal... has reasons why NOT equal!
+    pub fn equal(&self, other: &Project) -> Result<()> {
+        names_equal(&self.artifacts, &other.artifacts)?;
+        attr_equal("path",
+                   &self.artifacts,
+                   &other.artifacts,
+                   &|a: &Artifact| &a.path)?;
+        attr_equal("text",
+                   &self.artifacts,
+                   &other.artifacts,
+                   &|a: &Artifact| &a.text)?;
+        attr_equal("partof",
+                   &self.artifacts,
+                   &other.artifacts,
+                   &|a: &Artifact| &a.partof)?;
+        attr_equal("parts",
+                   &self.artifacts,
+                   &other.artifacts,
+                   &|a: &Artifact| &a.parts)?;
+        attr_equal("loc",
+                   &self.artifacts,
+                   &other.artifacts,
+                   &|a: &Artifact| &a.loc)?;
+        num_equal("completed",
+                  &self.artifacts,
+                  &other.artifacts,
+                  &|a: &Artifact| a.completed)?;
+        num_equal("tested",
+                  &self.artifacts,
+                  &other.artifacts,
+                  &|a: &Artifact| a.tested)?;
+        proj_attr_equal("settings", &self.settings, &other.settings)?;
+        proj_attr_equal("variables", &self.variables, &other.variables)?;
+        proj_attr_equal("files", &self.files, &other.files)?;
+        proj_attr_equal("dne_locs", &self.dne_locs, &other.dne_locs)?;
+        proj_attr_equal("settings_map", &self.settings_map, &other.settings_map)?;
+        proj_attr_equal("raw_settings_map",
+                        &self.raw_settings_map,
+                        &other.raw_settings_map)?;
+        proj_attr_equal("variables_map", &self.variables_map, &other.variables_map)?;
+        proj_attr_equal("repo_map", &self.repo_map, &other.repo_map)?;
+        Ok(())
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, RustcEncodable, RustcDecodable)]
 pub struct RawArtifact {
     pub partof: Option<String>,
     pub text: Option<String>,
 }
 
-#[derive(Debug, Clone, RustcEncodable, RustcDecodable)]
+#[derive(Debug, Clone, PartialEq, RustcEncodable, RustcDecodable)]
 pub struct RawSettings {
     pub disabled: Option<bool>,
     pub artifact_paths: Option<Vec<String>>,
@@ -133,7 +262,7 @@ impl Text {
 /// The Artifact type. This encapsulates
 /// REQ, SPC, RSK, and TST artifacts and
 /// contains space to link them
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct Artifact {
     // directly loaded types
     pub path: PathBuf,
@@ -191,7 +320,7 @@ impl Artifact {
 }
 
 
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Default, Clone, PartialEq)]
 pub struct Settings {
     pub disabled: bool,
     pub paths: VecDeque<PathBuf>,

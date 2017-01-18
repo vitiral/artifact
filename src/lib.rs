@@ -36,8 +36,9 @@ extern crate strfmt;
 extern crate time;
 extern crate rustc_serialize;
 extern crate toml;
+extern crate difference;
 
-// # ui-cmdline crates
+// # cmdline crates
 extern crate clap;
 extern crate ansi_term;
 

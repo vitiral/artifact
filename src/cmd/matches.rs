@@ -21,6 +21,7 @@ use super::init;
 use super::tutorial;
 use super::ls;
 use super::check;
+use super::fmt as fmtcmd;
 use super::server;
 
 pub fn get_matches<'a, I, T>(args: I) -> ClapResult<ArgMatches<'a>>
@@ -55,6 +56,7 @@ pub fn get_matches<'a, I, T>(args: I) -> ClapResult<ArgMatches<'a>>
         .subcommand(init::get_subcommand())
         .subcommand(ls::get_subcommand())
         .subcommand(check::get_subcommand())
+        .subcommand(fmtcmd::get_subcommand())
         .subcommand(server::get_subcommand())
         .get_matches_from_safe(args)
 }

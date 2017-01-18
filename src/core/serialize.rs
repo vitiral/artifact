@@ -19,32 +19,20 @@ use toml::{Value, Table};
 
 /// print a toml Table prettily -- strings with newlines are printed
 /// with the tripple quote syntax
-pub fn pretty_toml(tbl: Table) -> Result<String, fmt::Error> {
+pub fn pretty_toml(tbl: &Table) -> Result<String, fmt::Error> {
     let mut out = String::new();
     {
         let mut pp = PrettyPrinter {
             output: &mut out,
             stack: Vec::new(),
         };
-        try!(pp.print(&tbl));
+        try!(pp.print(tbl));
     }
     Ok(out)
 }
 
 fn write_pretty_str(f: &mut String, s: &str) -> fmt::Result {
-    try!(write!(f, "'''\n"));
-    for ch in s.chars() {
-        match ch {
-            '\u{8}' => try!(write!(f, "\\b")),
-            '\u{9}' => try!(write!(f, "\\t")),
-            '\u{c}' => try!(write!(f, "\\f")),
-            '\u{d}' => try!(write!(f, "\\r")),
-            '\u{22}' => try!(write!(f, "\\\"")),
-            '\u{5c}' => try!(write!(f, "\\\\")),
-            ch => try!(write!(f, "{}", ch)),
-        }
-    }
-    write!(f, "'''")
+    write!(f, "'''\n{}'''", s)
 }
 
 // The only thing in this impl that wasn't copy/pasted is
@@ -199,7 +187,7 @@ b_second = " woot "
             Some(ref r) => r,
             None => value,
         };
-        assert_eq!((i, pretty_toml(parse_text(value)).unwrap()),
+        assert_eq!((i, pretty_toml(&parse_text(value)).unwrap()),
                    (i, expected.to_string()));
     }
 }

@@ -24,9 +24,12 @@ use super::utils;
 
 use strfmt;
 
+pub const REPO_VAR: &'static str = "repo";
+pub const CWD_VAR: &'static str = "cwd";
+
 lazy_static!{
     pub static ref DEFAULT_GLOBALS: HashSet<String> = HashSet::from_iter(
-        ["repo", "cwd"].iter().map(|s| s.to_string()));
+        [REPO_VAR, CWD_VAR].iter().map(|s| s.to_string()));
 }
 
 /// resolves default vars from a file (cwd and repo)
@@ -38,9 +41,9 @@ pub fn resolve_default_vars(vars: &Variables,
                             -> Result<()> {
     let cwd = fpath.parent().unwrap();
     let mut fmtvars = Variables::new();
-    fmtvars.insert("cwd".to_string(), cwd.to_str().unwrap().to_string());
+    fmtvars.insert(CWD_VAR.to_string(), cwd.to_str().unwrap().to_string());
     try!(utils::find_and_insert_repo(cwd, repo_map));
-    fmtvars.insert("repo".to_string(),
+    fmtvars.insert(REPO_VAR.to_string(),
                    repo_map.get(cwd)
                        .unwrap()
                        .to_str()
@@ -149,9 +152,9 @@ pub fn fill_text_fields(artifacts: &mut Artifacts,
         errors.clear();
         let cwd = art.path.parent().expect("no-path-parent").to_path_buf();
         try!(utils::find_and_insert_repo(&cwd, repo_map));
-        variables.insert("cwd".to_string(),
+        variables.insert(CWD_VAR.to_string(),
                          cwd.to_str().expect("utf-path").to_string());
-        variables.insert("repo".to_string(),
+        variables.insert(REPO_VAR.to_string(),
                          repo_map.get(&cwd)
                              .expect("repo_map")
                              .to_str()
@@ -171,6 +174,9 @@ pub fn fill_text_fields(artifacts: &mut Artifacts,
             error = true;
         }
     }
+
+    variables.remove(CWD_VAR);
+    variables.remove(REPO_VAR);
 
     if error {
         return Err(ErrorKind::InvalidTextVariables.into());

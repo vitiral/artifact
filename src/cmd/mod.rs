@@ -145,6 +145,10 @@ pub fn cmd<W, I, T>(w: &mut W, args: I) -> Result<()>
         let addr = server::get_cmd(mat);
         server::run_cmd(project, &addr);
         Ok(())
+    } else if let Some(mat) = matches.subcommand_matches("fmt") {
+        info!("Calling the fmt command");
+        let c = fmt::get_cmd(mat)?;
+        fmt::run_cmd(&cfg, &project, &c)
     } else {
         write!(w,
                "{} {}: use -h to show help",

@@ -1,3 +1,5 @@
+# https://github.com/casey/just
+
 ##################################################
 # constants
 version = `sed -En 's/version = "([^"]+)"/\1/p' Cargo.toml`
@@ -63,8 +65,13 @@ fmt:
 	cargo fmt
 	just clean
 
-check: # check the requirements using pre-compiled binary installed on PATH
+check-fmt:
+	cargo fmt -- --write-mode=diff
+
+check-rst:
 	rst check
+
+check: check-rst check-fmt
 
 git-verify: # make sure git is clean and on master
 	git branch | grep '* master'
@@ -87,6 +94,7 @@ publish-fast: # publish without verification
 update: # update rust (stable and nightly)
 	rustup update
 	rustup run nightly cargo install clippy -f
+	(cargo install cargo-check rustfmt)
 
 install-nightly:
 	rustup install nightly

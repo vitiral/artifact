@@ -81,5 +81,9 @@ error_chain! {
             description("invalid path")
             display("Path does not exist: {}", desc)
         }
+        NotEqual(desc: String) {
+            description("values not equal")
+            display("{}", desc)
+        }
     }
 }

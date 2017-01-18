@@ -55,3 +55,27 @@ instructions on how to create requirements and where to get more information.
 '''
 [SPC-init]
 
+[SPC-fmt]
+partof = "REQ-cmd"
+text = '''
+`rst fmt` will be the command that is run to format all files in a project
+to their correct value. This tool **will** be modeled after gofmt's args:
+
+```
+-d  Do not print reformatted sources to standard output.    
+    If a file's formatting is different than rstfmt's, print diffs 
+    to standard output.
+
+-l  Do not print reformatted sources to standard output.
+    If a file's formatting is different from rstfmt's, print its name   
+    to standard output.
+
+-w  Do not print reformatted sources to standard output.    
+    If a file's formatting is different from rstfmt's, overwrite it with 
+    rstfmt's version.
+
+```
+
+The diffing functionality will be supported by the crate `difference`
+'''
+

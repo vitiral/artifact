@@ -372,10 +372,10 @@ pub fn resolve_settings(project: &mut Project) -> Result<()> {
 
         // TODO: for full windows compatibility you will probably want to support OsStr
         // here... I just don't want to yet
-        vars.insert("cwd".to_string(), cwd_str.to_string());
+        vars.insert(vars::CWD_VAR.to_string(), cwd_str.to_string());
         try!(utils::find_and_insert_repo(cwd, &mut project.repo_map));
         let repo = &project.repo_map[cwd];
-        vars.insert("repo".to_string(),
+        vars.insert(vars::REPO_VAR.to_string(),
                     try!(utils::get_path_str(repo.as_path())).to_string());
 
         // push resolved paths

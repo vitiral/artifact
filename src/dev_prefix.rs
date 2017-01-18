@@ -4,7 +4,7 @@
 // stdlib traits
 pub use std::ascii::AsciiExt;  // to_ascii_uppercase(), etc
 pub use std::io::{Read, Write, Seek, SeekFrom};
-pub use std::fmt::Write as FmtWrite;
+pub use std::fmt::{Debug, Write as FmtWrite};
 pub use std::iter::FromIterator;
 pub use std::clone::Clone;
 pub use std::default::Default;

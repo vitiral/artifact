@@ -84,6 +84,8 @@ impl ArtName {
         }
     }
 
+    /// return the artifact this artifact is automatically
+    /// a partof (because of it's name)
     /// see: SPC-artifact-partof-1
     pub fn named_partofs(&self) -> Vec<ArtName> {
         if self.value.len() <= 1 {
