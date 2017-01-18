@@ -52,23 +52,24 @@ pub fn find_repo(dir: &Path) -> Option<PathBuf> {
     assert!(dir.is_dir());
 
     let mut dir = dir.as_path();
+    fn has_rst_dir(entry: io::Result<fs::DirEntry>) -> bool {
+        match entry {
+            Err(_) => false,
+            Ok(e) => {
+                let p = e.path();
+                let fname = p.file_name().unwrap().to_str().unwrap();
+                // trace!("fname: {:?}", fname);
+                fname == ".rst" && p.is_dir()
+            }
+        }
+    }
 
     loop {
         let mut read_dir = match fs::read_dir(dir) {
             Ok(d) => d,
             Err(_) => return None,
         };
-        if read_dir.any(|e| {
-            match e {
-                Err(_) => false,
-                Ok(e) => {
-                    let p = e.path();
-                    let fname = p.file_name().unwrap().to_str().unwrap();
-                    // trace!("fname: {:?}", fname);
-                    fname == ".rst" && p.is_dir()
-                }
-            }
-        }) {
+        if read_dir.any(has_rst_dir) {
             return Some(dir.to_path_buf());
         }
         dir = match dir.parent() {
