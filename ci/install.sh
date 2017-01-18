@@ -55,6 +55,7 @@ main() {
     configure_cargo
 
     # DONE if you need to install extra stuff add it here
+    cargo install rustfmt --force --debug  # force+debug until --update
 }
 
 main
