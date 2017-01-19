@@ -94,7 +94,7 @@ fn attr_equal<T, F>(attr: &str, a: &Artifacts, b: &Artifacts, get_attr: &F) -> R
             let mut b_str = format!("{:?}", b_attr);
             a_str.truncate(50);
             b_str.truncate(50);
-            diff.push(format!("({}, {}!={})", a_name, a_str, b_str));
+            diff.push(format!("[{}: {}!={}]", a_name, a_str, b_str));
         }
     }
 
@@ -191,6 +191,11 @@ impl Project {
     }
 }
 
+/// struct for representing a project as just a collection of
+/// Path and String values, used for loading/formatting/saving files
+#[derive(Debug, Default, PartialEq)]
+pub struct ProjectText(pub HashMap<PathBuf, String>);
+
 #[derive(Debug, Clone, PartialEq, RustcEncodable, RustcDecodable)]
 pub struct RawArtifact {
     pub partof: Option<String>,
@@ -199,7 +204,6 @@ pub struct RawArtifact {
 
 #[derive(Debug, Clone, PartialEq, RustcEncodable, RustcDecodable)]
 pub struct RawSettings {
-    pub disabled: Option<bool>,
     pub artifact_paths: Option<Vec<String>>,
     pub code_paths: Option<Vec<String>>,
     pub exclude_code_paths: Option<Vec<String>>,
@@ -322,7 +326,6 @@ impl Artifact {
 
 #[derive(Debug, Default, Clone, PartialEq)]
 pub struct Settings {
-    pub disabled: bool,
     pub paths: VecDeque<PathBuf>,
     pub code_paths: VecDeque<PathBuf>,
     pub exclude_code_paths: VecDeque<PathBuf>,
@@ -338,7 +341,6 @@ const DEFAULT_COLOR: bool = false;
 impl Settings {
     pub fn new() -> Settings {
         Settings {
-            disabled: false,
             paths: VecDeque::new(),
             code_paths: VecDeque::new(),
             exclude_code_paths: VecDeque::new(),

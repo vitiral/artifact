@@ -16,7 +16,8 @@
  * */
 use dev_prefix::*;
 use super::types::*;
-use core::save::{ProjectText, PathDiff};
+use core::save::{PathDiff};
+use core::types::{ProjectText};
 
 pub fn get_subcommand<'a, 'b>() -> App<'a, 'b> {
     SubCommand::with_name("fmt")

@@ -26,10 +26,6 @@ use super::name;
 use super::serialize;
 
 
-/// struct for representing a project as just a collection of
-/// paths and toml values, used for formatting/saving files
-pub struct ProjectText(HashMap<PathBuf, String>);
-
 /// used for finding the difference between files/Project
 pub enum PathDiff {
     DoesNotExist,
@@ -99,7 +95,6 @@ impl ProjectText {
         // convert Values to text
         let mut text: HashMap<PathBuf, String> = HashMap::new();
         for (p, v) in files.drain() {
-            // println!("------- {} ---------\n{}", p.display(), encode_str(&v));
             text.insert(p, serialize::pretty_toml(&v)?);
         }
         Ok(ProjectText(text))

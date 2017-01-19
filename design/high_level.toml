@@ -150,7 +150,6 @@ Also:
 [REQ-2-artifact-attrs]
 text = '''
 All artifacts **will** have the following attributes that the user can define:
-- disabled: whether the artifact should be skipped during analysis
 - text: description of the artifact
 - partof: a string containing artifact names which the artifact is a part of
 '''

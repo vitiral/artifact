@@ -58,6 +58,26 @@ pub fn init_logger_test() {
     }
 }
 
+/// The standard loading procedure must process pieces
+/// at different times. For instance, after loading text
+/// it has to resolve the variables in the new settings
+/// to know if there are more directories to look in.
+/// 
+/// This method is for processing a raw project-text
+/// file into a full blown project. This is necessary
+/// mostly for the API (when it is editing the project)
+/// and for unit tests
+pub fn process_project_text(project_text: &types::ProjectText) 
+        -> Result<Project> {
+    let mut project = Project::default();
+    project.extend_text(project_text)?;
+    load::resolve_settings(&mut project)?;
+    project.variables = vars::resolve_loaded_vars(
+        &project.variables_map, &mut project.repo_map)?;
+    process_project(&mut project)?;
+    Ok(project)
+}
+
 /// intermediate function during `load_path` to reprocess
 /// a re-created project
 pub fn process_project(project: &mut Project) -> Result<()> {

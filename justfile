@@ -91,10 +91,12 @@ publish-fast: # publish without verification
 ##################################################
 # developer installation helpers
 
-update: # update rust (stable and nightly)
+update: # update rust and tools used by this lib
 	rustup update
+	(cargo install just -f)
+	(cargo install cargo-check -f)
+	(cargo install rustfmt -f)
 	rustup run nightly cargo install clippy -f
-	(cargo install cargo-check rustfmt)
 
 install-nightly:
 	rustup install nightly

@@ -128,9 +128,6 @@ they do not load.
  4. name collisions at the base level
 '''
 
-[TST-disabled-1]
-text = "validate that settings.disabled=True causes toml to not get loaded"
-
 [TST-load-loop]
 partof = "RSK-2-load-loop"
 text = '''

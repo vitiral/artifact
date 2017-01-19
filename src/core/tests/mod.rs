@@ -9,6 +9,7 @@ mod test_load;
 mod test_vars;
 mod test_link;
 mod test_core;
+mod test_save;
 mod test_serde;
 
 // Data and helpers
@@ -27,18 +28,15 @@ lazy_static!{
 // valid toml, not necessarily all valid artifacts
 pub static TOML_GOOD: &'static str = "
 [settings]
-disabled = false
 artifact_paths = ['{cwd}/test', '{repo}/test']
 code_paths = ['{cwd}/src', '{repo}/src2']
 
 [REQ-foo]
-disabled = false
 [SPC-foo]
 [RSK-foo]
 [TST-foo]
 [REQ-bar]
 text = 'bar'
-disabled = false
 ";
 
 // valid rst file
@@ -108,7 +106,6 @@ pub static TOML_LINK: &'static str = "
 
 ";
 
-pub static TOML_DISABLED: &'static str = "[settings]\ndisabled=true\n[REQ-nono]\n";
 pub static TOML_OVERLAP: &'static str = "[REQ-foo]\n";
 pub static TOML_BAD: &'static str = "[REQ-bad]\npartof = ['REQ-foo']";
 pub static TOML_BAD2: &'static str = "[REQ-bad]\npartof = 'REQ-foo'";

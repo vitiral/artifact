@@ -12,8 +12,7 @@ text = '''
 unit tests related to settings:
  1. make sure it can be created
  2. validate paths and code_paths are loaded
- 3. validate default disabled
- 4. validate that having extra attrs causes error
+ 3. validate that having extra attrs causes error
 
 also, whenever settings are loaded, validate
 '''

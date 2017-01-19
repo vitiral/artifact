@@ -44,18 +44,14 @@ fn test_get_attr() {
     let ref df_vec: Vec<String> = Vec::new();
 
     let test = get_attr!(tbl_good, "REQ-bar", df_tbl, Table).unwrap();
-    assert!(get_attr!(&test, "disabled", false, Boolean).unwrap() == false);
-    assert!(get_attr!(&test, "disabled", true, Boolean).unwrap() == false);
     assert!(get_attr!(&test, "text", df_str, String).unwrap() == "bar");
     assert!(get_attr!(&test, "text", df_str, String).unwrap() == "bar");
 
-    assert!(get_attr!(&test, "disabled", df_str, String).is_none());
     assert!(get_attr!(&test, "text", false, Boolean).is_none());
     assert!(get_vecstr(&test, "text", df_vec).is_none());
     let test = get_attr!(tbl_good, "SPC-foo", Table::new(), Table).unwrap();
 
     let test = get_attr!(tbl_good, "REQ-foo", Table::new(), Table).unwrap();
-    assert!(get_attr!(&test, "disabled", false, Boolean).unwrap() == false);
     assert!(get_attr!(&test, "text", df_str, String).unwrap() == "");
 }
 
@@ -70,7 +66,6 @@ fn test_settings() {
             VecDeque::from_iter(vec![PathBuf::from("{cwd}/test"), PathBuf::from("{repo}/test")]));
     assert!(set.code_paths ==
             VecDeque::from_iter(vec![PathBuf::from("{cwd}/src"), PathBuf::from("{repo}/src2")]));
-    assert!(set.disabled == false);
 
     // see: 4
     let toml_invalid = r#"
@@ -122,12 +117,6 @@ fn test_load_toml() {
     assert!(load_toml(&path, TOML_BAD_ATTR2, &mut p).is_err());
     assert!(load_toml(&path, TOML_BAD_NAMES1, &mut p).is_err());
     assert!(load_toml(&path, TOML_BAD_NAMES2, &mut p).is_err());
-
-    // #TST-disabled-1
-    assert_eq!(load_toml(&path, TOML_DISABLED, &mut p).unwrap(), 0);
-    assert_eq!(p.artifacts.len(), 0);
-    assert_eq!(p.settings_map.len(), 0);
-    assert_eq!(p.variables_map.len(), 0);
 
     // #TST-artifact-load: basic loading unit tests
     let num = load_toml(&path, TOML_RST, &mut p).unwrap();
