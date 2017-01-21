@@ -10,16 +10,6 @@ Requirements of web page:
  - webpage shall be able to view test execution data
 '''
 
-[REQ-web-validation]
-text = '''
-The webpage shall validate the following:
-- invalid names (i.e. doesn't start with REQ/TST/etc or has non-ASCII chars)
-- invalid partof links (i.e. TST -> REQ)
-
-The webpage **shall not** validate the following:
-- recursive references (but will help debug them)
-'''
-
 [REQ-web-user]
 text = '''
 The user experience of the web page **will** be very similar to
@@ -91,6 +81,16 @@ The general workflow will be:
 ## Disadvantages
 - lower performance
 - might not work the way some newcomers expect
+'''
+
+[REQ-web-validation]
+text = '''
+The webpage shall validate the following:
+- invalid names (i.e. doesn't start with REQ/TST/etc or has non-ASCII chars)
+- invalid partof links (i.e. TST -> REQ)
+
+The webpage **shall not** validate the following:
+- recursive references (but will help debug them)
 '''
 
 [REQ-web-view]

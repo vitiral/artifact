@@ -1,4 +1,3 @@
-
 [REQ-ui]
 text = '''
 The `ui` module **will** provide cross interface functionality to support
@@ -13,6 +12,7 @@ This support will include:
 '''
 
 [SPC-ui]
+
 [SPC-ui-filter]
 text = '''
 The ui filter must support:
@@ -24,14 +24,6 @@ Therefore the module will simply do those in exactly that order.
 In order to remain general, the user must input SearchSettings
 which have a required PercentSearch. lt=false, perc=0 will always display
 every artifact, however
-'''
-[TST-ui-filter]
-text = '''
-There **shall** be a suite of unit tests to test the show-artifact feature.
-This **shall** test searching by:
- - name
- - text
- - percent tested/done
 '''
 
 [SPC-ui-fmt]
@@ -46,4 +38,13 @@ into actual information that is stored in a FmtArtifact object.
 
 To do this, it has to pull from all artifacts (for partof, etc), which is
 why it has the arg structure it does
+'''
+
+[TST-ui-filter]
+text = '''
+There **shall** be a suite of unit tests to test the show-artifact feature.
+This **shall** test searching by:
+ - name
+ - text
+ - percent tested/done
 '''

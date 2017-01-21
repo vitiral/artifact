@@ -1,19 +1,5 @@
-# This is an artifacts file for the command line tool rsk
-# files in {repo}/.rsk are automatically loaded by the rsk command
-# tool.
-
 [settings]
-# Any *.rsk file can define additional paths to be loaded by listing them
-# in a path.
-# There are two variables that can be used:
-# - {cwd}: the path to the directory of the file
-# - {repo}: the path to the current repository, found using repo_names
 artifact_paths = ["{repo}/design"]
 code_paths = ["{repo}/src", "{repo}/design", "{repo}/web-ui/src", "{repo}/web-ui/tests"]
-exclude_code_paths = [
-    "{repo}/src/core/tests/data", 
-    "{repo}/src/cmd/data",
-    "{repo}/src/api/data",
-    "{repo}/web-ui/tests/elm-stuff"
-]
 color = false
+exclude_code_paths = ["{repo}/src/core/tests/data", "{repo}/src/cmd/data", "{repo}/src/api/data", "{repo}/web-ui/tests/elm-stuff"]

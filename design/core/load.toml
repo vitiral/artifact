@@ -54,18 +54,6 @@ Critical failure shall occur if:
 Failures in further steps will simply cause warnings and will display on the
 ui as missing links or None completion (etc)
 '''
-[TST-load]
-[TST-load-simple]
-text = '''
-Create a simple project that has a few ins and outs
- - has multi-level values
- - has folder that is unreachable unless you set an extra path (which is set)
- - has recursive setting of paths (encouraging double-eval)
- - make sure to use variables and default variables extensively
-
-Litter this with artifacts at each level, some of which are implemented in a fake src/ dir
-Validate that everything is as it should be
-'''
 
 [SPC-load-dir]
 text = '''
@@ -88,8 +76,18 @@ It is a pretty simple design: directories are loaded and settings are resolved u
 settings.artifact_paths is exhausted
 '''
 
+[TST-load]
+
 [TST-load-dir]
 partof = "SPC-load-raw"
+
+[TST-load-dir-invalid]
+text = '''
+load the following and make sure it results in an error:
+ 1. `[file]` with an invalid attribute
+ 2. two files with same key
+'''
+
 [TST-load-dir-valid]
 text = '''
 load the following and make sure values are present and correct:
@@ -109,15 +107,29 @@ load the following and make sure values are present and correct:
 ```
 '''
 
-[TST-load-dir-invalid]
+[TST-load-loop]
+partof = "RSK-2-load-loop"
 text = '''
-load the following and make sure it results in an error:
- 1. `[file]` with an invalid attribute
- 2. two files with same key
+have a paths-file and unreachable .rst files. Have the file point to the unreachable
+.rst file's directory and validate that they are loaded correctly.
+
+Also have the file point **back** to the original file, to test for infinite loop
+'''
+
+[TST-load-simple]
+text = '''
+Create a simple project that has a few ins and outs
+ - has multi-level values
+ - has folder that is unreachable unless you set an extra path (which is set)
+ - has recursive setting of paths (encouraging double-eval)
+ - make sure to use variables and default variables extensively
+
+Litter this with artifacts at each level, some of which are implemented in a fake src/ dir
+Validate that everything is as it should be
 '''
 
 [TST-load-toml-invalid]
-partof = "RSK-2-load-[toml, invalid]"
+partof = "RSK-2-load-[invalid, toml]"
 text = '''
 load separate toml files suffering the issues listed below and ensure
 they do not load.
@@ -126,13 +138,4 @@ they do not load.
  2. trying to have multiple types in an array `[1, "hello", 3]`
  3. name collisions at the [] level
  4. name collisions at the base level
-'''
-
-[TST-load-loop]
-partof = "RSK-2-load-loop"
-text = '''
-have a paths-file and unreachable .rst files. Have the file point to the unreachable
-.rst file's directory and validate that they are loaded correctly.
-
-Also have the file point **back** to the original file, to test for infinite loop
 '''

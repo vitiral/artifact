@@ -1,5 +1,5 @@
 [SPC-elm]
-partof = "SPC-web, REQ-web-view"
+partof = "REQ-web-view, SPC-web"
 text = '''
 The web view shall be written in elm. It shall have the following features:
 

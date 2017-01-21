@@ -1,5 +1,3 @@
-# specifications for the REST api server
-
 [SPC-rest]
 partof = "REQ-2-rest, SPC-web"
 text = '''
@@ -12,7 +10,6 @@ It shall have the following endpoints:
 - `/artifacts`: for doing all operations on artifacts
 - `/tests`: for querying test data (TBD)
 '''
-
 
 [SPC-web-api]
 text = '''

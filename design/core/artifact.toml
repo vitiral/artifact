@@ -1,5 +1,5 @@
 [REQ-artifact-partof]
-partof = "REQ-1-linking, REQ-2-artifact-attrs"
+partof = "REQ-[1-linking, 2-artifact-attrs]"
 text = '''
 the `partof` field **shall** be a string specifying which artifacts the artifact item
 is a part of (which artifacts depend on it)
@@ -8,6 +8,27 @@ The format for specifying multiple artifacts is in REQ-2-names
 
 default = ""
 '''
+
+[SPC-artifact]
+partof = "REQ-2-artifact"
+text = "definition, creation and loading of Artifact and it's attributes"
+
+[SPC-artifact-load]
+text = '''
+the Artifacts themselves **shall** be processed from a TOML table and converted
+to a struct.
+
+During this process all of it's values **shall** be validated and proper error
+messages **shall** be raised.
+'''
+
+[SPC-artifact-name]
+text = '''
+# parts
+1. `ArtName` struct definition
+2. `::from_str` method with proper error handling
+'''
+
 [SPC-artifact-partof]
 text = '''
 There are three ways to specify that an artifact is a partof another artifact:
@@ -17,13 +38,12 @@ There are three ways to specify that an artifact is a partof another artifact:
 
 These three implementations are fairly scattered, so all 3 are linked.
 '''
+
 [SPC-artifact-partof-1]
 text = '''
 if the user specifies that an artifact is a partof another (valid) artifact,
 then it will be
 '''
-[TST-artifact-partof-1]
-text = "simply test that the load function correctly loads what is expected"
 
 [SPC-artifact-partof-2]
 text = '''
@@ -47,7 +67,6 @@ If you define:
 Then `REQ-foo-bar` will automatically be a partof `SPC-foo-bar`,
 `SPC-foo-bar` will be a partof `TST-foo-bar`. The `RSK` artifacts will be ignored
 '''
-[TST-artifact-partof-2]
 
 [SPC-artifact-partof-3]
 text = '''
@@ -57,33 +76,6 @@ linked as partof their children.
 # Example
 `REQ-foo-bar` has "child" `REQ-foo`. If `REQ-foo` doesn't exist, it will be
 created as `REQ-FOO` and will be a `partof` `REQ-foo-bar`
-'''
-[TST-artifact-partof-3]
-
-[SPC-artifact]
-partof = "REQ-2-artifact"
-text = "definition, creation and loading of Artifact and it's attributes"
-
-[SPC-artifact-load]
-text = '''
-the Artifacts themselves **shall** be processed from a TOML table and converted
-to a struct.
-
-During this process all of it's values **shall** be validated and proper error
-messages **shall** be raised.
-'''
-
-[TST-artifact-load]
-text = '''
-There **will** be a basic unit test that loads a raw toml file and ensures that
-all the artiacts are loaded as expected
-'''
-
-[SPC-artifact-name]
-text = '''
-# parts
-1. `ArtName` struct definition
-2. `::from_str` method with proper error handling
 '''
 
 [SPC-names]
@@ -102,8 +94,6 @@ onto a `String` datatype.
 It will **not** validate that the artifact names are correct -- that is the
 responsibility of `::from_str`.
 '''
-[TST-names]
-text = "give valid and invalid inputs and verify results"
 
 [TST-artifact-attrs-defaults]
 partof = "SPC-artifact"
@@ -111,3 +101,19 @@ text = '''
 Various tests for artifact attrs to make sure they work with their defaults
 set and not set
 '''
+
+[TST-artifact-load]
+text = '''
+There **will** be a basic unit test that loads a raw toml file and ensures that
+all the artiacts are loaded as expected
+'''
+
+[TST-artifact-partof-1]
+text = "simply test that the load function correctly loads what is expected"
+
+[TST-artifact-partof-2]
+
+[TST-artifact-partof-3]
+
+[TST-names]
+text = "give valid and invalid inputs and verify results"

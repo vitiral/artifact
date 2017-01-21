@@ -1,4 +1,3 @@
-
 [SPC-vars]
 partof = "REQ-2-globals"
 text = '''
@@ -11,6 +10,7 @@ in two steps:
 '''
 
 [TST-vars]
+
 [TST-vars-race]
 text = '''
 test the resolution of variables outside of simply doing other projects.

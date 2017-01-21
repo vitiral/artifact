@@ -1,5 +1,5 @@
 [REQ-ls]
-partof = "REQ-cmd, REQ-2-ui-link"
+partof = "REQ-[2-ui-link, cmd]"
 text = '''
 The `rst ls` command grouping **will** be used to display information
 about the artifacts in various specified formats.
@@ -10,6 +10,21 @@ interface to glimpse large amounts of information.
 the default outputs of `ls` should try to be easy to parse by tools like
 grep as it can be.
 '''
+
+[REQ-ls-color]
+text = '''
+In order to make viewing of information via cmdline easier,
+rst **shall** colorize it's output to make it clear which items
+are done or not done or in error.
+
+The following **will** be followed:
+- names that are complete will be green
+- names that are almost complete will be blue
+- names that are somewhat complete will be yellow
+- names that are very litle or not complete will be red
+- names that are in ERROR will *blink bold red*
+'''
+
 [SPC-ls]
 
 [SPC-ls-args]
@@ -27,47 +42,6 @@ The args are as follows:
  - recursion: recurse into parts
 '''
 
-[SPC-ls-display]
-text = '''
-The following flags are used to specify what to display:
-- a/A: display all these flags for all artifacts
-- D: display the path to where the artifact is defined
-- P: display parts names in reduced form
-- O: display partof names in reduced form
-- T: display the text formatted as markdown. If `-l` is not specified,
-this will display the first 30 chars of the "debug" representation
-of the text
-- L: display the loc path (implementation path)
-'''
-
-[SPC-ls-pattern]
-text = '''
-the `-p` flag will signify that the SEARCH argument should be interpreted as
-a regexp pattern instead of as artifact names
-
-If a value follows p, it will specify the fields to filter in that map with
-REQ-ls-display (with the addition of `N` for name)
-
-So: `rst ls -p "REQ-ui-cmdline.*" -NO` would filter by name and partof
-'''
-
-[TST-ls-interface]
-partof = "SPC-ls-[args, display, pattern, search]"
-text = "general tests to validate that input args give correct settings"
-
-[REQ-ls-color]
-text = '''
-In order to make viewing of information via cmdline easier,
-rst **shall** colorize it's output to make it clear which items
-are done or not done or in error.
-
-The following **will** be followed:
-- names that are complete will be green
-- names that are almost complete will be blue
-- names that are somewhat complete will be yellow
-- names that are very litle or not complete will be red
-- names that are in ERROR will *blink bold red*
-'''
 [SPC-ls-color]
 text = '''
 The formatting function **shall** apply color if it is selected by
@@ -94,6 +68,30 @@ Add these together and you get the following:
 - 0: name is red
 '''
 
+[SPC-ls-display]
+text = '''
+The following flags are used to specify what to display:
+- a/A: display all these flags for all artifacts
+- D: display the path to where the artifact is defined
+- P: display parts names in reduced form
+- O: display partof names in reduced form
+- T: display the text formatted as markdown. If `-l` is not specified,
+this will display the first 30 chars of the "debug" representation
+of the text
+- L: display the loc path (implementation path)
+'''
+
+[SPC-ls-pattern]
+text = '''
+the `-p` flag will signify that the SEARCH argument should be interpreted as
+a regexp pattern instead of as artifact names
+
+If a value follows p, it will specify the fields to filter in that map with
+REQ-ls-display (with the addition of `N` for name)
+
+So: `rst ls -p "REQ-ui-cmdline.*" -NO` would filter by name and partof
+'''
+
 [SPC-ls-search]
 partof = "REQ-2-ui-filtering"
 text = '''
@@ -103,8 +101,10 @@ is used to find the artifacts that the user is looking for.
 By default, this will be interpreted as an ArtName group. However, if pattern
 searching is selected, it will be interpreted as a perl regexp
 '''
-[TST-ls-search]
-text = "validate that the args are interpreted correctly"
+
+[TST-ls-interface]
+partof = "SPC-ls-[args, display, pattern, search]"
+text = "general tests to validate that input args give correct settings"
 
 [TST-ls-out]
 partof = "SPC-ls-[color, search]"
@@ -112,3 +112,6 @@ text = '''
 There **shall** be a test which inputs various settings into ls
 and tests that the output is as expected
 '''
+
+[TST-ls-search]
+text = "validate that the args are interpreted correctly"

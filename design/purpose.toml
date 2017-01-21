@@ -1,8 +1,25 @@
-##################################################
-# 0: Definitions
-
 [REQ-0]
 text = "definitions and process for the rst project"
+
+[REQ-0-assertions]
+text = '''
+Assertions **will** be used throughout the artifacts to mean:
+- shall: the statement must be implemented and it's
+    implementation verified.
+- will: statement of fact, not subject to verification.
+    i.e. "The X system will have timing as defined in ICD 1234"
+- should: goals, non-mandatory provisions. Statements using "should"
+    **should** be verified if possible, but verification is not mandatory if
+    not possible. Should is a statement of intent
+'''
+
+[REQ-0-format]
+text = '''
+**rst** **will** use a simple text format for the user to write artifacts in
+'''
+
+[REQ-0-language]
+text = "a programming language must be chosen to write the project in"
 
 [REQ-0-prefix]
 text = '''
@@ -21,18 +38,6 @@ by sub artifacts)
 
 The purpose of this prefix is to bring these artifacts to the top when they are listed,
 as well as make a simple and clear distinction between high and low level design
-'''
-
-[REQ-0-assertions]
-text = '''
-Assertions **will** be used throughout the artifacts to mean:
-- shall: the statement must be implemented and it's
-    implementation verified.
-- will: statement of fact, not subject to verification.
-    i.e. "The X system will have timing as defined in ICD 1234"
-- should: goals, non-mandatory provisions. Statements using "should"
-    **should** be verified if possible, but verification is not mandatory if
-    not possible. Should is a statement of intent
 '''
 
 [REQ-0-risks]
@@ -69,76 +74,10 @@ determine the weight to assign to the risk.
 > avalanches whenever possible
 '''
 
-[REQ-0-language]
-text = "a programming language must be chosen to write the project in"
-[SPC-0-language]
-text = '''
-rst **will** be written entirely in the rust programming language
-for the purposes of:
-- cross compilation: rust can be compiled on any platform
-- safety: it is impossible to segfault in rust
-- speed: rust is as fast as C++
-- static checking: rust is one of the most powerful static type checking
-    languages in existence, making it easier to refactor code
-- scale-out: single threaded code can easily be made highly concurrent
-- fun: rust is a fun language to write in.
-'''
-
-[REQ-0-format]
-text = '''
-**rst** **will** use a simple text format for the user to write artifacts in
-'''
-[SPC-0-format]
-text = '''Possible choices:
- - json: decent but too general for the purpose (nesting is unnecessary)
-     also, no way to line-comment making it almost useless for a tracking
-     tool. Also, not readable enough.
- - ini/toml: both are decent formats, prefer toml as it is a little bit
-     simpler
- - yaml: too complex for what is needed, not as readable as ini. Very
-     enjoyable general purpose format.
- - html/xml/etc: aboslutely not. Needlessly complex.
-
-# Conclusion
-`rst` **shall** use TOML for artifact writing.
-
-The reasons are:
- - feautres covers all needs for rst
- - easy to learn
- - easy to read
- - easy to write in
- - feature set well-limited to this application (not too many
-     features or way to do the same thing)
-'''
-
-
-# House cleaning
-[SPC-0-done]
-partof = "REQ-0-[prefix, assertions, risks], SPC-0-[language, format]"
-text = "This document itself meets the requirements of the definitions and process"
-[TST-0-done]
-partof = "SPC-0, SPC-0-[format, language]"
-text = "no tests necessary on definitions and process"
-
-
-##################################################
-# 1: Purpose Requirements
 [REQ-1]
 text = '''
 purpose requirements. For an easy-to-read purpose statement see:
 [README.md](https://github.com/vitiral/rst/blob/master/README.md)
-'''
-
-[REQ-1-scale]
-text = '''
-rst **will** be able to handle scale from very small projects with a single
-design document to enourmous multi-project multi-folder projects.
-'''
-
-[REQ-1-coverage]
-text = '''
-rst **will** provide a simple but useful mechanism for calculating
-and displaying implementation and test coverage / completeness
 '''
 
 [REQ-1-artifact]
@@ -167,6 +106,29 @@ The artifacts **will** have simple orthoganl variables that accomplish
 the purposes defined in REQ-purpose.
 '''
 
+[REQ-1-cmd]
+partof = "REQ-1-ui"
+text = '''
+rst's primarily purpose **should** be to support text based and cmdline
+workflows. rst **will** provide a cmd line utilitie to use rst features,
+view and filter artifacts, etc.
+
+The commands on the cmdline **will** be memonic and borrow from other
+common command line tools like bash, git, etc whenever possible.
+'''
+
+[REQ-1-coverage]
+text = '''
+rst **will** provide a simple but useful mechanism for calculating
+and displaying implementation and test coverage / completeness
+'''
+
+[REQ-1-interop]
+text = '''
+rst **will** provide simple methods for other tools to interact with
+it's data
+'''
+
 [REQ-1-linking]
 partof = "REQ-1-[artifact, coverage]"
 text = '''
@@ -193,10 +155,10 @@ add needless complexity.
 In addition, **rst** will try to infer links from the names whenever possible.
 '''
 
-[REQ-1-variables]
+[REQ-1-scale]
 text = '''
-there **will** be a method of setting global and local variables
-for use in text and paths
+rst **will** be able to handle scale from very small projects with a single
+design document to enourmous multi-project multi-folder projects.
 '''
 
 [REQ-1-ui]
@@ -204,28 +166,10 @@ text = '''
 rst **will** provide simple methods to interact and view it's data
 '''
 
-[REQ-1-cmd]
-partof = "REQ-1-ui"
+[REQ-1-variables]
 text = '''
-rst's primarily purpose **should** be to support text based and cmdline
-workflows. rst **will** provide a cmd line utilitie to use rst features,
-view and filter artifacts, etc.
-
-The commands on the cmdline **will** be memonic and borrow from other
-common command line tools like bash, git, etc whenever possible.
-'''
-
-[REQ-1-web]
-partof = "REQ-1-ui"
-text = '''
-rst **shall** provide a web-based frontend who's ui will leverage
-web-specific technology
-'''
-
-[REQ-1-interop]
-text = '''
-rst **will** provide simple methods for other tools to interact with
-it's data
+there **will** be a method of setting global and local variables
+for use in text and paths
 '''
 
 [REQ-1-versioning]
@@ -237,5 +181,59 @@ In the event a breaking change is necessary, rst **shall** not make the
 change until a major version release and shall attempt whatever backwards
 compatibility is possible.
 '''
+
+[REQ-1-web]
+partof = "REQ-1-ui"
+text = '''
+rst **shall** provide a web-based frontend who's ui will leverage
+web-specific technology
+'''
+
+[SPC-0-done]
+partof = "REQ-0-[assertions, prefix, risks], SPC-0-[format, language]"
+text = "This document itself meets the requirements of the definitions and process"
+
+[SPC-0-format]
+text = '''
+Possible choices:
+ - json: decent but too general for the purpose (nesting is unnecessary)
+     also, no way to line-comment making it almost useless for a tracking
+     tool. Also, not readable enough.
+ - ini/toml: both are decent formats, prefer toml as it is a little bit
+     simpler
+ - yaml: too complex for what is needed, not as readable as ini. Very
+     enjoyable general purpose format.
+ - html/xml/etc: aboslutely not. Needlessly complex.
+
+# Conclusion
+`rst` **shall** use TOML for artifact writing.
+
+The reasons are:
+ - feautres covers all needs for rst
+ - easy to learn
+ - easy to read
+ - easy to write in
+ - feature set well-limited to this application (not too many
+     features or way to do the same thing)
+'''
+
+[SPC-0-language]
+text = '''
+rst **will** be written entirely in the rust programming language
+for the purposes of:
+- cross compilation: rust can be compiled on any platform
+- safety: it is impossible to segfault in rust
+- speed: rust is as fast as C++
+- static checking: rust is one of the most powerful static type checking
+    languages in existence, making it easier to refactor code
+- scale-out: single threaded code can easily be made highly concurrent
+- fun: rust is a fun language to write in.
+'''
+
 [SPC-1-versioning]
+
+[TST-0-done]
+partof = "SPC-[0, 0-[format, language]]"
+text = "no tests necessary on definitions and process"
+
 [TST-1-versioning]

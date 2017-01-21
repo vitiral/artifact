@@ -1,20 +1,12 @@
 [SPC-settings]
 partof = "REQ-2-settings"
+
 [SPC-settings-load]
 text = '''
 Settings **shall** be processed from a TOML table and converted to a struct.
 
 During this process all of it's values **shall** be validated and proper error
 messages **shall** be raised.
-'''
-[TST-settings-load]
-text = '''
-unit tests related to settings:
- 1. make sure it can be created
- 2. validate paths and code_paths are loaded
- 3. validate that having extra attrs causes error
-
-also, whenever settings are loaded, validate
 '''
 
 [SPC-settings-resolve]
@@ -29,5 +21,16 @@ This means three things:
  2. a special process has to be developed for resolving settings that happens
     during the loading of artifacts (the two processes are coupled)
 '''
+
+[TST-settings-load]
+text = '''
+unit tests related to settings:
+ 1. make sure it can be created
+ 2. validate paths and code_paths are loaded
+ 3. validate that having extra attrs causes error
+
+also, whenever settings are loaded, validate
+'''
+
 [TST-settings-resolve]
 text = "happens as part of core tests"

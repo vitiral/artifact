@@ -1,128 +1,5 @@
-# High level requirements and designs
-
 [REQ-2]
 text = "high level requirements"
-[SPC-2]
-text = "high level design specifications"
-[RSK-2]
-partof = "REQ-2"
-text = "high level risks"
-[TST-2]
-text = "high level test design"
-
-[REQ-2-modules]
-text = '''
-rst **should** have decoupled modules that depend on eachother as little
-as possible.
-
-Roughly, they **should** be broken up according to the requirement categories
-detailed in these documents.
-'''
-[SPC-2-modules]
-[TST-2-modules]
-
-##################################################
-# Core: high level requirements related to the core module
-
-[REQ-2-ftype]
-text = '''
-All rst configuration and artifacts **will** be stored in files using
-[toml](https://github.com/toml-lang/toml) format with the `.rst` extention.
-
-Artifacts **will** be items with keys denoted by their prefix (REQ, RSK, etc.).
-In addition, there **shall** be the following special items:
-
-- `settings`: stores various configuration settings of the whole project
-- `globals`: stores global variables that can be used in any text field
-'''
-
-[REQ-2-load]
-text = '''
-There **shall** be settings in .rst files that detail which directories to load.
-
-**rst** shall recursively load all directories given to it in the `artifact_paths` setting.
-**recursively** is defined as "load until there is a directory with no `.rst` files".
-
-Example:
-**rst** will try to load /foo and /foo/src but will not try to load
-/foo/src/bar as there were no `.rst` files in /foo/src
-```
-/foo/foo.rst
-/foo/src/foo.rs
-/foo/src/bar/bar.rs
-```
-
-This allows nesting of projects without increasing time time it takes
-to load projects dramatically.
-'''
-
-[RSK-2-load]
-partof = "REQ-load"
-[RSK-2-load-toml]
-text = '''
-weight = 25
-
-The **toml** library used is currently not stable. To prevent user impact
-to changes in the toml library (or at least able to inform users of breaking
-changes), extensive unit testsing must be in place that checks for
-breaking changes.
-
-the stability of the format is a **critical** component as it could directly
-impact users. There is a **low** likelyhood that this issue will be an **avalanche**
-'''
-
-[RSK-2-load-invalid]
-text = '''
-weight = 20
-
-Type checking and validity, and failing on invalid data is essential
-for the functionality of rst and the reporting of errors to the user.
-
-loading is a **critical** component. There is a **low** likelyhood that
-this issue will be a **boulder**
-'''
-
-[RSK-2-load-loop]
-text = '''
-# weight = 15
-
-loading is a **critical** component. Without proper care and testing, there is a
-**low** likelyhood that requirements could try to load infinitely causing a
-**rock** of a problem.
-
-There are several safeguards:
-- directories that are loaded are stored. If loading is attempted again,
-    they will not be loaded.
-- testing can create situations that may cause recursive loads and validate that they
-    don't.
-- recusrive directory loads should always execute completely before the next path
-    is processed
-'''
-
-[REQ-2-settings]
-partof = "REQ-1-variables"
-text = '''
-Each .rst file **will** be able to detail various settings. Any .rst file
-can detail these settings (there is no special "config file")
-
-The "initial .rst file" **shall** be able to be specified in the command
-line and will default to `{cwd}/.rst/settings.rst`
-
-The settings are:
- - `artifact_paths`: path to a directory containing more .rst files
- - `code_paths`: path to directory containing code which implements
-      artifacts (see `loc`)
- - `exclude_code_paths`: code paths to exclude
-'''
-
-[REQ-2-globals]
-partof = "REQ-1-variables"
-text = '''
-rst **shall** load global variables from .rst files and apply them to all text fields.
-
-Variables **shall** be specified in the format `{{VARIABLE_NAME}}` and behaves
-all the rules of python string formatting.
-'''
 
 [REQ-2-artifact]
 partof = "REQ-1-artifact"
@@ -152,6 +29,80 @@ text = '''
 All artifacts **will** have the following attributes that the user can define:
 - text: description of the artifact
 - partof: a string containing artifact names which the artifact is a part of
+'''
+
+[REQ-2-ftype]
+text = '''
+All rst configuration and artifacts **will** be stored in files using
+[toml](https://github.com/toml-lang/toml) format with the `.rst` extention.
+
+Artifacts **will** be items with keys denoted by their prefix (REQ, RSK, etc.).
+In addition, there **shall** be the following special items:
+
+- `settings`: stores various configuration settings of the whole project
+- `globals`: stores global variables that can be used in any text field
+'''
+
+[REQ-2-globals]
+partof = "REQ-1-variables"
+text = '''
+rst **shall** load global variables from .rst files and apply them to all text fields.
+
+Variables **shall** be specified in the format `{{VARIABLE_NAME}}` and behaves
+all the rules of python string formatting.
+'''
+
+[REQ-2-interop]
+partof = "REQ-1-interop"
+
+[REQ-2-interop-json]
+text = '''
+rst **will** provide json export utility for other tools to utilize.
+
+rst **may** utilize the serialization internally for web interactions.
+'''
+
+[REQ-2-load]
+text = '''
+There **shall** be settings in .rst files that detail which directories to load.
+
+**rst** shall recursively load all directories given to it in the `artifact_paths` setting.
+**recursively** is defined as "load until there is a directory with no `.rst` files".
+
+Example:
+**rst** will try to load /foo and /foo/src but will not try to load
+/foo/src/bar as there were no `.rst` files in /foo/src
+```
+/foo/foo.rst
+/foo/src/foo.rs
+/foo/src/bar/bar.rs
+```
+
+This allows nesting of projects without increasing time time it takes
+to load projects dramatically.
+'''
+
+[REQ-2-loc]
+partof = "REQ-1-coverage"
+text = '''
+rst **shall** load the implementation LOCs from source code in the directories of
+settings.code_paths
+
+LOCs **will** be marked in plaintext in the sourecode itself like: `#ART-foo-bar`
+
+> Note: `ART` is either `SPC` or `TST`
+
+If a valid artifact is implemented at a LOC, then it **will** be considered "done" by
+the coverage analysis
+'''
+
+[REQ-2-modules]
+text = '''
+rst **should** have decoupled modules that depend on eachother as little
+as possible.
+
+Roughly, they **should** be broken up according to the requirement categories
+detailed in these documents.
 '''
 
 [REQ-2-names]
@@ -190,108 +141,6 @@ The reasons for these rules are:
     having to go backwards in the parsing.
 '''
 
-[REQ-2-loc]
-partof = "REQ-1-coverage"
-text = '''
-rst **shall** load the implementation LOCs from source code in the directories of
-settings.code_paths
-
-LOCs **will** be marked in plaintext in the sourecode itself like: `#ART-foo-bar`
-
-> Note: `ART` is either `SPC` or `TST`
-
-If a valid artifact is implemented at a LOC, then it **will** be considered "done" by
-the coverage analysis
-'''
-
-
-##################################################
-# High level UI requirements
-[REQ-2-ui]
-partof = "REQ-1-ui"
-
-[REQ-2-ui-cmd]
-partof = "REQ-1-cmd"
-text = '''
-rst **will** provide a simple but complete cmd line utility which has multiple
-modules for accomplishing everything in REQ-2-ui.
-
-As ths is the primary frontend for rst, it should aim to be as complete and
-correct as possible.
-'''
-
-[REQ-2-ui-help]
-text = '''
-rst **will** provide the ability to get help easily in all UI environments
-'''
-
-[REQ-2-ui-tutorial]
-text = '''
-rst **will** provide an interactive tutorial to learn rst as well as the basics
-of why to use requirements tracking in the first place.
-
-This **should** be in place for all formats. For cmdline, an interactive tutorial is
-great. For the web, a video tutorial would be best.
-'''
-
-[REQ-2-ui-filtering]
-text = '''
-rst's various ui formats **will** provide methods to filter by:
-- name
-- regexp in any of the fields
-- percent completed
-- percent tested
-'''
-
-[REQ-2-ui-markdown]
-text = '''
-when displaying to the user, all text fields **will** be processed
-as a simple markdown format
-
-For MVP, text based display can display raw text
-'''
-
-[REQ-2-ui-link]
-text = '''
-rst's various ui methods **will** provide simple methods to
-navigate and view linked components
-'''
-
-[REQ-2-rest]
-text = '''
-rst **will** provide a REST API server for other applications to report
-test execution data to it. rst **will** store the test execution data in
-a database and provide interfaces for viewing it through both the cmdline
-and web ui's
-'''
-
-[REQ-2-web]
-partof = "REQ-1-web"
-text = '''
-rst's web-ui will support the following functionality:
- - searching and viewing artifacts
-    - this must be highly performant and allow simulationious
-        multiple users
- - viewing executed test data
- - editing artifacts will be similar to editing text
-    - the performance of editing is not as important, as it is intended
-        to be run locally and used by a small group
-'''
-
-##################################################
-# High level interop requirements
-[REQ-2-interop]
-partof = "REQ-1-interop"
-
-[REQ-2-interop-json]
-text = '''
-rst **will** provide json export utility for other tools to utilize.
-
-rst **may** utilize the serialization internally for web interactions.
-'''
-
-##################################################
-# High level performance requirements
 [REQ-2-performance]
 partof = "REQ-1-scale"
 text = '''
@@ -308,3 +157,148 @@ rst **will** use a serialized file to speed up processing of data. Once a
 file has been processed, it's **will** be able to be loaded from the file
 instead of re-parsed.
 '''
+
+[REQ-2-rest]
+text = '''
+rst **will** provide a REST API server for other applications to report
+test execution data to it. rst **will** store the test execution data in
+a database and provide interfaces for viewing it through both the cmdline
+and web ui's
+'''
+
+[REQ-2-settings]
+partof = "REQ-1-variables"
+text = '''
+Each .rst file **will** be able to detail various settings. Any .rst file
+can detail these settings (there is no special "config file")
+
+The "initial .rst file" **shall** be able to be specified in the command
+line and will default to `{cwd}/.rst/settings.rst`
+
+The settings are:
+ - `artifact_paths`: path to a directory containing more .rst files
+ - `code_paths`: path to directory containing code which implements
+      artifacts (see `loc`)
+ - `exclude_code_paths`: code paths to exclude
+'''
+
+[REQ-2-ui]
+partof = "REQ-1-ui"
+
+[REQ-2-ui-cmd]
+partof = "REQ-1-cmd"
+text = '''
+rst **will** provide a simple but complete cmd line utility which has multiple
+modules for accomplishing everything in REQ-2-ui.
+
+As ths is the primary frontend for rst, it should aim to be as complete and
+correct as possible.
+'''
+
+[REQ-2-ui-filtering]
+text = '''
+rst's various ui formats **will** provide methods to filter by:
+- name
+- regexp in any of the fields
+- percent completed
+- percent tested
+'''
+
+[REQ-2-ui-help]
+text = '''
+rst **will** provide the ability to get help easily in all UI environments
+'''
+
+[REQ-2-ui-link]
+text = '''
+rst's various ui methods **will** provide simple methods to
+navigate and view linked components
+'''
+
+[REQ-2-ui-markdown]
+text = '''
+when displaying to the user, all text fields **will** be processed
+as a simple markdown format
+
+For MVP, text based display can display raw text
+'''
+
+[REQ-2-ui-tutorial]
+text = '''
+rst **will** provide an interactive tutorial to learn rst as well as the basics
+of why to use requirements tracking in the first place.
+
+This **should** be in place for all formats. For cmdline, an interactive tutorial is
+great. For the web, a video tutorial would be best.
+'''
+
+[REQ-2-web]
+partof = "REQ-1-web"
+text = '''
+rst's web-ui will support the following functionality:
+ - searching and viewing artifacts
+    - this must be highly performant and allow simulationious
+        multiple users
+ - viewing executed test data
+ - editing artifacts will be similar to editing text
+    - the performance of editing is not as important, as it is intended
+        to be run locally and used by a small group
+'''
+
+[RSK-2]
+partof = "REQ-2"
+text = "high level risks"
+
+[RSK-2-load]
+partof = "REQ-load"
+
+[RSK-2-load-invalid]
+text = '''
+weight = 20
+
+Type checking and validity, and failing on invalid data is essential
+for the functionality of rst and the reporting of errors to the user.
+
+loading is a **critical** component. There is a **low** likelyhood that
+this issue will be a **boulder**
+'''
+
+[RSK-2-load-loop]
+text = '''
+# weight = 15
+
+loading is a **critical** component. Without proper care and testing, there is a
+**low** likelyhood that requirements could try to load infinitely causing a
+**rock** of a problem.
+
+There are several safeguards:
+- directories that are loaded are stored. If loading is attempted again,
+    they will not be loaded.
+- testing can create situations that may cause recursive loads and validate that they
+    don't.
+- recusrive directory loads should always execute completely before the next path
+    is processed
+'''
+
+[RSK-2-load-toml]
+text = '''
+weight = 25
+
+The **toml** library used is currently not stable. To prevent user impact
+to changes in the toml library (or at least able to inform users of breaking
+changes), extensive unit testsing must be in place that checks for
+breaking changes.
+
+the stability of the format is a **critical** component as it could directly
+impact users. There is a **low** likelyhood that this issue will be an **avalanche**
+'''
+
+[SPC-2]
+text = "high level design specifications"
+
+[SPC-2-modules]
+
+[TST-2]
+text = "high level test design"
+
+[TST-2-modules]

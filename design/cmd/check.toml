@@ -24,13 +24,6 @@ The design will be as follows:
  - analysis will be done on the artifacts to retrieve the remaining information
 '''
 
-[SPC-check-load]
-text = '''
-The errors found during loading shall be displayed. This includes:
- - invalid artifacts in partof fields
- - extra "locations" provided in code
-'''
-
 [SPC-check-hanging]
 text = '''
 artifacts which are "hanging" if they do not fulfill
@@ -42,8 +35,16 @@ a requirement or test anything. They can be found by asking:
  - OR is the artifact a RSK or a SPC?
      - is the artifact NOT a `partof` a REQ?
 '''
+
+[SPC-check-load]
+text = '''
+The errors found during loading shall be displayed. This includes:
+ - invalid artifacts in partof fields
+ - extra "locations" provided in code
+'''
+
 [TST-check]
-partof = "SPC-check-[load, hanging]"
+partof = "SPC-check-[hanging, load]"
 text = '''
 simply load up an environment that displays all the errors and validate that
 they are displayed in a reasonable way.
