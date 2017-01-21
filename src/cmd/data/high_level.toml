@@ -1,27 +1,47 @@
-[REQ-cmd]
+[REQ-load]
 partof = "REQ-purpose"
 text = '''
-The interface **will** be a simple command-line one that can be called
-with a path to the questions to ask. The program will go through all the
-questions, prompting the user with a question and return whether the response
-was valid or not.
+The user shall be able to easily configure the quiz questions through a simple
+csv format consisting of two columns: the question and the answer.
+'''
+
+[SPC-cmd]
+partof = "REQ-purpose"
+text = '''
+The minimum viable product shall be a command line utility that is given the
+path to one or more question files, as detailed in "User Configuration", as
+arguments.
+
+Additional arguments will include:
+- `-t`: specify the time allowed for each question
+- `-T`: specify the total time allowed for the whole quiz
+- `-r NUM`: repeat questions only a certain number of times.
+    By default there is no limits.
+
+The program will ask one question at a time, recording how many answers
+the user got correct/incorrect.
+
+When the program is complete:
+- time taken, broken up by whole quiz and each question
+- the user's score
 '''
 
 [SPC-response]
-partof = "REQ-purpose-learning"
+partof = "SPC-cmd"
 text = '''
-when an answer is correct, a happy message **shall** be displayed. Otherwise,
-an error message with the correct answer **shall** be displayed
+When an answer to a question is correct, a happy message **shall** be 
+displayed. Otherwise, an error message with the correct answer **shall** be 
+displayed.
+
+TODO: detail how the message shall look.
 '''
 
 [SPC-random]
-partof = "REQ-purpose-learning"
+partof = "REQ-purpose"
 text = '''
-The questions **shall** be presented randomly
+The questions **shall** be presented randomly.
+
+Questions that are missed **shall** be given a higher weight to being asked 
+again, to help the user learn.
 '''
 
-[SPC-weighted]
-partof = "REQ-purpose-learning"
-text = '''
-The questions **shall** be given a higher weight when they are missed
-'''
