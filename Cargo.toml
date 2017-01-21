@@ -14,6 +14,7 @@ default = ["serde_codegen"]
 # unstable requires all features currently...
 unstable = ["serde_derive"]
 web = ["tar", "tempdir"]
+tracker = ["diesel", "diesel_codegen", "dotenv", "dotenv_macros"]
 
 [build-dependencies]
 serde_codegen = { version="0.8", optional = true }
@@ -36,17 +37,22 @@ toml = "0.2"
 serde = "0.8"
 serde_derive = { version="0.8", optional = true }
 serde_json = "0.8"
-#difference = "0.4"
 difference = { git = "https://github.com/vitiral/difference.rs" }
 
 # ui
 ansi_term = "0.7"
 
-# web
+# web ui frontend
 nickel = "0.9"
 jsonrpc-core = "4.0"
 tar = { version="0.4", optional = true }
 tempdir = { version="0.3", optional = true }
+
+# test tracking tool
+diesel = { optional = true, version = "0.7.0" }
+diesel_codegen = { optional = true, version = "0.7.0", default-features = false, features = ["postgres"] }
+dotenv = { optional = true, version = "0.8.0" }
+dotenv_macros = { optional = true, version = "0.9.0" }
 
 [dependencies.clap]
 version="2"
