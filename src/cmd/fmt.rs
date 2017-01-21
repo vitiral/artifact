@@ -68,6 +68,11 @@ pub fn run_cmd(cfg: &Path, project: &Project, cmd: &Cmd) -> Result<()> {
     } else {
         "".to_string()
     };
+    // check to make sure nothing has actually changed
+    let fmt_project = core::process_project_text(&ptext).chain_err(
+        || "internal fmt error: could not process project text.".to_string())?;
+    project.equal(&fmt_project).chain_err(
+        || "internal fmt error: formatted project has different data.".to_string())?;
     match *cmd {
         Cmd::List | Cmd::Diff => {
             // just list the files that will change
@@ -106,7 +111,7 @@ pub fn run_cmd(cfg: &Path, project: &Project, cmd: &Cmd) -> Result<()> {
                 Err(err) => {
                     error!("Something went horribly wrong! Your project may be
                             deleted and I'm really sorry! Please investigate
-                            and open a ticket");
+                            and open a ticket :( :( :(");
                     return Err(err);
                 }
             };
@@ -114,7 +119,7 @@ pub fn run_cmd(cfg: &Path, project: &Project, cmd: &Cmd) -> Result<()> {
                 error!("we tried formatting your project but something went
                         wrong and it has changed. We are very sorry :( :( \n
                         Please investigate and open a ticket, then you can
-                        revert your design and .rst folders back using
+                        hopefully revert your design and .rst folders back using
                         `git checkout .rst design`");
                 Err(err)
             } else {

@@ -75,6 +75,9 @@ pub fn process_project_text(project_text: &types::ProjectText)
     project.variables = vars::resolve_loaded_vars(
         &project.variables_map, &mut project.repo_map)?;
     process_project(&mut project)?;
+    // when loading, settings.paths get's drained to find where
+    // to load next
+    project.settings.paths = VecDeque::new();
     Ok(project)
 }
 
