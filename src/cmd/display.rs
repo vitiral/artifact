@@ -23,7 +23,7 @@ use super::types::*;
 impl FmtArtifact {
     /// write the formatted version of the artifact to the
     /// cmdline writter
-    #[allow(cyclomatic_complexity)]  // TODO: break this up
+    #[allow(cyclomatic_complexity)] // TODO: break this up
     pub fn write<W: io::Write>(&self,
                                w: &mut W,
                                cwd: &Path,

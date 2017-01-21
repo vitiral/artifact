@@ -120,11 +120,9 @@ impl<'a> fmt::Display for Key<'a> {
             if i != 0 {
                 try!(write!(f, "."));
             }
-            let ok = part.chars().all(|c| {
-                match c {
-                    'a'...'z' | 'A'...'Z' | '0'...'9' | '-' | '_' => true,
-                    _ => false,
-                }
+            let ok = part.chars().all(|c| match c {
+                'a'...'z' | 'A'...'Z' | '0'...'9' | '-' | '_' => true,
+                _ => false,
             });
             if ok {
                 try!(write!(f, "{}", part));
@@ -144,18 +142,18 @@ impl<'a> fmt::Display for Key<'a> {
 fn test_pretty() {
     // examples of the form (input, expected output). If expected output==None,
     // then it == input
-    let mut examples = vec![
-// toml keeps pretty strings
-(r##"[example]
+    let mut examples = vec![// toml keeps pretty strings
+                            (r##"[example]
 a_first = "hello world"
 b_second = '''
 this is a little longer
 yay, it looks good!
 '''
-"##, None),
+"##,
+                             None),
 
-// format with two tables
-(r##"[a_first]
+                            // format with two tables
+                            (r##"[a_first]
 int = 7
 long = '''
 i like long text
@@ -165,21 +163,21 @@ it is nice
 [b_second]
 int = 10
 text = "this is some text"
-"##, None),
+"##,
+                             None),
 
-// toml re-orders fields alphabetically
-(r##"[example]
+                            // toml re-orders fields alphabetically
+                            (r##"[example]
 b_second = ''' woot '''
 a_first = "hello world"
 "##,
-Some(r##"[example]
+                             Some(r##"[example]
 a_first = "hello world"
 b_second = " woot "
 "##)),
 
-// toml reorders tables alphabetically
-("[b]\n[a]\n", Some("[a]\n\n[b]\n")),
-];
+                            // toml reorders tables alphabetically
+                            ("[b]\n[a]\n", Some("[a]\n\n[b]\n"))];
 
     use super::tests::parse_text;
     for (i, (value, expected)) in examples.drain(..).enumerate() {

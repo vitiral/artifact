@@ -37,7 +37,7 @@ pub fn fmt_artifact(name: &ArtNameRc,
             }
             parts.push(part);
         }
-        parts.sort_by_key(|p| p.name.clone());  // TODO: get around clone here
+        parts.sort_by_key(|p| p.name.clone()); // TODO: get around clone here
         out.parts = Some(parts);
     }
     if fmtset.partof {

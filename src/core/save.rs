@@ -18,7 +18,7 @@
 //! loading of raw artifacts from files and text
 //!
 use toml::{encode, Table};
-use difference::{Changeset};
+use difference::Changeset;
 
 use dev_prefix::*;
 use super::types::*;

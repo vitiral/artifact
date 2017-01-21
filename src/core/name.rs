@@ -269,7 +269,7 @@ impl NamePiece {
             } else if part[0] == prefix {
                 // found (at least) two parts with the same prefix
                 // store the part in raw without it's prefix
-                let i = pieces.len() - 1;  // wow, you can't do this inline...
+                let i = pieces.len() - 1; // wow, you can't do this inline...
                 pieces[i].raw.push(part.split_first().unwrap().1.iter().cloned().collect())
             } else {
                 // we found a new prefix, create a new piece to store it

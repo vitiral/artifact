@@ -1,7 +1,7 @@
 #![allow(dead_code, unused_imports, unused_variables)]
 
 use dev_prefix::*;
-use super::*;  // data directory constants
+use super::*; // data directory constants
 use core::types::*;
 use core::vars::*;
 use core::locs::*;

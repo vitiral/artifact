@@ -14,7 +14,8 @@
  * You should have received a copy of the Lesser GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-#![allow(unknown_lints)]  // need for clippy lints
+// need for clippy lints
+#![allow(unknown_lints)]
 #![cfg_attr(feature = "serde_derive", feature(proc_macro))]
 #![cfg_attr(feature = "serde_derive", feature(custom_derive))]
 #![recursion_limit = "1024"]

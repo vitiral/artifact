@@ -2,7 +2,7 @@
 //! TODO: this should be it's own crate.... maybe
 
 // stdlib traits
-pub use std::ascii::AsciiExt;  // to_ascii_uppercase(), etc
+pub use std::ascii::AsciiExt; // to_ascii_uppercase(), etc
 pub use std::io::{Read, Write, Seek, SeekFrom};
 pub use std::fmt::{Debug, Write as FmtWrite};
 pub use std::iter::FromIterator;

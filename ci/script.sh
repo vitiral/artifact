@@ -27,7 +27,7 @@ run_test_suite() {
     #    export RUST_TEST_THREADS=1
     #fi
 
-    #cargo fmt -- --write-mode=diff
+    cargo fmt -- --write-mode=diff
     cargo build --target $TARGET --verbose  # make sure it builds without web, but don't test
     cargo build --target $TARGET --verbose --features web
     cargo run --target $TARGET --features web -- check

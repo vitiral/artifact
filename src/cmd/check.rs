@@ -40,7 +40,7 @@ fn paint_it_bold<W: Write>(w: &mut W, settings: &Settings, msg: &str) {
 }
 
 // check command
-#[allow(cyclomatic_complexity)]  // TODO: break this up
+#[allow(cyclomatic_complexity)] // TODO: break this up
 pub fn run_cmd<W: Write>(w: &mut W, cwd: &Path, project: &Project) -> Result<()> {
     let artifacts = &project.artifacts;
     let settings = &project.settings;

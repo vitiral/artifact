@@ -3,7 +3,7 @@
 use rustc_serialize::Decodable;
 
 use dev_prefix::*;
-use super::*;  // data directory constants
+use super::*; // data directory constants
 use super::super::init_logger_test;
 use core::types::*;
 use core::load::*;

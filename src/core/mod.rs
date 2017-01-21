@@ -24,7 +24,7 @@ pub mod types;
 // for loading
 pub mod utils;
 #[macro_use]
-pub mod load;  // macro_use so the macro can be tested
+pub mod load; // macro_use so the macro can be tested
 pub mod save;
 pub mod vars;
 pub mod link;
@@ -62,18 +62,16 @@ pub fn init_logger_test() {
 /// at different times. For instance, after loading text
 /// it has to resolve the variables in the new settings
 /// to know if there are more directories to look in.
-/// 
+///
 /// This method is for processing a raw project-text
 /// file into a full blown project. This is necessary
 /// mostly for the API (when it is editing the project)
 /// and for unit tests
-pub fn process_project_text(project_text: &types::ProjectText) 
-        -> Result<Project> {
+pub fn process_project_text(project_text: &types::ProjectText) -> Result<Project> {
     let mut project = Project::default();
     project.extend_text(project_text)?;
     load::resolve_settings(&mut project)?;
-    project.variables = vars::resolve_loaded_vars(
-        &project.variables_map, &mut project.repo_map)?;
+    project.variables = vars::resolve_loaded_vars(&project.variables_map, &mut project.repo_map)?;
     process_project(&mut project)?;
     // when loading, settings.paths get's drained to find where
     // to load next

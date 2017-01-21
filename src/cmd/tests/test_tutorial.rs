@@ -21,16 +21,14 @@ fn test_basic() {
     assert_ne!(tut::D_LOAD_1_PY, tut::D_LOAD_2_PY);
     assert_ne!(tut::D_LOAD_1_TOML, tut::D_LOAD_2_TOML);
 
-    let toml_files = vec![
-        tut::D_TUTORIAL_TOML,
-        tut::D_HIGH_LEVEL_TOML,
-        tut::D_PURPOSE_TOML,
-        tut::D_LOAD_1_TOML,
-        tut::D_LOAD_2_TOML,
-        tut::D_SETTINGS_1_TOML,
-        tut::D_SETTINGS_2_TOML,
-        tut::D_SETTINGS_4_TOML,
-    ];
+    let toml_files = vec![tut::D_TUTORIAL_TOML,
+                          tut::D_HIGH_LEVEL_TOML,
+                          tut::D_PURPOSE_TOML,
+                          tut::D_LOAD_1_TOML,
+                          tut::D_LOAD_2_TOML,
+                          tut::D_SETTINGS_1_TOML,
+                          tut::D_SETTINGS_2_TOML,
+                          tut::D_SETTINGS_4_TOML];
 
     let p = Path::new("foo");
     for (i, toml) in toml_files.iter().enumerate() {
@@ -44,26 +42,24 @@ fn test_basic() {
 #[test]
 // #TST-tutorial-line
 fn test_line_length() {
-    let files = vec![
-        ("tut_toml", tut::D_TUTORIAL_TOML),
-        ("tut_md", tut::D_TUTORIAL_MD),
+    let files = vec![("tut_toml", tut::D_TUTORIAL_TOML),
+                     ("tut_md", tut::D_TUTORIAL_MD),
 
-        ("capitols.csv", tut::D_CAPITOLS_CSV),
-        //("flash-cards.htm", tut::D_FLASH_CARD_CHALLENGE_HTM), # htm exempt
-        ("high_lvl.toml", tut::D_HIGH_LEVEL_TOML),
-        ("purpose.toml", tut::D_PURPOSE_TOML),
+                     ("capitols.csv", tut::D_CAPITOLS_CSV),
+                     //("flash-cards.htm", tut::D_FLASH_CARD_CHALLENGE_HTM), # htm exempt
+                     ("high_lvl.toml", tut::D_HIGH_LEVEL_TOML),
+                     ("purpose.toml", tut::D_PURPOSE_TOML),
 
-        ("load-1.py", tut::D_LOAD_1_PY),
-        ("load_-1.toml", tut::D_LOAD_1_TOML),
-        ("load-2.py", tut::D_LOAD_2_PY),
-        ("load_-2.toml", tut::D_LOAD_2_TOML),
+                     ("load-1.py", tut::D_LOAD_1_PY),
+                     ("load_-1.toml", tut::D_LOAD_1_TOML),
+                     ("load-2.py", tut::D_LOAD_2_PY),
+                     ("load_-2.toml", tut::D_LOAD_2_TOML),
 
-        ("test_load.py", tut::D_TEST_LOAD_PY),
-        ("test_data.csv", tut::D_TEST_DATA_CSV),
-        ("set 1", tut::D_SETTINGS_1_TOML),
-        ("set 2", tut::D_SETTINGS_2_TOML),
-        ("set 4", tut::D_SETTINGS_4_TOML),
-    ];
+                     ("test_load.py", tut::D_TEST_LOAD_PY),
+                     ("test_data.csv", tut::D_TEST_DATA_CSV),
+                     ("set 1", tut::D_SETTINGS_1_TOML),
+                     ("set 2", tut::D_SETTINGS_2_TOML),
+                     ("set 4", tut::D_SETTINGS_4_TOML)];
 
     for (fname, f) in files {
         let s = str::from_utf8(f).unwrap();

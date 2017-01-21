@@ -1,5 +1,5 @@
 use dev_prefix::*;
-use super::*;  // data directory constants
+use super::*; // data directory constants
 use super::super::types::*;
 use super::super::load::*;
 use super::super::link::*;

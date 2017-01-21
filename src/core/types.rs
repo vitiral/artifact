@@ -312,14 +312,14 @@ impl Artifact {
         }
         Ok((name,
             Artifact {
-            path: PathBuf::from(&data.path),
-            text: data.text.clone(),
-            partof: partof,
-            loc: None,
-            parts: HashSet::new(),
-            completed: -1.0,
-            tested: -1.0,
-        }))
+                path: PathBuf::from(&data.path),
+                text: data.text.clone(),
+                partof: partof,
+                loc: None,
+                parts: HashSet::new(),
+                completed: -1.0,
+                tested: -1.0,
+            }))
     }
 }
 

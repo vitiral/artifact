@@ -3,7 +3,7 @@
 use dev_prefix::*;
 
 use toml::{Parser, Value, Table};
-use super::*;  // data directory constants
+use super::*; // data directory constants
 use super::super::*;
 
 #[test]

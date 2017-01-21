@@ -16,8 +16,8 @@
  * */
 use dev_prefix::*;
 use super::types::*;
-use core::save::{PathDiff};
-use core::types::{ProjectText};
+use core::save::PathDiff;
+use core::types::ProjectText;
 
 pub fn get_subcommand<'a, 'b>() -> App<'a, 'b> {
     SubCommand::with_name("fmt")
@@ -71,8 +71,8 @@ pub fn run_cmd(cfg: &Path, project: &Project, cmd: &Cmd) -> Result<()> {
     // check to make sure nothing has actually changed
     let fmt_project = core::process_project_text(&ptext).chain_err(
         || "internal fmt error: could not process project text.".to_string())?;
-    project.equal(&fmt_project).chain_err(
-        || "internal fmt error: formatted project has different data.".to_string())?;
+    project.equal(&fmt_project)
+        .chain_err(|| "internal fmt error: formatted project has different data.".to_string())?;
     match *cmd {
         Cmd::List | Cmd::Diff => {
             // just list the files that will change
@@ -88,15 +88,15 @@ pub fn run_cmd(cfg: &Path, project: &Project, cmd: &Cmd) -> Result<()> {
                     PathDiff::DoesNotExist => {
                         panic!("unexpected new file: {}", path.display());
                         //println!("{}new file: {}", indent, path.display());
-                    },
+                    }
                     PathDiff::Changeset(changeset) => {
                         let disp = if *cmd == Cmd::Diff {
                             format!("{}", changeset)
                         } else {
                             "".to_string()
                         };
-                        let header = Style::new().bold().paint(format!(
-                            "{}{}", indent, path.display()));
+                        let header =
+                            Style::new().bold().paint(format!("{}{}", indent, path.display()));
                         print!("{}\n{}", header, disp);
                     }
                 }

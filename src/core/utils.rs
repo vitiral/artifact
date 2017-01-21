@@ -28,11 +28,9 @@ pub fn do_strfmt(s: &str, vars: &HashMap<String, String>, fpath: &PathBuf) -> Re
 pub fn strfmt_ignore_missing<T: fmt::Display>(fmtstr: &str,
                                               vars: &HashMap<String, T>)
                                               -> strfmt::Result<String> {
-    let formatter = |mut fmt: strfmt::Formatter| {
-        match vars.get(fmt.key) {
-            Some(v) => fmt.str(v.to_string().as_str()),
-            None => fmt.skip(),
-        }
+    let formatter = |mut fmt: strfmt::Formatter| match vars.get(fmt.key) {
+        Some(v) => fmt.str(v.to_string().as_str()),
+        None => fmt.skip(),
     };
     strfmt::strfmt_map(fmtstr, &formatter)
 }

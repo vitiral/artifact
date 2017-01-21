@@ -93,8 +93,7 @@ impl ProjectText {
     //     (and adding dirs to loaded_dirs)
     // - loading the files in parallel (IO bound)
     // - resolving all settings at the end
-    pub fn load(&mut self, load_dir: &Path, loaded_dirs: &mut HashSet<PathBuf>) 
-            -> Result<()> {
+    pub fn load(&mut self, load_dir: &Path, loaded_dirs: &mut HashSet<PathBuf>) -> Result<()> {
         loaded_dirs.insert(load_dir.to_path_buf());
         let mut num_loaded: u64 = 0;
         let mut dirs_to_load: Vec<PathBuf> = Vec::new();
@@ -247,8 +246,7 @@ impl Artifact {
 }
 
 /// Load artifacts and settings from a toml Table
-pub fn load_file_table(file_table: &mut Table, path: &Path, project: &mut Project) 
-        -> Result<u64> {
+pub fn load_file_table(file_table: &mut Table, path: &Path, project: &mut Project) -> Result<u64> {
     let mut msg: Vec<u8> = Vec::new();
     let mut num_loaded: u64 = 0;
 
@@ -401,10 +399,9 @@ pub fn load_raw(dir: &Path) -> Result<Project> {
     if dir.is_dir() {
         project.settings.paths.push_back(dir.to_path_buf());
     } else {
-        return Err(ErrorKind::Load(format!(
-            "must be a directory: {}", dir.display())).into())
+        return Err(ErrorKind::Load(format!("must be a directory: {}", dir.display())).into());
     }
-    
+
     while let Some(dir) = project.settings.paths.pop_front() {
         if loaded_dirs.contains(&dir) {
             continue;
@@ -424,8 +421,7 @@ pub fn load_raw(dir: &Path) -> Result<Project> {
         resolve_settings(&mut project)?;
     }
 
-    project.variables = vars::resolve_loaded_vars(
-        &project.variables_map, &mut project.repo_map)?;
+    project.variables = vars::resolve_loaded_vars(&project.variables_map, &mut project.repo_map)?;
     project.settings_map = full_settings_map;
     Ok(project)
 }

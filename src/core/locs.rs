@@ -25,7 +25,7 @@ pub fn find_locs_text(path: &Path, text: &str, locs: &mut HashMap<ArtName, Loc>)
             }
             match c {
                 'a'...'z' | 'A'...'Z' | '0'...'9' | '-' | '_' => {
-                    prev_char = c;  // still reading a valid artifact name
+                    prev_char = c; // still reading a valid artifact name
                 }
                 _ => {
                     // valid #ART is finished
