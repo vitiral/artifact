@@ -215,7 +215,8 @@ the errors it finds are:
     `rst check` will help you narrow down where these are comming from.
  - hanging artifacts: if you've written a SPC but haven't linked
     it to a REQ, then you probably want to (otherwise what exactly are you
-    specifying?). The same goes for tests that are not testing any specs.
+    specifying?). The same goes for tests that are not testing any specs or
+    risks.
 
 > ### Exercise:
 > use `rst check` to find errors and fix them. Keep running `rst check` and
@@ -225,22 +226,28 @@ the errors it finds are:
 --------------------------------------------------
 ## Documenting your own project
 To start documenting your own project, run `rst init` in your project and edit
-`.rst/settings.toml` with the paths to find your code-implementations and
-documents.
+`.rst/settings.toml` with the paths on where to find your code-implementations
+and documents.
 
 
 --------------------------------------------------
 ## Additional Resources
-It is the plan of this author to write a "hacker's intro to requirements" book
-in the github wiki of this project. Until then, here are some useful references
 
-### Wikipedia page:
-> https://en.m.wikipedia.org/wiki/Software_requirements_specification
+The wiki for rst, which contains additional resources and links,
+can be found here:
+    https://github.com/vitiral/rst/wiki
 
-This is an excellent introduction to the purpose of writing requirements
-as well as an initial template for how you might structure your requirements.
-Well worth the read for any developer.
+The developer of rst is also writing a book on quality best practices for
+developers. It is highly recommended you check it out. It is currently a rough
+draft, but it can already be a valuable resource for developers looking to
+further the quality of the software they develop. Suggestions and comments
+would be wonderful.
 
+The book is and will always remain free and can be found at:
+    https://vitiral.gitbooks.io/software-quality-for-developers/content/
+
+The repository for the book is hosted here:
+    https://github.com/vitiral/quality-book
 
 --------------------------------------------------
 ## Summary and Final Words
@@ -271,6 +278,3 @@ it. If you find bugs or have any suggestions, please open a ticket at:
 https://github.com/vitiral/rst/issues
 
 Good luck!
-
-[1]:
-[2]:
