@@ -9,6 +9,9 @@ authors = ["Garrett Berg <vitiral@gmail.com>"]
 license = "LGPL-3.0+"
 build = "build.rs"
 
+[profile.dev]
+codegen-units = 3 # sets number of threads to compile with
+
 [features]
 default = ["serde_codegen"]
 # unstable requires all features currently...
@@ -22,7 +25,7 @@ tar = { version="0.4", optional = true }
 
 [dependencies]
 # general
-error-chain = "0.7.2"
+error-chain = "0.8.1"
 itertools = "0.4.15"
 lazy_static = "0.1.*"
 log = "0.3.6"

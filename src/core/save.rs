@@ -97,12 +97,16 @@ impl ProjectText {
         for (p, v) in files.drain() {
             text.insert(p, serialize::pretty_toml(&v)?);
         }
-        Ok(ProjectText(text))
+        Ok(ProjectText {
+            files: text,
+            origin: project.origin.clone(),
+        })
     }
 
     /// dump text to a path
+    /// #SPC-save
     pub fn dump(&self) -> Result<()> {
-        for (path, text) in &self.0 {
+        for (path, text) in &self.files {
             debug!("writing to {}", path.display());
             // create the directory
             if let Err(err) = fs::create_dir_all(path.parent().expect("path not file")) {
@@ -121,7 +125,7 @@ impl ProjectText {
     /// in a project to what currently exists
     pub fn diff(&self) -> Result<HashMap<PathBuf, PathDiff>> {
         let mut out: HashMap<PathBuf, PathDiff> = HashMap::new();
-        for (path, text) in &self.0 {
+        for (path, text) in &self.files {
             debug!("diffing: {}", path.display());
             let mut f = match fs::File::open(path) {
                 Ok(f) => f,

@@ -30,6 +30,7 @@ pub mod vars;
 pub mod link;
 pub mod locs;
 pub mod name;
+pub mod security;
 
 // serialization
 #[cfg(feature = "serde_codegen")]
@@ -40,7 +41,7 @@ include!("serde_types.in.rs");
 mod serialize;
 
 #[cfg(test)]
-mod tests;
+pub mod tests;
 
 // export for other modules to use
 pub use core::load::load_toml;
@@ -73,9 +74,10 @@ pub fn process_project_text(project_text: &types::ProjectText) -> Result<Project
     load::resolve_settings(&mut project)?;
     project.variables = vars::resolve_loaded_vars(&project.variables_map, &mut project.repo_map)?;
     process_project(&mut project)?;
-    // when loading, settings.paths get's drained to find where
-    // to load next
-    project.settings.paths = VecDeque::new();
+    project.origin = project_text.origin.clone();
+    project.settings.artifact_paths.insert(project_text.origin.clone());
+    // when loading, settings.paths get's drained to find where to load next
+    project.settings.load_paths = VecDeque::new();
     Ok(project)
 }
 

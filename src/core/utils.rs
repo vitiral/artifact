@@ -47,7 +47,7 @@ pub fn find_repo(dir: &Path) -> Option<PathBuf> {
     // trace!("start dir: {:?}", dir);
     let dir = env::current_dir().unwrap().join(dir);
     // trace!("abs dir: {:?}", dir);
-    assert!(dir.is_dir());
+    assert!(dir.is_dir(), "{}", dir.display());
 
     let mut dir = dir.as_path();
     fn has_rst_dir(entry: io::Result<fs::DirEntry>) -> bool {

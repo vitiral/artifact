@@ -17,9 +17,10 @@ use super::*; // data directory constants
 fn test_save_idempotent() {
     //init_logger_test();
     // load tsimple and process
+    let simple = TSIMPLE_DIR.lock().unwrap();
     let mut original_text = types::ProjectText::default();
     let mut loaded_dirs = HashSet::new();
-    original_text.load(TSIMPLE_DIR.as_path(), &mut loaded_dirs)
+    original_text.load(simple.as_path(), &mut loaded_dirs)
         .unwrap();
     let original = core::process_project_text(&original_text).unwrap();
 

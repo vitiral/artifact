@@ -79,3 +79,16 @@ text = '''
 all lines in the tutorial **shall** be tested to be 80 characters or less.
 This will make the tutorial uniform and easier to read.
 '''
+
+[TST-fmt]
+partof = "RSK-security"
+text = '''
+There shall be extensive testing around the fmt cmd to cover multiple
+points of risk:
+
+- the command itself shall "check before writing"
+- tests shall apply the changes and then check that data was not lost. 
+    If data was lost, it will tell the user
+- the command will be frequently used on the requirements for rst,
+    which should help detect failures of the tool
+'''

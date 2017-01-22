@@ -15,8 +15,11 @@ fn test_load_path() {
     assert!(load_path(TINVALID_DIR.join(&PathBuf::from("attr")).as_path()).is_err());
     assert!(load_path(TINVALID_DIR.join(&PathBuf::from("same_names")).as_path()).is_err());
 
+    let simple = TSIMPLE_DIR.lock().unwrap();
+
     // TODO: make assertions regarding files
-    let p = load_path(TSIMPLE_DIR.as_path()).unwrap();
+    let p = load_path(simple.as_path()).unwrap();
+    assert_eq!(p.origin, simple.as_path());
     let (artifacts, dne_locs) = (p.artifacts, p.dne_locs);
     assert!(artifacts.contains_key(&ArtName::from_str("REQ-purpose").unwrap()));
 
@@ -38,10 +41,10 @@ fn test_load_path() {
     let req_deep = artifacts.get(&ArtName::from_str("REQ-deep").unwrap()).unwrap();
     let scp_deep = artifacts.get(&ArtName::from_str("SPC-deep").unwrap()).unwrap();
 
-    let simple_dir_str = TSIMPLE_DIR.as_path().to_str().unwrap().to_string();
-    let extra_dir = TSIMPLE_DIR.join(PathBuf::from("extra"));
-    let src_dir = TSIMPLE_DIR.join(PathBuf::from("src"));
-    let lvl1_dir = TSIMPLE_DIR.join(PathBuf::from("lvl_1"));
+    let simple_dir_str = simple.as_path().to_str().unwrap().to_string();
+    let extra_dir = simple.join(PathBuf::from("extra"));
+    let src_dir = simple.join(PathBuf::from("src"));
+    let lvl1_dir = simple.join(PathBuf::from("lvl_1"));
     let lvl1_dir_str = lvl1_dir.as_path().to_str().unwrap().to_string();
 
     assert_eq!(spc_lvl1.text.value, "level one does FOO");

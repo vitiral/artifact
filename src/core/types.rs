@@ -46,7 +46,7 @@ pub trait LoadFromStr: Sized {
 
 /// represents the results and all the data necessary
 /// to reconstruct a loaded project
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Clone)]
 pub struct Project {
     pub artifacts: Artifacts,
     pub settings: Settings,
@@ -56,10 +56,30 @@ pub struct Project {
 
     // preserved locations where each piece is from
     // note: artifacts have path member
+    //pub origin: PathBuf,
+    pub origin: PathBuf,
     pub settings_map: HashMap<PathBuf, Settings>,
     pub raw_settings_map: HashMap<PathBuf, RawSettings>,
     pub variables_map: HashMap<PathBuf, Variables>,
     pub repo_map: HashMap<PathBuf, PathBuf>,
+}
+
+impl Default for Project {
+    fn default() -> Project {
+        Project {
+            artifacts: Artifacts::default(),
+            settings: Settings::default(),
+            variables: Variables::default(),
+            files: HashSet::default(),
+            dne_locs: HashMap::default(),
+
+            origin: PARENT_PATH.to_path_buf(),
+            settings_map: HashMap::default(),
+            raw_settings_map: HashMap::default(),
+            variables_map: HashMap::default(),
+            repo_map: HashMap::default(),
+        }
+    }
 }
 
 fn names_equal(a: &Artifacts, b: &Artifacts) -> Result<()> {
@@ -68,7 +88,11 @@ fn names_equal(a: &Artifacts, b: &Artifacts) -> Result<()> {
     if b_keys != a_keys {
         let missing = a_keys.symmetric_difference(&b_keys)
             .collect::<Vec<_>>();
-        Err(ErrorKind::NotEqual(format!("missing names: {:?}", missing)).into())
+        let msg = format!("missing artifacts: {:?}\nFIRST:\n{:?}\nSECOND:\n{:?}",
+                          missing,
+                          a_keys,
+                          b_keys);
+        Err(ErrorKind::NotEqual(msg).into())
     } else {
         Ok(())
     }
@@ -106,7 +130,7 @@ fn attr_equal<T, F>(attr: &str, a: &Artifacts, b: &Artifacts, get_attr: &F) -> R
 }
 
 /// num *approximately* equal
-fn num_equal<F>(attr: &str, a: &Artifacts, b: &Artifacts, get_num: &F) -> Result<()>
+fn float_equal<F>(attr: &str, a: &Artifacts, b: &Artifacts, get_num: &F) -> Result<()>
     where F: Fn(&Artifact) -> f32
 {
     let mut diff: Vec<String> = Vec::new();
@@ -169,14 +193,15 @@ impl Project {
                    &self.artifacts,
                    &other.artifacts,
                    &|a: &Artifact| &a.loc)?;
-        num_equal("completed",
-                  &self.artifacts,
-                  &other.artifacts,
-                  &|a: &Artifact| a.completed)?;
-        num_equal("tested",
-                  &self.artifacts,
-                  &other.artifacts,
-                  &|a: &Artifact| a.tested)?;
+        float_equal("completed",
+                    &self.artifacts,
+                    &other.artifacts,
+                    &|a: &Artifact| a.completed)?;
+        float_equal("tested",
+                    &self.artifacts,
+                    &other.artifacts,
+                    &|a: &Artifact| a.tested)?;
+        proj_attr_equal("origin", &self.origin, &other.origin)?;
         proj_attr_equal("settings", &self.settings, &other.settings)?;
         proj_attr_equal("variables", &self.variables, &other.variables)?;
         proj_attr_equal("files", &self.files, &other.files)?;
@@ -193,8 +218,20 @@ impl Project {
 
 /// struct for representing a project as just a collection of
 /// Path and String values, used for loading/formatting/saving files
-#[derive(Debug, Default, PartialEq)]
-pub struct ProjectText(pub HashMap<PathBuf, String>);
+#[derive(Debug, PartialEq)]
+pub struct ProjectText {
+    pub origin: PathBuf,
+    pub files: HashMap<PathBuf, String>,
+}
+
+impl Default for ProjectText {
+    fn default() -> ProjectText {
+        ProjectText {
+            origin: PARENT_PATH.to_path_buf(),
+            files: HashMap::default(),
+        }
+    }
+}
 
 #[derive(Debug, Clone, PartialEq, RustcEncodable, RustcDecodable)]
 pub struct RawArtifact {
@@ -326,7 +363,8 @@ impl Artifact {
 
 #[derive(Debug, Default, Clone, PartialEq)]
 pub struct Settings {
-    pub paths: VecDeque<PathBuf>,
+    pub load_paths: VecDeque<PathBuf>,
+    pub artifact_paths: HashSet<PathBuf>,
     pub code_paths: VecDeque<PathBuf>,
     pub exclude_code_paths: VecDeque<PathBuf>,
     pub color: bool,
@@ -341,7 +379,8 @@ const DEFAULT_COLOR: bool = false;
 impl Settings {
     pub fn new() -> Settings {
         Settings {
-            paths: VecDeque::new(),
+            load_paths: VecDeque::new(),
+            artifact_paths: HashSet::new(),
             code_paths: VecDeque::new(),
             exclude_code_paths: VecDeque::new(),
             color: DEFAULT_COLOR,

@@ -85,5 +85,13 @@ error_chain! {
             description("values not equal")
             display("{}", desc)
         }
+        Security(desc: String) {
+            description("security vulnerability detected")
+            display("security vulnerability: {}", desc)
+        }
+        Internal(desc: String) {
+            description("internal error")
+            display("internal error: {}", desc)
+        }
     }
 }

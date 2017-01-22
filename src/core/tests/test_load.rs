@@ -62,7 +62,7 @@ fn test_settings() {
     let df_tbl = Table::new();
     let (_, set) = Settings::from_table(&get_attr!(tbl_good, "settings", df_tbl, Table).unwrap())
         .unwrap();
-    assert!(set.paths ==
+    assert!(set.load_paths ==
             VecDeque::from_iter(vec![PathBuf::from("{cwd}/test"), PathBuf::from("{repo}/test")]));
     assert!(set.code_paths ==
             VecDeque::from_iter(vec![PathBuf::from("{cwd}/src"), PathBuf::from("{repo}/src2")]));
@@ -170,7 +170,7 @@ fn test_load_toml() {
 
         // see TST-settings-load
         let set = &p.settings_map.iter().next().unwrap().1;
-        assert_eq!(set.paths,
+        assert_eq!(set.load_paths,
                    VecDeque::from_iter(vec![PathBuf::from("{cwd}/data/empty")]));
     }
 
@@ -187,6 +187,7 @@ fn test_load_toml() {
 /// do the raw load with variable resolultion
 pub fn load_raw_extra(path: &Path) -> Result<(Artifacts, Settings)> {
     let mut project = try!(load_raw(path));
+    assert_eq!(project.origin, path);
     let variables = try!(vars::resolve_loaded_vars(&project.variables_map, &mut project.repo_map));
     try!(vars::fill_text_fields(&mut project.artifacts,
                                 &mut project.variables,
@@ -209,7 +210,8 @@ fn test_load_raw() {
     // "back references" to make sure that directories don't load multiple
     // times, valid loc, etc.
     // partof: #TST-load-loop, #TST-load-dir-valid
-    let (artifacts, settings) = load_raw_extra(TSIMPLE_DIR.as_path()).unwrap();
+    let simple = TSIMPLE_DIR.lock().unwrap();
+    let (artifacts, settings) = load_raw_extra(simple.as_path()).unwrap();
     assert!(artifacts.contains_key(&ArtName::from_str("REQ-purpose").unwrap()));
 
     // load all artifacts that should exist
@@ -229,9 +231,9 @@ fn test_load_raw() {
     let req_deep = artifacts.get(&ArtName::from_str("REQ-deep").unwrap()).unwrap();
     let scp_deep = artifacts.get(&ArtName::from_str("SPC-deep").unwrap()).unwrap();
 
-    let simple_dir_str = TSIMPLE_DIR.as_path().to_str().unwrap().to_string();
-    let extra_dir = TSIMPLE_DIR.join(PathBuf::from("extra"));
-    let lvl1_dir = TSIMPLE_DIR.join(PathBuf::from("lvl_1"));
+    let simple_dir_str = simple.as_path().to_str().unwrap().to_string();
+    let extra_dir = simple.join(PathBuf::from("extra"));
+    let lvl1_dir = simple.join(PathBuf::from("lvl_1"));
     let lvl1_dir_str = lvl1_dir.as_path().to_str().unwrap().to_string();
 
     assert_eq!(spc_lvl1.text.value, "level one does FOO");

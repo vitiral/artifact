@@ -132,6 +132,9 @@ pub fn cmd<W, I, T>(w: &mut W, args: I) -> Result<()>
         }
     };
 
+    // SPC-security: do security checks on the project
+    core::security::validate(&repo, &project)?;
+
     debug!("settings={:?}", project.settings);
 
     if let Some(ls) = matches.subcommand_matches("ls") {
@@ -148,7 +151,7 @@ pub fn cmd<W, I, T>(w: &mut W, args: I) -> Result<()>
     } else if let Some(mat) = matches.subcommand_matches("fmt") {
         info!("Calling the fmt command");
         let c = fmt::get_cmd(mat)?;
-        fmt::run_cmd(&cfg, &project, &c)
+        fmt::run_cmd(w, &repo, &project, &c)
     } else {
         write!(w,
                "{} {}: use -h to show help",

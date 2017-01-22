@@ -10,10 +10,11 @@ use super::super::super::init_logger;
 
 #[test]
 fn test_find_repo() {
-    assert_eq!(utils::find_repo(TSIMPLE_DIR.as_path()).unwrap(),
-               TSIMPLE_DIR.as_path());
-    assert_eq!(utils::find_repo(TSIMPLE_DIR.join("lvl_1").as_path()).unwrap(),
-               TSIMPLE_DIR.as_path());
+    let simple = TSIMPLE_DIR.lock().unwrap();
+    assert_eq!(utils::find_repo(simple.as_path()).unwrap(),
+               simple.as_path());
+    assert_eq!(utils::find_repo(simple.join("lvl_1").as_path()).unwrap(),
+               simple.as_path());
     assert!(utils::find_repo(env::temp_dir().as_path()).is_none());
 }
 
@@ -26,8 +27,9 @@ fn test_resolve_vars() {
     let mut variables: Variables = Variables::new();
     let var_paths: HashMap<String, PathBuf> = HashMap::new();
     let mut repo_map: HashMap<PathBuf, PathBuf> = HashMap::new();
+    let simple = TSIMPLE_DIR.lock().unwrap();
 
-    let fpath = TSIMPLE_DIR.join(PathBuf::from("fake.toml"));
+    let fpath = simple.join(PathBuf::from("fake.toml"));
 
     for i in 0..3 {
         // do it a few times
@@ -42,7 +44,7 @@ fn test_resolve_vars() {
 
         resolve_default_vars(&loaded_vars, fpath.as_path(), &mut variables, &mut repo_map).unwrap();
         resolve_vars(&mut variables).unwrap();
-        let foo = TSIMPLE_DIR.join("FOO");
+        let foo = simple.join("FOO");
         let bar = foo.join("BAR");
         let bar2 = bar.join("BAR2");
 

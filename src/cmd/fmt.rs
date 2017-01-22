@@ -18,6 +18,7 @@ use dev_prefix::*;
 use super::types::*;
 use core::save::PathDiff;
 use core::types::ProjectText;
+use core::security;
 
 pub fn get_subcommand<'a, 'b>() -> App<'a, 'b> {
     SubCommand::with_name("fmt")
@@ -41,8 +42,8 @@ pub fn get_subcommand<'a, 'b>() -> App<'a, 'b> {
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub enum Cmd {
     List,
-    Write,
     Diff,
+    Write,
 }
 
 pub fn get_cmd(matches: &ArgMatches) -> Result<Cmd> {
@@ -60,7 +61,7 @@ pub fn get_cmd(matches: &ArgMatches) -> Result<Cmd> {
 
 /// format the toml files (or just print diffs)
 /// partof: #SPC-fmt
-pub fn run_cmd(cfg: &Path, project: &Project, cmd: &Cmd) -> Result<()> {
+pub fn run_cmd(w: &mut Write, repo: &Path, project: &Project, cmd: &Cmd) -> Result<()> {
     let ptext = ProjectText::from_project(project)?;
     let indent = if *cmd == Cmd::Diff {
         // str.repeat would be great....
@@ -69,10 +70,12 @@ pub fn run_cmd(cfg: &Path, project: &Project, cmd: &Cmd) -> Result<()> {
         "".to_string()
     };
     // check to make sure nothing has actually changed
+    // see: TST-fmt
     let fmt_project = core::process_project_text(&ptext).chain_err(
         || "internal fmt error: could not process project text.".to_string())?;
     project.equal(&fmt_project)
         .chain_err(|| "internal fmt error: formatted project has different data.".to_string())?;
+    security::validate(repo, project)?;
     match *cmd {
         Cmd::List | Cmd::Diff => {
             // just list the files that will change
@@ -87,7 +90,6 @@ pub fn run_cmd(cfg: &Path, project: &Project, cmd: &Cmd) -> Result<()> {
                     // neither of these should happen for our use case
                     PathDiff::DoesNotExist => {
                         panic!("unexpected new file: {}", path.display());
-                        //println!("{}new file: {}", indent, path.display());
                     }
                     PathDiff::Changeset(changeset) => {
                         let disp = if *cmd == Cmd::Diff {
@@ -97,7 +99,7 @@ pub fn run_cmd(cfg: &Path, project: &Project, cmd: &Cmd) -> Result<()> {
                         };
                         let header =
                             Style::new().bold().paint(format!("{}{}", indent, path.display()));
-                        print!("{}\n{}", header, disp);
+                        write!(w, "{}\n{}", header, disp)?;
                     }
                 }
             }
@@ -106,16 +108,18 @@ pub fn run_cmd(cfg: &Path, project: &Project, cmd: &Cmd) -> Result<()> {
         Cmd::Write => {
             // dump the ptext and then make sure nothing changed...
             ptext.dump()?;
-            let new_project = match core::load_path(cfg) {
+            let new_project = match core::load_path(&project.origin) {
                 Ok(p) => p,
                 Err(err) => {
+                    // see: TST-fmt
                     error!("Something went horribly wrong! Your project may be
                             deleted and I'm really sorry! Please investigate
                             and open a ticket :( :( :(");
                     return Err(err);
                 }
             };
-            if let Err(err) = new_project.equal(project) {
+            // see: TST-fmt
+            if let Err(err) = project.equal(&new_project) {
                 error!("we tried formatting your project but something went
                         wrong and it has changed. We are very sorry :( :( \n
                         Please investigate and open a ticket, then you can

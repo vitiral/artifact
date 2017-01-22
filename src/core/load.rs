@@ -120,7 +120,7 @@ impl ProjectText {
                 let mut fp = fs::File::open(&fpath)?;
                 fp.read_to_string(&mut text)
                     .chain_err(|| format!("Error loading path {}", fpath.display()))?;
-                self.0.insert(fpath.to_path_buf(), text);
+                self.files.insert(fpath.to_path_buf(), text);
                 num_loaded += 1;
             }
         }
@@ -142,7 +142,7 @@ impl Project {
     /// Project may be extended by more than one ProjectText
     pub fn extend_text(&mut self, project_text: &ProjectText) -> Result<u64> {
         let mut count = 0;
-        for (path, text) in &project_text.0 {
+        for (path, text) in &project_text.files {
             count += load_toml(path, text, self)?;
         }
         Ok(count)
@@ -167,8 +167,11 @@ impl Settings {
                 None => VecDeque::new(),
             }
         }
+        let load_paths = to_paths(&raw.artifact_paths);
+        let artifact_paths: HashSet<PathBuf> = load_paths.iter().cloned().collect();
         let settings = Settings {
-            paths: to_paths(&raw.artifact_paths),
+            load_paths: load_paths,
+            artifact_paths: artifact_paths,
             code_paths: to_paths(&raw.code_paths),
             exclude_code_paths: to_paths(&raw.exclude_code_paths),
             color: get_color(&raw),
@@ -215,6 +218,7 @@ impl Artifact {
 
     /// Create an artifact object from a toml Table
     /// partof: #SPC-artifact-load
+    /// partof: #SPC-artifact-partof-1
     fn from_table(name: &ArtName, path: &Path, tbl: &Table) -> Result<Artifact> {
         let value = Value::Table(tbl.clone());
         let mut decoder = Decoder::new(value);
@@ -351,15 +355,22 @@ pub fn resolve_settings(project: &mut Project) -> Result<()> {
         vars.insert(vars::REPO_VAR.to_string(),
                     try!(utils::get_path_str(repo.as_path())).to_string());
 
+        debug_assert!(file_settings.load_paths.iter().cloned().collect::<HashSet<_>>() ==
+                      file_settings.artifact_paths);
         // push resolved paths
-        for p in &file_settings.paths {
+        let mut paths = Vec::new();
+        for p in &file_settings.load_paths {
             let p = try!(utils::do_strfmt(p.to_str().unwrap(), &vars, &fpath));
-            project.settings.paths.push_back(PathBuf::from(p));
+            let p = fs::canonicalize(&Path::new(&p))?;
+            paths.push(p);
         }
 
+        project.settings.load_paths.extend(paths.iter().cloned());
+        project.settings.artifact_paths.extend(paths.drain(0..));
+
+        // push resolved code_paths
         // TODO: it is possible to be able to use all global variables in code_paths
         //    but then it must be done in a separate step
-        // push resolved code_paths
         for p in &file_settings.code_paths {
             let p = try!(utils::do_strfmt(p.to_str().unwrap(), &vars, &fpath));
             project.settings.code_paths.push_back(PathBuf::from(p));
@@ -397,12 +408,14 @@ pub fn load_raw(dir: &Path) -> Result<Project> {
 
     info!("Loading artifact files");
     if dir.is_dir() {
-        project.settings.paths.push_back(dir.to_path_buf());
+        project.origin = dir.to_path_buf();
+        project.settings.load_paths.push_back(dir.to_path_buf());
+        project.settings.artifact_paths.insert(dir.to_path_buf());
     } else {
         return Err(ErrorKind::Load(format!("must be a directory: {}", dir.display())).into());
     }
 
-    while let Some(dir) = project.settings.paths.pop_front() {
+    while let Some(dir) = project.settings.load_paths.pop_front() {
         if loaded_dirs.contains(&dir) {
             continue;
         }

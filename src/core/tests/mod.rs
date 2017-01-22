@@ -1,6 +1,7 @@
 #![allow(dead_code, unused_imports, unused_variables)]
 
 use dev_prefix::*;
+use std::sync;
 
 use toml::{Parser, Value, Table};
 
@@ -11,6 +12,9 @@ mod test_link;
 mod test_core;
 mod test_save;
 mod test_serde;
+mod test_security;
+
+// Mutex that can be used for tests that need to be run serially
 
 // Data and helpers
 
@@ -20,8 +24,12 @@ lazy_static!{
         file!()).parent().unwrap().to_path_buf());
     pub static ref TDATA_DIR: PathBuf = TEST_DIR.join(PathBuf::from("data"));
     pub static ref TEMPTY_DIR: PathBuf = TDATA_DIR.join(PathBuf::from("empty"));
-    pub static ref TSIMPLE_DIR: PathBuf = TDATA_DIR.join(PathBuf::from("simple"));
+    // TSIMPLE has to be kept behind a lock because test_fmt actually
+    // writes to it!
+    pub static ref TSIMPLE_DIR: sync::Mutex<PathBuf> =
+        sync::Mutex::new(TDATA_DIR.join(PathBuf::from("simple")));
     pub static ref TINVALID_DIR: PathBuf = TDATA_DIR.join(PathBuf::from("invalid"));
+    pub static ref TINVALID_BOUNDS: PathBuf = TINVALID_DIR.join("out-bounds");
     pub static ref TLOC_DIR: PathBuf = TDATA_DIR.join(PathBuf::from("loc"));
 }
 
