@@ -75,10 +75,13 @@ git-verify: # make sure git is clean and on master
 
 publish: git-verify lint test-web build-web check # publish to github and crates.io
 	git commit -a -m "v{{version}} release"
-	just publish-fast
+	just publish-cargo
+	just publish-git
 
-publish-fast: # publish without verification
+publish-cargo: # publish cargo without verification
 	cargo publish --no-verify
+
+publish-git: # publish git without verification
 	git push origin master
 	git tag -a "v{{version}}" -m "v{{version}}"
 	git push origin --tags
