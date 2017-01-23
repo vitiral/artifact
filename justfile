@@ -18,8 +18,6 @@ build-elm: # build just elm (not rust)
 build-web: build-elm # build and bundle app with web=true
 	cargo build --features "web"
 
-build-all: build build-web # just used for testing that you can build both
-
 ##################################################
 # unit testing/linting commands
 test: # do tests with web=false
@@ -28,8 +26,6 @@ test: # do tests with web=false
 test-web: # do tests with web=true
 	(cd web-ui; elm test)
 	RUST_BACKTRACE=1 cargo test --lib --features "web"
-
-test-all: test test-web # test all build configurations
 
 filter PATTERN: # run only specific tests
 	RUST_BACKTRACE=1 cargo test --lib {{PATTERN}} --features "web"
@@ -77,7 +73,7 @@ git-verify: # make sure git is clean and on master
 	git branch | grep '* master'
 	git diff --no-ext-diff --quiet --exit-code
 
-publish: git-verify lint test-all build-all check # publish to github and crates.io
+publish: git-verify lint test-web build-web check # publish to github and crates.io
 	git commit -a -m "v{{version}} release"
 	just publish-fast
 

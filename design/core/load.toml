@@ -22,7 +22,8 @@ This details the high level loading proceedure of rst and what
 should be executed in parallel streams
 
 The loading of the project files (.rst toml files) shall occur in 4 stages:
- 1. loading and validation of raw data from all settings.artifact_paths recursively
+ 1. loading and validation of raw data from all settings.load_paths recursively
+    This is extremely IO bound and can be parallelized
 
 In parallel:
  2. thread A (IO bound)
@@ -46,6 +47,7 @@ The only locations where critical failure (i.e. failure that causes `ls` to not 
 is possible is in step 1
 
 Critical failure shall occur if:
+- fs error
 - invalid toml
 - artifact errors (invalid name, extra attr, invalid attr type, etc)
 - invalid partof string (artifact names)
@@ -63,7 +65,10 @@ all files in a directory recursively. For each dir this should:
  1. record itself in the `loaded_dirs` variable, to ensure dirs don't get double loaded
  2. parse any .rst text files and store any directories
  3. recursively load all of the sub-directories that are not in `loaded_dirs`
- 4. return all parsed (but not-processed) artifacts, settings and variables
+
+In order to accomplish this, a ProjectText object will be used to store
+the intermediate text which then gets converted into Artifacts by
+SPC-load-raw
 '''
 
 [SPC-load-raw]
@@ -72,8 +77,8 @@ The raw-loading of paths will be done using the functions defined in:
  - SPC-load-dir
  - SPC-settings-load
 
-It is a pretty simple design: directories are loaded and settings are resolved until
-settings.artifact_paths is exhausted
+It is a pretty simple design: directories are loaded, then parsed, then settings
+are resolved until settings.load_paths is exhausted
 '''
 
 [TST-load]

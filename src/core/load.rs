@@ -93,6 +93,9 @@ impl ProjectText {
     //     (and adding dirs to loaded_dirs)
     // - loading the files in parallel (IO bound)
     // - resolving all settings at the end
+    /// recursively load the directory into text files, making sure
+    /// not to load files that have already been loaded
+    /// see: #SPC-load-dir
     pub fn load(&mut self, load_dir: &Path, loaded_dirs: &mut HashSet<PathBuf>) -> Result<()> {
         loaded_dirs.insert(load_dir.to_path_buf());
         let mut num_loaded: u64 = 0;

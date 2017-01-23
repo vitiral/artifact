@@ -21,6 +21,8 @@ lazy_static! {
     pub static ref RPC_HANDLER: IoHandler = init_rpc_handler();
 }
 
+/// the rpc initializer that implements the API spec
+/// #SPC-web-rpc
 fn init_rpc_handler() -> IoHandler {
     let handler = IoHandler::new();
     handler.add_method("GetArtifacts", GetArtifacts);

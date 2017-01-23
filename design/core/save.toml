@@ -17,3 +17,12 @@ text = '''
 There **shall** be a fmt function which formats all files in a project to
 the standard defined in REQ-fmt. This will be called `save_project`
 '''
+
+[TST-save]
+text = '''
+For the basic save test there only needs to be a check that
+the save method is idempotent -- i.e. formatting does not affect the
+data at all.
+
+In addition, formatted already formatted data should be idempotent
+'''

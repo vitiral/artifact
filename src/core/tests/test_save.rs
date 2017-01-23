@@ -14,6 +14,7 @@ use super::*; // data directory constants
 
 #[test]
 /// load a project as text and then convert
+/// #TST-save
 fn test_save_idempotent() {
     //init_logger_test();
     // load tsimple and process
@@ -32,4 +33,11 @@ fn test_save_idempotent() {
     // make assertions
     original.equal(&result).unwrap();
     assert_ne!(original_text, result_text);
+
+    // make sure that saving twice does nothing
+    let result_text2 = types::ProjectText::from_project(&result).unwrap();
+    let result2 = core::process_project_text(&result_text2).unwrap();
+
+    result.equal(&result2).unwrap();
+    assert_eq!(result_text, result_text2);
 }

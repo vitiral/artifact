@@ -1,17 +1,4 @@
-[SPC-rest]
-partof = "REQ-2-rest, SPC-web"
-text = '''
-The API server **shall** be started when the web-ui is started.
-It shall be a JSON-RPC 2.0 compliant with a simple CRUD interface.
-
-The backend will load the artifacts and paths from text files
-
-It shall have the following endpoints:
-- `/artifacts`: for doing all operations on artifacts
-- `/tests`: for querying test data (TBD)
-'''
-
-[SPC-web-api]
+[SPC-web-rpc]
 text = '''
 The `artifacts` endpoint shall have the following API.
 

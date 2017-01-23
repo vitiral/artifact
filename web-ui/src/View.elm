@@ -7,6 +7,7 @@ import Artifacts.List
 import Artifacts.Edit
 import Artifacts.Models exposing (ArtifactId, indexNameUnchecked)
 
+-- partof: #SPC-web-view
 view : Model -> Html AppMsg
 view model =
   div []

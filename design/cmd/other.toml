@@ -73,13 +73,6 @@ Key points that should be hit during the tutorial are:
 - final words
 '''
 
-[TST-tutorial-line]
-partof = "SPC-tutorial"
-text = '''
-all lines in the tutorial **shall** be tested to be 80 characters or less.
-This will make the tutorial uniform and easier to read.
-'''
-
 [TST-fmt]
 partof = "RSK-security"
 text = '''
@@ -91,4 +84,11 @@ points of risk:
     If data was lost, it will tell the user
 - the command will be frequently used on the requirements for rst,
     which should help detect failures of the tool
+'''
+
+[TST-tutorial-line]
+partof = "SPC-tutorial"
+text = '''
+all lines in the tutorial **shall** be tested to be 80 characters or less.
+This will make the tutorial uniform and easier to read.
 '''

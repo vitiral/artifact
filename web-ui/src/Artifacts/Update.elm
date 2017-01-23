@@ -71,6 +71,7 @@ setExpand artifacts id setConfig value  =
   in
     List.map select artifacts
 
+updateArtifact : Artifact -> List Artifact -> List Artifact
 updateArtifact updatedArtifact artifacts =
   let
     select existingArtifact =

@@ -12,9 +12,21 @@ Requirements of web page:
 
 [REQ-web-user]
 text = '''
-The user experience of the web page **will** be very similar to
+The user experience of the web page **shall** be very similar to
 the expreience on the cmdline, leveraging benefits that the web provides
+'''
 
+[SPC-web]
+text = '''
+The web design shall be split into two parts:
+- front end written in elm-lang as a single-page application
+- back end just extends the rst code with a RESTful API, allowing
+    the user to view/add/modify/delete artifacts through simple
+    API calls
+'''
+
+[SPC-web-user]
+text = '''
 There were two possible options when considering user functionality.
 Because the "Local Server App" is more inline with rst's requirements
 and workflow, it is the direction we are going.
@@ -83,7 +95,7 @@ The general workflow will be:
 - might not work the way some newcomers expect
 '''
 
-[REQ-web-validation]
+[SPC-web-validation]
 text = '''
 The webpage shall validate the following:
 - invalid names (i.e. doesn't start with REQ/TST/etc or has non-ASCII chars)
@@ -93,7 +105,7 @@ The webpage **shall not** validate the following:
 - recursive references (but will help debug them)
 '''
 
-[REQ-web-view]
+[SPC-web-view]
 text = '''
 The web interface **shall** be composed of three views:
  1. **folder view** allowing viewing the folder-layout of the requirements
@@ -111,11 +123,20 @@ MVP **shall** be to display them all separately (and separate displays will
 always be supported)
 '''
 
-[SPC-web]
+[TST-web-json]
+partof = "SPC-web-validation"
 text = '''
-The web design shall be split into two parts:
-- front end written in elm-lang as a single-page application
-- back end just extends the rst code with a RESTful API, allowing
-    the user to view/add/modify/delete artifacts through simple
-    API calls
+There shall be json serialization/deserialization tests.
+These shall use valid/invalid json and expect valid data / error
+'''
+
+[TST-web-msg]
+text = '''
+There shall be tests related to elm Messages and validating
+that the proper model and Cmd are returned
+'''
+
+[TST-web-name]
+text = '''
+The function which validates the name shall be tested with several cases
 '''

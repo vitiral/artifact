@@ -55,7 +55,7 @@ namesValid names =
 all : Test
 all =
   describe "RST test suite"
-    [ describe "#TST-elm-json: serialzation -> deserialization of models"
+    [ describe "#TST-web-json: serialzation -> deserialization of models"
       [ test "Addition" <|
         \() ->
           Expect.equal (3 + 7) 10
@@ -66,7 +66,7 @@ all =
         \() ->
           Expect.equal (Decode.decodeString memberDecoder artifactJson) (Ok artifact)
       ]
-    , describe "#TST-elm-name: test name validation"
+    , describe "#TST-web-name: test name validation"
       [ test "valid names 1" <|
         \() ->
           Expect.equalLists
