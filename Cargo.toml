@@ -52,10 +52,10 @@ tar = { version="0.4", optional = true }
 tempdir = { version="0.3", optional = true }
 
 # test tracking tool
-diesel = { optional = true, version = "0.7.0" }
-diesel_codegen = { optional = true, version = "0.7.0", default-features = false, features = ["postgres"] }
-dotenv = { optional = true, version = "0.8.0" }
-dotenv_macros = { optional = true, version = "0.9.0" }
+diesel = { optional = true, version="0.7.0" }
+diesel_codegen = { optional = true, version="0.7.0", default-features = false, features = ["postgres"] }
+dotenv = { optional = true, version="0.8.0" }
+dotenv_macros = { optional = true, version="0.9.0" }
 
 [dependencies.clap]
 version="2"
