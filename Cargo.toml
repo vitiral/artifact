@@ -40,7 +40,7 @@ toml = "0.2"
 serde = "0.8"
 serde_derive = { version="0.8", optional = true }
 serde_json = "0.8"
-difference = { git = "https://github.com/vitiral/difference.rs" }
+difference = { git = "https://github.com/johannhof/difference.rs" }
 
 # ui
 ansi_term = "0.7"

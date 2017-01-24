@@ -364,7 +364,7 @@ pub fn resolve_settings(project: &mut Project) -> Result<()> {
         let mut paths = Vec::new();
         for p in &file_settings.load_paths {
             let p = try!(utils::do_strfmt(p.to_str().unwrap(), &vars, &fpath));
-            let p = fs::canonicalize(&Path::new(&p))?;
+            let p = utils::canonicalize(&Path::new(&p))?;
             paths.push(p);
         }
 
