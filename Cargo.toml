@@ -1,6 +1,6 @@
 [package]
 name = "rst_app"
-version = "0.4.0"
+version = "0.4.3"
 description = "rst: the requirements tracking tool made for developers"
 repository = "https://github.com/vitiral/rst"
 readme = "README.md"
@@ -40,7 +40,7 @@ toml = "0.2"
 serde = "0.8"
 serde_derive = { version="0.8", optional = true }
 serde_json = "0.8"
-difference = { git = "https://github.com/vitiral/difference.rs" }
+difference = { git = "https://github.com/johannhof/difference.rs" }
 
 # ui
 ansi_term = "0.7"
