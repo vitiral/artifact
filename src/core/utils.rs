@@ -142,7 +142,7 @@ pub fn relative_path(path: &Path, relative_to_dir: &Path) -> PathBuf {
 /// you get the absolute path -- make it work to be
 /// more linux like. We don't need to be accessing
 /// other servers or whatever they made this for
-/// 
+///
 /// What should be:
 ///         C:\projects\rst
 /// Is instead:
