@@ -95,7 +95,6 @@ pub fn link_named_partofs(artifacts: &mut Artifacts) {
 mod tests {
     use dev_prefix::*;
     use super::*;
-    use super::super::types::*;
     use core::load::load_toml_simple;
     #[test]
     fn test_link_named_partofs() {

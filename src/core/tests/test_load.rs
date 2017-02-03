@@ -210,7 +210,7 @@ fn test_load_raw() {
     // "back references" to make sure that directories don't load multiple
     // times, valid loc, etc.
     // partof: #TST-load-loop, #TST-load-dir-valid
-    let simple = TSIMPLE_DIR.lock().unwrap();
+    let simple = &TSIMPLE_DIR;
     let (artifacts, settings) = load_raw_extra(simple.as_path()).unwrap();
     assert!(artifacts.contains_key(&ArtName::from_str("REQ-purpose").unwrap()));
 

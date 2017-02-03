@@ -4,6 +4,7 @@ use std::panic;
 use dev_prefix::*;
 use cmd;
 use core;
+use super::TSIMPLE_DIR;
 
 
 #[test]
@@ -30,7 +31,7 @@ fn test_fmt_security() {
 #[test]
 fn test_fmt() {
     let mut w: Vec<u8> = Vec::new();
-    let simple = core::tests::TSIMPLE_DIR.lock().unwrap();
+    let simple = TSIMPLE_DIR.lock().unwrap();
 
     let mut original_text = core::types::ProjectText::default();
     let repo = simple.as_path();

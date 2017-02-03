@@ -26,8 +26,7 @@ lazy_static!{
     pub static ref TEMPTY_DIR: PathBuf = TDATA_DIR.join(PathBuf::from("empty"));
     // TSIMPLE has to be kept behind a lock because test_fmt actually
     // writes to it!
-    pub static ref TSIMPLE_DIR: sync::Mutex<PathBuf> =
-        sync::Mutex::new(TDATA_DIR.join(PathBuf::from("simple")));
+    pub static ref TSIMPLE_DIR: PathBuf = TDATA_DIR.join(PathBuf::from("simple"));
     pub static ref TINVALID_DIR: PathBuf = TDATA_DIR.join(PathBuf::from("invalid"));
     pub static ref TINVALID_BOUNDS: PathBuf = TINVALID_DIR.join("out-bounds");
     pub static ref TLOC_DIR: PathBuf = TDATA_DIR.join(PathBuf::from("loc"));

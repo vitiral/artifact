@@ -15,7 +15,7 @@ fn test_load_path() {
     assert!(load_path(TINVALID_DIR.join(&PathBuf::from("attr")).as_path()).is_err());
     assert!(load_path(TINVALID_DIR.join(&PathBuf::from("same_names")).as_path()).is_err());
 
-    let simple = TSIMPLE_DIR.lock().unwrap();
+    let simple = &TSIMPLE_DIR;
 
     // TODO: make assertions regarding files
     let p = load_path(simple.as_path()).unwrap();
