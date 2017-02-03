@@ -57,14 +57,14 @@ self-check: # build self and run `rst check` using own binary
 clean: 
 	find . -name "*.bk" -type f -delete
 
-fmt:
+fmt: clean
 	cargo fmt
 	just clean
 
-check-fmt:
+check-fmt: clean
 	cargo fmt -- --write-mode=diff
 
-check-rst:
+check-rst: clean
 	rst check
 
 check: check-rst check-fmt
@@ -93,7 +93,6 @@ publish-git: # publish git without verification
 update: # update rust and tools used by this lib
 	rustup update
 	(cargo install just -f)
-	(cargo install cargo-check -f)
 	(cargo install rustfmt -f)
 	rustup run nightly cargo install clippy -f
 

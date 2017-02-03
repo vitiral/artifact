@@ -17,8 +17,14 @@ fn test_load_path() {
 
     let simple = &TSIMPLE_DIR;
 
-    // TODO: make assertions regarding files
     let p = load_path(simple.as_path()).unwrap();
+    assert!(p.files.contains(&simple.join("config.toml")),
+            "config.toml does not exist in: {:?}",
+            p.files);
+    assert!(p.files.contains(&simple.join("deep/reqs/deep.toml")));
+    assert!(p.files.contains(&simple.join("lvl_1/req.toml")));
+
+
     assert_eq!(p.origin, simple.as_path());
     let (artifacts, dne_locs) = (p.artifacts, p.dne_locs);
     assert!(artifacts.contains_key(&ArtName::from_str("REQ-purpose").unwrap()));

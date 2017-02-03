@@ -116,9 +116,11 @@ fn attr_equal<T, F>(attr: &str, a: &Artifacts, b: &Artifacts, get_attr: &F) -> R
         if a_attr != b_attr {
             let mut a_str = format!("{:?}", a_attr);
             let mut b_str = format!("{:?}", b_attr);
-            a_str.truncate(50);
-            b_str.truncate(50);
-            diff.push(format!("[{}: {}!={}]", a_name, a_str, b_str));
+            let a_big = if a_str.len() > 100 { "..." } else { "" };
+            let b_big = if b_str.len() > 100 { "..." } else { "" };
+            a_str.truncate(100);
+            b_str.truncate(100);
+            diff.push(format!("[{}: {}{} != {}{}]", a_name, a_str, a_big, b_str, b_big));
         }
     }
 
@@ -147,7 +149,7 @@ fn float_equal<F>(attr: &str, a: &Artifacts, b: &Artifacts, get_num: &F) -> Resu
             let mut b_str = format!("{:?}", b_attr);
             a_str.truncate(50);
             b_str.truncate(50);
-            diff.push(format!("({}, {}!={})", a_name, a_str, b_str));
+            diff.push(format!("({}, {} != {})", a_name, a_str, b_str));
         }
     }
 

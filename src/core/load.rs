@@ -257,6 +257,8 @@ pub fn load_file_table(file_table: &mut Table, path: &Path, project: &mut Projec
     let mut msg: Vec<u8> = Vec::new();
     let mut num_loaded: u64 = 0;
 
+    project.files.insert(path.to_path_buf());
+
     match file_table.remove("settings") {
         Some(Value::Table(t)) => {
             let (raw, settings) = try!(Settings::from_table(&t));
