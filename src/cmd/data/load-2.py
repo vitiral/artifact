@@ -15,12 +15,6 @@ class Question(object):
         self.question = question.strip()
         self.answer = answer.strip().lower()
 
-    def ask(self):
-        ''' ask a question of the user, returning True if the
-        answer is correct '''
-        answer = raw_input("{}?".format(self.question)).strip().lower()
-        return answer == self.answer
-
     def __eq__(self, other):
         if not isinstance(other, Question):
             return False
@@ -35,7 +29,7 @@ def validate_questions(questions):
     ''' given a list of questions, validate them according to spec
     partof: #SPC-load-validate
     '''
-    # check for duplicats
+    # check for duplicates
     all_qs = [q.question for q in questions]
     seen = set()
     duplicates = []

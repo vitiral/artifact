@@ -21,7 +21,9 @@ text file, allowing for any thing to be quizzed on easily
 text = '''
 The flash program should do things in a way that is most condusive to learning
 the desired subject. This includes:
- - doing items in a random order
- - doing missed items more often
- - telling the answer after a guess is missed
+ - asking items in a random order
+ - asking missed items more often
+ - telling the correct answer after the user answers incorrectly
+ - allow users to configure time limits, so they can
+    compare results between quizzes.
 '''

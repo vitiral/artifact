@@ -9,8 +9,7 @@ csv format consisting of two columns: the question and the answer.
 partof = "REQ-purpose"
 text = '''
 The minimum viable product shall be a command line utility that is given the
-path to one or more question files, as detailed in "User Configuration", as
-arguments.
+path to one or more question files as arguments.
 
 Additional arguments will include:
 - `-t`: specify the time allowed for each question

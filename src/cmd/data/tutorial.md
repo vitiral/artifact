@@ -244,10 +244,10 @@ further the quality of the software they develop. Suggestions and comments
 would be wonderful.
 
 The book is and will always remain free and can be found at:
-    https://vitiral.gitbooks.io/software-quality-for-developers/content/
+    https://vitiral.gitbooks.io/simple-quality/content/
 
 The repository for the book is hosted here:
-    https://github.com/vitiral/quality-book
+    https://github.com/vitiral/simple-quality
 
 --------------------------------------------------
 ## Summary and Final Words
