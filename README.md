@@ -1,4 +1,7 @@
 [![Build Status](https://travis-ci.org/vitiral/rst.svg?branch=master)](https://travis-ci.org/vitiral/rst)
+
+![logo](web-ui/logo/logo.png)
+
 # rst: the requirements tracking tool made for developers
 
 **rst** is a [requirements tracking](https://en.m.wikipedia.org/wiki/Software_requirements_specification)
