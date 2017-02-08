@@ -3,6 +3,7 @@
 use dev_prefix::*;
 
 use toml::{Parser, Value, Table};
+use core;
 use super::*; // data directory constants
 use super::super::*;
 
@@ -66,4 +67,69 @@ fn test_load_path() {
 
     // TODO: more validation
     // TODO: need to check that completeness makes sense: TST-core-load-loc-resolve
+}
+
+fn remove_parents(project: &mut Project) {
+    let names: Vec<_> = project.artifacts.keys().cloned().collect();
+    for n in &names {
+        if project.artifacts.get(n).unwrap().path == PARENT_PATH.as_path() {
+            project.artifacts.remove(n).unwrap();
+        }
+    }
+}
+
+fn remove_loc(project: &mut Project) {
+    for (_, a) in &mut project.artifacts {
+        a.loc = None;
+    }
+}
+
+#[test]
+/// make sure that serializing/deserializing and then
+/// processing results in the same project
+fn test_process_project() {
+    //core::init_logger_test();
+    let simple = &TSIMPLE_DIR;
+
+    let p = load_path(simple.as_path()).unwrap();
+    let original_p = p.clone();
+
+    // should be able to process twice without issue
+    // (with parents removed)
+    {
+        let mut new_p = p.clone();
+        remove_parents(&mut new_p);
+        process_project(&mut new_p).unwrap();
+        p.equal(&new_p).expect("no-change");
+        p.equal(&original_p).expect("original")
+    }
+    // location should be able to be re-processed
+    {
+        let mut new_p = p.clone();
+        remove_parents(&mut new_p);
+        remove_loc(&mut new_p);
+        process_project(&mut new_p).unwrap();
+        p.equal(&new_p).unwrap();
+        p.equal(&original_p).expect("original")
+    }
+
+    // should be able to convert artifacts to data and
+    // back and then process
+    {
+        let data_artifacts: Vec<_> = p.artifacts
+            .iter()
+            .map(|(n, a)| a.to_data(n))
+            .collect();
+        let new_artifacts = HashMap::from_iter(data_artifacts.iter()
+            .map(|d| Artifact::from_data(d).unwrap()));
+
+        let mut new_p = Project { artifacts: new_artifacts, ..p.clone() };
+
+        remove_parents(&mut new_p);
+        remove_loc(&mut new_p);
+        process_project(&mut new_p).unwrap();
+
+        p.equal(&new_p).unwrap();
+        p.equal(&original_p).expect("original")
+    }
 }

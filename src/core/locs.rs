@@ -158,15 +158,14 @@ fn find_locs_dir(path: &PathBuf,
 
 /// search through the `code_paths` in settings to find all valid locs
 /// partof: #SPC-loc
-pub fn find_locs(settings: &mut Settings) -> Result<HashMap<ArtName, Loc>> {
+pub fn find_locs(settings: &Settings) -> Result<HashMap<ArtName, Loc>> {
     info!("parsing code files for artifacts...");
     let mut locs: HashMap<ArtName, Loc> = HashMap::new();
     let mut loaded_dirs: HashSet<PathBuf> =
         HashSet::from_iter(settings.exclude_code_paths.iter().map(|p| p.to_path_buf()));
     debug!("excluded code paths: {:?}", loaded_dirs);
-    while !settings.code_paths.is_empty() {
-        let dir = settings.code_paths.pop_front().unwrap(); // it has len, it better pop!
-        if loaded_dirs.contains(&dir) {
+    for dir in &settings.code_paths {
+        if loaded_dirs.contains(dir) {
             continue;
         }
         debug!("Loading from code: {:?}", dir);

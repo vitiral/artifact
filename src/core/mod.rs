@@ -90,7 +90,7 @@ pub fn process_project(project: &mut Project) -> Result<()> {
                                 &mut project.repo_map));
 
     info!("finding and attaching locations");
-    let locs = try!(locs::find_locs(&mut project.settings));
+    let locs = try!(locs::find_locs(&project.settings));
     project.dne_locs = locs::attach_locs(&mut project.artifacts, locs);
 
     // do all links
