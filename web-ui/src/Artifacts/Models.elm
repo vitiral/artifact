@@ -1,4 +1,6 @@
 module Artifacts.Models exposing (..)
+import Dict
+
 
 import Regex
 
@@ -12,8 +14,13 @@ artifactValidPat : Regex.Regex
 artifactValidPat = Regex.regex "^(REQ|SPC|RSK|TST)(-[A-Z0-9_-]*[A-Z0-9_])?$"
 
 
+-- pretty much only used when updating artifacts
 type alias ArtifactId =
   Int
+
+-- the standard lookup method for artifacts
+type alias NameKey = 
+  String
 
 type alias Loc =
   { path : String
@@ -26,6 +33,15 @@ type alias Name =
   , value: String
   }
 
+-- How artifacts are stored
+type alias Artifacts = Dict.Dict NameKey Artifact
+
+initialArtifacts : Artifacts
+initialArtifacts =
+  Dict.empty
+
+
+-- representation of an Artifact object
 type alias Artifact =
   { id : ArtifactId
   , name : Name
@@ -36,8 +52,31 @@ type alias Artifact =
   , loc : Maybe Loc
   , completed : Float
   , tested : Float
-  , config: ArtifactConfig
+  , config : ArtifactConfig
+  , edited : Maybe ArtifactEditable
   }
+
+-- Editable part of an artifact
+type alias ArtifactEditable =
+  { name : Name
+  , path : String
+  , text : String
+  , partof : List Name
+  }
+
+-- gets the edited variable of the artifact
+-- or creates the default one
+getEdited : Artifact -> ArtifactEditable
+getEdited artifact =
+  case artifact.edited of
+    Just e -> e
+    Nothing ->
+      { name = artifact.name
+      , path = artifact.path
+      , text = artifact.text
+      , partof = artifact.partof
+      }
+
 
 type alias ArtifactConfig =
   { partsExpanded : Bool
@@ -61,14 +100,9 @@ defaultConfig =
   , textExpanded = False
   }
 
-
 artifactsUrl : String
 artifactsUrl =
   "#artifacts" 
-
---artifactUrl : ArtifactId -> String
---artifactUrl id =
---  "#artifacts/" ++ (toString id)
 
 artifactNameUrl : String -> String
 artifactNameUrl name =
@@ -82,7 +116,6 @@ indexNameUnchecked name =
     replaced = Regex.replace Regex.All spacePat (\_ -> "") name
   in
     String.toUpper replaced
-
 
 -- get the real name from a raw name
 -- return Err if name is invalid

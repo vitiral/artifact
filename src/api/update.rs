@@ -1,0 +1,208 @@
+use dev_prefix::*;
+use jsonrpc_core::{RpcMethodSync, Params, Error as RpcError, ErrorCode};
+use jsonrpc_core;
+use serde_json;
+
+use core::prefix::*;
+use core;
+
+use api::constants;
+use api::utils;
+
+use super::{ARTIFACTS, PROJECT};
+
+/// convert an artifact from it's data representation
+/// to it's internal artifact representation
+fn convert_artifact(artifact_data: &ArtifactData) -> result::Result<(ArtNameRc, Artifact), String> {
+    Artifact::from_data(artifact_data).map_err(|err| err.to_string())
+}
+
+/// pull out the artifacts from the params
+fn parse_new_artifacts(params: Params) -> result::Result<Vec<ArtifactData>, RpcError> {
+    match params {
+        Params::Map(dict) => {
+            match dict.get("artifacts") {
+                Some(value) => {
+                    match serde_json::from_str::<Vec<ArtifactData>>(&value.to_string()) {
+                        Ok(a) => Ok(a),
+                        Err(e) => Err(utils::parse_error(&format!("{}", e))),
+                    }
+                }
+                None => Err(utils::invalid_params("missing 'artifacts' param")),
+            }
+        }
+        _ => Err(utils::invalid_params("params must have 'artifacts' key")),
+    }
+}
+
+/// split artifacts into artifacts which are unchanged and
+/// artifacts which are changed.
+///
+/// Also do lots of error checking and validation
+pub fn split_artifacts(project: &Project,
+                       data_artifacts: &Vec<ArtifactData>,
+                       new_artifacts: &Vec<ArtifactData>)
+                       -> result::Result<(HashMap<u64, ArtifactData>, Artifacts), RpcError> {
+    let mut unchanged_artifacts: HashMap<u64, ArtifactData> = data_artifacts.iter()
+        .map(|a| (a.id, a.clone()))
+        .collect();
+
+    let mut save_artifacts: Artifacts = Artifacts::new();
+
+    // buffer errors to give better error messages
+    let mut files_not_found: Vec<PathBuf> = Vec::new();
+    let mut ids_not_found: Vec<u64> = Vec::new();
+    let mut name_errors: Vec<String> = Vec::new();
+
+    for new_artifact in new_artifacts {
+        let path = PathBuf::from(&new_artifact.path);
+        if !project.files.contains(&path) {
+            files_not_found.push(path);
+        }
+        // remove artifact ids that are getting updated
+        if unchanged_artifacts.remove(&new_artifact.id).is_none() {
+            ids_not_found.push(new_artifact.id);
+        }
+        let (n, a) = match convert_artifact(&new_artifact) {
+            Ok(v) => v,
+            Err(err) => {
+                name_errors.push(err);
+                continue;
+            }
+        };
+        save_artifacts.insert(n, a);
+    }
+
+    // craft the error based on all the errors
+    let mut data: HashMap<&str, Vec<String>> = HashMap::new();
+    let mut err = None;
+    if !name_errors.is_empty() {
+        data.insert("nameErrors", name_errors);
+        err = Some(constants::X_INVALID_NAME);
+    }
+    if !files_not_found.is_empty() {
+        data.insert("filesNotFound",
+                    files_not_found.iter()
+                        .map(|f| format!("{}", f.display()))
+                        .collect());
+        err = Some(constants::X_FILES_NOT_FOUND);
+    }
+    if !ids_not_found.is_empty() {
+        data.insert("idsNotFound",
+                    ids_not_found.iter()
+                        .map(u64::to_string)
+                        .collect());
+        err = Some(constants::X_IDS_NOT_FOUND);
+    }
+    if data.len() > 1 {
+        err = Some(constants::X_MULTIPLE_ERRORS);
+    }
+    if let Some(msg) = err {
+        return Err(RpcError {
+            code: constants::SERVER_ERROR,
+            message: msg.to_string(),
+            data: Some(jsonrpc_core::to_value(data)),
+        });
+    }
+
+    Ok((unchanged_artifacts, save_artifacts))
+}
+
+
+/// Update artifacts with new ones
+pub fn update_artifacts(data_artifacts: &Vec<ArtifactData>,
+                        project: &Project,
+                        new_artifacts: &Vec<ArtifactData>)
+                        -> result::Result<Project, RpcError> {
+
+    let (unchanged_artifacts, mut save_artifacts) =
+        split_artifacts(project, data_artifacts, new_artifacts)?;
+
+    // add artifacts that didn't change to new artifacts
+    for art_data in unchanged_artifacts.values() {
+        let (n, a) = match convert_artifact(art_data) {
+            Ok(v) => v,
+            Err(msg) => {
+                return Err(RpcError {
+                    code: constants::SERVER_ERROR,
+                    message: format!("Could not convert artifact back {:?}, GOT ERROR: {}",
+                                     art_data,
+                                     msg),
+                    data: None,
+                })
+            }
+        };
+        // TODO: preserve old id here?
+        save_artifacts.insert(n, a);
+    }
+
+    // process the new set of artifacts to make sure they are valid
+    let mut new_project = Project { artifacts: save_artifacts, ..project.clone() };
+
+    if let Err(err) = core::process_project(&mut new_project) {
+        return Err(RpcError {
+            code: constants::SERVER_ERROR,
+            message: err.to_string(),
+            data: None,
+        });
+    }
+
+    Ok(new_project)
+}
+
+/// `UpdateArtifacts` Handler
+pub struct UpdateArtifacts;
+impl RpcMethodSync for UpdateArtifacts {
+    fn call(&self, params: Params) -> result::Result<jsonrpc_core::Value, RpcError> {
+        info!("* UpdateArtifacts");
+
+        // get the changed artifacts
+        let updated_artifacts = parse_new_artifacts(params)?;
+        let mut data_artifacts = ARTIFACTS.lock().unwrap();
+        let mut project = PROJECT.lock().unwrap();
+
+        // perform the update
+        let new_project = update_artifacts(&data_artifacts, &project, &updated_artifacts)?;
+
+        drop(updated_artifacts);
+
+        // get the ProjectText
+        let text = match core::types::ProjectText::from_project(&new_project) {
+            Ok(t) => t,
+            Err(e) => {
+                return Err(RpcError {
+                    code: ErrorCode::InternalError,
+                    message: format!("{:?}", e.display()),
+                    data: None,
+                })
+            }
+        };
+
+        // save the ProjectText to files
+        if let Err(e) = text.dump() {
+            return Err(RpcError {
+                code: ErrorCode::InternalError,
+                message: format!("{:?}", e.display()),
+                data: None,
+            });
+        }
+
+        // get the data artifacts
+        let new_artifacts: Vec<_> = new_project.artifacts
+            .iter()
+            .map(|(n, a)| a.to_data(n))
+            .collect();
+
+        // store globals and return
+        let out = {
+            // FIXME: when jsonrpc-core uses serde 0.9
+            let value = serde_json::to_value(&new_artifacts).unwrap();
+            let s = serde_json::to_string(&value).unwrap();
+            jsonrpc_core::Value::from_str(&s).unwrap()
+        };
+        *project = new_project;
+        *data_artifacts = new_artifacts;
+
+        Ok(out)
+    }
+}

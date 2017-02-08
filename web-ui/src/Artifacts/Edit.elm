@@ -2,7 +2,7 @@ module Artifacts.Edit exposing (..)
 
 import Html exposing (..)
 import Html.Attributes exposing (class, style, value, href, readonly, rows, cols, id)
-import Html.Events exposing (onClick)
+import Html.Events exposing (onClick, onInput)
 
 import Models exposing (Model)
 import Artifacts.Models exposing (..)
@@ -58,11 +58,29 @@ formColumnTwo model artifact =
     [ h3 [] [ text "Text" ]
     , textarea 
       [ class "h3" -- class=h3 otherwise it is really tiny for some reason
-      , rows 35, cols 80, readonly model.settings.readonly 
+      , rows 35
+      , cols 80
+      , readonly model.settings.readonly 
       , id ("text_" ++ artifact.name.value)
       ] 
       [ text artifact.text ]
     ]
+  let
+    edited = getEdited artifact
+  in
+    div [ class "col col-6" ] 
+      [ h3 [] [ text "Text" ]
+      , textarea 
+        [ class "h3" -- class=h3 otherwise it is really tiny for some reason
+        , rows 35
+        , cols 80
+        , readonly model.settings.readonly 
+        , id ("text_" ++ artifact.name.value)
+        , onInput (\t -> (ArtifactsMsg (ArtifactEdited artifact.name.value 
+          { edited | text = t })))
+        ] 
+        [ text artifact.text.value ]
+      ]
 
 
 listBtn : Html AppMsg

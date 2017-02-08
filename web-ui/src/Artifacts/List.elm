@@ -1,5 +1,7 @@
 module Artifacts.List exposing (..)
 
+import Dict
+
 import Html exposing (..)
 import Html.Attributes exposing (class, width, id)
 import Html.Events exposing (onClick)
@@ -7,18 +9,18 @@ import Html.Events exposing (onClick)
 import Messages exposing (AppMsg(..))
 import Models exposing (Model)
 import Artifacts.Messages exposing (..)
-import Artifacts.Models exposing (Artifact, ArtifactConfig)
+import Artifacts.Models exposing (Artifact, Artifacts, ArtifactConfig)
 import Artifacts.View as View
 
 
-view : Model -> List Artifact -> Html AppMsg
+view : Model -> Artifacts -> Html AppMsg
 view model artifacts =
   div []
     [ nav artifacts
     , list model artifacts
     ]
 
-nav : List Artifact -> Html AppMsg
+nav : Artifacts -> Html AppMsg
 nav artifacts = 
   div [ class "clearfix mb2 white bg-black" ]
     [ div [ class "left p2" ] [ text "Artifacts" ]
@@ -36,13 +38,13 @@ w2 = width (base_width * 2)
 w3 : Attribute msg
 w3 = width (base_width * 3)
 
-list : Model -> List Artifact -> Html AppMsg
+list : Model -> Artifacts -> Html AppMsg
 list model artifacts =
   let
-    len = List.length artifacts
+    len = Dict.size artifacts
     model_list = List.repeat len model
     key = \a b -> compare a.name.value b.name.value
-    sorted = List.sortWith key artifacts
+    sorted = List.sortWith key (Dict.values artifacts)
   in
     div [ class "p2" ]
       [ table []
@@ -118,7 +120,7 @@ expandable expanded model artifact html setConfig =
     div []
       [ button 
         [ class "btn regular"
-        , onClick (ArtifactsMsg <| SetExpand artifact.id setConfig False)
+        , onClick (ArtifactsMsg <| SetExpand artifact.name.value setConfig False)
         ] [ i [ class "fa fa-minus-square-o m0" ] [] ]
       , html model artifact
       ]
@@ -126,6 +128,6 @@ expandable expanded model artifact html setConfig =
     div [] 
       [ button 
         [ class "btn regular"
-        , onClick (ArtifactsMsg <| SetExpand artifact.id setConfig True)
+        , onClick (ArtifactsMsg <| SetExpand artifact.name.value setConfig True)
         ] [ i [ class "fa fa-plus-square-o m0" ] [] ]
       ]

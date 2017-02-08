@@ -4,6 +4,7 @@ Generic view methods that can be used in multiple places (List, Edit, etc)
 -}
 
 import String
+import Dict
 import Html exposing (..)
 import Html.Attributes exposing (class, href, title, id)
 import Html.Events exposing (onClick)
@@ -119,17 +120,13 @@ seeArtifactName : Model -> String -> Html AppMsg
 seeArtifactName model name =
   let
     indexName = indexNameUnchecked name
-    hasName = \a -> a.name.value == indexName
-    exists = case List.head <| List.filter hasName model.artifacts of
-      Just _ -> True
-      Nothing -> False
 
-    url = (artifactNameUrl name)
+    url = (artifactNameUrl indexName)
   in 
-    if exists then
+    if Dict.member indexName model.artifacts then
       span 
         [ href url
-        , onClick ( RouteChange <| ArtifactNameRoute <| indexNameUnchecked name ) 
+        , onClick ( RouteChange <| ArtifactNameRoute <| indexName ) 
         ] [ text name ]
     else
       span [ title "Name not found" ] [ text name ]

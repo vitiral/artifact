@@ -10,7 +10,7 @@ import Json.Decode as Decode
 import Json.Encode as Encode
 
 import Artifacts.Models exposing (Artifact, defaultConfig, initName)
-import Artifacts.Commands exposing (memberEncoded, memberDecoder)
+import Artifacts.Commands exposing (artifactEncoded, artifactDecoder)
 
 
 artifact : Artifact
@@ -25,6 +25,7 @@ artifact =
   , completed = 0.0
   , tested = 0.0
   , config = defaultConfig
+  , edited = Nothing
   }
 
 expectedEncoded = 
@@ -41,6 +42,7 @@ artifactJson =
   , "loc": { "path": "path", "row": 10, "col": 10 }
   , "completed": 0.0
   , "tested": 0.0
+  , "edited": null
   }
   """
 
@@ -63,10 +65,10 @@ all =
           Expect.equal (3 + 7) 10
       , test "encode artifact" <|
         \() ->
-          Expect.equal (Encode.encode 0 (memberEncoded artifact)) expectedEncoded
+          Expect.equal (Encode.encode 0 (artifactEncoded artifact)) expectedEncoded
       , test "decode artifact" <|
         \() ->
-          Expect.equal (Decode.decodeString memberDecoder artifactJson) (Ok artifact)
+          Expect.equal (Decode.decodeString artifactDecoder artifactJson) (Ok artifact)
       ]
     , describe "name: test name validation"
       [ test "valid names 1" <|

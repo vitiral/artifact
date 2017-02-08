@@ -12,17 +12,31 @@ pub fn get_subcommand<'a, 'b>() -> App<'a, 'b> {
         .arg(Arg::with_name("addr")
             .help("full address to start server on. Default='127.0.0.1:8000'")
             .use_delimiter(false))
+        .arg(Arg::with_name("edit")
+            .long("edit")
+            .short("e")
+            .help("enable editing. ALPHA NOTICE: this feature is not yet
+                    \
+                   secure. DO NOT USE ON NON TRUSTED NETWORK"))
 }
 
 
+pub struct Cmd {
+    pub addr: String,
+    pub edit: bool,
+}
+
 /// pull out the command settings
-pub fn get_cmd(matches: &ArgMatches) -> String {
-    matches.value_of("addr").unwrap_or("127.0.0.1:4000").to_string()
+pub fn get_cmd(matches: &ArgMatches) -> Cmd {
+    Cmd {
+        addr: matches.value_of("addr").unwrap_or("127.0.0.1:4000").to_string(),
+        edit: matches.is_present("edit"),
+    }
 }
 
 // TODO: should technically return result
 // need to do conditional compilation on types
 // to auto-convert web errors
-pub fn run_cmd(project: Project, addr: &str) {
-    api::start_api(project, addr);
+pub fn run_cmd(project: Project, cmd: &Cmd) {
+    api::start_api(project, &cmd.addr, cmd.edit);
 }

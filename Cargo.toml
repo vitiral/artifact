@@ -10,12 +10,11 @@ version = "0.5.0"
 
 [dependencies]
 ansi_term = "0.7"
-clap = "2"
 difference = "1.0"
 error-chain = "0.9.0"
 fern = "0.3.5"
 itertools = "0.4.15"
-jsonrpc-core = "4.0"
+jsonrpc-core = "5.0.0"
 lazy_static = "0.1.*"
 log = "0.3.6"
 nickel = "0.9"
@@ -28,6 +27,20 @@ strfmt = "0.1"
 time = "0.1"
 toml = "0.2"
 
+[dependencies.clap]
+default-features = false
+features = ["suggestions", "color"]
+version = "2"
+
+[dependencies.diesel]
+optional = true
+version = "0.7.0"
+
+[dependencies.diesel_codegen]
+default-features = false
+features = ["postgres"]
+optional = true
+version = "0.7.0"
 
 [dependencies.dotenv]
 optional = true
@@ -47,6 +60,7 @@ version = "0.3"
 
 [features]
 default = []
+tracker = ["diesel", "diesel_codegen", "dotenv", "dotenv_macros"]
 web = ["tar", "tempdir"]
 
 [profile]

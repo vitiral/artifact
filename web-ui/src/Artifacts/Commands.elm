@@ -1,6 +1,7 @@
 module Artifacts.Commands exposing (..)
 
 import Http
+import Dict
 import Json.Decode as Decode
 import Json.Encode as Encode
 import Json.Decode.Pipeline exposing (decode, required, optional, hardcoded)
@@ -8,7 +9,7 @@ import Messages exposing (AppMsg(..))
 import Models exposing (Model)
 import Artifacts.Messages exposing (..)
 import Artifacts.Models exposing (
-  ArtifactId, Artifact, Loc, ArtifactsResponse, defaultConfig, 
+  NameKey, Artifact, Artifacts, Loc, ArtifactsResponse, defaultConfig, 
   Name, initName)
 import JsonRpc exposing (RpcError, formatJsonRpcError)
 
@@ -31,6 +32,7 @@ resultAsValue x =
 --url = "http://localhost:4000/json-rpc"
 endpoint : String
 endpoint = "/json-rpc"
+
 -- COMMANDS
 
 fetchAll : Model -> Cmd AppMsg
@@ -42,7 +44,7 @@ fetchAll model =
         [ Http.header "Content-Type" "application/json"
         ]
       , url = model.addr ++ endpoint
-      , body = Http.jsonBody <| getArtifactsRequestEncoded 1
+      , body = Http.jsonBody <| getArtifactsRequestEncoded 1 -- TODO: use better RPC id
       , expect = Http.expectJson getArtifactsResponseDecoder
       , timeout = Nothing
       , withCredentials = False
@@ -68,11 +70,13 @@ newArtifactsMsg result =
       HttpError err
 
 
--- TODO: this needs to actually work...
-save : Model -> Artifact -> Cmd AppMsg
-save model artifact = 
+saveAll : Model -> Artifacts -> Cmd AppMsg
+saveAll model artifacts = 
   let
-    body = Http.jsonBody (memberEncoded artifact)
+    artList = Dict.values artifacts
+
+    -- TODO: use better RPC id
+    body = Http.jsonBody (updateArtifactsRequestEncoded 1 artList)
 
     request = Http.request
       { method = "PUT"
@@ -81,31 +85,54 @@ save model artifact =
         ]
       , url = model.addr ++ endpoint
       , body = body
-      , expect = Http.expectJson memberDecoder
+      , expect = Http.expectJson getArtifactsResponseDecoder
       , timeout = Nothing
       , withCredentials = False
       }
   in
-    Http.send (\r -> ArtifactsMsg <| SaveArtifact r) request
+    Http.send newArtifactsMsg request
 
-
--- ENCODER
+-- REQUESTS
 
 getArtifactsRequestEncoded : Int -> Encode.Value
-getArtifactsRequestEncoded id =
+getArtifactsRequestEncoded rpc_id =
   let
     attrs =
       [ ( "jsonrpc", Encode.string "2.0" )
-      , ( "id", Encode.int id )
+      , ( "id", Encode.int rpc_id )
       , ( "method", Encode.string "GetArtifacts" )
-      --, ( "params", TODO: be able to fill in params
       ]
   in
     Encode.object attrs
 
 
-memberEncoded : Artifact -> Encode.Value
-memberEncoded artifact =
+updateArtifactsRequestEncoded : Int -> List Artifact -> Encode.Value
+updateArtifactsRequestEncoded rpc_id artifacts =
+  let
+    params = 
+      Encode.object 
+        [ ( "artifacts", artifactsEncoded artifacts)
+        ]
+
+    attrs = 
+      [ ( "jsonrpc", Encode.string "2.0" )
+      , ( "id", Encode.int rpc_id )
+      , ( "method", Encode.string "GetArtifacts" )
+      , ( "params", params )
+      ]
+  in
+    Encode.object attrs
+
+
+-- ENCODER
+
+artifactsEncoded : List Artifact -> Encode.Value
+artifactsEncoded artifacts =
+  Encode.list (List.map artifactEncoded artifacts)
+
+
+artifactEncoded : Artifact -> Encode.Value
+artifactEncoded artifact =
   let
     partof = List.map (\p -> p.raw) artifact.partof
 
@@ -134,18 +161,18 @@ errorDecoder =
 getArtifactsResponseDecoder : Decode.Decoder ArtifactsResponse
 getArtifactsResponseDecoder = 
   Decode.map2 ArtifactsResponse
-    (Decode.maybe (Decode.field "result" collectionDecoder))
+    (Decode.maybe (Decode.field "result" artifactsDecoder))
     (Decode.maybe (Decode.field "error" errorDecoder))
   
 
 -- Generic Artifact
 
-collectionDecoder : Decode.Decoder (List Artifact)
-collectionDecoder =
-  Decode.list memberDecoder
+artifactsDecoder : Decode.Decoder (List Artifact)
+artifactsDecoder =
+  Decode.list artifactDecoder
 
-memberDecoder : Decode.Decoder Artifact
-memberDecoder =
+artifactDecoder : Decode.Decoder Artifact
+artifactDecoder =
   decode Artifact
     |> required "id" Decode.int
     |> required "name" nameDecoder
@@ -157,6 +184,7 @@ memberDecoder =
     |> required "completed" Decode.float
     |> required "tested" Decode.float
     |> hardcoded defaultConfig
+    |> hardcoded Nothing
 
 nameDecoder : Decode.Decoder Name
 nameDecoder = Decode.andThen nameDecoderValue Decode.string

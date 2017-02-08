@@ -22,7 +22,14 @@ use tempdir::TempDir;
 
 use core::{Project, ArtifactData};
 
+mod constants;
+mod utils;
 mod handler;
+mod update;
+
+#[cfg(test)]
+mod tests;
+
 
 #[cfg(feature = "web")]
 const WEB_FRONTEND_TAR: &'static [u8] = include_bytes!("data/web-ui.tar");
@@ -119,7 +126,7 @@ fn host_frontend(_: &Nickel, _: &str) {
 
 /// start the json-rpc API server
 #[allow(unused_variables)] // need to hold ownership of tmp_dir
-pub fn start_api(project: Project, addr: &str) {
+pub fn start_api(project: Project, addr: &str, edit: bool) {
     // store artifacts and files into global mutex
 
     {

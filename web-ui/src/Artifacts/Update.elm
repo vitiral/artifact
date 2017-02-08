@@ -1,21 +1,25 @@
 module Artifacts.Update exposing (..)
 
 import String
+import Dict
 import Navigation
 
 import Messages exposing (AppMsg(AppError))
 import Artifacts.Messages exposing (Msg(..))
 import Artifacts.Models exposing 
-  (Artifact, ArtifactId, ArtifactConfig
+  (Artifact, ArtifactEditable, Artifacts, NameKey, ArtifactConfig
   , ArtifactsResponse
   , artifactsUrl, artifactNameUrl
   , initName, indexNameUnchecked)
 
-update : Msg -> List Artifact -> ( List Artifact, Cmd AppMsg )
+update : Msg -> Artifacts -> ( Artifacts, Cmd AppMsg )
 update msg artifacts =
   case msg of
     NewArtifacts newArtifacts ->
-      ( newArtifacts, Cmd.none )
+      let
+        pairs = List.map (\a -> ( a.name.value, a )) newArtifacts
+      in
+        ( Dict.fromList pairs, Cmd.none )
 
     ShowArtifacts ->
       ( artifacts, Navigation.newUrl artifactsUrl )
@@ -26,58 +30,30 @@ update msg artifacts =
         <| artifactNameUrl 
         <| String.toLower (indexNameUnchecked name) )
 
-    SetExpand id setConfig value ->
-      ( setExpand artifacts id setConfig value, Cmd.none)
+    SetExpand name setConfig value ->
+      case Dict.get name artifacts of
+        Just art -> 
+          ( setExpand artifacts art setConfig value, Cmd.none )
+        Nothing ->
+          ( artifacts, Cmd.none ) -- TODO: should be error
 
-    --ChangeLevel id amount ->
-    --  ( artifacts
-    --  , Cmd.batch (changeLevelCommands id amount artifacts)
-    --  )
+    ArtifactEdited name edited ->
+      case Dict.get name artifacts of
+        Just art ->
+          ( setEdited artifacts art edited, Cmd.none )
+        Nothing ->
+          ( artifacts, Cmd.none ) -- TODO: should be error
 
-    SaveArtifact result -> case result of
-      Err err ->
-        -- TODO: do something else here
-        ( artifacts, Navigation.newUrl "error"  )
+-- set the edited variable on the requested artifact
+setEdited : Artifacts -> Artifact -> ArtifactEditable -> Artifacts
+setEdited artifacts art edited =
+  Dict.insert art.name.value { art | edited = Just edited } artifacts
 
-      Ok newArtifact ->
-        ( updateArtifact newArtifact artifacts
-        , Cmd.none )
-
-
---changeLevelCommands artifactId howMuch artifacts =
---  let
---    cmdForArtifact existingArtifact =
---      if existingArtifact.id == artifactId then
---        save { existingArtifact | level = existingArtifact.level + howMuch }
---      else
---        Cmd.none
---  in
---    List.map cmdForArtifact artifacts
-
+-- set the "expand" setting to value
 setExpand : 
-    List Artifact -> ArtifactId -> 
-    (ArtifactConfig -> Bool -> ArtifactConfig)
-    -> Bool -> List Artifact
-setExpand artifacts id setConfig value  =
-  let
-    select art =
-      if art.id == id then
-        let
-          newConfig = setConfig art.config value
-        in 
-          { art | config = newConfig }
-      else
-        art
-  in
-    List.map select artifacts
-
-updateArtifact : Artifact -> List Artifact -> List Artifact
-updateArtifact updatedArtifact artifacts =
-  let
-    select existingArtifact =
-      if existingArtifact.id == updatedArtifact.id then
-        updatedArtifact
-      else
-        existingArtifact
-  in
-    List.map select artifacts
+    Artifacts -> Artifact -> (ArtifactConfig -> Bool -> ArtifactConfig)
+    -> Bool -> Artifacts
+setExpand artifacts art setConfig value =
+  Dict.insert art.name.value 
+    { art | config = setConfig art.config value } 
+    artifacts
