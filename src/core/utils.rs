@@ -166,7 +166,7 @@ pub fn canonicalize(path: &Path) -> io::Result<PathBuf> {
 }
 
 #[cfg(not(windows))]
-/// for other systems, just return fs::canonicalize
+/// for other systems, just return `fs::canonicalize`
 pub fn canonicalize(path: &Path) -> io::Result<PathBuf> {
     fs::canonicalize(path)
 }

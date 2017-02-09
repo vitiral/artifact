@@ -23,6 +23,9 @@ build-web: build-elm # build and bundle app with web=true
 test: # do tests with web=false
 	RUST_BACKTRACE=1 cargo test --lib
 
+test-dev: # test using nightly and incremental compilation
+	CARGO_INCREMENTAL=1 rustup run nightly cargo test --lib
+
 test-web: # do tests with web=true
 	(cd web-ui; elm test)
 	RUST_BACKTRACE=1 cargo test --lib --features "web"

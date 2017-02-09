@@ -169,7 +169,7 @@ pub fn find_locs(settings: &Settings) -> Result<HashMap<ArtName, Loc>> {
             continue;
         }
         debug!("Loading from code: {:?}", dir);
-        if find_locs_dir(&dir, &mut loaded_dirs, &mut locs) {
+        if find_locs_dir(dir, &mut loaded_dirs, &mut locs) {
             return Err(ErrorKind::LocNotFound.into());
         }
     }
