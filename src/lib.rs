@@ -16,8 +16,6 @@
  * */
 // need for clippy lints
 #![allow(unknown_lints)]
-#![cfg_attr(feature = "serde_derive", feature(proc_macro))]
-#![cfg_attr(feature = "serde_derive", feature(custom_derive))]
 #![recursion_limit = "1024"]
 // # logger config
 extern crate fern;
@@ -36,7 +34,6 @@ extern crate regex;
 extern crate strfmt;
 extern crate time;
 extern crate rustc_serialize;
-extern crate toml;
 extern crate difference;
 
 // # cmdline crates
@@ -54,16 +51,12 @@ extern crate tempdir;
 #[cfg(feature = "web")]
 extern crate tar;
 
-// # serde hybrid requirements
-#[cfg(feature = "serde_derive")]
+// serialization
 #[macro_use]
 extern crate serde_derive;
 extern crate serde;
 extern crate serde_json;
-#[cfg(feature = "serde_derive")]
-include!("serde_types.in.rs");
-#[cfg(feature = "serde_codegen")]
-include!(concat!(env!("OUT_DIR"), "/serde_types.rs"));
+extern crate toml;
 
 // modules
 pub mod types;

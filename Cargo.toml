@@ -7,21 +7,14 @@ readme = "README.md"
 keywords = ["cmdline", "tool", "requirements", "documentation", "testing"]
 authors = ["Garrett Berg <vitiral@gmail.com>"]
 license = "LGPL-3.0+"
-build = "build.rs"
 
 [profile.dev]
 codegen-units = 3 # sets number of threads to compile with
 
 [features]
-default = ["serde_codegen"]
-# unstable requires all features currently...
-unstable = ["serde_derive"]
+default = []
 web = ["tar", "tempdir"]
 tracker = ["diesel", "diesel_codegen", "dotenv", "dotenv_macros"]
-
-[build-dependencies]
-serde_codegen = { version="0.8", optional = true }
-tar = { version="0.4", optional = true }
 
 [dependencies]
 # general
@@ -35,12 +28,14 @@ fern = "0.3.5"
 regex = "0.1"
 strfmt = "0.1"
 time = "0.1"
-rustc-serialize = "0.3"
-toml = "0.2"
-serde = "0.8"
-serde_derive = { version="0.8", optional = true }
-serde_json = "0.8"
 difference = { git = "https://github.com/johannhof/difference.rs" }
+
+# serialization
+rustc-serialize = "0.3"
+toml = "0.2"  # TODO: migrate to toml 0.3. Requires new formatter features
+serde = "0.9"
+serde_derive = "0.9"
+serde_json = "0.9"
 
 # ui
 ansi_term = "0.7"

@@ -1,6 +1,7 @@
 
 use dev_prefix::*;
-use jsonrpc_core::{IoHandler, SyncMethodCommand, Params, Value, Error as RpcError, ErrorCode};
+use jsonrpc_core::{IoHandler, SyncMethodCommand, Params, Error as RpcError, ErrorCode};
+use jsonrpc_core;
 use serde_json;
 
 use core::prefix::*;
@@ -32,12 +33,15 @@ fn init_rpc_handler() -> IoHandler {
 /// `GetArtifacts` API Handler
 struct GetArtifacts;
 impl SyncMethodCommand for GetArtifacts {
-    fn execute(&self, _: Params) -> result::Result<Value, RpcError> {
+    fn execute(&self, _: Params) -> result::Result<jsonrpc_core::Value, RpcError> {
         info!("GetArtifacts called");
         let locked = ARTIFACTS.lock().unwrap();
         let artifacts: &Vec<ArtifactData> = locked.as_ref();
-        let value = serde_json::to_value(artifacts);
-        Ok(value)
+        // FIXME: jsonrpc-core uses different serde than we do,
+        // so we have to do this shenanigans
+        let value = serde_json::to_value(artifacts).unwrap();
+        let s = serde_json::to_string(&value).unwrap();
+        Ok(jsonrpc_core::Value::from_str(&s).unwrap())
     }
 }
 
@@ -71,14 +75,14 @@ struct UpdateArtifacts;
 #[allow(dead_code)]
 #[allow(useless_let_if_seq)]
 impl SyncMethodCommand for UpdateArtifacts {
-    fn execute(&self, params: Params) -> result::Result<Value, RpcError> {
+    fn execute(&self, params: Params) -> result::Result<jsonrpc_core::Value, RpcError> {
         info!("* UpdateArtifacts");
 
         let new_artifacts = match params {
             Params::Map(dict) => {
                 match dict.get("artifacts") {
                     Some(value) => {
-                        match serde_json::from_value::<Vec<ArtifactData>>(value.clone()) {
+                        match serde_json::from_str::<Vec<ArtifactData>>(&value.to_string()) {
                             Ok(a) => a,
                             Err(e) => return Err(parse_error(&format!("{}", e))),
                         }
@@ -149,7 +153,7 @@ impl SyncMethodCommand for UpdateArtifacts {
             return Err(RpcError {
                 code: SERVER_ERROR,
                 message: msg.to_string(),
-                data: Some(serde_json::to_value(data)),
+                data: Some(jsonrpc_core::to_value(data)),
             });
         }
 
@@ -187,7 +191,7 @@ impl SyncMethodCommand for UpdateArtifacts {
 
 
         // Finally, return ALL the artifacts (the client's cache is outdated)
-        Ok(serde_json::to_value("true"))
+        Ok(jsonrpc_core::to_value("true"))
         //    let id = match parse_id(req) {
         //        Ok(id) => id,
         //        Err(e) => {

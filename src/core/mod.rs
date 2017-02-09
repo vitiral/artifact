@@ -32,12 +32,6 @@ pub mod locs;
 pub mod name;
 pub mod security;
 
-// serialization
-#[cfg(feature = "serde_codegen")]
-include!(concat!(env!("OUT_DIR"), "/serde_types.rs"));
-
-#[cfg(feature = "serde_derive")]
-include!("serde_types.in.rs");
 mod serialize;
 
 #[cfg(test)]
@@ -47,7 +41,7 @@ pub mod tests;
 pub use core::load::load_toml;
 pub use core::utils::find_repo;
 pub use core::types::{Project, Artifact, Artifacts, ArtType, Loc, ArtName, ArtNameRc, ArtNames,
-                      Settings, LoadFromStr, PARENT_PATH};
+                      Settings, LoadFromStr, PARENT_PATH, LocData, Text, ArtifactData};
 
 #[cfg(test)]
 use super::init_logger;
