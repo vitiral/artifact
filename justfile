@@ -4,6 +4,7 @@
 # constants
 version = `sed -En 's/version = "([^"]+)"/\1/p' Cargo.toml`
 target = "$PWD/target"
+nightly = "CARGO_TARGET_DIR=$TG/nightly CARGO_INCREMENTAL=1 rustup run nightly"
 
 ##################################################
 # build commands
@@ -24,7 +25,7 @@ test: # do tests with web=false
 	RUST_BACKTRACE=1 cargo test --lib
 
 test-dev: # test using nightly and incremental compilation
-	CARGO_INCREMENTAL=1 rustup run nightly cargo test --lib
+	TG={{target}} {{nightly}} cargo test --lib
 
 test-web: # do tests with web=true
 	(cd web-ui; elm test)
