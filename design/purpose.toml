@@ -182,6 +182,37 @@ change until a major version release and shall attempt whatever backwards
 compatibility is possible.
 '''
 
+[REQ-1-tracker]
+text = '''
+rst **shall** have test tracking functionality that will enable projects
+and orginizations to track continuously running integration tests.
+
+Unlike the rest of rst, this tool **shall not** store it's results in text,
+as that would be a tracking, performance and extendability nightmare.
+Instead it should use a database backend and be run through the `serve`
+subcommand along with the web-ui.
+
+The data that needs to be stored by the test tracking tool is:
+ - test name (i.e. MyTest2)
+ - design artifacts it tests (i.e. [TST-foo-bar, TST-baz-boo])
+ - timestamp of test
+ - version that was tested 
+    (i.e. 3.2.3.4 commit=154642d49b393e49d9de987685335e9c5a8b2aa7)
+ - url/path to view test results and data externally
+ - extra binary data
+
+All of this should be kept in a database (probably PostgreSQL)
+and be easily searchable.
+
+All of the data shall be accessible through rst's json-rpc server
+endpoint (the same one that hosts and supports the web-ui).
+
+In addition, a section of the web-ui shall be dedicated to viewing
+test results, and test artifacts shall include links to their test
+data (if it exists). Test results should be easy to filter, graph
+, compare and generate reports for in the UI.
+'''
+
 [REQ-1-web]
 partof = "REQ-1-ui"
 text = '''

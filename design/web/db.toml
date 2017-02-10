@@ -1,5 +1,5 @@
 [REQ-db]
-partof = "REQ-2-rest"
+partof = "REQ-1-tracker"
 text = '''
 there **will** be a database which serves as a backend to the
 API server. This database **will** be a relational model (SQL)
@@ -30,6 +30,10 @@ The version standardization is to make it easy to sort versions by their
 various attributes.
 
 ```
+Notes: 
+    PK = primary-key
+    P  = standard id
+
 ## TEST_NAME
       key | type                        | description
     ------+-----------------------------+-------------------------
@@ -43,7 +47,7 @@ various attributes.
 ## VERSION
       key | type                        | description
 ----------+-----------------------------+-------------------------
-       id | id                       PK | version id
+       id | id                       P  | version id
     major | text                        | "major" version str
     minor | text                        | "minor" version str
     patch | text                        | "patch" version str
