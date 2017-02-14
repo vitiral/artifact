@@ -85,7 +85,7 @@ fn handle_artifacts<'a>(req: &mut Request, mut res: Response<'a>) -> MiddlewareR
 fn host_frontend(server: &mut Nickel, addr: &str) -> TempDir {
     // it is important that tmp_dir never goes out of scope
     // or the webapp will be deleted!
-    let tmp_dir = TempDir::new("rst-web-ui").expect("unable to create temporary directory");
+    let tmp_dir = TempDir::new("artifact-web-ui").expect("unable to create temporary directory");
     let dir = tmp_dir.path().to_path_buf(); // we have to clone this because *borrow*
     info!("unpacking web-ui at: {}", dir.display());
 

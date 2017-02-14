@@ -34,7 +34,7 @@ run_test_suite() {
     cargo test --target $TARGET --features web
 
     # sanity check the file type
-    file target/$TARGET/debug/rst
+    file target/$TARGET/debug/art
 }
 
 main() {

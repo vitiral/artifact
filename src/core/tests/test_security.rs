@@ -11,7 +11,7 @@ use super::*;
 fn test_bounds_checker() {
     let design = TINVALID_BOUNDS.join("repo").join("design");
     let repo = core::find_repo(&design).unwrap();
-    let cfg = repo.join(".rst");
+    let cfg = repo.join(".art");
     let project = core::load_path(&cfg).unwrap();
     let req_bounds = ArtNameRc::from_str("REQ-bounds").unwrap();
     assert!(project.artifacts.contains_key(&req_bounds));

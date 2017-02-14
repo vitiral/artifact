@@ -1,4 +1,4 @@
-/*  rst: the requirements tracking tool made for developers
+/*  artifact: the requirements tracking tool made for developers
  * Copyright (C) 2016  Garrett Berg <@vitiral, vitiral@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify

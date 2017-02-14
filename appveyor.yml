@@ -2,7 +2,7 @@ environment:
   global:
     # This will be used as part of the zipfile name
     # DONE change the project name
-    PROJECT_NAME: rst
+    PROJECT_NAME: artifact
   # DONE feel free to delete targets/channels you don't need
   matrix:
     # Stable channel
@@ -41,7 +41,7 @@ before_deploy:
   - cargo build --release --features "web"
   - mkdir staging
   # DONE update this part to copy the artifacts that make sense for your project
-  - copy target\release\rst.exe staging
+  - copy target\release\art.exe staging
   - cd staging
     # release zipfile will look like 'rust-everywhere-v1.2.3-x86_64-pc-windows-msvc'
   - 7z a ../%PROJECT_NAME%-%APPVEYOR_REPO_TAG_NAME%-%TARGET%.zip *

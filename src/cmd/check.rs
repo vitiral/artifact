@@ -1,4 +1,4 @@
-/*  rst: the requirements tracking tool made for developers
+/*  artifact: the requirements tracking tool made for developers
  * Copyright (C) 2016  Garrett Berg <@vitiral, vitiral@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -226,7 +226,7 @@ pub fn run_cmd<W: Write>(w: &mut W, cwd: &Path, project: &Project) -> Result<()>
 
     if error == 0 {
         let mut msg = String::new();
-        write!(msg, "rst check: no errors found in {}\n", cwd.display()).unwrap();
+        write!(msg, "art check: no errors found in {}\n", cwd.display()).unwrap();
         if settings.color {
             write!(w, "{}", Green.paint(msg)).unwrap();
         } else {

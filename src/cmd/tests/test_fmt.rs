@@ -13,7 +13,7 @@ fn test_fmt_security() {
     // make sure that we can't load invalid stuff
     let mut w: Vec<u8> = Vec::new();
     let repo = core::tests::TINVALID_BOUNDS.join("repo");
-    let cfg = repo.join(".rst");
+    let cfg = repo.join(".art");
     let project = core::load_path(&cfg).unwrap();
     let c = cmd::fmt::Cmd::Write;
     match cmd::fmt::run_cmd(&mut w, &repo, &project, &c) {

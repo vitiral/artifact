@@ -46,7 +46,7 @@ code_paths = ['{cwd}/src', '{repo}/src2']
 text = 'bar'
 ";
 
-// valid rst file
+// valid artifact file
 pub static TOML_RST: &'static str = "
 [settings]
 artifact_paths = ['{cwd}/data/empty']

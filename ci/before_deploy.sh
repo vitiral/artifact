@@ -16,7 +16,7 @@ mk_tarball() {
 
     # DONE update this part to copy the artifacts that make sense for your project
     # NOTE All Cargo build artifacts will be under the 'target/$TARGET/{debug,release}'
-    cp target/$TARGET/release/rst $td
+    cp target/$TARGET/release/art $td
 
     pushd $td
 
@@ -35,7 +35,7 @@ mk_tarball() {
 # fully conform to Debian packaging guideliens (`lintian` raises a few warnings/errors)
 mk_deb() {
     # DONE update this part to package the artifacts that make sense for your project
-    dobin target/$TARGET/release/rst
+    dobin target/$TARGET/release/art
 }
 
 main() {

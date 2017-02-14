@@ -1,4 +1,4 @@
-/*  rst: the requirements tracking tool made for developers
+/*  artifact: the requirements tracking tool made for developers
  * Copyright (C) 2016  Garrett Berg <@vitiral, vitiral@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -57,7 +57,7 @@ pub fn find_repo(dir: &Path) -> Option<PathBuf> {
                 let p = e.path();
                 let fname = p.file_name().unwrap().to_str().unwrap();
                 // trace!("fname: {:?}", fname);
-                fname == ".rst" && p.is_dir()
+                fname == ".art" && p.is_dir()
             }
         }
     }
@@ -144,9 +144,9 @@ pub fn relative_path(path: &Path, relative_to_dir: &Path) -> PathBuf {
 /// other servers or whatever they made this for
 ///
 /// What should be:
-///         C:\projects\rst
+///         C:\projects\artifact
 /// Is instead:
-///     \\?\C:\projects\rst
+///     \\?\C:\projects\artifact
 ///
 /// wut??? I get that they are "speeding up file access"
 /// and all... but is this REALLY necessary?

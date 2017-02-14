@@ -1,4 +1,4 @@
-/*  rst: the requirements tracking tool made for developers
+/*  artifact: the requirements tracking tool made for developers
  * Copyright (C) 2016  Garrett Berg <@vitiral, vitiral@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -14,13 +14,13 @@
  * You should have received a copy of the Lesser GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-extern crate rst_app;
+extern crate artifact_app;
 extern crate error_chain;
 use std::io;
 use std::env;
 use std::process;
 
-use rst_app::cmd;
+use artifact_app::cmd;
 fn main() {
     let rc = match cmd::cmd(&mut io::stdout(), env::args()) {
         Err(e) => {

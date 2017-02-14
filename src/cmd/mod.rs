@@ -1,4 +1,4 @@
-/*  rst: the requirements tracking tool made for developers
+/*  artifact: the requirements tracking tool made for developers
  * Copyright (C) 2016  Garrett Berg <@vitiral, vitiral@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -18,7 +18,7 @@
 //! command line
 //!
 //! this module contains trait implementations and other sugar
-//! to help with displaying rst artifacts on the cmd line
+//! to help with displaying artifact artifacts on the cmd line
 //! as well as functions which map easily to cmdline methods
 //! that the user may want to execute
 
@@ -117,11 +117,11 @@ pub fn cmd<W, I, T>(w: &mut W, args: I) -> Result<()>
     let repo = match core::find_repo(&work_tree) {
         Some(r) => r,
         None => {
-            println!("Could not find .rst folder. Try running `rst init -t`");
+            println!("Could not find .art folder. Try running `art init -t`");
             return Err(ErrorKind::CmdError("TODO".to_string()).into());
         }
     };
-    let cfg = repo.join(".rst");
+    let cfg = repo.join(".art");
     debug!("using cfg dir {:?}", cfg);
 
     let project = match core::load_path(&cfg) {
@@ -155,7 +155,7 @@ pub fn cmd<W, I, T>(w: &mut W, args: I) -> Result<()>
     } else {
         write!(w,
                "{} {}: use -h to show help",
-               Green.bold().paint("rst"),
+               Green.bold().paint("artifact"),
                Green.paint(VERSION))
             .unwrap();
         return Ok(());

@@ -1,5 +1,5 @@
 [root]
-name = "rst_app"
+name = "artifact-app"
 version = "0.4.5"
 dependencies = [
  "ansi_term 0.7.5 (registry+https://github.com/rust-lang/crates.io-index)",

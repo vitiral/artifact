@@ -1,7 +1,7 @@
 [REQ-ls]
 partof = "REQ-[2-ui-link, cmd]"
 text = '''
-The `rst ls` command grouping **will** be used to display information
+The `art ls` command grouping **will** be used to display information
 about the artifacts in various specified formats.
 
 `ls` is the primary window into a user's artifacts, creating a simple
@@ -14,7 +14,7 @@ grep as it can be.
 [REQ-ls-color]
 text = '''
 In order to make viewing of information via cmdline easier,
-rst **shall** colorize it's output to make it clear which items
+artifact **shall** colorize it's output to make it clear which items
 are done or not done or in error.
 
 The following **will** be followed:
@@ -29,7 +29,7 @@ The following **will** be followed:
 
 [SPC-ls-args]
 text = '''
-`rst ls` with no commands given will simply print all artifacts with standard
+`art ls` with no commands given will simply print all artifacts with standard
 settings in a single line of information.
 
 The args are as follows:
@@ -89,7 +89,7 @@ a regexp pattern instead of as artifact names
 If a value follows p, it will specify the fields to filter in that map with
 REQ-ls-display (with the addition of `N` for name)
 
-So: `rst ls -p "REQ-ui-cmdline.*" -NO` would filter by name and partof
+So: `art ls -p "REQ-ui-cmdline.*" -NO` would filter by name and partof
 '''
 
 [SPC-ls-search]

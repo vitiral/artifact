@@ -10,7 +10,7 @@ nightly = "CARGO_TARGET_DIR=$TG/nightly CARGO_INCREMENTAL=1 rustup run nightly"
 # build commands
 build: # build app with web=false
 	cargo build
-	echo "built binary to: target/stable/debug/rst"
+	echo "built binary to: target/stable/debug/art"
 
 build-elm: # build just elm (not rust)
 	(cd web-ui; npm run build)
@@ -52,7 +52,7 @@ api: # run the api server (without the web-ui)
 frontend: build-elm  # run the full frontend
 	cargo run --features "web" -- -v server
 
-self-check: # build self and run `rst check` using own binary
+self-check: # build self and run `art check` using own binary
 	cargo run -- check
 
 ##################################################
@@ -68,10 +68,10 @@ fmt: clean
 check-fmt: clean
 	cargo fmt -- --write-mode=diff
 
-check-rst: clean
-	rst check
+check-art: clean
+	art check
 
-check: check-rst check-fmt
+check: check-art check-fmt
 
 git-verify: # make sure git is clean and on master
 	git branch | grep '* master'

@@ -1,11 +1,11 @@
-# Welcome to the rst tutorial! This file is written just like
-# rst toml files are.
+# Welcome to the artifact tutorial! This file is written just like
+# artifact toml files are.
 #
 # You can get to this stage in the tutorial at any time by running:
 #
-#     rst tutorial
+#     artifact tutorial
 #
-# rst is a command line, text based tool for requirements tracking.
+# artifact is a command line, text based tool for requirements tracking.
 # It aims to be easy to use by anybody and especially productive
 # for developers
 #
@@ -15,11 +15,11 @@
 # Before we continue too far, why don't you try a command? Type
 # the following command:
 #
-#     rst ls REQ-learn-rst -l
+#     art ls REQ-learn-artifact -l
 #
 # You should see a colorized artifact (unless you are on windows, in which case
 # there won't be color). If you do, good. If you are having problems try going 
-# back to the installation tutorial at github.com/vitiral/rst
+# back to the installation tutorial at github.com/vitiral/artifact
 
 ##################################################
 # Defining requirements
@@ -27,16 +27,16 @@
 # This is how you define a requirement
 [REQ-toml]
 text = '''
-rst files like this one are written in the TOML format
+artifact files like this one are written in the TOML format
 you can read more about it here: https://github.com/toml-lang/toml
 
-All rst files must end in ".toml"
+All artifact files must end in ".toml"
 
 Artifact names must be composed of the set "a-zA-Z_-" and spaces
 and case are ignored. The `.` character is not allowed.
 '''
 
-[REQ-learn-rst]
+[REQ-learn-artifact]
 text = '''
 Artifacts are defined by specifying their name like so: "[REQ-NAME]"
 
@@ -46,7 +46,7 @@ risk (RSK) or test (TST)
 This particular artifact is a requirement, therefore it begins with
 "REQ". After REQ there is a "-" and then the name of the requirement.
 
-Unlike many requirements tracking tools, rst encourages the use
+Unlike many requirements tracking tools, artifact encourages the use
 of human-readable names. We will talk more about this later.
 '''
 
@@ -65,14 +65,14 @@ There are also tests (TST) and risks (RSK) which we will learn about later.
 text = "see the next artifact"
 
 [SPC-learn-partof]
-partof = "REQ-learn-rst"
+partof = "REQ-learn-artifact"
 text = '''
-rst uses the names of artifacts to automatically link them and track progress.
-This makes it easy for the user to intuitively link together requirements with
-their specification and reduces boilerplate.
+artifact uses the names of artifacts to automatically link them and track 
+progress. This makes it easy for the user to intuitively link together 
+requirements with their specification and reduces boilerplate.
 
-REQ-learn-rst is explicitly a "partof" this artifact because it is specified
-explicitly.
+REQ-learn-artifact is explicitly a "partof" this artifact because it is 
+specified explicitly.
 
 REQ-learn-partof is automatically a "partof" this artifact because the names
 after the type are the same ("learn-partof")
@@ -89,7 +89,7 @@ So far we have:
            /
 REQ <-- REQ-LEARN <-- REQ-learn-partof <-- SPC-learn-partof
            ^                                  |
-           \-------- REQ-learn-rst <----------/
+           \-------- REQ-learn-artifact <----------/
 
   * items in ALL CAPS were created automatically
 ```
@@ -165,17 +165,17 @@ considered "tested".
 
 [SPC-learn-ls]
 text = '''
-The `ls` command is the most important command to learn in rst, as it helps
+The `ls` command is the most important command to learn in artifact, as it helps
 you manage the artifacts in your project, see how they are linked, and view how
 completed/tested they are.
 
 Type:
-    rst ls SPC-learn-ls -l
+    art ls SPC-learn-ls -l
 
 This will show you this artifact, pretty printed on your terminal.
 
 Try:
-    rst ls learn -p
+    art ls learn -p
 
 This searches in the "Name" field for all artifacts that have "learn"
 in their name.
@@ -183,7 +183,7 @@ in their name.
 Let's say you wanted to find an artifact, and all you knew was that it mentioned
 files in it's text field. You could run:
 
-    rst ls file -p T -T
+    art ls file -p T -T
 
 This will search for the pattern "file" in the text field (`-p T`). It will also
 display a short piece of the text field (`-T`)
@@ -191,7 +191,7 @@ display a short piece of the text field (`-T`)
 Now let's say that You see that SPC-learn-valid is what you were looking for,
 but you want an expanded view:
 
-   rst ls SPC-learn-valid -l
+   art ls SPC-learn-valid -l
 
 Now you see that SPC-learn-valid has not been tested or implemented and that it
 is partof SPC-LEARN. From there you could decide what to do.
@@ -200,7 +200,7 @@ is partof SPC-LEARN. From there you could decide what to do.
 ##################################################
 # That is the end part 1 of the tutorial. Run the following
 # for part 2
-#     rst tutorial 2
+#     artifact tutorial 2
 #
 # To view on the web go to:
-# https://github.com/vitiral/rst/blob/master/src/cmd/data/tutorial.md
+# https://github.com/vitiral/artifact/blob/master/src/cmd/data/tutorial.md

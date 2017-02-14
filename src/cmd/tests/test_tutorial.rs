@@ -12,7 +12,7 @@ lazy_static! {
 #[test]
 /// just test some assumptions, like that the different "levels"
 /// of files aren't equal and that toml files can be loaded
-/// by rst
+/// by artifact
 fn test_basic() {
     assert_ne!(tut::D_SETTINGS_1_TOML, tut::D_SETTINGS_2_TOML);
     assert_ne!(tut::D_SETTINGS_1_TOML, tut::D_SETTINGS_4_TOML);

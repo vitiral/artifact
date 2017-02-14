@@ -3,7 +3,7 @@
 //! folder src/display.rs
 //!
 //! This file is therefore Licensed under the MIT
-//! License, not the license of rst
+//! License, not the license of artifact
 //!
 //! MIT License
 //! Copyright (c) 2016 Garrett Berg
@@ -48,7 +48,7 @@ impl<'a, 'b> PrettyPrinter<'a, 'b> {
                 Value::Table(..) => continue,
                 Value::Array(ref a) => {
                     if let Some(&Value::Table(..)) = a.first() {
-                        // not supported in rst
+                        // not supported in artifact
                         panic!("attempting to serialize an array of tables!")
                     }
                 }

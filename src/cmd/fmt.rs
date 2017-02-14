@@ -1,4 +1,4 @@
-/*  rst: the requirements tracking tool made for developers
+/*  artifact: the requirements tracking tool made for developers
  * Copyright (C) 2016  Garrett Berg <@vitiral, vitiral@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -34,8 +34,8 @@ pub fn get_subcommand<'a, 'b>() -> App<'a, 'b> {
              .help("print out the diff stdout and exit"))
         .arg(Arg::with_name("write")
              .short("w")
-             .help("If a file's formatting is different from rst fmt,
-                    overwrite it with rst fmt's vesion"))
+             .help("If a file's formatting is different from art fmt,
+                    overwrite it with art fmt's vesion"))
         .settings(&[AS::DeriveDisplayOrder, COLOR])
 }
 
@@ -123,8 +123,8 @@ pub fn run_cmd(w: &mut Write, repo: &Path, project: &Project, cmd: &Cmd) -> Resu
                 error!("we tried formatting your project but something went
                         wrong and it has changed. We are very sorry :( :( \n
                         Please investigate and open a ticket, then you can
-                        hopefully revert your design and .rst folders back using
-                        `git checkout .rst design`");
+                        hopefully revert your design and .art folders back using
+                        `git checkout .art design`");
                 Err(err)
             } else {
                 info!("fmt was successful");

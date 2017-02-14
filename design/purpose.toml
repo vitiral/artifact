@@ -1,5 +1,5 @@
 [REQ-0]
-text = "definitions and process for the rst project"
+text = "definitions and process for the artifact project"
 
 [REQ-0-assertions]
 text = '''
@@ -15,7 +15,7 @@ Assertions **will** be used throughout the artifacts to mean:
 
 [REQ-0-format]
 text = '''
-**rst** **will** use a simple text format for the user to write artifacts in
+**artifact** **will** use a simple text format for the user to write artifacts in
 '''
 
 [REQ-0-language]
@@ -28,7 +28,7 @@ In this project, the following conventions shall apply for artifact names:
      as completed, as they are simply documenting the process of artifacts.
  - `ART-1-*` denotes purpose REQs, which detail at the highest level why
      this project exists
- - `ART-2-*` denotes high level design of all artifacts (req, spc, rst and tst)
+ - `ART-2-*` denotes high level design of all artifacts (req, spc, artifact and tst)
  - further prefixes **will not** be used, and are reserved for further breakdowns
  - any other prefix denotes detailed design. For instance, REQ-0-load details what is necessary in
      loading artifacts at a very high level, wheras REQ-load details it at a lower level
@@ -77,12 +77,12 @@ determine the weight to assign to the risk.
 [REQ-1]
 text = '''
 purpose requirements. For an easy-to-read purpose statement see:
-[README.md](https://github.com/vitiral/rst/blob/master/README.md)
+[README.md](https://github.com/vitiral/artifact/blob/master/README.md)
 '''
 
 [REQ-1-artifact]
 text = '''
-rst **will** support 4 types of artifacts that can be tracked
+artifact **will** support 4 types of artifacts that can be tracked
 - REQ: software requirement
 - RSK: risks related to requirements
 - SPC: software design specificaion based on one or more requirements
@@ -109,8 +109,8 @@ the purposes defined in REQ-purpose.
 [REQ-1-cmd]
 partof = "REQ-1-ui"
 text = '''
-rst's primarily purpose **should** be to support text based and cmdline
-workflows. rst **will** provide a cmd line utilitie to use rst features,
+artifact's primarily purpose **should** be to support text based and cmdline
+workflows. artifact **will** provide a cmd line utilitie to use artifact features,
 view and filter artifacts, etc.
 
 The commands on the cmdline **will** be memonic and borrow from other
@@ -119,13 +119,13 @@ common command line tools like bash, git, etc whenever possible.
 
 [REQ-1-coverage]
 text = '''
-rst **will** provide a simple but useful mechanism for calculating
+artifact **will** provide a simple but useful mechanism for calculating
 and displaying implementation and test coverage / completeness
 '''
 
 [REQ-1-interop]
 text = '''
-rst **will** provide simple methods for other tools to interact with
+artifact **will** provide simple methods for other tools to interact with
 it's data
 '''
 
@@ -145,25 +145,25 @@ It is recognized that there are two main concerns:
 Ease of writing links is considered the most important, as reading
 links can be accomplished automatically through the ui interface.
 
-For this reason, **rst** uses the "partof" nomenclature for linking.
+For this reason, **artifact** uses the "partof" nomenclature for linking.
 This allows the user to think "what requirement does this fulfill"
 or "what requirement is this a risk for" and link things one at a time.
 
-**rst** does not provide the "parts" nomenclature, as having both would
+**artifact** does not provide the "parts" nomenclature, as having both would
 add needless complexity.
 
-In addition, **rst** will try to infer links from the names whenever possible.
+In addition, **artifact** will try to infer links from the names whenever possible.
 '''
 
 [REQ-1-scale]
 text = '''
-rst **will** be able to handle scale from very small projects with a single
+artifact **will** be able to handle scale from very small projects with a single
 design document to enourmous multi-project multi-folder projects.
 '''
 
 [REQ-1-ui]
 text = '''
-rst **will** provide simple methods to interact and view it's data
+artifact **will** provide simple methods to interact and view it's data
 '''
 
 [REQ-1-variables]
@@ -174,20 +174,20 @@ for use in text and paths
 
 [REQ-1-versioning]
 text = '''
-rst **should** never make a breaking change once a version has been
+artifact **should** never make a breaking change once a version has been
 declared stable.
 
-In the event a breaking change is necessary, rst **shall** not make the
+In the event a breaking change is necessary, artifact **shall** not make the
 change until a major version release and shall attempt whatever backwards
 compatibility is possible.
 '''
 
 [REQ-1-tracker]
 text = '''
-rst **shall** have test tracking functionality that will enable projects
+artifact **shall** have test tracking functionality that will enable projects
 and orginizations to track continuously running integration tests.
 
-Unlike the rest of rst, this tool **shall not** store it's results in text,
+Unlike the rest of artifact, this tool **shall not** store it's results in text,
 as that would be a tracking, performance and extendability nightmare.
 Instead it should use a database backend and be run through the `serve`
 subcommand along with the web-ui.
@@ -204,7 +204,7 @@ The data that needs to be stored by the test tracking tool is:
 All of this should be kept in a database (probably PostgreSQL)
 and be easily searchable.
 
-All of the data shall be accessible through rst's json-rpc server
+All of the data shall be accessible through artifact's json-rpc server
 endpoint (the same one that hosts and supports the web-ui).
 
 In addition, a section of the web-ui shall be dedicated to viewing
@@ -216,7 +216,7 @@ data (if it exists). Test results should be easy to filter, graph
 [REQ-1-web]
 partof = "REQ-1-ui"
 text = '''
-rst **shall** provide a web-based frontend who's ui will leverage
+artifact **shall** provide a web-based frontend who's ui will leverage
 web-specific technology
 '''
 
@@ -237,10 +237,10 @@ Possible choices:
  - html/xml/etc: aboslutely not. Needlessly complex.
 
 # Conclusion
-`rst` **shall** use TOML for artifact writing.
+`artifact` **shall** use TOML for artifact writing.
 
 The reasons are:
- - feautres covers all needs for rst
+ - feautres covers all needs for artifact
  - easy to learn
  - easy to read
  - easy to write in
@@ -250,7 +250,7 @@ The reasons are:
 
 [SPC-0-language]
 text = '''
-rst **will** be written entirely in the rust programming language
+artifact **will** be written entirely in the rust programming language
 for the purposes of:
 - cross compilation: rust can be compiled on any platform
 - safety: it is impossible to segfault in rust

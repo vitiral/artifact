@@ -1,4 +1,4 @@
-/*  rst: the requirements tracking tool made for developers
+/*  artifact: the requirements tracking tool made for developers
  * Copyright (C) 2016  Garrett Berg <@vitiral, vitiral@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -27,7 +27,7 @@ exclude_code_paths = []
 # There are two variables that can be used anywhere:
 # - {cwd}: the path to the directory of the file using it
 # - {repo}: the path to the current repository, which is the closest
-#    directory (searching down) that contains a ".rst" folder
+#    directory (searching down) that contains a ".art" folder
 "#;
 
 const PURPOSE_TOML: &'static str = r#"# project purpose and definition documentation
@@ -54,11 +54,11 @@ pub fn run_cmd(path: &Path) -> Result<()> {
             } else {
                 let p = e.path();
                 let fname = p.file_name().unwrap().to_str().unwrap();
-                fname == ".rst"
+                fname == ".art"
             }
         }
     });
-    let repo = path.join(".rst");
+    let repo = path.join(".art");
     let design = path.join("design");
     if !exists {
         fs::create_dir(&repo).chain_err(|| format!("create dir: {}", repo.display()))?;
@@ -73,11 +73,11 @@ pub fn run_cmd(path: &Path) -> Result<()> {
         let mut f =
             fs::File::create(&purpose).chain_err(|| format!("create file: {}", purpose.display()))?;
         f.write_all(PURPOSE_TOML.as_ref()).unwrap();
-        println!("rst initialized at {} with artifacts at {}",
+        println!("art initialized at {} with artifacts at {}",
                  settings.display(),
                  design.display());
     } else {
-        println!("rst already initialized at {}", repo.display());
+        println!("artifact already initialized at {}", repo.display());
     }
     Ok(())
 }

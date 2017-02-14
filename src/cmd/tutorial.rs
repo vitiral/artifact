@@ -1,4 +1,4 @@
-/*  rst: the requirements tracking tool made for developers
+/*  artifact: the requirements tracking tool made for developers
  * Copyright (C) 2016  Garrett Berg <@vitiral, vitiral@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -92,7 +92,7 @@ pub const D_SETTINGS_4_TOML: &'static [u8] = include_bytes!("data/settings-4.tom
 /// partof: #SPC-tutorial
 pub fn run_cmd(cwd: &Path, part: u8) -> Result<()> {
     // let CWD: PathBuf = env::current_dir().unwrap();
-    let RST_DIR: PathBuf = cwd.join(PathBuf::from(".rst"));
+    let RST_DIR: PathBuf = cwd.join(PathBuf::from(".art"));
     let DESIGN_DIR: PathBuf = cwd.join(PathBuf::from("design"));
     let SRC_DIR: PathBuf = cwd.join(PathBuf::from("flash"));
     let TESTS_DIR: PathBuf = SRC_DIR.join(PathBuf::from("tests"));
@@ -161,7 +161,7 @@ pub fn run_cmd(cwd: &Path, part: u8) -> Result<()> {
             .chain_err(|| format!("could not read dir: {}", cwd.display()))?
             .next()
             .is_some() {
-            println!("ERROR: can only start the rst tutorial in an empty directory. \
+            println!("ERROR: can only start the artifact tutorial in an empty directory. \
                       To make an empty directory and change-dir to it, run:\n    \
                       mkdir ~/tryrst; cd ~/tryrst");
             return Ok(());

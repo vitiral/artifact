@@ -18,10 +18,10 @@ The load module **shall** encapsulate:
 [SPC-load]
 partof = "REQ-2-ftype"
 text = '''
-This details the high level loading proceedure of rst and what
+This details the high level loading proceedure of artifact and what
 should be executed in parallel streams
 
-The loading of the project files (.rst toml files) shall occur in 4 stages:
+The loading of the project files (.art toml files) shall occur in 4 stages:
  1. loading and validation of raw data from all settings.load_paths recursively
     This is extremely IO bound and can be parallelized
 
@@ -63,7 +63,7 @@ The first necessary component is a function that can load the raw data from
 all files in a directory recursively. For each dir this should:
 
  1. record itself in the `loaded_dirs` variable, to ensure dirs don't get double loaded
- 2. parse any .rst text files and store any directories
+ 2. parse any .art text files and store any directories
  3. recursively load all of the sub-directories that are not in `loaded_dirs`
 
 In order to accomplish this, a ProjectText object will be used to store
@@ -100,23 +100,23 @@ load the following and make sure values are present and correct:
 
  2. Unreachable should NOT get loaded:
 ```
- /foo/foo.rst
- /foo/bar/baz/unreachable.rst
+ /foo/foo.art
+ /foo/bar/baz/unreachable.art
 ```
 
  3. All three files should be loaded:
 ```
-/foo/foo.rst
-/foo/bar/bar.rst
-/foo/bar/baz/baz.rst
+/foo/foo.art
+/foo/bar/bar.art
+/foo/bar/baz/baz.art
 ```
 '''
 
 [TST-load-loop]
 partof = "RSK-2-load-loop"
 text = '''
-have a paths-file and unreachable .rst files. Have the file point to the unreachable
-.rst file's directory and validate that they are loaded correctly.
+have a paths-file and unreachable .art files. Have the file point to the unreachable
+.art file's directory and validate that they are loaded correctly.
 
 Also have the file point **back** to the original file, to test for infinite loop
 '''

@@ -2,9 +2,9 @@
 partof = "REQ-2-web"
 text = '''
 Requirements of web page:
- - backend and webpage shall be packaged in rst itself (no external dependencies)
+ - backend and webpage shall be packaged in artifact itself (no external dependencies)
  - webpage will be fast and performant
- - webpage shall provide first-order validation, similar to rst's first checks
+ - webpage shall provide first-order validation, similar to artifact's first checks
  - editing shall utilize the same workflow as is used when editing text
  - there shall be an option to disable editing (read-only)
  - webpage shall be able to view test execution data
@@ -20,7 +20,7 @@ the expreience on the cmdline, leveraging benefits that the web provides
 text = '''
 The web design shall be split into two parts:
 - front end written in elm-lang as a single-page application
-- back end just extends the rst code with a RESTful API, allowing
+- back end just extends the artifact code with a RESTful API, allowing
     the user to view/add/modify/delete artifacts through simple
     API calls
 '''
@@ -28,7 +28,7 @@ The web design shall be split into two parts:
 [SPC-web-user]
 text = '''
 There were two possible options when considering user functionality.
-Because the "Local Server App" is more inline with rst's requirements
+Because the "Local Server App" is more inline with artifact's requirements
 and workflow, it is the direction we are going.
 
 # Traditional Web Edit App
@@ -55,11 +55,11 @@ organization is expecting
 
 ## Disadvantages
 Although it seems simpler at first (mostly because it is known), it is NOT
-simple to integrate it with the text-based nature of rst that expects
+simple to integrate it with the text-based nature of artifact that expects
 revision control be be completely handled by the user (an advantage of being
 text based).
 
-rst is intended to allow separate teams to work on their own subset of
+artifact is intended to allow separate teams to work on their own subset of
 requirements and only merge with the larger org when they are done. This is
 almost impossible with a traditional web-server approach.
 
@@ -76,7 +76,7 @@ be added).
 The general workflow will be:
 - developer creates a new branch in their revision control to edit
     requirements
-- developer starts server with `rst server IP_ADDR`
+- developer starts server with `art server IP_ADDR`
 - developer and team make edits to the requirements via the web
 - changes are reflected directly in the text
 - developer makes commits (via cmdline) when needed
@@ -86,7 +86,7 @@ The general workflow will be:
 - When done, code gets merged in.
 
 ## Advantages
-- more inline with rst's workflow
+- more inline with artifact's workflow
 - simpler for any developer to run
 - easier to merge changes (changes reflected directly in text)
 

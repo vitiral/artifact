@@ -1,4 +1,4 @@
-/*  rst: the requirements tracking tool made for developers
+/*  artifact: the requirements tracking tool made for developers
  * Copyright (C) 2016  Garrett Berg <@vitiral, vitiral@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -28,11 +28,11 @@ pub fn get_matches<'a, I, T>(args: I) -> ClapResult<ArgMatches<'a>>
     where I: IntoIterator<Item = T>,
           T: Into<OsString> + clone::Clone
 {
-    App::new("rst")
+    App::new("artifact")
         .version(env!("CARGO_PKG_VERSION"))
-        .about("the requirements tracking tool made for developers. Call `rst init -t` for \
+        .about("the requirements tracking tool made for developers. Call `art init -t` for \
                 a tutorial")
-        .author("https://github.com/vitiral/rst")
+        .author("https://github.com/vitiral/artifact")
         .settings(&[AS::SubcommandRequiredElseHelp,
                     AS::VersionlessSubcommands,
                     AS::DeriveDisplayOrder,

@@ -43,7 +43,7 @@ class TestLoadIo(unittest.TestCase):
 
         Note: it's nice to include that a unit test is part of a larger
         test definition. From personal experience, it is not fun to
-        define every possible tiny test as a full rst item -- it clutters
+        define every possible tiny test as a full artifact item -- it clutters
         up your requirements documentation for no reason.
 
         Even still, in code it is good to specify why a test is being

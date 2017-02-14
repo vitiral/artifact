@@ -6,7 +6,7 @@
 # There are two variables that can be used anywhere:
 # - {cwd}: the path to the directory of the file
 # - {repo}: the path to the current repository, which is the closest
-#    directory that contains a ".rst" folder
+#    directory that contains a ".art" folder
 artifact_paths = ['{repo}/design']
 code_paths = []
 exclude_code_paths = []

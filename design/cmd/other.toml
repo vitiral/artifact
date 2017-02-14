@@ -1,7 +1,7 @@
 [REQ-cmd]
 partof = "REQ-2-[ui, ui-[cmd, help]]"
 text = '''
-The rst cmdline interface will provide submodules to meet the requirements
+The artifact cmdline interface will provide submodules to meet the requirements
 defined in REQ-2-ui such as:
 
  - init: initialize the current repository
@@ -13,8 +13,8 @@ defined in REQ-2-ui such as:
 
 [REQ-init]
 text = '''
-`rst init` is the primary first command that will be run by the user when they
-want to create a rst project. It will initialize a `.rst` folder in the cwd
+`art init` is the primary first command that will be run by the user when they
+want to create a artifact project. It will initialize a `.art` folder in the cwd
 (giving an error if the cwd is already initialized) and will give the user basic
 instructions on how to create requirements and where to get more information.
 '''
@@ -22,9 +22,9 @@ instructions on how to create requirements and where to get more information.
 [REQ-tutorial]
 partof = "REQ-[2-ui-tutorial, cmd]"
 text = '''
-There **shall** be a tutorial that helps the user learn about rst.
+There **shall** be a tutorial that helps the user learn about artifact.
 
-The tutorial should be interactive and guide the user first through the basics of rst
+The tutorial should be interactive and guide the user first through the basics of artifact
 and then through recording the requirements and design specifications of a simple
 project.
 '''
@@ -32,21 +32,21 @@ project.
 [SPC-fmt]
 partof = "REQ-cmd"
 text = '''
-`rst fmt` will be the command that is run to format all files in a project
+`art fmt` will be the command that is run to format all files in a project
 to their correct value. This tool **will** be modeled after gofmt's args:
 
 ```
 -d  Do not print reformatted sources to standard output.    
-    If a file's formatting is different than rstfmt's, print diffs 
+    If a file's formatting is different than artfmt's, print diffs 
     to standard output.
 
 -l  Do not print reformatted sources to standard output.
-    If a file's formatting is different from rstfmt's, print its name   
+    If a file's formatting is different from artfmt's, print its name   
     to standard output.
 
 -w  Do not print reformatted sources to standard output.    
-    If a file's formatting is different from rstfmt's, overwrite it with 
-    rstfmt's version.
+    If a file's formatting is different from artfmt's, overwrite it with 
+    artfmt's version.
 
 ```
 
@@ -58,7 +58,7 @@ The diffing functionality will be supported by the crate `difference`
 [SPC-tutorial]
 text = '''
 Key points that should be hit during the tutorial are:
-- how to use `rst` and the `ls` cmd
+- how to use `artifact` and the `ls` cmd
 - basics of setting the paths to load docs
 - creating requirements
 - creating specifications
@@ -82,7 +82,7 @@ points of risk:
 - the command itself shall "check before writing"
 - tests shall apply the changes and then check that data was not lost. 
     If data was lost, it will tell the user
-- the command will be frequently used on the requirements for rst,
+- the command will be frequently used on the requirements for artifact,
     which should help detect failures of the tool
 '''
 

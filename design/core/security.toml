@@ -1,7 +1,7 @@
 [REQ-security]
 text = '''
-With commands such as `rst fmt` and the server being able
-to edit files on someone's local machine, the rst application
+With commands such as `art fmt` and the server being able
+to edit files on someone's local machine, the artifact application
 **shall** impose checks at all vulnerable places to ensure
 that edits will not be made to files that are outside
 the cwd-repo that the user is using.
@@ -14,24 +14,24 @@ There is a *high chance* of a coding error which allows for editing
 outside of the repo directory, which would cause an *avalance risk*
 for security.
 
-In essence, it could compromise all files which rst has access to.
+In essence, it could compromise all files which artifact has access to.
 
 Lowest impact:
 - user loosing design data in .toml files (i.e. missing text field, etc)
 
 Highest impact:
-- user loosing data *outside of the rst repo*
+- user loosing data *outside of the artifact repo*
 - User's computer becomming compromised with malware installed by
-    a mallicious user through rst
+    a mallicious user through artifact
 
 There are two commands which this risk applies to:
-- `rst fmt` which edits user files to format them
-- `rst server` which allows online users to edit user files
+- `art fmt` which edits user files to format them
+- `art server` which allows online users to edit user files
 
-Clearly `rst server` exposes the user to the greatest risk as anyone
-with access to the ip address + port of rst could access their files
+Clearly `art server` exposes the user to the greatest risk as anyone
+with access to the ip address + port of artifact could access their files
 (unless some kind of password authentication is provided), whereas
-rst fmt would have to be created by an error in the application itself
+art fmt would have to be created by an error in the application itself
 (very possible, but less likely).
 '''
 
@@ -57,7 +57,7 @@ compromized)
 
 [SPC-security-pwd]
 text = '''
-if any editing operation is not part of rst (i.e. the web-ui), it
+if any editing operation is not part of artifact (i.e. the web-ui), it
 shall require a valid password to perform any edits.
 '''
 
