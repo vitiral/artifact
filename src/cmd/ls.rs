@@ -69,7 +69,9 @@ pub fn get_subcommand<'a, 'b>() -> App<'a, 'b> {
         .arg(Arg::with_name("plain")
             .long("plain")
             .help("do not display color in the output"))
-
+        .arg(Arg::with_name("type")
+             .long("type")
+             .help("format output as type instead of pprint"))
 }
 
 /// return (lt, percent) returning None when there is no value
