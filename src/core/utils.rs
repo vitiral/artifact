@@ -17,6 +17,12 @@
 
 use strfmt;
 
+use std::path::MAIN_SEPARATOR;
+
+lazy_static! {
+    static ref MAIN_SEPARATOR_STR: String = MAIN_SEPARATOR.to_string();
+}
+
 use dev_prefix::*;
 use super::types::*;
 use itertools::{Itertools, EitherOrBoth as EoB};
@@ -137,6 +143,22 @@ pub fn relative_path(path: &Path, relative_to_dir: &Path) -> PathBuf {
     relative
 }
 
+#[test]
+fn test_relative_path() {
+    assert_eq!(relative_path(&PathBuf::from("/foo/bar/txt.t"),
+                             &PathBuf::from("/foo/bar/")),
+               PathBuf::from("txt.t"));
+    assert_eq!(relative_path(&PathBuf::from("/foo/bar/baz/txt.t"),
+                             &PathBuf::from("/foo/bar/")),
+               PathBuf::from("baz/txt.t"));
+    assert_eq!(relative_path(&PathBuf::from("foo/bar/txt.t"), &PathBuf::from("foo/baz/")),
+               PathBuf::from("../bar/txt.t"));
+    assert_eq!(relative_path(&PathBuf::from("/home/user/projects/what/src/foo/bar.txt"),
+                             &PathBuf::from("/home/user/projects/what/reqs/left/right/a/b/c/")),
+               PathBuf::from("../../../../../../src/foo/bar.txt"));
+}
+
+
 #[cfg(windows)]
 /// windows does terrible things to their path when
 /// you get the absolute path -- make it work to be
@@ -171,17 +193,24 @@ pub fn canonicalize(path: &Path) -> io::Result<PathBuf> {
     fs::canonicalize(path)
 }
 
+/// in windows we need to convert raw path strings
+/// to use the correct separator
+pub fn convert_path_str(path: &str) -> String {
+    path.replace("/", &MAIN_SEPARATOR_STR)
+}
+
 #[test]
-fn test_relative_path() {
-    assert_eq!(relative_path(&PathBuf::from("/foo/bar/txt.t"),
-                             &PathBuf::from("/foo/bar/")),
-               PathBuf::from("txt.t"));
-    assert_eq!(relative_path(&PathBuf::from("/foo/bar/baz/txt.t"),
-                             &PathBuf::from("/foo/bar/")),
-               PathBuf::from("baz/txt.t"));
-    assert_eq!(relative_path(&PathBuf::from("foo/bar/txt.t"), &PathBuf::from("foo/baz/")),
-               PathBuf::from("../bar/txt.t"));
-    assert_eq!(relative_path(&PathBuf::from("/home/user/projects/what/src/foo/bar.txt"),
-                             &PathBuf::from("/home/user/projects/what/reqs/left/right/a/b/c/")),
-               PathBuf::from("../../../../../../src/foo/bar.txt"));
+#[cfg(windows)]
+/// assert that convert works for windows paths
+fn test_convert_windows() {
+    let expected = "this\\is\\a\\windows\\path";
+    assert_eq!(expected, convert_path_str("this/is/a/windows/path"));
+}
+
+#[test]
+#[cfg(not(windows))]
+/// assert that convert does nothing
+fn test_convert_posix() {
+    let expected = "this/is/a/windows/path";
+    assert_eq!(expected, convert_path_str(expected));
 }

@@ -166,7 +166,11 @@ impl Settings {
 
         fn to_paths(paths: &Option<Vec<String>>) -> VecDeque<PathBuf> {
             match *paths {
-                Some(ref p) => p.iter().map(PathBuf::from).collect(),
+                Some(ref p) => {
+                    p.iter()
+                        .map(|p| PathBuf::from(utils::convert_path_str(p)))
+                        .collect()
+                }
                 None => VecDeque::new(),
             }
         }
