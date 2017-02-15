@@ -66,7 +66,10 @@ pub fn cmd<W, I, T>(w: &mut W, args: I) -> Result<()>
         Ok(m) => m,
         Err(e) => {
             match e.kind {
-                ClEk::HelpDisplayed | ClEk::VersionDisplayed => return Ok(()),
+                ClEk::HelpDisplayed | ClEk::VersionDisplayed => {
+                    print!("{}", e);
+                    return Ok(());
+                }
                 _ => return Err(ErrorKind::CmdError(e.to_string()).into()),
             }
         }
