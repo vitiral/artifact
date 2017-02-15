@@ -288,7 +288,7 @@ pub fn run_cmd<W: Write>(w: &mut W,
         // names to use are determined by filtering the regex
         let pat = RegexBuilder::new(search)
             .case_insensitive(true)
-            .compile();
+            .build();
         pat_case = match pat {
             Ok(p) => p,
             Err(e) => {
