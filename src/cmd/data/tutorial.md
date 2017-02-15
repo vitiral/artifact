@@ -76,10 +76,10 @@ see is red.
 
 Now run:
 ```
-    art ls REQ-cmd -l
+    art ls SPC-cmd -l
 ```
 
-This calls to list only one artifact (REQ-cmd), and displays it in the "long"
+This calls to list only one artifact (SPC-cmd), and displays it in the "long"
 format (`-l`)
 
 Try `art ls purpose -p` to search for all items with "purpose" in the
