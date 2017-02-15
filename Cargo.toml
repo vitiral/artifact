@@ -1,60 +1,55 @@
 [package]
-name = "artifact-app"
-version = "0.5.0"
-description = "artifact: the design doc tool made for developers"
-repository = "https://github.com/vitiral/artifact"
-readme = "README.md"
-keywords = ["cmdline", "tool", "requirements", "documentation", "testing"]
 authors = ["Garrett Berg <vitiral@gmail.com>"]
+description = "artifact: the design doc tool made for developers"
+keywords = ["cmdline", "tool", "requirements", "documentation", "testing"]
 license = "LGPL-3.0+"
+name = "artifact-app"
+readme = "README.md"
+repository = "https://github.com/vitiral/artifact"
+version = "0.5.0"
 
-[profile.dev]
-codegen-units = 3 # sets number of threads to compile with
+[dependencies]
+ansi_term = "0.7"
+clap = "2"
+difference = "1.0"
+error-chain = "0.9.0"
+fern = "0.3.5"
+itertools = "0.4.15"
+jsonrpc-core = "4.0"
+lazy_static = "0.1.*"
+log = "0.3.6"
+nickel = "0.9"
+regex = "0.2"
+rustc-serialize = "0.3"
+serde = "0.9"
+serde_derive = "0.9"
+serde_json = "0.9"
+strfmt = "0.1"
+time = "0.1"
+toml = "0.2"
+
+
+[dependencies.dotenv]
+optional = true
+version = "0.8.0"
+
+[dependencies.dotenv_macros]
+optional = true
+version = "0.9.0"
+
+[dependencies.tar]
+optional = true
+version = "0.4"
+
+[dependencies.tempdir]
+optional = true
+version = "0.3"
 
 [features]
 default = []
 web = ["tar", "tempdir"]
-tracker = ["diesel", "diesel_codegen", "dotenv", "dotenv_macros"]
 
-[dependencies]
-# general
-error-chain = "0.9.0"
-itertools = "0.4.15"
-lazy_static = "0.1.*"
-log = "0.3.6"
-fern = "0.3.5"
+[profile]
 
-# core
-regex = "0.2"
-strfmt = "0.1"
-time = "0.1"
-difference = "1.0"
-
-# serialization
-rustc-serialize = "0.3"
-toml = "0.2"  # TODO: migrate to toml 0.3. Requires new formatter features
-serde = "0.9"
-serde_derive = "0.9"
-serde_json = "0.9"
-
-# ui
-ansi_term = "0.7"
-
-# web ui frontend
-nickel = "0.9"
-jsonrpc-core = "4.0"
-tar = { version="0.4", optional = true }
-tempdir = { version="0.3", optional = true }
-
-# test tracking tool
-diesel = { optional = true, version="0.7.0" }
-diesel_codegen = { optional = true, version="0.7.0", default-features = false, features = ["postgres"] }
-dotenv = { optional = true, version="0.8.0" }
-dotenv_macros = { optional = true, version="0.9.0" }
-
-[dependencies.clap]
-version="2"
-default-features = false
-
-# Cherry-pick the features you'd like to use
-features = [ "suggestions", "color" ]
+[profile.dev]
+codegen-units = 3
