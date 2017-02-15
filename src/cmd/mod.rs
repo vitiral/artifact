@@ -27,7 +27,7 @@ use super::init_logger;
 use super::VERSION;
 use core;
 
-use clap::ArgMatches;
+use clap::{ArgMatches, ErrorKind as ClEk};
 use ansi_term::Colour::Green;
 
 mod types;
@@ -65,8 +65,10 @@ pub fn cmd<W, I, T>(w: &mut W, args: I) -> Result<()>
     let matches = match matches::get_matches(args) {
         Ok(m) => m,
         Err(e) => {
-            write!(w, "{}", e).unwrap();
-            return Err(ErrorKind::CmdError(e.to_string()).into());
+            match e.kind {
+                ClEk::HelpDisplayed | ClEk::VersionDisplayed => return Ok(()),
+                _ => return Err(ErrorKind::CmdError(e.to_string()).into()),
+            }
         }
     };
 

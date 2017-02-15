@@ -28,9 +28,11 @@ fn main() {
             let stderr = &mut io::stderr();
             let errmsg = "Error writing to stderr";
 
-            writeln!(stderr, "# error: {}", e).expect(errmsg);
+            writeln!(stderr, "Encountered Error:\n").expect(errmsg);
 
+            let mut was_caused = false;
             for e in e.iter().skip(1) {
+                was_caused = true;
                 writeln!(stderr, "## caused by: {}", e).expect(errmsg);
             }
 
@@ -39,8 +41,10 @@ fn main() {
             if let Some(backtrace) = e.backtrace() {
                 writeln!(stderr, "backtrace: {:?}", backtrace).expect(errmsg);
             }
-
-            println!("ERROR: {}", e);
+            if was_caused {
+                println!("Error was:")
+            }
+            println!("{}", e);
             1
         }
         Ok(()) => 0,

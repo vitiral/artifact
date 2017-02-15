@@ -33,9 +33,10 @@ pub fn get_matches<'a, I, T>(args: I) -> ClapResult<ArgMatches<'a>>
         .about("the requirements tracking tool made for developers. Call `art init -t` for \
                 a tutorial")
         .author("https://github.com/vitiral/artifact")
-        .settings(&[AS::SubcommandRequiredElseHelp,
-                    AS::VersionlessSubcommands,
+        .settings(&[AS::ArgRequiredElseHelp,
                     AS::DeriveDisplayOrder,
+                    AS::SubcommandRequiredElseHelp,
+                    AS::VersionlessSubcommands,
                     COLOR])
         .arg(Arg::with_name("v")
             .short("v")

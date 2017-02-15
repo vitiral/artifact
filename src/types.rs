@@ -73,7 +73,7 @@ error_chain! {
         // Cmd errors
         CmdError(desc: String) {
             description("error while running a command")
-            display("ERROR: {}", desc)
+            display("{}", desc)
         }
 
         // Misc errors
