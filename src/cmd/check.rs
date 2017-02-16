@@ -39,7 +39,7 @@ fn paint_it_bold<W: Write>(w: &mut W, settings: &Settings, msg: &str) {
     }
 }
 
-// check command
+/// #SPC-cmd-check
 #[allow(cyclomatic_complexity)] // TODO: break this up
 pub fn run_cmd<W: Write>(w: &mut W, cwd: &Path, project: &Project) -> Result<()> {
     let artifacts = &project.artifacts;
@@ -47,7 +47,6 @@ pub fn run_cmd<W: Write>(w: &mut W, cwd: &Path, project: &Project) -> Result<()>
 
     let mut error: i32 = 0;
     // display invalid partof names and locations
-    // partof: #SPC-check-load
     let mut invalid_partof = ArtNames::new();
 
     // display artifacts with invalid partof names
@@ -183,7 +182,6 @@ pub fn run_cmd<W: Write>(w: &mut W, cwd: &Path, project: &Project) -> Result<()>
         }
     }
     // find hanging artifacts
-    // partof: #SPC-check-hanging
     fn partof_types(a: &Artifact, types: &HashSet<ArtType>) -> bool {
         for p in &a.partof {
             if types.contains(&p.ty) {

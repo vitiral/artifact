@@ -19,7 +19,6 @@ fn test_find_repo() {
 }
 
 #[test]
-/// #TST-vars-race
 fn test_resolve_vars() {
     // we are getting a race condition with variables where sometimes not all
     // variables are resolving. We need to find it and destroy it.
@@ -65,7 +64,6 @@ $SPC-who
 ";
 
 #[test]
-/// partof: #TST-loc
 fn test_resolve_loc_text() {
     let mut locs: HashMap<ArtName, Loc> = HashMap::new();
     let path = PathBuf::from("hi/there");

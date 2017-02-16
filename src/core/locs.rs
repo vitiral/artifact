@@ -157,7 +157,6 @@ fn find_locs_dir(path: &PathBuf,
 }
 
 /// search through the `code_paths` in settings to find all valid locs
-/// partof: #SPC-loc
 pub fn find_locs(settings: &Settings) -> Result<HashMap<ArtName, Loc>> {
     info!("parsing code files for artifacts...");
     let mut locs: HashMap<ArtName, Loc> = HashMap::new();

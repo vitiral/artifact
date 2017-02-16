@@ -95,7 +95,6 @@ impl ProjectText {
     // - resolving all settings at the end
     /// recursively load the directory into text files, making sure
     /// not to load files that have already been loaded
-    /// see: #SPC-load-dir
     pub fn load(&mut self, load_dir: &Path, loaded_dirs: &mut HashSet<PathBuf>) -> Result<()> {
         loaded_dirs.insert(load_dir.to_path_buf());
         let mut num_loaded: u64 = 0;
@@ -154,7 +153,6 @@ impl Project {
 
 impl Settings {
     /// Load a settings object from a TOML Table
-    /// partof: #SPC-settings-load
     pub fn from_table(tbl: &Table) -> Result<(RawSettings, Settings)> {
         let value = Value::Table(tbl.clone());
         let mut decoder = Decoder::new(value);
@@ -224,8 +222,6 @@ impl Artifact {
     }
 
     /// Create an artifact object from a toml Table
-    /// partof: #SPC-artifact-load
-    /// partof: #SPC-artifact-partof-1
     fn from_table(name: &ArtName, path: &Path, tbl: &Table) -> Result<Artifact> {
         let value = Value::Table(tbl.clone());
         let mut decoder = Decoder::new(value);
@@ -341,7 +337,6 @@ pub fn load_toml(path: &Path, text: &str, project: &mut Project) -> Result<u64> 
 
 /// push settings found (`loaded_settings`) into a main settings object
 /// `repo_map` is a pre-compiled hashset mapping `dirs->repo_path` (for performance)
-/// partof: #SPC-settings-resolve
 pub fn resolve_settings(project: &mut Project) -> Result<()> {
     // now resolve all path names
     let mut vars: HashMap<String, String> = HashMap::new();
@@ -409,7 +404,6 @@ fn extend_settings(full: &mut HashMap<PathBuf, Settings>,
 
 
 /// given a valid path, load all paths given by the settings recursively
-/// partof: #SPC-load-raw
 pub fn load_raw(dir: &Path) -> Result<Project> {
     let mut project = Project::default();
     let mut loaded_dirs: HashSet<PathBuf> = HashSet::new(); // see SPC-load-dir, RSK-2-load-loop

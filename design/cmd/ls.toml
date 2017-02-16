@@ -1,17 +1,32 @@
-[REQ-ls]
-partof = "REQ-[2-ui-link, cmd]"
+[SPC-cmd]
 text = '''
-The `art ls` command grouping **will** be used to display information
-about the artifacts in various specified formats.
+Specifications for the artifact cmdline interface
+'''
+
+[SPC-cmd-ls]
+text = '''
+The `art ls` command shall be used to list information the artifacts in a 
+project.
 
 `ls` is the primary window into a user's artifacts, creating a simple
 interface to glimpse large amounts of information.
 
-the default outputs of `ls` should try to be easy to parse by tools like
-grep as it can be.
+## Arguments
+`art ls` with no commands given will simply print all artifacts with standard
+settings in a single line of information.
+
+The args are as follows:
+ - SEARCH str: positional argument detailing which artifacts to display
+    By default, this will be interpreted as an ArtName group. However, if pattern
+    searching is selected, it will be interpreted as a rust regexp
+ - display: flags that control what information will be displayed
+ - pattern: flag which controls which fields will be searched when
+     regex pattern is selected
+ - completed/tested: flags which control what percentage completed/tested to
+     display
 '''
 
-[REQ-ls-color]
+[SPC-cmd-ls-color]
 text = '''
 In order to make viewing of information via cmdline easier,
 artifact **shall** colorize it's output to make it clear which items
@@ -23,37 +38,6 @@ The following **will** be followed:
 - names that are somewhat complete will be yellow
 - names that are very litle or not complete will be red
 - names that are in ERROR will *blink bold red*
-'''
-
-[SPC-ls]
-
-[SPC-ls-args]
-text = '''
-`art ls` with no commands given will simply print all artifacts with standard
-settings in a single line of information.
-
-The args are as follows:
- - SEARCH str: positional argument detailing which artifacts to display
- - display: flags that control what information will be displayed
- - pattern: flag which controls which fields will be searched when
-     regex pattern is selected
- - completed/tested: flags which control what percentage completed/tested to
-     display
- - recursion: recurse into parts
-'''
-
-[SPC-ls-color]
-text = '''
-The formatting function **shall** apply color if it is selected by
-the settings.
-
-A fairly complex point **shall** be put in use for colorizing the output.
-The goal is to have:
-- 100% tested+completed be *green* across the board
-- otherwise, no *green*. *Blue* is the best you can get
-
-being completed is weighted higher than being tested -- 100% completed should always
-mean that your name is *blue*.
 
 For completed, the levels are: (100%, 70%, 40%, 0%) which correspond to points (3, 2, 1, 0)
 and colors (blue, yellow, yellow, red)
@@ -68,7 +52,7 @@ Add these together and you get the following:
 - 0: name is red
 '''
 
-[SPC-ls-display]
+[SPC-cmd-ls-display]
 text = '''
 The following flags are used to specify what to display:
 - a/A: display all these flags for all artifacts
@@ -81,7 +65,7 @@ of the text
 - L: display the loc path (implementation path)
 '''
 
-[SPC-ls-pattern]
+[SPC-cmd-ls-pattern]
 text = '''
 the `-p` flag will signify that the SEARCH argument should be interpreted as
 a regexp pattern instead of as artifact names
@@ -92,26 +76,11 @@ REQ-ls-display (with the addition of `N` for name)
 So: `art ls -p "REQ-ui-cmdline.*" -NO` would filter by name and partof
 '''
 
-[SPC-ls-search]
-partof = "REQ-2-ui-filtering"
+[TST-cmd-ls]
+partof = "SPC-cmd-ls-[color, display, pattern]"
 text = '''
-The first (and only) argument after `ls` **shall** be the SEARCH field which
-is used to find the artifacts that the user is looking for.
-
-By default, this will be interpreted as an ArtName group. However, if pattern
-searching is selected, it will be interpreted as a perl regexp
+Tests for ls are relatively straightforward and mostly involve:
+- having an example project
+- running the ls command with various different parameters
+- validating the output looks as expected
 '''
-
-[TST-ls-interface]
-partof = "SPC-ls-[args, display, pattern, search]"
-text = "general tests to validate that input args give correct settings"
-
-[TST-ls-out]
-partof = "SPC-ls-[color, search]"
-text = '''
-There **shall** be a test which inputs various settings into ls
-and tests that the output is as expected
-'''
-
-[TST-ls-search]
-text = "validate that the args are interpreted correctly"

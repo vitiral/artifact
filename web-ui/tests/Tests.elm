@@ -1,3 +1,5 @@
+-- #TST-web-unit
+
 module Tests exposing (..)
 
 import Test exposing (..)
@@ -55,7 +57,7 @@ namesValid names =
 all : Test
 all =
   describe "RST test suite"
-    [ describe "#TST-web-json: serialzation -> deserialization of models"
+    [ describe "json: serialzation -> deserialization of models"
       [ test "Addition" <|
         \() ->
           Expect.equal (3 + 7) 10
@@ -66,7 +68,7 @@ all =
         \() ->
           Expect.equal (Decode.decodeString memberDecoder artifactJson) (Ok artifact)
       ]
-    , describe "#TST-web-name: test name validation"
+    , describe "name: test name validation"
       [ test "valid names 1" <|
         \() ->
           Expect.equalLists

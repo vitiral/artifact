@@ -1,15 +1,9 @@
-[REQ-db]
-partof = "REQ-1-tracker"
+[SPC-tracker]
 text = '''
-there **will** be a database which serves as a backend to the
-API server. This database **will** be a relational model (SQL)
-database which will allow the REST API to function and provide
-the data for the web and cmdline ui's to view data.
+TODO: The tracker specification will be defined by the tracker team
 '''
 
-[SPC-db]
-
-[SPC-db-schema]
+[SPC-tracker-schema]
 text = '''
 The data that needs to be stored by the test tracking tool is:
  - test name (i.e. MyTest2)

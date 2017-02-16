@@ -91,7 +91,6 @@ indexNameUnchecked name =
 
 -- get the real name from a raw name
 -- return Err if name is invalid
--- parof: #SPC-web-validation
 indexName : String -> Result String String
 indexName name =
   let

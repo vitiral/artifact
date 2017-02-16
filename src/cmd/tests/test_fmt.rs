@@ -9,7 +9,6 @@ use super::TSIMPLE_DIR;
 
 #[test]
 fn test_fmt_security() {
-    // see: TST-security
     // make sure that we can't load invalid stuff
     let mut w: Vec<u8> = Vec::new();
     let repo = core::tests::TINVALID_BOUNDS.join("repo");
@@ -27,7 +26,7 @@ fn test_fmt_security() {
     }
 }
 
-/// partof: #TST-fmt
+/// partof: #TST-cmd-fmt
 #[test]
 fn test_fmt() {
     let mut w: Vec<u8> = Vec::new();

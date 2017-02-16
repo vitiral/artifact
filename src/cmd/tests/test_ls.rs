@@ -9,7 +9,6 @@ use std::time;
 
 
 #[test]
-/// partof: #TST-ls-interface
 fn test_get_matches() {
     let args = vec!["artifact", "ls", "-l"];
     let matches = get_matches(&args).unwrap();
@@ -34,7 +33,6 @@ fn test_get_matches() {
     assert_eq!(search_set, SearchSettings::new());
 
     // test that pattern works
-    // #TST-ls-search
     let args = vec!["artifact", "ls", "regex", "-p", "TNL"];
     let matches = get_matches(&args).unwrap();
     let (search, _, search_set) = ls::get_cmd(matches.subcommand_matches("ls").unwrap()).unwrap();
@@ -133,7 +131,8 @@ fn repr_bytes(bytes: &[u8]) {
 }
 
 #[test]
-fn test_cmds() {
+/// #TST-cmd-ls
+fn test_cmd_ls() {
     let (mut fmt_set, mut search_set, mut settings) =
         (FmtSettings::default(), SearchSettings::default(), Settings::default());
     let mut artifacts = core::load::load_toml_simple(r"
@@ -209,13 +208,12 @@ partof = 'REQ-dne'
     project.settings = settings;
     project.dne_locs = dne_locs;
 
-    // #TST-check
+    // #TST-cmd-check
     w.clear();
     assert!(check::run_cmd(&mut w, &cwd, &project).is_err());
     debug_bytes(&w, LS_SPC_DNE);
     assert_eq!(vb(LS_SPC_DNE), w);
 
-    // #TST-ls-out
     // do default list, looking for only req-foo
     w.clear();
     ls::run_cmd(&mut w, &cwd, "req-foo", &fmt_set, &search_set, &project).unwrap();

@@ -39,6 +39,7 @@ fn _get_type(value: &str, raw: &str) -> Result<ArtType> {
 
 impl FromStr for ArtName {
     type Err = Error;
+    /// #SPC-partof-load
     fn from_str(s: &str) -> Result<ArtName> {
         let value = s.to_ascii_uppercase().replace(' ', "");
         if !ART_VALID.is_match(&value) {
@@ -171,7 +172,6 @@ impl LoadFromStr for ArtNameRc {
 
 impl LoadFromStr for ArtNames {
     /// Parse a "names str" and convert into a Set of ArtNames
-    /// partof: #SPC-names
     fn from_str(partof_str: &str) -> Result<ArtNames> {
         let strs = try!(parse_names(&mut partof_str.chars(), false));
         let mut out = HashSet::new();
@@ -184,7 +184,6 @@ impl LoadFromStr for ArtNames {
 
 
 /// subfunction to parse names from a names-str recusively
-/// see: REQ-2-names
 pub fn parse_names<I>(raw: &mut I, in_brackets: bool) -> Result<Vec<String>>
     where I: Iterator<Item = char>
 {
@@ -360,7 +359,7 @@ fn do_test_parse_collapse(user: &str, expected_collapsed: &[&str]) {
 }
 
 #[test]
-// partof: #TST-names
+/// #TST-partof-load
 fn test_parse_names() {
     do_test_parse_collapse("hi, ho", &["hi", "ho"]);
     do_test_parse_collapse("hi-[he, ho]", &["hi-he", "hi-ho"]);

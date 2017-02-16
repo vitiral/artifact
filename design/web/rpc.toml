@@ -1,4 +1,4 @@
-[SPC-web-rpc]
+[SPC-rpc]
 text = '''
 The `artifacts` endpoint shall have the following API.
 
@@ -11,7 +11,10 @@ Note:
 ```
 {{"xErrorMsg1": [InvalidValues1], "xErrorMsg2": [InvalidValues2]"}}
 ```
+'''
 
+[SPC-rpc-artifacts]
+text = '''
 # GetArtifacts
 params:
 - ids: list[int]: ids to get
@@ -61,6 +64,7 @@ error:
 Notes:
 whenever an artifact is changed on the backend, it's id is bumped.
 
+
 # CreateArtifacts
 params:
 - artifacts: list[Artifact]: new artifact objects that have their
@@ -87,7 +91,11 @@ result:
 
 error:
 - xIdsNotFound error if any ids don't exist
+'''
 
+[SPC-rpc-fs]
+text = '''
+filesystem related rpc
 
 # CreateFiles
 params:
@@ -109,4 +117,8 @@ error:
 - xPathOutOfBounds if the path would not be found
     within the `artifact_paths` variable
 
+
+# TODO:
+- DeleteFiles
+- DeleteFolders
 '''

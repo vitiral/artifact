@@ -1,8 +1,8 @@
-[REQ-check]
-partof = "REQ-cmd"
+[SPC-cmd-check]
 text = '''
 The `check` command gives the user information on any errors that exist in
 the project artifacts such as:
+ - errors during loading
  - invalid artifacts in partof
  - extra "locations" provided in the code
  - "hanging" RSK or SPC artifacts which are not partof a REQ
@@ -14,20 +14,10 @@ like a compile checker or linter -- in which "check" makes more sense.
 
 This command is intended to be used along with automated testing before PR, etc are
 merged into a stable branch.
-'''
 
-[SPC-check]
-text = '''
-The design will be as follows:
- - existing functions in `core` will return information if they find it
-    during their execution, which will be displayed
- - analysis will be done on the artifacts to retrieve the remaining information
-'''
+## Hanging Artifacts
 
-[SPC-check-hanging]
-text = '''
-artifacts which are "hanging" if they do not fulfill
-a requirement or test anything. They can be found by asking:
+Hanging artifacts can be found by asking:
  - is the artfact NOT a REQ?
  - is the artifact's parent the root type? (RSK, SPC, TST)
  - is the artifact a TST?
@@ -36,15 +26,7 @@ a requirement or test anything. They can be found by asking:
      - is the artifact NOT a `partof` a REQ?
 '''
 
-[SPC-check-load]
-text = '''
-The errors found during loading shall be displayed. This includes:
- - invalid artifacts in partof fields
- - extra "locations" provided in code
-'''
-
-[TST-check]
-partof = "SPC-check-[hanging, load]"
+[TST-cmd-check]
 text = '''
 simply load up an environment that displays all the errors and validate that
 they are displayed in a reasonable way.

@@ -1,31 +1,4 @@
-[REQ-web]
-partof = "REQ-2-web"
-text = '''
-Requirements of web page:
- - backend and webpage shall be packaged in artifact itself (no external dependencies)
- - webpage will be fast and performant
- - webpage shall provide first-order validation, similar to artifact's first checks
- - editing shall utilize the same workflow as is used when editing text
- - there shall be an option to disable editing (read-only)
- - webpage shall be able to view test execution data
-'''
-
-[REQ-web-user]
-text = '''
-The user experience of the web page **shall** be very similar to
-the expreience on the cmdline, leveraging benefits that the web provides
-'''
-
 [SPC-web]
-text = '''
-The web design shall be split into two parts:
-- front end written in elm-lang as a single-page application
-- back end just extends the artifact code with a RESTful API, allowing
-    the user to view/add/modify/delete artifacts through simple
-    API calls
-'''
-
-[SPC-web-user]
 text = '''
 There were two possible options when considering user functionality.
 Because the "Local Server App" is more inline with artifact's requirements
@@ -63,7 +36,6 @@ artifact is intended to allow separate teams to work on their own subset of
 requirements and only merge with the larger org when they are done. This is
 almost impossible with a traditional web-server approach.
 
-
 # Local Server App
 The local server approach would be to make it ultra-simple to run
 the web-ui using the cmdline tool and all edits would be made directly to the
@@ -95,16 +67,6 @@ The general workflow will be:
 - might not work the way some newcomers expect
 '''
 
-[SPC-web-validation]
-text = '''
-The webpage shall validate the following:
-- invalid names (i.e. doesn't start with REQ/TST/etc or has non-ASCII chars)
-- invalid partof links (i.e. TST -> REQ)
-
-The webpage **shall not** validate the following:
-- recursive references (but will help debug them)
-'''
-
 [SPC-web-view]
 text = '''
 The web interface **shall** be composed of three views:
@@ -117,26 +79,23 @@ The web interface **shall** be composed of three views:
       aspects of the artifact that can be edited
 
 In addition, there shall always be a refresh button and navigation header.
-
-Eventually, there **should** be a single page that can display all these views.
-MVP **shall** be to display them all separately (and separate displays will 
-always be supported)
 '''
 
-[TST-web-json]
-partof = "SPC-web-validation"
+[TST-web]
 text = '''
-There shall be json serialization/deserialization tests.
-These shall use valid/invalid json and expect valid data / error
+web tests are split into unit tests and e2e tests
 '''
 
-[TST-web-msg]
+[TST-web-selenium]
 text = '''
-There shall be tests related to elm Messages and validating
-that the proper model and Cmd are returned
+TODO: create selenium tests
 '''
 
-[TST-web-name]
+[TST-web-unit]
 text = '''
-The function which validates the name shall be tested with several cases
+- test json input/output
+- test validation of
+    - names
+    - partof
+# TODO: more tests
 '''

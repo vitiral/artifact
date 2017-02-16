@@ -187,7 +187,7 @@ pub fn fill_text_fields(artifacts: &mut Artifacts,
 
 /// resolve raw loaded variables, replacing default and user-defined globals
 /// recursively
-/// partof: #SPC-vars
+/// partof: SPC-vars
 pub fn resolve_loaded_vars(variables_map: &HashMap<PathBuf, Variables>,
                            repo_map: &mut HashMap<PathBuf, PathBuf>)
                            -> Result<Variables> {

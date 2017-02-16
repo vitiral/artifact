@@ -1,36 +1,4 @@
-[REQ-cmd]
-partof = "REQ-2-[ui, ui-[cmd, help]]"
-text = '''
-The artifact cmdline interface will provide submodules to meet the requirements
-defined in REQ-2-ui such as:
-
- - init: initialize the current repository
- - tutorial: begin an interactive tutorial for the user
- - ls: show artifacts and their fields
- - check: check the project for errors
- - fmt: format the *.toml files to be correct.
-'''
-
-[REQ-init]
-text = '''
-`art init` is the primary first command that will be run by the user when they
-want to create a artifact project. It will initialize a `.art` folder in the cwd
-(giving an error if the cwd is already initialized) and will give the user basic
-instructions on how to create requirements and where to get more information.
-'''
-
-[REQ-tutorial]
-partof = "REQ-[2-ui-tutorial, cmd]"
-text = '''
-There **shall** be a tutorial that helps the user learn about artifact.
-
-The tutorial should be interactive and guide the user first through the basics of artifact
-and then through recording the requirements and design specifications of a simple
-project.
-'''
-
-[SPC-fmt]
-partof = "REQ-cmd"
+[SPC-cmd-fmt]
 text = '''
 `art fmt` will be the command that is run to format all files in a project
 to their correct value. This tool **will** be modeled after gofmt's args:
@@ -53,10 +21,22 @@ to their correct value. This tool **will** be modeled after gofmt's args:
 The diffing functionality will be supported by the crate `difference`
 '''
 
-[SPC-init]
-
-[SPC-tutorial]
+[SPC-cmd-init]
 text = '''
+`art init` is the primary first command that will be run by the user when they
+want to create a artifact project. It will initialize a `.art` folder in the cwd
+(giving an error if the cwd is already initialized) and will give the user basic
+instructions on how to create requirements and where to get more information.
+'''
+
+[SPC-cmd-tutorial]
+text = '''
+There **shall** be a tutorial that helps the user learn about artifact.
+
+The tutorial should be interactive and guide the user first through the basics of artifact
+and then through recording the requirements and design specifications of a simple
+project.
+
 Key points that should be hit during the tutorial are:
 - how to use `artifact` and the `ls` cmd
 - basics of setting the paths to load docs
@@ -73,7 +53,7 @@ Key points that should be hit during the tutorial are:
 - final words
 '''
 
-[TST-fmt]
+[TST-cmd-fmt]
 partof = "RSK-security"
 text = '''
 There shall be extensive testing around the fmt cmd to cover multiple
@@ -86,9 +66,16 @@ points of risk:
     which should help detect failures of the tool
 '''
 
-[TST-tutorial-line]
-partof = "SPC-tutorial"
+[TST-cmd-other]
+partof = "SPC-cmd-init"
 text = '''
-all lines in the tutorial **shall** be tested to be 80 characters or less.
-This will make the tutorial uniform and easier to read.
+There shall be a unit test to test basic commands:
+- init: just validate that it fails when already initialized and correctly 
+    initializes otherwise
+'''
+
+[TST-cmd-tutorial]
+text = '''
+- validate that all lines in the tutorial are 80 characters or less.
+- validate you can do a run-through
 '''

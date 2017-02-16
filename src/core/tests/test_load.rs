@@ -56,7 +56,6 @@ fn test_get_attr() {
 }
 
 #[test]
-/// partof: #TST-settings-load
 fn test_settings() {
     let tbl_good = parse_text(TOML_GOOD);
     let df_tbl = Table::new();
@@ -110,7 +109,7 @@ fn test_load_toml() {
 
     let path = PathBuf::from("hi/there");
 
-    // #TST-load-toml-invalid
+    // #TST-load-invalid
     assert!(load_toml(&path, TOML_BAD, &mut p).is_err());
     assert!(load_toml(&path, TOML_BAD_JSON, &mut p).is_err());
     assert!(load_toml(&path, TOML_BAD_ATTR1, &mut p).is_err());
@@ -118,7 +117,7 @@ fn test_load_toml() {
     assert!(load_toml(&path, TOML_BAD_NAMES1, &mut p).is_err());
     assert!(load_toml(&path, TOML_BAD_NAMES2, &mut p).is_err());
 
-    // #TST-artifact-load: basic loading unit tests
+    // basic loading unit tests
     let num = load_toml(&path, TOML_RST, &mut p).unwrap();
 
     let locs = HashMap::from_iter(vec![(ArtName::from_str("SPC-foo").unwrap(), Loc::fake()),
@@ -138,7 +137,7 @@ fn test_load_toml() {
     assert!(!p.artifacts.contains_key(&ArtName::from_str("TST-foo-2").unwrap()));
 
     {
-        // #TST-artifact-attrs-defaults
+        // test to make sure default attrs are correct
         let rsk_foo = ArtName::from_str("RSK-foo").unwrap();
         let art = p.artifacts.get(&rsk_foo).unwrap();
         assert_eq!(rsk_foo.ty, ArtType::RSK);
@@ -157,7 +156,6 @@ fn test_load_toml() {
         assert_eq!(art.path, path);
         assert_eq!(art.text.raw, "bar");
 
-        // #TST-artifact-partof-1: test loading of partof
         let expected = ["REQ-Foo", "REQ-Bar-1", "REQ-Bar-2"]
             .iter()
             .map(|n| ArtNameRc::from_str(n).unwrap())
@@ -196,20 +194,21 @@ pub fn load_raw_extra(path: &Path) -> Result<(Artifacts, Settings)> {
 }
 
 #[test]
+/// #TST-artifact
 fn test_load_raw() {
     // init_logger_test();
     info!("running test_load_raw");
-    // partof: #TST-load-dir-invalid
-    // see: invalid.1: load with invalid attribute
+    // see: TST-load-invalid
+    // - load with invalid attribute
     assert!(load_raw_extra(TINVALID_DIR.join(&PathBuf::from("attr")).as_path()).is_err());
-    // see: invalid.2: load two files that have the same key
+    // - load two files that have the same key
     assert!(load_raw_extra(TINVALID_DIR.join(&PathBuf::from("same_names")).as_path()).is_err());
 
     info!("loading only valid now");
     // The TSIMPL_DIR has several tests set up in it, including valid
     // "back references" to make sure that directories don't load multiple
     // times, valid loc, etc.
-    // partof: #TST-load-loop, #TST-load-dir-valid
+    // partof: #TST-load-loop, #TST-load-valid
     let simple = &TSIMPLE_DIR;
     let (artifacts, settings) = load_raw_extra(simple.as_path()).unwrap();
     assert!(artifacts.contains_key(&ArtName::from_str("REQ-purpose").unwrap()));

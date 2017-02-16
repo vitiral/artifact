@@ -21,7 +21,7 @@ use super::display;
 
 /// Get the ls subcommand, which is what creates the command
 /// for the cmdline
-/// partof: #SPC-ls-args, #SPC-ls-display, #SPC-ls-pattern
+/// see: SPC-cmd-ls
 pub fn get_subcommand<'a, 'b>() -> App<'a, 'b> {
     SubCommand::with_name("ls")
         .about("list artifacts according to various parameters")
@@ -221,6 +221,7 @@ pub fn get_cmd(matches: &ArgMatches) -> Result<(String, FmtSettings, SearchSetti
     fmt_set.loc_path = matches.is_present("loc");
     fmt_set.text = matches.is_present("text");
     fmt_set.color = get_color(matches);
+    // #SPC-cmd-ls-display
     if matches.is_present("all") {
         // reverse everything
         fmt_set.path = !fmt_set.path;
@@ -239,7 +240,7 @@ pub fn get_cmd(matches: &ArgMatches) -> Result<(String, FmtSettings, SearchSetti
         fmt_set.text = true;
     }
 
-    // #SPC-ls-search
+    // #SPC-cmd-ls-pattern
     let mut search_set = match (matches.is_present("pattern"), matches.value_of("pattern")) {
         (true, Some(p)) => SearchSettings::from_str(p)?,
         (true, None) => SearchSettings::from_str("N").unwrap(),
@@ -281,6 +282,7 @@ pub fn run_cmd<W: Write>(w: &mut W,
     let mut fmt_set = (*fmt_set).clone();
 
     // load settings from cmdline inputs
+    // #SPC-cmd-ls-color
     settings.color = fmt_set.color;
 
     let pat_case;

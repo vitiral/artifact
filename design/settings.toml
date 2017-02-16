@@ -1,5 +1,0 @@
-[globals]
-cmdline = "{src}/cmdline"
-core = "{src}/core"
-docs = "{repo}/docs"
-src = "{repo}/src"

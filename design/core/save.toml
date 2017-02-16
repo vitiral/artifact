@@ -1,21 +1,25 @@
-[REQ-save]
-partof = "REQ-2-rest"
-text = '''
-There shall be a method for formatting and saving a user's artifact files 
-according to a simple standard. This includes:
- - formatting the `partof` field to be sorted and bracketed
- - formatting all text fields to use the multiline text blocks
-
-The user will use this functionality in:
- - a `fmt` command on the cmd line
- - update functionality on the web api/ui, which will write a formatted
-    file
-'''
-
 [SPC-save]
 text = '''
-There **shall** be a fmt function which formats all files in a project to
-the standard defined in REQ-fmt. This will be called `save_project`
+The save implementation is relatively simple, and will mostly
+use the toml library for accomplishing it's work.
+
+It does, however, place requirements upon other parts of the
+system.
+
+when loading:
+- the location where settings are loaded must be stored
+- artifacts must always keep track of where they were implemented
+ 
+Note that we do NOT need to save the user's raw artifact data
+
+In order to save, several steps must be accomplished:
+- artifacts must be split out into File objects
+    - "parent" artifacts must be ignored
+- their `partof` attributes must have parents removed
+- their `partof` attributes must have auto-links removed
+
+The artifact is then converted to an ArtifactText struct to be
+saved to the file.
 '''
 
 [TST-save]

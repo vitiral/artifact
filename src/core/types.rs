@@ -283,8 +283,7 @@ impl fmt::Display for Loc {
 
 /// Definition of an artifact name, with Traits for hashing,
 /// displaying, etc
-/// partof: #SPC-artifact-name (.1)
-// note: implementation of methods in name.rs
+// note: methods are implemented in name.rs
 #[derive(Clone)]
 pub struct ArtName {
     pub raw: String,
@@ -304,6 +303,7 @@ impl Text {
 /// The Artifact type. This encapsulates
 /// REQ, SPC, RSK, and TST artifacts and
 /// contains space to link them
+/// #SPC-artifact
 #[derive(Clone, Debug, PartialEq)]
 pub struct Artifact {
     // directly loaded types

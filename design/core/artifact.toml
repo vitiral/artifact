@@ -1,119 +1,31 @@
-[REQ-artifact-partof]
-partof = "REQ-[1-linking, 2-artifact-attrs]"
-text = '''
-the `partof` field **shall** be a string specifying which artifacts the artifact item
-is a part of (which artifacts depend on it)
-
-The format for specifying multiple artifacts is in REQ-2-names
-
-default = ""
-'''
-
 [SPC-artifact]
-partof = "REQ-2-artifact"
-text = "definition, creation and loading of Artifact and it's attributes"
-
-[SPC-artifact-load]
 text = '''
-the Artifacts themselves **shall** be processed from a TOML table and converted
-to a struct.
+High level specification for the Artifact type including:
+- struct definition
+- loading
 
-During this process all of it's values **shall** be validated and proper error
-messages **shall** be raised.
+Artifacts shall be specified by users in a toml file loaded into an internal 
+struct using serde.
+
+The artifact struct shall contain all fields that are loaded from the user
+and processed by the application. This includes:
+ - path: file where this artifact is defined
+ - partof: list of artifacts this artifact is a partof
+ - parts: calculated list of artifacts that art parts of this one
+ - text: user input text describing this artifact
+ - loc: location in source code where this artifact is implemented
+ - completed: percent completed
+ - tested: percent tested
+
+name is an attribute because it is used as the key for the Artifacts 
+type.
 '''
 
-[SPC-artifact-name]
+[TST-artifact]
 text = '''
-# parts
-1. `ArtName` struct definition
-2. `::from_str` method with proper error handling
+The artifact type can be tested completely with simple unit tests:
+ - artifact can load with empty (default) values
+ - list of linked artifacts load and link correctly
+ - list of linked artifacts where some are implemented have correct
+    completed/tested values
 '''
-
-[SPC-artifact-partof]
-text = '''
-There are three ways to specify that an artifact is a partof another artifact:
- 1. explicitly through the partof attr
- 2. through postfix-name (different-type)
- 3. through prefix-name (parents)
-
-These three implementations are fairly scattered, so all 3 are linked.
-'''
-
-[SPC-artifact-partof-1]
-text = '''
-if the user specifies that an artifact is a partof another (valid) artifact,
-then it will be
-'''
-
-[SPC-artifact-partof-2]
-text = '''
-artifacts will be linked by their postfix if they are able. However, artifacts
-**will not** be created if they do not exist (like parents, see partof-2)
-
-Also, RSK artifacts will not be auto-linked. This is to avoid confusion when you have
-RSK and SPC with the same postfix
-
-This stage happens after partof-1 but before partof-3. This is important because
-"parents" that are automatically created in stage 3 will not be automatically
-linked in this manner.
-
-# Example
-If you define:
-- `REQ-foo-bar`
-- `RSK-foo-bar`
-- `SPC-foo-bar`
-- `TST-foo-bar`
-
-Then `REQ-foo-bar` will automatically be a partof `SPC-foo-bar`,
-`SPC-foo-bar` will be a partof `TST-foo-bar`. The `RSK` artifacts will be ignored
-'''
-
-[SPC-artifact-partof-3]
-text = '''
-parents of an artifact will be automatically created if they do not exist and then
-linked as partof their children.
-
-# Example
-`REQ-foo-bar` has "child" `REQ-foo`. If `REQ-foo` doesn't exist, it will be
-created as `REQ-FOO` and will be a `partof` `REQ-foo-bar`
-'''
-
-[SPC-names]
-partof = "REQ-2-names, SPC-artifact-name"
-text = '''
-The Artifact names **shall** be processed from plaintext and stored in a structure
-
-multi-name strings **shall** be parsed with a simple linear function pushes
-onto a `String` datatype.
-
-# parts
-1. read one character at a time
-2. validates the character
-3. recurses if a `[]` block is being entered
-
-It will **not** validate that the artifact names are correct -- that is the
-responsibility of `::from_str`.
-'''
-
-[TST-artifact-attrs-defaults]
-partof = "SPC-artifact"
-text = '''
-Various tests for artifact attrs to make sure they work with their defaults
-set and not set
-'''
-
-[TST-artifact-load]
-text = '''
-There **will** be a basic unit test that loads a raw toml file and ensures that
-all the artiacts are loaded as expected
-'''
-
-[TST-artifact-partof-1]
-text = "simply test that the load function correctly loads what is expected"
-
-[TST-artifact-partof-2]
-
-[TST-artifact-partof-3]
-
-[TST-names]
-text = "give valid and invalid inputs and verify results"

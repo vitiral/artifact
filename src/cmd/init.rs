@@ -38,7 +38,7 @@ The purpose of this project is...
 "#;
 
 pub fn get_subcommand<'a, 'b>() -> App<'a, 'b> {
-    // #SPC-init
+    // #SPC-cmd-init
     SubCommand::with_name("init")
         .about("initialize the repository in the cwd")
         .settings(&[AS::DeriveDisplayOrder, COLOR])

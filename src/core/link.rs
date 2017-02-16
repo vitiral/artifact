@@ -67,7 +67,6 @@ pub fn create_parents(artifacts: &mut Artifacts) {
 }
 
 /// traverse all artifacts and link them to their by-name parent
-/// partof: #SPC-artifact-partof-3
 pub fn link_parents(artifacts: &mut Artifacts) {
     for (name, artifact) in artifacts.iter_mut() {
         let parent = match name.parent_rc() {
@@ -79,7 +78,6 @@ pub fn link_parents(artifacts: &mut Artifacts) {
 }
 
 /// traverse all artifacts and link them to their by-name type
-/// partof: #SPC-artifact-partof-2
 pub fn link_named_partofs(artifacts: &mut Artifacts) {
     let artifacts_keys = ArtNames::from_iter(artifacts.keys().cloned());
     for (name, artifact) in artifacts.iter_mut() {

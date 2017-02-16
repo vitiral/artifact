@@ -10,16 +10,8 @@ Assertions **will** be used throughout the artifacts to mean:
     i.e. "The X system will have timing as defined in ICD 1234"
 - should: goals, non-mandatory provisions. Statements using "should"
     **should** be verified if possible, but verification is not mandatory if
-    not possible. Should is a statement of intent
+    not possible. Is a statement of intent.
 '''
-
-[REQ-0-format]
-text = '''
-**artifact** **will** use a simple text format for the user to write artifacts in
-'''
-
-[REQ-0-language]
-text = "a programming language must be chosen to write the project in"
 
 [REQ-0-prefix]
 text = '''
@@ -28,16 +20,13 @@ In this project, the following conventions shall apply for artifact names:
      as completed, as they are simply documenting the process of artifacts.
  - `ART-1-*` denotes purpose REQs, which detail at the highest level why
      this project exists
- - `ART-2-*` denotes high level design of all artifacts (req, spc, artifact and tst)
- - further prefixes **will not** be used, and are reserved for further breakdowns
- - any other prefix denotes detailed design. For instance, REQ-0-load details what is necessary in
-     loading artifacts at a very high level, wheras REQ-load details it at a lower level
 
-Any artifact that is `1` or `2` **will not** be implemented in code (it will only be implemented
-by sub artifacts)
+Any artifact that is `1` will not be implemented in code (it will only be implemented
+by sub artifacts).
 
 The purpose of this prefix is to bring these artifacts to the top when they are listed,
-as well as make a simple and clear distinction between high and low level design
+as well as make a simple and clear distinction between purpose documentation and 
+design/user requirements.
 '''
 
 [REQ-0-risks]
@@ -76,11 +65,51 @@ determine the weight to assign to the risk.
 
 [REQ-1]
 text = '''
-purpose requirements. For an easy-to-read purpose statement see:
-[README.md](https://github.com/vitiral/artifact/blob/master/README.md)
+The purpose of artifact is to provide a simple design documentation tool
+for developers.
+
+This may seem trivial, but it's not. The design doc tool must have *at least*
+the following characteristics:
+- allow simple linking of requirements -> specifications -> tests
+- easily link to source code (through the source documentation) to determine completeness
+- be revision controllable (text based)
+- have a unix-like command line interface for interacting with your design docs
+- have a web-ui to make managers happy
+- provide interop functionality like subcommand and data export for integration with
+    external tools and plugins
+- be scalable to any size of project
+
+This feature set will empower developers to track their own design docs and
+use their design docs to make their code self-documenting.
 '''
 
-[REQ-1-artifact]
+[REQ-1-linking]
+text = '''
+linking should be in an easy to understand format.
+
+linking shall be possible:
+- between artifacts
+- with the location of implementation
+
+It is recognized that there are two main concerns:
+- ease of writing links
+- ease of reading links
+
+Ease of writing links is considered the most important, as reading
+links can be accomplished automatically through the cmdline/web ui interface.
+
+For this reason, artifact uses the "partof" nomenclature for linking.
+This allows the user to think "what requirement does this fulfill"
+or "what requirement is this a risk for".
+
+> by contrast "parts" would require you to go to a *different* artifact
+> in order to link the one you are working on.
+
+In addition, artifact shall infer links from the name of artifacts whenever possible.
+'''
+
+[REQ-artifact]
+partof = "REQ-1"
 text = '''
 artifact **will** support 4 types of artifacts that can be tracked
 - REQ: software requirement
@@ -94,7 +123,7 @@ The valid links **will** look like this:
    ^                |
     \---- RSK <-----/
 
-* SPC and TST can be implemented at a location or a link
+* SPC and TST can be implemented in source code
 ```
 
 In other words, you can design a spec (SPC) based on
@@ -104,92 +133,144 @@ or to a risk (RSK)
 
 The artifacts **will** have simple orthoganl variables that accomplish
 the purposes defined in REQ-purpose.
+
+All artifacts **will** have the following attributes that the user can define:
+- name: the name specified by `[ART-name]` in `REQ-name`
+- text: description of the artifact
+- partof: a string containing artifact names which the artifact is a part of
+
+This is kept *intentionally* minimal so as to reduce the API space for users
+to learn as well as external tools to process.
+
+## Artifact Name
+
+The artifact name should be in a human readable format which allows for simple
+categorization of different features.
+
+In order to accomplish this the name will be of the form:
+`ART-foo-bar-...` where `ART` is one of the types specified in `REQ-artifact`
+and `foo-bar` is an arbitrary category.
+
+Each `-` in an artifact name shall be special -- it will denote categories and
+aid in easily linking artifacts to other artifacts, as defined in `REQ-partof`
 '''
 
-[REQ-1-cmd]
-partof = "REQ-1-ui"
+[REQ-cmd]
+partof = "REQ-1"
 text = '''
-artifact's primarily purpose **should** be to support text based and cmdline
-workflows. artifact **will** provide a cmd line utilitie to use artifact features,
-view and filter artifacts, etc.
+The artifact cmdline interface will provide submodules to meet the requirements
+defined in REQ-2-ui such as:
 
-The commands on the cmdline **will** be memonic and borrow from other
-common command line tools like bash, git, etc whenever possible.
+ - init: initialize the current repository by creating `design/` and 
+    `.art/settings.toml` files
+ - tutorial: begin an interactive tutorial for the user
+ - ls: show artifacts and their fields
+ - check: check the project for errors
+ - fmt: format the *.toml files to be correct.
 '''
 
-[REQ-1-coverage]
+[REQ-partof]
+partof = "REQ-[1-linking, artifact]"
 text = '''
-artifact **will** provide a simple but useful mechanism for calculating
-and displaying implementation and test coverage / completeness
+There are three ways to specify that an artifact is partof another artifact:
+ 1. explicitly through the `partof` attribute
+ 2. through postfix-name (linkable types)
+ 3. through prefix-name (parents)
+
+
+## prefix name (parents)
+parents of an artifact will be automatically created if they do not exist and then
+linked as partof their children.
+
+**Example**:
+
+`REQ-foo-bar` has "child" `REQ-foo`. If `REQ-foo` doesn't exist, it will be
+created as `REQ-FOO` and will be a `partof` `REQ-foo-bar`
+
+## post-fix name (linkable types)
+artifacts will be linked by their postfix if they are able. However, artifacts
+**will not** be created if they do not exist (like parents, see item 3)
+
+Also, RSK artifacts will not be auto-linked. This is to avoid confusion when you have
+RSK and SPC with the same postfix
+
+This stage happens after partof-1 but before partof-3. This is important because
+"parents" that are automatically created in stage 3 will not be automatically
+linked in this manner.
+
+**Example:**
+
+If you define:
+- `REQ-foo-bar`
+- `RSK-foo-bar`
+- `SPC-foo-bar`
+- `TST-foo-bar`
+
+Then `REQ-foo-bar` will automatically be a partof `SPC-foo-bar`,
+`SPC-foo-bar` will be a partof `TST-foo-bar`. The `RSK` artifacts 
+will be ignored (they require explit links).
 '''
 
-[REQ-1-interop]
+[REQ-rpc]
 text = '''
-artifact **will** provide simple methods for other tools to interact with
-it's data
+artifact **will** provide a JSON-RPC API server for other applications to report
+test execution data to it. 
+
+The API server will serve as the backend for both REQ-web and REQ-tracker
+
+For the Web UI the RPC shall have the following endpionts:
+- GetArtifacts
+- UpdateArtifacts
+- CreateArtifacts
+- DeleteArtifacts
+- CreateFiles
+- CreateFolders
 '''
 
-[REQ-1-linking]
-partof = "REQ-1-[artifact, coverage]"
+[REQ-save]
+partof = "REQ-1"
 text = '''
-linking **will** be in an easy to understand format.
+There shall be a method for formatting and saving a user's artifact files 
+according to a simple standard. This includes:
+ - formatting the `partof` field to be sorted and bracketed
+ - formatting all text fields to use the multiline text blocks
 
-linking should be possible:
-- between artifacts
-- with the location of implementation
-
-It is recognized that there are two main concerns:
-- ease of writing links
-- ease of reading links
-
-Ease of writing links is considered the most important, as reading
-links can be accomplished automatically through the ui interface.
-
-For this reason, **artifact** uses the "partof" nomenclature for linking.
-This allows the user to think "what requirement does this fulfill"
-or "what requirement is this a risk for" and link things one at a time.
-
-**artifact** does not provide the "parts" nomenclature, as having both would
-add needless complexity.
-
-In addition, **artifact** will try to infer links from the names whenever possible.
+This will be used by
+ - REQ-cmd in an `fmt` command
+ - REQ-rpc for the `UpdateArtifacts` and `CreateArtifacts` commands
 '''
 
-[REQ-1-scale]
+[REQ-security]
 text = '''
-artifact **will** be able to handle scale from very small projects with a single
-design document to enourmous multi-project multi-folder projects.
+With commands such as `art fmt` and the server being able
+to edit files on someone's local machine, the artifact application
+**shall** impose checks at all vulnerable places to ensure
+that edits will not be made to files that are outside
+the cwd-repo that the user is using.
 '''
 
-[REQ-1-ui]
+[REQ-settings]
+partof = "REQ-1"
 text = '''
-artifact **will** provide simple methods to interact and view it's data
+The definition of an artifact project shall be due to a file existing at
+`.art/settings.toml`. This setings file shall include configuration for
+various project-level features such as:
+
+- `artifact_paths`: where to find artifacts 
+- `code_paths`: where to find code which implements SPC and TST artifacts
+- `exclude_code_paths`: code paths to exclude
+- `sub_projects`: additional artifact projects to load. All sub-projects
+    must be subdirectories of the current project.
 '''
 
-[REQ-1-variables]
+[REQ-tracker]
 text = '''
-there **will** be a method of setting global and local variables
-for use in text and paths
-'''
-
-[REQ-1-versioning]
-text = '''
-artifact **should** never make a breaking change once a version has been
-declared stable.
-
-In the event a breaking change is necessary, artifact **shall** not make the
-change until a major version release and shall attempt whatever backwards
-compatibility is possible.
-'''
-
-[REQ-1-tracker]
-text = '''
-artifact **shall** have test tracking functionality that will enable projects
+artifact shall have test tracking functionality that will enable projects
 and orginizations to track continuously running integration tests.
 
 Unlike the rest of artifact, this tool **shall not** store it's results in text,
 as that would be a tracking, performance and extendability nightmare.
-Instead it should use a database backend and be run through the `serve`
+Instead it shall use a database backend and be run through the `serve`
 subcommand along with the web-ui.
 
 The data that needs to be stored by the test tracking tool is:
@@ -213,11 +294,58 @@ data (if it exists). Test results should be easy to filter, graph
 , compare and generate reports for in the UI.
 '''
 
-[REQ-1-web]
-partof = "REQ-1-ui"
+[REQ-web]
 text = '''
-artifact **shall** provide a web-based frontend who's ui will leverage
-web-specific technology
+artifact **shall** provide a web-based frontend.
+
+The web-ui will have web-specific features such as dynamic search, etc
+but will functionaly work the same way that the cmdline ui works:
+editing artifacts will involve editing files locally.
+
+The overall design is to make it easy for:
+- large teams to *view* artifacts
+- small teams to *edit* artifacts
+
+Once artifacts have been edited, the team should use revision control
+and code review best practices which (hopefully) already exist in
+their organization in order to merge the changes into the central
+repository.
+
+Requirements of web page:
+ - backend and webpage shall be packaged in artifact itself (no external dependencies)
+ - webpage should be fast and performant
+ - webpage shall provide first-order validation, similar to artifact's first checks
+ - editing shall utilize the same workflow as is used when editing text
+ - there shall be an option to disable editing (read-only)
+ - webpage shall be able to view test execution data
+'''
+
+[RSK-security]
+partof = "REQ-security"
+text = '''
+There is a *high chance* of a coding error which allows for editing
+outside of the repo directory, which would cause an *avalance risk*
+for security.
+
+In essence, it could compromise all files which artifact has access to.
+
+Lowest impact:
+- user loosing design data in .toml files (i.e. missing text field, etc)
+
+Highest impact:
+- user loosing data *outside of the artifact repo*
+- User's computer becomming compromised with malware installed by
+    a mallicious user through artifact
+
+There are two commands which this risk applies to:
+- `art fmt` which edits user files to format them
+- `art server` which allows online users to edit user files
+
+Clearly `art server` exposes the user to the greatest risk as anyone
+with access to the ip address + port of artifact could access their files
+(unless some kind of password authentication is provided), whereas
+art fmt would have to be created by an error in the application itself
+(very possible, but less likely).
 '''
 
 [SPC-0-done]
@@ -225,6 +353,7 @@ partof = "REQ-0-[assertions, prefix, risks], SPC-0-[format, language]"
 text = "This document itself meets the requirements of the definitions and process"
 
 [SPC-0-format]
+partof = "REQ-0"
 text = '''
 Possible choices:
  - json: decent but too general for the purpose (nesting is unnecessary)
@@ -249,6 +378,7 @@ The reasons are:
 '''
 
 [SPC-0-language]
+partof = "REQ-0"
 text = '''
 artifact **will** be written entirely in the rust programming language
 for the purposes of:
@@ -261,10 +391,6 @@ for the purposes of:
 - fun: rust is a fun language to write in.
 '''
 
-[SPC-1-versioning]
-
-[TST-0-done]
-partof = "SPC-[0, 0-[format, language]]"
+[TST-0]
+partof = "SPC-0-[done, format, language]"
 text = "no tests necessary on definitions and process"
-
-[TST-1-versioning]

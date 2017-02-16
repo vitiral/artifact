@@ -94,6 +94,7 @@ pub fn process_project(project: &mut Project) -> Result<()> {
 }
 
 /// Load all items from the toml file at path
+/// #SPC-load
 pub fn load_path(path: &Path) -> Result<Project> {
     let start = time::get_time();
     info!("loading path: {}", path.to_string_lossy().as_ref());

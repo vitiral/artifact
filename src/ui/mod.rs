@@ -1,7 +1,4 @@
-
-
 //! This is the cross-ui module
-//! partof: #SPC-ui
 mod types;
 pub mod fmt;
 mod search;

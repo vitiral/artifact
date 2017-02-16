@@ -8,7 +8,7 @@ use super::*; // data directory constants
 use super::super::*;
 
 #[test]
-// partof: #TST-load-simple, #TST-settings-resolve
+// partof: #TST-load-simple
 fn test_load_path() {
     // init_logger_test();
     info!("running test_load_path");

@@ -1,3 +1,5 @@
+//! #TST-cmd-tutorial
+
 use dev_prefix::*;
 use core::prefix::*;
 use core::load;
@@ -40,7 +42,6 @@ fn test_basic() {
 }
 
 #[test]
-// #TST-tutorial-line
 fn test_line_length() {
     let files = vec![("tut_toml", tut::D_TUTORIAL_TOML),
                      ("tut_md", tut::D_TUTORIAL_MD),

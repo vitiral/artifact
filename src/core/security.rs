@@ -5,7 +5,7 @@ use core;
 
 /// validate that all files that could be affected by
 /// the project are within the repo and the `settings.artifact_paths`
-/// partof: #SPC-security-gen
+/// partof: #SPC-security
 pub fn validate(repo: &Path, project: &Project) -> Result<()> {
     let mut files: HashSet<&PathBuf> = HashSet::new();
     files.extend(project.artifacts.values().map(|a| &a.path));

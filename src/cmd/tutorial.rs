@@ -89,7 +89,7 @@ pub const D_SETTINGS_4_TOML: &'static [u8] = include_bytes!("data/settings-4.tom
 
 
 /// run the tutorial
-/// partof: #SPC-tutorial
+/// partof: #SPC-cmd-tutorial
 pub fn run_cmd(cwd: &Path, part: u8) -> Result<()> {
     // let CWD: PathBuf = env::current_dir().unwrap();
     let RST_DIR: PathBuf = cwd.join(PathBuf::from(".art"));

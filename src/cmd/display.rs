@@ -65,7 +65,6 @@ impl FmtArtifact {
         let completed_len = completed_str.len();
         let tested_len = tested_str.len();
         if settings.color {
-            // #SPC-ls-color]
             let (d_sym, d_perc, t_sym, t_perc, name) = if artifact.completed >= 1. &&
                                                           artifact.tested >= 1. {
                 let name = if nfno {

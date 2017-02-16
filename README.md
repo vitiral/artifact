@@ -12,26 +12,31 @@ text format is expected to be stable, but the author reserves the right to chang
 that needs to be changed if it improves usability.
 
 ### Tasks to Reach 1.0
-- []: create document spec for "artifact document" and make CC0
-- [x]: UpdateArtifacts API call
-- []: CreateArtifacts API call
-- []: DeleteArtifacts API call
-- [x]: Web UI View functionality
-- []: Web UI search/filter functionality
-- []: Web UI markdown rendering
-- []: Web UI edit functionality
-- []: Web UI create/delete functionality
-- []: extensive selenium testing of Web UI
-- []: only allow settings in `.art/settings.toml`
-- []: *remove* `globals` setting (text-variables)
-- []: fix any stop-ship bugs
+- [x] design doc review and cleanse
+- [ ] create document spec for "artifact document" and make CC0
+- [x] UpdateArtifacts API call
+- [ ] CreateArtifacts API call
+- [ ] DeleteArtifacts API call
+- [ ] hacky static web-file generation
+- [x] Web UI View functionality
+- [ ] Web UI search/filter functionality
+- [ ] Web UI markdown rendering
+- [ ] Web UI edit functionality
+- [ ] Web UI create/delete functionality
+- [ ] extensive selenium testing of Web UI
+- [ ] only allow settings in `.art/settings.toml`
+- [ ] add setting `additional_repos`
+- [ ] *remove* `globals` setting (text-variables)
+- [ ] fix any stop-ship bugs
 
 #### Future (post 1.0) Improvements
-- []: export to json
-- []: export to markdown
-- []: JSON-RPC API for Test Execution Tracking with DB backend
-- []: cmdline utility for viewing tracked tests
-- []: Web UI for viewing tracked tests
+- [ ] stable static web file generation
+- [ ] cmdline settings (in `settings.toml::cmd`)
+- [ ] export to json
+- [ ] export to markdown
+- [ ] JSON-RPC API for Test Execution Tracking with DB backend
+- [ ] cmdline utility for viewing tracked tests
+- [ ] Web UI for viewing tracked tests
 
 ## Licensing
 The artifact file format (the format of the toml files, artifact name, etc) is

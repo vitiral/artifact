@@ -11,7 +11,6 @@ pub fn fmt_names(names: &[ArtNameRc]) -> String {
 
 /// use several configuration options and pieces of data to represent
 /// how the artifact should be formatted
-/// partof: #SPC-ui-fmt
 pub fn fmt_artifact(name: &ArtNameRc,
                     artifacts: &Artifacts,
                     fmtset: &FmtSettings,

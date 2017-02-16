@@ -23,9 +23,10 @@ lazy_static! {
 }
 
 /// the rpc initializer that implements the API spec
-/// #SPC-web-rpc
 fn init_rpc_handler() -> IoHandler {
     let handler = IoHandler::new();
+
+    // partof: #SPC-rpc-artifacts
     handler.add_method("GetArtifacts", GetArtifacts);
     handler
 }
