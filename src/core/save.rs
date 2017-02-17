@@ -75,10 +75,10 @@ impl ProjectText {
 
             let raw = RawArtifact {
                 partof: partof,
-                text: if artifact.text.raw.is_empty() {
+                text: if artifact.text.is_empty() {
                     None
                 } else {
-                    Some(artifact.text.raw.clone())
+                    Some(artifact.text.clone())
                 },
             };
             tbl.insert(name.raw.clone(), encode(&raw));

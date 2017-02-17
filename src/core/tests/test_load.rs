@@ -141,7 +141,7 @@ fn test_load_toml() {
         let art = p.artifacts.get(&rsk_foo).unwrap();
         assert_eq!(rsk_foo.ty, ArtType::RSK);
         assert_eq!(art.path, path);
-        assert_eq!(art.text.raw, "");
+        assert_eq!(art.text, "");
         let expected: ArtNames = HashSet::new();
         assert_eq!(art.partof, expected);
         assert_eq!(art.loc, None);
@@ -153,7 +153,7 @@ fn test_load_toml() {
         let art = p.artifacts.get(&spc_bar).unwrap();
         assert_eq!(spc_bar.ty, ArtType::SPC);
         assert_eq!(art.path, path);
-        assert_eq!(art.text.raw, "bar");
+        assert_eq!(art.text, "bar");
 
         let expected = ["REQ-Foo", "REQ-Bar-1", "REQ-Bar-2"]
             .iter()
@@ -230,5 +230,5 @@ fn test_load_raw() {
     let lvl1_dir = simple.join(PathBuf::from("lvl_1"));
     let lvl1_dir_str = lvl1_dir.as_path().to_str().unwrap().to_string();
 
-    assert_eq!(spc_lvl1.text.value, "level one does FOO");
+    assert_eq!(spc_lvl1.text, "level one does FOO");
 }

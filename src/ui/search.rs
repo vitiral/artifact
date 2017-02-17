@@ -102,7 +102,7 @@ pub fn show_artifact(name: &ArtName,
          match art.loc.as_ref() {
             None => false,
             Some(l) => pat_case.is_match(l.path.to_string_lossy().as_ref()),
-        }) || (ss.text && pat_case.is_match(&art.text.value))
+        }) || (ss.text && pat_case.is_match(&art.text))
     }
 }
 

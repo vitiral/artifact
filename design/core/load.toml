@@ -63,7 +63,7 @@ ui as missing links or None completion (etc)
 [TST-load-invalid]
 text = '''
 load the following and make sure it results in an error:
- 1. trying to input a json-like table `{{}}`  # TODO: remove {{
+ 1. trying to input a json-like table `{}`
  2. trying to have multiple types in an array `[1, "hello", 3]`
  3. name collisions at the [] level
  4. name collisions at the base level

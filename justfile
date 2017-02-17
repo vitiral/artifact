@@ -49,7 +49,7 @@ test-e2e: # run e2e tests, still in development
 api: # run the api server (without the web-ui)
 	cargo run -- -v server
 
-frontend: build-elm  # run the full frontend
+serve: build-elm  # run the full frontend
 	cargo run --features "web" -- -v server
 
 self-check: # build self and run `art check` using own binary

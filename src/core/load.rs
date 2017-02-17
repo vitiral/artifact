@@ -239,7 +239,7 @@ impl Artifact {
 
         Ok(Artifact {
             path: path.to_path_buf(),
-            text: Text::new(&raw.text.unwrap_or_default()),
+            text: raw.text.unwrap_or_default(),
             partof: try!(ArtNames::from_str(&raw.partof.unwrap_or_default())),
             loc: None,
 

@@ -61,7 +61,7 @@ formColumnTwo model artifact =
       , rows 35, cols 80, readonly model.settings.readonly 
       , id ("text_" ++ artifact.name.value)
       ] 
-      [ text artifact.text.value ]
+      [ text artifact.text ]
     ]
 
 

@@ -40,7 +40,7 @@ pub mod tests;
 pub use core::load::load_toml;
 pub use core::utils::find_repo;
 pub use core::types::{Project, Artifact, Artifacts, ArtType, Loc, ArtName, ArtNameRc, ArtNames,
-                      Settings, LoadFromStr, PARENT_PATH, LocData, Text, ArtifactData};
+                      Settings, LoadFromStr, PARENT_PATH, LocData, ArtifactData};
 
 #[cfg(test)]
 use super::init_logger;

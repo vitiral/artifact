@@ -9,7 +9,7 @@ Note:
 - The `message` for Invalid Request errors is always "xParamError",
     the `data` contains the details:
 ```
-{{"xErrorMsg1": [InvalidValues1], "xErrorMsg2": [InvalidValues2]"}}
+{"xErrorMsg1": [InvalidValues1], "xErrorMsg2": [InvalidValues2]"}
 ```
 '''
 

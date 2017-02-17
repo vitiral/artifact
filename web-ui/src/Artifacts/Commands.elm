@@ -8,7 +8,7 @@ import Messages exposing (AppMsg(..))
 import Models exposing (Model)
 import Artifacts.Messages exposing (..)
 import Artifacts.Models exposing (
-  ArtifactId, Text, Artifact, Loc, ArtifactsResponse, defaultConfig, 
+  ArtifactId, Artifact, Loc, ArtifactsResponse, defaultConfig, 
   Name, initName)
 import JsonRpc exposing (RpcError, formatJsonRpcError)
 
@@ -113,22 +113,12 @@ memberEncoded artifact =
       [ ( "id", Encode.int artifact.id )
       , ( "name", Encode.string artifact.name.raw )
       , ( "path", Encode.string artifact.path )
-      , ( "text", textEncoded artifact.text )
+      , ( "text", Encode.string artifact.text )
       , ( "partof", Encode.list (List.map Encode.string partof) )
       ]
   in
     Encode.object attrs
 
-textEncoded : Text -> Encode.Value
-textEncoded text =
-  let
-    attrs = 
-      [ ( "raw", Encode.string text.raw )
-      , ( "value", Encode.string text.value )
-      ]
-  in
-    Encode.object attrs
-  
 
 -- DECODERS
 
@@ -160,7 +150,7 @@ memberDecoder =
     |> required "id" Decode.int
     |> required "name" nameDecoder
     |> required "path" Decode.string
-    |> required "text" textDecoder
+    |> required "text" Decode.string
     |> required "partof" (Decode.list nameDecoder)
     |> required "parts" (Decode.list nameDecoder)
     |> required "loc" (Decode.nullable locDecoder)
@@ -180,12 +170,6 @@ nameDecoderValue name =
         |> hardcoded name.value
     Err err ->
       Decode.fail err
-
-textDecoder : Decode.Decoder Text
-textDecoder =
-  decode Text
-    |> required "raw" Decode.string
-    |> required "value" Decode.string
 
 locDecoder : Decode.Decoder Loc
 locDecoder =

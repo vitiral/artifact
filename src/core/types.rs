@@ -54,8 +54,6 @@ pub struct Project {
     pub dne_locs: HashMap<ArtName, Loc>,
 
     // preserved locations where each piece is from
-    // note: artifacts have path member
-    //pub origin: PathBuf,
     pub origin: PathBuf,
     pub settings_map: HashMap<PathBuf, Settings>,
     pub raw_settings_map: HashMap<PathBuf, RawSettings>,
@@ -286,15 +284,6 @@ pub struct ArtName {
     pub ty: ArtType,
 }
 
-impl Text {
-    pub fn new(raw: &str) -> Text {
-        Text {
-            raw: raw.to_string(),
-            value: raw.to_string(),
-        }
-    }
-}
-
 /// The Artifact type. This encapsulates
 /// REQ, SPC, RSK, and TST artifacts and
 /// contains space to link them
@@ -303,7 +292,7 @@ impl Text {
 pub struct Artifact {
     // directly loaded types
     pub path: PathBuf,
-    pub text: Text,
+    pub text: String,
     pub partof: ArtNames,
     pub parts: ArtNames,
     pub loc: Option<Loc>,
@@ -394,20 +383,12 @@ pub struct LocData {
     pub col: u64,
 }
 
-/// the Text object contains both the raw and the resolved
-/// text value (after variable resolution)
-#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
-pub struct Text {
-    pub raw: String,
-    pub value: String,
-}
-
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct ArtifactData {
     pub id: u64,
     pub name: String,
     pub path: String,
-    pub text: Text,
+    pub text: String,
     pub partof: Vec<String>,
 
     // // TODO: until I serde gets up to speed, the web-api will

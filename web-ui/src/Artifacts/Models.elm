@@ -21,11 +21,6 @@ type alias Loc =
   , col : Int
   }
 
-type alias Text =
-  { raw: String
-  , value: String
-  }
-
 type alias Name =
   { raw: String
   , value: String
@@ -35,7 +30,7 @@ type alias Artifact =
   { id : ArtifactId
   , name : Name
   , path : String
-  , text : Text
+  , text : String
   , partof : List Name
   , parts : List Name
   , loc : Maybe Loc

@@ -54,7 +54,7 @@ fn test_load_path() {
     let lvl1_dir = simple.join(PathBuf::from("lvl_1"));
     let lvl1_dir_str = lvl1_dir.as_path().to_str().unwrap().to_string();
 
-    assert_eq!(spc_lvl1.text.value, "level one does FOO");
+    assert_eq!(spc_lvl1.text, "level one does FOO");
     assert_eq!(spc_lvl1.loc.as_ref().unwrap().path,
                src_dir.join(PathBuf::from("lvl_1.rs")));
 
