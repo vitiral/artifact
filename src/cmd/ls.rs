@@ -283,7 +283,7 @@ pub fn get_cmd(matches: &ArgMatches) -> Result<Cmd> {
     let ty = match matches.value_of("type").unwrap_or("list") {
         "list" => OutType::List,
         "json" => OutType::Json,
-        t @ _ => {
+        t => {
             let msg = format!("invalid type: {}", t);
             return Err(ErrorKind::CmdError(msg).into());
         }
@@ -383,7 +383,7 @@ pub fn run_cmd<W: Write>(mut w: &mut W, cwd: &Path, cmd: &Cmd, project: &Project
                 .map(|n| artifacts.get(n).unwrap().to_data(n))
                 .collect();
             let value = serde_json::to_value(out_arts).unwrap();
-            w.write(serde_json::to_string(&value).unwrap().as_bytes())?;
+            w.write_all(serde_json::to_string(&value).unwrap().as_bytes())?;
         }
     }
     if !dne.is_empty() {

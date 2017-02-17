@@ -39,9 +39,10 @@ fn parse_new_artifacts(params: Params) -> result::Result<Vec<ArtifactData>, RpcE
 /// artifacts which are changed.
 ///
 /// Also do lots of error checking and validation
+#[allow(useless_let_if_seq)]
 pub fn split_artifacts(project: &Project,
-                       data_artifacts: &Vec<ArtifactData>,
-                       new_artifacts: &Vec<ArtifactData>)
+                       data_artifacts: &[ArtifactData],
+                       new_artifacts: &[ArtifactData])
                        -> result::Result<(HashMap<u64, ArtifactData>, Artifacts), RpcError> {
     let mut unchanged_artifacts: HashMap<u64, ArtifactData> = data_artifacts.iter()
         .map(|a| (a.id, a.clone()))
@@ -63,7 +64,7 @@ pub fn split_artifacts(project: &Project,
         if unchanged_artifacts.remove(&new_artifact.id).is_none() {
             ids_not_found.push(new_artifact.id);
         }
-        let (n, a) = match convert_artifact(&new_artifact) {
+        let (n, a) = match convert_artifact(new_artifact) {
             Ok(v) => v,
             Err(err) => {
                 name_errors.push(err);
@@ -110,9 +111,9 @@ pub fn split_artifacts(project: &Project,
 
 
 /// Update artifacts with new ones
-pub fn update_artifacts(data_artifacts: &Vec<ArtifactData>,
+pub fn update_artifacts(data_artifacts: &[ArtifactData],
                         project: &Project,
-                        new_artifacts: &Vec<ArtifactData>)
+                        new_artifacts: &[ArtifactData])
                         -> result::Result<Project, RpcError> {
 
     let (unchanged_artifacts, mut save_artifacts) =
