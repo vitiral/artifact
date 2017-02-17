@@ -19,11 +19,8 @@
 use dev_prefix::*;
 use std::sync::atomic::{AtomicUsize, Ordering as AtomicOrdering};
 
-pub type Artifacts = HashMap<ArtNameRc, Artifact>;
-pub type ArtNameRc = Arc<ArtName>;
-pub type ArtNames = HashSet<ArtNameRc>;
-pub type Variables = HashMap<String, String>;
-
+pub const REPO_VAR: &'static str = "repo";
+pub const CWD_VAR: &'static str = "cwd";
 
 lazy_static!{
     // must start with artifact type, followed by "-", followed by at least 1 valid character
@@ -33,6 +30,10 @@ lazy_static!{
     pub static ref PARENT_PATH: PathBuf = PathBuf::from("PARENT");
     pub static ref INCREMENTING_ID: AtomicUsize = AtomicUsize::new(0);
 }
+
+pub type Artifacts = HashMap<ArtNameRc, Artifact>;
+pub type ArtNameRc = Arc<ArtName>;
+pub type ArtNames = HashSet<ArtNameRc>;
 
 /// used for artifact ids
 fn get_unique_id() -> usize {
@@ -49,7 +50,6 @@ pub trait LoadFromStr: Sized {
 pub struct Project {
     pub artifacts: Artifacts,
     pub settings: Settings,
-    pub variables: Variables,
     pub files: HashSet<PathBuf>,
     pub dne_locs: HashMap<ArtName, Loc>,
 
@@ -59,7 +59,6 @@ pub struct Project {
     pub origin: PathBuf,
     pub settings_map: HashMap<PathBuf, Settings>,
     pub raw_settings_map: HashMap<PathBuf, RawSettings>,
-    pub variables_map: HashMap<PathBuf, Variables>,
     pub repo_map: HashMap<PathBuf, PathBuf>,
 }
 
@@ -68,14 +67,12 @@ impl Default for Project {
         Project {
             artifacts: Artifacts::default(),
             settings: Settings::default(),
-            variables: Variables::default(),
             files: HashSet::default(),
             dne_locs: HashMap::default(),
 
             origin: PARENT_PATH.to_path_buf(),
             settings_map: HashMap::default(),
             raw_settings_map: HashMap::default(),
-            variables_map: HashMap::default(),
             repo_map: HashMap::default(),
         }
     }
@@ -204,14 +201,12 @@ impl Project {
                     &|a: &Artifact| a.tested)?;
         proj_attr_equal("origin", &self.origin, &other.origin)?;
         proj_attr_equal("settings", &self.settings, &other.settings)?;
-        proj_attr_equal("variables", &self.variables, &other.variables)?;
         proj_attr_equal("files", &self.files, &other.files)?;
         proj_attr_equal("dne_locs", &self.dne_locs, &other.dne_locs)?;
         proj_attr_equal("settings_map", &self.settings_map, &other.settings_map)?;
         proj_attr_equal("raw_settings_map",
                         &self.raw_settings_map,
                         &other.raw_settings_map)?;
-        proj_attr_equal("variables_map", &self.variables_map, &other.variables_map)?;
         proj_attr_equal("repo_map", &self.repo_map, &other.repo_map)?;
         Ok(())
     }

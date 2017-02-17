@@ -7,7 +7,6 @@ use super::*; // data directory constants
 use super::super::init_logger_test;
 use core::types::*;
 use core::load::*;
-use core::vars;
 use core::locs::*;
 
 use strfmt;
@@ -182,14 +181,10 @@ fn test_load_toml() {
     assert!(p.artifacts.contains_key(&ArtName::from_str("TST-foo-2").unwrap()));
 }
 
-/// do the raw load with variable resolultion
+/// just get the artifacts and settings
 pub fn load_raw_extra(path: &Path) -> Result<(Artifacts, Settings)> {
-    let mut project = try!(load_raw(path));
+    let project = try!(load_raw(path));
     assert_eq!(project.origin, path);
-    let variables = try!(vars::resolve_loaded_vars(&project.variables_map, &mut project.repo_map));
-    try!(vars::fill_text_fields(&mut project.artifacts,
-                                &mut project.variables,
-                                &mut project.repo_map));
     Ok((project.artifacts, project.settings))
 }
 

@@ -26,7 +26,7 @@ that needs to be changed if it improves usability.
 - [ ] extensive selenium testing of Web UI
 - [ ] only allow settings in `.art/settings.toml`
 - [ ] add setting `additional_repos`
-- [ ] *remove* `globals` setting (text-variables)
+- [x] *remove* `globals` setting (text-variables)
 - [ ] fix any stop-ship bugs
 
 #### Future (post 1.0) Improvements

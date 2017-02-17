@@ -47,14 +47,6 @@ impl ProjectText {
             let tbl = files.get_mut(path).unwrap();
             tbl.insert("settings".to_string(), encode(raw));
         }
-        for (path, raw) in &project.variables_map {
-            // insert variables (globals)
-            if !files.contains_key(path) {
-                files.insert(path.clone(), Table::new());
-            }
-            let tbl = files.get_mut(path).unwrap();
-            tbl.insert("globals".to_string(), encode(raw));
-        }
         for (name, artifact) in &project.artifacts {
             if artifact.path == PARENT_PATH.as_path() {
                 continue; // auto-create artifacts that are not actually written

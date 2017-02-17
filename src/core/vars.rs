@@ -24,8 +24,6 @@ use super::utils;
 
 use strfmt;
 
-pub const REPO_VAR: &'static str = "repo";
-pub const CWD_VAR: &'static str = "cwd";
 
 lazy_static!{
     pub static ref DEFAULT_GLOBALS: HashSet<String> = HashSet::from_iter(

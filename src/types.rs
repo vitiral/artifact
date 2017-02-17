@@ -46,10 +46,6 @@ error_chain! {
             description("invalid artifact")
             display("artifact {} is invalid: {}", name, desc)
         }
-        InvalidVariable(desc: String) {
-            description("invalid variable")
-            display("invalid variable: {}", desc)
-        }
 
         // Processing errors
         InvalidTextVariables {

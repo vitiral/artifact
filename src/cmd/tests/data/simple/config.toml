@@ -3,12 +3,5 @@
 artifact_paths = ["{repo}/deep/reqs", "{cwd}/deep/spcs"]
 code_paths = ["{repo}/src", "{repo}/lvl_1"]
 
-[globals]
-src = "{repo}/src"
-foo = "FOO"
-lvl_1 = "{repo}/lvl_1"
-lvl_2 = "{lvl_1}/lvl_2"
-extra = "{cwd}/extra"
-
 [REQ-purpose]
 text = "used to test basic functionality"

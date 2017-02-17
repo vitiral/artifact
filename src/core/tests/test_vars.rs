@@ -3,7 +3,6 @@
 use dev_prefix::*;
 use super::*; // data directory constants
 use core::types::*;
-use core::vars::*;
 use core::locs::*;
 use core::utils;
 use super::super::super::init_logger;
@@ -17,42 +16,6 @@ fn test_find_repo() {
                simple.as_path());
     assert!(utils::find_repo(env::temp_dir().as_path()).is_none());
 }
-
-#[test]
-fn test_resolve_vars() {
-    // we are getting a race condition with variables where sometimes not all
-    // variables are resolving. We need to find it and destroy it.
-    let mut loaded_vars: Variables = Variables::new();
-    let mut variables: Variables = Variables::new();
-    let var_paths: HashMap<String, PathBuf> = HashMap::new();
-    let mut repo_map: HashMap<PathBuf, PathBuf> = HashMap::new();
-    let simple = &TSIMPLE_DIR;
-
-    let fpath = simple.join(PathBuf::from("fake.toml"));
-
-    for i in 0..3 {
-        // do it a few times
-        loaded_vars.clear();
-        variables.clear();
-        loaded_vars.insert("foo".to_string(),
-                           PathBuf::from("{repo}").join("FOO").to_string_lossy().to_string());
-        loaded_vars.insert("bar".to_string(),
-                           PathBuf::from("{foo}").join("BAR").to_string_lossy().to_string());
-        loaded_vars.insert("bar-2".to_string(),
-                           PathBuf::from("{bar}").join("BAR2").to_string_lossy().to_string());
-
-        resolve_default_vars(&loaded_vars, fpath.as_path(), &mut variables, &mut repo_map).unwrap();
-        resolve_vars(&mut variables).unwrap();
-        let foo = simple.join("FOO");
-        let bar = foo.join("BAR");
-        let bar2 = bar.join("BAR2");
-
-        assert_eq!(variables.get("foo").unwrap(), foo.to_str().unwrap());
-        assert_eq!(variables.get("bar").unwrap(), bar.to_str().unwrap());
-        assert_eq!(variables.get("bar-2").unwrap(), bar2.to_str().unwrap());
-    }
-}
-
 
 pub const LOC_TEST: &'static str = "\
 $SPC-who

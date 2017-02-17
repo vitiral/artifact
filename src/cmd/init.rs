@@ -21,13 +21,6 @@ const SETTINGS_TOML: &'static str = r#"[settings]
 artifact_paths = ["{repo}/design"]
 code_paths = []
 exclude_code_paths = []
-
-[globals]
-# This is where you define variables
-# There are two variables that can be used anywhere:
-# - {cwd}: the path to the directory of the file using it
-# - {repo}: the path to the current repository, which is the closest
-#    directory (searching down) that contains a ".art" folder
 "#;
 
 const PURPOSE_TOML: &'static str = r#"# project purpose and definition documentation

@@ -4,7 +4,6 @@ use core::prefix::*;
 use super::super::init_logger_test;
 use core::save;
 use core::load;
-use core::vars;
 use core::types;
 use core;
 

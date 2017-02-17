@@ -22,7 +22,6 @@ use toml::{Parser, Value, Table, Decoder};
 
 use dev_prefix::*;
 use super::types::*;
-use super::vars;
 use super::utils;
 
 lazy_static!{
@@ -269,32 +268,6 @@ pub fn load_file_table(file_table: &mut Table, path: &Path, project: &mut Projec
         _ => return Err(ErrorKind::InvalidSettings("settings must be a Table".to_string()).into()),
     }
 
-    match file_table.remove("globals") {
-        Some(Value::Table(t)) => {
-            let mut variables = Variables::new();
-            for (k, v) in t {
-                if vars::DEFAULT_GLOBALS.contains(k.as_str()) {
-                    return Err(ErrorKind::InvalidVariable("cannot use variables: repo, cwd"
-                            .to_string())
-                        .into());
-                }
-                let value = match v {
-                    Value::String(s) => s.to_string(),
-                    _ => {
-                        return Err(ErrorKind::InvalidVariable(format!("{} global var must be of \
-                                                                       type str",
-                                                                      k))
-                            .into())
-                    }
-                };
-                variables.insert(k.clone(), value);
-            }
-            project.variables_map.insert(path.to_path_buf(), variables);
-        }
-        None => {}
-        _ => return Err(ErrorKind::InvalidVariable("globals must be a Table".to_string()).into()),
-    }
-
     for (name, value) in file_table.iter() {
         let aname = try!(ArtName::from_str(name));
         // get the artifact table
@@ -353,10 +326,10 @@ pub fn resolve_settings(project: &mut Project) -> Result<()> {
 
         // TODO: for full windows compatibility you will probably want to support OsStr
         // here... I just don't want to yet
-        vars.insert(vars::CWD_VAR.to_string(), cwd_str.to_string());
+        vars.insert(CWD_VAR.to_string(), cwd_str.to_string());
         try!(utils::find_and_insert_repo(cwd, &mut project.repo_map));
         let repo = &project.repo_map[cwd];
-        vars.insert(vars::REPO_VAR.to_string(),
+        vars.insert(REPO_VAR.to_string(),
                     try!(utils::get_path_str(repo.as_path())).to_string());
 
         debug_assert!(file_settings.load_paths.iter().cloned().collect::<HashSet<_>>() ==
@@ -373,8 +346,6 @@ pub fn resolve_settings(project: &mut Project) -> Result<()> {
         project.settings.artifact_paths.extend(paths.drain(0..));
 
         // push resolved code_paths
-        // TODO: it is possible to be able to use all global variables in code_paths
-        //    but then it must be done in a separate step
         for p in &file_settings.code_paths {
             let p = try!(utils::do_strfmt(p.to_str().unwrap(), &vars, &fpath));
             project.settings.code_paths.push_back(PathBuf::from(p));
@@ -437,7 +408,6 @@ pub fn load_raw(dir: &Path) -> Result<Project> {
         resolve_settings(&mut project)?;
     }
 
-    project.variables = vars::resolve_loaded_vars(&project.variables_map, &mut project.repo_map)?;
     project.settings_map = full_settings_map;
     Ok(project)
 }
