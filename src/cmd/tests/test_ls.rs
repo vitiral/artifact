@@ -12,34 +12,32 @@ use std::time;
 fn test_get_matches() {
     let args = vec!["artifact", "ls", "-l"];
     let matches = get_matches(&args).unwrap();
-    let (search, fmtset, search_set) = ls::get_cmd(matches.subcommand_matches("ls").unwrap())
-        .unwrap();
-    assert_eq!(search, "");
-    assert_eq!(fmtset.long, true);
-    assert_eq!(fmtset.recurse, 0);
-    assert_eq!(search_set, SearchSettings::new());
+    let cmd = ls::get_cmd(matches.subcommand_matches("ls").unwrap()).unwrap();
+    assert_eq!(cmd.pattern, "");
+    assert_eq!(cmd.fmt_settings.long, true);
+    assert_eq!(cmd.fmt_settings.recurse, 0);
+    assert_eq!(cmd.search_settings, SearchSettings::new());
 
     // test that -A works
     let args = vec!["artifact", "ls", "all", "-AP"];
     let matches = get_matches(&args).unwrap();
-    let (search, fmtset, search_set) = ls::get_cmd(matches.subcommand_matches("ls").unwrap())
-        .unwrap();
-    assert_eq!(search, "all");
-    assert_eq!(fmtset.long, false);
-    assert_eq!(fmtset.parts, false);
-    assert_eq!(fmtset.partof, true);
-    assert_eq!(fmtset.loc_path, true);
-    assert_eq!(fmtset.recurse, 0);
-    assert_eq!(search_set, SearchSettings::new());
+    let cmd = ls::get_cmd(matches.subcommand_matches("ls").unwrap()).unwrap();
+    assert_eq!(cmd.pattern, "all");
+    assert_eq!(cmd.fmt_settings.long, false);
+    assert_eq!(cmd.fmt_settings.parts, false);
+    assert_eq!(cmd.fmt_settings.partof, true);
+    assert_eq!(cmd.fmt_settings.loc_path, true);
+    assert_eq!(cmd.fmt_settings.recurse, 0);
+    assert_eq!(cmd.search_settings, SearchSettings::new());
 
     // test that pattern works
     let args = vec!["artifact", "ls", "regex", "-p", "TNL"];
     let matches = get_matches(&args).unwrap();
-    let (search, _, search_set) = ls::get_cmd(matches.subcommand_matches("ls").unwrap()).unwrap();
-    assert_eq!(search, "regex");
-    assert!(search_set.text);
-    assert!(search_set.name);
-    assert!(search_set.loc);
+    let cmd = ls::get_cmd(matches.subcommand_matches("ls").unwrap()).unwrap();
+    assert_eq!(cmd.pattern, "regex");
+    assert!(cmd.search_settings.text);
+    assert!(cmd.search_settings.name);
+    assert!(cmd.search_settings.loc);
 }
 
 
@@ -133,8 +131,14 @@ fn repr_bytes(bytes: &[u8]) {
 #[test]
 /// #TST-cmd-ls
 fn test_cmd_ls() {
-    let (mut fmt_set, mut search_set, mut settings) =
-        (FmtSettings::default(), SearchSettings::default(), Settings::default());
+    let mut cmd = ls::Cmd {
+        pattern: "".to_string(),
+        fmt_settings: FmtSettings::default(),
+        search_settings: SearchSettings::default(),
+        ty: ls::OutType::List,
+    };
+
+    let mut settings = Settings::default();
     let mut artifacts = core::load::load_toml_simple(r"
 [REQ-foo]
 text = 'req for foo'
@@ -165,7 +169,7 @@ partof = 'REQ-dne'
         }
     }
     core::link::do_links(&mut artifacts).unwrap();
-    fmt_set.color = COLOR_IF_POSSIBLE;
+    cmd.fmt_settings.color = COLOR_IF_POSSIBLE;
     settings.color = COLOR_IF_POSSIBLE;
     let mut w: Vec<u8> = Vec::new();
     let cwd = PathBuf::from("src/foo");
@@ -216,29 +220,31 @@ partof = 'REQ-dne'
 
     // do default list, looking for only req-foo
     w.clear();
-    ls::run_cmd(&mut w, &cwd, "req-foo", &fmt_set, &search_set, &project).unwrap();
+    cmd.pattern = "req-foo".to_string();
+    ls::run_cmd(&mut w, &cwd, &cmd, &project).unwrap();
     // debug_bytes(&w, LS_REQ_FOO);
     assert_eq!(vb(LS_REQ_FOO), w);
 
     // do default list with color disabled
     w.clear();
-    fmt_set.color = false;
-    ls::run_cmd(&mut w, &cwd, "req-foo", &fmt_set, &search_set, &project).unwrap();
+    cmd.fmt_settings.color = false;
+    ls::run_cmd(&mut w, &cwd, &cmd, &project).unwrap();
     // debug_bytes(&w, expected);
     assert_eq!(vb(LS_REQ_FOO_NO_COL), w);
 
     // ls all fields
     // do a search in only parts using regex s.c
     w.clear();
-    fmt_set.color = COLOR_IF_POSSIBLE;
-    fmt_set.path = true;
-    fmt_set.parts = true;
-    fmt_set.partof = true;
-    fmt_set.loc_path = true;
-    fmt_set.text = true;
-    search_set.use_regex = true;
-    search_set.parts = true;
-    ls::run_cmd(&mut w, &cwd, "s.c.*foo", &fmt_set, &search_set, &project).unwrap();
+    cmd.pattern = "s.c.*foo".to_string();
+    cmd.fmt_settings.color = COLOR_IF_POSSIBLE;
+    cmd.fmt_settings.path = true;
+    cmd.fmt_settings.parts = true;
+    cmd.fmt_settings.partof = true;
+    cmd.fmt_settings.loc_path = true;
+    cmd.fmt_settings.text = true;
+    cmd.search_settings.use_regex = true;
+    cmd.search_settings.parts = true;
+    ls::run_cmd(&mut w, &cwd, &cmd, &project).unwrap();
     // debug_bytes(&w, LS_S_C_STAR_FOO);
     assert_eq!(vb(LS_S_C_STAR_FOO), w);
 }

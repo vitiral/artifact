@@ -16,6 +16,9 @@
  * */
 
 use dev_prefix::*;
+
+use serde_json;
+
 use super::types::*;
 use super::display;
 
@@ -69,7 +72,15 @@ pub fn get_subcommand<'a, 'b>() -> App<'a, 'b> {
         .arg(Arg::with_name("plain")
             .long("plain")
             .help("do not display color in the output"))
-
+        .arg(Arg::with_name("type")
+            .long("type")
+            .value_name("TYPE")
+            .takes_value(true)
+            .help("output type, default 'list'. Supported types are: list, json"))
+    //.arg(Arg::with_name("file")
+    //    .long("file")
+    //    .takes_value(true)
+    //    .help("output to file instead of stdout"))
 }
 
 /// return (lt, percent) returning None when there is no value
@@ -210,8 +221,22 @@ fn get_color(matches: &ArgMatches) -> bool {
     false
 }
 
+#[derive(Debug, Eq, PartialEq)]
+pub enum OutType {
+    List, // default
+    Json,
+}
+
+#[derive(Debug)]
+pub struct Cmd {
+    pub pattern: String,
+    pub fmt_settings: FmtSettings,
+    pub search_settings: SearchSettings,
+    pub ty: OutType,
+}
+
 /// get all the information from the user input
-pub fn get_cmd(matches: &ArgMatches) -> Result<(String, FmtSettings, SearchSettings)> {
+pub fn get_cmd(matches: &ArgMatches) -> Result<Cmd> {
     let mut fmt_set = FmtSettings::default();
     fmt_set.long = matches.is_present("long");
     // fmt_set.recurse = matches.value_of("recursive").unwrap().parse::<u8>().unwrap();
@@ -247,7 +272,6 @@ pub fn get_cmd(matches: &ArgMatches) -> Result<(String, FmtSettings, SearchSetti
         (false, None) => SearchSettings::new(),
         _ => unreachable!(),
     };
-    debug!("tested: {:?}", search_set.tested);
     if let Some(c) = matches.value_of("completed") {
         search_set.completed = try!(get_percent(c))
     }
@@ -255,40 +279,48 @@ pub fn get_cmd(matches: &ArgMatches) -> Result<(String, FmtSettings, SearchSetti
         debug!("got tested: {}", t);
         search_set.tested = try!(get_percent(t));
     }
-    debug!("tested: {:?}", search_set.tested);
 
-    let search = matches.value_of("search").unwrap_or("").to_string();
+    let ty = match matches.value_of("type").unwrap_or("list") {
+        "list" => OutType::List,
+        "json" => OutType::Json,
+        t @ _ => {
+            let msg = format!("invalid type: {}", t);
+            return Err(ErrorKind::CmdError(msg).into());
+        }
+    };
 
-    debug!("ls search: {}, fmt_set: {:?}, search_set: {:?}",
-           search,
-           fmt_set,
-           search_set);
-    Ok((search, fmt_set, search_set))
+    let cmd = Cmd {
+        pattern: matches.value_of("search").unwrap_or("").to_string(),
+        fmt_settings: fmt_set,
+        search_settings: search_set,
+        ty: ty,
+    };
+    debug!("ls search: {:?}", cmd);
+    Ok(cmd)
 }
 
 #[allow(trivial_regex)]
 /// perform the ls command given the inputs
-pub fn run_cmd<W: Write>(w: &mut W,
-                         cwd: &Path,
-                         search: &str,
-                         fmt_set: &FmtSettings,
-                         search_set: &SearchSettings,
-                         project: &Project)
-                         -> Result<()> {
+pub fn run_cmd<W: Write>(mut w: &mut W, cwd: &Path, cmd: &Cmd, project: &Project) -> Result<()> {
     let mut dne: Vec<ArtNameRc> = Vec::new();
     let mut names: Vec<ArtNameRc> = Vec::new();
     let artifacts = &project.artifacts;
     let mut settings = project.settings.clone();
-    let mut fmt_set = (*fmt_set).clone();
+    let mut fmt_set = cmd.fmt_settings.clone();
+
+    // no color when exporting
+    if cmd.ty != OutType::List {
+        fmt_set.color = false;
+    }
 
     // load settings from cmdline inputs
     // #SPC-cmd-ls-color
     settings.color = fmt_set.color;
 
     let pat_case;
-    if search_set.use_regex {
+    if cmd.search_settings.use_regex {
         // names to use are determined by filtering the regex
-        let pat = RegexBuilder::new(search)
+        let pat = RegexBuilder::new(&cmd.pattern)
             .case_insensitive(true)
             .build();
         pat_case = match pat {
@@ -301,7 +333,7 @@ pub fn run_cmd<W: Write>(w: &mut W,
         names.sort();
     } else {
         // names to use are determined from the beginning
-        names.extend(match ArtNames::from_str(search) {
+        names.extend(match ArtNames::from_str(&cmd.pattern) {
             Ok(n) => n,
             Err(e) => {
                 error!("{}", e);
@@ -313,7 +345,7 @@ pub fn run_cmd<W: Write>(w: &mut W,
         pat_case = Regex::new("").unwrap();
     }
     debug!("fmt_set empty: {}", fmt_set.is_empty());
-    if names.is_empty() && search.is_empty() {
+    if names.is_empty() && cmd.pattern.is_empty() {
         names.extend(artifacts.keys().cloned());
         names.sort();
     }
@@ -322,24 +354,37 @@ pub fn run_cmd<W: Write>(w: &mut W,
         fmt_set.path = true;
     }
 
-    if !fmt_set.long {
+    if !fmt_set.long && cmd.ty == OutType::List {
         display::write_table_header(w, &fmt_set, &settings);
     }
     let mut displayed = ArtNames::new();
-    for name in names {
-        let art = match artifacts.get(&name) {
-            Some(a) => a,
-            None => {
-                trace!("Name DNE: {}", name);
-                dne.push(name);
-                continue;
+    // #SPC-cmd-ls-type
+    match cmd.ty {
+        OutType::List => {
+            for name in names {
+                let art = match artifacts.get(&name) {
+                    Some(a) => a,
+                    None => {
+                        trace!("Name DNE: {}", name);
+                        dne.push(name);
+                        continue;
+                    }
+                };
+                if !ui::show_artifact(&name, art, &pat_case, &cmd.search_settings) {
+                    continue;
+                }
+                let f =
+                    ui::fmt_artifact(&name, artifacts, &fmt_set, fmt_set.recurse, &mut displayed);
+                f.write(w, cwd, artifacts, &settings, 0)?;
             }
-        };
-        if !ui::show_artifact(&name, art, &pat_case, search_set) {
-            continue;
         }
-        let f = ui::fmt_artifact(&name, artifacts, &fmt_set, fmt_set.recurse, &mut displayed);
-        f.write(w, cwd, artifacts, &settings, 0).unwrap(); // FIXME: unwrap
+        OutType::Json => {
+            let out_arts: Vec<_> = names.iter()
+                .map(|n| artifacts.get(n).unwrap().to_data(n))
+                .collect();
+            let value = serde_json::to_value(out_arts).unwrap();
+            w.write(serde_json::to_string(&value).unwrap().as_bytes())?;
+        }
     }
     if !dne.is_empty() {
         return Err(ErrorKind::NameNotFound(format!("The following artifacts do not exist: {:?}",

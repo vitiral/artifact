@@ -144,8 +144,8 @@ pub fn cmd<W, I, T>(w: &mut W, args: I) -> Result<()>
 
     if let Some(ls) = matches.subcommand_matches("ls") {
         info!("Calling the ls command");
-        let (search, fmtset, search_set) = ls::get_cmd(ls).unwrap();
-        ls::run_cmd(w, &work_tree, &search, &fmtset, &search_set, &project)
+        let cmd = ls::get_cmd(ls).unwrap();
+        ls::run_cmd(w, &work_tree, &cmd, &project)
     } else if matches.subcommand_matches("check").is_some() {
         info!("Calling the check command");
         check::run_cmd(w, &work_tree, &project)
