@@ -1,3 +1,16 @@
+[SPC-cmd-export]
+text = '''
+`art export` shall be able to export artifacts to various static file
+formats. This will allow a user to display their artifacts in a pretty
+format on services like github.
+
+Syntax: `art export TYPE`
+
+Supported types **shall** be:
+- html: this is the MUST HAVE export type
+- markdown: this is a possible future type
+'''
+
 [SPC-cmd-fmt]
 text = '''
 `art fmt` will be the command that is run to format all files in a project
@@ -65,6 +78,7 @@ points of risk:
 - the command will be frequently used on the requirements for artifact,
     which should help detect failures of the tool
 '''
+
 
 [TST-cmd-other]
 partof = "SPC-cmd-init"

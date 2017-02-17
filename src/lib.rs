@@ -48,7 +48,6 @@ extern crate jsonrpc_core;
 // # for web front end
 #[cfg(feature = "web")]
 extern crate tempdir;
-#[cfg(feature = "web")]
 extern crate tar;
 
 // serialization

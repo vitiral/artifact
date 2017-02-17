@@ -30,6 +30,7 @@ use core;
 use clap::{ArgMatches, ErrorKind as ClEk};
 use ansi_term::Colour::Green;
 
+mod export;
 mod types;
 mod matches;
 mod ls;
@@ -81,9 +82,10 @@ pub fn cmd<W, I, T>(w: &mut W, args: I) -> Result<()>
         None => panic!("could not find loglevel"),
     };
 
+    let cwd = env::current_dir().unwrap();
     let work_tree = match matches.value_of("work-tree") {
         Some(w) => PathBuf::from(w),
-        None => env::current_dir().unwrap(),
+        None => cwd.to_path_buf(),
     };
     if !work_tree.is_dir() {
         println!("ERROR: work-tree {} is not a directory",
@@ -157,6 +159,10 @@ pub fn cmd<W, I, T>(w: &mut W, args: I) -> Result<()>
         info!("Calling the fmt command");
         let c = fmt::get_cmd(mat)?;
         fmt::run_cmd(w, &repo, &project, &c)
+    } else if let Some(mat) = matches.subcommand_matches("export") {
+        info!("Calling the export command");
+        let c = export::get_cmd(mat)?;
+        export::run_cmd(&cwd, &project, &c)
     } else {
         write!(w,
                "{} {}: use -h to show help",

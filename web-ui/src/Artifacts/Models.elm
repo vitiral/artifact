@@ -141,3 +141,11 @@ initName name =
         }
       Err err ->
         Err err
+
+-- convert a list of artifacts to a dictionary
+artifactsFromList : List Artifact -> Artifacts
+artifactsFromList artifacts =
+  let
+    pairs = List.map (\a -> ( a.name.value, a )) artifacts
+  in
+    Dict.fromList pairs

@@ -6,11 +6,13 @@ import Test exposing (..)
 import Expect
 import Fuzz exposing (list, int, tuple, string)
 import String
+import Dict
 import Json.Decode as Decode
 import Json.Encode as Encode
 
 import Artifacts.Models exposing (Artifact, defaultConfig, initName)
-import Artifacts.Commands exposing (artifactEncoded, artifactDecoder)
+import Artifacts.Commands exposing (
+  artifactEncoded, artifactDecoder, artifactsFromStrUnsafe)
 
 
 artifact : Artifact
@@ -31,19 +33,20 @@ artifact =
 expectedEncoded = 
   "{\"id\":10,\"name\":\"req-name\",\"path\":\"path\",\"text\":\"text\",\"partof\":[\"req-partof-1\"]}"
 
-artifactJson =
+artifactsJson =
   """
-  { "id":10
-  , "name":"req-name"
-  , "path":"path"
-  , "text": "text"
-  , "partof": ["req-partof-1"]
-  , "parts": ["req-part-1"]
-  , "loc": { "path": "path", "row": 10, "col": 10 }
-  , "completed": 0.0
-  , "tested": 0.0
-  , "edited": null
-  }
+  [
+    { "id":10
+    , "name":"req-name"
+    , "path":"path"
+    , "text": "text"
+    , "partof": ["req-partof-1"]
+    , "parts": ["req-part-1"]
+    , "loc": { "path": "path", "row": 10, "col": 10 }
+    , "completed": 0.0
+    , "tested": 0.0
+    }
+  ]
   """
 
 nameValid : String -> Bool
@@ -68,7 +71,10 @@ all =
           Expect.equal (Encode.encode 0 (artifactEncoded artifact)) expectedEncoded
       , test "decode artifact" <|
         \() ->
-          Expect.equal (Decode.decodeString artifactDecoder artifactJson) (Ok artifact)
+          let
+            expected = Dict.singleton "REQ-NAME" artifact
+          in
+            Expect.equal (artifactsFromStrUnsafe artifactsJson) expected
       ]
     , describe "name: test name validation"
       [ test "valid names 1" <|
@@ -88,3 +94,4 @@ all =
             ( [False, False, False] )
       ]
     ]
+

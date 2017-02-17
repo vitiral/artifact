@@ -16,6 +16,7 @@
  * */
 
 use strfmt;
+use serde_json;
 
 use std::path::MAIN_SEPARATOR;
 
@@ -39,6 +40,22 @@ pub fn strfmt_ignore_missing<T: fmt::Display>(fmtstr: &str,
         None => fmt.skip(),
     };
     strfmt::strfmt_map(fmtstr, &formatter)
+}
+
+/// convert the names in artifacts into json
+pub fn artifacts_to_json(artifacts: &Artifacts, names: Option<&[ArtNameRc]>) -> String {
+    let out_arts: Vec<_> = if let Some(names) = names {
+        names.iter()
+            .map(|n| artifacts.get(n).unwrap().to_data(n))
+            .collect()
+    } else {
+        artifacts.iter()
+            .map(|(n, a)| a.to_data(n))
+            .collect()
+    };
+
+    let value = serde_json::to_value(out_arts).unwrap();
+    serde_json::to_string(&value).unwrap()
 }
 
 pub fn get_path_str(path: &Path) -> Result<&str> {

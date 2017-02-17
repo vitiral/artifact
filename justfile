@@ -16,7 +16,19 @@ build-elm: # build just elm (not rust)
 	(cd web-ui; npm run build)
 	(cd web-ui/dist; tar -cvf ../../src/api/data/web-ui.tar *)
 
-build-web: build-elm # build and bundle app with web=true
+build-elm-static: # build and package elm as a static index.html
+	(cd web-ui; elm make src/Main-Static.elm)
+	rm -rf target/web
+	mkdir target/web
+	mkdir target/web/css
+	cp web-ui/index.html target/web
+	# copy and link the style sheets
+	cp web-ui/node_modules/font-awesome web-ui/node_modules/ace-css target/web/css -r
+	sed -e 's/<head>/<head><link rel="stylesheet" type="text\/css" href="css\/ace-css\/css\/ace.css" \/>/g' target/web/index.html -i
+	sed -e 's/<head>/<head><link rel="stylesheet" type="text\/css" href="css\/font-awesome\/css\/font-awesome.css" \/>/g' target/web/index.html -i
+	(cd target/web; tar -cvf ../../src/cmd/data/web-ui-static.tar *)
+
+build-web: build-elm build-elm-static
 	cargo build --features "web"
 
 ##################################################
@@ -77,7 +89,7 @@ git-verify: # make sure git is clean and on master
 	git branch | grep '* master'
 	git diff --no-ext-diff --quiet --exit-code
 
-publish: git-verify lint test-web build-web check # publish to github and crates.io
+publish: git-verify lint build-web test-web check # publish to github and crates.io
 	git commit -a -m "v{{version}} release"
 	just publish-cargo
 	just publish-git

@@ -1,7 +1,7 @@
 module Models exposing (..)
 
 import Messages exposing (Route)
-import Artifacts.Models exposing (Artifact, Artifacts, initialArtifacts)
+import Artifacts.Models exposing (Artifact, Artifacts)
 
 type alias Settings =
   { readonly: Bool
@@ -19,19 +19,9 @@ type alias Errors =
   { descs: List String
   }
 
-initialModel : String -> Route -> Model
-initialModel addr route =
-  { artifacts = initialArtifacts
-  , route = route
-  , errors = initialErrors
-  , settings = initialSettings
-  , addr = addr
-  }
-
 initialSettings : Settings
 initialSettings =
-    -- FIXME: change to True
-  { readonly = False
+  { readonly = True
   }
 
 initialErrors : Errors

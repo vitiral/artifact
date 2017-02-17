@@ -17,6 +17,7 @@
 
 use dev_prefix::*;
 use super::types::*;
+use super::export;
 use super::init;
 use super::tutorial;
 use super::ls;
@@ -59,5 +60,6 @@ pub fn get_matches<'a, I, T>(args: I) -> ClapResult<ArgMatches<'a>>
         .subcommand(check::get_subcommand())
         .subcommand(fmtcmd::get_subcommand())
         .subcommand(server::get_subcommand())
+        .subcommand(export::get_subcommand())
         .get_matches_from_safe(args)
 }

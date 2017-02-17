@@ -15,19 +15,22 @@ type alias Flags =
 
 initialModel : String -> Route -> Model
 initialModel addr route =
-  { artifacts = artifactsFromStrUnsafe "[]"
+  -- slightly hacky, but this is how we inject the artifacts-json into
+  -- the static webpage -- we just replace REPLACE_WITH_ARTIFACTS with
+  -- the raw json string (with proper escapes)
+  { artifacts = artifactsFromStrUnsafe "REPLACE_WITH_ARTIFACTS"
   , route = route
   , errors = initialErrors
   , settings = initialSettings
   , addr = addr
   }
 
-init : Flags -> Navigation.Location -> (Model, Cmd AppMsg)
-init flags location =
+init : Navigation.Location -> (Model, Cmd AppMsg)
+init location =
     let
-      model = initialModel flags.addr <| Routing.router location
+      model = initialModel "fake-addr" <| Routing.router location
     in
-      ( model, fetchAll model )
+      ( model, Cmd.none )
 
 subscriptions : Model -> Sub AppMsg
 subscriptions model =
@@ -35,9 +38,9 @@ subscriptions model =
 
 -- MAIN
 
-main : Program Flags Model AppMsg
+main : Program Never Model AppMsg
 main =
-    Navigation.programWithFlags Routing.routerMsg
+    Navigation.program Routing.routerMsg
       { init = init
       , view = view
       , update = update

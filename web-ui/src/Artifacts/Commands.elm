@@ -10,7 +10,7 @@ import Models exposing (Model)
 import Artifacts.Messages exposing (..)
 import Artifacts.Models exposing (
   NameKey, Artifact, Artifacts, Loc, ArtifactsResponse, defaultConfig, 
-  Name, initName)
+  Name, initName, artifactsFromList)
 import JsonRpc exposing (RpcError, formatJsonRpcError)
 
 isErr : Result e a -> Bool
@@ -149,6 +149,18 @@ artifactEncoded artifact =
 
 -- DECODERS
 
+-- WARNING: just returns nothing if json is invalid
+-- must be used with trusted input only
+artifactsFromStrUnsafe : String -> Artifacts
+artifactsFromStrUnsafe json =
+  let
+    artifacts = case Decode.decodeString artifactsDecoder json of
+      Ok a -> a
+      Err _ -> [] 
+  in
+    artifactsFromList artifacts
+
+
 -- Generic RPC Error
 errorDecoder : Decode.Decoder RpcError
 errorDecoder =
@@ -205,3 +217,6 @@ locDecoder =
     |> required "path" Decode.string
     |> required "row" Decode.int
     |> required "col" Decode.int
+
+
+

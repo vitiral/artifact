@@ -10,16 +10,14 @@ import Artifacts.Models exposing
   (Artifact, ArtifactEditable, Artifacts, NameKey, ArtifactConfig
   , ArtifactsResponse
   , artifactsUrl, artifactNameUrl
-  , initName, indexNameUnchecked)
+  , initName, indexNameUnchecked
+  , artifactsFromList)
 
 update : Msg -> Artifacts -> ( Artifacts, Cmd AppMsg )
 update msg artifacts =
   case msg of
     NewArtifacts newArtifacts ->
-      let
-        pairs = List.map (\a -> ( a.name.value, a )) newArtifacts
-      in
-        ( Dict.fromList pairs, Cmd.none )
+      ( artifactsFromList newArtifacts, Cmd.none )
 
     ShowArtifacts ->
       ( artifacts, Navigation.newUrl artifactsUrl )
