@@ -1,0 +1,76 @@
+/* This is only (currently) used for the static webpage 
+ * All these styles were gotten from ace-css and bass-css
+ **/
+
+.h1 { font-size: var(--h1) }
+.h2 { font-size: var(--h2) }
+.h3 { font-size: var(--h3) }
+.h4 { font-size: var(--h4) }
+.h5 { font-size: var(--h5) }
+.h6 { font-size: var(--h6) }
+
+.clearfix:before,
+.clearfix:after {
+  content: " ";
+  display: table
+}
+.clearfix:after { clear: both }
+
+/* colors */
+.white {      color: white; }
+.bg-black {   background-color: black; }
+
+/* fonts */
+.bold    { font-weight: bold; font-weight: bold }
+.regular { font-weight: normal }
+.h1 { font-size: var(--h1) }
+.h2 { font-size: var(--h2) }
+.h3 { font-size: var(--h3) }
+.h4 { font-size: var(--h4) }
+.h5 { font-size: var(--h5) }
+.h6 { font-size: var(--h6) }
+
+/* floats */
+.left  { float: left }
+.right { float: right }
+.fit { max-width: 100% }
+
+/* columns */
+.col {
+  float: left;
+  box-sizing: border-box;
+}
+.col-6 {
+  width: calc(6/12 * 100%);
+}
+
+/* margins */
+.m0  { margin:        0 }
+.mb2 { margin-bottom:        1rem }
+.mr1 { margin-right:        .5rem }
+.m3  { margin:        2rem }
+
+/* paddings */
+.p1  { padding:        var(--space-1) }
+.py1 { padding-top:    var(--space-1); padding-bottom: var(--space-1) }
+
+.p2  { padding:        var(--space-2) }
+
+/* objects */
+.btn {
+  font-family: var(--button-font-family);
+  font-size: var(--button-font-size);
+  font-weight: var(--button-font-weight);
+  text-decoration: none;
+  cursor: pointer;
+  display: inline-block;
+  line-height: var(--button-line-height);
+  padding: var(--button-padding-y) var(--button-padding-x);
+  margin: 0;
+  height: auto;
+  border: var(--border-width) solid transparent;
+  vertical-align: middle;
+  -webkit-appearance: none;
+  color: inherit;
+  background-color: transparent;
+}

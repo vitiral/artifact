@@ -23,8 +23,8 @@ build-elm-static: # build and package elm as a static index.html
 	mkdir target/web/css
 	cp web-ui/index.html target/web
 	# copy and link the style sheets
-	cp web-ui/node_modules/font-awesome web-ui/node_modules/ace-css target/web/css -r
-	sed -e 's/<head>/<head><link rel="stylesheet" type="text\/css" href="css\/ace-css\/css\/ace.css" \/>/g' target/web/index.html -i
+	cp web-ui/node_modules/font-awesome web-ui/src/style.css target/web/css -r
+	sed -e 's/<head>/<head><link rel="stylesheet" type="text\/css" href="css\/style.css" \/>/g' target/web/index.html -i
 	sed -e 's/<head>/<head><link rel="stylesheet" type="text\/css" href="css\/font-awesome\/css\/font-awesome.css" \/>/g' target/web/index.html -i
 	(cd target/web; tar -cvf ../../src/cmd/data/web-ui-static.tar *)
 
