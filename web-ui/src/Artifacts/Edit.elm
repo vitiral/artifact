@@ -54,17 +54,6 @@ formColumnOne model artifact =
 
 formColumnTwo : Model -> Artifact -> Html AppMsg
 formColumnTwo model artifact =
-  div [ class "col col-6" ] 
-    [ h3 [] [ text "Text" ]
-    , textarea 
-      [ class "h3" -- class=h3 otherwise it is really tiny for some reason
-      , rows 35
-      , cols 80
-      , readonly model.settings.readonly 
-      , id ("text_" ++ artifact.name.value)
-      ] 
-      [ text artifact.text ]
-    ]
   let
     edited = getEdited artifact
   in
@@ -79,7 +68,7 @@ formColumnTwo model artifact =
         , onInput (\t -> (ArtifactsMsg (ArtifactEdited artifact.name.value 
           { edited | text = t })))
         ] 
-        [ text artifact.text.value ]
+        [ text artifact.text ]
       ]
 
 
