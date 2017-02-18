@@ -1,5 +1,6 @@
 module Artifacts.Models exposing (..)
 import Dict
+import Set
 
 
 import Regex
@@ -52,7 +53,6 @@ type alias Artifact =
   , loc : Maybe Loc
   , completed : Float
   , tested : Float
-  , config : ArtifactConfig
   , edited : Maybe ArtifactEditable
   }
 
@@ -78,27 +78,11 @@ getEdited artifact =
       }
 
 
-type alias ArtifactConfig =
-  { partsExpanded : Bool
-  , partofExpanded : Bool
-  , pathExpanded : Bool
-  , locExpanded : Bool
-  , textExpanded : Bool
-  }
-
 type alias ArtifactsResponse =
   { result: Maybe (List Artifact)
   , error: Maybe RpcError
   }
 
-defaultConfig : ArtifactConfig
-defaultConfig =
-  { partsExpanded = False
-  , partofExpanded = False
-  , pathExpanded = False
-  , locExpanded = False
-  , textExpanded = False
-  }
 
 artifactsUrl : String
 artifactsUrl =
@@ -149,3 +133,44 @@ artifactsFromList artifacts =
     pairs = List.map (\a -> ( a.name.value, a )) artifacts
   in
     Dict.fromList pairs
+
+
+-- VIEW Models
+
+-- artifact attributes which can be displayed
+-- or searched for
+type alias Columns =
+  { parts : Bool
+  , partof : Bool
+  , text : Bool
+  , path : Bool
+  , loc : Bool
+  }
+
+initialColumns : Columns
+initialColumns =
+  { parts = True
+  , partof = False
+  , text = True
+  , path = False
+  , loc = False
+  }
+
+type alias Search =
+  { pattern : String  -- the pattern to search for
+  , regex : Bool      -- whether to use regex or raw-string
+  , name : Bool    
+  , parts : Bool
+  , partof : Bool
+  , text : Bool
+  }
+
+initialSearch : Search
+initialSearch =
+  { pattern = ""
+  , regex = False
+  , name = True
+  , parts = False
+  , partof = False
+  , text = False
+  }

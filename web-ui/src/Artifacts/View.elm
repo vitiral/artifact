@@ -62,7 +62,7 @@ implementedBasic model artifact =
             ++ "," ++ (toString loc.col) ++ ")"
            )
     Nothing ->
-      span [class "italic" ] [ text "not directly implemented" ])
+      span [class "italic gray" ] [ text "not directly implemented" ])
 
 parts : Model -> Artifact -> Html AppMsg
 parts model artifact =

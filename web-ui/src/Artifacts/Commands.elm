@@ -8,9 +8,9 @@ import Json.Decode.Pipeline exposing (decode, required, optional, hardcoded)
 import Messages exposing (AppMsg(..))
 import Models exposing (Model)
 import Artifacts.Messages exposing (..)
-import Artifacts.Models exposing (
-  NameKey, Artifact, Artifacts, Loc, ArtifactsResponse, defaultConfig, 
-  Name, initName, artifactsFromList)
+import Artifacts.Models exposing 
+  ( NameKey, Artifact, Artifacts, Loc, ArtifactsResponse
+  , Name, initName, artifactsFromList)
 import JsonRpc exposing (RpcError, formatJsonRpcError)
 
 isErr : Result e a -> Bool
@@ -195,7 +195,6 @@ artifactDecoder =
     |> required "loc" (Decode.nullable locDecoder)
     |> required "completed" Decode.float
     |> required "tested" Decode.float
-    |> hardcoded defaultConfig
     |> hardcoded Nothing
 
 nameDecoder : Decode.Decoder Name

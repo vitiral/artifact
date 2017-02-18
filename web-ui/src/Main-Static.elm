@@ -3,7 +3,7 @@ module Main exposing (..)
 import Navigation
 --import Html exposing (program)
 import Messages exposing (AppMsg(..), Route)
-import Models exposing (Model, initialErrors, initialSettings)
+import Models exposing (Model, initialErrors, initialSettings, initialState)
 import View exposing (view)
 import Update exposing (update)
 import Routing
@@ -23,6 +23,7 @@ initialModel addr route =
   , errors = initialErrors
   , settings = initialSettings
   , addr = addr
+  , state = initialState
   }
 
 init : Navigation.Location -> (Model, Cmd AppMsg)

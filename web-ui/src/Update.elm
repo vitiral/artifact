@@ -9,13 +9,7 @@ update : AppMsg -> Model -> (Model, Cmd AppMsg)
 update msg model =
   case msg of
     ArtifactsMsg subMsg -> 
-      let
-        ( updatedArtifacts, cmd ) =
-          Artifacts.Update.update subMsg model.artifacts
-      in
-        ( { model | artifacts = updatedArtifacts }
-        , cmd
-        )
+      Artifacts.Update.update subMsg model
 
     RouteChange route ->
       ( { model | route = route } , Cmd.none )

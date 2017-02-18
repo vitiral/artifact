@@ -10,7 +10,7 @@ import Dict
 import Json.Decode as Decode
 import Json.Encode as Encode
 
-import Artifacts.Models exposing (Artifact, defaultConfig, initName)
+import Artifacts.Models exposing (Artifact, initName)
 import Artifacts.Commands exposing (
   artifactEncoded, artifactDecoder, artifactsFromStrUnsafe)
 
@@ -26,7 +26,6 @@ artifact =
   , loc = Just { path = "path", row = 10, col = 10 }
   , completed = 0.0
   , tested = 0.0
-  , config = defaultConfig
   , edited = Nothing
   }
 
