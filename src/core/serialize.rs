@@ -6,7 +6,7 @@
 //! License, not the license of artifact
 //!
 //! MIT License
-//! Copyright (c) 2016 Garrett Berg
+//! Copyright (c) 2017 Garrett Berg
 //! Copyright (c) 2014 Alex Crichton
 //!
 

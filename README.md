@@ -4,7 +4,7 @@ Artifact is a design doc tool made for developers. It allows anyone to
 easily write and link their design docs both to each other and to source code,
 making it easy to track how complete their project is.
 Documents are revision controllable, can be rendered as a static
-[web page][2] and have a full suite of command line tools for searching,
+web page and have a full suite of command line tools for searching,
 formatting and displaying them.
 
 The current release is targeted towards open source developers. Future releases

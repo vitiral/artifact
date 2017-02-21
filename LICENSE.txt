@@ -169,7 +169,7 @@ Library.
 
 # Code boilerplate
 /*  artifact: the requirements tracking tool made for developers
-    Copyright (C) 2016  Garrett Berg <@vitiral, vitiral@gmail.com>
+    Copyright (C) 2017  Garrett Berg <@vitiral, vitiral@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the Lesser GNU General Public License as published 
@@ -188,6 +188,6 @@ Library.
 
 # message at command line
 let const msg: &'static str = r#"
-artifact  Copyright (C) 2016  Garrett Berg
+artifact  Copyright (C) 2017  Garrett Berg
 This program comes with ABSOLUTELY NO WARRANTY; for details see
 the Lesser GNU General Public License v3 <http://www.gnu.org/licenses/>.
