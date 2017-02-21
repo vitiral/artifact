@@ -1,32 +1,42 @@
 [![Build Status](https://travis-ci.org/vitiral/artifact.svg?branch=master)](https://travis-ci.org/vitiral/artifact)
 
-**artifact** is a design doc tool made for developers. It makes it easy to write and link your design docs and then
-track them using any revision control tool that you love. **artifact** creates
-[rendered static html pages](http://vitiral.github.io/artifact/) so that others can easily view how your project is
-designed.
+Artifact is a design doc tool made for developers. It allows anyone to
+easily write and link their design docs both to each other and to source code,
+making it easy to track how complete their project is.
+Documents are revision controllable, can be rendered as a static
+[web page][2] and have a full suite of command line tools for searching,
+formatting and displaying them.
 
-- [Design Docs](http://vitiral.github.io/artifact/) ([How to do this](https://github.com/vitiral/artifact/wiki/Exporting-Html))
-- [**How To Install**](https://github.com/vitiral/artifact/wiki/User-Guide)
-- [**Additional Information**](https://github.com/vitiral/artifact/wiki)
-- [**Reporting Issues**](https://github.com/vitiral/artifact/issues)
+The current release is targeted towards open source developers. Future releases
+aim to support industry by allowing editing of artifacts via the Web UI, as
+well as tracking and graphing of test execution across their product's versions.
+
+- [**Design Docs**][2]: also see how [you can do this][1]
+- [**How To Install**][3]
+- [**Additional Information**][4]
+- [**Reporting Issues**][5]
+
+[1]: https://github.com/vitiral/artifact/wiki/Exporting-Html
+[2]: http://vitiral.github.io/artifact/
+[3]: https://github.com/vitiral/artifact/wiki/User-Guide
+[4]: https://github.com/vitiral/artifact/wiki
+[5]: https://github.com/vitiral/artifact/issues
 
 ### Beta Notice
-**artifact** is still in Beta and is not 100% feature complete. The API for the cmdline and
-text format is expected to be stable, but the author reserves the right to change anything
-that needs to be changed if it improves usability.
+Artifact is nearly feature complete. The following will change prior to 1.0:
 
 ### Tasks to Reach 1.0
 - [x] design doc review and cleanse
 - [ ] create document spec for "artifact document" and make CC0
 - [x] included static web-file generation
 - [x] Web UI View functionality
-- [ ] extensive selenium testing of Web UI
 - [x] *remove* `globals` setting (text-variables)
 - [ ] only allow settings in `.art/settings.toml`
 - [ ] add setting `additional_repos`
 - [ ] fix any stop-ship bugs
 
 #### Future (post 1.0) Improvements
+- [ ] extensive selenium testing of Web UI
 - [ ] Web UI search/filter functionality
 - [ ] Web UI markdown rendering
 - [ ] Web UI edit functionality
