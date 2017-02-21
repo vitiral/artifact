@@ -17,7 +17,7 @@ well as tracking and graphing of test execution across their product's versions.
 - [**Reporting Issues**][5]
 
 [1]: https://github.com/vitiral/artifact/wiki/Exporting-Html
-[2]: http://vitiral.github.io/artifact/
+[2]: http://vitiral.github.io/artifact/#artifacts/REQ-1
 [3]: https://github.com/vitiral/artifact/wiki/User-Guide
 [4]: https://github.com/vitiral/artifact/wiki
 [5]: https://github.com/vitiral/artifact/issues

@@ -65,10 +65,13 @@ determine the weight to assign to the risk.
 
 [REQ-1]
 text = '''
+These are the developer design documents. For user documents and project information,
+see: https://github.com/vitiral/artifact
+
 The purpose of artifact is to provide a simple design documentation tool
 for developers.
 
-This may seem trivial, but it's not. The design doc tool must have *at least*
+This may seem trivial, but it's not. A useful design doc tool must have *at least*
 the following characteristics:
 - allow simple linking of requirements -> specifications -> tests
 - easily link to source code (through the source documentation) to determine completeness
@@ -80,7 +83,8 @@ the following characteristics:
 - be scalable to any size of project
 
 This feature set will empower developers to track their own design docs and
-use their design docs to make their code self-documenting.
+make it possible for them to use their design docs to provide documentation and 
+guidance for contributors and teamates.
 '''
 
 [REQ-1-linking]
