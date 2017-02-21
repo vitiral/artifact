@@ -1,6 +1,8 @@
 [![Build Status](https://travis-ci.org/vitiral/artifact.svg?branch=master)](https://travis-ci.org/vitiral/artifact)
 
-# artifact: the design doc tool made for developers
+**artifact** is a design doc tool made for developers. It makes it easy to write and link your design docs and then
+track them using any revision control tool that you love. **artifact** creates rendered static html pages, see
+[it's own design docs]() for reference.
 
 - [**How To Install**](https://github.com/vitiral/artifact/wiki/User-Guide)
 - [**Additional Information**](https://github.com/vitiral/artifact/wiki)
@@ -14,23 +16,22 @@ that needs to be changed if it improves usability.
 ### Tasks to Reach 1.0
 - [x] design doc review and cleanse
 - [ ] create document spec for "artifact document" and make CC0
-- [x] UpdateArtifacts API call
-- [ ] CreateArtifacts API call
-- [ ] DeleteArtifacts API call
-- [ ] hacky static web-file generation
+- [x] included static web-file generation
 - [x] Web UI View functionality
+- [ ] extensive selenium testing of Web UI
+- [x] *remove* `globals` setting (text-variables)
+- [ ] only allow settings in `.art/settings.toml`
+- [ ] add setting `additional_repos`
+- [ ] fix any stop-ship bugs
+
+#### Future (post 1.0) Improvements
 - [ ] Web UI search/filter functionality
 - [ ] Web UI markdown rendering
 - [ ] Web UI edit functionality
 - [ ] Web UI create/delete functionality
-- [ ] extensive selenium testing of Web UI
-- [ ] only allow settings in `.art/settings.toml`
-- [ ] add setting `additional_repos`
-- [x] *remove* `globals` setting (text-variables)
-- [ ] fix any stop-ship bugs
-
-#### Future (post 1.0) Improvements
-- [ ] stable static web file generation
+- [x] UpdateArtifacts API call
+- [ ] CreateArtifacts API call
+- [ ] DeleteArtifacts API call
 - [ ] cmdline settings (in `settings.toml::cmd`)
 - [ ] export to json
 - [ ] export to markdown

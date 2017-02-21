@@ -21,8 +21,8 @@ view model artifacts =
     [ nav artifacts
     -- select / search bar
     , div [ class "clearfix py1" ]
-      [ div [ class "col col-6 left" ] [ select model ]
-      , div [ class "col col-6 right" ] [ searchBar model ]
+      [ span [ class "left border" ] [ select model ]
+      , span [ class "right border" ] [ searchBar model ]
       ]
     , list model
     ]
@@ -83,7 +83,7 @@ searchBar model =
       , searchAttrBtn "partof" sch.partof (\s -> { sch | partof = s })
       , searchAttrBtn "text" sch.text (\s -> { sch | text = s })
       , searchInput sch
-      , searchAttrBtn "as regex" sch.regex (\s -> { sch | regex = s })
+      , searchAttrBtn "as-regex" sch.regex (\s -> { sch | regex = s })
       ]
 
 searchInput : Search -> Html AppMsg
@@ -173,8 +173,8 @@ list model =
 
     columns = model.state.columns
     header = 
-      [ th [ cls, w1, id "th_completed" ] [ text "Compl" ]
-      , th [ cls, w1, id "th_tested"    ] [ text "Tested" ]
+      [ th [ cls, w1, id "th_completed" ] [ text "Impl" ]
+      , th [ cls, w1, id "th_tested"    ] [ text "Test" ]
       , th [ cls, w2, id "th_name"      ] [ text "Name" ]
       ] 
       ++ (if columns.parts then
@@ -200,7 +200,7 @@ list model =
 
   in
     div [ class "p2" ]
-      [ table []
+      [ table [ ]
         [ thead [] -- thead == table-header object
           [ tr []  -- table row
             header
@@ -213,31 +213,32 @@ artifactRow : Model -> Artifact -> Html AppMsg
 artifactRow model artifact =
   let
     s = Html.Attributes.style [("vertical-align", "top")]
+    cls = class "border"
 
     columns = model.state.columns
     cols = 
-      [ td [s, w1] [ View.completedPerc artifact ]
-      , td [s, w1] [ View.testedPerc artifact ]
-      , td [s, w2] [ View.seeArtifact model artifact ]
+      [ td [s, cls, w1] [ View.completedPerc artifact ]
+      , td [s, cls, w1] [ View.testedPerc artifact ]
+      , td [s, cls, w2] [ View.seeArtifact model artifact ]
       ]
       ++ (if columns.parts then
-        [ td [s, w2] [ View.parts model artifact ] ]
+        [ td [s, cls, w2] [ View.parts model artifact ] ]
       else
         [])
       ++ (if columns.partof then
-        [ td [s, w2] [ View.partof model artifact ] ]
+        [ td [s, cls, w2] [ View.partof model artifact ] ]
       else
         [])
       ++ (if columns.text then
-        [ td [s, w2] [ View.textPiece model artifact ] ]
+        [ td [s, cls, w2] [ View.textPiece model artifact ] ]
       else
         [])
       ++ (if columns.path then
-        [ td [s, w2] [ text artifact.path ] ]
+        [ td [s, cls, w2] [ text artifact.path ] ]
       else
         [])
       ++ (if columns.loc then
-        [ td [s, w2] [ View.implementedBasic model artifact ] ]
+        [ td [s, cls, w2] [ View.implementedBasic model artifact ] ]
       else
         [])
   in

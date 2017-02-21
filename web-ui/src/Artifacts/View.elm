@@ -18,7 +18,7 @@ completion : Artifact -> Html AppMsg
 completion artifact =
   div [ class "clearfix py1" ]
     [ div [ class "col col-6" ] 
-      [ span [class "bold" ] [ text "Completed: " ]
+      [ span [class "bold" ] [ text "Implemented: " ]
       , completedPerc artifact
       ]
     , div [ class "col col-6" ] 
@@ -29,11 +29,35 @@ completion artifact =
 
 completedPerc : Artifact -> Html msg
 completedPerc artifact =
-  text <| (String.left 3 (toString (artifact.completed * 100))) ++ "%"
+  let
+    score = completedScore artifact
+
+    color = if score >= 3 then
+      "olive"
+    else if score >= 2 then
+      "blue"
+    else if score >= 1 then
+      "orange"
+    else
+      "red"
+  in
+    span [ class ("bold " ++color) ] 
+      [ text <| (String.left 3 (toString (artifact.completed * 100))) ++ "%" ]
 
 testedPerc : Artifact -> Html msg
 testedPerc artifact =
-  text <| (String.left 3 (toString (artifact.tested * 100))) ++ "%"
+  let
+    score = testedScore artifact
+
+    color = if score >= 2 then
+      "olive"
+    else if score >= 1 then
+      "orange"
+    else
+      "red"
+  in
+    span [ class ("bold " ++ color) ] 
+      [ text <| (String.left 3 (toString (artifact.tested * 100))) ++ "%" ]
 
 defined : Model -> Artifact -> Html AppMsg
 defined model artifact =
@@ -97,23 +121,50 @@ textPiece model artifact =
   in
     text text_part
 
+testedScore : Artifact -> Int
+testedScore artifact =
+  if artifact.tested >= 1.0 then
+    2
+  else if artifact.tested >= 0.5 then
+    1
+  else
+    0
+
+completedScore : Artifact -> Int
+completedScore artifact =
+  if artifact.completed >= 1.0 then
+    3
+  else if artifact.completed >= 0.7 then
+    2
+  else if artifact.completed >= 0.4 then
+    1
+  else 
+    0
+
+artifactColor : Artifact -> String
+artifactColor artifact =
+  let 
+    score = (testedScore artifact) + (completedScore artifact)
+  in
+    if score >= 5 then
+      "olive"
+    else if score >= 3 then
+      "blue"
+    else if score >= 1 then
+      "orange"
+    else
+      "red"
+
+-- colors: olive, blue, orange, red
 seeArtifact : Model -> Artifact -> Html AppMsg
 seeArtifact model artifact =
-  let
-    ro = model.settings.readonly
-  in
-    button 
-      [ class "btn bold"
-      , onClick (ArtifactsMsg <| ShowArtifact <| artifact.name.value)
-      , href (artifactNameUrl artifact.name.value)
-      , id artifact.name.value
-      ]
-      [ text (artifact.name.raw ++ "  ")
-      , i [ class <| if ro then "bold fa fa-eye mr1" else "bold fa fa-pencil mr1" 
-        , href (artifactNameUrl artifact.name.value) 
-        ] []
-      
-      ]
+  button 
+    [ class ("btn bold " ++ (artifactColor artifact))
+    , onClick (ArtifactsMsg <| ShowArtifact <| artifact.name.value)
+    , href (artifactNameUrl artifact.name.value)
+    , id artifact.name.value
+    ]
+    [ text (artifact.name.raw ++ "  ") ]
 
 -- TODO: do color and other special stuff for non-existent names
 seeArtifactName : Model -> String -> Html AppMsg
@@ -122,10 +173,15 @@ seeArtifactName model name =
     indexName = indexNameUnchecked name
 
     url = (artifactNameUrl indexName)
+
+    color = case Dict.get indexName model.artifacts of
+      Just a -> artifactColor a
+      Nothing -> "purple"
   in 
     if Dict.member indexName model.artifacts then
       span 
-        [ href url
+        [ class ("btn bold " ++ color)
+        , href url
         , onClick ( RouteChange <| ArtifactNameRoute <| indexName ) 
         ] [ text name ]
     else

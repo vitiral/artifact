@@ -20,12 +20,10 @@ build-elm-static: # build and package elm as a static index.html
 	(cd web-ui; elm make src/Main-Static.elm)
 	rm -rf target/web
 	mkdir target/web
-	mkdir target/web/css
 	cp web-ui/index.html target/web
+	cp -r web-ui/css target/web
 	# copy and link the style sheets
-	cp web-ui/node_modules/font-awesome web-ui/src/style.css target/web/css -r
-	sed -e 's/<head>/<head><link rel="stylesheet" type="text\/css" href="css\/style.css" \/>/g' target/web/index.html -i
-	sed -e 's/<head>/<head><link rel="stylesheet" type="text\/css" href="css\/font-awesome\/css\/font-awesome.css" \/>/g' target/web/index.html -i
+	sed -e 's/<head>/<head><link rel="stylesheet" type="text\/css" href="css\/index.css" \/>/g' target/web/index.html -i
 	(cd target/web; tar -cvf ../../src/cmd/data/web-ui-static.tar *)
 
 build-web: build-elm build-elm-static
@@ -93,6 +91,11 @@ publish: git-verify lint build-web test-web check # publish to github and crates
 	git commit -a -m "v{{version}} release"
 	just publish-cargo
 	just publish-git
+
+publish-site:
+	rm -rf _static-webpage/index.html _static-webpage/css
+	art export html && mv index.html css _static-webpage
+	(cd _static-webpage; git commit -am 'v{{version}}' && git push origin gh-pages)
 
 publish-cargo: # publish cargo without verification
 	cargo publish --no-verify

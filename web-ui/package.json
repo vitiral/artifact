@@ -4,7 +4,6 @@
   "description": "elm tutorial rpg",
   "main": "index.js",
   "scripts": {
-      "api": "node api.js",
       "build": "webpack",
       "watch": "webpack --watch",
       "dev": "webpack-dev-server --port 3000"
@@ -15,7 +14,7 @@
     "ace-css": "^1.1.0",
     "basscss-base-tables": "^1.0.2",
     "css-loader": "^0.26.0",
-    "elm-webpack-loader": "^3.0.6",
+    "elm-webpack-loader": "^4.0.0",
     "file-loader": "^0.9.0",
     "font-awesome": "^4.7.0",
     "json-server": "^0.9.0",
