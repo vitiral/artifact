@@ -1,9 +1,11 @@
 [![Build Status](https://travis-ci.org/vitiral/artifact.svg?branch=master)](https://travis-ci.org/vitiral/artifact)
 
 **artifact** is a design doc tool made for developers. It makes it easy to write and link your design docs and then
-track them using any revision control tool that you love. **artifact** creates rendered static html pages, see
-[it's own design docs]() for reference.
+track them using any revision control tool that you love. **artifact** creates
+[rendered static html pages](http://vitiral.github.io/artifact/) so that others can easily view how your project is
+designed.
 
+- [Design Docs](http://vitiral.github.io/artifact/) ([How to do this](https://github.com/vitiral/artifact/wiki/Exporting-Html))
 - [**How To Install**](https://github.com/vitiral/artifact/wiki/User-Guide)
 - [**Additional Information**](https://github.com/vitiral/artifact/wiki)
 - [**Reporting Issues**](https://github.com/vitiral/artifact/issues)
