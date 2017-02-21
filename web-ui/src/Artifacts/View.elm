@@ -182,7 +182,7 @@ seeArtifactName model name =
       span 
         [ class ("btn bold " ++ color)
         , href url
-        , onClick ( RouteChange <| ArtifactNameRoute <| indexName ) 
+        , onClick ( ArtifactsMsg <| ShowArtifact <| indexName ) 
         ] [ text name ]
     else
       span [ title "Name not found" ] [ text name ]
