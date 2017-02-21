@@ -6,8 +6,6 @@ use serde_json;
 
 use core::prefix::*;
 
-use api::update;
-
 use super::ARTIFACTS;
 
 /// the rpc initializer that implements the API spec
@@ -15,14 +13,15 @@ fn init_rpc_handler() -> IoHandler {
     // partof: #SPC-rpc-artifacts
     let mut handler = IoHandler::new();
     handler.add_method("GetArtifacts", GetArtifacts);
-    handler.add_method("UpdateArtifacts", update::UpdateArtifacts);
+    // TODO: update is disabled until it is feature complete
+    // (specifically security needs to be added)
+    // handler.add_method("UpdateArtifacts", update::UpdateArtifacts);
     handler
 }
 
 lazy_static! {
     pub static ref RPC_HANDLER: IoHandler = init_rpc_handler();
 }
-
 
 /// `GetArtifacts` API Handler
 struct GetArtifacts;

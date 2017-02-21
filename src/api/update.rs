@@ -1,3 +1,4 @@
+#![allow(dead_code)]
 use dev_prefix::*;
 use jsonrpc_core::{RpcMethodSync, Params, Error as RpcError, ErrorCode};
 use jsonrpc_core;
