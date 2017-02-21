@@ -1,6 +1,17 @@
 [REQ-0]
 text = "definitions and process for the artifact project"
 
+[REQ-0-license]
+text = '''
+The Artifact Document Specification and these design documents
+are both released under the CC0 Creative Commons Public
+Domain License. You can read more about CC0 here:
+https://creativecommons.org/publicdomain/
+
+The artifact library and Web UI (located in `src/` and `web-ui/`) are licensed
+under the LGPLv3+, except for files which say otherwise in their header.
+'''
+
 [REQ-0-assertions]
 text = '''
 Assertions **will** be used throughout the artifacts to mean:

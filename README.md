@@ -52,11 +52,12 @@ Artifact is nearly feature complete. The following will change prior to 1.0:
 - [ ] Web UI for viewing tracked tests
 
 ## Licensing
-The artifact file format (the format of the toml files, artifact name, etc) is
-licensed under the CC0 (Creative Commons Public Domain) License. Any person can
-use the format for any reason without the need for even attribution (attribution
-is appreciated though!)
+The [Artifact Document Specification](DOC-SPEC.md) and the
+[Artifact Design Documents](http://vitiral.github.io/artifact/#artifacts/REQ-1)
+(located in `design/`) are both released under the CC0 Creative Commons Public
+Domain License. You can read more about CC0 here:
+https://creativecommons.org/publicdomain/
 
-The artifact library and Web UI are licensed under the LGPLv3+, except for files
-which say otherwise in their header. See LICENSE.txt for more information.
-
+The artifact library and Web UI (located in `src/` and `web-ui/`) are licensed
+under the LGPLv3+, except for files which say otherwise in their header.
+See LICENSE.txt for more information.
