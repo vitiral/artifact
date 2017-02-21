@@ -16,7 +16,7 @@ build-elm: # build just elm (not rust)
 	(cd web-ui; npm run build)
 	(cd web-ui/dist; tar -cvf ../../src/api/data/web-ui.tar *)
 
-build-elm-static: # build and package elm as a static index.html
+build-static: # build and package elm as a static index.html
 	(cd web-ui; elm make src/Main-Static.elm)
 	rm -rf target/web
 	mkdir target/web
@@ -26,7 +26,7 @@ build-elm-static: # build and package elm as a static index.html
 	sed -e 's/<head>/<head><link rel="stylesheet" type="text\/css" href="css\/index.css" \/>/g' target/web/index.html -i
 	(cd target/web; tar -cvf ../../src/cmd/data/web-ui-static.tar *)
 
-build-web: build-elm build-elm-static
+build-web: build-elm build-static
 	cargo build --features "web"
 
 ##################################################
@@ -92,14 +92,14 @@ publish: git-verify lint build-web test-web check # publish to github and crates
 	just publish-cargo
 	just publish-git
 
-create-site:
-	rm -rf _static-webpage/index.html _static-webpage/css
-	art export html && mv index.html css _static-webpage
+export-site: build-web
+	rm -rf _gh-pages/index.html _gh-pages/css
+	art export html && mv index.html css _gh-pages
 
-publish-site: create-site
-	rm -rf _static-webpage/index.html _static-webpage/css
-	art export html && mv index.html css _static-webpage
-	(cd _static-webpage; git commit -am 'v{{version}}' && git push origin gh-pages)
+publish-site: export-site
+	rm -rf _gh-pages/index.html _gh-pages/css
+	art export html && mv index.html css _gh-pages
+	(cd _gh-pages; git commit -am 'v{{version}}' && git push origin gh-pages)
 
 publish-cargo: # publish cargo without verification
 	cargo publish --no-verify
