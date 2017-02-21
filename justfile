@@ -92,7 +92,11 @@ publish: git-verify lint build-web test-web check # publish to github and crates
 	just publish-cargo
 	just publish-git
 
-publish-site:
+create-site:
+	rm -rf _static-webpage/index.html _static-webpage/css
+	art export html && mv index.html css _static-webpage
+
+publish-site: create-site
 	rm -rf _static-webpage/index.html _static-webpage/css
 	art export html && mv index.html css _static-webpage
 	(cd _static-webpage; git commit -am 'v{{version}}' && git push origin gh-pages)

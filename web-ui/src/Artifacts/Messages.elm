@@ -2,7 +2,8 @@ module Artifacts.Messages exposing (..)
 
 import Http
 import Artifacts.Models exposing (
-  NameKey, Artifact, Artifacts, ArtifactEditable, Columns, Search)
+  NameKey, Artifact, Artifacts, ArtifactEditable, 
+  Columns, EditState, Search)
 
 
 type Msg
@@ -11,4 +12,5 @@ type Msg
   | ShowArtifact String
   | ColumnsChanged Columns 
   | SearchChanged Search
+  | EditStateChanged EditState
   | ArtifactEdited NameKey ArtifactEditable

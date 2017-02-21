@@ -37,6 +37,13 @@ update msg model =
       in
         ( { model |  state = state }, Cmd.none )
 
+    EditStateChanged edit ->
+      let 
+        s = model.state
+        state = { s | edit = edit }
+      in
+        ( { model | state = state }, Cmd.none )
+
     SearchChanged search ->
       let
         s = model.state

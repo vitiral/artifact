@@ -2,7 +2,9 @@ module Models exposing (..)
 
 import Messages exposing (Route)
 import Artifacts.Models exposing 
-  (Artifact, Artifacts, Columns, Search, initialColumns, initialSearch)
+  (Artifact, Artifacts, 
+  Columns, EditState, Search, 
+  initialColumns, initialEditState, initialSearch)
 
 -- MODEL: application level model, holds all app data
 
@@ -57,10 +59,12 @@ appendError model err =
 type alias State =
   { columns : Columns
   , search : Search
+  , edit : EditState
   }
 
 initialState : State
 initialState =
   { columns = initialColumns
   , search = initialSearch
+  , edit = initialEditState
   }

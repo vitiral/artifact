@@ -174,3 +174,12 @@ initialSearch =
   , partof = False
   , text = False
   }
+
+type alias EditState =
+  { rendered : Bool -- display the rendered tab
+  }
+
+initialEditState : EditState
+initialEditState =
+  { rendered = True
+  }
