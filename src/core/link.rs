@@ -93,7 +93,8 @@ pub fn link_named_partofs(artifacts: &mut Artifacts) {
 mod tests {
     use dev_prefix::*;
     use super::*;
-    use core::load::load_toml_simple;
+    use core::tests::load_toml_simple;
+
     #[test]
     fn test_link_named_partofs() {
         let mut artifacts = load_toml_simple("\

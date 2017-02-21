@@ -2,12 +2,12 @@
 
 use rustc_serialize::Decodable;
 
-use dev_prefix::*;
-use super::*; // data directory constants
 use super::super::init_logger_test;
+use dev_prefix::*;
 use core::types::*;
-use core::load::*;
-use core::locs::*;
+use core::tests;
+use core::load;
+use core::locs;
 
 use strfmt;
 use toml::{Parser, Value, Table, Decoder};
@@ -37,7 +37,7 @@ fn test_artifact_name() {
 
 #[test]
 fn test_get_attr() {
-    let tbl_good = parse_text(TOML_GOOD);
+    let tbl_good = load::parse_toml(tests::TOML_GOOD).unwrap();
     let df_str = "".to_string();
     let df_tbl = Table::new();
     let ref df_vec: Vec<String> = Vec::new();
@@ -47,7 +47,6 @@ fn test_get_attr() {
     assert!(get_attr!(&test, "text", df_str, String).unwrap() == "bar");
 
     assert!(get_attr!(&test, "text", false, Boolean).is_none());
-    assert!(get_vecstr(&test, "text", df_vec).is_none());
     let test = get_attr!(tbl_good, "SPC-foo", Table::new(), Table).unwrap();
 
     let test = get_attr!(tbl_good, "REQ-foo", Table::new(), Table).unwrap();
@@ -56,26 +55,21 @@ fn test_get_attr() {
 
 #[test]
 fn test_settings() {
-    let tbl_good = parse_text(TOML_GOOD);
+    let tbl = load::parse_toml(tests::TOML_SETTINGS).unwrap();
     let df_tbl = Table::new();
-    let (_, set) = Settings::from_table(&get_attr!(tbl_good, "settings", df_tbl, Table).unwrap())
-        .unwrap();
-    assert!(set.load_paths ==
-            VecDeque::from_iter(vec![PathBuf::from("{cwd}/test"), PathBuf::from("{repo}/test")]));
+    let (_, set) = Settings::from_table(&tbl).unwrap();
+    assert!(set.artifact_paths ==
+            HashSet::from_iter(vec![PathBuf::from("{cwd}/test"), PathBuf::from("{repo}/test")]));
     assert!(set.code_paths ==
             VecDeque::from_iter(vec![PathBuf::from("{cwd}/src"), PathBuf::from("{repo}/src2")]));
 
-    // see: 4
     let toml_invalid = r#"
-    [settings]
     artifact_paths = ['hi']
     paths = ['invalid']
     "#;
-    let tbl_invalid = parse_text(toml_invalid);
-    let df_tbl = Table::new();
+    let tbl = load::parse_toml(toml_invalid).unwrap();
 
-    assert!(Settings::from_table(&get_attr!(tbl_invalid, "settings", df_tbl, Table).unwrap())
-        .is_err());
+    assert!(Settings::from_table(&tbl).is_err());
 }
 
 #[test]
@@ -109,19 +103,19 @@ fn test_load_toml() {
     let path = PathBuf::from("hi/there");
 
     // #TST-load-invalid
-    assert!(load_toml(&path, TOML_BAD, &mut p).is_err());
-    assert!(load_toml(&path, TOML_BAD_JSON, &mut p).is_err());
-    assert!(load_toml(&path, TOML_BAD_ATTR1, &mut p).is_err());
-    assert!(load_toml(&path, TOML_BAD_ATTR2, &mut p).is_err());
-    assert!(load_toml(&path, TOML_BAD_NAMES1, &mut p).is_err());
-    assert!(load_toml(&path, TOML_BAD_NAMES2, &mut p).is_err());
+    assert!(load::load_toml(&path, tests::TOML_BAD, &mut p).is_err());
+    assert!(load::load_toml(&path, tests::TOML_BAD_JSON, &mut p).is_err());
+    assert!(load::load_toml(&path, tests::TOML_BAD_ATTR1, &mut p).is_err());
+    assert!(load::load_toml(&path, tests::TOML_BAD_ATTR2, &mut p).is_err());
+    assert!(load::load_toml(&path, tests::TOML_BAD_NAMES1, &mut p).is_err());
+    assert!(load::load_toml(&path, tests::TOML_BAD_NAMES2, &mut p).is_err());
 
     // basic loading unit tests
-    let num = load_toml(&path, TOML_RST, &mut p).unwrap();
+    let num = load::load_toml(&path, tests::TOML_RST, &mut p).unwrap();
 
     let locs = HashMap::from_iter(vec![(ArtName::from_str("SPC-foo").unwrap(), Loc::fake()),
                                        (ArtName::from_str("SPC-bar").unwrap(), Loc::fake())]);
-    let dne_locs = attach_locs(&mut p.artifacts, locs);
+    let dne_locs = locs::attach_locs(&mut p.artifacts, locs);
     assert_eq!(num, 8);
     assert_eq!(dne_locs.len(), 0);
     assert!(p.artifacts.contains_key(&ArtName::from_str("REQ-foo").unwrap()));
@@ -164,17 +158,12 @@ fn test_load_toml() {
         assert_eq!(art.loc.as_ref().unwrap(), &expected);
         assert_eq!(art.completed, -1.0);
         assert_eq!(art.tested, -1.0);
-
-        // see TST-settings-load
-        let set = &p.settings_map.iter().next().unwrap().1;
-        assert_eq!(set.load_paths,
-                   VecDeque::from_iter(vec![PathBuf::from("{cwd}/data/empty")]));
     }
 
     // must be loaded afterwards, uses already existing artifacts
-    assert!(load_toml(&path, TOML_OVERLAP, &mut p).is_err());
+    assert!(load::load_toml(&path, tests::TOML_OVERLAP, &mut p).is_err());
 
-    let num = load_toml(&path, TOML_RST2, &mut p).unwrap();
+    let num = load::load_toml(&path, tests::TOML_RST2, &mut p).unwrap();
     assert_eq!(num, 3);
     assert!(p.artifacts.contains_key(&ArtName::from_str("REQ-baz").unwrap()));
     assert!(p.artifacts.contains_key(&ArtName::from_str("RSK-foo-2").unwrap()));
@@ -183,7 +172,7 @@ fn test_load_toml() {
 
 /// just get the artifacts and settings
 pub fn load_raw_extra(path: &Path) -> Result<(Artifacts, Settings)> {
-    let project = try!(load_raw(path));
+    let project = load::load_project(path)?;
     assert_eq!(project.origin, path);
     Ok((project.artifacts, project.settings))
 }
@@ -195,16 +184,17 @@ fn test_load_raw() {
     info!("running test_load_raw");
     // see: TST-load-invalid
     // - load with invalid attribute
-    assert!(load_raw_extra(TINVALID_DIR.join(&PathBuf::from("attr")).as_path()).is_err());
+    assert!(load_raw_extra(tests::TINVALID_DIR.join(&PathBuf::from("attr")).as_path()).is_err());
     // - load two files that have the same key
-    assert!(load_raw_extra(TINVALID_DIR.join(&PathBuf::from("same_names")).as_path()).is_err());
+    assert!(load_raw_extra(tests::TINVALID_DIR.join(&PathBuf::from("same_names")).as_path())
+        .is_err());
 
     info!("loading only valid now");
     // The TSIMPL_DIR has several tests set up in it, including valid
     // "back references" to make sure that directories don't load multiple
     // times, valid loc, etc.
     // partof: #TST-load-loop, #TST-load-valid
-    let simple = &TSIMPLE_DIR;
+    let simple = &tests::TSIMPLE_DIR;
     let (artifacts, settings) = load_raw_extra(simple.as_path()).unwrap();
     assert!(artifacts.contains_key(&ArtName::from_str("REQ-purpose").unwrap()));
 

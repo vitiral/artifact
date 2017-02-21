@@ -71,7 +71,7 @@ pub fn run_cmd(w: &mut Write, repo: &Path, project: &Project, cmd: &Cmd) -> Resu
     };
     // check to make sure nothing has actually changed
     // see: TST-fmt
-    let fmt_project = core::process_project_text(&ptext).chain_err(
+    let fmt_project = core::process_project_text(project.settings.clone(), &ptext).chain_err(
         || "internal fmt error: could not process project text.".to_string())?;
     project.equal(&fmt_project)
         .chain_err(|| "internal fmt error: formatted project has different data.".to_string())?;

@@ -118,7 +118,7 @@ of the name
 [SPC-learn-valid]
 text = '''
 There are only a few rules for defining artifacts:
- - case is ignored for all names (except globals and settings)
+ - case is ignored for all names
  - names cannot overlap, even in different files
  - all items (i.e. [REQ-foo]) must start with either REQ, RSK, SPC or TST
  - artifact names must follow SPC-learn-links (see bellow)

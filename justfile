@@ -12,6 +12,10 @@ build: # build app with web=false
 	cargo build
 	echo "built binary to: target/stable/debug/art"
 
+build-dev: # build using nightly and incremental compilation
+	TG={{target}} {{nightly}} cargo build
+	echo "built binary to: target/nightly/debug/art"
+
 build-elm: # build just elm (not rust)
 	(cd web-ui; npm run build)
 	(cd web-ui/dist; tar -cvf ../../src/api/data/web-ui.tar *)
@@ -37,9 +41,16 @@ test: # do tests with web=false
 test-dev: # test using nightly and incremental compilation
 	TG={{target}} {{nightly}} cargo test --lib
 
-test-web: # do tests with web=true
+test-elm: 
 	(cd web-ui; elm test)
+
+test-web: # do tests with web=true
 	RUST_BACKTRACE=1 cargo test --lib --features "web"
+
+test-web-dev:
+	TG={{target}} {{nightly}} cargo test --lib --features "web"
+
+test-all: test-elm test-web
 
 filter PATTERN: # run only specific tests
 	RUST_BACKTRACE=1 cargo test --lib {{PATTERN}} --features "web"
@@ -87,7 +98,7 @@ git-verify: # make sure git is clean and on master
 	git branch | grep '* master'
 	git diff --no-ext-diff --quiet --exit-code
 
-publish: git-verify lint build-web test-web check # publish to github and crates.io
+publish: git-verify lint build-web test-all check # publish to github and crates.io
 	git commit -a -m "v{{version}} release"
 	just publish-cargo
 	just publish-git

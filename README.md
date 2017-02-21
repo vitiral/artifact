@@ -31,8 +31,8 @@ Artifact is nearly feature complete. The following will change prior to 1.0:
 - [x] included static web-file generation
 - [x] Web UI View functionality
 - [x] *remove* `globals` setting (text-variables)
-- [ ] only allow settings in `.art/settings.toml`
-- [ ] add setting `additional_repos`
+- [x] only allow settings in `.art/settings.toml`
+- [x] add setting `additional_repos`
 - [ ] fix any stop-ship bugs
 
 #### Future (post 1.0) Improvements

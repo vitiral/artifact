@@ -31,3 +31,9 @@ pub use ui;
 pub use ui::{FmtSettings, FmtArtifact, PercentSearch, SearchSettings};
 
 pub const COLOR: AS = AS::ColorAuto;
+
+#[cfg(windows)]
+pub const COLOR_IF_POSSIBLE: bool = false;
+
+#[cfg(not(windows))]
+pub const COLOR_IF_POSSIBLE: bool = true;

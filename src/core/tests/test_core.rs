@@ -4,8 +4,10 @@ use dev_prefix::*;
 
 use toml::{Parser, Value, Table};
 use core;
-use super::*; // data directory constants
-use super::super::*;
+use core::types::*;
+use core::tests;
+use core::load;
+use core::locs;
 
 #[test]
 // partof: #TST-load-simple
@@ -13,21 +15,23 @@ fn test_load_path() {
     // init_logger_test();
     info!("running test_load_path");
     // see: TST-load-dir-invalid
-    assert!(load_path(TINVALID_DIR.join(&PathBuf::from("attr")).as_path()).is_err());
-    assert!(load_path(TINVALID_DIR.join(&PathBuf::from("same_names")).as_path()).is_err());
+    assert!(core::load_path(tests::TINVALID_DIR.join(&PathBuf::from("attr")).as_path()).is_err());
+    assert!(core::load_path(tests::TINVALID_DIR.join(&PathBuf::from("same_names")).as_path())
+        .is_err());
 
-    let simple = &TSIMPLE_DIR;
+    let simple = &tests::TSIMPLE_DIR;
+    let design = simple.join("design");
 
-    let p = load_path(simple.as_path()).unwrap();
-    assert!(p.files.contains(&simple.join("config.toml")),
+    let p = core::load_path(simple.as_path()).unwrap();
+    assert!(p.files.contains(&design.join("config.toml")),
             "config.toml does not exist in: {:?}",
             p.files);
-    assert!(p.files.contains(&simple.join("deep/reqs/deep.toml")));
-    assert!(p.files.contains(&simple.join("lvl_1/req.toml")));
+    assert!(p.files.contains(&design.join("deep/reqs/deep.toml")));
+    assert!(p.files.contains(&design.join("lvl_1/req.toml")));
 
 
     assert_eq!(p.origin, simple.as_path());
-    let (artifacts, dne_locs) = (p.artifacts, p.dne_locs);
+    let artifacts = p.artifacts;
     assert!(artifacts.contains_key(&ArtName::from_str("REQ-purpose").unwrap()));
 
     let req_purpose = artifacts.get(&ArtName::from_str("REQ-purpose").unwrap()).unwrap();
@@ -54,6 +58,14 @@ fn test_load_path() {
     let lvl1_dir = simple.join(PathBuf::from("lvl_1"));
     let lvl1_dir_str = lvl1_dir.as_path().to_str().unwrap().to_string();
 
+    // settings
+    assert_eq!(p.settings.artifact_paths,
+               HashSet::from_iter(vec![design.to_path_buf()]));
+    assert_eq!(p.settings.code_paths,
+               VecDeque::from_iter(vec![src_dir.to_path_buf()]));
+    assert_eq!(p.dne_locs.len(), 2);
+
+    // locations
     assert_eq!(spc_lvl1.text, "level one does FOO");
     assert_eq!(spc_lvl1.loc.as_ref().unwrap().path,
                src_dir.join(PathBuf::from("lvl_1.rs")));
@@ -62,8 +74,8 @@ fn test_load_path() {
     assert_eq!(spc_loc.loc.iter().next().unwrap().line_col, (4, 4));
     assert_eq!(spc_lvl1.loc.iter().next().unwrap().line_col, (3, 3));
 
-    assert!(dne_locs.contains_key(&ArtName::from_str("SPC-dne").unwrap()));
-    assert!(dne_locs.contains_key(&ArtName::from_str("TST-dne").unwrap()));
+    assert!(p.dne_locs.contains_key(&ArtName::from_str("SPC-dne").unwrap()));
+    assert!(p.dne_locs.contains_key(&ArtName::from_str("TST-dne").unwrap()));
 
     // TODO: more validation
     // TODO: need to check that completeness makes sense: TST-core-load-loc-resolve
@@ -89,9 +101,9 @@ fn remove_loc(project: &mut Project) {
 /// processing results in the same project
 fn test_process_project() {
     //core::init_logger_test();
-    let simple = &TSIMPLE_DIR;
+    let simple = &tests::TSIMPLE_DIR;
 
-    let p = load_path(simple.as_path()).unwrap();
+    let p = core::load_path(simple.as_path()).unwrap();
     let original_p = p.clone();
 
     // should be able to process twice without issue
@@ -99,7 +111,7 @@ fn test_process_project() {
     {
         let mut new_p = p.clone();
         remove_parents(&mut new_p);
-        process_project(&mut new_p).unwrap();
+        load::process_project(&mut new_p).unwrap();
         p.equal(&new_p).expect("no-change");
         p.equal(&original_p).expect("original")
     }
@@ -108,7 +120,7 @@ fn test_process_project() {
         let mut new_p = p.clone();
         remove_parents(&mut new_p);
         remove_loc(&mut new_p);
-        process_project(&mut new_p).unwrap();
+        load::process_project(&mut new_p).unwrap();
         p.equal(&new_p).unwrap();
         p.equal(&original_p).expect("original")
     }
@@ -127,7 +139,7 @@ fn test_process_project() {
 
         remove_parents(&mut new_p);
         remove_loc(&mut new_p);
-        process_project(&mut new_p).unwrap();
+        load::process_project(&mut new_p).unwrap();
 
         p.equal(&new_p).unwrap();
         p.equal(&original_p).expect("original")

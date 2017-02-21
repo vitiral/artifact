@@ -11,9 +11,9 @@ use super::TSIMPLE_DIR;
 fn test_fmt_security() {
     // make sure that we can't load invalid stuff
     let mut w: Vec<u8> = Vec::new();
-    let repo = core::tests::TINVALID_BOUNDS.join("repo");
-    let cfg = repo.join(".art");
-    let project = core::load_path(&cfg).unwrap();
+    let design = core::tests::TINVALID_BOUNDS.join("repo").join("design");
+    let repo = core::find_repo(&design).unwrap();
+    let project = core::load_path(&repo).unwrap();
     let c = cmd::fmt::Cmd::Write;
     match cmd::fmt::run_cmd(&mut w, &repo, &project, &c) {
         Err(e) => {
@@ -31,14 +31,12 @@ fn test_fmt_security() {
 fn test_fmt() {
     let mut w: Vec<u8> = Vec::new();
     let simple = TSIMPLE_DIR.lock().unwrap();
+    let design = simple.join("design");
 
     let mut original_text = core::types::ProjectText::default();
-    let repo = simple.as_path();
     let mut _throw = HashSet::new();
 
-    original_text.load(&repo, &mut _throw).unwrap();
-    original_text.load(&repo.join("deep").join("spcs"), &mut _throw).unwrap();
-    original_text.load(&repo.join("deep").join("reqs"), &mut _throw).unwrap();
+    original_text.load(&design, &mut _throw).unwrap();
 
     // basically try/finally for rust -- need to make sure we don't change
     // the actual data
@@ -68,9 +66,7 @@ fn test_fmt() {
     original_text.dump().unwrap();
     let mut new_text = core::types::ProjectText::default();
     _throw.clear();
-    new_text.load(&repo, &mut _throw).unwrap();
-    new_text.load(&repo.join("deep").join("spcs"), &mut _throw).unwrap();
-    new_text.load(&repo.join("deep").join("reqs"), &mut _throw).unwrap();
+    new_text.load(&design, &mut _throw).unwrap();
     assert_eq!(original_text, new_text);
     result.unwrap();
 }

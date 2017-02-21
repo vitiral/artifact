@@ -6,6 +6,7 @@ use serde_json;
 
 use core::prefix::*;
 use core;
+use core::load;
 
 use api::constants;
 use api::utils;
@@ -141,7 +142,7 @@ pub fn update_artifacts(data_artifacts: &[ArtifactData],
     // process the new set of artifacts to make sure they are valid
     let mut new_project = Project { artifacts: save_artifacts, ..project.clone() };
 
-    if let Err(err) = core::process_project(&mut new_project) {
+    if let Err(err) = load::process_project(&mut new_project) {
         return Err(RpcError {
             code: constants::SERVER_ERROR,
             message: err.to_string(),

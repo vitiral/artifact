@@ -31,7 +31,7 @@ pub fn get_matches<'a, I, T>(args: I) -> ClapResult<ArgMatches<'a>>
 {
     App::new("artifact")
         .version(env!("CARGO_PKG_VERSION"))
-        .about("the requirements tracking tool made for developers. Call `art init -t` for \
+        .about("the requirements tracking tool made for developers. Call `art tutorial` for \
                 a tutorial")
         .author("https://github.com/vitiral/artifact")
         .settings(&[AS::ArgRequiredElseHelp,

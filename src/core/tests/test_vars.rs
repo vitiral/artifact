@@ -12,7 +12,7 @@ fn test_find_repo() {
     let simple = &TSIMPLE_DIR;
     assert_eq!(utils::find_repo(simple.as_path()).unwrap(),
                simple.as_path());
-    assert_eq!(utils::find_repo(simple.join("lvl_1").as_path()).unwrap(),
+    assert_eq!(utils::find_repo(simple.join("design").join("lvl_1").as_path()).unwrap(),
                simple.as_path());
     assert!(utils::find_repo(env::temp_dir().as_path()).is_none());
 }

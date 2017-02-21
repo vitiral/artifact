@@ -62,9 +62,9 @@ pub mod types;
 pub mod dev_prefix;
 pub mod core;
 pub mod ui;
-pub mod cmd;
 
 mod api;
+pub mod cmd;
 
 use std::result;
 pub use types::*;

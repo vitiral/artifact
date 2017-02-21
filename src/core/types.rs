@@ -55,8 +55,6 @@ pub struct Project {
 
     // preserved locations where each piece is from
     pub origin: PathBuf,
-    pub settings_map: HashMap<PathBuf, Settings>,
-    pub raw_settings_map: HashMap<PathBuf, RawSettings>,
     pub repo_map: HashMap<PathBuf, PathBuf>,
 }
 
@@ -69,8 +67,6 @@ impl Default for Project {
             dne_locs: HashMap::default(),
 
             origin: PARENT_PATH.to_path_buf(),
-            settings_map: HashMap::default(),
-            raw_settings_map: HashMap::default(),
             repo_map: HashMap::default(),
         }
     }
@@ -201,10 +197,6 @@ impl Project {
         proj_attr_equal("settings", &self.settings, &other.settings)?;
         proj_attr_equal("files", &self.files, &other.files)?;
         proj_attr_equal("dne_locs", &self.dne_locs, &other.dne_locs)?;
-        proj_attr_equal("settings_map", &self.settings_map, &other.settings_map)?;
-        proj_attr_equal("raw_settings_map",
-                        &self.raw_settings_map,
-                        &other.raw_settings_map)?;
         proj_attr_equal("repo_map", &self.repo_map, &other.repo_map)?;
         Ok(())
     }
@@ -238,7 +230,7 @@ pub struct RawSettings {
     pub artifact_paths: Option<Vec<String>>,
     pub code_paths: Option<Vec<String>>,
     pub exclude_code_paths: Option<Vec<String>>,
-    pub color: Option<bool>,
+    pub additional_repos: Option<Vec<String>>,
 }
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
@@ -348,27 +340,19 @@ impl Artifact {
 
 #[derive(Debug, Default, Clone, PartialEq)]
 pub struct Settings {
-    pub load_paths: VecDeque<PathBuf>,
     pub artifact_paths: HashSet<PathBuf>,
     pub code_paths: VecDeque<PathBuf>,
     pub exclude_code_paths: VecDeque<PathBuf>,
-    pub color: bool,
+    pub additional_repos: VecDeque<PathBuf>,
 }
-
-#[cfg(not(windows))]
-const DEFAULT_COLOR: bool = true;
-
-#[cfg(windows)]
-const DEFAULT_COLOR: bool = false;
 
 impl Settings {
     pub fn new() -> Settings {
         Settings {
-            load_paths: VecDeque::new(),
             artifact_paths: HashSet::new(),
             code_paths: VecDeque::new(),
             exclude_code_paths: VecDeque::new(),
-            color: DEFAULT_COLOR,
+            additional_repos: VecDeque::new(),
         }
     }
 }

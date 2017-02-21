@@ -15,7 +15,7 @@ lazy_static! {
 /// just test some assumptions, like that the different "levels"
 /// of files aren't equal and that toml files can be loaded
 /// by artifact
-fn test_basic() {
+fn test_tutorial_basic() {
     assert_ne!(tut::D_SETTINGS_1_TOML, tut::D_SETTINGS_2_TOML);
     assert_ne!(tut::D_SETTINGS_1_TOML, tut::D_SETTINGS_4_TOML);
     assert_ne!(tut::D_SETTINGS_2_TOML, tut::D_SETTINGS_4_TOML);
@@ -27,10 +27,10 @@ fn test_basic() {
                           tut::D_HIGH_LEVEL_TOML,
                           tut::D_PURPOSE_TOML,
                           tut::D_LOAD_1_TOML,
-                          tut::D_LOAD_2_TOML,
-                          tut::D_SETTINGS_1_TOML,
-                          tut::D_SETTINGS_2_TOML,
-                          tut::D_SETTINGS_4_TOML];
+                          tut::D_LOAD_2_TOML];
+
+    let settings_files =
+        vec![tut::D_SETTINGS_1_TOML, tut::D_SETTINGS_2_TOML, tut::D_SETTINGS_4_TOML];
 
     let p = Path::new("foo");
     for (i, toml) in toml_files.iter().enumerate() {
@@ -38,6 +38,13 @@ fn test_basic() {
         let text = str::from_utf8(toml).unwrap();
         load::load_toml(&p, text, &mut project)
             .expect(&format!("could not load tutorial toml at index: {}", i));
+    }
+
+    for (i, toml) in settings_files.iter().enumerate() {
+        let text = str::from_utf8(toml).unwrap();
+        let tbl = load::parse_toml(text).unwrap();
+        Settings::from_table(&tbl)
+            .expect(&format!("could not load tutorial settings at index: {}", i));
     }
 }
 

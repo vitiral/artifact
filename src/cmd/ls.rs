@@ -304,17 +304,12 @@ pub fn get_cmd(matches: &ArgMatches) -> Result<Cmd> {
 pub fn run_cmd<W: Write>(mut w: &mut W, cwd: &Path, cmd: &Cmd, project: &Project) -> Result<()> {
     let mut dne: Vec<ArtNameRc> = Vec::new();
     let artifacts = &project.artifacts;
-    let mut settings = project.settings.clone();
     let mut fmt_set = cmd.fmt_settings.clone();
 
     // no color when exporting
     if cmd.ty != OutType::List {
         fmt_set.color = false;
     }
-
-    // load settings from cmdline inputs
-    // #SPC-cmd-ls-color
-    settings.color = fmt_set.color;
 
     // get the names that we will be showing
     let names: Vec<_> = if cmd.search_settings.use_regex {
@@ -368,7 +363,7 @@ pub fn run_cmd<W: Write>(mut w: &mut W, cwd: &Path, cmd: &Cmd, project: &Project
     }
 
     if !fmt_set.long && cmd.ty == OutType::List {
-        display::write_table_header(w, &fmt_set, &settings);
+        display::write_table_header(w, &fmt_set);
     }
     let mut displayed = ArtNames::new();
     // #SPC-cmd-ls-type
@@ -377,7 +372,7 @@ pub fn run_cmd<W: Write>(mut w: &mut W, cwd: &Path, cmd: &Cmd, project: &Project
             for name in names {
                 let f =
                     ui::fmt_artifact(&name, artifacts, &fmt_set, fmt_set.recurse, &mut displayed);
-                f.write(w, cwd, artifacts, &settings, 0)?;
+                f.write(w, cwd, artifacts, fmt_set.color, 0)?;
             }
         }
         OutType::Json => {

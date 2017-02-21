@@ -24,15 +24,15 @@ pub fn get_subcommand<'a, 'b>() -> App<'a, 'b> {
 }
 
 // Helper functions
-fn paint_it<W: Write>(w: &mut W, settings: &Settings, msg: &str) {
-    if settings.color {
+fn paint_it<W: Write>(w: &mut W, msg: &str) {
+    if COLOR_IF_POSSIBLE {
         write!(w, "{}", Red.paint(msg)).unwrap();
     } else {
         write!(w, "{}", msg).unwrap();
     }
 }
-fn paint_it_bold<W: Write>(w: &mut W, settings: &Settings, msg: &str) {
-    if settings.color {
+fn paint_it_bold<W: Write>(w: &mut W, msg: &str) {
+    if COLOR_IF_POSSIBLE {
         write!(w, "{}", Red.bold().paint(msg)).unwrap();
     } else {
         write!(w, "{}", msg).unwrap();
@@ -43,7 +43,6 @@ fn paint_it_bold<W: Write>(w: &mut W, settings: &Settings, msg: &str) {
 #[allow(cyclomatic_complexity)] // TODO: break this up
 pub fn run_cmd<W: Write>(w: &mut W, cwd: &Path, project: &Project) -> Result<()> {
     let artifacts = &project.artifacts;
-    let settings = &project.settings;
 
     let mut error: i32 = 0;
     // display invalid partof names and locations
@@ -63,7 +62,7 @@ pub fn run_cmd<W: Write>(w: &mut W, cwd: &Path, project: &Project) -> Result<()>
             let mut msg = String::new();
             if !displayed_header {
                 displayed_header = true;
-                paint_it_bold(w, settings, "\nFound partof names that do not exist:\n");
+                paint_it_bold(w, "\nFound partof names that do not exist:\n");
             }
             write!(msg,
                    "    {} [{}]: {:?}\n",
@@ -71,7 +70,7 @@ pub fn run_cmd<W: Write>(w: &mut W, cwd: &Path, project: &Project) -> Result<()>
                    utils::relative_path(&artifact.path, cwd).display(),
                    invalid_partof)
                 .unwrap();
-            paint_it(w, settings, &msg);
+            paint_it(w, &msg);
         }
     }
 
@@ -135,7 +134,6 @@ pub fn run_cmd<W: Write>(w: &mut W, cwd: &Path, project: &Project) -> Result<()>
             }
         }
         paint_it_bold(w,
-                      settings,
                       "\nArtifacts partof contains at least one recursive reference:\n");
         let mut unresolved_partof: Vec<_> = unresolved_partof.drain()
             .map(|mut v| (v.0, v.1.drain().collect::<Vec<_>>()))
@@ -160,7 +158,7 @@ pub fn run_cmd<W: Write>(w: &mut W, cwd: &Path, project: &Project) -> Result<()>
             invalid_locs.get_mut(&loc.path).unwrap().push((name.clone(), loc.clone()));
         }
         let header = "\nFound implementation links in the code that do not exist:\n";
-        paint_it_bold(w, settings, header);
+        paint_it_bold(w, header);
         let mut invalid_locs: Vec<(PathBuf, Vec<(ArtName, Loc)>)> =
             Vec::from_iter(invalid_locs.drain());
         invalid_locs.sort_by(|a, b| a.0.cmp(&b.0));
@@ -171,12 +169,12 @@ pub fn run_cmd<W: Write>(w: &mut W, cwd: &Path, project: &Project) -> Result<()>
                    "    {}:\n",
                    utils::relative_path(&path, cwd).display())
                 .unwrap();
-            paint_it(w, settings, &pathstr);
+            paint_it(w, &pathstr);
             locs.sort_by(|a, b| a.1.line_col.cmp(&b.1.line_col));
             for (name, loc) in locs {
                 let mut loc_str = String::new();
                 write!(loc_str, "    - ({}:{})", loc.line_col.0, loc.line_col.1).unwrap();
-                paint_it(w, settings, &loc_str);
+                paint_it(w, &loc_str);
                 write!(w, " {}\n", name).unwrap();
             }
         }
@@ -210,7 +208,7 @@ pub fn run_cmd<W: Write>(w: &mut W, cwd: &Path, project: &Project) -> Result<()>
     if !hanging.is_empty() {
         error = 1;
         let msg = "\nHanging artifacts found (top-level but not partof a higher type):\n";
-        paint_it_bold(w, settings, msg);
+        paint_it_bold(w, msg);
         for (h, p) in hanging {
             let mut msg = String::new();
             write!(msg,
@@ -225,7 +223,7 @@ pub fn run_cmd<W: Write>(w: &mut W, cwd: &Path, project: &Project) -> Result<()>
     if error == 0 {
         let mut msg = String::new();
         write!(msg, "art check: no errors found in {}\n", cwd.display()).unwrap();
-        if settings.color {
+        if COLOR_IF_POSSIBLE {
             write!(w, "{}", Green.paint(msg)).unwrap();
         } else {
             write!(w, "{}", msg).unwrap();

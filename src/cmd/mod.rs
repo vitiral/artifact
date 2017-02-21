@@ -128,10 +128,9 @@ pub fn cmd<W, I, T>(w: &mut W, args: I) -> Result<()>
             return Err(ErrorKind::CmdError("TODO".to_string()).into());
         }
     };
-    let cfg = repo.join(".art");
-    debug!("using cfg dir {:?}", cfg);
+    debug!("using repo dir {:?}", repo);
 
-    let project = match core::load_path(&cfg) {
+    let project = match core::load_path(&repo) {
         Ok(p) => p,
         Err(err) => {
             error!("{}", err);

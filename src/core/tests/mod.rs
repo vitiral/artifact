@@ -1,9 +1,14 @@
 #![allow(dead_code, unused_imports, unused_variables)]
 
-use dev_prefix::*;
 use std::sync;
 
 use toml::{Parser, Value, Table};
+
+use dev_prefix::*;
+use core::types::*;
+
+use core::load;
+
 
 mod test_toml;
 mod test_load;
@@ -32,12 +37,21 @@ lazy_static!{
     pub static ref TLOC_DIR: PathBuf = TDATA_DIR.join(PathBuf::from("loc"));
 }
 
-// valid toml, not necessarily all valid artifacts
-pub static TOML_GOOD: &'static str = "
-[settings]
+pub fn load_toml_simple(text: &str) -> Artifacts {
+    let mut project = Project::default();
+    let path = PathBuf::from("test");
+    load::load_toml(&path, text, &mut project).unwrap();
+    project.artifacts
+}
+
+pub static TOML_SETTINGS: &'static str = "
 artifact_paths = ['{cwd}/test', '{repo}/test']
 code_paths = ['{cwd}/src', '{repo}/src2']
+";
 
+
+// valid toml, not necessarily all valid artifacts
+pub static TOML_GOOD: &'static str = "
 [REQ-foo]
 [SPC-foo]
 [RSK-foo]
@@ -48,9 +62,6 @@ text = 'bar'
 
 // valid artifact file
 pub static TOML_RST: &'static str = "
-[settings]
-artifact_paths = ['{cwd}/data/empty']
-
 [REQ-foo]
 [SPC-foo]
 [RSK-foo]
@@ -69,8 +80,6 @@ partof = 'REQ-parts-p1'
 ";
 
 pub static TOML_RST2: &'static str = "
-[settings]
-artifact_paths = ['test/path']
 [REQ-baz]
 [RSK-foo-2]
 [TST-foo-2]

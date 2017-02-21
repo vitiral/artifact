@@ -17,9 +17,15 @@
 use dev_prefix::*;
 use super::types::*;
 
-const SETTINGS_TOML: &'static str = r#"[settings]
+const SETTINGS_TOML: &'static str = r#"# artifact project settings
+
+# directories containing artifact toml files
 artifact_paths = ["{repo}/design"]
+
+# directories containing code that has artifact links
 code_paths = []
+
+# directories to exclude when searching through code
 exclude_code_paths = []
 "#;
 

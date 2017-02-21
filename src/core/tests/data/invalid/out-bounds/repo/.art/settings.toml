@@ -1,4 +1,3 @@
-[settings]
 artifact_paths = ["{repo}/design", "{repo}/.."]
 code_paths = []
 exclude_code_paths = []

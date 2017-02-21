@@ -138,8 +138,7 @@ fn test_cmd_ls() {
         ty: ls::OutType::List,
     };
 
-    let mut settings = Settings::default();
-    let mut artifacts = core::load::load_toml_simple(r"
+    let mut artifacts = core::tests::load_toml_simple(r"
 [REQ-foo]
 text = 'req for foo'
 [SPC-foo]
@@ -170,7 +169,6 @@ partof = 'REQ-dne'
     }
     core::link::do_links(&mut artifacts).unwrap();
     cmd.fmt_settings.color = COLOR_IF_POSSIBLE;
-    settings.color = COLOR_IF_POSSIBLE;
     let mut w: Vec<u8> = Vec::new();
     let cwd = PathBuf::from("src/foo");
 
@@ -209,7 +207,6 @@ partof = 'REQ-dne'
                                                            Loc::fake())]);
     let mut project = Project::default();
     project.artifacts = artifacts;
-    project.settings = settings;
     project.dne_locs = dne_locs;
 
     // #TST-cmd-check

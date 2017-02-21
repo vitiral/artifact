@@ -1,4 +1,14 @@
-[settings]
 artifact_paths = ["{repo}/design"]
-code_paths = ["{repo}/src", "{repo}/design", "{repo}/web-ui/src", "{repo}/web-ui/tests"]
-exclude_code_paths = ["{repo}/src/core/tests/data", "{repo}/src/cmd/data", "{repo}/src/cmd/tests/data", "{repo}/src/api/data", "{repo}/web-ui/tests/elm-stuff"]
+code_paths = [
+    "{repo}/src", 
+    "{repo}/design", 
+    "{repo}/web-ui/src", 
+    "{repo}/web-ui/tests"
+]
+exclude_code_paths = [
+    "{repo}/src/core/tests/data", 
+    "{repo}/src/cmd/data", 
+    "{repo}/src/cmd/tests/data", 
+    "{repo}/src/api/data", 
+    "{repo}/web-ui/tests/elm-stuff"
+]

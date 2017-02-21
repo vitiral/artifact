@@ -41,12 +41,6 @@ impl ProjectText {
         // we just go through each item, growing `files` as necessary
         // TODO: how to make the equivalent of a yielding function,
         // to not copy/paste the path filtering code.
-        for (path, raw) in &project.raw_settings_map {
-            // insert settings
-            files.insert(path.clone(), Table::new());
-            let tbl = files.get_mut(path).unwrap();
-            tbl.insert("settings".to_string(), encode(raw));
-        }
         for (name, artifact) in &project.artifacts {
             if artifact.path == PARENT_PATH.as_path() {
                 continue; // auto-create artifacts that are not actually written

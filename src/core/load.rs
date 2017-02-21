@@ -18,18 +18,35 @@
 //! loading of raw artifacts from files and text
 
 use rustc_serialize::Decodable;
+
 use toml::{Parser, Value, Table, Decoder};
 
 use dev_prefix::*;
 use super::types::*;
 use super::utils;
 
+use core::link;
+use core::locs;
+
 lazy_static!{
-    pub static ref ARTIFACT_ATTRS: HashSet<String> = HashSet::from_iter(
-        ["text", "partof"].iter().map(|s| s.to_string()));
-    pub static ref SETTINGS_ATTRS: HashSet<String> = HashSet::from_iter(
-        ["artifact_paths",
-         "code_paths", "exclude_code_paths"].iter().map(|s| s.to_string()));
+    pub static ref REPO_DIR: PathBuf = PathBuf::from(".art");
+    pub static ref SETTINGS_PATH: PathBuf = REPO_DIR.join("settings.toml");
+}
+
+/// parse toml using a std error for this library
+pub fn parse_toml(toml: &str) -> Result<Table> {
+    let mut parser = Parser::new(toml);
+    match parser.parse() {
+        Some(table) => Ok(table),
+        None => {
+            let mut locs = String::new();
+            for e in &parser.errors {
+                let (line, col) = parser.to_linecol(e.lo);
+                write!(locs, "[{}:{}] {}, ", line, col, e.desc).unwrap();
+            }
+            Err(ErrorKind::TomlParse(locs).into())
+        }
+    }
 }
 
 macro_rules! get_attr {
@@ -45,47 +62,6 @@ macro_rules! get_attr {
     }
 }
 
-/// only one type is in an array, so make this custom
-pub fn get_vecstr(tbl: &Table, attr: &str, default: &[String]) -> Option<Vec<String>> {
-    match tbl.get(attr) {
-        // if the value is in the table, try to get it's elements
-        Some(&Value::Array(ref a)) => {
-            let mut out: Vec<String> = Vec::with_capacity(a.len());
-            for v in a {
-                match *v {
-                    Value::String(ref s) => out.push(s.clone()),
-                    _ => return None,  // error: invalid type
-                }
-            }
-            Some(out)
-        }
-        None => Some(Vec::from(default)), // value doesn't exist, return default
-        _ => None,  // error: invalid type
-    }
-}
-
-/// check the type to make sure it matches
-macro_rules! check_type {
-    ($value: expr, $attr: expr, $name: expr) => {
-        match $value {
-            Some(v) => v,
-            None => return Err(ErrorKind::InvalidAttr(
-                $name.to_string(), $attr.to_string()).into()),
-        }
-    }
-}
-
-#[cfg(not(windows))]
-fn get_color(raw: &RawSettings) -> bool {
-    raw.color.unwrap_or(true)
-}
-
-#[cfg(windows)]
-/// color always disabled for windows
-fn get_color(raw: &RawSettings) -> bool {
-    false
-}
-
 impl ProjectText {
     // TODO: making this parallel should be easy and dramatically improve performance:
     // - recursing through the directory, finding all the paths to files
@@ -96,7 +72,6 @@ impl ProjectText {
     /// not to load files that have already been loaded
     pub fn load(&mut self, load_dir: &Path, loaded_dirs: &mut HashSet<PathBuf>) -> Result<()> {
         loaded_dirs.insert(load_dir.to_path_buf());
-        let mut num_loaded: u64 = 0;
         let mut dirs_to_load: Vec<PathBuf> = Vec::new();
         let dir_entries =
             fs::read_dir(load_dir).chain_err(|| format!(
@@ -105,7 +80,8 @@ impl ProjectText {
         // and record which directories need to be loaded
         for entry in dir_entries.filter_map(|e| e.ok()) {
             let fpath = entry.path();
-            let ftype = entry.file_type()?;
+            let ftype = entry.file_type()
+                .chain_err(|| format!("error reading type: {}", fpath.display()))?;
             if ftype.is_dir() {
                 dirs_to_load.push(fpath.clone());
             } else if ftype.is_file() {
@@ -118,16 +94,12 @@ impl ProjectText {
                     continue;
                 }
                 let mut text = String::new();
-                let mut fp = fs::File::open(&fpath)?;
+                let mut fp = fs::File::open(&fpath).chain_err(|| format!(
+                    "error opening: {}", fpath.display()))?;
                 fp.read_to_string(&mut text)
                     .chain_err(|| format!("Error loading path {}", fpath.display()))?;
                 self.files.insert(fpath.to_path_buf(), text);
-                num_loaded += 1;
             }
-        }
-        // only recurse if .toml files were found
-        if num_loaded == 0 {
-            return Ok(());
         }
         for dir in dirs_to_load {
             if !loaded_dirs.contains(dir.as_path()) {
@@ -171,14 +143,13 @@ impl Settings {
                 None => VecDeque::new(),
             }
         }
-        let load_paths = to_paths(&raw.artifact_paths);
-        let artifact_paths: HashSet<PathBuf> = load_paths.iter().cloned().collect();
+        let mut paths = to_paths(&raw.artifact_paths);
+        let artifact_paths: HashSet<PathBuf> = paths.drain(0..).collect();
         let settings = Settings {
-            load_paths: load_paths,
             artifact_paths: artifact_paths,
             code_paths: to_paths(&raw.code_paths),
             exclude_code_paths: to_paths(&raw.exclude_code_paths),
-            color: get_color(&raw),
+            additional_repos: to_paths(&raw.additional_repos),
         };
 
         Ok((raw, settings))
@@ -186,25 +157,9 @@ impl Settings {
 }
 
 
-/// parse toml using a std error for this library
-fn parse_toml(toml: &str) -> Result<Table> {
-    let mut parser = Parser::new(toml);
-    match parser.parse() {
-        Some(table) => Ok(table),
-        None => {
-            let mut locs = String::new();
-            for e in &parser.errors {
-                let (line, col) = parser.to_linecol(e.lo);
-                write!(locs, "[{}:{}] {}, ", line, col, e.desc).unwrap();
-            }
-            Err(ErrorKind::TomlParse(locs).into())
-        }
-    }
-}
-
 impl Artifact {
-    /// from_str is mosty used to make testing and one-off development easier
     #[allow(should_implement_trait)]
+    /// from_str is mosty used to make testing and one-off development easier
     pub fn from_str(toml: &str) -> Result<(ArtNameRc, Artifact)> {
         let table = try!(parse_toml(toml));
         if table.len() != 1 {
@@ -251,163 +206,157 @@ impl Artifact {
     }
 }
 
-/// Load artifacts and settings from a toml Table
-pub fn load_file_table(file_table: &mut Table, path: &Path, project: &mut Project) -> Result<u64> {
-    let mut msg: Vec<u8> = Vec::new();
+/// Given text load the artifacts
+pub fn load_toml(path: &Path, text: &str, project: &mut Project) -> Result<u64> {
+    // parse the text
+    let table = parse_toml(text)?;
     let mut num_loaded: u64 = 0;
-
     project.files.insert(path.to_path_buf());
 
-    match file_table.remove("settings") {
-        Some(Value::Table(t)) => {
-            let (raw, settings) = try!(Settings::from_table(&t));
-            project.raw_settings_map.insert(path.to_path_buf(), raw);
-            project.settings_map.insert(path.to_path_buf(), settings);
-        }
-        None => {}
-        _ => return Err(ErrorKind::InvalidSettings("settings must be a Table".to_string()).into()),
-    }
-
-    for (name, value) in file_table.iter() {
-        let aname = try!(ArtName::from_str(name));
+    for (name, value) in table.iter() {
+        let aname = ArtName::from_str(name)?;
         // get the artifact table
         let art_tbl: &Table = match *value {
             Value::Table(ref t) => t,
             _ => {
-                write!(&mut msg, "All top-level values must be a table: {}", name).unwrap();
-                return Err(ErrorKind::Load(String::from_utf8(msg).unwrap()).into());
+                let msg = format!("All top-level values must be a table: {}", name);
+                return Err(ErrorKind::Load(msg).into());
             }
         };
         // check for overlap
         if let Some(overlap) = project.artifacts.get(&aname) {
-            write!(&mut msg,
-                   "Overlapping key found <{}> other key at: {}",
-                   name,
-                   overlap.path.display())
-                .unwrap();
-            return Err(ErrorKind::Load(String::from_utf8(msg).unwrap()).into());
+            let msg = format!("Overlapping key found <{}> other key at: {}",
+                              name,
+                              overlap.path.display());
+            return Err(ErrorKind::Load(msg).into());
         }
-        let artifact = try!(Artifact::from_table(&aname, path, art_tbl));
+        let artifact = Artifact::from_table(&aname, path, art_tbl)?;
         project.artifacts.insert(Arc::new(aname), artifact);
         num_loaded += 1;
     }
     Ok(num_loaded)
 }
 
-pub fn load_toml_simple(text: &str) -> Artifacts {
-    let mut project = Project::default();
-    let path = PathBuf::from("test");
-    load_toml(&path, text, &mut project).unwrap();
-    project.artifacts
-}
+///// load settings from a path recursively
+//pub fn load_repo_settings(path: &Path) -> Result<VecDeque<(RawSettings, Settings)>> {
+//    let mut f = fs::File::open(path)?;
+//    let mut text = String::new();
+//    f.read_to_string(&mut text)?;
 
-/// Given text load the artifacts
-pub fn load_toml(path: &Path, text: &str, project: &mut Project) -> Result<u64> {
-    // parse the text
-    let mut table = try!(parse_toml(text));
-    load_file_table(&mut table, path, project)
-}
+//    let tbl = try!(parse_toml(&text));
+//    let (raw, settings) = Settings::from_table(&tbl)?;
 
-/// push settings found (`loaded_settings`) into a main settings object
-/// `repo_map` is a pre-compiled hashset mapping `dirs->repo_path` (for performance)
-pub fn resolve_settings(project: &mut Project) -> Result<()> {
-    // now resolve all path names
+//    let mut out = VecDeque::new();
+//    for r in &settings.additional_repos {
+//        out.extend(load_repo_settings(r)?);
+//    }
+//    out.push_front((raw, settings));
+//    Ok(out)
+//}
+
+
+pub fn resolve_settings_paths(repo: &Path, settings: &mut Settings) -> Result<()> {
     let mut vars: HashMap<String, String> = HashMap::new();
-    // TODO: this should not allow duplicates... and shouldn't it
-    // delete project.settings_map at the end?
-    // 2nd answer: load_raw clears it, but this should probably be the
-    // one that does instead... maybe...
-    for ps in &project.settings_map {
-        let file_settings: &Settings = ps.1;
-
-        let fpath = ps.0.clone();
-        let cwd = fpath.parent().unwrap();
-        let cwd_str = try!(utils::get_path_str(cwd));
-
-        // TODO: for full windows compatibility you will probably want to support OsStr
-        // here... I just don't want to yet
+    // TODO: for full windows compatibility you will probably want to support OsStr
+    // here... I just don't want to yet
+    let settings_path = repo.join(SETTINGS_PATH.as_path());
+    {
+        let cwd = repo.join(REPO_DIR.as_path());
+        let cwd_str = utils::get_path_str(&cwd)?;
         vars.insert(CWD_VAR.to_string(), cwd_str.to_string());
-        try!(utils::find_and_insert_repo(cwd, &mut project.repo_map));
-        let repo = &project.repo_map[cwd];
-        vars.insert(REPO_VAR.to_string(),
-                    try!(utils::get_path_str(repo.as_path())).to_string());
+        vars.insert(REPO_VAR.to_string(), utils::get_path_str(repo)?.to_string());
+    }
 
-        debug_assert!(file_settings.load_paths.iter().cloned().collect::<HashSet<_>>() ==
-                      file_settings.artifact_paths);
-        // push resolved paths
-        let mut paths = Vec::new();
-        for p in &file_settings.load_paths {
-            let p = try!(utils::do_strfmt(p.to_str().unwrap(), &vars, &fpath));
+    {
+        // push resolved artifact_paths
+        let mut paths = HashSet::new();
+        for p in &settings.artifact_paths {
+            let p = utils::do_strfmt(utils::get_path_str(p)?, &vars, &settings_path)?;
             let p = utils::canonicalize(Path::new(&p))?;
-            paths.push(p);
+            paths.insert(p);
         }
+        settings.artifact_paths = paths;
+    }
 
-        project.settings.load_paths.extend(paths.iter().cloned());
-        project.settings.artifact_paths.extend(paths.drain(0..));
-
+    {
         // push resolved code_paths
-        for p in &file_settings.code_paths {
-            let p = try!(utils::do_strfmt(p.to_str().unwrap(), &vars, &fpath));
-            project.settings.code_paths.push_back(PathBuf::from(p));
+        let mut paths = VecDeque::new();
+        for p in &settings.code_paths {
+            let p = try!(utils::do_strfmt(utils::get_path_str(p)?, &vars, &settings_path));
+            let p = utils::canonicalize(Path::new(&p))?;
+            paths.push_back(p);
         }
+        settings.code_paths = paths;
+    }
 
+    {
         // push resolved exclude_code_paths
-        for p in &file_settings.exclude_code_paths {
-            let p = try!(utils::do_strfmt(p.to_str().unwrap(), &vars, &fpath));
-            project.settings.exclude_code_paths.push_back(PathBuf::from(p));
+        let mut paths = VecDeque::new();
+        for p in &settings.exclude_code_paths {
+            let p = try!(utils::do_strfmt(utils::get_path_str(p)?, &vars, &settings_path));
+            // if an exclude path doesn't exist that's fine
+            let p = match utils::canonicalize(Path::new(&p)) {
+                Ok(p) => p,
+                Err(_) => continue,
+            };
+            paths.push_back(p);
         }
+        settings.exclude_code_paths = paths;
     }
     Ok(())
 }
 
-fn extend_settings(full: &mut HashMap<PathBuf, Settings>,
-                   dir: &HashMap<PathBuf, Settings>)
-                   -> Result<()> {
-    for (p, s) in dir.iter() {
-        if full.insert(p.clone(), s.clone()).is_some() {
-            return Err(ErrorKind::Load(format!("Internal Error: file loaded twice: {}",
-                                               p.display()))
-                .into());
-        }
-    }
+/// load settings from a repo
+pub fn load_settings(repo: &Path) -> Result<Settings> {
+    let settings_path = repo.join(SETTINGS_PATH.as_path());
+    let mut text = String::new();
+    let mut f = fs::File::open(&settings_path).chain_err(|| format!(
+        "error opening settings: {}", settings_path.display()))?;
+    f.read_to_string(&mut text)
+        .chain_err(|| format!("error reading settings: {}", settings_path.display()))?;
+
+    let tbl = parse_toml(&text).chain_err(|| format!(
+        "error parsing settings: {}", settings_path.display()))?;
+    let (_, mut settings) = Settings::from_table(&tbl)?;
+
+    resolve_settings_paths(repo, &mut settings).chain_err(|| format!(
+        "error resolving paths: {}", settings_path.display()))?;
+
+    Ok(settings)
+}
+
+pub fn process_project(project: &mut Project) -> Result<()> {
+    let locs = locs::find_locs(&project.settings)?;
+    project.dne_locs = locs::attach_locs(&mut project.artifacts, locs);
+    link::do_links(&mut project.artifacts)?;
     Ok(())
 }
 
+/// load a processed project
+pub fn load_project(repo: &Path) -> Result<Project> {
+    let settings = load_settings(repo)?;
 
-/// given a valid path, load all paths given by the settings recursively
-pub fn load_raw(dir: &Path) -> Result<Project> {
-    let mut project = Project::default();
+    let mut project_text = ProjectText::default();
     let mut loaded_dirs: HashSet<PathBuf> = HashSet::new(); // see SPC-load-dir, RSK-2-load-loop
-    let mut full_settings_map: HashMap<PathBuf, Settings> = HashMap::new();
+    loaded_dirs.insert(repo.join(REPO_DIR.as_path()));
 
-    info!("Loading artifact files");
-    if dir.is_dir() {
-        project.origin = dir.to_path_buf();
-        project.settings.load_paths.push_back(dir.to_path_buf());
-        project.settings.artifact_paths.insert(dir.to_path_buf());
-    } else {
-        return Err(ErrorKind::Load(format!("must be a directory: {}", dir.display())).into());
-    }
-
-    while let Some(dir) = project.settings.load_paths.pop_front() {
-        if loaded_dirs.contains(&dir) {
+    for dir in &settings.artifact_paths {
+        if loaded_dirs.contains(dir) {
+            warn!("artifact_paths tried to load a directory twice: {}",
+                  dir.display());
             continue;
         }
-        debug!("Loading artifacts: {:?}", dir);
-        // we only need to resolve settings one dir at a time
-        project.settings_map.clear();
         loaded_dirs.insert(dir.to_path_buf());
-        let mut project_text = ProjectText::default();
         project_text.load(dir.as_path(), &mut loaded_dirs)?;
-        project.extend_text(&project_text)?;
-
-        // resolve the project-level settings after each directory is recursively loaded
-        // so that we can find new artifact_paths
-        // see: SPC-settings-resolve
-        extend_settings(&mut full_settings_map, &project.settings_map)?;
-        resolve_settings(&mut project)?;
     }
 
-    project.settings_map = full_settings_map;
+    let mut project = Project::default();
+    project.settings = settings.clone();
+    project.extend_text(&project_text)?;
+
+    process_project(&mut project)?;
+
+    project.origin = repo.to_path_buf();
+
     Ok(project)
 }

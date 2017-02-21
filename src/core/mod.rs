@@ -52,36 +52,19 @@ pub fn init_logger_test() {
     }
 }
 
-/// The standard loading procedure must process pieces
-/// at different times.
-///
 /// This method is for processing a raw project-text
 /// file into a full blown project. This is necessary
 /// mostly for the API (when it is editing the project)
 /// and for unit tests
-pub fn process_project_text(project_text: &types::ProjectText) -> Result<Project> {
+pub fn process_project_text(settings: Settings,
+                            project_text: &types::ProjectText)
+                            -> Result<Project> {
     let mut project = Project::default();
+    project.settings = settings;
     project.extend_text(project_text)?;
-    load::resolve_settings(&mut project)?;
-    process_project(&mut project)?;
+    load::process_project(&mut project)?;
     project.origin = project_text.origin.clone();
-    project.settings.artifact_paths.insert(project_text.origin.clone());
-    // when loading, settings.paths get's drained to find where to load next
-    project.settings.load_paths = VecDeque::new();
     Ok(project)
-}
-
-/// intermediate function during `load_path` to reprocess
-/// a re-created project
-pub fn process_project(project: &mut Project) -> Result<()> {
-    info!("finding and attaching locations");
-    let locs = try!(locs::find_locs(&project.settings));
-    project.dne_locs = locs::attach_locs(&mut project.artifacts, locs);
-
-    // do all links
-    try!(link::do_links(&mut project.artifacts));
-
-    Ok(())
 }
 
 /// Load all items from the toml file at path
@@ -89,9 +72,7 @@ pub fn process_project(project: &mut Project) -> Result<()> {
 pub fn load_path(path: &Path) -> Result<Project> {
     let start = time::get_time();
     info!("loading path: {}", path.to_string_lossy().as_ref());
-    let mut project = try!(load::load_raw(path));
-
-    try!(process_project(&mut project));
+    let project = load::load_project(path)?;
 
     let total = time::get_time() - start;
     info!("Done loading: {} artifacts loaded successfullly in {:.3} seconds",

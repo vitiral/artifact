@@ -10,6 +10,7 @@ use api::update;
 #[test]
 fn test_split() {
     let simple = &core::tests::TSIMPLE_DIR;
+    let design = simple.join("design");
 
     let p = core::load_path(simple.as_path()).unwrap();
     let starting_len = p.artifacts.len();
@@ -45,7 +46,7 @@ fn test_split() {
     {
         let original = changed_data.path;
 
-        let new_path = simple.join("lvl_1/req.toml").to_string_lossy().to_string();
+        let new_path = design.join("lvl_1/req.toml").to_string_lossy().to_string();
         changed_data.path = new_path.clone();
 
         let new_artifacts = vec![changed_data.clone()];
@@ -60,7 +61,7 @@ fn test_split() {
     // changing path to new path NOT ok
     {
         let original = changed_data.path;
-        changed_data.path = simple.join("dne.toml").to_string_lossy().to_string();
+        changed_data.path = design.join("dne.toml").to_string_lossy().to_string();
         let new_artifacts = vec![changed_data.clone()];
         assert!(update::split_artifacts(&p, &data_artifacts, &new_artifacts).is_err());
         changed_data.path = original;
@@ -90,6 +91,7 @@ fn test_split() {
 #[test]
 fn test_update() {
     let simple = &core::tests::TSIMPLE_DIR;
+    let design = simple.join("design");
 
     let result = panic::catch_unwind(panic::AssertUnwindSafe(|| {
         let p = core::load_path(simple.as_path()).unwrap();
@@ -123,7 +125,7 @@ fn test_update() {
         // changing path to new path NOT ok
         {
             let original = changed_data.path;
-            changed_data.path = simple.join("dne.toml").to_string_lossy().to_string();
+            changed_data.path = design.join("dne.toml").to_string_lossy().to_string();
             let new_artifacts = vec![changed_data.clone()];
 
             assert!(update::update_artifacts(&data_artifacts, &p, &new_artifacts).is_err());
@@ -131,7 +133,6 @@ fn test_update() {
         }
     }));
 
-    drop(simple);
     result.unwrap();
 
 }

@@ -8,7 +8,6 @@ text = "one level deep in a recursive dir"
 text = "level one does FOO"
 
 [SPC-loc-dne]
-
 text = "dne does not exist"
 
 [SPC-loc]

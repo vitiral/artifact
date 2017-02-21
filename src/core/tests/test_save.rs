@@ -20,14 +20,15 @@ fn test_save_idempotent() {
     let simple = &TSIMPLE_DIR;
     let mut original_text = types::ProjectText::default();
     let mut loaded_dirs = HashSet::new();
-    original_text.load(simple.as_path(), &mut loaded_dirs)
+    let settings = load::load_settings(simple.as_path()).unwrap();
+    original_text.load(&simple.join("design"), &mut loaded_dirs)
         .unwrap();
-    let original = core::process_project_text(&original_text).unwrap();
+    let original = core::process_project_text(settings.clone(), &original_text).unwrap();
 
     // serialize tsimple like it would be saved
     // and convert back
     let result_text = types::ProjectText::from_project(&original).unwrap();
-    let result = core::process_project_text(&result_text).unwrap();
+    let result = core::process_project_text(settings.clone(), &result_text).unwrap();
 
     // make assertions
     original.equal(&result).unwrap();
@@ -35,7 +36,7 @@ fn test_save_idempotent() {
 
     // make sure that saving twice does nothing
     let result_text2 = types::ProjectText::from_project(&result).unwrap();
-    let result2 = core::process_project_text(&result_text2).unwrap();
+    let result2 = core::process_project_text(settings.clone(), &result_text2).unwrap();
 
     result.equal(&result2).unwrap();
     assert_eq!(result_text, result_text2);

@@ -10,8 +10,6 @@ pub fn validate(repo: &Path, project: &Project) -> Result<()> {
     let mut files: HashSet<&PathBuf> = HashSet::new();
     files.extend(project.artifacts.values().map(|a| &a.path));
     files.extend(project.files.iter());
-    files.extend(project.settings_map.keys());
-    files.extend(project.raw_settings_map.keys());
     files.extend(project.repo_map.keys());
 
     // PARENT_PATH is never written to, so ignore

@@ -21,6 +21,7 @@ use std::env;
 use std::process;
 
 use artifact_app::cmd;
+
 fn main() {
     let rc = match cmd::cmd(&mut io::stdout(), env::args()) {
         Err(e) => {
