@@ -303,7 +303,6 @@ pub fn get_cmd(matches: &ArgMatches) -> Result<Cmd> {
 /// perform the ls command given the inputs
 pub fn run_cmd<W: Write>(mut w: &mut W, cwd: &Path, cmd: &Cmd, project: &Project) -> Result<()> {
     let mut dne: Vec<ArtNameRc> = Vec::new();
-    let mut names: Vec<ArtNameRc> = Vec::new();
     let artifacts = &project.artifacts;
     let mut settings = project.settings.clone();
     let mut fmt_set = cmd.fmt_settings.clone();
@@ -317,38 +316,52 @@ pub fn run_cmd<W: Write>(mut w: &mut W, cwd: &Path, cmd: &Cmd, project: &Project
     // #SPC-cmd-ls-color
     settings.color = fmt_set.color;
 
-    let pat_case;
-    if cmd.search_settings.use_regex {
-        // names to use are determined by filtering the regex
+    // get the names that we will be showing
+    let names: Vec<_> = if cmd.search_settings.use_regex {
+        // names to use are determined by filtering according to the regex
         let pat = RegexBuilder::new(&cmd.pattern)
             .case_insensitive(true)
             .build();
-        pat_case = match pat {
+        let pat_case = match pat {
             Ok(p) => p,
             Err(e) => {
                 return Err(ErrorKind::CmdError(format!("Invalid pattern: {}", e)).into());
             }
         };
-        names.extend(artifacts.keys().cloned());
+        let mut names: Vec<_> = artifacts.iter()
+            .filter(|&(ref n, ref a)| ui::show_artifact(n, a, &pat_case, &cmd.search_settings))
+            .map(|(n, _)| n)
+            .cloned()
+            .collect();
         names.sort();
+        names
+    } else if cmd.pattern.is_empty() {
+        // no pattern was specified, so we display all names
+        let mut names: Vec<_> = artifacts.keys().cloned().collect();
+        names.sort();
+        names
     } else {
-        // names to use are determined from the beginning
-        names.extend(match ArtNames::from_str(&cmd.pattern) {
+        // names are exactly specified according to the std syntax
+        let want_names = match ArtNames::from_str(&cmd.pattern) {
             Ok(n) => n,
             Err(e) => {
                 error!("{}", e);
                 return Err(ErrorKind::CmdError(format!("{}", e)).into());
             }
-        });
+        };
+        let mut names = Vec::new();
+        for n in want_names {
+            if artifacts.contains_key(n.as_ref()) {
+                names.push(n);
+            } else {
+                dne.push(n)
+            }
+        }
+        dne.sort();
         names.sort();
-        debug!("artifact names selected: {:?}", names);
-        pat_case = Regex::new("").unwrap();
-    }
-    debug!("fmt_set empty: {}", fmt_set.is_empty());
-    if names.is_empty() && cmd.pattern.is_empty() {
-        names.extend(artifacts.keys().cloned());
-        names.sort();
-    }
+        names
+    };
+    debug!("artifact names selected: {:?}", names);
     if fmt_set.is_empty() {
         fmt_set.parts = true;
         fmt_set.path = true;
@@ -362,17 +375,6 @@ pub fn run_cmd<W: Write>(mut w: &mut W, cwd: &Path, cmd: &Cmd, project: &Project
     match cmd.ty {
         OutType::List => {
             for name in names {
-                let art = match artifacts.get(&name) {
-                    Some(a) => a,
-                    None => {
-                        trace!("Name DNE: {}", name);
-                        dne.push(name);
-                        continue;
-                    }
-                };
-                if !ui::show_artifact(&name, art, &pat_case, &cmd.search_settings) {
-                    continue;
-                }
                 let f =
                     ui::fmt_artifact(&name, artifacts, &fmt_set, fmt_set.recurse, &mut displayed);
                 f.write(w, cwd, artifacts, &settings, 0)?;
