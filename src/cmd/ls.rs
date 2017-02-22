@@ -344,6 +344,7 @@ pub fn run_cmd<W: Write>(mut w: &mut W, cwd: &Path, cmd: &Cmd, project: &Project
         debug!("artifact names selected: {:?}", names);
         pat_case = Regex::new("").unwrap();
     }
+
     debug!("fmt_set empty: {}", fmt_set.is_empty());
     if names.is_empty() && cmd.pattern.is_empty() {
         names.extend(artifacts.keys().cloned());
@@ -354,9 +355,8 @@ pub fn run_cmd<W: Write>(mut w: &mut W, cwd: &Path, cmd: &Cmd, project: &Project
         fmt_set.path = true;
     }
 
-    if !fmt_set.long && cmd.ty == OutType::List {
-        display::write_table_header(w, &fmt_set, &settings);
-    }
+    let mut match_made = false;
+
     let mut displayed = ArtNames::new();
     // #SPC-cmd-ls-type
     match cmd.ty {
@@ -372,6 +372,10 @@ pub fn run_cmd<W: Write>(mut w: &mut W, cwd: &Path, cmd: &Cmd, project: &Project
                 };
                 if !ui::show_artifact(&name, art, &pat_case, &cmd.search_settings) {
                     continue;
+                }
+                if !match_made && !fmt_set.long && cmd.ty == OutType::List {
+                    display::write_table_header(w, &fmt_set, &settings);
+                    match_made = true;
                 }
                 let f =
                     ui::fmt_artifact(&name, artifacts, &fmt_set, fmt_set.recurse, &mut displayed);

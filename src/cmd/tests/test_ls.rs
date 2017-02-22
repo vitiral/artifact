@@ -109,10 +109,17 @@ SPC                                           | SPC-foo, SPC-unresolvable |  | \
 PARENT | AUTO \n";
 
 #[cfg(not(windows))]
+const LS_REQ_DNE: &'static [u8] = b"";
+
+#[cfg(windows)]
+const LS_REQ_DNE: &'static [u8] = b"";
+
+#[cfg(not(windows))]
 const COLOR_IF_POSSIBLE: bool = true;
 
 #[cfg(windows)]
 const COLOR_IF_POSSIBLE: bool = false;
+
 
 
 fn repr_bytes(bytes: &[u8]) {
@@ -231,6 +238,13 @@ partof = 'REQ-dne'
     ls::run_cmd(&mut w, &cwd, &cmd, &project).unwrap();
     // debug_bytes(&w, expected);
     assert_eq!(vb(LS_REQ_FOO_NO_COL), w);
+
+    // do default list with non-existant REQ-DNE
+    w.clear();
+    cmd.pattern = "REQ-DNE".to_string();
+    assert!(ls::run_cmd(&mut w, &cwd, &cmd, &project).is_err());
+    //debug_bytes(&w, LS_REQ_DNE);
+    assert_eq!(vb(LS_REQ_DNE), w);
 
     // ls all fields
     // do a search in only parts using regex s.c
