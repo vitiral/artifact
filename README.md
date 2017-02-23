@@ -27,7 +27,7 @@ Artifact is nearly feature complete. The following will change prior to 1.0:
 
 ### Tasks to Reach 1.0
 - [x] design doc review and cleanse
-- [ ] create document spec for "artifact document" and make CC0
+- [x] create document spec for "artifact document" and make CC0
 - [x] included static web-file generation
 - [x] Web UI View functionality
 - [x] *remove* `globals` setting (text-variables)
@@ -52,12 +52,20 @@ Artifact is nearly feature complete. The following will change prior to 1.0:
 - [ ] Web UI for viewing tracked tests
 
 ## Licensing
-The [Artifact Document Specification](DOC-SPEC.md) and the
-[Artifact Design Documents](http://vitiral.github.io/artifact/#artifacts/REQ-1)
-(located in `design/`) are both released under the CC0 Creative Commons Public
-Domain License. You can read more about CC0 here:
+All documentation and tutorials for the artifact application are released under
+the CC0 Creative Commons Public Domain License with the intent that you should
+feel free to copy, paste and modify any of the designs, guides or examples
+for any purpose without the need of attribution. You can read more about CC0 here:
 https://creativecommons.org/publicdomain/
 
-The artifact library and Web UI (located in `src/` and `web-ui/`) are licensed
-under the LGPLv3+, except for files which say otherwise in their header.
-See LICENSE.txt for more information.
+The CC0 license applies to:
+- The [Artifact Document Specification](DOC-SPEC.md)
+- The [Artifact Design Documents](http://vitiral.github.io/artifact/#artifacts/REQ-1)
+    (also located in `design/`)
+- The [Artifact Wiki](https://github.com/vitiral/artifact/wiki)
+- Any documents created by `art init` (in `src/cmd/data`)
+- Any documents created by `art tutorial` (n `src/cmd/data`)
+
+The artifact library and Web UI (located in `src/` and `web-ui/src`) are licensed
+under the LGPLv3+, except for files which say otherwise in their header or folders
+containing a different LICENSE.txt. See LICENSE.txt for more information.

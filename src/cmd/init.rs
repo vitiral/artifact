@@ -17,24 +17,10 @@
 use dev_prefix::*;
 use super::types::*;
 
-const SETTINGS_TOML: &'static str = r#"# artifact project settings
 
-# directories containing artifact toml files
-artifact_paths = ["{repo}/design"]
+const SETTINGS_TOML: &'static [u8] = include_bytes!("data/settings-template.toml");
 
-# directories containing code that has artifact links
-code_paths = []
-
-# directories to exclude when searching through code
-exclude_code_paths = []
-"#;
-
-const PURPOSE_TOML: &'static str = r#"# project purpose and definition documentation
-[REQ-purpose]
-text = '''
-The purpose of this project is...
-'''
-"#;
+const PURPOSE_TOML: &'static [u8] = include_bytes!("data/purpose-template.toml");
 
 pub fn get_subcommand<'a, 'b>() -> App<'a, 'b> {
     // #SPC-cmd-init
