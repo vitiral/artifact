@@ -1,5 +1,8 @@
 # artifact project settings
 
+# Note: {cwd} == current directory of THIS file
+#       {repo} == directory of the `.art` file
+
 # directories containing artifact toml files
 artifact_paths = ["{repo}/design"]
 

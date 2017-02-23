@@ -5,8 +5,7 @@ design phase, and implementaiton of a project -- as well as fixing issues
 that might come up.
 
 In order to follow along, you must have artifact installed somewhere on your
-PATH. Check out the [User Guide][1]
-for instructions.
+PATH. Check out the [User Guide][1] for instructions.
 
 Note: every time `artifact tutorial ...` gets called it will delete the files it
 created. This is so that it can update the files to be interactive. If you are
@@ -14,15 +13,17 @@ taking notes or creating other design docs, you should do so in separate files
 than the ones created, or use revision control like git as you progress
 (recommended).
 
+[1]: https://github.com/vitiral/artifact/wiki/User-Guide
+
 --------------------------------------------------
 ## Tutorial Stage 1: follow along document
-Just run `artifact tutorial` and read the created `tutorial.toml` file that
-is created. This will give you an overview of artifact syntax and how to write
-design docs
+Start out by running `artifact tutorial` and read the created `tutorial.toml`
+file that is created. This will give you an overview of artifact syntax and
+how to write design docs
 
 --------------------------------------------------
 ## Tutorial Stage 2: high-level requirements and design specifications
-> **Run `artifact tutorial 2` to reset the local directory to this stage**
+> **Run `artifact tutorial 2` to set the local directory to this stage**
 
 A few changes have been made to your local directory:
  - `tutorial.toml` has been removed
@@ -40,8 +41,8 @@ in `flash_card_challenge.htm` into purpose statements.
 
 Purpose statements are important because they document why your project even
 exists -- something that is important to know as you develop it! Without
-high-level requirements, it is easy to loose sight of what your project is
-trying to accomplish and can be difficult to keep track of which features are
+them, it can be easy to loose sight of what your project is trying to
+accomplish and can be difficult to keep track of which features are
 useful and which are not.
 
 In addition, purpose statements allow you to specify what your project will
@@ -279,5 +280,4 @@ open a ticket at: https://github.com/vitiral/artifact/issues
 
 Good luck!
 
-[1]: https://github.com/vitiral/artifact/wiki/User-Guide
 [2]: http://wiki.openhatch.org/Flash_card_challenge

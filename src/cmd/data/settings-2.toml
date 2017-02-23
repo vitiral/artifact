@@ -1,9 +1,13 @@
 #TUTORIAL=true
 
-# There are two variables that can be used anywhere:
-# - {cwd}: the path to the directory of the file
-# - {repo}: the path to the current repository, which is the closest
-#    directory that contains an ".art" folder
+# Note: {cwd} == current directory of THIS file
+#       {repo} == directory of the `.art` file
+
+# directories containing artifact toml files
 artifact_paths = ['{repo}/design']
+
+# directories containing code that has artifact links
 code_paths = []
+
+# directories to exclude when searching through code
 exclude_code_paths = []
