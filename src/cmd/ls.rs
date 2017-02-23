@@ -84,7 +84,7 @@ pub fn get_subcommand<'a, 'b>() -> App<'a, 'b> {
 }
 
 /// return (lt, percent) returning None when there is no value
-pub fn _get_percent(s: &str) -> result::Result<(Option<bool>, Option<u8>), String> {
+pub fn _get_percent(s: &str) -> result::Result<(Option<bool>, Option<i8>), String> {
     let mut s = s;
     let mut lt = None;
     if s.is_empty() {
@@ -111,12 +111,12 @@ pub fn _get_percent(s: &str) -> result::Result<(Option<bool>, Option<u8>), Strin
     if s.is_empty() {
         return Ok((lt, None));
     }
-    match s.parse::<u8>() {
+    match s.parse::<i8>() {
         Ok(v) => {
-            if v <= 100 {
+            if v <= 100 && v >= -100 {
                 Ok((lt, Some(v)))
             } else {
-                Err("NUM must be between 0 and 100".to_string())
+                Err("NUM must be between -100 and 100".to_string())
             }
         }
         Err(e) => Err(e.to_string()),
@@ -170,6 +170,7 @@ fn test_get_percent() {
     assert_eq!(_get_percent(">"), Ok((Some(false), None)));
     assert_eq!(_get_percent("<10"), Ok((Some(true), Some(10))));
     assert_eq!(_get_percent(">100"), Ok((Some(false), Some(100))));
+    assert_eq!(_get_percent(">-100"), Ok((Some(false), Some(-100))));
 
     // test full struct
     assert_eq!(get_percent(""),
@@ -202,10 +203,14 @@ fn test_get_percent() {
                    lt: true,
                    perc: 89,
                }));
+    assert_eq!(get_percent(">-1"),
+               Ok(PercentSearch {
+                   lt: false,
+                   perc: -1,
+               }));
 
     // invalid
     assert!(get_percent(">101").is_err());
-    assert!(get_percent(">-1").is_err());
     assert!(get_percent("a").is_err());
     assert!(get_percent("<a").is_err());
 
@@ -269,7 +274,7 @@ pub fn get_cmd(matches: &ArgMatches) -> Result<Cmd> {
     let mut search_set = match (matches.is_present("pattern"), matches.value_of("pattern")) {
         (true, Some(p)) => SearchSettings::from_str(p)?,
         (true, None) => SearchSettings::from_str("N").unwrap(),
-        (false, None) => SearchSettings::new(),
+        (false, None) => SearchSettings::default(),
         _ => unreachable!(),
     };
     if let Some(c) = matches.value_of("completed") {
@@ -311,32 +316,13 @@ pub fn run_cmd<W: Write>(mut w: &mut W, cwd: &Path, cmd: &Cmd, project: &Project
         fmt_set.color = false;
     }
 
-    // get the names that we will be showing
-    let names: Vec<_> = if cmd.search_settings.use_regex {
-        // names to use are determined by filtering according to the regex
-        let pat = RegexBuilder::new(&cmd.pattern)
-            .case_insensitive(true)
-            .build();
-        let pat_case = match pat {
-            Ok(p) => p,
-            Err(e) => {
-                return Err(ErrorKind::CmdError(format!("Invalid pattern: {}", e)).into());
-            }
-        };
-        let mut names: Vec<_> = artifacts.iter()
-            .filter(|&(ref n, ref a)| ui::show_artifact(n, a, &pat_case, &cmd.search_settings))
-            .map(|(n, _)| n)
-            .cloned()
-            .collect();
-        names.sort();
-        names
-    } else if cmd.pattern.is_empty() {
-        // no pattern was specified, so we display all names
+    // get the names -- they will be filtered next
+    let mut names: Vec<_> = if cmd.search_settings.use_regex || cmd.pattern.is_empty() {
         let mut names: Vec<_> = artifacts.keys().cloned().collect();
         names.sort();
         names
     } else {
-        // names are exactly specified according to the std syntax
+        // names are exactly specified according to the partof syntax
         let want_names = match ArtNames::from_str(&cmd.pattern) {
             Ok(n) => n,
             Err(e) => {
@@ -355,6 +341,29 @@ pub fn run_cmd<W: Write>(mut w: &mut W, cwd: &Path, cmd: &Cmd, project: &Project
         dne.sort();
         names.sort();
         names
+    };
+
+    // filter by various settings (not just pattern, also test/completeness %, etc)
+    let names: Vec<_> = {
+        let pat = if cmd.search_settings.use_regex {
+            let p = RegexBuilder::new(&cmd.pattern)
+                .case_insensitive(true)
+                .build();
+            match p {
+                Ok(p) => p,
+                Err(e) => {
+                    return Err(ErrorKind::CmdError(format!("Invalid pattern: {}", e)).into());
+                }
+            }
+        } else {
+            Regex::new("").unwrap()
+        };
+        names.drain(0..)
+            .filter(|n| {
+                let a = artifacts.get(n).unwrap(); // we are guaranteed the name exists
+                ui::show_artifact(n, a, &pat, &cmd.search_settings)
+            })
+            .collect()
     };
     debug!("artifact names selected: {:?}", names);
     if fmt_set.is_empty() {

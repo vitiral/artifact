@@ -7,28 +7,6 @@ lazy_static!{
         ['N', 'D', 'P', 'O', 'L', 'R', 'T', 'A'].iter().cloned());
 }
 
-impl SearchSettings {
-    pub fn new() -> SearchSettings {
-        SearchSettings {
-            use_regex: false,
-            name: false,
-            path: false,
-            parts: false,
-            partof: false,
-            loc: false,
-            text: false,
-            completed: PercentSearch {
-                lt: false,
-                perc: 0,
-            },
-            tested: PercentSearch {
-                lt: false,
-                perc: 0,
-            },
-        }
-    }
-}
-
 impl FromStr for SearchSettings {
     type Err = Error;
 
@@ -51,14 +29,7 @@ impl FromStr for SearchSettings {
             partof: pattern.contains(&'O'),
             loc: pattern.contains(&'L'),
             text: pattern.contains(&'T'),
-            completed: PercentSearch {
-                lt: false,
-                perc: 0,
-            },
-            tested: PercentSearch {
-                lt: false,
-                perc: 0,
-            },
+            ..SearchSettings::default()
         };
         if pattern.contains(&'A') {
             set.name = !set.name;
@@ -81,14 +52,15 @@ fn matches_name(pat: &Regex, names: &ArtNames) -> bool {
     false
 }
 
+/// return true if the artifact meets the criteria
 pub fn show_artifact(name: &ArtName,
                      art: &Artifact,
                      pat_case: &Regex,
                      search_settings: &SearchSettings)
                      -> bool {
     let ss = search_settings;
-    let completed = (art.completed * 100.0).round() as u8;
-    let tested = (art.tested * 100.0).round() as u8;
+    let completed = (art.completed * 100.0).round() as i8;
+    let tested = (art.tested * 100.0).round() as i8;
     if (ss.completed.lt && completed > ss.completed.perc) ||
        (!ss.completed.lt && completed < ss.completed.perc) ||
        (ss.tested.lt && tested > ss.tested.perc) ||
@@ -120,14 +92,14 @@ fn test_show_artfact() {
     let search_two = &Regex::new("two").unwrap();
 
     // test percentage search
-    let mut settings_little_tested = SearchSettings::new();
+    let mut settings_little_tested = SearchSettings::default();
     settings_little_tested.tested = PercentSearch {
         lt: false,
         perc: 10,
     };
     assert!(show_artifact(&req_one.0, &req_one.1, &search_bob, &settings_little_tested));
 
-    let mut settings_ct = SearchSettings::new();
+    let mut settings_ct = SearchSettings::default();
     settings_ct.completed = PercentSearch {
         lt: false,
         perc: 50,

@@ -41,10 +41,19 @@ pub struct FmtArtifact {
 }
 
 
-#[derive(Debug, Default, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct PercentSearch {
     pub lt: bool,
-    pub perc: u8,
+    pub perc: i8,
+}
+
+impl Default for PercentSearch {
+    fn default() -> PercentSearch {
+        PercentSearch {
+            lt: false,
+            perc: -127,
+        }
+    }
 }
 
 #[derive(Debug, Default, PartialEq, Eq)]

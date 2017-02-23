@@ -213,7 +213,7 @@ pub fn load_toml(path: &Path, text: &str, project: &mut Project) -> Result<u64> 
     let mut num_loaded: u64 = 0;
     project.files.insert(path.to_path_buf());
 
-    for (name, value) in table.iter() {
+    for (name, value) in &table {
         let aname = ArtName::from_str(name)?;
         // get the artifact table
         let art_tbl: &Table = match *value {

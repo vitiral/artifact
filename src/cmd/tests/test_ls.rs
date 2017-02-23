@@ -16,7 +16,7 @@ fn test_get_matches() {
     assert_eq!(cmd.pattern, "");
     assert_eq!(cmd.fmt_settings.long, true);
     assert_eq!(cmd.fmt_settings.recurse, 0);
-    assert_eq!(cmd.search_settings, SearchSettings::new());
+    assert_eq!(cmd.search_settings, SearchSettings::default());
 
     // test that -A works
     let args = vec!["artifact", "ls", "all", "-AP"];
@@ -28,7 +28,7 @@ fn test_get_matches() {
     assert_eq!(cmd.fmt_settings.partof, true);
     assert_eq!(cmd.fmt_settings.loc_path, true);
     assert_eq!(cmd.fmt_settings.recurse, 0);
-    assert_eq!(cmd.search_settings, SearchSettings::new());
+    assert_eq!(cmd.search_settings, SearchSettings::default());
 
     // test that pattern works
     let args = vec!["artifact", "ls", "regex", "-p", "TNL"];
@@ -107,6 +107,11 @@ REQ-foo                                       | SPC-foo | REQ | \
 ..\\..\\reqs\\foo.toml | req for foo \n|--|  -1%  -1% | \
 SPC                                           | SPC-foo, SPC-unresolvable |  | \
 PARENT | AUTO \n";
+
+const LS_FILTER: &'static [u8] =
+    b"|  | DONE TEST | ARTIFACT NAME                                 | PARTS   | \
+DEFINED   \n|DT| 100% 100% | TST-foo                                       |  | \
+../../reqs/foo.toml \n";
 
 #[cfg(not(windows))]
 const COLOR_IF_POSSIBLE: bool = true;
@@ -212,7 +217,7 @@ partof = 'REQ-dne'
     // #TST-cmd-check
     w.clear();
     assert!(check::run_cmd(&mut w, &cwd, &project).is_err());
-    debug_bytes(&w, LS_SPC_DNE);
+    //debug_bytes(&w, LS_SPC_DNE);
     assert_eq!(vb(LS_SPC_DNE), w);
 
     // do default list, looking for only req-foo
@@ -242,6 +247,25 @@ partof = 'REQ-dne'
     cmd.search_settings.use_regex = true;
     cmd.search_settings.parts = true;
     ls::run_cmd(&mut w, &cwd, &cmd, &project).unwrap();
-    // debug_bytes(&w, LS_S_C_STAR_FOO);
+    //debug_bytes(&w, LS_S_C_STAR_FOO);
     assert_eq!(vb(LS_S_C_STAR_FOO), w);
+
+    // test filtering
+    w.clear();
+    cmd.pattern = "".to_string();
+    cmd.fmt_settings = FmtSettings::default();
+    cmd.search_settings = SearchSettings::default();
+
+    cmd.fmt_settings.color = false;
+    cmd.search_settings.completed = PercentSearch {
+        lt: false,
+        perc: 100,
+    };
+    cmd.search_settings.tested = PercentSearch {
+        lt: false,
+        perc: 100,
+    };
+    ls::run_cmd(&mut w, &cwd, &cmd, &project).unwrap();
+    //debug_bytes(&w, LS_FILTER);
+    assert_eq!(vb(LS_FILTER), w);
 }
