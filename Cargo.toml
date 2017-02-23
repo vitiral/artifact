@@ -38,34 +38,34 @@ toml = "0.2"
 [dependencies.clap]
 default-features = false
 features = ["suggestions", "color"]
-version = "2"
+version= "2"
 
 [dependencies.diesel]
 optional = true
-version = "0.7.0"
+version= "0.7.0"
 
 [dependencies.diesel_codegen]
 default-features = false
 features = ["postgres"]
 optional = true
-version = "0.7.0"
+version= "0.7.0"
 
 [dependencies.dotenv]
 optional = true
-version = "0.8.0"
+version= "0.8.0"
 
 [dependencies.dotenv_macros]
 optional = true
-version = "0.9.0"
+version= "0.9.0"
 
 
 [dependencies.error-chain]
 default-features = false
-version = "0.9.0"
+version= "0.9.0"
 
 [dependencies.tempdir]
 optional = true
-version = "0.3"
+version= "0.3"
 
 [features]
 default = []
