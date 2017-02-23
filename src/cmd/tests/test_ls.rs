@@ -108,10 +108,17 @@ REQ-foo                                       | SPC-foo | REQ | \
 SPC                                           | SPC-foo, SPC-unresolvable |  | \
 PARENT | AUTO \n";
 
+#[cfg(not(windows))]
 const LS_FILTER: &'static [u8] =
     b"|  | DONE TEST | ARTIFACT NAME                                 | PARTS   | \
 DEFINED   \n|DT| 100% 100% | TST-foo                                       |  | \
 ../../reqs/foo.toml \n";
+
+#[cfg(windows)]
+const LS_FILTER: &'static [u8] =
+    b"|  | DONE TEST | ARTIFACT NAME                                 | PARTS   | \
+DEFINED   \n|DT| 100% 100% | TST-foo                                       |  | \
+..\\..\\reqs\\foo.toml \n";
 
 #[cfg(not(windows))]
 const COLOR_IF_POSSIBLE: bool = true;
