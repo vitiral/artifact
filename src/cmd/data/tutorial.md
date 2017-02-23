@@ -10,7 +10,7 @@ for instructions.
 
 Note: every time `artifact tutorial ...` gets called it will delete the files it
 created. This is so that it can update the files to be interactive. If you are
-taking notes or creating other artifacts, you should do so in separate files
+taking notes or creating other design docs, you should do so in separate files
 than the ones created, or use revision control like git as you progress
 (recommended).
 
@@ -18,7 +18,7 @@ than the ones created, or use revision control like git as you progress
 ## Tutorial Stage 1: follow along document
 Just run `artifact tutorial` and read the created `tutorial.toml` file that
 is created. This will give you an overview of artifact syntax and how to write
-artifacts.
+design docs
 
 --------------------------------------------------
 ## Tutorial Stage 2: high-level requirements and design specifications
@@ -224,11 +224,13 @@ Some of the errors it finds are:
 > `art ls` to see if the current status makes sense.
 
 --------------------------------------------------
-## Documenting your own project
+## Documenting and Hosting your own project
 To start documenting your own project, run `art init` in your project and
 edit `.art/settings.toml` with the paths on where to find your
-code-implementations and documents.
+design docs and code.
 
+You can host your project by using `art export html`. For more information,
+see [the wiki](https://github.com/vitiral/artifact/wiki/Exporting-Html)
 
 --------------------------------------------------
 ## Additional Resources
@@ -238,12 +240,9 @@ can be found here:
     https://github.com/vitiral/artifact/wiki
 
 The developer of artifact is also writing a book on quality best practices for
-developers. It is highly recommended you check it out. It is currently a rough
-draft, but it can already be a valuable resource for developers looking to
-further the quality of the software they develop. Suggestions and comments
-would be wonderful.
-
-The book is and will always remain free and can be found at:
+developers. It is highly recommended you check it out as it continues where
+you left off in this tutorial. The book is and will always remain free and can
+be found at:
     https://vitiral.gitbooks.io/simple-quality/content/
 
 The repository for the book is hosted here:
@@ -254,11 +253,10 @@ The repository for the book is hosted here:
 
 Here are a few parting words of advice:
 
- 1. Even when using requirements, you should still write a good README and other
-      documentation for your users -- requirements SHOULD be used for bringing
-      developers of your project up to speed but they aren't the best format for
-      general users.
- 2. Keep your artifacts fairly high level -- don't try to design every detail
+ 1. You should always write a good README and other documentation for your users
+      -- design docs SHOULD be used for bringing developers of your project up
+      to speed but they aren't the best format for general users.
+ 2. Keep your design docs fairly high level -- don't try to design every detail
       using artifact. Using artifact does not mean that you shouldn't use code
       comments!
  3. Use `art ls` and `art check` often, and fix those error messages!
@@ -266,18 +264,20 @@ Here are a few parting words of advice:
       cmdline ui elements, consider naming them just `REQ-web` and `REQ-cmd`
       instead of `REQ-ui-web` and `REQ-ui-cmd`. Trying to nest too deep can
       quickly get confusing.
- 5. Don't be afraid to refactor your artifacts. It is actually easier than it
-      might sound, as artifact will help you find broken links and incomplete
+ 5. Don't be afraid to refactor your design docs. It is actually easier than it
+      might sound, as the tool will help you find broken links and incomplete
       items in real time. Not to mention that if you use revision control
       (you should), your artifacts can be tracked with your project -- no more
       having your documentation and your code be wildly out of sync!
 
 This tutorial took you part of the way through developing a simple project
-using artifact. I leave it as an exercise for the reader to finish the project
-in whichever language you are most comfortable. Have some fun with the artifact
-tool, try to break it. If you find bugs or have any suggestions, please open a
-ticket at: https://github.com/vitiral/artifact/issues
+using artifact. You can continue through the free gitbook linked in the previous
+section or on your own. Try using artifact for one of your smaller personal or
+work projects and see the benefits that design documents can give. Have some fun
+with the tool, try to break it. If you find bugs or have any suggestions, please
+open a ticket at: https://github.com/vitiral/artifact/issues
 
 Good luck!
+
 [1]: https://github.com/vitiral/artifact/wiki/User-Guide
 [2]: http://wiki.openhatch.org/Flash_card_challenge

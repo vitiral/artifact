@@ -22,31 +22,25 @@ well as tracking and graphing of test execution across their product's versions.
 [4]: https://github.com/vitiral/artifact/wiki
 [5]: https://github.com/vitiral/artifact/issues
 
-### Beta Notice
-Artifact is nearly feature complete. The following will change prior to 1.0:
+### Pre-release notice
 
-### Tasks to Reach 1.0
-- [x] design doc review and cleanse
-- [x] create document spec for "artifact document" and make CC0
-- [x] included static web-file generation
-- [x] Web UI View functionality
-- [x] *remove* `globals` setting (text-variables)
-- [x] only allow settings in `.art/settings.toml`
-- [x] add setting `additional_repos`
-- [ ] fix any stop-ship bugs
+Artifact is now feature complete for 1.0. The 0.6 release will be
+released very shortly with a month long soak process while the tool
+is used by as many projects as possible. Further changes before 1.0 are not
+expected, but may still be necessary. After that soak, the plan is to cut the
+1.0 release which will disallow backwards incompatible changes.
 
-#### Future (post 1.0) Improvements
-- [ ] extensive selenium testing of Web UI
+#### Future Improvements
+- [ ] web-ui settings (in `.art/web-ui.toml`)
+- [ ] Extensive selenium testing of Web UI
+- [x] UpdateArtifacts API call
+- [ ] CreateArtifacts API call
+- [ ] DeleteArtifacts API call
 - [ ] Web UI search/filter functionality
 - [ ] Web UI markdown rendering
 - [ ] Web UI edit functionality
 - [ ] Web UI create/delete functionality
-- [x] UpdateArtifacts API call
-- [ ] CreateArtifacts API call
-- [ ] DeleteArtifacts API call
-- [ ] cmdline settings (in `settings.toml::cmd`)
-- [ ] export to json
-- [ ] export to markdown
+- [ ] cmdline settings (in `.art/cmd.toml`)
 - [ ] JSON-RPC API for Test Execution Tracking with DB backend
 - [ ] cmdline utility for viewing tracked tests
 - [ ] Web UI for viewing tracked tests
