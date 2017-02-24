@@ -371,9 +371,11 @@ pub fn run_cmd<W: Write>(mut w: &mut W, cwd: &Path, cmd: &Cmd, project: &Project
         fmt_set.path = true;
     }
 
-    if !fmt_set.long && cmd.ty == OutType::List {
+    if !names.is_empty() && !fmt_set.long && cmd.ty == OutType::List {
         display::write_table_header(w, &fmt_set);
+
     }
+    
     let mut displayed = ArtNames::new();
     // #SPC-cmd-ls-type
     match cmd.ty {

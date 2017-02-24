@@ -72,7 +72,7 @@ fn test_line_length() {
     for (fname, f) in files {
         let s = str::from_utf8(f).unwrap();
         let mut long = vec![];
-        for (i, l) in s.split('\n').enumerate() {
+        for (i, l) in s.replace("\r", "").split('\n').enumerate() {
             if l.len() > 80 {
                 long.push((i, l.len()));
             }
