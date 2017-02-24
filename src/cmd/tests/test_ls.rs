@@ -242,7 +242,7 @@ partof = 'REQ-dne'
     ls::run_cmd(&mut w, &cwd, &cmd, &project).unwrap();
     // debug_bytes(&w, expected);
     assert_eq!(vb(LS_REQ_FOO_NO_COL), w);
-    
+
     // default list for non-existant requirement
     w.clear();
     cmd.pattern = "REQ_DNE".to_string();
