@@ -52,15 +52,22 @@ pub fn run_cmd(path: &Path) -> Result<()> {
         // create settings
         let settings = repo.join("settings.toml");
         let purpose = design.join("purpose.toml");
-        let mut f = fs::File::create(&settings)
-            .chain_err(|| format!("create file: {}", settings.display()))?;
-        f.write_all(SETTINGS_TOML.as_ref()).unwrap();
-        let mut f =
-            fs::File::create(&purpose).chain_err(|| format!("create file: {}", purpose.display()))?;
-        f.write_all(PURPOSE_TOML.as_ref()).unwrap();
-        println!("art initialized at {} with artifacts at {}",
-                 settings.display(),
-                 design.display());
+        {
+            fs::OpenOptions::new()
+                .create_new(true)
+                .write(true)
+                .open(&settings)
+                .chain_err(|| format!("create file: {}", settings.display()))?
+                .write_all(SETTINGS_TOML.as_ref()).unwrap();
+            println!("art initialized at {}", settings.display());
+            if let Ok(mut f) = fs::OpenOptions::new()
+                    .create_new(true)
+                    .write(true)
+                    .open(&purpose) {
+                f.write_all(PURPOSE_TOML.as_ref()).unwrap();
+                println!("art created initial design.toml at {}", design.display())
+            }
+        }
     } else {
         println!("artifact already initialized at {}", repo.display());
     }

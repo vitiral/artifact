@@ -79,8 +79,7 @@ points of risk:
     which should help detect failures of the tool
 '''
 
-
-[TST-cmd-other]
+[TST-cmd-init]
 partof = "SPC-cmd-init"
 text = '''
 There shall be a unit test to test basic commands:
