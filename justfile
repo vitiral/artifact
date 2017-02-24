@@ -31,7 +31,7 @@ build-static: # build and package elm as a static index.html
 	(cd target/web; tar -cvf ../../src/cmd/data/web-ui-static.tar *)
 
 build-web: build-elm build-static
-	cargo build --features "web"
+	cargo build
 
 ##################################################
 # unit testing/linting commands
@@ -44,22 +44,16 @@ test-dev: # test using nightly and incremental compilation
 test-elm: 
 	(cd web-ui; elm test)
 
-test-web: # do tests with web=true
-	RUST_BACKTRACE=1 cargo test --lib --features "web"
-
-test-web-dev:
-	TG={{target}} {{nightly}} cargo test --lib --features "web"
-
-test-all: test-elm test-web
+test-all: test-elm test
 
 filter PATTERN: # run only specific tests
-	RUST_BACKTRACE=1 cargo test --lib {{PATTERN}} --features "web"
+	RUST_BACKTRACE=1 cargo test --lib {{PATTERN}}
 
 lint: # run linter
-	CARGO_TARGET_DIR={{target}}/nightly rustup run nightly cargo clippy --features "web"
+	CARGO_TARGET_DIR={{target}}/nightly rustup run nightly cargo clippy
 	
 test-server: build-elm # run the test-server for e2e testing, still in development
-	(cargo run --features "web" -- --work-tree web-ui/e2e_tests/ex_proj -v server)
+	(cargo run -- --work-tree web-ui/e2e_tests/ex_proj -v server)
 
 test-e2e: # run e2e tests, still in development
 	(cd web-ui; py2t e2e_tests/basic.py)
@@ -71,7 +65,7 @@ api: # run the api server (without the web-ui)
 	cargo run -- -v server
 
 serve: build-elm  # run the full frontend
-	cargo run --features "web" -- -v server
+	cargo run -- -v server
 
 self-check: # build self and run `art check` using own binary
 	cargo run -- check
@@ -81,6 +75,7 @@ self-check: # build self and run `art check` using own binary
 
 fmt:
 	cargo fmt -- --write-mode overwrite  # don't generate *.bk files
+	art fmt -w
 
 check-fmt:
 	cargo fmt -- --write-mode=diff

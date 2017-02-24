@@ -80,7 +80,6 @@ points of risk:
 '''
 
 [TST-cmd-init]
-partof = "SPC-cmd-init"
 text = '''
 There shall be a unit test to test basic commands:
 - init: just validate that it fails when already initialized and correctly 

@@ -13,11 +13,8 @@ use std::sync::Mutex;
 use nickel::{Request, Response, MiddlewareResult, Nickel, HttpRouter, MediaType};
 use nickel::status::StatusCode;
 
-#[cfg(feature = "web")]
 use nickel::StaticFilesHandler;
-#[cfg(feature = "web")]
 use tar::Archive;
-#[cfg(feature = "web")]
 use tempdir::TempDir;
 
 use core::{Project, ArtifactData};
@@ -30,8 +27,6 @@ mod update;
 #[cfg(test)]
 mod tests;
 
-
-#[cfg(feature = "web")]
 const WEB_FRONTEND_TAR: &'static [u8] = include_bytes!("data/web-ui.tar");
 
 lazy_static! {
@@ -85,7 +80,6 @@ fn handle_artifacts<'a>(req: &mut Request, mut res: Response<'a>) -> MiddlewareR
     }
 }
 
-#[cfg(feature = "web")]
 /// host the frontend web-server, returning the tempdir where it the
 /// static files are being held. It is important that this tempdir
 /// always be owned, ortherwise the files will be deleted!
@@ -117,11 +111,6 @@ fn host_frontend(server: &mut Nickel, addr: &str) -> TempDir {
     server.utilize(StaticFilesHandler::new(&dir));
     println!("hosting web ui at {}", addr);
     tmp_dir
-}
-
-#[cfg(not(feature = "web"))]
-fn host_frontend(_: &Nickel, _: &str) {
-    info!("not hosting web ui: feature \"web\" was not enabled at compile time");
 }
 
 /// start the json-rpc API server

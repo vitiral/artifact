@@ -58,12 +58,13 @@ pub fn run_cmd(path: &Path) -> Result<()> {
                 .write(true)
                 .open(&settings)
                 .chain_err(|| format!("create file: {}", settings.display()))?
-                .write_all(SETTINGS_TOML.as_ref()).unwrap();
+                .write_all(SETTINGS_TOML.as_ref())
+                .unwrap();
             println!("art initialized at {}", settings.display());
             if let Ok(mut f) = fs::OpenOptions::new()
-                    .create_new(true)
-                    .write(true)
-                    .open(&purpose) {
+                .create_new(true)
+                .write(true)
+                .open(&purpose) {
                 f.write_all(PURPOSE_TOML.as_ref()).unwrap();
                 println!("art created initial design.toml at {}", design.display())
             }

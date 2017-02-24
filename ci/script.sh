@@ -29,9 +29,9 @@ run_test_suite() {
 
     cargo fmt -- --write-mode=diff
     cargo build --target $TARGET --verbose  # make sure it builds without web, but don't test
-    cargo build --target $TARGET --verbose --features web
-    cargo run --target $TARGET --features web -- check
-    cargo test --target $TARGET --features web
+    cargo build --target $TARGET --verbose
+    cargo run --target $TARGET -- check
+    cargo test --target $TARGET
 
     # sanity check the file type
     file target/$TARGET/debug/art
