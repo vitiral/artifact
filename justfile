@@ -79,17 +79,13 @@ self-check: # build self and run `art check` using own binary
 ##################################################
 # release command
 
-clean: 
-	find . -name "*.bk" -type f -delete
+fmt:
+	cargo fmt -- --write-mode overwrite  # don't generate *.bk files
 
-fmt: clean
-	cargo fmt
-	just clean
-
-check-fmt: clean
+check-fmt:
 	cargo fmt -- --write-mode=diff
 
-check-art: clean
+check-art:
 	art check
 
 check: check-art check-fmt
