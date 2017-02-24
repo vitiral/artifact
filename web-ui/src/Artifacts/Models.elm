@@ -2,7 +2,6 @@ module Artifacts.Models exposing (..)
 import Dict
 import Set
 
-
 import Regex
 
 import JsonRpc exposing (RpcError)
@@ -11,9 +10,12 @@ import JsonRpc exposing (RpcError)
 spacePat : Regex.Regex
 spacePat = Regex.regex " "
 
-artifactValidPat : Regex.Regex
-artifactValidPat = Regex.regex "^(REQ|SPC|RSK|TST)(-[A-Z0-9_-]*[A-Z0-9_])?$"
+artifactValidRaw : String
+artifactValidRaw = 
+  "(REQ|SPC|RSK|TST)(-[A-Z0-9_-]*[A-Z0-9_])?"
 
+artifactValidPat : Regex.Regex
+artifactValidPat = Regex.regex <| "^" ++ artifactValidRaw ++ "$"
 
 -- pretty much only used when updating artifacts
 type alias ArtifactId =

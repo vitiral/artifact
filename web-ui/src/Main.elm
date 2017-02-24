@@ -13,10 +13,11 @@ type alias Flags =
   { addr: String
   }
 
-initialModel : String -> Route -> Model
-initialModel addr route =
+initialModel : Navigation.Location -> String -> Route -> Model
+initialModel location addr route =
   { artifacts = artifactsFromStrUnsafe "[]"
   , route = route
+  , location = location
   , errors = initialErrors
   , settings = initialSettings
   , addr = addr
@@ -26,7 +27,7 @@ initialModel addr route =
 init : Flags -> Navigation.Location -> (Model, Cmd AppMsg)
 init flags location =
     let
-      model = initialModel flags.addr <| Routing.router location
+      model = initialModel location flags.addr <| Routing.router location
     in
       ( model, fetchAll model )
 

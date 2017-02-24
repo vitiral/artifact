@@ -1,9 +1,10 @@
 module Routing exposing (router, routerMsg)
 
 import Navigation
+import String
 import UrlParser as UP exposing ((</>))
-import Messages exposing (AppMsg(..), Route(..))
 
+import Messages exposing (AppMsg(..), Route(..))
 
 matchers : UP.Parser (Route -> a) a
 matchers =

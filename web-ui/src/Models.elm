@@ -1,5 +1,7 @@
 module Models exposing (..)
 
+import Navigation
+
 import Messages exposing (Route)
 import Artifacts.Models exposing 
   (Artifact, Artifacts, 
@@ -11,6 +13,7 @@ import Artifacts.Models exposing
 type alias Model =
   { artifacts: Artifacts
   , route: Route
+  , location: Navigation.Location
   , errors: Errors
   , settings: Settings
   , addr: String

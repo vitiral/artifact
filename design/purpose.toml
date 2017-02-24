@@ -147,10 +147,10 @@ associated with it. Tests can test to either a spec (SPC)
 or to a risk (RSK)
 
 The artifacts **will** have simple orthoganl variables that accomplish
-the purposes defined in REQ-purpose.
+the purposes defined in [[REQ-1]].
 
 All artifacts **will** have the following attributes that the user can define:
-- name: the name specified by `[ART-name]` in `REQ-name`
+- name: the name specified by `[ART-name]`
 - text: description of the artifact
 - partof: a string containing artifact names which the artifact is a part of
 

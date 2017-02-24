@@ -13,14 +13,17 @@ well as tracking and graphing of test execution across their product's versions.
 
 - [**Design Docs**][2]: also see how [you can do this][1]
 - [**How To Install**][3]
-- [**Additional Information**][4]
-- [**Reporting Issues**][5]
+- [**Simple Quality**][4]: book which uses this tool to teach quality best
+    practices
+- [**Additional Information**][5]
+- [**Reporting Issues**][6]
 
 [1]: https://github.com/vitiral/artifact/wiki/Exporting-Html
 [2]: http://vitiral.github.io/artifact/#artifacts/REQ-1
 [3]: https://github.com/vitiral/artifact/wiki/User-Guide
-[4]: https://github.com/vitiral/artifact/wiki
-[5]: https://github.com/vitiral/artifact/issues
+[4]: https://vitiral.gitbooks.io/simple-quality/content/
+[5]: https://github.com/vitiral/artifact/wiki
+[6]: https://github.com/vitiral/artifact/issues
 
 ### Pre-release notice
 
