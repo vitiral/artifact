@@ -120,6 +120,8 @@ const LS_FILTER: &'static [u8] =
 DEFINED   \n|DT| 100% 100% | TST-foo                                       |  | \
 ..\\..\\reqs\\foo.toml \n";
 
+const LS_REQ_DNE: &'static [u8] = b"";
+
 #[cfg(not(windows))]
 const COLOR_IF_POSSIBLE: bool = true;
 
@@ -240,6 +242,13 @@ partof = 'REQ-dne'
     ls::run_cmd(&mut w, &cwd, &cmd, &project).unwrap();
     // debug_bytes(&w, expected);
     assert_eq!(vb(LS_REQ_FOO_NO_COL), w);
+
+    // default list for non-existant requirement
+    w.clear();
+    cmd.pattern = "REQ_DNE".to_string();
+    assert!(ls::run_cmd(&mut w, &cwd, &cmd, &project).is_err());
+    //debug_bytes(&w, LS_REQ_DNE);
+    assert_eq!(vb(LS_REQ_DNE), w);
 
     // ls all fields
     // do a search in only parts using regex s.c
