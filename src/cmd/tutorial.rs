@@ -52,11 +52,11 @@ fn remove_files_force(files: &HashSet<PathBuf>) {
 }
 
 /// write to a file with logging
-fn write_file(path: &PathBuf, data: &[u8]) -> io::Result<()> {
+fn write_file(path: &PathBuf, data: &[u8]) -> io::Result<u8> {
     trace!("creating file: {}", path.display());
     let mut f = try!(fs::File::create(path.as_path()));
     try!(f.write_all(data));
-    Ok(())
+    Ok(0)
 }
 
 /// create a directory with logging, ignore any errors
@@ -90,7 +90,7 @@ pub const D_SETTINGS_4_TOML: &'static [u8] = include_bytes!("data/settings-4.tom
 
 /// run the tutorial
 /// partof: #SPC-cmd-tutorial
-pub fn run_cmd(cwd: &Path, part: u8) -> Result<()> {
+pub fn run_cmd(cwd: &Path, part: u8) -> Result<u8> {
     // let CWD: PathBuf = env::current_dir().unwrap();
     let RST_DIR: PathBuf = cwd.join(PathBuf::from(".art"));
     let DESIGN_DIR: PathBuf = cwd.join(PathBuf::from("design"));
@@ -164,7 +164,7 @@ pub fn run_cmd(cwd: &Path, part: u8) -> Result<()> {
             println!("ERROR: can only start the artifact tutorial in an empty directory. \
                       To make an empty directory and change-dir to it, run:\n    \
                       mkdir ~/tryrst; cd ~/tryrst");
-            return Ok(());
+            return Ok(0);
         }
     } else {
         debug!("cwd is already a tutorial")
@@ -222,5 +222,5 @@ pub fn run_cmd(cwd: &Path, part: u8) -> Result<()> {
             }
         }
     }
-    Ok(())
+    Ok(0)
 }

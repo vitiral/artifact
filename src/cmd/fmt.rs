@@ -61,7 +61,7 @@ pub fn get_cmd(matches: &ArgMatches) -> Result<Cmd> {
 
 /// format the toml files (or just print diffs)
 /// partof: #SPC-cmd-fmt
-pub fn run_cmd(w: &mut Write, repo: &Path, project: &Project, cmd: &Cmd) -> Result<()> {
+pub fn run_cmd(w: &mut Write, repo: &Path, project: &Project, cmd: &Cmd) -> Result<u8> {
     let ptext = ProjectText::from_project(project)?;
     let indent = if *cmd == Cmd::Diff {
         // str.repeat would be great....
@@ -103,7 +103,7 @@ pub fn run_cmd(w: &mut Write, repo: &Path, project: &Project, cmd: &Cmd) -> Resu
                     }
                 }
             }
-            Ok(())
+            Ok(0)
         }
         Cmd::Write => {
             // dump the ptext and then make sure nothing changed...
@@ -128,7 +128,7 @@ pub fn run_cmd(w: &mut Write, repo: &Path, project: &Project, cmd: &Cmd) -> Resu
                 Err(err)
             } else {
                 info!("fmt was successful");
-                Ok(())
+                Ok(0)
             }
         }
     }

@@ -58,7 +58,7 @@ pub fn get_loglevel(matches: &ArgMatches) -> Option<(u8, bool)> {
 }
 
 
-pub fn cmd<W, I, T>(w: &mut W, args: I) -> Result<()>
+pub fn cmd<W, I, T>(w: &mut W, args: I) -> Result<u8>
     where I: IntoIterator<Item = T>,
           T: Into<OsString> + clone::Clone,
           W: io::Write
@@ -69,7 +69,7 @@ pub fn cmd<W, I, T>(w: &mut W, args: I) -> Result<()>
             match e.kind {
                 ClEk::HelpDisplayed | ClEk::VersionDisplayed => {
                     print!("{}", e);
-                    return Ok(());
+                    return Ok(0);
                 }
                 _ => return Err(ErrorKind::CmdError(e.to_string()).into()),
             }
@@ -103,7 +103,7 @@ pub fn cmd<W, I, T>(w: &mut W, args: I) -> Result<()>
                 return Err(ErrorKind::CmdError("TODO".to_string()).into());
             }
         }
-        return Ok(());
+        return Ok(0);
     }
 
     // If tutorial is selected, do that
@@ -117,7 +117,7 @@ pub fn cmd<W, I, T>(w: &mut W, args: I) -> Result<()>
             }
         };
         tutorial::run_cmd(&work_tree, c).unwrap();
-        return Ok(());
+        return Ok(0);
     }
 
     // load the artifacts
@@ -153,7 +153,7 @@ pub fn cmd<W, I, T>(w: &mut W, args: I) -> Result<()>
     } else if let Some(mat) = matches.subcommand_matches("server") {
         let addr = server::get_cmd(mat);
         server::run_cmd(project, &addr);
-        Ok(())
+        Ok(0)
     } else if let Some(mat) = matches.subcommand_matches("fmt") {
         info!("Calling the fmt command");
         let c = fmt::get_cmd(mat)?;
@@ -168,6 +168,6 @@ pub fn cmd<W, I, T>(w: &mut W, args: I) -> Result<()>
                Green.bold().paint("artifact"),
                Green.paint(VERSION))
             .unwrap();
-        return Ok(());
+        return Ok(0);
     }
 }

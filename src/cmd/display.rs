@@ -32,7 +32,7 @@ impl FmtArtifact {
                                artifacts: &Artifacts,
                                color: bool,
                                indent: u8)
-                               -> io::Result<()> {
+                               -> io::Result<u8> {
         let nfno = indent > 0 && self.name_only(); // not-first-name-only
         if !self.name_only() {
             for _ in 0..(indent * 2) {
@@ -49,7 +49,7 @@ impl FmtArtifact {
                 } else {
                     write!(w, "{}", self.name.raw).unwrap();
                 }
-                return Ok(());
+                return Ok(0);
             }
         };
 
@@ -156,7 +156,7 @@ impl FmtArtifact {
         }
 
         if nfno {
-            return Ok(());
+            return Ok(0);
         }
 
         // format the parts
@@ -217,7 +217,7 @@ impl FmtArtifact {
         }
 
         try!(w.write_all("\n".as_ref()));
-        Ok(())
+        Ok(0)
     }
 
     fn write_header<W: io::Write>(&self, w: &mut W, msg: &str, color: bool) {
