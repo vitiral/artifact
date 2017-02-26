@@ -88,34 +88,22 @@ pub fn cmd<W, I, T>(w: &mut W, args: I) -> Result<()>
         None => cwd.to_path_buf(),
     };
     if !work_tree.is_dir() {
-        println!("ERROR: work-tree {} is not a directory",
-                 work_tree.display());
-        return Err(ErrorKind::CmdError("TODO".to_string()).into());
+        let msg = format!("ERROR: work-tree {} is not a directory",
+                          work_tree.display());
+        return Err(ErrorKind::CmdError(msg).into());
     }
 
     // If init is selected, do that
     if matches.subcommand_matches("init").is_some() {
         info!("Calling the init command");
-        match init::run_cmd(&work_tree) {
-            Ok(_) => {}
-            Err(e) => {
-                println!("ERROR: {}", e);
-                return Err(ErrorKind::CmdError("TODO".to_string()).into());
-            }
-        }
+        init::run_cmd(&work_tree)?;
         return Ok(());
     }
 
     // If tutorial is selected, do that
     if let Some(t) = matches.subcommand_matches("tutorial") {
         info!("Calling the tutorial command");
-        let c = match tutorial::get_cmd(t) {
-            Ok(c) => c,
-            Err(e) => {
-                println!("ERROR: {}", e);
-                return Err(ErrorKind::CmdError("TODO".to_string()).into());
-            }
-        };
+        let c = tutorial::get_cmd(t)?;
         tutorial::run_cmd(&work_tree, c).unwrap();
         return Ok(());
     }
@@ -124,19 +112,13 @@ pub fn cmd<W, I, T>(w: &mut W, args: I) -> Result<()>
     let repo = match core::find_repo(&work_tree) {
         Some(r) => r,
         None => {
-            println!("Could not find .art folder. Try running `art init -t`");
-            return Err(ErrorKind::CmdError("TODO".to_string()).into());
+            let msg = format!("Could not find .art folder. Try running `art init -t`");
+            return Err(ErrorKind::CmdError(msg).into());
         }
     };
     debug!("using repo dir {:?}", repo);
 
-    let project = match core::load_path(&repo) {
-        Ok(p) => p,
-        Err(err) => {
-            error!("{}", err);
-            return Err(ErrorKind::CmdError("TODO".to_string()).into());
-        }
-    };
+    let project = core::load_path(&repo)?;
 
     // SPC-security: do security checks on the project
     core::security::validate(&repo, &project)?;

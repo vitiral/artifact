@@ -272,7 +272,8 @@ pub fn resolve_settings_paths(repo: &Path, settings: &mut Settings) -> Result<()
         let mut paths = HashSet::new();
         for p in &settings.artifact_paths {
             let p = utils::do_strfmt(utils::get_path_str(p)?, &vars, &settings_path)?;
-            let p = utils::canonicalize(Path::new(&p))?;
+            let p = utils::canonicalize(Path::new(&p)).chain_err(
+                || format!("could not find artifact_path: {}", p))?;
             paths.insert(p);
         }
         settings.artifact_paths = paths;
@@ -283,7 +284,8 @@ pub fn resolve_settings_paths(repo: &Path, settings: &mut Settings) -> Result<()
         let mut paths = VecDeque::new();
         for p in &settings.code_paths {
             let p = try!(utils::do_strfmt(utils::get_path_str(p)?, &vars, &settings_path));
-            let p = utils::canonicalize(Path::new(&p))?;
+            let p = utils::canonicalize(Path::new(&p)).chain_err(
+                || format!("could not find code_path: {}", p))?;
             paths.push_back(p);
         }
         settings.code_paths = paths;
@@ -297,7 +299,10 @@ pub fn resolve_settings_paths(repo: &Path, settings: &mut Settings) -> Result<()
             // if an exclude path doesn't exist that's fine
             let p = match utils::canonicalize(Path::new(&p)) {
                 Ok(p) => p,
-                Err(_) => continue,
+                Err(_) => {
+                    info!("could not find exclude path: {}", p);
+                    continue;
+                }
             };
             paths.push_back(p);
         }
@@ -319,8 +324,7 @@ pub fn load_settings(repo: &Path) -> Result<Settings> {
         "error parsing settings: {}", settings_path.display()))?;
     let (_, mut settings) = Settings::from_table(&tbl)?;
 
-    resolve_settings_paths(repo, &mut settings).chain_err(|| format!(
-        "error resolving paths: {}", settings_path.display()))?;
+    resolve_settings_paths(repo, &mut settings)?;
 
     Ok(settings)
 }
