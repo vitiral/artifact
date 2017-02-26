@@ -65,14 +65,10 @@ There are also tests (TST) and risks (RSK) which we will learn about later.
 text = "see the next artifact"
 
 [SPC-learn-partof]
-partof = "REQ-learn-artifact"
 text = '''
 artifact uses the names of artifacts to automatically link them and track 
 progress. This makes it easy for the user to intuitively link together 
 requirements with their specification and reduces boilerplate.
-
-REQ-learn-artifact is explicitly a "partof" this artifact because it is 
-specified explicitly.
 
 REQ-learn-partof is automatically a "partof" this artifact because the names
 after the type are the same ("learn-partof")
@@ -89,7 +85,7 @@ So far we have:
            /
 REQ <-- REQ-LEARN <-- REQ-learn-partof <-- SPC-learn-partof
            ^                                  |
-           \-------- REQ-learn-artifact <----------/
+           \-------- REQ-learn-artifact <-----/
 
   * items in ALL CAPS were created automatically
 ```
@@ -120,7 +116,7 @@ text = '''
 There are only a few rules for defining artifacts:
  - case is ignored for all names
  - names cannot overlap, even in different files
- - all items (i.e. [REQ-foo]) must start with either REQ, RSK, SPC or TST
+ - all names must start with either REQ, RSK, SPC or TST
  - artifact names must follow SPC-learn-links (see bellow)
 '''
 
@@ -140,10 +136,9 @@ Here is a helpful graph of valid relations:
    \---- RSK <-----/
 ```
 
-In other words, you can design a spec (SPC) based on
-a requirement (REQ). A requirement can also have a risk (RSK)
-associated with it. Tests can test to either a spec (SPC)
-or to a risk (RSK)
+In other words, you can design a spec (SPC) based on a requirement (REQ). A
+requirement can also have a risk (RSK) associated with it. Tests can test to
+either a spec (SPC) or to a risk (RSK)
 '''
 
 [SPC-learn-rsk]

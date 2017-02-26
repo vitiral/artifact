@@ -23,11 +23,8 @@ fn test_tutorial_basic() {
     assert_ne!(tut::D_LOAD_1_PY, tut::D_LOAD_2_PY);
     assert_ne!(tut::D_LOAD_1_TOML, tut::D_LOAD_2_TOML);
 
-    let toml_files = vec![tut::D_TUTORIAL_TOML,
-                          tut::D_HIGH_LEVEL_TOML,
-                          tut::D_PURPOSE_TOML,
-                          tut::D_LOAD_1_TOML,
-                          tut::D_LOAD_2_TOML];
+    let toml_files =
+        vec![tut::D_TUTORIAL_TOML, tut::D_PURPOSE_TOML, tut::D_LOAD_1_TOML, tut::D_LOAD_2_TOML];
 
     let settings_files =
         vec![tut::D_SETTINGS_1_TOML, tut::D_SETTINGS_2_TOML, tut::D_SETTINGS_4_TOML];
@@ -55,7 +52,6 @@ fn test_line_length() {
 
                      ("capitols.csv", tut::D_CAPITOLS_CSV),
                      //("flash-cards.htm", tut::D_FLASH_CARD_CHALLENGE_HTM), # htm exempt
-                     ("high_lvl.toml", tut::D_HIGH_LEVEL_TOML),
                      ("purpose.toml", tut::D_PURPOSE_TOML),
 
                      ("load-1.py", tut::D_LOAD_1_PY),

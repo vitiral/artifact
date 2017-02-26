@@ -27,3 +27,49 @@ the desired subject. This includes:
  - allow users to configure time limits, so they can
     compare results between quizzes.
 '''
+
+[REQ-load]
+partof = "REQ-purpose"
+text = '''
+The user shall be able to easily configure the quiz questions through a simple
+csv format consisting of two columns: the question and the answer.
+'''
+
+[SPC-cmd]
+partof = "REQ-purpose"
+text = '''
+The minimum viable product shall be a command line utility that is given the
+path to one or more question files as arguments.
+
+Additional arguments will include:
+- `-t`: specify the time allowed for each question
+- `-T`: specify the total time allowed for the whole quiz
+- `-r NUM`: repeat questions only a certain number of times.
+    By default there is no limits.
+
+The program will ask one question at a time, recording how many answers
+the user got correct/incorrect.
+
+When the program is complete:
+- time taken, broken up by whole quiz and each question
+- the user's score
+'''
+
+[SPC-response]
+partof = "SPC-cmd"
+text = '''
+When an answer to a question is correct, a happy message **shall** be 
+displayed. Otherwise, an error message with the correct answer **shall** be 
+displayed.
+
+TODO: detail how the message shall look.
+'''
+
+[SPC-random]
+partof = "REQ-purpose"
+text = '''
+The questions **shall** be presented randomly.
+
+Questions that are missed **shall** be given a higher weight to being asked 
+again, to help the user learn.
+'''

@@ -17,27 +17,27 @@ than the ones created, or use revision control like git as you progress
 
 --------------------------------------------------
 ## Tutorial Stage 1: follow along document
-Start out by running `artifact tutorial` and read the created `tutorial.toml`
-file that is created. This will give you an overview of artifact syntax and
-how to write design docs
+Start out by running `artifact tutorial` and read the created
+[`tutorial.toml`](tutorial.toml) file that is created. This will give you an
+overview of artifact syntax and how to write design docs
 
 --------------------------------------------------
-## Tutorial Stage 2: high-level requirements and design specifications
+## Tutorial Stage 2: purpose documents
 > **Run `artifact tutorial 2` to set the local directory to this stage**
 
 A few changes have been made to your local directory:
- - `tutorial.toml` has been removed
+ - [`tutorial.toml`](tutorial.toml) has been removed
  - the `flash_card_challenge.htm` file has been added
- - the `design/` folder has been added with `purpose.toml` and `high_level.toml`
-     in it
- - `.art/settings.toml` has been updated with a new `artifact_paths`
+ - the `design/` folder has been added with [`purpose.toml`](purpose.toml)
+ - [`.art/settings.toml`](settings-1.toml) has been updated with a new
+   `artifact_paths`
 
-Open `flash_card_challenge.htm` in a browser (or go
-[here][2] and skim through the project that we will be executing. Don't worry!
-You don't need to know python to follow along with this tutorial.
+Open `flash_card_challenge.htm` in a browser (or go [here][2] and skim through
+the project that we will be executing. Don't worry! You don't need to know
+python to follow along with this tutorial.
 
-Now open `design/purpose.toml`. This is a rough attempt to translate the ideas
-in `flash_card_challenge.htm` into purpose statements.
+Now open [`design/purpose.toml`](purpose.toml). This is a rough attempt to
+translate the ideas in `flash_card_challenge.htm` into purpose statements.
 
 Purpose statements are important because they document why your project even
 exists -- something that is important to know as you develop it! Without
@@ -49,22 +49,16 @@ In addition, purpose statements allow you to specify what your project will
 accomplish, but then complete it in pieces. **artifact** will help you track
 which part is complete!
 
-> ### Exercise 1:
-> Review `design/purpose.toml` and make sure it makes sense. Does this
-> accurately summarize the application we are trying to build? Are there any
-> purpose requirements missing?
-
-Now open `high_level.toml` in the same directory. This is mostly the high-level
-specifications and requirements of the command/program itself.
-
+`purpose.toml` also contains the high level specifications of the program.
 High-level specifications allows you to lay out your ideas for how a project
 should be approached before you actually write any code. It also allows you to
 write out "TODOs" that you think **should** be done, but you maybe won't get
 done in your minimum viable product.
 
-> ### Exercise 2:
-> Review the `design/high_level.toml` document. Which items do you think should
-> be done immediately, and which will have to wait?
+> ### Exercise 1:
+> Review [`design/purpose.toml`](purpose.toml) and make sure it makes sense.
+> Does this accurately summarize the application we are trying to build? Are
+> there any purpose requirements missing?
 
 Now run:
 ```
@@ -101,12 +95,12 @@ Once you are done, continue onto stage 3.
 > **Run `artifact tutorial 3` to reset the local directory to this stage**
 
 A few changes have been made to your local directory:
- - `design/load.toml` has been created
+ - [`design/load.toml`](load-1.toml) has been created
 
 > ### Exercise 1:
-> Read through `design/load.toml` and see if the general plan makes sense to
-> you. What would you change? Feel free to make any edits you think should be
-> made. You can always return it to it's original state with
+> Read through [`design/load.toml`](load-1.toml) and see if the general plan
+> makes sense to you. What would you change? Feel free to make any edits you
+> think should be made. You can always return it to it's original state with
 > `artifact tutorial 3`
 
 The first task we are going to address is how we load the questions into
@@ -133,14 +127,17 @@ coding.
 
 A few changes have been made to your local directory:
  - `flash/` has been created with two files, `__init__.py`
-     and `load.py`
- - `.art/settings.toml` was updated to include the `code_paths` variable
+     and [`load.py`](load-1.py) and a directory `tests`
+    - `tests/` contains an `__init__.py`, [`test_load.py`](test_load.py)
+      and [`example.csv`](test_data.csv)
+ - [`.art/settings.toml`](settings-2.toml) was updated to include the
+   `code_paths` variable
 
 > Note: for python, a directory with an `__init__.py` file is called a "module"
 > and is python's packaging mechanism.
 
-Take a look at `flash/load.py`, which contains the machinery for loading the
-flash-cards file. Notice the various `#SPC-...` tags located in the
+Take a look at [`flash/load.py`](load-1.py), which contains the machinery for
+loading the flash-cards file. Notice the various `#SPC-...` tags located in the
 documentation strings. These tags are how artifact knows which artifacts are
 implemented and where. If an artifact is implemented in code in this way it is
 marked as 100% "completed".
@@ -155,11 +152,11 @@ Run the command
 
     art ls SPC-load-format
 
-Notice that it is now "implemented-at" `flash/load.py`. Go to where it says it
-is implemented and confirm that the information is correct.
+Notice that it is now "implemented-at" [`flash/load.py`](load-1.py). Go to
+where it says it is implemented and confirm that the information is correct.
 
-Head to `flash/tests/test_load.py` and notice that similar tags can be found
-there for TST artifacts.
+Head to [`flash/tests/test_load.py`](test_load.py) and notice that similar tags
+can be found there for TST artifacts.
 
 ### Exercises
  1. run `art ls ARTIFACT` on an artifact that is tagged in source. Now
@@ -178,8 +175,8 @@ there for TST artifacts.
 > **Run `artifact tutorial 5` to start this stage of the tutorial**
 
 A few changes have been made to your local directory:
- - `design/load.toml` has been changed to have a bunch of errors
- - `src/load.py` has been changed to include a few errors as well.
+ - [`design/load.toml`](load-2.toml) has been changed to have a bunch of errors
+ - [`src/load.py`](load-2.py) has been changed to include a few errors as well.
 
 So far in the tutorial things have been done correctly -- but what if you
 are new, or what if you have to refactor?
@@ -230,24 +227,22 @@ To start documenting your own project, run `art init` in your project and
 edit `.art/settings.toml` with the paths on where to find your
 design docs and code.
 
-You can host your project by using `art export html`. For more information,
-see [the wiki](https://github.com/vitiral/artifact/wiki/Exporting-Html)
+You can host a rendered html page of your project's design documents by using
+`art export html`. For more information, see
+[the wiki](https://github.com/vitiral/artifact/wiki/Exporting-Html)
 
 --------------------------------------------------
 ## Additional Resources
 
 The wiki for artifact, which contains additional resources and links,
 can be found here:
-    https://github.com/vitiral/artifact/wiki
+    https://github.com/vitiral/artifact/wiki/User-Guide
 
 The developer of artifact is also writing a book on quality best practices for
 developers. It is highly recommended you check it out as it continues where
 you left off in this tutorial. The book is and will always remain free and can
 be found at:
     https://vitiral.gitbooks.io/simple-quality/content/
-
-The repository for the book is hosted here:
-    https://github.com/vitiral/simple-quality
 
 --------------------------------------------------
 ## Summary and Final Words
@@ -261,23 +256,21 @@ Here are a few parting words of advice:
       using artifact. Using artifact does not mean that you shouldn't use code
       comments!
  3. Use `art ls` and `art check` often, and fix those error messages!
- 4. Keep names short and simple. Avoid unnecessary nesting. If you have web and
-      cmdline ui elements, consider naming them just `REQ-web` and `REQ-cmd`
-      instead of `REQ-ui-web` and `REQ-ui-cmd`. Trying to nest too deep can
-      quickly get confusing.
+ 4. follow the [artifact best practices][3]
  5. Don't be afraid to refactor your design docs. It is actually easier than it
-      might sound, as the tool will help you find broken links and incomplete
-      items in real time. Not to mention that if you use revision control
-      (you should), your artifacts can be tracked with your project -- no more
-      having your documentation and your code be wildly out of sync!
+    might sound, as the tool will help you find broken links and incomplete
+    items in real time. Not to mention that if you use revision control
+    (you should), your artifacts can be tracked with your project -- no more
+    having your documentation and your code be wildly out of sync!
 
 This tutorial took you part of the way through developing a simple project
 using artifact. You can continue through the free gitbook linked in the previous
-section or on your own. Try using artifact for one of your smaller personal or
-work projects and see the benefits that design documents can give. Have some fun
+section or on your own. Try using artifact for one of your smaller personal
+projects and see the benefits that design documents can give. Have some fun
 with the tool, try to break it. If you find bugs or have any suggestions, please
 open a ticket at: https://github.com/vitiral/artifact/issues
 
 Good luck!
 
 [2]: http://wiki.openhatch.org/Flash_card_challenge
+[3]: https://github.com/vitiral/artifact/wiki/Best-Practices

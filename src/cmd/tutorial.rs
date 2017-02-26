@@ -72,7 +72,6 @@ pub const D_TUTORIAL_MD: &'static [u8] = include_bytes!("data/tutorial.md");
 pub const D_CAPITOLS_CSV: &'static [u8] = include_bytes!("data/capitols.csv");
 pub const D_FLASH_CARD_CHALLENGE_HTM: &'static [u8] = include_bytes!("data/flash-card-challenge.\
                                                                       htm");
-pub const D_HIGH_LEVEL_TOML: &'static [u8] = include_bytes!("data/high_level.toml");
 pub const D_PURPOSE_TOML: &'static [u8] = include_bytes!("data/purpose.toml");
 
 pub const D_LOAD_1_PY: &'static [u8] = include_bytes!("data/load-1.py");
@@ -108,7 +107,6 @@ pub fn run_cmd(cwd: &Path, part: u8) -> Result<()> {
 
     // design file paths
     let PURPOSE_TOML: PathBuf = DESIGN_DIR.join(PathBuf::from("purpose.toml"));
-    let HIGH_LEVEL_TOML: PathBuf = DESIGN_DIR.join(PathBuf::from("high_level.toml"));
     let LOAD_TOML: PathBuf = DESIGN_DIR.join(PathBuf::from("load.toml"));
 
     // src file paths
@@ -127,8 +125,7 @@ pub fn run_cmd(cwd: &Path, part: u8) -> Result<()> {
                                                                  TUTORIAL_MD.clone(),
                                                                  CAPITOLS_CSV.clone(),
                                                                  FLASH_CARD_CHALLENGE_HTM.clone(),
-                                                                 PURPOSE_TOML.clone(),
-                                                                 HIGH_LEVEL_TOML.clone()]);
+                                                                 PURPOSE_TOML.clone()]);
 
     let mut PART_3_FILES: HashSet<PathBuf> = HashSet::from_iter(vec![LOAD_TOML.clone(),
                                                                      INIT_PY.clone(),
@@ -185,7 +182,6 @@ pub fn run_cmd(cwd: &Path, part: u8) -> Result<()> {
         try!(write_file(&CAPITOLS_CSV, D_CAPITOLS_CSV));
         try!(write_file(&FLASH_CARD_CHALLENGE_HTM, D_FLASH_CARD_CHALLENGE_HTM));
         try!(write_file(&PURPOSE_TOML, D_PURPOSE_TOML));
-        try!(write_file(&HIGH_LEVEL_TOML, D_HIGH_LEVEL_TOML));
         if part == 2 {
             // stage 2: purpose document
             println!("  Tutorial part 2: open tutorial.md with a text editor and see part 2");
