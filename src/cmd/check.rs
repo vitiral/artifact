@@ -39,26 +39,23 @@ fn paint_it_bold<W: Write>(w: &mut W, msg: &str) {
     }
 }
 
-/// #SPC-cmd-check
-#[allow(cyclomatic_complexity)] // TODO: break this up
-pub fn run_cmd<W: Write>(w: &mut W, cwd: &Path, project: &Project) -> Result<()> {
-    let artifacts = &project.artifacts;
-
+fn display_invalid_partof<W: Write>(w: &mut W, cwd: &Path, project: &Project) -> i32 {
     let mut error: i32 = 0;
+
     // display invalid partof names and locations
     let mut invalid_partof = ArtNames::new();
 
     // display artifacts with invalid partof names
     let mut displayed_header = false;
-    for (name, artifact) in artifacts.iter() {
+    for (name, artifact) in project.artifacts.iter() {
         invalid_partof.clear();
         for p in &artifact.partof {
-            if !artifacts.contains_key(p) {
+            if !project.artifacts.contains_key(p) {
                 invalid_partof.insert(p.clone());
             }
         }
         if !invalid_partof.is_empty() {
-            error = 1;
+            error += 1;
             let mut msg = String::new();
             if !displayed_header {
                 displayed_header = true;
@@ -74,8 +71,14 @@ pub fn run_cmd<W: Write>(w: &mut W, cwd: &Path, project: &Project) -> Result<()>
         }
     }
 
+    error
+}
+
+fn display_unresolvable<W: Write>(w: &mut W, project: &Project) -> i32 {
+    let mut error: i32 = 0;
+
     // display unresolvable partof names
-    let unresolved: Vec<(ArtNameRc, &Artifact)> = Vec::from_iter(artifacts.iter()
+    let unresolved: Vec<(ArtNameRc, &Artifact)> = Vec::from_iter(project.artifacts.iter()
         .filter(|a| a.1.completed < 0. || a.1.tested < 0.)
         .map(|n| (n.0.clone(), n.1)));
     let unknown_names: HashSet<ArtNameRc> = HashSet::from_iter(unresolved.iter()
@@ -88,7 +91,7 @@ pub fn run_cmd<W: Write>(w: &mut W, cwd: &Path, project: &Project) -> Result<()>
             let partof: HashSet<_> = artifact.partof
                 .iter()
                 .filter(|n| {
-                    !artifacts.contains_key(n.as_ref()) || unknown_names.contains(n.as_ref())
+                    !project.artifacts.contains_key(n.as_ref()) || unknown_names.contains(n.as_ref())
                 })
                 .cloned()
                 .collect();
@@ -146,6 +149,12 @@ pub fn run_cmd<W: Write>(w: &mut W, cwd: &Path, project: &Project) -> Result<()>
         }
     }
 
+    error
+}
+
+fn display_invalid_locs<W: Write>(w: &mut W, cwd: &Path, project: &Project) -> i32 {
+    let mut error: i32 = 0;
+
     // display invalid locations
     if !project.dne_locs.is_empty() {
         error = 1;
@@ -179,6 +188,14 @@ pub fn run_cmd<W: Write>(w: &mut W, cwd: &Path, project: &Project) -> Result<()>
             }
         }
     }
+
+    error
+}
+
+
+fn display_hanging_artifacts<W: Write>(w: &mut W, cwd: &Path, project: &Project) -> i32 {
+    let mut error: i32 = 0;
+
     // find hanging artifacts
     fn partof_types(a: &Artifact, types: &HashSet<ArtType>) -> bool {
         for p in &a.partof {
@@ -192,7 +209,7 @@ pub fn run_cmd<W: Write>(w: &mut W, cwd: &Path, project: &Project) -> Result<()>
     let req_types = HashSet::from_iter(vec![ArtType::REQ]);
 
     let mut hanging: Vec<(ArtNameRc, &Path)> = Vec::new();
-    for (name, artifact) in artifacts.iter() {
+    for (name, artifact) in project.artifacts.iter() {
         let ty = name.ty;
         if (ty != ArtType::REQ) && !artifact.is_parent() && !name.is_root() &&
            name.parent().unwrap().is_root() &&
@@ -219,6 +236,19 @@ pub fn run_cmd<W: Write>(w: &mut W, cwd: &Path, project: &Project) -> Result<()>
             write!(w, "{}", msg).unwrap();
         }
     }
+
+    error
+}
+
+/// #SPC-cmd-check
+#[allow(cyclomatic_complexity)] // TODO: break this up
+pub fn run_cmd<W: Write>(w: &mut W, cwd: &Path, project: &Project) -> Result<()> {
+    let mut error: i32 = 0;
+
+    error += display_invalid_partof(w, cwd, project);
+    error += display_unresolvable(w, project);
+    error += display_invalid_locs(w, cwd, project);
+    error += display_hanging_artifacts(w, cwd, project);
 
     if error == 0 {
         let mut msg = String::new();
