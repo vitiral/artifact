@@ -1,4 +1,9 @@
-[![Build Status](https://travis-ci.org/vitiral/artifact.svg?branch=master)](https://travis-ci.org/vitiral/artifact)
+- **[User Guide][1]**
+- **[Design Docs][2]**: also see how [you can do this][3]
+
+[1]: https://github.com/vitiral/artifact/wiki/User-Guide
+[2]: http://vitiral.github.io/artifact/#artifacts/REQ-1
+[3]: https://github.com/vitiral/artifact/wiki/Exporting-Html
 
 Artifact is a design doc tool made for developers. It allows anyone to
 easily write and link their design docs both to each other and to source code,
@@ -11,27 +16,17 @@ The current release is targeted towards open source developers. Future releases
 aim to support industry by allowing editing of artifacts via the Web UI, as
 well as tracking and graphing of test execution across their product's versions.
 
-- [**Design Docs**][2]: also see how [you can do this][1]
-- [**How To Install**][3]
-- [**Simple Quality**][4]: book which uses this tool to teach quality best
-    practices
-- [**Additional Information**][5]
-- [**Reporting Issues**][6]
-
-[1]: https://github.com/vitiral/artifact/wiki/Exporting-Html
-[2]: http://vitiral.github.io/artifact/#artifacts/REQ-1
-[3]: https://github.com/vitiral/artifact/wiki/User-Guide
-[4]: https://vitiral.gitbooks.io/simple-quality/content/
-[5]: https://github.com/vitiral/artifact/wiki
-[6]: https://github.com/vitiral/artifact/issues
+[![Build Status][build-status]][travis]
+[build-status]: https://travis-ci.org/vitiral/artifact.svg?branch=master
+[travis]: https://travis-ci.org/vitiral/artifact
 
 ### Pre-release notice
 
-Artifact is now feature complete for 1.0. The 0.6 release will be
-released very shortly with a month long soak process while the tool
-is used by as many projects as possible. Further changes before 1.0 are not
-expected, but may still be necessary. After that soak, the plan is to cut the
-1.0 release which will disallow backwards incompatible changes.
+Artifact is now feature complete for 1.0. The 0.6 release has been released and
+will have about a month long soak process while the tool is used by as many
+projects as possible. Further changes before 1.0 are not expected, but may
+still be necessary. After the soak, the plan is to cut the 1.0 release which
+will disallow backwards incompatible changes.
 
 #### Future Improvements
 - [ ] web-ui settings (in `.art/web-ui.toml`)
@@ -47,6 +42,12 @@ expected, but may still be necessary. After that soak, the plan is to cut the
 - [ ] JSON-RPC API for Test Execution Tracking with DB backend
 - [ ] cmdline utility for viewing tracked tests
 - [ ] Web UI for viewing tracked tests
+
+## Contributors
+
+Please check out the [Contributor Guide][20]
+
+[20]: https://github.com/vitiral/artifact/wiki/Contributor-Guide
 
 ## Licensing
 All documentation and tutorials for the artifact application are released under
