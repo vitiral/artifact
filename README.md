@@ -1,8 +1,8 @@
 - **[Quick Start Guide](docs/QuickStart.md)**
 - **[Cheat Sheet](docs/CheatSheet.md)**
 - **[FAQ](docs/FAQ.md)**
-- **[Simple Quality][1]**: book which uses this tool to teach quality best
-  practices.
+- **[Simple Quality][1]**: short free book which is the full user guide
+  for artifact and teaches quality best practices.
 - **[Design Documents][2]**: also see how [you can do this][3]
 
 [1]: https://vitiral.gitbooks.io/simple-quality/content/

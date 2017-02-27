@@ -49,7 +49,7 @@ This is the description of the requirement
     - note: same as `partof = "REQ-name, REQ-other, REQ-nested-more,
       REQ-nested-link"`
 - `SPC-name` is automatically partof `REQ-name` (if "name" is the same)
-- `TST-name` is automatically parotf `SPC-name` (if "name" is the same)
+- `TST-name` is automatically partof `SPC-name` (if "name" is the same)
 - `RSK` is not automatically linked to other types.
 - `SPC-name-foo` is automatically partof `SPC-name` (same prefix) and `SPC-name`
   will be created if it doesn't exist.
