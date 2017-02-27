@@ -48,7 +48,7 @@ fn display_invalid_partof<W: Write>(w: &mut W, cwd: &Path, project: &Project) ->
 
     // display artifacts with invalid partof names
     let mut displayed_header = false;
-    for (name, artifact) in project.artifacts.iter() {
+    for (name, artifact) in &project.artifacts {
         invalid_partof.clear();
         for p in &artifact.partof {
             if !project.artifacts.contains_key(p) {
@@ -212,7 +212,7 @@ fn display_hanging_artifacts<W: Write>(w: &mut W, cwd: &Path, project: &Project)
     let req_types = HashSet::from_iter(vec![ArtType::REQ]);
 
     let mut hanging: Vec<(ArtNameRc, &Path)> = Vec::new();
-    for (name, artifact) in project.artifacts.iter() {
+    for (name, artifact) in &project.artifacts {
         let ty = name.ty;
         if (ty != ArtType::REQ) && !artifact.is_parent() && !name.is_root() &&
            name.parent().unwrap().is_root() &&

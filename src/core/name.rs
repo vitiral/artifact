@@ -269,7 +269,7 @@ impl NamePiece {
                 // found (at least) two parts with the same prefix
                 // store the part in raw without it's prefix
                 let i = pieces.len() - 1; // wow, you can't do this inline...
-                pieces[i].raw.push(part.split_first().unwrap().1.iter().cloned().collect())
+                pieces[i].raw.push(part.split_first().unwrap().1.to_vec())
             } else {
                 // we found a new prefix, create a new piece to store it
                 prefix = part[0].clone();

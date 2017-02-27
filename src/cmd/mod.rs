@@ -112,8 +112,8 @@ pub fn cmd<W, I, T>(w: &mut W, args: I) -> Result<()>
     let repo = match core::find_repo(&work_tree) {
         Some(r) => r,
         None => {
-            let msg = format!("Could not find .art folder. Try running `art init -t`");
-            return Err(ErrorKind::CmdError(msg).into());
+            let msg = "Could not find .art folder. Try running `art init -t`";
+            return Err(ErrorKind::CmdError(msg.to_string()).into());
         }
     };
     debug!("using repo dir {:?}", repo);

@@ -193,7 +193,7 @@ fn test_load_raw() {
     // The TSIMPL_DIR has several tests set up in it, including valid
     // "back references" to make sure that directories don't load multiple
     // times, valid loc, etc.
-    // partof: #TST-load-loop, #TST-load-valid
+    // partof: #TST-load-valid
     let simple = &tests::TSIMPLE_DIR;
     let (artifacts, settings) = load_raw_extra(simple.as_path()).unwrap();
     assert!(artifacts.contains_key(&ArtName::from_str("REQ-purpose").unwrap()));

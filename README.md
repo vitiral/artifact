@@ -95,13 +95,14 @@ for any purpose without the need of attribution. You can read more about CC0 her
 https://creativecommons.org/publicdomain/
 
 The CC0 license applies to:
-- The [Artifact Document Specification](docs/DOC-SPEC.md)
+- All project [docs](docs)
 - The [Artifact Design Documents](http://vitiral.github.io/artifact/#artifacts/REQ-1)
     (also located in `design/`)
 - The [Artifact Wiki](https://github.com/vitiral/artifact/wiki)
 - Any documents created by `art init` (in `src/cmd/data`)
 - Any documents created by `art tutorial` (n `src/cmd/data`)
 
-The artifact library and Web UI (located in `src/` and `web-ui/src`) are licensed
-under the LGPLv3+, except for files which say otherwise in their header or folders
-containing a different LICENSE.txt. See LICENSE.txt for more information.
+The artifact library and Web UI (located in `src/` and `web-ui/src`) are
+licensed under the LGPLv3+, except for files which say otherwise in their
+header or folders containing a different LICENSE.txt. See LICENSE.txt for more
+information.

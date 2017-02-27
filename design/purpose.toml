@@ -15,22 +15,25 @@ Assertions **will** be used throughout the artifacts to mean:
 
 [REQ-0-license]
 text = '''
-The Artifact Document Specification and these design documents
-are both released under the CC0 Creative Commons Public
-Domain License. You can read more about CC0 here:
+All documentation for artifact including the Artifact Document Specification
+and these design documents are both released under the CC0 Creative Commons
+Public Domain License. You can read more about CC0 here:
 https://creativecommons.org/publicdomain/
 
-The artifact library and Web UI (located in `src/` and `web-ui/`) are licensed
-under the LGPLv3+, except for files which say otherwise in their header.
+The artifact library and Web UI (located in `src/` and `web-ui/src`) are
+licensed under the LGPLv3+, except for files which say otherwise in their
+header or folders containing a different LICENSE.txt. See LICENSE.txt for more
+information.
 '''
 
 [REQ-0-prefix]
 text = '''
 In this project, the following conventions shall apply for artifact names:
- - `ART-0-*` denotes definitions and artifact process only. These will be defined
-     as completed, as they are simply documenting the process of artifacts.
- - `ART-1-*` denotes purpose REQs, which detail at the highest level why
-     this project exists
+- `ART-0-*` denotes definitions and artifact process only. These will be
+  defined as completed, as they are simply documenting the process of
+  artifacts.
+- `ART-1-*` denotes purpose REQs, which detail at the highest level why this
+  project exists
 
 Any artifact that is `1` will not be implemented in code (it will only be implemented
 by sub artifacts).
@@ -163,11 +166,11 @@ The artifact name should be in a human readable format which allows for simple
 categorization of different features.
 
 In order to accomplish this the name will be of the form:
-`ART-foo-bar-...` where `ART` is one of the types specified in `REQ-artifact`
+`ART-foo-bar-...` where `ART` is one of the types specified above
 and `foo-bar` is an arbitrary category.
 
 Each `-` in an artifact name shall be special -- it will denote categories and
-aid in easily linking artifacts to other artifacts, as defined in `REQ-partof`
+aid in easily linking artifacts to other artifacts, as defined in [[REQ-partof]]
 '''
 
 [REQ-cmd]

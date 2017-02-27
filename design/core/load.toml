@@ -71,14 +71,6 @@ load the following and make sure it results in an error:
  6. two files with same key
 '''
 
-[TST-load-loop]
-text = '''
-have a paths-file and unreachable .art files. Have the file point to the unreachable
-.art file's directory and validate that they are loaded correctly.
-
-Also have the file point **back** to the original file, to test for infinite loop
-'''
-
 [TST-load-simple]
 text = '''
 Create a simple project that has a few ins and outs
