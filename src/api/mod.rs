@@ -30,7 +30,6 @@ mod tests;
 const WEB_FRONTEND_TAR: &'static [u8] = include_bytes!("data/web-ui.tar");
 
 lazy_static! {
-    //#[derive(RustcDecodable, RustcEncodable, Serialize, Deserialize, Debug)]
     static ref ARTIFACTS: Mutex<Vec<ArtifactData>> = Mutex::new(Vec::new());
     static ref PROJECT: Mutex<Project> = Mutex::new(Project::default());
 }

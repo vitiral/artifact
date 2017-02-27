@@ -14,7 +14,7 @@ name = "artifact-app"
 readme = "README.md"
 repository = "https://github.com/vitiral/artifact"
 documentation = "http://vitiral.github.io/artifact/"
-version = "0.6.1"
+version = "0.6.2"
 
 [dependencies]
 ansi_term = "0.7"

@@ -16,6 +16,7 @@
  * */
 // need for clippy lints
 #![allow(unknown_lints)]
+#![allow(zero_ptr)]
 #![recursion_limit = "1024"]
 // # logger config
 extern crate fern;
