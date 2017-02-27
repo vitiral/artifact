@@ -1,7 +1,11 @@
-- **[User Guide][1]**
-- **[Design Docs][2]**: also see how [you can do this][3]
+- **[Quick Start Guide](docs/QuickStart.md)**
+- **[Cheat Sheet](docs/CheatSheet.md)**
+- **[FAQ](docs/FAQ.md)**
+- **[Simple Quality][1]**: book which uses this tool to teach quality best
+  practices.
+- **[Design Documents][2]**: also see how [you can do this][3]
 
-[1]: https://github.com/vitiral/artifact/wiki/User-Guide
+[1]: https://vitiral.gitbooks.io/simple-quality/content/
 [2]: http://vitiral.github.io/artifact/#artifacts/REQ-1
 [3]: https://github.com/vitiral/artifact/wiki/Exporting-Html
 
@@ -57,7 +61,7 @@ for any purpose without the need of attribution. You can read more about CC0 her
 https://creativecommons.org/publicdomain/
 
 The CC0 license applies to:
-- The [Artifact Document Specification](DOC-SPEC.md)
+- The [Artifact Document Specification](docs/DOC-SPEC.md)
 - The [Artifact Design Documents](http://vitiral.github.io/artifact/#artifacts/REQ-1)
     (also located in `design/`)
 - The [Artifact Wiki](https://github.com/vitiral/artifact/wiki)
