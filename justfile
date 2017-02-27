@@ -8,10 +8,6 @@ nightly = "CARGO_TARGET_DIR=$TG/nightly CARGO_INCREMENTAL=1 rustup run nightly"
 
 ##################################################
 # build commands
-build: # build app with web=false
-	cargo build
-	echo "built binary to: target/stable/debug/art"
-
 build-dev: # build using nightly and incremental compilation
 	TG={{target}} {{nightly}} cargo build
 	echo "built binary to: target/nightly/debug/art"
@@ -27,11 +23,12 @@ build-static: # build and package elm as a static index.html
 	cp web-ui/index.html target/web
 	cp -r web-ui/css target/web
 	# copy and link the style sheets
+	sed -e 's/<title>Main<\/title>/<title>Design Documents<\/title>/g' target/web/index.html -i
 	sed -e 's/<head>/<head><link rel="stylesheet" type="text\/css" href="css\/index.css" \/>/g' target/web/index.html -i
 	(cd target/web; tar -cvf ../../src/cmd/data/web-ui-static.tar *)
 
 build-web: build-elm build-static
-	cargo build
+	just build-dev
 
 ##################################################
 # unit testing/linting commands
@@ -65,10 +62,10 @@ api: # run the api server (without the web-ui)
 	cargo run -- -v server
 
 serve: build-elm  # run the full frontend
-	cargo run -- -v server
+	TG={{target}} {{nightly}} cargo run -- -v server
 
 self-check: # build self and run `art check` using own binary
-	cargo run -- check
+	TG={{target}} {{nightly}} cargo run -- check
 
 ##################################################
 # release command
@@ -80,10 +77,8 @@ fmt:
 check-fmt:
 	cargo fmt -- --write-mode=diff
 
-check-art:
+check: check-fmt
 	art check
-
-check: check-art check-fmt
 
 git-verify: # make sure git is clean and on master
 	git branch | grep '* master'
@@ -100,7 +95,7 @@ export-site: build-web
 
 publish-site: export-site
 	rm -rf _gh-pages/index.html _gh-pages/css
-	art export html && mv index.html css _gh-pages
+	TG={{target}} {{nightly}} cargo run -- export html && mv index.html css _gh-pages
 	(cd _gh-pages; git commit -am 'v{{version}}' && git push origin gh-pages)
 
 publish-cargo: # publish cargo without verification

@@ -1,15 +1,15 @@
 {
-  "name": "rpg",
+  "name": "artifact",
   "version": "1.0.0",
-  "description": "elm tutorial rpg",
+  "description": "the design doc tool made for developers",
   "main": "index.js",
   "scripts": {
       "build": "webpack",
       "watch": "webpack --watch",
       "dev": "webpack-dev-server --port 3000"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "vitiral@gmail.com",
+  "license": "LGPLv3+",
   "dependencies": {
     "ace-css": "^1.1.0",
     "basscss-base-tables": "^1.0.2",
