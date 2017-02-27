@@ -16,16 +16,48 @@ Documents are revision controllable, can be rendered as a static
 web page and have a full suite of command line tools for searching,
 formatting and displaying them.
 
-The current release is targeted towards open source developers. Future releases
-aim to support industry by allowing editing of artifacts via the Web UI, as
-well as tracking and graphing of test execution across their product's versions.
+Writing detailed design documents is one of the core pillars of quality
+software development, and yet there are no effective tools for doing so in a
+way that actually improves developer's day to day experience. While there have
+been several advancements made in how to develop quality software, they have
+largely been piecemeal and lacked the process to fit them all together. Several
+of the recent advancements include:
+- better revision control tools and best practices
+- new emphasis on unit tests as integral to the development process
+- linters and auto-formatters to help projects have easy to read code
+- more emphasis on documentation, including inline developer documentation and
+  auto-rendered html pages from source code comments.
+- the agile process and associated tools
+
+Artifact aims to fill a major gap in quality best practices by making writing
+good design documents *useful* to the average developer.
+
+First of all, artifact makes it easy to write design documents in *textfiles*
+and link them by just specifying their `partof` attribute, which allows
+developers to put them under revision control, review them using regular code
+review tools and use all the other text processing tools they are used to
+to view, edit and refactor their design documents.
+
+Secondly, design documents can be linked to their implementation through a
+language agnostic syntax in the source-code. This helps makes code comments
+self-documenting because someone reading them can see what specification a
+method is supposed to implement. They can then easily search for that
+specification to get an idea of the larger context. This also allows them to
+track the completion of their project as they implement their specifications.
+
+Finally, artifact exports a beautiful rendered view of their design documents
+for hosting on sites like github and viewing in a web browswer. This completes
+the self documenting nature and allows anyone, even non-developers, to view
+the design documents of their project.
+
+In this way, artifact aims to unify all of the other quality best practices
+while also making development easier and more fun.
 
 [![Build Status][build-status]][travis]
 [build-status]: https://travis-ci.org/vitiral/artifact.svg?branch=master
 [travis]: https://travis-ci.org/vitiral/artifact
 
 ### Pre-release notice
-
 Artifact is now feature complete for 1.0. The 0.6 release has been released and
 will have about a month long soak process while the tool is used by as many
 projects as possible. Further changes before 1.0 are not expected, but may
@@ -33,6 +65,10 @@ still be necessary. After the soak, the plan is to cut the 1.0 release which
 will disallow backwards incompatible changes.
 
 #### Future Improvements
+The current release is targeted towards open source developers. Future releases
+aim to support industry by allowing editing of artifacts via the Web UI, as
+well as tracking and graphing of test execution across their product's versions.
+
 - [ ] web-ui settings (in `.art/web-ui.toml`)
 - [ ] Extensive selenium testing of Web UI
 - [x] UpdateArtifacts API call
