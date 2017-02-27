@@ -35,20 +35,22 @@ good design documents *useful* to the average developer.
 First of all, artifact makes it easy to write design documents in *textfiles*
 and link them by just specifying their `partof` attribute, which allows
 developers to put them under revision control, review them using regular code
-review tools and use all the other text processing tools they are used to
-to view, edit and refactor their design documents.
+review tools and use all the normal text processing tools (vim, grep, sed, etc)
+to view, edit and refactor their design documents. Artifact also provides some
+command line tools of its own.
 
 Secondly, design documents can be linked to their implementation through a
 language agnostic syntax in the source-code. This helps makes code comments
-self-documenting because someone reading them can see what specification a
-method is supposed to implement. They can then easily search for that
-specification to get an idea of the larger context. This also allows them to
-track the completion of their project as they implement their specifications.
+self-documenting. Once linked, anyone reading the documentation can see what
+specification a method is supposed to implement. They can then easily search
+for that specification to get an idea of the larger context. This also allows
+them to track the completion of their project as they implement their
+specifications.
 
 Finally, artifact exports a beautiful rendered view of their design documents
-for hosting on sites like github and viewing in a web browswer. This completes
-the self documenting nature and allows anyone, even non-developers, to view
-the design documents of their project.
+for hosting on sites like github and viewing in a web browswer ([example][2]).
+This completes the self documenting nature and allows anyone, even
+non-developers, to view the design documents of their project.
 
 In this way, artifact aims to unify all of the other quality best practices
 while also making development easier and more fun.
