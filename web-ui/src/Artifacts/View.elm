@@ -158,7 +158,7 @@ artifactColor artifact =
 -- colors: olive, blue, orange, red
 seeArtifact : Model -> Artifact -> Html AppMsg
 seeArtifact model artifact =
-  button 
+  a 
     [ class ("btn bold " ++ (artifactColor artifact))
     , onClick (ArtifactsMsg <| ShowArtifact <| artifact.name.value)
     , href (artifactNameUrl artifact.name.value)
@@ -179,10 +179,10 @@ seeArtifactName model name =
       Nothing -> "purple"
   in 
     if Dict.member indexName model.artifacts then
-      span 
+      a 
         [ class ("btn bold " ++ color)
         , href url
         , onClick ( ArtifactsMsg <| ShowArtifact <| indexName ) 
         ] [ text name ]
     else
-      span [ title "Name not found" ] [ text name ]
+      span [ class ("btn " ++ color) ] [ text name ]

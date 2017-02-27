@@ -91,7 +91,7 @@ publish: git-verify lint build-web test-all check # publish to github and crates
 
 export-site: build-web
 	rm -rf _gh-pages/index.html _gh-pages/css
-	art export html && mv index.html css _gh-pages
+	TG={{target}} {{nightly}} cargo run -- export html && mv index.html css _gh-pages
 
 publish-site: export-site
 	rm -rf _gh-pages/index.html _gh-pages/css
