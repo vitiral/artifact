@@ -1,11 +1,11 @@
 # Interactive artifact tutorial
 Welcome to the in depth artifact tutorial! This tutorial is designed to be run
 interactively, guiding you through the requirements gathering, detailed
-design phase, and implementaiton of a project -- as well as fixing issues
+design phase, and implementation of a project -- as well as fixing issues
 that might come up.
 
 In order to follow along, you must have artifact installed somewhere on your
-PATH. Check out the [User Guide][1] for instructions.
+PATH. Check out the [Installation Guide][1] for instructions.
 
 Note: every time `artifact tutorial ...` gets called it will delete the files it
 created. This is so that it can update the files to be interactive. If you are
@@ -13,7 +13,7 @@ taking notes or creating other design docs, you should do so in separate files
 than the ones created, or use revision control like git as you progress
 (recommended).
 
-[1]: https://github.com/vitiral/artifact/wiki/User-Guide
+[1]: https://github.com/vitiral/artifact/blob/master/docs/Installation.md
 
 --------------------------------------------------
 ## Tutorial Stage 1: follow along document
@@ -228,8 +228,7 @@ edit `.art/settings.toml` with the paths on where to find your
 design docs and code.
 
 You can host a rendered html page of your project's design documents by using
-`art export html`. For more information, see
-[the wiki](https://github.com/vitiral/artifact/wiki/Exporting-Html)
+`art export html`. [See here][4] for more information.
 
 --------------------------------------------------
 ## Additional Resources
@@ -273,4 +272,5 @@ open a ticket at: https://github.com/vitiral/artifact/issues
 Good luck!
 
 [2]: http://wiki.openhatch.org/Flash_card_challenge
-[3]: https://github.com/vitiral/artifact/wiki/Best-Practices
+[3]: https://github.com/vitiral/artifact/blob/master/docs/BestPractices.md
+[4]: https://github.com/vitiral/artifact/blob/master/docs/ExportingHtml.md
