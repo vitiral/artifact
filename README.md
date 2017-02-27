@@ -17,37 +17,33 @@ web page and have a full suite of command line tools for searching,
 formatting and displaying them.
 
 Writing detailed design documents is one of the core pillars of quality
-software development, and yet there are no effective tools for doing so in a
-way that actually improves developer's day to day experience. While there have
-been several advancements made in how to develop quality software, they have
-largely been piecemeal and lacked the process to fit them all together. Several
-of the recent advancements include:
-- better revision control tools and best practices
-- new emphasis on unit tests as integral to the development process
-- linters and auto-formatters to help projects have easy to read code
-- more emphasis on documentation, including inline developer documentation and
-  auto-rendered html pages from source code comments.
-- the agile process and associated tools
+software development. Design documents are how you capture the requirements
+(purpose) of your project and link them to your specifications (how you will
+build it). They let you get your ideas on paper before writing code, and help
+you have fewer painful refactors. They create a reference for developers and
+curious users of how and why your project was developed a certain way, and make
+it easier to refactor your project when that becomes necessary.
 
-Artifact aims to fill a major gap in quality best practices by making writing
-good design documents *useful* to the average developer.
+Even though design documents are critical to the quality of software, there
+are very few tools for writing them and integrating them into the larger context
+of a project. Artifact aims to fill the major gap in quality best practices by
+making writing good design documents *useful* to the average developer.
 
-First of all, artifact makes it easy to write design documents in *textfiles*
-and link them by just specifying their `partof` attribute, which allows
-developers to put them under revision control, review them using regular code
-review tools and use all the normal text processing tools (vim, grep, sed, etc)
-to view, edit and refactor their design documents. Artifact also provides some
-command line tools of its own.
+First of all, artifact makes it easy to write design documents in *text files*
+and link them by just specifying their `partof` attribute. This allows
+developers to put their design documents under revision control, review them
+using regular code review tools and use all the normal text processing tools
+(vim, grep, sed, etc) to view, edit and refactor them. Artifact also provides
+some command line tools of its own.
 
-Secondly, design documents can be linked to their implementation through a
-language agnostic syntax in the source-code. This helps makes code comments
-self-documenting. Once linked, anyone reading the documentation can see what
+Secondly, design documents can be linked to their implementation in source-code
+through a language agnostic syntax, simultaniously tracking the project
+completion. Once linked, anyone reading the documentation can see what
 specification a method is supposed to implement. They can then easily search
-for that specification to get an idea of the larger context. This also allows
-them to track the completion of their project as they implement their
-specifications.
+for that specification to get an idea of the larger context, making the source
+code comments more self documenting.
 
-Finally, artifact exports a beautiful rendered view of their design documents
+Finally, artifact exports a beautiful rendered view of the design documents
 for hosting on sites like github and viewing in a web browswer ([example][2]).
 This completes the self documenting nature and allows anyone, even
 non-developers, to view the design documents of their project.
