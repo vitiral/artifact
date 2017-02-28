@@ -19,7 +19,7 @@ fn test_basic_link() {
         let art = artifacts.get_mut(&ArtNameRc::from_str(sname).unwrap()).unwrap();
         art.loc = Some(Loc {
             path: path.clone(),
-            line_col: (1, 2),
+            line: 1,
         });
     }
 
@@ -108,7 +108,7 @@ fn test_link_completed_tested() {
         let art = artifacts.get_mut(&ArtNameRc::from_str(sname).unwrap()).unwrap();
         art.loc = Some(Loc {
             path: path.clone(),
-            line_col: (1, 2),
+            line: 1,
         });
     }
 

@@ -214,8 +214,7 @@ locDecoder : Decode.Decoder Loc
 locDecoder =
   decode Loc
     |> required "path" Decode.string
-    |> required "row" Decode.int
-    |> required "col" Decode.int
+    |> required "line" Decode.int
 
 
 

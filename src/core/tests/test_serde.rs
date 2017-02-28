@@ -15,8 +15,7 @@ fn test_serde() {
         parts: Vec::from_iter(vec!["part-1".to_string()]),
         loc: Some(LocData {
             path: "path".to_string(),
-            row: 10,
-            col: 10,
+            line: 10,
         }),
         completed: 0.,
         tested: 0.,

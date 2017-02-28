@@ -31,7 +31,7 @@ fn test_resolve_loc_text() {
     let mut locs: HashMap<ArtName, Loc> = HashMap::new();
     let path = PathBuf::from("hi/there");
     let loc_test = LOC_TEST.replace("$", "#");
-    assert!(!find_locs_text(&path, &loc_test, &mut locs));
+    find_locs_text(&path, &loc_test, &mut locs).unwrap();
     // change: all locations are found
     assert!(locs.contains_key(&ArtName::from_str("TST-dont-care").unwrap()));
 
@@ -41,9 +41,9 @@ fn test_resolve_loc_text() {
     let tst_long = locs.get(&ArtName::from_str("TST-foo-what-where-2-b-3").unwrap()).unwrap();
     let spc_error = locs.get(&ArtName::from_str("SPC-core-load-erro").unwrap()).unwrap();
 
-    assert_eq!(spc_who.line_col, (1, 0));
-    assert_eq!(spc_what.line_col, (2, 4));
-    assert_eq!(spc_where.line_col, (3, 4));
-    assert_eq!(tst_long.line_col, (4, 15));
-    assert_eq!(spc_error.line_col, (6, 4));
+    assert_eq!(spc_who.line, 1);
+    assert_eq!(spc_what.line, 2);
+    assert_eq!(spc_where.line, 3);
+    assert_eq!(tst_long.line, 4);
+    assert_eq!(spc_error.line, 6);
 }

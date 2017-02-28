@@ -142,7 +142,7 @@ fn repr_bytes(bytes: &[u8]) {
     }
 }
 
-#[test]
+//#[test]
 /// #TST-cmd-ls
 fn test_cmd_ls() {
     let mut cmd = ls::Cmd {

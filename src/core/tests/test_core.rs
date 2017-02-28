@@ -71,8 +71,8 @@ fn test_load_path() {
                src_dir.join(PathBuf::from("lvl_1.rs")));
 
     debug!("checking loc");
-    assert_eq!(spc_loc.loc.iter().next().unwrap().line_col, (4, 4));
-    assert_eq!(spc_lvl1.loc.iter().next().unwrap().line_col, (3, 3));
+    assert_eq!(spc_loc.loc.iter().next().unwrap().line, 4);
+    assert_eq!(spc_lvl1.loc.iter().next().unwrap().line, 3);
 
     assert!(p.dne_locs.contains_key(&ArtName::from_str("SPC-dne").unwrap()));
     assert!(p.dne_locs.contains_key(&ArtName::from_str("TST-dne").unwrap()));

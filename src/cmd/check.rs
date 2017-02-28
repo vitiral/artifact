@@ -182,10 +182,10 @@ fn display_invalid_locs<W: Write>(w: &mut W, cwd: &Path, project: &Project) -> u
                    utils::relative_path(&path, cwd).display())
                 .unwrap();
             paint_it(w, &pathstr);
-            locs.sort_by(|a, b| a.1.line_col.cmp(&b.1.line_col));
+            locs.sort_by(|a, b| a.1.line.cmp(&b.1.line));
             for (name, loc) in locs {
                 let mut loc_str = String::new();
-                write!(loc_str, "    - ({}:{})", loc.line_col.0, loc.line_col.1).unwrap();
+                write!(loc_str, "    - [{}]", loc.line).unwrap();
                 paint_it(w, &loc_str);
                 write!(w, " {}\n", name).unwrap();
             }

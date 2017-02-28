@@ -21,7 +21,7 @@ use std::sync::atomic::{AtomicUsize, Ordering as AtomicOrdering};
 
 pub const REPO_VAR: &'static str = "repo";
 pub const CWD_VAR: &'static str = "cwd";
-pub const ART_VALID_STR: &'static str = "(REQ|SPC|RSK|TST)(-[A-Z0-9_-]*[A-Z0-9_])?";
+pub const ART_VALID_STR: &'static str = "(?:REQ|SPC|RSK|TST)(?:-[A-Z0-9_-]*[A-Z0-9_])?";
 
 lazy_static!{
     // must start with artifact type, followed by "-", followed by at least 1 valid character
@@ -245,14 +245,14 @@ pub enum ArtType {
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub struct Loc {
     pub path: PathBuf,
-    pub line_col: (usize, usize),
+    pub line: usize,
 }
 
 impl Loc {
     pub fn fake() -> Loc {
         Loc {
             path: Path::new("fake").to_path_buf(),
-            line_col: (42, 0),
+            line: 42,
         }
     }
 }
@@ -260,10 +260,9 @@ impl Loc {
 impl fmt::Display for Loc {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f,
-               "{}({}:{})",
+               "{}[{}]",
                self.path.display(),
-               self.line_col.0,
-               self.line_col.1)
+               self.line)
     }
 }
 
@@ -309,8 +308,7 @@ impl Artifact {
             loc: self.loc.as_ref().map(|l| {
                 LocData {
                     path: l.path.to_string_lossy().to_string(),
-                    row: l.line_col.0 as u64,
-                    col: l.line_col.1 as u64,
+                    line: l.line as u64,
                 }
             }),
             completed: self.completed,
@@ -364,8 +362,7 @@ impl Settings {
 #[derive(Serialize, Deserialize, Debug, Clone, Eq, PartialEq)]
 pub struct LocData {
     pub path: String,
-    pub row: u64,
-    pub col: u64,
+    pub line: u64,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]

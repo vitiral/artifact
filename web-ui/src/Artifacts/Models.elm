@@ -27,8 +27,7 @@ type alias NameKey =
 
 type alias Loc =
   { path : String
-  , row : Int
-  , col : Int
+  , line : Int
   }
 
 type alias Name =
