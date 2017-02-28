@@ -40,6 +40,7 @@ extern crate difference;
 // # cmdline crates
 extern crate clap;
 extern crate ansi_term;
+extern crate tabwriter;
 
 // # web api crates
 #[macro_use]

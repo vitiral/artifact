@@ -1,19 +1,12 @@
 [package]
 authors = ["Garrett Berg <vitiral@gmail.com>"]
-description = '''
-Artifact is a design doc tool made for developers. It allows anyone to
-easily write and link their design docs both to each other and to source code,
-making it easy to track how complete their project is.
-Documents are revision controllable, can be rendered as a static
-web page and have a full suite of command line tools for searching,
-formatting and displaying them.
-'''
+description = "Artifact is a design doc tool made for developers. It allows anyone to\neasily write and link their design docs both to each other and to source code,\nmaking it easy to track how complete their project is.\nDocuments are revision controllable, can be rendered as a static\nweb page and have a full suite of command line tools for searching,\nformatting and displaying them.\n"
+documentation = "http://vitiral.github.io/artifact/"
 keywords = ["cmdline", "tool", "requirements", "documentation", "testing"]
 license = "LGPL-3.0+"
 name = "artifact-app"
 readme = "README.md"
 repository = "https://github.com/vitiral/artifact"
-documentation = "http://vitiral.github.io/artifact/"
 version = "0.6.2"
 
 [dependencies]
@@ -36,14 +29,19 @@ tempdir = "0.3"
 time = "0.1"
 toml = "0.2"
 
+[dependencies.tabwriter]
+default-features = false
+features = ["ansi_formatting"]
+version = "1.0.3"
+
 [dependencies.clap]
 default-features = false
 features = ["suggestions", "color"]
-version= "2"
+version = "2"
 
 [dependencies.error-chain]
 default-features = false
-version= "0.9.0"
+version = "0.9.0"
 
 [features]
 default = []

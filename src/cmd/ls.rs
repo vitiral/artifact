@@ -18,6 +18,7 @@
 use dev_prefix::*;
 
 use serde_json;
+use tabwriter::TabWriter;
 
 use super::types::*;
 use super::display;
@@ -368,23 +369,22 @@ pub fn run_cmd<W: Write>(mut w: &mut W, cwd: &Path, cmd: &Cmd, project: &Project
     debug!("artifact names selected: {:?}", names);
     if fmt_set.is_empty() {
         fmt_set.parts = true;
-        fmt_set.path = true;
-    }
-
-    if !names.is_empty() && !fmt_set.long && cmd.ty == OutType::List {
-        display::write_table_header(w, &fmt_set);
-
     }
 
     let mut displayed = ArtNames::new();
     // #SPC-cmd-ls-type
     match cmd.ty {
         OutType::List => {
+            let mut tw = TabWriter::new(w);
+            if !names.is_empty() && !fmt_set.long {
+                display::write_table_header(&mut tw, &fmt_set);
+            }
             for name in names {
                 let f =
                     ui::fmt_artifact(&name, artifacts, &fmt_set, fmt_set.recurse, &mut displayed);
-                f.write(w, cwd, artifacts, fmt_set.color, 0)?;
+                f.write(&mut tw, cwd, artifacts, fmt_set.color, 0)?;
             }
+            tw.flush()?; // this is necessary for actually writing the output
         }
         OutType::Json => {
             let out_arts: Vec<_> = names.iter()

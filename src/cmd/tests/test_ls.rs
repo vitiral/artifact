@@ -49,7 +49,7 @@ exist:\n\x1b[0m\x1b[31m    REQ-invalid-parts [../../reqs/foo.toml]: {REQ-DNE}\
 SPC-unresolvable-1            : [SPC-UNRESOLVABLE]\n    \
 SPC-unresolvable-1-1          : [SPC-UNRESOLVABLE-1]\n\x1b[1;31m\nFound \
 implementation links in the code that do not exist:\n\x1b[0m\x1b[31m    \
-../../fake:\n\x1b[0m\x1b[31m    - (42:0)\x1b[0m SPC-dne\n\x1b[1;31m\n\
+../../fake:\n\x1b[0m\x1b[31m    - [42]\x1b[0m SPC-dne\n\x1b[1;31m\n\
 Hanging artifacts found (top-level but not partof a higher type):\
 \n\x1b[0m    ../../reqs/foo.toml           : SPC-unresolvable\n\n";
 
@@ -60,67 +60,51 @@ one recursive reference:\n    SPC-unresolvable              : \
 [SPC-UNRESOLVABLE-1-1]\n    SPC-unresolvable-1            : \
 [SPC-UNRESOLVABLE]\n    SPC-unresolvable-1-1          : [SPC-UNRESOLVABLE-1]\
 \n\nFound implementation links in the code that do not exist:\n    \
-..\\..\\fake:\n    - (42:0) SPC-dne\n\nHanging artifacts found (top-level but not \
+..\\..\\fake:\n    - [42] SPC-dne\n\nHanging artifacts found (top-level but not \
 partof a higher type):\n    ..\\..\\reqs\\foo.toml           : \
 SPC-unresolvable\n\n";
 
-#[cfg(not(windows))]
-const LS_REQ_FOO: &'static [u8] =
-    b"\x1b[1m|  | DONE TEST | ARTIFACT NAME                                 | \
-PARTS   | DEFINED   \n\x1b[0m|\x1b[1;34mD\x1b[0m\x1b[1;33m-\x1b[0m| \
-\x1b[1;34m100\x1b[0m%  \x1b[1;33m50\x1b[0m% | \x1b[1;4;34mreq-foo\x1b\
-[0m                                       | \x1b[34mSPC-foo\x1b[0m | \
-../../reqs/foo.toml \n";
-
-#[cfg(windows)]
-const LS_REQ_FOO: &'static [u8] =
-    b"|  | DONE TEST | ARTIFACT NAME                                 | PARTS   \
-| DEFINED   \n|D-| 100%  50% | req-foo                                       | \
-SPC-foo | ..\\..\\reqs\\foo.toml \n";
-
-
-#[cfg(not(windows))]
 const LS_REQ_FOO_NO_COL: &'static [u8] =
-    b"|  | DONE TEST | ARTIFACT NAME                                 | PARTS   | \
-DEFINED   \n|D-| 100%  50% | req-foo                                       | \
-SPC-foo | ../../reqs/foo.toml \n";
-
-#[cfg(windows)]
-const LS_REQ_FOO_NO_COL: &'static [u8] = LS_REQ_FOO;
+    b"|  | DONE TEST | NAME     | PARTS   \n|D-| 100%  50% | req-foo      | SPC-foo\n";
 
 #[cfg(not(windows))]
-const LS_S_C_STAR_FOO: &'static [u8] =
-    b"\x1b[1m|  | DONE TEST | ARTIFACT NAME                                 | \
-PARTS   | PARTOF   | IMPLEMENTED   | DEFINED   | TEXT\n\x1b[0m|\x1b[1;34mD\x1b\
-[0m\x1b[1;33m-\x1b[0m| \x1b[1;34m100\x1b[0m%  \x1b[1;33m50\x1b[0m% | \x1b\
-[1;4;34mREQ-foo\x1b[0m                                       | \x1b[34mSPC-foo\
-\x1b[0m | \x1b[33mREQ\x1b[0m | ../../reqs/foo.toml | req for foo \n|\x1b\
-[1;5;31m!\x1b[0m\x1b[1;5;31m!\x1b[0m|  \x1b[1;5;31m-1\x1b[0m%  \x1b[1;5;31m-1\
-\x1b[0m% | \x1b[1;4;31mSPC\x1b[0m                                           | \
-\x1b[34mSPC-foo\x1b[0m, \x1b[31mSPC-unresolvable\x1b[0m |  | PARENT | AUTO \n";
+const LS_REQ_FOO: &'static [u8] = b"\x1b[1m|  | DONE TEST | NAME      | PARTS   \n\x1b[0m|\x1b\
+[1;34mD\x1b[0m\x1b[1;33m-\x1b[0m| \x1b[1;34m100\x1b[0m%  \x1b[1;33m50\x1b[0m% | \x1b[1;4;34mreq-foo\
+\x1b[0m   | \x1b[34mSPC-foo\x1b[0m\n";
 
 #[cfg(windows)]
-const LS_S_C_STAR_FOO: &'static [u8] =
-    b"|  | DONE TEST | ARTIFACT NAME                                 | PARTS   | \
-PARTOF   | IMPLEMENTED   | DEFINED   | TEXT\n|D-| 100%  50% | \
-REQ-foo                                       | SPC-foo | REQ | \
-..\\..\\reqs\\foo.toml | req for foo \n|--|  -1%  -1% | \
-SPC                                           | SPC-foo, SPC-unresolvable |  | \
-PARENT | AUTO \n";
+const LS_REQ_FOO: &'static [u8] = LS_REQ_FOO_NO_COL;
+
 
 #[cfg(not(windows))]
-const LS_FILTER: &'static [u8] =
-    b"|  | DONE TEST | ARTIFACT NAME                                 | PARTS   | \
-DEFINED   \n|DT| 100% 100% | TST-foo                                       |  | \
-../../reqs/foo.toml \n";
+const LS_S_C_STAR_FOO_NO_COL: &'static [u8] = b"|  | DONE TEST | NAME     | PARTS     | \
+PARTOF                     | IMPLEMENTED     | DEFINED              | TEXT\n|D-| 100%  50% | \
+REQ-foo              | SPC-foo                    | REQ             | ../../reqs/foo.toml  | req \
+for foo \n|--|  -1%  -1% | SPC                  | SPC-foo, SPC-unresolvable  |                 | \
+PARENT               | AUTO \n";
 
 #[cfg(windows)]
-const LS_FILTER: &'static [u8] =
-    b"|  | DONE TEST | ARTIFACT NAME                                 | PARTS   | \
-DEFINED   \n|DT| 100% 100% | TST-foo                                       |  | \
-..\\..\\reqs\\foo.toml \n";
+const LS_S_C_STAR_FOO_NO_COL: &'static [u8] = b"|  | DONE TEST | NAME     | PARTS     | \
+PARTOF                     | IMPLEMENTED     | DEFINED              | TEXT\n|D-| 100%  50% | \
+REQ-foo              | SPC-foo                    | REQ             | ..\\..\\reqs\\foo.toml  | \
+req for foo \n|--|  -1%  -1% | SPC                  | SPC-foo, SPC-unresolvable  \
+|                 | PARENT               | AUTO \n";
 
-const LS_REQ_DNE: &'static [u8] = b"";
+
+#[cfg(not(windows))]
+const LS_S_C_STAR_FOO: &'static [u8] = b"\x1b[1m|  | DONE TEST | NAME      | \
+PARTS                      | PARTOF     | IMPLEMENTED          | DEFINED     | TEXT\n\x1b[0m|\x1b\
+[1;34mD\x1b[0m\x1b[1;33m-\x1b[0m| \x1b[1;34m100\x1b[0m%  \x1b[1;33m50\x1b[0m% | \x1b[1;4;34mREQ-foo\
+\x1b[0m   | \x1b[34mSPC-foo\x1b[0m                    | \x1b[33mREQ\x1b[0m        | ../../reqs/foo.\
+toml  | req for foo \n|\x1b[1;5;31m!\x1b[0m\x1b[1;5;31m!\x1b[0m|  \x1b[1;5;31m-1\x1b[0m%  \x1b\
+[1;5;31m-1\x1b[0m% | \x1b[1;4;31mSPC\x1b[0m       | \x1b[34mSPC-foo\x1b[0m, \x1b[31mSPC-\
+unresolvable\x1b[0m  |            | PARENT               | AUTO \n";
+
+#[cfg(windows)]
+const LS_S_C_STAR_FOO: &'static [u8] = LS_S_C_STAR_FOO_NO_COL;
+
+const LS_FILTER: &'static [u8] =
+    b"|  | DONE TEST | NAME     | PARTS   \n|DT| 100% 100% | TST-foo      | \n";
 
 #[cfg(not(windows))]
 const COLOR_IF_POSSIBLE: bool = true;
@@ -142,7 +126,7 @@ fn repr_bytes(bytes: &[u8]) {
     }
 }
 
-//#[test]
+#[test]
 /// #TST-cmd-ls
 fn test_cmd_ls() {
     let mut cmd = ls::Cmd {
@@ -233,22 +217,21 @@ partof = 'REQ-dne'
     w.clear();
     cmd.pattern = "req-foo".to_string();
     ls::run_cmd(&mut w, &cwd, &cmd, &project).unwrap();
-    // debug_bytes(&w, LS_REQ_FOO);
+    //debug_bytes(&w, LS_REQ_FOO);
     assert_eq!(vb(LS_REQ_FOO), w);
 
     // do default list with color disabled
     w.clear();
     cmd.fmt_settings.color = false;
     ls::run_cmd(&mut w, &cwd, &cmd, &project).unwrap();
-    // debug_bytes(&w, expected);
+    //debug_bytes(&w, LS_REQ_FOO_NO_COL);
     assert_eq!(vb(LS_REQ_FOO_NO_COL), w);
 
     // default list for non-existant requirement
     w.clear();
     cmd.pattern = "REQ_DNE".to_string();
     assert!(ls::run_cmd(&mut w, &cwd, &cmd, &project).is_err());
-    //debug_bytes(&w, LS_REQ_DNE);
-    assert_eq!(vb(LS_REQ_DNE), w);
+    assert_eq!(vb(b""), w);
 
     // ls all fields
     // do a search in only parts using regex s.c
@@ -266,6 +249,12 @@ partof = 'REQ-dne'
     //debug_bytes(&w, LS_S_C_STAR_FOO);
     assert_eq!(vb(LS_S_C_STAR_FOO), w);
 
+    w.clear();
+    cmd.fmt_settings.color = false;
+    ls::run_cmd(&mut w, &cwd, &cmd, &project).unwrap();
+    //debug_bytes(&w, LS_S_C_STAR_FOO_NO_COL);
+    assert_eq!(vb(LS_S_C_STAR_FOO_NO_COL), w);
+
     // test filtering
     w.clear();
     cmd.pattern = "".to_string();
@@ -282,6 +271,6 @@ partof = 'REQ-dne'
         perc: 100,
     };
     ls::run_cmd(&mut w, &cwd, &cmd, &project).unwrap();
-    //debug_bytes(&w, LS_FILTER);
+    debug_bytes(&w, LS_FILTER);
     assert_eq!(vb(LS_FILTER), w);
 }

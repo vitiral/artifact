@@ -259,10 +259,7 @@ impl Loc {
 
 impl fmt::Display for Loc {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f,
-               "{}[{}]",
-               self.path.display(),
-               self.line)
+        write!(f, "{}[{}]", self.path.display(), self.line)
     }
 }
 

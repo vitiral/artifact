@@ -2,9 +2,13 @@
 
 ##################################################
 # constants
-version = `sed -En 's/version = "([^"]+)"/\1/p' Cargo.toml`
+version = `sed -En 's/version = "([^"]+)"/\1/p' Cargo.toml | head -n1`
 target = "$PWD/target"
 nightly = "CARGO_TARGET_DIR=$TG/nightly CARGO_INCREMENTAL=1 rustup run nightly"
+
+echo-version:
+	echo {{version}}
+
 
 ##################################################
 # build commands
