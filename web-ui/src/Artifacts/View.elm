@@ -82,9 +82,7 @@ implementedBasic : Model -> Artifact -> Html m
 implementedBasic model artifact = 
   (case artifact.loc of 
     Just loc ->
-      text (loc.path ++ " (" ++ (toString loc.row) 
-            ++ "," ++ (toString loc.col) ++ ")"
-           )
+      text (loc.path ++ " [" ++ (toString loc.line) ++ "]")
     Nothing ->
       span [class "italic gray" ] [ text "not directly implemented" ])
 
