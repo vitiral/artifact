@@ -182,10 +182,10 @@ impl Project {
                    &self.artifacts,
                    &other.artifacts,
                    &|a: &Artifact| &a.parts)?;
-        attr_equal("loc",
+        attr_equal("done",
                    &self.artifacts,
                    &other.artifacts,
-                   &|a: &Artifact| &a.loc)?;
+                   &|a: &Artifact| &a.done)?;
         float_equal("completed",
                     &self.artifacts,
                     &other.artifacts,
@@ -224,6 +224,7 @@ impl Default for ProjectText {
 pub struct RawArtifact {
     pub partof: Option<String>,
     pub text: Option<String>,
+    pub done: Option<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, RustcEncodable, RustcDecodable)]
@@ -242,7 +243,18 @@ pub enum ArtType {
     TST,
 }
 
-#[derive(Debug, Clone, Eq, PartialEq)]
+
+/// Definition of an artifact name, with Traits for hashing,
+/// displaying, etc
+// note: methods are implemented in name.rs
+#[derive(Clone)]
+pub struct ArtName {
+    pub raw: String,
+    pub value: Vec<String>,
+    pub ty: ArtType,
+}
+
+#[derive(Debug, Clone, PartialEq)]
 pub struct Loc {
     pub path: PathBuf,
     pub line: usize,
@@ -263,14 +275,38 @@ impl fmt::Display for Loc {
     }
 }
 
-/// Definition of an artifact name, with Traits for hashing,
-/// displaying, etc
-// note: methods are implemented in name.rs
-#[derive(Clone)]
-pub struct ArtName {
-    pub raw: String,
-    pub value: Vec<String>,
-    pub ty: ArtType,
+
+/// is the artifact "done by definition"
+/// It is done by definition if:
+/// - it is found in source code
+/// - it has it's `done` field set
+#[derive(Debug, Clone, PartialEq)]
+pub enum Done {
+    /// Artifact is implemented in code
+    Code(Loc),
+    /// artifact has it's `done` field defined
+    Defined(String),
+    /// artifact is NOT "done by definition"
+    NotDone,
+}
+
+impl Done {
+    pub fn is_done(&self) -> bool {
+        match *self {
+            Done::Code(_) | Done::Defined(_) => true,
+            Done::NotDone => false,
+        }
+    }
+}
+
+impl fmt::Display for Done {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            Done::Code(ref c) => write!(f, "{}", c),
+            Done::Defined(ref s) => write!(f, "{}", s),
+            Done::NotDone => write!(f, "not done"),
+        }
+    }
 }
 
 /// The Artifact type. This encapsulates
@@ -284,7 +320,7 @@ pub struct Artifact {
     pub text: String,
     pub partof: ArtNames,
     pub parts: ArtNames,
-    pub loc: Option<Loc>,
+    pub done: Done,
     pub completed: f32, // completed ratio (calculated)
     pub tested: f32, // tested ratio (calculated)
 }
@@ -295,6 +331,16 @@ impl Artifact {
     }
 
     pub fn to_data(&self, name: &ArtNameRc) -> ArtifactData {
+        let (code, done) = match self.done {
+            Done::Code(ref l) => {
+                (Some(LocData {
+                    path: l.path.to_string_lossy().to_string(),
+                    line: l.line as u64,
+                }), None)
+            },
+            Done::Defined(ref s) => (None, Some(s.clone())),
+            Done::NotDone => (None, None),
+        };
         ArtifactData {
             id: get_unique_id() as u64,
             name: name.raw.clone(),
@@ -302,12 +348,8 @@ impl Artifact {
             text: self.text.clone(),
             partof: self.partof.iter().map(|n| n.raw.clone()).collect(),
             parts: self.parts.iter().map(|n| n.raw.clone()).collect(),
-            loc: self.loc.as_ref().map(|l| {
-                LocData {
-                    path: l.path.to_string_lossy().to_string(),
-                    line: l.line as u64,
-                }
-            }),
+            code: code,
+            done: done,
             completed: self.completed,
             tested: self.tested,
         }
@@ -320,12 +362,25 @@ impl Artifact {
             let pname = try!(ArtNameRc::from_str(p));
             partof.insert(pname);
         }
+        let done = if data.done.is_some() && data.code.is_some() {
+            let msg = "has both done and code defined".to_string();
+            return Err(ErrorKind::InvalidArtifact(data.name.clone(), msg).into());
+        } else if let Some(ref d) = data.done {
+            Done::Defined(d.clone())
+        } else if let Some(ref c) = data.code {
+            Done::Code(Loc {
+                path: PathBuf::from(&c.path),
+                line: c.line as usize,
+            })
+        } else {
+            Done::NotDone
+        };
         Ok((name,
             Artifact {
                 path: PathBuf::from(&data.path),
                 text: data.text.clone(),
                 partof: partof,
-                loc: None,
+                done: done,
                 parts: HashSet::new(),
                 completed: -1.0,
                 tested: -1.0,
@@ -354,7 +409,7 @@ impl Settings {
 }
 
 // ##################################################
-// Data Types
+// Serialized Data Types
 
 #[derive(Serialize, Deserialize, Debug, Clone, Eq, PartialEq)]
 pub struct LocData {
@@ -375,7 +430,9 @@ pub struct ArtifactData {
     //#[serde(default)]
     pub parts: Vec<String>,
     //#[serde(default)]
-    pub loc: Option<LocData>,
+    pub code: Option<LocData>,
+    //#[serde(default)]
+    pub done: Option<String>,
     //#[serde(default = -1)]
     pub completed: f32,
     //#[serde(default = -1)]

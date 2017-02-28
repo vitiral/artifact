@@ -185,19 +185,21 @@ impl Artifact {
                 return Err(ErrorKind::InvalidArtifact(name.to_string(), e.to_string()).into())
             }
         };
-
         if let Some(invalid) = decoder.toml {
             return Err(ErrorKind::InvalidArtifact(name.to_string(),
                                                   format!("invalid attrs: {}", invalid))
                 .into());
         }
+        let done = match raw.done {
+            Some(s) => Done::Defined(s),
+            None => Done::NotDone,
+        };
 
         Ok(Artifact {
             path: path.to_path_buf(),
             text: raw.text.unwrap_or_default(),
-            partof: try!(ArtNames::from_str(&raw.partof.unwrap_or_default())),
-            loc: None,
-
+            partof: ArtNames::from_str(&raw.partof.unwrap_or_default())?,
+            done: done,
             // calculated vars
             parts: HashSet::new(),
             completed: -1.0,
@@ -331,7 +333,7 @@ pub fn load_settings(repo: &Path) -> Result<Settings> {
 
 pub fn process_project(project: &mut Project) -> Result<()> {
     let locs = locs::find_locs(&project.settings)?;
-    project.dne_locs = locs::attach_locs(&mut project.artifacts, locs);
+    project.dne_locs = locs::attach_locs(&mut project.artifacts, locs)?;
     link::do_links(&mut project.artifacts)?;
     Ok(())
 }

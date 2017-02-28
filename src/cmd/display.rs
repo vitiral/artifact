@@ -182,12 +182,12 @@ impl FmtArtifact {
         }
 
         // format the location that where the implementation of this artifact can be found
-        if let Some(ref loc) = self.loc {
-            self.write_start(w, "\n * implemented-at: ", color);
+        if let Some(ref done) = self.done {
+            self.write_start(w, "\n * done: ", color);
             if color {
-                try!(write!(w, "{}", Green.paint(loc.to_string())));
+                try!(write!(w, "{}", Green.paint(done.as_ref())));
             } else {
-                try!(w.write_all(loc.to_string().as_ref()));
+                try!(w.write_all(done.as_ref()));
             }
             try!(w.write_all(" ".as_ref()));
         }
@@ -227,7 +227,7 @@ impl FmtArtifact {
     /// return whether this object is only the name
     /// if it is, it is formatted differently
     fn name_only(&self) -> bool {
-        match (&self.path, &self.parts, &self.partof, &self.loc, &self.text) {
+        match (&self.path, &self.parts, &self.partof, &self.done, &self.text) {
             (&None, &None, &None, &None, &None) => true,
             _ => false,
         }

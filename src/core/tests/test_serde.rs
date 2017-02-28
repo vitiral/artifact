@@ -13,7 +13,8 @@ fn test_serde() {
         text: "text".to_string(),
         partof: Vec::from_iter(vec!["partof-1".to_string()]),
         parts: Vec::from_iter(vec!["part-1".to_string()]),
-        loc: Some(LocData {
+        done: None,
+        code: Some(LocData {
             path: "path".to_string(),
             line: 10,
         }),

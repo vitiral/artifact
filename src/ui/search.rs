@@ -71,9 +71,10 @@ pub fn show_artifact(name: &ArtName,
         (ss.parts && matches_name(pat_case, &art.parts)) ||
         (ss.partof && matches_name(pat_case, &art.partof)) ||
         (ss.loc &&
-         match art.loc.as_ref() {
-            None => false,
-            Some(l) => pat_case.is_match(l.path.to_string_lossy().as_ref()),
+         match art.done {
+            Done::Code(ref l) => pat_case.is_match(l.path.to_string_lossy().as_ref()),
+            Done::Defined(ref s) => pat_case.is_match(s),
+            Done::NotDone => false,
         }) || (ss.text && pat_case.is_match(&art.text))
     }
 }

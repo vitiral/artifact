@@ -159,10 +159,10 @@ partof = 'REQ-dne'
     for (n, a) in artifacts.iter_mut() {
         a.path = reqs_path.clone();
         if n.as_ref() == &ArtName::from_str("spc-foo").unwrap() {
-            a.loc = Some(Loc::fake());
+            a.done = Done::Code(Loc::fake());
         }
         if n.as_ref() == &ArtName::from_str("tst-foo").unwrap() {
-            a.loc = Some(Loc::fake());
+            a.done = Done::Code(Loc::fake());
         }
     }
     core::link::do_links(&mut artifacts).unwrap();
@@ -201,8 +201,9 @@ partof = 'REQ-dne'
 
     }
 
-    let dne_locs: HashMap<_, _> = HashMap::from_iter(vec![(ArtName::from_str("SPC-dne").unwrap(),
-                                                           Loc::fake())]);
+    let dne_locs: HashMap<_, _> = HashMap::from_iter(
+        vec![(ArtName::from_str("SPC-dne").unwrap(),
+              Done::Code(Loc::fake()))]);
     let mut project = Project::default();
     project.artifacts = artifacts;
     project.dne_locs = dne_locs;

@@ -48,7 +48,11 @@ pub fn fmt_artifact(name: &ArtNameRc,
         out.partof = Some(partof);
     }
     if fmtset.loc_path {
-        out.loc = artifact.loc.clone();
+        out.done = match artifact.done {
+            Done::Code(ref l) => Some(l.to_string()),
+            Done::Defined(ref d) => Some(d.clone()),
+            Done::NotDone => Some("".to_string()),
+        };
     }
     if fmtset.text {
         if fmtset.long {

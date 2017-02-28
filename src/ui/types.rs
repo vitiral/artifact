@@ -32,7 +32,7 @@ pub struct FmtArtifact {
     pub path: Option<PathBuf>,
     pub parts: Option<Vec<FmtArtifact>>,
     pub partof: Option<Vec<FmtArtifact>>,
-    pub loc: Option<Loc>,
+    pub done: Option<String>,
     // pub loc_path: Option<PathBuf>,
     // pub loc_line_col: (usize, usize),
     // pub loc_valid: Option<bool>,

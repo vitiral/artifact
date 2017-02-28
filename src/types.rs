@@ -54,12 +54,19 @@ error_chain! {
         InvalidPartof {
             description("Some artifacts have invalid partof attributes")
         }
+        InvalidDone {
+            description("Some artifacts have invalid partof attributes")
+        }
         NameNotFound(desc: String) {
             description("searched for names were not found")
             display("the following artifacts do not exists: {}", desc)
         }
         LocNotFound {
             description("errors while finding implementation locations")
+        }
+        DoneTwice(desc: String) {
+            description("the artifact is done and implemented in code")
+            display("referenced in code and `done` is set: {}", desc)
         }
         InvalidUnicode(path: String) {
             description("we do not yet support non-unicode paths")

@@ -74,6 +74,11 @@ impl ProjectText {
                 } else {
                     Some(artifact.text.clone())
                 },
+                done: if let Done::Defined(ref d) = artifact.done {
+                    Some(d.clone())
+                } else {
+                    None
+                },
             };
             tbl.insert(name.raw.clone(), encode(&raw));
         }

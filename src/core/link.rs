@@ -24,7 +24,8 @@ pub fn do_links(artifacts: &mut Artifacts) -> Result<()> {
     create_parents(artifacts);
     link_parents(artifacts);
 
-    try!(validate_partof(artifacts));
+    validate_done(artifacts)?;
+    validate_partof(artifacts)?;
 
     link_parts(artifacts);
     set_completed(artifacts);
@@ -58,7 +59,7 @@ pub fn create_parents(artifacts: &mut Artifacts) {
             text: "AUTO".to_string(),
             partof: HashSet::new(),
             parts: HashSet::new(),
-            loc: None,
+            done: Done::NotDone,
             completed: -1.0,
             tested: -1.0,
         };
@@ -116,6 +117,34 @@ mod tests {
     }
 }
 
+/// validate that only correct artifact types are defined as done
+pub fn validate_done(artifacts: &Artifacts) -> Result<()> {
+    let mut error = false;
+    let valid_for = "Only valid for SPC and TST";
+    for (name, artifact) in artifacts.iter() {
+        match name.ty {
+            ArtType::SPC | ArtType::TST => continue,
+            _ => {}
+        }
+        match artifact.done {
+            Done::NotDone => {}, // correct!
+            Done::Code(ref l) => {
+                error!("{} was declared implemented in code at {}. {}",
+                       name, l, valid_for);
+                error = true;
+            },
+            Done::Defined(_) => {
+                error!("{} was defined as done at {}. {}",
+                       name, artifact.path.display(), valid_for);
+                error = true;
+            }
+        }
+    }
+    if error {
+        return Err(ErrorKind::InvalidDone.into());
+    }
+    Ok(())
+}
 
 pub fn validate_partof(artifacts: &Artifacts) -> Result<()> {
     let mut error = false;
@@ -196,16 +225,11 @@ pub fn set_completed(artifacts: &mut Artifacts) -> usize {
             {
                 let artifact = artifacts.get(name).unwrap();
                 // SPC and TST artifacts are done if loc is set
-                match (&artifact.loc, &name.ty) {
-                    (&Some(_), &ArtType::SPC) |
-                    (&Some(_), &ArtType::TST) => {
-                        got_it = 2;
-                    }
-                    _ => {}
-                }
-                if got_it == 0 && artifact.parts.is_empty() {
-                    got_it = 3; // no parts and no loc == 0% complete
-                } else if got_it == 0 && artifact.parts.iter().all(|n| known.contains(n)) {
+                if artifact.done.is_done() {
+                    got_it = 2;
+                } else if artifact.parts.is_empty() {
+                    got_it = 3; // no parts and not done == 0% complete
+                } else if artifact.parts.iter().all(|n| known.contains(n)) {
                     got_it = 1;
                 }
             }

@@ -6,7 +6,8 @@ lazy_static!{
         &format!(r"(?i)(?:#({}))|(\n)", ART_VALID_STR)).unwrap();
 }
 
-pub fn find_locs_text(path: &Path, text: &str, locs: &mut HashMap<ArtName, Loc>) -> Result<()> {
+pub fn find_locs_text(path: &Path, text: &str, locs: &mut HashMap<ArtName, Loc>) 
+        -> Result<()> {
     let mut line = 1;
     for cap in ART_LOC.captures_iter(text) {
         //debug_assert_eq!(cap.len(), 2);
@@ -36,7 +37,8 @@ pub fn find_locs_text(path: &Path, text: &str, locs: &mut HashMap<ArtName, Loc>)
 /// given text, the path to the text, and the locations to add onto
 /// extract all the locations from the text and return whether there
 /// was an error
-pub fn find_locs_file(path: &Path, locs: &mut HashMap<ArtName, Loc>) -> Result<()> {
+pub fn find_locs_file(path: &Path, locs: &mut HashMap<ArtName, Loc>) 
+        -> Result<()> {
     debug!("resolving locs at: {:?}", path);
     let mut text = String::new();
     let mut f = fs::File::open(path).chain_err(|| format!("opening file: {}", path.display()))?;
@@ -107,7 +109,7 @@ pub fn find_locs(settings: &Settings) -> Result<HashMap<ArtName, Loc>> {
 /// attach the locations to the artifacts, returning locations that were not used.
 pub fn attach_locs(artifacts: &mut Artifacts,
                    mut locs: HashMap<ArtName, Loc>)
-                   -> HashMap<ArtName, Loc> {
+                   -> Result<HashMap<ArtName, Loc>> {
     let mut dne: HashMap<ArtName, Loc> = HashMap::new();
     for (lname, loc) in locs.drain() {
         let artifact = match artifacts.get_mut(&lname) {
@@ -117,7 +119,10 @@ pub fn attach_locs(artifacts: &mut Artifacts,
                 continue;
             }
         };
-        artifact.loc = Some(loc);
+        if let Done::Defined(_) = artifact.done {
+            return Err(ErrorKind::DoneTwice(lname.to_string()).into());
+        }
+        artifact.done = Done::Code(loc);
     }
-    dne
+    Ok(dne)
 }
