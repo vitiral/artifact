@@ -367,10 +367,14 @@ art fmt would have to be created by an error in the application itself
 '''
 
 [SPC-0-done]
-partof = "REQ-0-[assertions, prefix, risks], SPC-0-[format, language]"
-text = "This document itself meets the requirements of the definitions and process"
+done = "by definition"
+partof = "REQ-0-[assertions, prefix, risks]"
+text = '''
+This document itself meets the requirements of the definitions and process
+'''
 
 [SPC-0-format]
+done = "by definition"
 partof = "REQ-0"
 text = '''
 Possible choices:
@@ -396,6 +400,7 @@ The reasons are:
 '''
 
 [SPC-0-language]
+done = "by definition"
 partof = "REQ-0"
 text = '''
 artifact **will** be written entirely in the rust programming language
@@ -410,5 +415,6 @@ for the purposes of:
 '''
 
 [TST-0]
+done = "by definition"
 partof = "SPC-0-[done, format, language]"
 text = "no tests necessary on definitions and process"

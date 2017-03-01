@@ -48,7 +48,7 @@ select model =
       , selectColBtn "partof" cols.partof (\s -> { cols | partof = s })
       , selectColBtn "text" cols.text (\s -> { cols | text = s })
       , selectColBtn "def-at" cols.path (\s -> { cols | path = s })
-      , selectColBtn "impl-at" cols.loc (\s -> { cols | loc = s })
+      , selectColBtn "done" cols.loc (\s -> { cols | loc = s })
       ]
 
 -- Button which takes the current value and a method
@@ -190,11 +190,11 @@ list model =
       else
         [ ])
       ++ (if columns.path then
-        [ th [ cls, w2, id "th_path"     ] [ text "Def-at" ] ]
+        [ th [ cls, w2, id "th_path"     ] [ text "Def-At" ] ]
       else
         [ ])
       ++ (if columns.loc then
-        [ th [ cls, w2, id "th_loc"     ] [ text "Impl-at" ] ]
+        [ th [ cls, w2, id "th_done"     ] [ text "Done" ] ]
       else
         [ ])
 

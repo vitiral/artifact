@@ -66,25 +66,41 @@ defined model artifact =
   , text artifact.path
   ]
 
+-- for the full Edit view
 implemented : Model -> Artifact -> Html m
 implemented model artifact =
   div [] 
-    (case artifact.loc of
-      Just loc ->
-        [ span [class "bold" ] [ text "Implemented at: " ]
+    (case (artifact.code, artifact.done) of
+      (Just loc, Nothing) ->
+        [ span [class "bold"] [ text "Implemented at: " ]
         , implementedBasic model artifact
         ]
-      Nothing ->
-        []
+      (Nothing, Just done) ->
+        [ span [class "bold"] [text "Defined as done: " ]
+        , implementedBasic model artifact
+        ]
+      (Nothing, Nothing) ->
+        [ span [class "bold"] [ text "Implementation: " ]
+        , implementedBasic model artifact
+        ]
+      (Just _, Just _) ->
+        [ implementedBasic model artifact ]
     )
 
+-- just the message, nothing else
 implementedBasic : Model -> Artifact -> Html m
 implementedBasic model artifact = 
-  (case artifact.loc of 
-    Just loc ->
-      text (loc.path ++ " [" ++ (toString loc.line) ++ "]")
-    Nothing ->
-      span [class "italic gray" ] [ text "not directly implemented" ])
+  (case (artifact.code, artifact.done) of
+    (Just loc, Nothing) ->
+      text (loc.path ++ "[" ++ (toString loc.line) ++ "]")
+    (Nothing, Just done) ->
+      text done
+    (Nothing, Nothing) ->
+      span [ class "italic gray" ] [ text "not directly implemented" ]
+    (Just _, Just _) ->
+      -- TODO: send error message
+      span [ class "bold red" ] [ text "ERROR: code+done both set" ]
+  )
 
 parts : Model -> Artifact -> Html AppMsg
 parts model artifact =
