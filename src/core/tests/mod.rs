@@ -60,6 +60,20 @@ pub static TOML_GOOD: &'static str = "
 text = 'bar'
 ";
 
+// valid toml, not necessarily all valid artifacts
+pub static TOML_DONE: &'static str = "
+[REQ-foo]
+[SPC-foo]
+done = 'foo'
+[RSK-foo]
+[TST-foo]
+done = 'foo'
+[REQ-bar]
+text = 'bar'
+[SPC-bar]
+[TST-bar]
+";
+
 // valid artifact file
 pub static TOML_RST: &'static str = "
 [REQ-foo]
@@ -71,6 +85,7 @@ partof = 'SPC-dne'
 [SPC-bar]
 partof = 'REQ-[foo, bar-[1,2]]'
 text = 'bar'
+done = 'bar is done'
 
 [REQ-parts-p1-a]
 [REQ-parts-p1-b]

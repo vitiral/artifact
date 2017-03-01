@@ -6,6 +6,22 @@ use super::super::link::*;
 
 
 #[test]
+fn test_done() {
+    let mut project = Project::default();
+    let path = PathBuf::from("hi/there");
+    let req_foo = ArtNameRc::from_str("REQ-foo").unwrap();
+    let spc_foo = ArtNameRc::from_str("spc-foo").unwrap();
+
+    load_toml(&path, TOML_DONE, &mut project).unwrap();
+    assert_eq!(project.artifacts.get(&spc_foo).unwrap().done,
+               Done::Defined("foo".to_string()));
+
+    do_links(&mut project.artifacts).unwrap();
+    assert_eq!(project.artifacts.get(&req_foo).unwrap().completed, 1.0);
+    assert_eq!(project.artifacts.get(&req_foo).unwrap().tested, 1.0);
+}
+
+#[test]
 fn test_basic_link() {
     let mut project = Project::default();
     let path = PathBuf::from("hi/there");
@@ -15,7 +31,8 @@ fn test_basic_link() {
     let num = load_toml(&path, TOML_RST, &mut project).unwrap();
 
     let mut artifacts = project.artifacts;
-    for sname in &["REQ-foo", "SPC-foo", "TST-foo", "SPC-bar"] {
+    // note: SPC-bar is done via attribute
+    for sname in &["SPC-foo", "TST-foo"] {
         let art = artifacts.get_mut(&ArtNameRc::from_str(sname).unwrap()).unwrap();
         art.done = Done::Code(Loc {
             path: path.clone(),
@@ -23,7 +40,7 @@ fn test_basic_link() {
         });
     }
 
-
+    validate_done(&artifacts).unwrap();
     link_named_partofs(&mut artifacts);
 
     create_parents(&mut artifacts);

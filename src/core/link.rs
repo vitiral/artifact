@@ -20,11 +20,12 @@ use dev_prefix::*;
 use super::types::*;
 
 pub fn do_links(artifacts: &mut Artifacts) -> Result<()> {
+    validate_done(artifacts)?;
+
     link_named_partofs(artifacts); // MUST come before parents are created
     create_parents(artifacts);
     link_parents(artifacts);
 
-    validate_done(artifacts)?;
     validate_partof(artifacts)?;
 
     link_parts(artifacts);

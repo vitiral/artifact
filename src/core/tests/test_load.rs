@@ -113,8 +113,7 @@ fn test_load_toml() {
     // basic loading unit tests
     let num = load::load_toml(&path, tests::TOML_RST, &mut p).unwrap();
 
-    let locs = HashMap::from_iter(vec![(ArtName::from_str("SPC-foo").unwrap(), Loc::fake()),
-                                       (ArtName::from_str("SPC-bar").unwrap(), Loc::fake())]);
+    let locs = HashMap::from_iter(vec![(ArtName::from_str("SPC-foo").unwrap(), Loc::fake())]);
     let dne_locs = locs::attach_locs(&mut p.artifacts, locs).unwrap();
     assert_eq!(num, 8);
     assert_eq!(dne_locs.len(), 0);
@@ -154,10 +153,15 @@ fn test_load_toml() {
             .map(|n| ArtNameRc::from_str(n).unwrap())
             .collect();
         assert_eq!(art.partof, expected);
-        let expected = Done::Code(Loc::fake());
+        let expected = Done::Defined("bar is done".to_string());
         assert_eq!(art.done, expected);
         assert_eq!(art.completed, -1.0);
         assert_eq!(art.tested, -1.0);
+
+        let spc_foo = ArtName::from_str("SPC-foo").unwrap();
+        let art = p.artifacts.get(&spc_foo).unwrap();
+        let expected = Done::Code(Loc::fake());
+        assert_eq!(art.done, expected);
     }
 
     // must be loaded afterwards, uses already existing artifacts
