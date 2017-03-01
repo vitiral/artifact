@@ -6,8 +6,7 @@ lazy_static!{
         &format!(r"(?i)(?:#({}))|(\n)", ART_VALID_STR)).unwrap();
 }
 
-pub fn find_locs_text(path: &Path, text: &str, locs: &mut HashMap<ArtName, Loc>) 
-        -> Result<()> {
+pub fn find_locs_text(path: &Path, text: &str, locs: &mut HashMap<ArtName, Loc>) -> Result<()> {
     let mut line = 1;
     for cap in ART_LOC.captures_iter(text) {
         //debug_assert_eq!(cap.len(), 2);
@@ -37,8 +36,7 @@ pub fn find_locs_text(path: &Path, text: &str, locs: &mut HashMap<ArtName, Loc>)
 /// given text, the path to the text, and the locations to add onto
 /// extract all the locations from the text and return whether there
 /// was an error
-pub fn find_locs_file(path: &Path, locs: &mut HashMap<ArtName, Loc>) 
-        -> Result<()> {
+pub fn find_locs_file(path: &Path, locs: &mut HashMap<ArtName, Loc>) -> Result<()> {
     debug!("resolving locs at: {:?}", path);
     let mut text = String::new();
     let mut f = fs::File::open(path).chain_err(|| format!("opening file: {}", path.display()))?;

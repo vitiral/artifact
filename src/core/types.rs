@@ -334,10 +334,11 @@ impl Artifact {
         let (code, done) = match self.done {
             Done::Code(ref l) => {
                 (Some(LocData {
-                    path: l.path.to_string_lossy().to_string(),
-                    line: l.line as u64,
-                }), None)
-            },
+                     path: l.path.to_string_lossy().to_string(),
+                     line: l.line as u64,
+                 }),
+                 None)
+            }
             Done::Defined(ref s) => (None, Some(s.clone())),
             Done::NotDone => (None, None),
         };

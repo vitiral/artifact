@@ -115,7 +115,7 @@ fn test_load_toml() {
 
     let locs = HashMap::from_iter(vec![(ArtName::from_str("SPC-foo").unwrap(), Loc::fake()),
                                        (ArtName::from_str("SPC-bar").unwrap(), Loc::fake())]);
-    let dne_locs = locs::attach_locs(&mut p.artifacts, locs);
+    let dne_locs = locs::attach_locs(&mut p.artifacts, locs).unwrap();
     assert_eq!(num, 8);
     assert_eq!(dne_locs.len(), 0);
     assert!(p.artifacts.contains_key(&ArtName::from_str("REQ-foo").unwrap()));
@@ -138,7 +138,7 @@ fn test_load_toml() {
         assert_eq!(art.text, "");
         let expected: ArtNames = HashSet::new();
         assert_eq!(art.partof, expected);
-        assert_eq!(art.loc, None);
+        assert_eq!(art.done, Done::NotDone);
         assert_eq!(art.completed, -1.0);
         assert_eq!(art.tested, -1.0);
 
@@ -154,8 +154,8 @@ fn test_load_toml() {
             .map(|n| ArtNameRc::from_str(n).unwrap())
             .collect();
         assert_eq!(art.partof, expected);
-        let expected = Loc::fake();
-        assert_eq!(art.loc.as_ref().unwrap(), &expected);
+        let expected = Done::Code(Loc::fake());
+        assert_eq!(art.done, expected);
         assert_eq!(art.completed, -1.0);
         assert_eq!(art.tested, -1.0);
     }

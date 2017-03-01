@@ -17,7 +17,7 @@ fn test_basic_link() {
     let mut artifacts = project.artifacts;
     for sname in &["REQ-foo", "SPC-foo", "TST-foo", "SPC-bar"] {
         let art = artifacts.get_mut(&ArtNameRc::from_str(sname).unwrap()).unwrap();
-        art.loc = Some(Loc {
+        art.done = Done::Code(Loc {
             path: path.clone(),
             line: 1,
         });
@@ -106,7 +106,7 @@ fn test_link_completed_tested() {
                    "SPC-core-bob-2-b",
                    "TST-core-bob-2-a"] {
         let art = artifacts.get_mut(&ArtNameRc::from_str(sname).unwrap()).unwrap();
-        art.loc = Some(Loc {
+        art.done = Done::Code(Loc {
             path: path.clone(),
             line: 1,
         });

@@ -67,12 +67,20 @@ fn test_load_path() {
 
     // locations
     assert_eq!(spc_lvl1.text, "level one does FOO");
-    assert_eq!(spc_lvl1.loc.as_ref().unwrap().path,
-               src_dir.join(PathBuf::from("lvl_1.rs")));
+    let loc_lvl1 = match spc_lvl1.done {
+        Done::Code(ref l) => l.clone(),
+        _ => panic!(),
+    };
+    let loc_loc = match spc_loc.done {
+        Done::Code(ref l) => l.clone(),
+        _ => panic!(),
+    };
+
+    assert_eq!(loc_lvl1.path, src_dir.join(PathBuf::from("lvl_1.rs")));
 
     debug!("checking loc");
-    assert_eq!(spc_loc.loc.iter().next().unwrap().line, 4);
-    assert_eq!(spc_lvl1.loc.iter().next().unwrap().line, 3);
+    assert_eq!(loc_lvl1.line, 3);
+    assert_eq!(loc_loc.line, 4);
 
     assert!(p.dne_locs.contains_key(&ArtName::from_str("SPC-dne").unwrap()));
     assert!(p.dne_locs.contains_key(&ArtName::from_str("TST-dne").unwrap()));
@@ -92,7 +100,7 @@ fn remove_parents(project: &mut Project) {
 
 fn remove_loc(project: &mut Project) {
     for (_, a) in &mut project.artifacts {
-        a.loc = None;
+        a.done = Done::NotDone;
     }
 }
 

@@ -127,15 +127,19 @@ pub fn validate_done(artifacts: &Artifacts) -> Result<()> {
             _ => {}
         }
         match artifact.done {
-            Done::NotDone => {}, // correct!
+            Done::NotDone => {} // correct!
             Done::Code(ref l) => {
                 error!("{} was declared implemented in code at {}. {}",
-                       name, l, valid_for);
+                       name,
+                       l,
+                       valid_for);
                 error = true;
-            },
+            }
             Done::Defined(_) => {
                 error!("{} was defined as done at {}. {}",
-                       name, artifact.path.display(), valid_for);
+                       name,
+                       artifact.path.display(),
+                       valid_for);
                 error = true;
             }
         }
