@@ -342,13 +342,18 @@ impl Artifact {
             Done::Defined(ref s) => (None, Some(s.clone())),
             Done::NotDone => (None, None),
         };
+        let mut partof: Vec<_> = self.partof.iter().map(|n| n.raw.clone()).collect();
+        let mut parts: Vec<_> = self.parts.iter().map(|n| n.raw.clone()).collect();
+
+        partof.sort();
+        parts.sort();
         ArtifactData {
             id: get_unique_id() as u64,
             name: name.raw.clone(),
             path: self.path.to_string_lossy().to_string(),
             text: self.text.clone(),
-            partof: self.partof.iter().map(|n| n.raw.clone()).collect(),
-            parts: self.parts.iter().map(|n| n.raw.clone()).collect(),
+            partof: partof,
+            parts: parts,
             code: code,
             done: done,
             completed: self.completed,

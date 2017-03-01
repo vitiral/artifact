@@ -88,7 +88,7 @@ git-verify: # make sure git is clean and on master
 	git branch | grep '* master'
 	git diff --no-ext-diff --quiet --exit-code
 
-publish: git-verify lint build-web test-all check # publish to github and crates.io
+publish: git-verify lint build-web test-all self-check # publish to github and crates.io
 	git commit -a -m "v{{version}} release"
 	just publish-cargo
 	just publish-git

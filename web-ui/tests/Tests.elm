@@ -23,7 +23,8 @@ artifact =
   , text = "text"
   , partof = [ {value = "REQ-PARTOF-1", raw = "req-partof-1"} ]
   , parts = [ {value = "REQ-PART-1", raw = "req-part-1"} ]
-  , loc = Just { path = "path", line = 10 }
+  , code = Just { path = "path", line = 10 }
+  , done = Nothing
   , completed = 0.0
   , tested = 0.0
   , edited = Nothing
@@ -41,7 +42,8 @@ artifactsJson =
     , "text": "text"
     , "partof": ["req-partof-1"]
     , "parts": ["req-part-1"]
-    , "loc": { "path": "path", "line": 10 }
+    , "code": { "path": "path", "line": 10 }
+    , "done": null
     , "completed": 0.0
     , "tested": 0.0
     }
