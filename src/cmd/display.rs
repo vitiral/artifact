@@ -18,7 +18,9 @@
 //! methods to format the `FmtArtifact` object and write it to a stream
 
 use dev_prefix::*;
-use super::types::*;
+use types::*;
+use cmd::types::*;
+use utils;
 
 impl FmtArtifact {
     /// write the formatted version of the artifact to the

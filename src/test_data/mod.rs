@@ -1,36 +1,18 @@
 #![allow(dead_code, unused_imports, unused_variables)]
 
 use std::sync;
-
 use toml::{Parser, Value, Table};
 
 use dev_prefix::*;
-use core::types::*;
+use types::*;
+use user;
 
-use core::load;
-
-
-mod test_toml;
-mod test_load;
-mod test_vars;
-mod test_link;
-mod test_core;
-mod test_save;
-mod test_serde;
-mod test_security;
-
-// Mutex that can be used for tests that need to be run serially
-
-// Data and helpers
 
 lazy_static!{
     pub static ref CWD: PathBuf = env::current_dir().unwrap();
-    pub static ref TEST_DIR: PathBuf = CWD.join(PathBuf::from(
+    pub static ref TDATA_DIR: PathBuf = CWD.join(PathBuf::from(
         file!()).parent().unwrap().to_path_buf());
-    pub static ref TDATA_DIR: PathBuf = TEST_DIR.join(PathBuf::from("data"));
     pub static ref TEMPTY_DIR: PathBuf = TDATA_DIR.join(PathBuf::from("empty"));
-    // TSIMPLE has to be kept behind a lock because test_fmt actually
-    // writes to it!
     pub static ref TSIMPLE_DIR: PathBuf = TDATA_DIR.join(PathBuf::from("simple"));
     pub static ref TINVALID_DIR: PathBuf = TDATA_DIR.join(PathBuf::from("invalid"));
     pub static ref TINVALID_BOUNDS: PathBuf = TINVALID_DIR.join("out-bounds");
@@ -40,8 +22,19 @@ lazy_static!{
 pub fn load_toml_simple(text: &str) -> Artifacts {
     let mut project = Project::default();
     let path = PathBuf::from("test");
-    load::load_toml(&path, text, &mut project).unwrap();
+    user::load_toml(&path, text, &mut project).unwrap();
     project.artifacts
+}
+
+pub fn parse_text(t: &str) -> Table {
+    Parser::new(t).parse().unwrap()
+}
+
+pub fn get_table<'a>(tbl: &'a Table, attr: &str) -> &'a Table {
+    match tbl.get(attr).unwrap() {
+        &Value::Table(ref t) => t,
+        _ => unreachable!(),
+    }
 }
 
 pub static TOML_SETTINGS: &'static str = "
@@ -146,13 +139,3 @@ pub static TOML_BAD_JSON: &'static str = "{\"REQ-foo\": {\"partof\": [\"hi\"]}}"
 pub static TOML_BAD_NAMES1: &'static str = "[REQ-bad]\n[REQ-bad]";
 pub static TOML_BAD_NAMES2: &'static str = "[REQ-bad]\npartof='hi'\npartof='you'";
 
-pub fn parse_text(t: &str) -> Table {
-    Parser::new(t).parse().unwrap()
-}
-
-pub fn get_table<'a>(tbl: &'a Table, attr: &str) -> &'a Table {
-    match tbl.get(attr).unwrap() {
-        &Value::Table(ref t) => t,
-        _ => unreachable!(),
-    }
-}

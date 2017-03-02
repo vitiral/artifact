@@ -1,9 +1,11 @@
 //! #TST-cmd-tutorial
 
 use dev_prefix::*;
-use core::prefix::*;
-use core::load;
+use types::*;
+use user;
 use cmd::tutorial as tut;
+use test_data;
+
 
 lazy_static! {
     pub static ref CWD: PathBuf = env::current_dir().unwrap();
@@ -33,14 +35,14 @@ fn test_tutorial_basic() {
     for (i, toml) in toml_files.iter().enumerate() {
         let mut project = Project::default();
         let text = str::from_utf8(toml).unwrap();
-        load::load_toml(&p, text, &mut project)
+        user::load_toml(&p, text, &mut project)
             .expect(&format!("could not load tutorial toml at index: {}", i));
     }
 
     for (i, toml) in settings_files.iter().enumerate() {
         let text = str::from_utf8(toml).unwrap();
-        let tbl = load::parse_toml(text).unwrap();
-        Settings::from_table(&tbl)
+        let tbl = test_data::parse_text(text);
+        user::settings_from_table(&tbl)
             .expect(&format!("could not load tutorial settings at index: {}", i));
     }
 }

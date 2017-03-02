@@ -9,6 +9,9 @@ nightly = "CARGO_TARGET_DIR=$TG/nightly CARGO_INCREMENTAL=1 rustup run nightly"
 echo-version:
 	echo {{version}}
 
+doc:
+	cargo doc --open
+
 
 ##################################################
 # build commands

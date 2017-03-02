@@ -17,7 +17,7 @@
 //! module that discovers artifact's links
 
 use dev_prefix::*;
-use super::types::*;
+use types::*;
 
 pub fn do_links(artifacts: &mut Artifacts) -> Result<()> {
     validate_done(artifacts)?;
@@ -36,7 +36,7 @@ pub fn do_links(artifacts: &mut Artifacts) -> Result<()> {
 
 /// create parents for all artifacts that have no parents
 pub fn create_parents(artifacts: &mut Artifacts) {
-    let mut create_names: ArtNames = HashSet::new();
+    let mut create_names: Names = HashSet::new();
     for name in artifacts.keys() {
         let mut name = name.clone();
         loop {
@@ -81,7 +81,7 @@ pub fn link_parents(artifacts: &mut Artifacts) {
 
 /// traverse all artifacts and link them to their by-name type
 pub fn link_named_partofs(artifacts: &mut Artifacts) {
-    let artifacts_keys = ArtNames::from_iter(artifacts.keys().cloned());
+    let artifacts_keys = Names::from_iter(artifacts.keys().cloned());
     for (name, artifact) in artifacts.iter_mut() {
         for p in name.named_partofs() {
             if artifacts_keys.contains(&p) {
@@ -91,40 +91,13 @@ pub fn link_named_partofs(artifacts: &mut Artifacts) {
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use dev_prefix::*;
-    use super::*;
-    use core::tests::load_toml_simple;
-
-    #[test]
-    fn test_link_named_partofs() {
-        let mut artifacts = load_toml_simple("\
-            [REQ-one]
-            [SPC-one]
-            [TST-one]
-            [RSK-one]\n");
-        let req_one = ArtNameRc::from_str("REQ-one").unwrap();
-        let spc_one = ArtNameRc::from_str("SPC-one").unwrap();
-        let tst_one = ArtNameRc::from_str("TST-one").unwrap();
-        let rsk_one = ArtNameRc::from_str("RSK-one").unwrap();
-        link_named_partofs(&mut artifacts);
-        assert_eq!(artifacts.get(&req_one).unwrap().partof, ArtNames::new());
-        assert_eq!(artifacts.get(&spc_one).unwrap().partof,
-                   ArtNames::from_iter(vec![req_one.clone()]));
-        assert_eq!(artifacts.get(&tst_one).unwrap().partof,
-                   ArtNames::from_iter(vec![spc_one.clone()]));
-        assert_eq!(artifacts.get(&rsk_one).unwrap().partof, ArtNames::new());
-    }
-}
-
 /// validate that only correct artifact types are defined as done
 pub fn validate_done(artifacts: &Artifacts) -> Result<()> {
     let mut error = false;
     let valid_for = "Only valid for SPC and TST";
     for (name, artifact) in artifacts.iter() {
         match name.ty {
-            ArtType::SPC | ArtType::TST => continue,
+            Type::SPC | Type::TST => continue,
             _ => {}
         }
         match artifact.done {
@@ -158,14 +131,14 @@ pub fn validate_partof(artifacts: &Artifacts) -> Result<()> {
             let n_type = name.ty;
             let p_type = partof.ty;
             match (&n_type, &p_type) {
-                (&ArtType::REQ, &ArtType::REQ) |
-                (&ArtType::RSK, &ArtType::RSK) |
-                (&ArtType::RSK, &ArtType::REQ) |
-                (&ArtType::SPC, &ArtType::SPC) |
-                (&ArtType::SPC, &ArtType::REQ) |
-                (&ArtType::TST, &ArtType::TST) |
-                (&ArtType::TST, &ArtType::RSK) |
-                (&ArtType::TST, &ArtType::SPC) => {}
+                (&Type::REQ, &Type::REQ) |
+                (&Type::RSK, &Type::RSK) |
+                (&Type::RSK, &Type::REQ) |
+                (&Type::SPC, &Type::SPC) |
+                (&Type::SPC, &Type::REQ) |
+                (&Type::TST, &Type::TST) |
+                (&Type::TST, &Type::RSK) |
+                (&Type::TST, &Type::SPC) => {}
                 (_, _) => {
                     error!("[{:?}:{}]: {:?} can not be a partof {:?}",
                            artifact.path,
@@ -188,7 +161,7 @@ pub fn validate_partof(artifacts: &Artifacts) -> Result<()> {
 pub fn link_parts(artifacts: &mut Artifacts) -> u64 {
     // get all the parts, linked by name
     let mut warnings: u64 = 0;
-    let mut artifact_parts: HashMap<ArtNameRc, ArtNames> = HashMap::new();
+    let mut artifact_parts: HashMap<NameRc, Names> = HashMap::new();
     for (name, artifact) in artifacts.iter() {
         // get the artifacts this is a `partof`, this artifact should be in all of their `parts`
         for partof in &artifact.partof {
@@ -219,9 +192,9 @@ pub fn link_parts(artifacts: &mut Artifacts) -> u64 {
 
 /// discover how complete and how tested all artifacts are (or are not!)
 pub fn set_completed(artifacts: &mut Artifacts) -> usize {
-    let mut names = ArtNames::from_iter(artifacts.keys().cloned());
-    let mut known = ArtNames::new();
-    let mut found = ArtNames::new();
+    let mut names = Names::from_iter(artifacts.keys().cloned());
+    let mut known = Names::new();
+    let mut found = Names::new();
     while !names.is_empty() {
         for name in &names {
             // 0 means didn't find anything, 1 means calculate, 2 means 100%, 3 means 0%
@@ -246,10 +219,10 @@ pub fn set_completed(artifacts: &mut Artifacts) -> usize {
                     artifacts.get_mut(name).unwrap().completed = {
                         let artifact = artifacts.get(name).unwrap();
                         // get the completed values, ignoring TSTs that are part of SPCs
-                        let completed: Vec<f32> = if name.ty == ArtType::SPC {
+                        let completed: Vec<f32> = if name.ty == Type::SPC {
                             artifact.parts
                                 .iter()
-                                .filter(|n| n.ty != ArtType::TST)
+                                .filter(|n| n.ty != Type::TST)
                                 .map(|n| artifacts.get(n).unwrap().completed)
                                 .collect()
                         } else {
@@ -289,13 +262,13 @@ pub fn set_completed(artifacts: &mut Artifacts) -> usize {
 
 /// Find the amount each artifact is tested
 pub fn set_tested(artifacts: &mut Artifacts) -> usize {
-    let mut names = ArtNames::from_iter(artifacts.keys().cloned());
-    let mut known = ArtNames::new();
-    let mut found = ArtNames::new();
+    let mut names = Names::from_iter(artifacts.keys().cloned());
+    let mut known = Names::new();
+    let mut found = Names::new();
 
     // TST.tested === TST.completed by definition
     for (name, artifact) in artifacts.iter_mut() {
-        if name.ty == ArtType::TST && artifact.completed >= 0.0 {
+        if name.ty == Type::TST && artifact.completed >= 0.0 {
             artifact.tested = artifact.completed;
             names.remove(name);
             known.insert(name.clone());
@@ -338,3 +311,71 @@ pub fn set_tested(artifacts: &mut Artifacts) -> usize {
     }
     names.len()
 }
+
+#[cfg(test)]
+mod tests {
+    use dev_prefix::*;
+    use super::*;
+    use test_data;
+
+    #[test]
+    fn test_link_named_partofs() {
+        let mut artifacts = test_data::load_toml_simple("\
+            [REQ-one]
+            [SPC-one]
+            [TST-one]
+            [RSK-one]\n");
+        let req_one = NameRc::from_str("REQ-one").unwrap();
+        let spc_one = NameRc::from_str("SPC-one").unwrap();
+        let tst_one = NameRc::from_str("TST-one").unwrap();
+        let rsk_one = NameRc::from_str("RSK-one").unwrap();
+        link_named_partofs(&mut artifacts);
+        assert_eq!(artifacts.get(&req_one).unwrap().partof, Names::new());
+        assert_eq!(artifacts.get(&spc_one).unwrap().partof,
+                   Names::from_iter(vec![req_one.clone()]));
+        assert_eq!(artifacts.get(&tst_one).unwrap().partof,
+                   Names::from_iter(vec![spc_one.clone()]));
+        assert_eq!(artifacts.get(&rsk_one).unwrap().partof, Names::new());
+    }
+
+    #[test]
+    fn test_done() {
+        let req_foo = NameRc::from_str("REQ-foo").unwrap();
+        let spc_foo = NameRc::from_str("spc-foo").unwrap();
+
+        let mut artifacts = test_data::load_toml_simple(test_data::TOML_DONE);
+        assert_eq!(artifacts.get(&spc_foo).unwrap().done,
+                   Done::Defined("foo".to_string()));
+
+        do_links(&mut artifacts).unwrap();
+        assert_eq!(artifacts.get(&req_foo).unwrap().completed, 1.0);
+        assert_eq!(artifacts.get(&req_foo).unwrap().tested, 1.0);
+    }
+
+    #[test]
+    fn test_invalid_partof() {
+        use test_data::load_toml_simple;
+        use user::link::validate_partof;
+
+        let artifacts = load_toml_simple("[REQ-foo]\npartof = 'SPC-bar'\n");
+        assert!(validate_partof(&artifacts).is_err());
+        let artifacts = load_toml_simple("[REQ-foo]\npartof = 'RSK-bar'\n");
+        assert!(validate_partof(&artifacts).is_err());
+        let artifacts = load_toml_simple("[REQ-foo]\npartof = 'TST-bar'\n");
+        assert!(validate_partof(&artifacts).is_err());
+
+        let artifacts = load_toml_simple("[RSK-foo]\npartof = 'TST-bar'\n");
+        assert!(validate_partof(&artifacts).is_err());
+        let artifacts = load_toml_simple("[RSK-foo]\npartof = 'SPC-bar'\n");
+        assert!(validate_partof(&artifacts).is_err());
+
+        let artifacts = load_toml_simple("[SPC-foo]\npartof = 'TST-bar'\n");
+        assert!(validate_partof(&artifacts).is_err());
+        let artifacts = load_toml_simple("[SPC-foo]\npartof = 'RSK-bar'\n");
+        assert!(validate_partof(&artifacts).is_err());
+
+        let artifacts = load_toml_simple("[TST-foo]\npartof = 'REQ-bar'\n");
+        assert!(validate_partof(&artifacts).is_err());
+    }
+}
+

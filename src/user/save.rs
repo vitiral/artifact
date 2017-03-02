@@ -1,32 +1,27 @@
-/*  artifact: the requirements tracking tool made for developers
- * Copyright (C) 2017  Garrett Berg <@vitiral, vitiral@gmail.com>
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the Lesser GNU General Public License as published
- * by the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the Lesser GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * */
 //! loadrs
 //! loading of raw artifacts from files and text
-//!
+
 use toml::{encode, Table};
 use difference::Changeset;
 
 use dev_prefix::*;
-use super::types::*;
-use super::name;
-use super::serialize;
+use types::*;
+use user::types::*;
 
+use user::name;
+use user::serialize;
 
-/// used for finding the difference between files/Project
+// Public Struct
+
+/// struct for representing a project as just a collection of
+/// Path and String values, used for loading/formatting/saving files
+#[derive(Debug, PartialEq)]
+pub struct ProjectText {
+    pub origin: PathBuf,
+    pub files: HashMap<PathBuf, String>,
+}
+
+/// used for finding the difference between files in a project
 pub enum PathDiff {
     DoesNotExist,
     NotUtf8,
@@ -34,7 +29,17 @@ pub enum PathDiff {
     None,
 }
 
+impl Default for ProjectText {
+    fn default() -> ProjectText {
+        ProjectText {
+            origin: PARENT_PATH.to_path_buf(),
+            files: HashMap::default(),
+        }
+    }
+}
+
 impl ProjectText {
+    /// convert a `Project` -> `ProjectText`
     pub fn from_project(project: &Project) -> Result<ProjectText> {
         let mut files = HashMap::new();
 
@@ -54,7 +59,7 @@ impl ProjectText {
             let partof = {
                 let mut auto_partof = name.named_partofs();
                 auto_partof.push(name.parent().expect("no parent"));
-                let auto_partof: HashSet<ArtName> = HashSet::from_iter(auto_partof.drain(0..));
+                let auto_partof: HashSet<Name> = HashSet::from_iter(auto_partof.drain(0..));
                 let strs = artifact.partof
                     .iter()
                     .filter(|p| !auto_partof.contains(p))
@@ -67,7 +72,7 @@ impl ProjectText {
                 }
             };
 
-            let raw = RawArtifact {
+            let raw = UserArtifact {
                 partof: partof,
                 text: if artifact.text.is_empty() {
                     None
@@ -94,7 +99,7 @@ impl ProjectText {
         })
     }
 
-    /// dump text to a path
+    /// dump text to origin
     /// #SPC-save
     pub fn dump(&self) -> Result<()> {
         for (path, text) in &self.files {

@@ -23,9 +23,11 @@
 //! that the user may want to execute
 
 use dev_prefix::*;
-use super::init_logger;
-use super::VERSION;
-use core;
+use types::*;
+use logging;
+use user;
+use utils;
+use security;
 
 use clap::{ArgMatches, ErrorKind as ClEk};
 use ansi_term::Colour::Green;
@@ -60,7 +62,7 @@ pub fn get_loglevel(matches: &ArgMatches) -> Option<(u8, bool)> {
 }
 
 #[cfg(feature="serve")]
-fn run_server(project: &core::Project, matches: &ArgMatches) -> Result<()> {
+fn run_server(project: &Project, matches: &ArgMatches) -> Result<()> {
     if let Some(mat) = matches.subcommand_matches("server") {
         let addr = server::get_cmd(mat);
         server::run_cmd(project.clone(), &addr);
@@ -71,7 +73,7 @@ fn run_server(project: &core::Project, matches: &ArgMatches) -> Result<()> {
 }
 
 #[cfg(not(feature="serve"))]
-fn run_server(_: &core::Project, _: &ArgMatches) -> Result<()> {
+fn run_server(_: &Project, _: &ArgMatches) -> Result<()> {
     Err(ErrorKind::NothingDone.into())
 }
 
@@ -95,7 +97,7 @@ pub fn cmd<W, I, T>(w: &mut W, args: I) -> Result<()>
 
     // initialze the logger
     match get_loglevel(&matches) {
-        Some((v, q)) => init_logger(q, v, true).unwrap(),
+        Some((v, q)) => logging::init_logger(q, v, true).unwrap(),
         None => panic!("could not find loglevel"),
     };
 
@@ -126,7 +128,7 @@ pub fn cmd<W, I, T>(w: &mut W, args: I) -> Result<()>
     }
 
     // load the artifacts
-    let repo = match core::find_repo(&work_tree) {
+    let repo = match utils::find_repo(&work_tree) {
         Some(r) => r,
         None => {
             let msg = "Could not find .art folder. Try running `art init -t`";
@@ -135,10 +137,10 @@ pub fn cmd<W, I, T>(w: &mut W, args: I) -> Result<()>
     };
     debug!("using repo dir {:?}", repo);
 
-    let project = core::load_path(&repo)?;
+    let project = user::load_repo(&repo)?;
 
     // SPC-security: do security checks on the project
-    core::security::validate(&repo, &project)?;
+    security::validate(&repo, &project)?;
 
     debug!("settings={:?}", project.settings);
 

@@ -18,6 +18,7 @@
 #![allow(non_snake_case)]
 
 use dev_prefix::*;
+use types::*;
 use super::types::*;
 
 /// return the cmdline subcommand

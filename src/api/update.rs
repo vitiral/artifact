@@ -3,9 +3,9 @@ use dev_prefix::*;
 use jsonrpc_core::{RpcMethodSync, Params, Error as RpcError, ErrorCode};
 use serde_json;
 
-use core::prefix::*;
+use user::prefix::*;
 use core;
-use core::load;
+use user::load;
 
 use api::constants;
 use api::utils;
@@ -14,7 +14,7 @@ use super::{ARTIFACTS, PROJECT};
 
 /// convert an artifact from it's data representation
 /// to it's internal artifact representation
-fn convert_artifact(artifact_data: &ArtifactData) -> result::Result<(ArtNameRc, Artifact), String> {
+fn convert_artifact(artifact_data: &ArtifactData) -> result::Result<(NameRc, Artifact), String> {
     Artifact::from_data(artifact_data).map_err(|err| err.to_string())
 }
 
@@ -169,7 +169,7 @@ impl RpcMethodSync for UpdateArtifacts {
         drop(updated_artifacts);
 
         // get the ProjectText
-        let text = match core::types::ProjectText::from_project(&new_project) {
+        let text = match user::types::ProjectText::from_project(&new_project) {
             Ok(t) => t,
             Err(e) => {
                 return Err(RpcError {

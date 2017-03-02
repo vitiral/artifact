@@ -14,23 +14,29 @@
  * You should have received a copy of the Lesser GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
+//! user: loading and saving user data
+//! 
+//! This module encapsulates the loading and saving of artifacts
 
-// stdlib
-pub use std::process::exit;
+use difference::Changeset;
 
-// crates
-pub use ansi_term::Style;
-pub use ansi_term::Colour::{Red, Blue, Green, Yellow};
-pub use clap::{Arg, App, SubCommand, ArgMatches, AppSettings as AS, Result as ClapResult};
+use dev_prefix::*;
+use types::*;
 
-// module types
-pub use ui;
-pub use ui::{FmtSettings, FmtArtifact, PercentSearch, SearchSettings};
+/// User options for an `Artifact`
+#[derive(Debug, Clone, PartialEq, RustcEncodable, RustcDecodable)]
+pub struct UserArtifact {
+    pub partof: Option<String>,
+    pub text: Option<String>,
+    pub done: Option<String>,
+}
 
-pub const COLOR: AS = AS::ColorAuto;
+/// User options for Settings
+#[derive(Debug, Clone, PartialEq, RustcEncodable, RustcDecodable)]
+pub struct RawSettings {
+    pub artifact_paths: Option<Vec<String>>,
+    pub code_paths: Option<Vec<String>>,
+    pub exclude_code_paths: Option<Vec<String>>,
+    pub additional_repos: Option<Vec<String>>,
+}
 
-#[cfg(windows)]
-pub const COLOR_IF_POSSIBLE: bool = false;
-
-#[cfg(not(windows))]
-pub const COLOR_IF_POSSIBLE: bool = true;

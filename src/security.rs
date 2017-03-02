@@ -1,6 +1,5 @@
 use dev_prefix::*;
-use core::prefix::*;
-use core;
+use types::*;
 
 
 /// validate that all files that could be affected by
@@ -13,7 +12,7 @@ pub fn validate(repo: &Path, project: &Project) -> Result<()> {
     files.extend(project.repo_map.keys());
 
     // PARENT_PATH is never written to, so ignore
-    files.remove(&*core::types::PARENT_PATH);
+    files.remove(&*PARENT_PATH);
 
     for f in files {
         if !f.is_absolute() {
@@ -42,4 +41,27 @@ pub fn validate(repo: &Path, project: &Project) -> Result<()> {
         }
     }
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use test_data;
+    use utils;
+    use user;
+
+    #[test]
+    /// make sure that artifacts which are loaded "out of bounds"
+    /// don't make it past the security checker
+    /// partof: #TST-security-gen
+    fn test_bounds_checker() {
+        let design = test_data::TINVALID_BOUNDS.join("repo").join("design");
+        let repo = utils::find_repo(&design).unwrap();
+        let project = user::load_repo(&repo).unwrap();
+        let req_bounds = NameRc::from_str("REQ-bounds").unwrap();
+        assert!(project.artifacts.contains_key(&req_bounds));
+        assert_eq!(project.artifacts[&req_bounds].path,
+                   test_data::TINVALID_BOUNDS.join("out_bounds.toml"));
+        assert!(validate(&repo, &project).is_err());
+    }
 }

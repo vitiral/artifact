@@ -2,18 +2,21 @@
 
 use std::panic;
 use dev_prefix::*;
-use cmd;
-use core;
+use types::*;
 use super::TSIMPLE_DIR;
+use cmd;
+use user;
+use test_data;
+use utils;
 
 
 #[test]
 fn test_fmt_security() {
     // make sure that we can't load invalid stuff
     let mut w: Vec<u8> = Vec::new();
-    let design = core::tests::TINVALID_BOUNDS.join("repo").join("design");
-    let repo = core::find_repo(&design).unwrap();
-    let project = core::load_path(&repo).unwrap();
+    let design = test_data::TINVALID_BOUNDS.join("repo").join("design");
+    let repo = utils::find_repo(&design).unwrap();
+    let project = user::load_repo(&repo).unwrap();
     let c = cmd::fmt::Cmd::Write;
     match cmd::fmt::run_cmd(&mut w, &repo, &project, &c) {
         Err(e) => {
@@ -33,16 +36,16 @@ fn test_fmt() {
     let simple = TSIMPLE_DIR.lock().unwrap();
     let design = simple.join("design");
 
-    let mut original_text = core::types::ProjectText::default();
+    let mut original_text = user::ProjectText::default();
     let mut _throw = HashSet::new();
 
-    original_text.load(&design, &mut _throw).unwrap();
+    user::load_project_text(&mut original_text, &design, &mut _throw).unwrap();
 
     // basically try/finally for rust -- need to make sure we don't change
     // the actual data
     let result = panic::catch_unwind(panic::AssertUnwindSafe(|| {
         let repo = simple.as_path();
-        let project = core::load_path(&repo).unwrap();
+        let project = user::load_repo(&repo).unwrap();
 
         // validate several things about fmt:
         // - make sure that diff and list do something for an unformatted repo
@@ -64,9 +67,9 @@ fn test_fmt() {
 
     // restore original text
     original_text.dump().unwrap();
-    let mut new_text = core::types::ProjectText::default();
+    let mut new_text = user::ProjectText::default();
     _throw.clear();
-    new_text.load(&design, &mut _throw).unwrap();
+    user::load_project_text(&mut new_text, &design, &mut _throw).unwrap();
     assert_eq!(original_text, new_text);
     result.unwrap();
 }

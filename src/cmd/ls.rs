@@ -15,13 +15,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 
-use dev_prefix::*;
-
 use serde_json;
 use tabwriter::TabWriter;
 
-use super::types::*;
-use super::display;
+use dev_prefix::*;
+use types::*;
+use cmd::types::*;
+use cmd::display;
 
 /// Get the ls subcommand, which is what creates the command
 /// for the cmdline
@@ -308,7 +308,7 @@ pub fn get_cmd(matches: &ArgMatches) -> Result<Cmd> {
 #[allow(trivial_regex)]
 /// perform the ls command given the inputs
 pub fn run_cmd<W: Write>(mut w: &mut W, cwd: &Path, cmd: &Cmd, project: &Project) -> Result<()> {
-    let mut dne: Vec<ArtNameRc> = Vec::new();
+    let mut dne: Vec<NameRc> = Vec::new();
     let artifacts = &project.artifacts;
     let mut fmt_set = cmd.fmt_settings.clone();
 
@@ -324,7 +324,7 @@ pub fn run_cmd<W: Write>(mut w: &mut W, cwd: &Path, cmd: &Cmd, project: &Project
         names
     } else {
         // names are exactly specified according to the partof syntax
-        let want_names = match ArtNames::from_str(&cmd.pattern) {
+        let want_names = match Names::from_str(&cmd.pattern) {
             Ok(n) => n,
             Err(e) => {
                 error!("{}", e);
@@ -371,7 +371,7 @@ pub fn run_cmd<W: Write>(mut w: &mut W, cwd: &Path, cmd: &Cmd, project: &Project
         fmt_set.parts = true;
     }
 
-    let mut displayed = ArtNames::new();
+    let mut displayed = Names::new();
     // #SPC-cmd-ls-type
     match cmd.ty {
         OutType::List => {

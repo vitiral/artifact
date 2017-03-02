@@ -15,10 +15,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 use dev_prefix::*;
-use super::types::*;
-use core::save::PathDiff;
-use core::types::ProjectText;
-use core::security;
+use types::*;
+use cmd::types::*;
+use user::{ProjectText, PathDiff};
+use security;
+use user;
 
 pub fn get_subcommand<'a, 'b>() -> App<'a, 'b> {
     SubCommand::with_name("fmt")
@@ -71,7 +72,7 @@ pub fn run_cmd(w: &mut Write, repo: &Path, project: &Project, cmd: &Cmd) -> Resu
     };
     // check to make sure nothing has actually changed
     // see: TST-fmt
-    let fmt_project = core::process_project_text(project.settings.clone(), &ptext).chain_err(
+    let fmt_project = user::process_project_text(project.settings.clone(), &ptext).chain_err(
         || "internal fmt error: could not process project text.".to_string())?;
     project.equal(&fmt_project)
         .chain_err(|| "internal fmt error: formatted project has different data.".to_string())?;
@@ -108,7 +109,7 @@ pub fn run_cmd(w: &mut Write, repo: &Path, project: &Project, cmd: &Cmd) -> Resu
         Cmd::Write => {
             // dump the ptext and then make sure nothing changed...
             ptext.dump()?;
-            let new_project = match core::load_path(&project.origin) {
+            let new_project = match user::load_repo(&project.origin) {
                 Ok(p) => p,
                 Err(err) => {
                     // see: TST-fmt

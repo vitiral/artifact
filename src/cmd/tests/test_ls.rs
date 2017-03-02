@@ -1,17 +1,21 @@
-use dev_prefix::*;
-use super::super::types::*;
-use super::super::matches::*;
-use super::super::ls;
-use super::super::check;
-
 use std::thread;
 use std::time;
+
+use dev_prefix::*;
+use types::*;
+use cmd::types::*;
+use user;
+use cmd::matches;
+use cmd::ls;
+use cmd::check;
+
+use test_data;
 
 
 #[test]
 fn test_get_matches() {
     let args = vec!["artifact", "ls", "-l"];
-    let matches = get_matches(&args).unwrap();
+    let matches = matches::get_matches(&args).unwrap();
     let cmd = ls::get_cmd(matches.subcommand_matches("ls").unwrap()).unwrap();
     assert_eq!(cmd.pattern, "");
     assert_eq!(cmd.fmt_settings.long, true);
@@ -20,7 +24,7 @@ fn test_get_matches() {
 
     // test that -A works
     let args = vec!["artifact", "ls", "all", "-AP"];
-    let matches = get_matches(&args).unwrap();
+    let matches = matches::get_matches(&args).unwrap();
     let cmd = ls::get_cmd(matches.subcommand_matches("ls").unwrap()).unwrap();
     assert_eq!(cmd.pattern, "all");
     assert_eq!(cmd.fmt_settings.long, false);
@@ -32,7 +36,7 @@ fn test_get_matches() {
 
     // test that pattern works
     let args = vec!["artifact", "ls", "regex", "-p", "TNL"];
-    let matches = get_matches(&args).unwrap();
+    let matches = matches::get_matches(&args).unwrap();
     let cmd = ls::get_cmd(matches.subcommand_matches("ls").unwrap()).unwrap();
     assert_eq!(cmd.pattern, "regex");
     assert!(cmd.search_settings.text);
@@ -139,7 +143,7 @@ fn test_cmd_ls() {
         ty: ls::OutType::List,
     };
 
-    let mut artifacts = core::tests::load_toml_simple(r"
+    let mut artifacts = test_data::load_toml_simple(r"
 [REQ-foo]
 text = 'req for foo'
 [SPC-foo]
@@ -161,14 +165,14 @@ partof = 'REQ-dne'
     let reqs_path = PathBuf::from("reqs/foo.toml");
     for (n, a) in artifacts.iter_mut() {
         a.path = reqs_path.clone();
-        if n.as_ref() == &ArtName::from_str("spc-foo").unwrap() {
+        if n.as_ref() == &Name::from_str("spc-foo").unwrap() {
             a.done = Done::Code(Loc::fake());
         }
-        if n.as_ref() == &ArtName::from_str("tst-foo").unwrap() {
+        if n.as_ref() == &Name::from_str("tst-foo").unwrap() {
             a.done = Done::Code(Loc::fake());
         }
     }
-    core::link::do_links(&mut artifacts).unwrap();
+    user::do_links(&mut artifacts).unwrap();
     cmd.fmt_settings.color = COLOR_IF_POSSIBLE;
     let mut w: Vec<u8> = Vec::new();
     let cwd = PathBuf::from("src/foo");
@@ -204,7 +208,7 @@ partof = 'REQ-dne'
 
     }
 
-    let dne_locs: HashMap<_, _> = HashMap::from_iter(vec![(ArtName::from_str("SPC-dne").unwrap(),
+    let dne_locs: HashMap<_, _> = HashMap::from_iter(vec![(Name::from_str("SPC-dne").unwrap(),
                                                            Loc::fake())]);
     let mut project = Project::default();
     project.artifacts = artifacts;

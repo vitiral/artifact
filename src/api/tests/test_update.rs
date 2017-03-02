@@ -1,7 +1,7 @@
 
 use std::panic;
 use dev_prefix::*;
-use core::prefix::*;
+use user::prefix::*;
 use core;
 
 use api::update;
@@ -12,7 +12,7 @@ fn test_split() {
     let simple = &core::tests::TSIMPLE_DIR;
     let design = simple.join("design");
 
-    let p = core::load_path(simple.as_path()).unwrap();
+    let p = user::load_path(simple.as_path()).unwrap();
     let starting_len = p.artifacts.len();
 
     let data_artifacts: Vec<_> = p.artifacts
@@ -20,7 +20,7 @@ fn test_split() {
         .map(|(n, a)| a.to_data(n))
         .collect();
 
-    let req_purpose = ArtNameRc::from_str("REQ-purpose").unwrap();
+    let req_purpose = NameRc::from_str("REQ-purpose").unwrap();
 
     let mut changed_data = data_artifacts.iter()
         .filter(|a| a.name == "REQ-purpose")
@@ -94,13 +94,13 @@ fn test_update() {
     let design = simple.join("design");
 
     let result = panic::catch_unwind(panic::AssertUnwindSafe(|| {
-        let p = core::load_path(simple.as_path()).unwrap();
+        let p = user::load_path(simple.as_path()).unwrap();
         let data_artifacts: Vec<_> = p.artifacts
             .iter()
             .map(|(n, a)| a.to_data(n))
             .collect();
 
-        let req_purpose = ArtNameRc::from_str("REQ-purpose").unwrap();
+        let req_purpose = NameRc::from_str("REQ-purpose").unwrap();
 
         let mut changed_data = data_artifacts.iter()
             .filter(|a| a.name == "REQ-purpose")

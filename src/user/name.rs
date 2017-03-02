@@ -16,38 +16,50 @@
  * */
 //! module for defining logic for parsing and collapsing artifact names
 
-use dev_prefix::*;
-use core::types::*;
-
 use std::hash::{Hash, Hasher};
 use std::cmp::Ordering;
 
-fn _get_type(value: &str, raw: &str) -> Result<ArtType> {
-    match value {
-        "REQ" => Ok(ArtType::REQ),
-        "SPC" => Ok(ArtType::SPC),
-        "RSK" => Ok(ArtType::RSK),
-        "TST" => Ok(ArtType::TST),
-        _ => {
-            Err(ErrorKind::InvalidName(format!("name must start with REQ-, RSK-, SPC- or TST-: \
-                                                {}",
-                                               raw))
-                .into())
-        }
-    }
+use dev_prefix::*;
+use types::*;
+
+// Public Methods
+
+/// take a list of names and collapse them into a single
+/// string with format `REQ-foo-[bar, baz-boo], SPC-foo`
+pub fn collapse_names(mut names: Vec<String>) -> String {
+    names.sort();
+    let names: Vec<Vec<String>> = names.iter()
+        .map(|n| n.split('-').map(|s| s.to_string()).collect())
+        .collect();
+    let mut piece = NamePiece {
+        raw: names,
+        prefix: String::new(),
+        pieces: None,
+    };
+    piece.process();
+
+    let mut collapsed = String::new();
+    let is_last = match piece.pieces {
+        None => true,
+        Some(ref pieces) => pieces.len() > 1,
+    };
+    piece.collapse(&mut collapsed, is_last);
+    collapsed
 }
 
-impl FromStr for ArtName {
+// Public Trait Methods
+
+impl FromStr for Name {
     type Err = Error;
     /// #SPC-partof-load
-    fn from_str(s: &str) -> Result<ArtName> {
+    fn from_str(s: &str) -> Result<Name> {
         let value = s.to_ascii_uppercase().replace(' ', "");
-        if !ART_VALID.is_match(&value) {
+        if !NAME_VALID.is_match(&value) {
             return Err(ErrorKind::InvalidName(s.to_string()).into());
         }
         let value: Vec<String> = value.split('-').map(|s| s.to_string()).collect();
         let ty = _get_type(&value[0], s)?;
-        Ok(ArtName {
+        Ok(Name {
             raw: s.to_string(),
             value: value,
             ty: ty,
@@ -55,18 +67,18 @@ impl FromStr for ArtName {
     }
 }
 
-impl ArtName {
+impl Name {
     /// parse name from string and handle errors
     /// see: SPC-artifact-name.2
 
     /// see: SPC-artifact-partof-2
-    pub fn parent(&self) -> Option<ArtName> {
+    pub fn parent(&self) -> Option<Name> {
         if self.value.len() <= 1 {
             return None;
         }
         let mut value = self.value.clone();
         value.pop().unwrap();
-        Some(ArtName {
+        Some(Name {
             raw: value.join("-"),
             value: value,
             ty: self.ty,
@@ -78,7 +90,7 @@ impl ArtName {
         self.value.len() == 1
     }
 
-    pub fn parent_rc(&self) -> Option<ArtNameRc> {
+    pub fn parent_rc(&self) -> Option<NameRc> {
         match self.parent() {
             Some(p) => Some(Arc::new(p)),
             None => None,
@@ -88,103 +100,121 @@ impl ArtName {
     /// return the artifact this artifact is automatically
     /// a partof (because of it's name)
     /// see: SPC-artifact-partof-1
-    pub fn named_partofs(&self) -> Vec<ArtName> {
+    pub fn named_partofs(&self) -> Vec<Name> {
         if self.value.len() <= 1 {
             return vec![];
         }
         let ty = self.ty;
         match ty {
-            ArtType::TST => vec![self._get_named_partof("SPC")],
-            ArtType::SPC => vec![self._get_named_partof("REQ")],
-            ArtType::RSK | ArtType::REQ => vec![],
+            Type::TST => vec![self._get_named_partof("SPC")],
+            Type::SPC => vec![self._get_named_partof("REQ")],
+            Type::RSK | Type::REQ => vec![],
         }
     }
 
     /// CAN PANIC
-    fn _get_named_partof(&self, ty: &str) -> ArtName {
+    fn _get_named_partof(&self, ty: &str) -> Name {
         let s = ty.to_string() + self.raw.split_at(3).1;
-        ArtName::from_str(&s).unwrap()
+        Name::from_str(&s).unwrap()
     }
 }
 
 #[test]
 fn test_artname_parent() {
-    let name = ArtName::from_str("REQ-foo-bar-b").unwrap();
+    let name = Name::from_str("REQ-foo-bar-b").unwrap();
     let parent = name.parent().unwrap();
-    assert_eq!(parent, ArtName::from_str("REQ-foo-bar").unwrap());
+    assert_eq!(parent, Name::from_str("REQ-foo-bar").unwrap());
     let parent = parent.parent().unwrap();
-    assert_eq!(parent, ArtName::from_str("REQ-foo").unwrap());
+    assert_eq!(parent, Name::from_str("REQ-foo").unwrap());
     let parent = parent.parent().unwrap();
-    let req = ArtName::from_str("REQ-2").unwrap().parent().unwrap();
+    let req = Name::from_str("REQ-2").unwrap().parent().unwrap();
     assert_eq!(parent, req);
     assert!(parent.parent().is_none());
 }
 
-impl Default for ArtName {
-    fn default() -> ArtName {
-        ArtName::from_str("REQ-default").unwrap()
+impl Default for Name {
+    fn default() -> Name {
+        Name::from_str("REQ-default").unwrap()
     }
 }
 
-impl fmt::Display for ArtName {
+impl fmt::Display for Name {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}", self.raw)
     }
 }
 
-impl fmt::Debug for ArtName {
+impl fmt::Debug for Name {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}", self.value.join("-"))
     }
 }
 
-impl Hash for ArtName {
+impl Hash for Name {
     fn hash<H: Hasher>(&self, state: &mut H) {
         self.value.hash(state);
     }
 }
 
-impl PartialEq for ArtName {
-    fn eq(&self, other: &ArtName) -> bool {
+impl PartialEq for Name {
+    fn eq(&self, other: &Name) -> bool {
         self.value == other.value
     }
 }
 
-impl Eq for ArtName {}
+impl Eq for Name {}
 
-impl Ord for ArtName {
+impl Ord for Name {
     fn cmp(&self, other: &Self) -> Ordering {
         self.value.cmp(&other.value)
     }
 }
 
-impl PartialOrd for ArtName {
+impl PartialOrd for Name {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         self.value.partial_cmp(&other.value)
     }
 }
 
-impl LoadFromStr for ArtNameRc {
-    fn from_str(s: &str) -> Result<ArtNameRc> {
-        Ok(Arc::new(try!(ArtName::from_str(s))))
+impl LoadFromStr for NameRc {
+    fn from_str(s: &str) -> Result<NameRc> {
+        Ok(Arc::new(try!(Name::from_str(s))))
     }
 }
 
-impl LoadFromStr for ArtNames {
-    /// Parse a "names str" and convert into a Set of ArtNames
-    fn from_str(partof_str: &str) -> Result<ArtNames> {
+impl LoadFromStr for Names {
+    /// Parse a "names str" and convert into a Set of Names
+    fn from_str(partof_str: &str) -> Result<Names> {
         let strs = try!(parse_names(&mut partof_str.chars(), false));
         let mut out = HashSet::new();
         for s in strs {
-            out.insert(Arc::new(try!(ArtName::from_str(&s))));
+            out.insert(Arc::new(try!(Name::from_str(&s))));
         }
         Ok(out)
     }
 }
 
+// Private Methods
+
+fn _get_type(value: &str, raw: &str) -> Result<Type> {
+    match value {
+        "REQ" => Ok(Type::REQ),
+        "SPC" => Ok(Type::SPC),
+        "RSK" => Ok(Type::RSK),
+        "TST" => Ok(Type::TST),
+        _ => {
+            Err(ErrorKind::InvalidName(format!("name must start with REQ-, RSK-, SPC- or TST-: \
+                                                {}",
+                                               raw))
+                .into())
+        }
+    }
+}
+
+// Private: Expanding Names. Use `Name::from_str`
 
 /// subfunction to parse names from a names-str recusively
-pub fn parse_names<I>(raw: &mut I, in_brackets: bool) -> Result<Vec<String>>
+fn parse_names<I>(raw: &mut I, in_brackets: bool) -> Result<Vec<String>>
     where I: Iterator<Item = char>
 {
     // hello-[there, you-[are, great]]
@@ -234,6 +264,8 @@ pub fn parse_names<I>(raw: &mut I, in_brackets: bool) -> Result<Vec<String>>
     strout.write_str(&current).unwrap();
     Ok(strout.split(',').filter(|s| s != &"").map(|s| s.to_string()).collect())
 }
+
+// Private: Collapsing Names
 
 struct NamePiece {
     raw: Vec<Vec<String>>,
@@ -328,28 +360,6 @@ impl NamePiece {
     }
 }
 
-/// take a list of names and collapse them into a single
-/// string with format `REQ-foo-[bar, baz-boo], SPC-foo`
-pub fn collapse_names(mut names: Vec<String>) -> String {
-    names.sort();
-    let names: Vec<Vec<String>> = names.iter()
-        .map(|n| n.split('-').map(|s| s.to_string()).collect())
-        .collect();
-    let mut piece = NamePiece {
-        raw: names,
-        prefix: String::new(),
-        pieces: None,
-    };
-    piece.process();
-
-    let mut collapsed = String::new();
-    let is_last = match piece.pieces {
-        None => true,
-        Some(ref pieces) => pieces.len() > 1,
-    };
-    piece.collapse(&mut collapsed, is_last);
-    collapsed
-}
 
 #[cfg(test)]
 fn do_test_parse_collapse(user: &str, expected_collapsed: &[&str]) {
@@ -369,4 +379,25 @@ fn test_parse_names() {
     assert!(parse_names(&mut "[hi]".chars(), false).is_err());
     assert!(parse_names(&mut "hi-[ho, [he]]".chars(), false).is_err());
     assert!(parse_names(&mut "hi-[ho, he".chars(), false).is_err());
+}
+
+#[test]
+fn test_name() {
+    // valid names
+    for name in vec!["REQ-foo",
+                     "REQ-foo-2",
+                     "REQ-foo2",
+                     "REQ-foo2",
+                     "REQ-foo-bar-2_3",
+                     "SPC-foo",
+                     "RSK-foo",
+                     "TST-foo"] {
+        assert!(Name::from_str(name).is_ok());
+    }
+    for name in vec!["REQ-foo*", "REQ-foo\n", "REQ-foo-"] {
+        assert!(Name::from_str(name).is_err())
+    }
+    // remove spaces
+    assert_eq!(Name::from_str("   R E Q    -    f   o  o   ").unwrap().value,
+               ["REQ", "FOO"]);
 }

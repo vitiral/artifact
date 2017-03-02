@@ -1,8 +1,9 @@
 use dev_prefix::*;
-use super::types::*;
+use types::*;
+use ui::types::*;
 
-/// format `ArtNames` in a reasonable way
-pub fn fmt_names(names: &[ArtNameRc]) -> String {
+/// format `Names` in a reasonable way
+pub fn fmt_names(names: &[NameRc]) -> String {
     if names.is_empty() {
         return "".to_string();
     }
@@ -11,11 +12,11 @@ pub fn fmt_names(names: &[ArtNameRc]) -> String {
 
 /// use several configuration options and pieces of data to represent
 /// how the artifact should be formatted
-pub fn fmt_artifact(name: &ArtNameRc,
+pub fn fmt_artifact(name: &NameRc,
                     artifacts: &Artifacts,
                     fmtset: &FmtSettings,
                     recurse: u8,
-                    displayed: &mut ArtNames)
+                    displayed: &mut Names)
                     -> FmtArtifact {
     let artifact = artifacts.get(name).unwrap();
     let mut out = FmtArtifact::default();
@@ -40,7 +41,7 @@ pub fn fmt_artifact(name: &ArtNameRc,
         out.parts = Some(parts);
     }
     if fmtset.partof {
-        let mut partof = artifact.partof.iter().cloned().collect::<Vec<ArtNameRc>>();
+        let mut partof = artifact.partof.iter().cloned().collect::<Vec<NameRc>>();
         partof.sort();
         let partof = partof.drain(0..)
             .map(|n| FmtArtifact { name: n, ..FmtArtifact::default() })

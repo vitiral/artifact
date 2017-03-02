@@ -3,7 +3,7 @@ use dev_prefix::*;
 use jsonrpc_core::{IoHandler, RpcMethodSync, Params, Error as RpcError};
 use serde_json;
 
-use core::prefix::*;
+use user::prefix::*;
 
 use super::ARTIFACTS;
 

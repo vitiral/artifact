@@ -15,7 +15,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 use dev_prefix::*;
-use super::types::*;
+use types::*;
+use cmd::types::*;
 
 
 const SETTINGS_TOML: &'static [u8] = include_bytes!("data/settings-template.toml");

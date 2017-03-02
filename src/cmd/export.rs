@@ -1,11 +1,11 @@
 //! export command
 
-use dev_prefix::*;
-use super::types::*;
-
 use tar::Archive;
 
-use core::utils;
+use dev_prefix::*;
+use types::*;
+use cmd::types::*;
+use export;
 
 const WEB_STATIC_TAR: &'static [u8] = include_bytes!("data/web-ui-static.tar");
 
@@ -41,7 +41,7 @@ pub fn run_cmd(cwd: &Path, project: &Project, cmd: &Cmd) -> Result<()> {
     match cmd.ty {
         ExportType::Html => {
             // get the artifacts as json and replace with escaped chars
-            let data = utils::artifacts_to_json(&project.artifacts, None)
+            let data = export::artifacts_to_json(&project.artifacts, None)
                 .replace("\\", "\\\\")
                 .replace("'", "\\'");
 

@@ -15,8 +15,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 use dev_prefix::*;
-use super::types::*;
-use core;
+use types::*;
+use cmd::types::*;
+use utils;
 
 pub fn get_subcommand<'a, 'b>() -> App<'a, 'b> {
     SubCommand::with_name("check")
@@ -44,7 +45,7 @@ fn display_invalid_partof<W: Write>(w: &mut W, cwd: &Path, project: &Project) ->
     let mut error: u64 = 0;
 
     // display invalid partof names and locations
-    let mut invalid_partof = ArtNames::new();
+    let mut invalid_partof = Names::new();
 
     // display artifacts with invalid partof names
     let mut displayed_header = false;
@@ -79,16 +80,16 @@ fn display_unresolvable<W: Write>(w: &mut W, project: &Project) -> u64 {
     let mut error: u64 = 0;
 
     // display unresolvable partof names
-    let unresolved: Vec<(ArtNameRc, &Artifact)> = Vec::from_iter(project.artifacts
+    let unresolved: Vec<(NameRc, &Artifact)> = Vec::from_iter(project.artifacts
         .iter()
         .filter(|a| a.1.completed < 0. || a.1.tested < 0.)
         .map(|n| (n.0.clone(), n.1)));
-    let unknown_names: HashSet<ArtNameRc> = HashSet::from_iter(unresolved.iter()
+    let unknown_names: HashSet<NameRc> = HashSet::from_iter(unresolved.iter()
         .map(|u| u.0.clone()));
 
     if !unresolved.is_empty() {
         error += 1;
-        let mut unresolved_partof: HashMap<ArtNameRc, HashSet<ArtNameRc>> = HashMap::new();
+        let mut unresolved_partof: HashMap<NameRc, HashSet<NameRc>> = HashMap::new();
         for &(ref name, artifact) in &unresolved {
             let partof: HashSet<_> = artifact.partof
                 .iter()
@@ -102,7 +103,7 @@ fn display_unresolvable<W: Write>(w: &mut W, project: &Project) -> u64 {
         }
 
         // reduce unresolved partof to only items that have at least one value
-        let mut resolved_names: HashSet<ArtNameRc> = HashSet::new();
+        let mut resolved_names: HashSet<NameRc> = HashSet::new();
         let mut remove_names = Vec::new();
         let mut just_resolved = Vec::new();
         loop {
@@ -162,7 +163,7 @@ fn display_invalid_locs<W: Write>(w: &mut W, cwd: &Path, project: &Project) -> u
     if !project.dne_locs.is_empty() {
         error += 1;
         // reorganize them by file
-        let mut invalid_locs: HashMap<PathBuf, Vec<(ArtName, Loc)>> = HashMap::new();
+        let mut invalid_locs: HashMap<PathBuf, Vec<(Name, Loc)>> = HashMap::new();
         for (name, loc) in &project.dne_locs {
             if !invalid_locs.contains_key(&loc.path) {
                 invalid_locs.insert(loc.path.clone(), Vec::new());
@@ -171,7 +172,7 @@ fn display_invalid_locs<W: Write>(w: &mut W, cwd: &Path, project: &Project) -> u
         }
         let header = "\nFound implementation links in the code that do not exist:\n";
         paint_it_bold(w, header);
-        let mut invalid_locs: Vec<(PathBuf, Vec<(ArtName, Loc)>)> =
+        let mut invalid_locs: Vec<(PathBuf, Vec<(Name, Loc)>)> =
             Vec::from_iter(invalid_locs.drain());
         invalid_locs.sort_by(|a, b| a.0.cmp(&b.0));
         for (path, mut locs) in invalid_locs.drain(0..) {
@@ -200,7 +201,7 @@ fn display_hanging_artifacts<W: Write>(w: &mut W, cwd: &Path, project: &Project)
     let mut error: u64 = 0;
 
     // find hanging artifacts
-    fn partof_types(a: &Artifact, types: &HashSet<ArtType>) -> bool {
+    fn partof_types(a: &Artifact, types: &HashSet<Type>) -> bool {
         for p in &a.partof {
             if types.contains(&p.ty) {
                 return true;
@@ -208,17 +209,17 @@ fn display_hanging_artifacts<W: Write>(w: &mut W, cwd: &Path, project: &Project)
         }
         false
     }
-    let rsk_spc_types = HashSet::from_iter(vec![ArtType::RSK, ArtType::SPC]);
-    let req_types = HashSet::from_iter(vec![ArtType::REQ]);
+    let rsk_spc_types = HashSet::from_iter(vec![Type::RSK, Type::SPC]);
+    let req_types = HashSet::from_iter(vec![Type::REQ]);
 
-    let mut hanging: Vec<(ArtNameRc, &Path)> = Vec::new();
+    let mut hanging: Vec<(NameRc, &Path)> = Vec::new();
     for (name, artifact) in &project.artifacts {
         let ty = name.ty;
-        if (ty != ArtType::REQ) && !artifact.is_parent() && !name.is_root() &&
+        if (ty != Type::REQ) && !artifact.is_parent() && !name.is_root() &&
            name.parent().unwrap().is_root() &&
            match ty {
-            ArtType::TST => !partof_types(artifact, &rsk_spc_types),
-            ArtType::SPC | ArtType::RSK => !partof_types(artifact, &req_types),
+            Type::TST => !partof_types(artifact, &rsk_spc_types),
+            Type::SPC | Type::RSK => !partof_types(artifact, &req_types),
             _ => unreachable!(),
         } {
             hanging.push((name.clone(), &artifact.path));
@@ -246,15 +247,15 @@ fn display_hanging_artifacts<W: Write>(w: &mut W, cwd: &Path, project: &Project)
 fn display_hanging_references<W: Write>(w: &mut W, cwd: &Path, project: &Project) -> u64 {
     let mut error: u64 = 0;
 
-    let regexp = Regex::new(&format!(r"(?i)\[\[({})\]\]", core::types::ART_VALID_STR))
+    let regexp = Regex::new(&format!(r"(?i)\[\[({})\]\]", NAME_VALID_STR))
         .expect("tested regexp");
-    let mut hanging: HashMap<ArtNameRc, Vec<ArtName>> = HashMap::new();
+    let mut hanging: HashMap<NameRc, Vec<Name>> = HashMap::new();
 
     for (name, artifact) in &project.artifacts {
         let mut found = vec![];
         for cap in regexp.captures_iter(&artifact.text) {
             let raw = cap.get(1).expect("regexp definition");
-            let tname = ArtName::from_str(raw.as_str()).expect("regexp validatd");
+            let tname = Name::from_str(raw.as_str()).expect("regexp validatd");
             if !project.artifacts.contains_key(&tname) {
                 error += 1;
                 found.push(tname);
