@@ -39,6 +39,8 @@ mod display;
 mod fmt;
 mod init;
 mod tutorial;
+
+#[cfg(feature="serve")]
 mod server;
 
 #[cfg(test)]
@@ -57,6 +59,21 @@ pub fn get_loglevel(matches: &ArgMatches) -> Option<(u8, bool)> {
     Some((verbosity, quiet))
 }
 
+#[cfg(feature="serve")]
+fn run_server(project: &core::Project, matches: &ArgMatches) -> Result<()> {
+    if let Some(mat) = matches.subcommand_matches("server") {
+        let addr = server::get_cmd(mat);
+        server::run_cmd(project.clone(), &addr);
+        Ok(())
+    } else {
+        Err(ErrorKind::NothingDone.into())
+    }
+}
+
+#[cfg(not(feature="serve"))]
+fn run_server(_: &core::Project, _: &ArgMatches) -> Result<()> {
+    Err(ErrorKind::NothingDone.into())
+}
 
 pub fn cmd<W, I, T>(w: &mut W, args: I) -> Result<()>
     where I: IntoIterator<Item = T>,
@@ -132,10 +149,6 @@ pub fn cmd<W, I, T>(w: &mut W, args: I) -> Result<()>
     } else if matches.subcommand_matches("check").is_some() {
         info!("Calling the check command");
         check::run_cmd(w, &work_tree, &project)
-    } else if let Some(mat) = matches.subcommand_matches("server") {
-        let addr = server::get_cmd(mat);
-        server::run_cmd(project, &addr);
-        Ok(())
     } else if let Some(mat) = matches.subcommand_matches("fmt") {
         info!("Calling the fmt command");
         let c = fmt::get_cmd(mat)?;
@@ -144,6 +157,16 @@ pub fn cmd<W, I, T>(w: &mut W, args: I) -> Result<()>
         info!("Calling the export command");
         let c = export::get_cmd(mat)?;
         export::run_cmd(&cwd, &project, &c)
+    } else if match run_server(&project, &matches) {
+        Ok(r) => return Ok(r),
+        Err(err) => {
+            match *err.kind() {
+                ErrorKind::NothingDone => false,
+                _ => return Err(err),
+            }
+        }
+    } {
+        unreachable!();
     } else {
         write!(w,
                "{} {}: use -h to show help",

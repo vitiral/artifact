@@ -79,6 +79,12 @@ fn handle_artifacts<'a>(req: &mut Request, mut res: Response<'a>) -> MiddlewareR
     }
 }
 
+fn handle_options<'a>(_: &mut Request, mut res: Response<'a>) -> MiddlewareResult<'a> {
+    setup_headers(&mut res);
+    res.set(StatusCode::Ok);
+    res.send("ok")
+}
+
 /// host the frontend web-server, returning the tempdir where it the
 /// static files are being held. It is important that this tempdir
 /// always be owned, ortherwise the files will be deleted!
@@ -139,12 +145,7 @@ pub fn start_api(project: Project, addr: &str, edit: bool) {
 
     server.get(endpoint, handle_artifacts);
     server.put(endpoint, handle_artifacts);
-    server.options(endpoint,
-                   middleware! { |_, mut res|
-        setup_headers(&mut res);
-        res.set(StatusCode::Ok);
-        "ok"
-    });
+    server.options(endpoint, handle_options);
 
     // host the frontend files using a static file handler
     // and own the tmpdir for as long as needed

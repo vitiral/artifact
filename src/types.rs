@@ -96,5 +96,8 @@ error_chain! {
             description("internal error")
             display("internal error: {}", desc)
         }
+        NothingDone {
+            description("internal control flow")
+        }
     }
 }

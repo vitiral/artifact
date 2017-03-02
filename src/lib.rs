@@ -41,15 +41,15 @@ extern crate difference;
 extern crate clap;
 extern crate ansi_term;
 extern crate tabwriter;
-
-// # web api crates
-#[macro_use]
-extern crate nickel;
-extern crate jsonrpc_core;
-
-// # for web front end
-extern crate tempdir;
 extern crate tar;
+
+// # server crates
+#[cfg(feature="serve")]
+extern crate nickel;
+#[cfg(feature="serve")]
+extern crate jsonrpc_core;
+#[cfg(feature="serve")]
+extern crate tempdir;
 
 // serialization
 #[macro_use]
@@ -64,6 +64,7 @@ pub mod dev_prefix;
 pub mod core;
 pub mod ui;
 
+#[cfg(feature="serve")]
 mod api;
 pub mod cmd;
 

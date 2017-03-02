@@ -23,13 +23,12 @@ use super::tutorial;
 use super::ls;
 use super::check;
 use super::fmt as fmtcmd;
-use super::server;
 
 pub fn get_matches<'a, I, T>(args: I) -> ClapResult<ArgMatches<'a>>
     where I: IntoIterator<Item = T>,
           T: Into<OsString> + clone::Clone
 {
-    App::new("artifact")
+    let app = App::new("artifact")
         .version(env!("CARGO_PKG_VERSION"))
         .about("the requirements tracking tool made for developers. Call `art tutorial` for \
                 a tutorial")
@@ -59,7 +58,20 @@ pub fn get_matches<'a, I, T>(args: I) -> ClapResult<ArgMatches<'a>>
         .subcommand(ls::get_subcommand())
         .subcommand(check::get_subcommand())
         .subcommand(fmtcmd::get_subcommand())
-        .subcommand(server::get_subcommand())
-        .subcommand(export::get_subcommand())
-        .get_matches_from_safe(args)
+        .subcommand(export::get_subcommand());
+
+    let app = add_serve_cmd(app);
+    app.get_matches_from_safe(args)
+}
+
+
+#[cfg(feature="serve")]
+pub fn add_serve_cmd<'a, 'b>(app: App<'a, 'b>) -> App<'a, 'b> {
+    use cmd::server;
+    app.subcommand(server::get_subcommand())
+}
+
+#[cfg(not(feature="serve"))]
+pub fn add_serve_cmd<'a, 'b>(app: App<'a, 'b>) -> App<'a, 'b> {
+    app
 }
