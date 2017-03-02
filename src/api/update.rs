@@ -1,7 +1,6 @@
 #![allow(dead_code)]
 use dev_prefix::*;
 use jsonrpc_core::{RpcMethodSync, Params, Error as RpcError, ErrorCode};
-use jsonrpc_core;
 use serde_json;
 
 use core::prefix::*;
@@ -22,10 +21,10 @@ fn convert_artifact(artifact_data: &ArtifactData) -> result::Result<(ArtNameRc, 
 /// pull out the artifacts from the params
 fn parse_new_artifacts(params: Params) -> result::Result<Vec<ArtifactData>, RpcError> {
     match params {
-        Params::Map(dict) => {
-            match dict.get("artifacts") {
+        Params::Map(mut dict) => {
+            match dict.remove("artifacts") {
                 Some(value) => {
-                    match serde_json::from_str::<Vec<ArtifactData>>(&value.to_string()) {
+                    match serde_json::from_value::<Vec<ArtifactData>>(value) {
                         Ok(a) => Ok(a),
                         Err(e) => Err(utils::parse_error(&format!("{}", e))),
                     }
@@ -104,7 +103,7 @@ pub fn split_artifacts(project: &Project,
         return Err(RpcError {
             code: constants::SERVER_ERROR,
             message: msg.to_string(),
-            data: Some(jsonrpc_core::to_value(data)),
+            data: Some(serde_json::to_value(data).unwrap()),
         });
     }
 
@@ -156,7 +155,7 @@ pub fn update_artifacts(data_artifacts: &[ArtifactData],
 /// `UpdateArtifacts` Handler
 pub struct UpdateArtifacts;
 impl RpcMethodSync for UpdateArtifacts {
-    fn call(&self, params: Params) -> result::Result<jsonrpc_core::Value, RpcError> {
+    fn call(&self, params: Params) -> result::Result<serde_json::Value, RpcError> {
         info!("* UpdateArtifacts");
 
         // get the changed artifacts
@@ -196,16 +195,10 @@ impl RpcMethodSync for UpdateArtifacts {
             .map(|(n, a)| a.to_data(n))
             .collect();
 
+        let out = serde_json::to_value(&new_artifacts).expect("serde");
         // store globals and return
-        let out = {
-            // FIXME: when jsonrpc-core uses serde 0.9
-            let value = serde_json::to_value(&new_artifacts).unwrap();
-            let s = serde_json::to_string(&value).unwrap();
-            jsonrpc_core::Value::from_str(&s).unwrap()
-        };
         *project = new_project;
         *data_artifacts = new_artifacts;
-
         Ok(out)
     }
 }

@@ -1,7 +1,6 @@
 
 use dev_prefix::*;
 use jsonrpc_core::{IoHandler, RpcMethodSync, Params, Error as RpcError};
-use jsonrpc_core;
 use serde_json;
 
 use core::prefix::*;
@@ -26,16 +25,10 @@ lazy_static! {
 /// `GetArtifacts` API Handler
 struct GetArtifacts;
 impl RpcMethodSync for GetArtifacts {
-    fn call(&self, _: Params) -> result::Result<jsonrpc_core::Value, RpcError> {
+    fn call(&self, _: Params) -> result::Result<serde_json::Value, RpcError> {
         info!("GetArtifacts called");
         let locked = ARTIFACTS.lock().unwrap();
         let artifacts: &Vec<ArtifactData> = locked.as_ref();
-        let out = {
-            // FIXME: when jsonrpc-core uses serde 0.9
-            let value = serde_json::to_value(artifacts).unwrap();
-            let s = serde_json::to_string(&value).unwrap();
-            jsonrpc_core::Value::from_str(&s).unwrap()
-        };
-        Ok(out)
+        Ok(serde_json::to_value(artifacts).expect("serde"))
     }
 }
