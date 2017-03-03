@@ -3,10 +3,9 @@ use dev_prefix::*;
 use jsonrpc_core::{RpcMethodSync, Params, Error as RpcError, ErrorCode};
 use serde_json;
 
-use user::prefix::*;
-use core;
-use user::load;
-
+use types::*;
+use export::ArtifactData;
+use user;
 use api::constants;
 use api::utils;
 
@@ -141,7 +140,7 @@ pub fn update_artifacts(data_artifacts: &[ArtifactData],
     // process the new set of artifacts to make sure they are valid
     let mut new_project = Project { artifacts: save_artifacts, ..project.clone() };
 
-    if let Err(err) = load::process_project(&mut new_project) {
+    if let Err(err) = user::process_project(&mut new_project) {
         return Err(RpcError {
             code: constants::SERVER_ERROR,
             message: err.to_string(),
@@ -169,7 +168,7 @@ impl RpcMethodSync for UpdateArtifacts {
         drop(updated_artifacts);
 
         // get the ProjectText
-        let text = match user::types::ProjectText::from_project(&new_project) {
+        let text = match user::ProjectText::from_project(&new_project) {
             Ok(t) => t,
             Err(e) => {
                 return Err(RpcError {

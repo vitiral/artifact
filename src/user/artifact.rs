@@ -1,5 +1,5 @@
 //! raw text loading
- 
+
 use toml::{Value, Table, Decoder};
 use rustc_serialize::Decodable;
 
@@ -18,12 +18,14 @@ use utils::parse_toml;
 // - resolving all settings at the end
 /// recursively load the directory into text files, making sure
 /// not to load files that have already been loaded
-pub fn load_text(ptext: &mut ProjectText, load_dir: &Path, loaded_dirs: &mut HashSet<PathBuf>) -> Result<()> {
+pub fn load_text(ptext: &mut ProjectText,
+                 load_dir: &Path,
+                 loaded_dirs: &mut HashSet<PathBuf>)
+                 -> Result<()> {
     loaded_dirs.insert(load_dir.to_path_buf());
     let mut dirs_to_load: Vec<PathBuf> = Vec::new();
     let dir_entries =
-        fs::read_dir(load_dir).chain_err(|| format!(
-        "could not get dir: {}", load_dir.display()))?;
+        fs::read_dir(load_dir).chain_err(|| format!("could not get dir: {}", load_dir.display()))?;
     // just read text from all .toml files in the directory
     // and record which directories need to be loaded
     for entry in dir_entries.filter_map(|e| e.ok()) {
@@ -42,8 +44,8 @@ pub fn load_text(ptext: &mut ProjectText, load_dir: &Path, loaded_dirs: &mut Has
                 continue;
             }
             let mut text = String::new();
-            let mut fp = fs::File::open(&fpath).chain_err(|| format!(
-                "error opening: {}", fpath.display()))?;
+            let mut fp =
+                fs::File::open(&fpath).chain_err(|| format!("error opening: {}", fpath.display()))?;
             fp.read_to_string(&mut text)
                 .chain_err(|| format!("Error loading path {}", fpath.display()))?;
 
@@ -123,7 +125,6 @@ impl Artifact {
         let artifact = try!(from_table(&name, &Path::new("from_str"), value));
         Ok((Arc::new(name), artifact))
     }
-
 }
 
 // Private
@@ -134,9 +135,7 @@ fn from_table(name: &Name, path: &Path, tbl: &Table) -> Result<Artifact> {
     let mut decoder = Decoder::new(value);
     let raw = match UserArtifact::decode(&mut decoder) {
         Ok(v) => v,
-        Err(e) => {
-            return Err(ErrorKind::InvalidArtifact(name.to_string(), e.to_string()).into())
-        }
+        Err(e) => return Err(ErrorKind::InvalidArtifact(name.to_string(), e.to_string()).into()),
     };
     if let Some(invalid) = decoder.toml {
         return Err(ErrorKind::InvalidArtifact(name.to_string(),
@@ -162,7 +161,7 @@ fn from_table(name: &Name, path: &Path, tbl: &Table) -> Result<Artifact> {
 
 #[cfg(test)]
 mod tests {
-    use toml::{Parser};
+    use toml::Parser;
 
 
     use super::*;

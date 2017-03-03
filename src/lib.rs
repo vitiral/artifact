@@ -20,8 +20,6 @@
 #![allow(unknown_lints)]
 #![allow(zero_ptr)]
 #![recursion_limit = "1024"]
-// # logger config
-extern crate fern;
 
 // # general crates
 #[macro_use]
@@ -30,6 +28,7 @@ extern crate error_chain;
 extern crate lazy_static;
 #[macro_use]
 extern crate log;
+extern crate fern;
 extern crate itertools;
 
 // # core crates
@@ -46,11 +45,11 @@ extern crate tabwriter;
 extern crate tar;
 
 // # server crates
-#[cfg(feature="serve")]
+#[cfg(feature="server")]
 extern crate nickel;
-#[cfg(feature="serve")]
+#[cfg(feature="server")]
 extern crate jsonrpc_core;
-#[cfg(feature="serve")]
+#[cfg(feature="server")]
 extern crate tempdir;
 
 // serialization
@@ -76,7 +75,8 @@ pub mod cmd;
 #[cfg(test)]
 pub mod test_data;
 
-//#[cfg(feature="serve")]
-//mod api;
+// server modules
+#[cfg(feature="server")]
+mod api;
 
 pub use types::*;

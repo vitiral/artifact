@@ -208,7 +208,7 @@ impl fmt::Display for Loc {
 }
 
 /// Determines if the artifact is "done by definition"
-/// 
+///
 /// It is done by definition if:
 /// - it is found in source code
 /// - it has it's `done` field set
@@ -284,4 +284,3 @@ impl Settings {
         }
     }
 }
-

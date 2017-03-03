@@ -378,4 +378,3 @@ mod tests {
         assert!(validate_partof(&artifacts).is_err());
     }
 }
-

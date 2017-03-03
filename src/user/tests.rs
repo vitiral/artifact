@@ -1,10 +1,9 @@
 //! tests for user module
 
-use toml::{Value};
- 
+use toml::Value;
+
 use dev_prefix::*;
 use types::*;
-use user::types::*;
 
 use test_data;
 use user;
@@ -48,7 +47,8 @@ fn test_toml_assumptions() {
 fn test_load_repo() {
     // init_logger_test();
     info!("running test_load_repo");
-    assert!(user::load_repo(test_data::TINVALID_DIR.join(&PathBuf::from("attr")).as_path()).is_err());
+    assert!(user::load_repo(test_data::TINVALID_DIR.join(&PathBuf::from("attr")).as_path())
+        .is_err());
     assert!(user::load_repo(test_data::TINVALID_DIR.join(&PathBuf::from("same_names")).as_path())
         .is_err());
 
@@ -226,8 +226,7 @@ fn test_basic_link() {
                    .iter()
                    .map(|n| NameRc::from_str(n).unwrap())));
 
-    assert_eq!(req_parts.partof,
-               Names::from_iter(vec![req_name.clone()]));
+    assert_eq!(req_parts.partof, Names::from_iter(vec![req_name.clone()]));
     assert_eq!(req_parts.parts,
                HashSet::from_iter(["REQ-parts-p1", "REQ-parts-p2"]
                    .iter()
@@ -373,8 +372,7 @@ fn test_save_idempotent() {
     let mut original_text = ProjectText::default();
     let mut loaded_dirs = HashSet::new();
     let settings = settings::load_settings(simple.as_path()).unwrap();
-    artifact::load_text(&mut original_text, &simple.join("design"), &mut loaded_dirs)
-        .unwrap();
+    artifact::load_text(&mut original_text, &simple.join("design"), &mut loaded_dirs).unwrap();
     let original = user::process_project_text(settings.clone(), &original_text).unwrap();
 
     // serialize tsimple like it would be saved
@@ -393,4 +391,3 @@ fn test_save_idempotent() {
     result.equal(&result2).unwrap();
     assert_eq!(result_text, result_text2);
 }
-

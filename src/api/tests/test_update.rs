@@ -1,18 +1,19 @@
 
 use std::panic;
 use dev_prefix::*;
-use user::prefix::*;
-use core;
+use types::*;
+use user;
+use test_data;
 
 use api::update;
 
 
 #[test]
 fn test_split() {
-    let simple = &core::tests::TSIMPLE_DIR;
+    let simple = &test_data::TSIMPLE_DIR;
     let design = simple.join("design");
 
-    let p = user::load_path(simple.as_path()).unwrap();
+    let p = user::load_repo(simple.as_path()).unwrap();
     let starting_len = p.artifacts.len();
 
     let data_artifacts: Vec<_> = p.artifacts
@@ -90,11 +91,11 @@ fn test_split() {
 
 #[test]
 fn test_update() {
-    let simple = &core::tests::TSIMPLE_DIR;
+    let simple = &test_data::TSIMPLE_DIR;
     let design = simple.join("design");
 
     let result = panic::catch_unwind(panic::AssertUnwindSafe(|| {
-        let p = user::load_path(simple.as_path()).unwrap();
+        let p = user::load_repo(simple.as_path()).unwrap();
         let data_artifacts: Vec<_> = p.artifacts
             .iter()
             .map(|(n, a)| a.to_data(n))

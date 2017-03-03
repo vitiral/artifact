@@ -43,11 +43,11 @@ pub use user::artifact::{load_toml, load_text as load_project_text};
 #[cfg(test)]
 pub use user::link::do_links;
 #[cfg(test)]
-pub use user::settings::{from_table as settings_from_table};
+pub use user::settings::from_table as settings_from_table;
 
 
 /// Process a raw project text file.
-/// 
+///
 /// This can be called on a project which has not yet
 /// had it's links completed.
 pub fn process_project(project: &mut Project) -> Result<()> {
@@ -58,15 +58,13 @@ pub fn process_project(project: &mut Project) -> Result<()> {
 }
 
 /// This method is for processing a raw project-text
-/// file into a full blown project. 
-/// 
+/// file into a full blown project.
+///
 /// This is mostly used for validation that nothing has
 /// changed in converting the project.
-/// 
+///
 /// This method should be considered unstable.
-pub fn process_project_text(settings: Settings,
-                            project_text: &ProjectText)
-                            -> Result<Project> {
+pub fn process_project_text(settings: Settings, project_text: &ProjectText) -> Result<Project> {
     let mut project = Project::default();
     project.settings = settings;
     artifact::extend_text(&mut project, project_text)?;
@@ -110,4 +108,3 @@ pub fn load_repo(repo: &Path) -> Result<Project> {
           total.num_milliseconds() as f64 * 1e-3);
     Ok(project)
 }
-

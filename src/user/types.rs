@@ -15,13 +15,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 //! user: loading and saving user data
-//! 
+//!
 //! This module encapsulates the loading and saving of artifacts
-
-use difference::Changeset;
-
-use dev_prefix::*;
-use types::*;
 
 /// User options for an `Artifact`
 #[derive(Debug, Clone, PartialEq, RustcEncodable, RustcDecodable)]
@@ -39,4 +34,3 @@ pub struct RawSettings {
     pub exclude_code_paths: Option<Vec<String>>,
     pub additional_repos: Option<Vec<String>>,
 }
-

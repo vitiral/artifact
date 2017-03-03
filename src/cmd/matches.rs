@@ -65,13 +65,13 @@ pub fn get_matches<'a, I, T>(args: I) -> ClapResult<ArgMatches<'a>>
 }
 
 
-#[cfg(feature="serve")]
+#[cfg(feature="server")]
 pub fn add_serve_cmd<'a, 'b>(app: App<'a, 'b>) -> App<'a, 'b> {
     use cmd::server;
     app.subcommand(server::get_subcommand())
 }
 
-#[cfg(not(feature="serve"))]
+#[cfg(not(feature="server"))]
 pub fn add_serve_cmd<'a, 'b>(app: App<'a, 'b>) -> App<'a, 'b> {
     app
 }

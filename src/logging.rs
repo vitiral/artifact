@@ -41,4 +41,3 @@ pub fn init_logger_test() {
         Err(_) => {}
     }
 }
-

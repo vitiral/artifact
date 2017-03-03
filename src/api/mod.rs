@@ -17,7 +17,8 @@ use nickel::StaticFilesHandler;
 use tar::Archive;
 use tempdir::TempDir;
 
-use user::{Project, ArtifactData};
+use types::Project;
+use export::ArtifactData;
 
 mod constants;
 mod utils;

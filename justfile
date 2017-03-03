@@ -34,7 +34,8 @@ build-static: # build and package elm as a static index.html
 	sed -e 's/<head>/<head><link rel="stylesheet" type="text\/css" href="css\/index.css" \/>/g' target/web/index.html -i
 	(cd target/web; tar -cvf ../../src/cmd/data/web-ui-static.tar *)
 
-build-web: build-elm build-static
+# full build for a std release. Currently doesn't include the server code
+build-full: build-static
 	just build-dev
 
 ##################################################
@@ -57,7 +58,7 @@ lint: # run linter
 	CARGO_TARGET_DIR={{target}}/nightly rustup run nightly cargo clippy
 	
 test-server: build-elm # run the test-server for e2e testing, still in development
-	(cargo run -- --work-tree web-ui/e2e_tests/ex_proj -v server)
+	RUST_BACKTRACE=1 cargo test --lib --features server
 
 test-e2e: # run e2e tests, still in development
 	(cd web-ui; py2t e2e_tests/basic.py)
@@ -91,12 +92,12 @@ git-verify: # make sure git is clean and on master
 	git branch | grep '* master'
 	git diff --no-ext-diff --quiet --exit-code
 
-publish: git-verify lint build-web test-all self-check # publish to github and crates.io
+publish: git-verify lint build-full test-all self-check # publish to github and crates.io
 	git commit -a -m "v{{version}} release"
 	just publish-cargo
 	just publish-git
 
-export-site: build-web
+export-site: build-full
 	rm -rf _gh-pages/index.html _gh-pages/css
 	TG={{target}} {{nightly}} cargo run -- export html && mv index.html css _gh-pages
 

@@ -136,5 +136,3 @@ fn proj_attr_equal<T>(attr: &str, a: &T, b: &T) -> Result<()>
         Ok(())
     }
 }
-
-

@@ -138,4 +138,3 @@ pub static TOML_BAD_ATTR2: &'static str = "[REQ-bad]\npartof = ['REQ-foo', 2, 'h
 pub static TOML_BAD_JSON: &'static str = "{\"REQ-foo\": {\"partof\": [\"hi\"]}}";
 pub static TOML_BAD_NAMES1: &'static str = "[REQ-bad]\n[REQ-bad]";
 pub static TOML_BAD_NAMES2: &'static str = "[REQ-bad]\npartof='hi'\npartof='you'";
-

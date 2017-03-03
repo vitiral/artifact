@@ -6,7 +6,7 @@ code_paths = [
     "{repo}/web-ui/tests"
 ]
 exclude_code_paths = [
-    "{repo}/src/core/tests/data", 
+    "{repo}/src/test_data",
     "{repo}/src/cmd/data", 
     "{repo}/src/cmd/tests/data", 
     "{repo}/src/api/data", 

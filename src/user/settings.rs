@@ -1,5 +1,5 @@
 //! loading settings
- 
+
 use toml::{Value, Table, Decoder};
 use rustc_serialize::Decodable;
 
@@ -135,9 +135,11 @@ mod tests {
         let tbl = utils::parse_toml(test_data::TOML_SETTINGS).unwrap();
         let (_, set) = from_table(&tbl).unwrap();
         assert!(set.artifact_paths ==
-                HashSet::from_iter(vec![PathBuf::from("{cwd}/test"), PathBuf::from("{repo}/test")]));
+                HashSet::from_iter(vec![PathBuf::from("{cwd}/test"),
+                                        PathBuf::from("{repo}/test")]));
         assert!(set.code_paths ==
-                VecDeque::from_iter(vec![PathBuf::from("{cwd}/src"), PathBuf::from("{repo}/src2")]));
+                VecDeque::from_iter(vec![PathBuf::from("{cwd}/src"),
+                                         PathBuf::from("{repo}/src2")]));
 
         let toml_invalid = r#"
         artifact_paths = ['hi']

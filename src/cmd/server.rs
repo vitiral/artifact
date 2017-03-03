@@ -1,6 +1,7 @@
 
 use super::types::*;
 
+use types::Project;
 use super::super::api;
 
 /// Get the server subcommand for the cmdline

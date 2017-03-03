@@ -54,7 +54,7 @@ version = "0.3"
 
 [features]
 default = []
-serve = ["nickel", "jsonrpc-core", "tempdir"]
+server = ["nickel", "jsonrpc-core", "tempdir"]
 
 [profile]
 
