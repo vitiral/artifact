@@ -19,3 +19,24 @@ type `cargo install artifact-app` (upgrade with `-f`)
 
 Note that as of version 0.6.1 this will not include the web server (but does have static
 html export). That will be fixed in the next release.
+
+## Installing the Server
+
+**Instead of using the server most will want to use [`art export html`][2]**
+
+The `server` command was removed in the run-up to the 1.0 release so that
+development on it could continue without worry of backwards compatibility.
+The server is currently only read-only, you are better off using
+[static html][2] in almost all cases.
+
+To install the server, you must clone the `server` branch from [the repo][1]
+and use Cargo to build it.
+
+```
+cargo build --release --features server
+```
+
+Then copy `target/release/art` somewhere onto your `PATH`
+
+[1]: https://github.com/vitiral/artifact
+[2]: https://github.com/vitiral/artifact/blob/master/docs/ExportingHtml.md
