@@ -13,8 +13,10 @@ use super::{ARTIFACTS, PROJECT};
 
 /// convert an artifact from it's data representation
 /// to it's internal artifact representation
-fn convert_artifact(artifact_data: &ArtifactData) -> result::Result<(NameRc, Artifact), String> {
-    Artifact::from_data(artifact_data).map_err(|err| err.to_string())
+fn convert_artifact(origin: &Path,
+                    artifact_data: &ArtifactData)
+                    -> result::Result<(NameRc, Artifact), String> {
+    Artifact::from_data(origin, artifact_data).map_err(|err| err.to_string())
 }
 
 /// pull out the artifacts from the params
@@ -56,7 +58,7 @@ pub fn split_artifacts(project: &Project,
     let mut name_errors: Vec<String> = Vec::new();
 
     for new_artifact in new_artifacts {
-        let path = PathBuf::from(&new_artifact.path);
+        let path = project.origin.join(&new_artifact.path);
         if !project.files.contains(&path) {
             files_not_found.push(path);
         }
@@ -64,7 +66,7 @@ pub fn split_artifacts(project: &Project,
         if unchanged_artifacts.remove(&new_artifact.id).is_none() {
             ids_not_found.push(new_artifact.id);
         }
-        let (n, a) = match convert_artifact(new_artifact) {
+        let (n, a) = match convert_artifact(&project.origin, new_artifact) {
             Ok(v) => v,
             Err(err) => {
                 name_errors.push(err);
@@ -121,7 +123,7 @@ pub fn update_artifacts(data_artifacts: &[ArtifactData],
 
     // add artifacts that didn't change to new artifacts
     for art_data in unchanged_artifacts.values() {
-        let (n, a) = match convert_artifact(art_data) {
+        let (n, a) = match convert_artifact(&project.origin, art_data) {
             Ok(v) => v,
             Err(msg) => {
                 return Err(RpcError {
@@ -191,7 +193,7 @@ impl RpcMethodSync for UpdateArtifacts {
         // get the data artifacts
         let new_artifacts: Vec<_> = new_project.artifacts
             .iter()
-            .map(|(n, a)| a.to_data(n))
+            .map(|(n, a)| a.to_data(&project.origin, n))
             .collect();
 
         let out = serde_json::to_value(&new_artifacts).expect("serde");

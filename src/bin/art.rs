@@ -42,7 +42,7 @@ fn main() {
             println!("{}", e);
             1
         }
-        Ok(()) => 0,
+        Ok(rc) => rc,
     };
-    process::exit(rc)
+    process::exit(rc as i32)
 }

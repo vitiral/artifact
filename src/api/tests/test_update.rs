@@ -18,7 +18,7 @@ fn test_split() {
 
     let data_artifacts: Vec<_> = p.artifacts
         .iter()
-        .map(|(n, a)| a.to_data(n))
+        .map(|(n, a)| a.to_data(&p.origin, n))
         .collect();
 
     let req_purpose = NameRc::from_str("REQ-purpose").unwrap();
@@ -38,7 +38,7 @@ fn test_split() {
             update::split_artifacts(&p, &data_artifacts, &new_artifacts).unwrap();
 
         assert_eq!(save_artifacts.len(), 1);
-        let new_data = save_artifacts.get(&req_purpose).unwrap().to_data(&req_purpose);
+        let new_data = save_artifacts.get(&req_purpose).unwrap().to_data(&p.origin, &req_purpose);
         assert_eq!(new_data.text, changed_data.text);
         assert_eq!(unchanged_artifacts.len(), starting_len - 1);
     }
@@ -53,8 +53,9 @@ fn test_split() {
         let new_artifacts = vec![changed_data.clone()];
         let (_, save_artifacts) = update::split_artifacts(&p, &data_artifacts, &new_artifacts)
             .unwrap();
-        let new_data = save_artifacts.get(&req_purpose).unwrap().to_data(&req_purpose);
-        assert_eq!(new_data.path, new_path);
+        let new_data = save_artifacts.get(&req_purpose).unwrap().to_data(&p.origin, &req_purpose);
+        assert_eq!(Path::new(&new_data.path),
+                   Path::new(&new_path).strip_prefix(&simple.as_path()).unwrap());
 
         changed_data.path = original;
     }
@@ -98,7 +99,7 @@ fn test_update() {
         let p = user::load_repo(simple.as_path()).unwrap();
         let data_artifacts: Vec<_> = p.artifacts
             .iter()
-            .map(|(n, a)| a.to_data(n))
+            .map(|(n, a)| a.to_data(&p.origin, n))
             .collect();
 
         let req_purpose = NameRc::from_str("REQ-purpose").unwrap();

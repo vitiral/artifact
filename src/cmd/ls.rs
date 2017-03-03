@@ -307,7 +307,7 @@ pub fn get_cmd(matches: &ArgMatches) -> Result<Cmd> {
 
 #[allow(trivial_regex)]
 /// perform the ls command given the inputs
-pub fn run_cmd<W: Write>(mut w: &mut W, cwd: &Path, cmd: &Cmd, project: &Project) -> Result<()> {
+pub fn run_cmd<W: Write>(mut w: &mut W, cwd: &Path, cmd: &Cmd, project: &Project) -> Result<u8> {
     let mut dne: Vec<NameRc> = Vec::new();
     let artifacts = &project.artifacts;
     let mut fmt_set = cmd.fmt_settings.clone();
@@ -395,5 +395,5 @@ pub fn run_cmd<W: Write>(mut w: &mut W, cwd: &Path, cmd: &Cmd, project: &Project
                                                    dne))
             .into());
     }
-    Ok(())
+    Ok(0)
 }

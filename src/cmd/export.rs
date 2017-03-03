@@ -37,7 +37,7 @@ pub fn get_cmd(matches: &ArgMatches) -> Result<Cmd> {
     Ok(Cmd { ty: ty })
 }
 
-pub fn run_cmd(cwd: &Path, project: &Project, cmd: &Cmd) -> Result<()> {
+pub fn run_cmd(cwd: &Path, project: &Project, cmd: &Cmd) -> Result<u8> {
     match cmd.ty {
         ExportType::Html => {
             // get the artifacts as json and replace with escaped chars
@@ -70,5 +70,5 @@ pub fn run_cmd(cwd: &Path, project: &Project, cmd: &Cmd) -> Result<()> {
             index.flush().unwrap();
         }
     }
-    Ok(())
+    Ok(0)
 }

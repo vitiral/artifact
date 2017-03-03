@@ -127,7 +127,7 @@ pub fn start_api(project: Project, addr: &str, edit: bool) {
     {
         let artifacts: Vec<ArtifactData> = project.artifacts
             .iter()
-            .map(|(name, model)| model.to_data(name))
+            .map(|(name, model)| model.to_data(&project.origin, name))
             .collect();
         let mut locked = ARTIFACTS.lock().unwrap();
         let global: &mut Vec<ArtifactData> = locked.deref_mut();

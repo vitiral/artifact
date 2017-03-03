@@ -30,7 +30,7 @@ pub fn get_subcommand<'a, 'b>() -> App<'a, 'b> {
         .settings(&[AS::DeriveDisplayOrder, COLOR])
 }
 
-pub fn run_cmd(path: &Path) -> Result<()> {
+pub fn run_cmd(path: &Path) -> Result<u8> {
     let mut read_dir = fs::read_dir(path).chain_err(|| format!("dir: {}", path.display()))?;
     let exists = read_dir.any(|e| match e {
         Err(_) => false,
@@ -73,5 +73,5 @@ pub fn run_cmd(path: &Path) -> Result<()> {
     } else {
         println!("artifact already initialized at {}", repo.display());
     }
-    Ok(())
+    Ok(0)
 }

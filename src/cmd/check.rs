@@ -286,7 +286,7 @@ fn display_hanging_references<W: Write>(w: &mut W, cwd: &Path, project: &Project
 
 /// #SPC-cmd-check
 #[allow(cyclomatic_complexity)] // TODO: break this up
-pub fn run_cmd<W: Write>(w: &mut W, cwd: &Path, project: &Project) -> Result<()> {
+pub fn run_cmd<W: Write>(w: &mut W, cwd: &Path, project: &Project) -> Result<u8> {
     let mut error: u64 = 0;
 
     error += display_invalid_partof(w, cwd, project);
@@ -309,6 +309,6 @@ pub fn run_cmd<W: Write>(w: &mut W, cwd: &Path, project: &Project) -> Result<()>
     if error != 0 {
         Err(ErrorKind::CmdError("errors found during ls, see logs".to_string()).into())
     } else {
-        Ok(())
+        Ok(0)
     }
 }

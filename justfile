@@ -59,8 +59,11 @@ filter PATTERN: # run only specific tests
 lint: # run linter
 	CARGO_TARGET_DIR={{target}}/nightly rustup run nightly cargo clippy
 	
-test-server: build-elm # run the test-server for e2e testing, still in development
+test-server-only:
 	RUST_BACKTRACE=1 cargo test --lib --features server
+
+test-server: build-elm # run the test-server for e2e testing, still in development
+	just test-server-only
 
 test-e2e: # run e2e tests, still in development
 	(cd web-ui; py2t e2e_tests/basic.py)

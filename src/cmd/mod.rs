@@ -61,22 +61,22 @@ pub fn get_loglevel(matches: &ArgMatches) -> Option<(u8, bool)> {
 }
 
 #[cfg(feature="server")]
-fn run_server(project: &Project, matches: &ArgMatches) -> Result<()> {
+fn run_server(project: &Project, matches: &ArgMatches) -> Result<u8> {
     if let Some(mat) = matches.subcommand_matches("server") {
         let addr = server::get_cmd(mat);
         server::run_cmd(project.clone(), &addr);
-        Ok(())
+        Ok(0)
     } else {
         Err(ErrorKind::NothingDone.into())
     }
 }
 
 #[cfg(not(feature="server"))]
-fn run_server(_: &Project, _: &ArgMatches) -> Result<()> {
+fn run_server(_: &Project, _: &ArgMatches) -> Result<u8> {
     Err(ErrorKind::NothingDone.into())
 }
 
-pub fn cmd<W, I, T>(w: &mut W, args: I) -> Result<()>
+pub fn cmd<W, I, T>(w: &mut W, args: I) -> Result<u8>
     where I: IntoIterator<Item = T>,
           T: Into<OsString> + clone::Clone,
           W: io::Write
@@ -87,7 +87,7 @@ pub fn cmd<W, I, T>(w: &mut W, args: I) -> Result<()>
             match e.kind {
                 ClEk::HelpDisplayed | ClEk::VersionDisplayed => {
                     print!("{}", e);
-                    return Ok(());
+                    return Ok(0);
                 }
                 _ => return Err(ErrorKind::CmdError(e.to_string()).into()),
             }
@@ -115,7 +115,7 @@ pub fn cmd<W, I, T>(w: &mut W, args: I) -> Result<()>
     if matches.subcommand_matches("init").is_some() {
         info!("Calling the init command");
         init::run_cmd(&work_tree)?;
-        return Ok(());
+        return Ok(0);
     }
 
     // If tutorial is selected, do that
@@ -123,7 +123,7 @@ pub fn cmd<W, I, T>(w: &mut W, args: I) -> Result<()>
         info!("Calling the tutorial command");
         let c = tutorial::get_cmd(t)?;
         tutorial::run_cmd(&work_tree, c).unwrap();
-        return Ok(());
+        return Ok(0);
     }
 
     // load the artifacts
@@ -174,6 +174,6 @@ pub fn cmd<W, I, T>(w: &mut W, args: I) -> Result<()>
                Green.bold().paint("artifact"),
                Green.paint(VERSION))
             .unwrap();
-        return Ok(());
+        return Ok(0);
     }
 }
