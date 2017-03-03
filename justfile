@@ -1,4 +1,5 @@
-# https://github.com/casey/just
+# justfile
+# see: https://github.com/casey/just
 
 ##################################################
 # constants
@@ -38,6 +39,7 @@ build-static: # build and package elm as a static index.html
 build-full: build-static
 	just build-dev
 
+
 ##################################################
 # unit testing/linting commands
 test: # do tests with web=false
@@ -63,6 +65,7 @@ test-server: build-elm # run the test-server for e2e testing, still in developme
 test-e2e: # run e2e tests, still in development
 	(cd web-ui; py2t e2e_tests/basic.py)
 
+
 ##################################################
 # running commands
 
@@ -74,6 +77,7 @@ serve: build-elm  # run the full frontend
 
 self-check: # build self and run `art check` using own binary
 	TG={{target}} {{nightly}} cargo run -- check
+
 
 ##################################################
 # release command

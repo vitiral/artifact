@@ -41,7 +41,7 @@ pub fn run_cmd(cwd: &Path, project: &Project, cmd: &Cmd) -> Result<()> {
     match cmd.ty {
         ExportType::Html => {
             // get the artifacts as json and replace with escaped chars
-            let data = export::artifacts_to_json(&project.artifacts, None)
+            let data = export::project_artifacts_to_json(&project, None)
                 .replace("\\", "\\\\")
                 .replace("'", "\\'");
 

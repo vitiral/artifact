@@ -46,11 +46,15 @@ pub struct ArtifactData {
 
 impl Artifact {
     /// convert an `Artifact` to it's data form
-    pub fn to_data(&self, name: &NameRc) -> ArtifactData {
+    pub fn to_data(&self, origin: &Path, name: &NameRc) -> ArtifactData {
         let (code, done) = match self.done {
             Done::Code(ref l) => {
                 (Some(LocData {
-                     path: l.path.to_string_lossy().to_string(),
+                     path: l.path
+                         .strip_prefix(origin)
+                         .expect("origin invalid")
+                         .to_string_lossy()
+                         .to_string(),
                      line: l.line as u64,
                  }),
                  None)
@@ -63,10 +67,19 @@ impl Artifact {
 
         partof.sort();
         parts.sort();
+        let path = if self.is_parent() {
+            self.path.to_string_lossy().to_string()
+        } else {
+            self.path
+                .strip_prefix(origin)
+                .expect("origin invalid")
+                .to_string_lossy()
+                .to_string()
+        };
         ArtifactData {
             id: get_unique_id() as u64,
             name: name.raw.clone(),
-            path: self.path.to_string_lossy().to_string(),
+            path: path,
             text: self.text.clone(),
             partof: partof,
             parts: parts,
@@ -78,7 +91,7 @@ impl Artifact {
     }
 
     /// Get an `Artifact` from it's data form
-    pub fn from_data(data: &ArtifactData) -> Result<(NameRc, Artifact)> {
+    pub fn from_data(repo: &Path, data: &ArtifactData) -> Result<(NameRc, Artifact)> {
         let name = try!(NameRc::from_str(&data.name));
         let mut partof: HashSet<NameRc> = HashSet::new();
         for p in &data.partof {
@@ -92,15 +105,21 @@ impl Artifact {
             Done::Defined(d.clone())
         } else if let Some(ref c) = data.code {
             Done::Code(Loc {
-                path: PathBuf::from(&c.path),
+                path: repo.join(&c.path),
                 line: c.line as usize,
             })
         } else {
             Done::NotDone
         };
+
+        let path = if Path::new(&data.path) == PARENT_PATH.as_path() {
+            PARENT_PATH.clone()
+        } else {
+            repo.join(&data.path)
+        };
         Ok((name,
             Artifact {
-                path: PathBuf::from(&data.path),
+                path: path,
                 text: data.text.clone(),
                 partof: partof,
                 done: done,
@@ -111,15 +130,16 @@ impl Artifact {
     }
 }
 
-/// convert the names in artifacts into json
-pub fn artifacts_to_json(artifacts: &Artifacts, names: Option<&[NameRc]>) -> String {
+/// convert the project's artifacts to a json list
+pub fn project_artifacts_to_json(project: &Project, names: Option<&[NameRc]>) -> String {
     let out_arts: Vec<_> = if let Some(names) = names {
         names.iter()
-            .map(|n| artifacts.get(n).unwrap().to_data(n))
+            .map(|n| project.artifacts.get(n).unwrap().to_data(&project.origin, n))
             .collect()
     } else {
-        artifacts.iter()
-            .map(|(n, a)| a.to_data(n))
+        project.artifacts
+            .iter()
+            .map(|(n, a)| a.to_data(&project.origin, n))
             .collect()
     };
 

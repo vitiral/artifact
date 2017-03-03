@@ -15,13 +15,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 
-use serde_json;
 use tabwriter::TabWriter;
 
 use dev_prefix::*;
 use types::*;
 use cmd::types::*;
 use cmd::display;
+use export;
 
 /// Get the ls subcommand, which is what creates the command
 /// for the cmdline
@@ -387,11 +387,7 @@ pub fn run_cmd<W: Write>(mut w: &mut W, cwd: &Path, cmd: &Cmd, project: &Project
             tw.flush()?; // this is necessary for actually writing the output
         }
         OutType::Json => {
-            let out_arts: Vec<_> = names.iter()
-                .map(|n| artifacts.get(n).unwrap().to_data(n))
-                .collect();
-            let value = serde_json::to_value(out_arts).unwrap();
-            w.write_all(serde_json::to_string(&value).unwrap().as_bytes())?;
+            w.write_all(export::project_artifacts_to_json(&project, Some(&names)).as_bytes())?;
         }
     }
     if !dne.is_empty() {

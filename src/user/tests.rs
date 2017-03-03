@@ -164,10 +164,10 @@ fn test_process_project() {
     {
         let data_artifacts: Vec<_> = p.artifacts
             .iter()
-            .map(|(n, a)| a.to_data(n))
+            .map(|(n, a)| a.to_data(&p.origin, n))
             .collect();
         let new_artifacts = HashMap::from_iter(data_artifacts.iter()
-            .map(|d| Artifact::from_data(d).unwrap()));
+            .map(|d| Artifact::from_data(&p.origin, d).unwrap()));
 
         let mut new_p = Project { artifacts: new_artifacts, ..p.clone() };
 
