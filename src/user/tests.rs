@@ -79,6 +79,7 @@ fn test_load_repo() {
     artifacts.get(&Name::from_str("SPC-lvl-2").unwrap()).unwrap();
     artifacts.get(&Name::from_str("TST-lvl-2").unwrap()).unwrap();
     assert!(!artifacts.contains_key(&Name::from_str("REQ-unreachable").unwrap()));
+    assert!(!artifacts.contains_key(&Name::from_str("SPC-exclude").unwrap()));
 
     let src_dir = simple.join(PathBuf::from("src"));
     let lvl1_dir = simple.join(PathBuf::from("lvl_1"));
@@ -88,7 +89,7 @@ fn test_load_repo() {
     assert_eq!(p.settings.artifact_paths,
                HashSet::from_iter(vec![design.to_path_buf()]));
     assert_eq!(p.settings.code_paths,
-               VecDeque::from_iter(vec![src_dir.to_path_buf()]));
+               HashSet::from_iter(vec![src_dir.to_path_buf()]));
     assert_eq!(p.dne_locs.len(), 2);
 
     // locations

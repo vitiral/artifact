@@ -20,9 +20,9 @@ use utils::parse_toml;
 /// not to load files that have already been loaded
 pub fn load_text(ptext: &mut ProjectText,
                  load_dir: &Path,
-                 loaded_dirs: &mut HashSet<PathBuf>)
+                 loaded_paths: &mut HashSet<PathBuf>)
                  -> Result<()> {
-    loaded_dirs.insert(load_dir.to_path_buf());
+    loaded_paths.insert(load_dir.to_path_buf());
     let mut dirs_to_load: Vec<PathBuf> = Vec::new();
     let dir_entries =
         fs::read_dir(load_dir).chain_err(|| format!("could not get dir: {}", load_dir.display()))?;
@@ -30,6 +30,9 @@ pub fn load_text(ptext: &mut ProjectText,
     // and record which directories need to be loaded
     for entry in dir_entries.filter_map(|e| e.ok()) {
         let fpath = entry.path();
+        if loaded_paths.contains(&fpath) {
+            continue;
+        }
         let ftype = entry.file_type()
             .chain_err(|| format!("error reading type: {}", fpath.display()))?;
         if ftype.is_dir() {
@@ -48,13 +51,12 @@ pub fn load_text(ptext: &mut ProjectText,
                 fs::File::open(&fpath).chain_err(|| format!("error opening: {}", fpath.display()))?;
             fp.read_to_string(&mut text)
                 .chain_err(|| format!("Error loading path {}", fpath.display()))?;
-
             ptext.files.insert(fpath.to_path_buf(), text);
         }
     }
     for dir in dirs_to_load {
-        if !loaded_dirs.contains(dir.as_path()) {
-            load_text(ptext, dir.as_path(), loaded_dirs)?;
+        if !loaded_paths.contains(dir.as_path()) {
+            load_text(ptext, dir.as_path(), loaded_paths)?;
         }
     }
     Ok(())

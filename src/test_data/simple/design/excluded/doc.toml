@@ -1,0 +1,5 @@
+
+[SPC-exclude]
+text = '''
+This should NOT get loaded
+'''

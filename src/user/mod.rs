@@ -84,6 +84,7 @@ pub fn load_repo(repo: &Path) -> Result<Project> {
     let mut project_text = ProjectText::default();
     let mut loaded_dirs: HashSet<PathBuf> = HashSet::new();
     loaded_dirs.insert(repo.join(REPO_DIR.as_path()));
+    loaded_dirs.extend(settings.exclude_artifact_paths.iter().cloned());
 
     for dir in &settings.artifact_paths {
         if loaded_dirs.contains(dir) {

@@ -27,7 +27,7 @@ lazy_static! {
 }
 
 /// perform the strfmt, converting the error
-pub fn do_strfmt(s: &str, vars: &HashMap<String, String>, fpath: &PathBuf) -> Result<String> {
+pub fn do_strfmt(s: &str, vars: &HashMap<String, String>, fpath: &Path) -> Result<String> {
     strfmt::strfmt(s, vars).chain_err(|| format!("ERROR at {}: {}", fpath.display(), s.to_string()))
 }
 

@@ -42,23 +42,21 @@ pub fn from_table(tbl: &Table) -> Result<(RawSettings, Settings)> {
         return Err(ErrorKind::InvalidSettings(format!("{:?}", invalid)).into());
     }
 
-    fn to_paths(paths: &Option<Vec<String>>) -> VecDeque<PathBuf> {
+    fn to_paths(paths: &Option<Vec<String>>) -> HashSet<PathBuf> {
         match *paths {
             Some(ref p) => {
                 p.iter()
                     .map(|p| PathBuf::from(utils::convert_path_str(p)))
                     .collect()
             }
-            None => VecDeque::new(),
+            None => HashSet::new(),
         }
     }
-    let mut paths = to_paths(&raw.artifact_paths);
-    let artifact_paths: HashSet<PathBuf> = paths.drain(0..).collect();
     let settings = Settings {
-        artifact_paths: artifact_paths,
+        artifact_paths: to_paths(&raw.artifact_paths),
+        exclude_artifact_paths: to_paths(&raw.exclude_artifact_paths),
         code_paths: to_paths(&raw.code_paths),
         exclude_code_paths: to_paths(&raw.exclude_code_paths),
-        additional_repos: to_paths(&raw.additional_repos),
     };
 
     Ok((raw, settings))
@@ -79,47 +77,55 @@ fn resolve_settings_paths(repo: &Path, settings: &mut Settings) -> Result<()> {
         vars.insert(REPO_VAR.to_string(), utils::get_path_str(repo)?.to_string());
     }
 
-    {
-        // push resolved artifact_paths
-        let mut paths = HashSet::new();
-        for p in &settings.artifact_paths {
-            let p = utils::do_strfmt(utils::get_path_str(p)?, &vars, &settings_path)?;
-            let p = utils::canonicalize(Path::new(&p)).chain_err(
-                || format!("could not find artifact_path: {}", p))?;
-            paths.insert(p);
-        }
-        settings.artifact_paths = paths;
-    }
-
-    {
-        // push resolved code_paths
-        let mut paths = VecDeque::new();
-        for p in &settings.code_paths {
-            let p = try!(utils::do_strfmt(utils::get_path_str(p)?, &vars, &settings_path));
-            let p = utils::canonicalize(Path::new(&p)).chain_err(
-                || format!("could not find code_path: {}", p))?;
-            paths.push_back(p);
-        }
-        settings.code_paths = paths;
-    }
-
-    {
-        // push resolved exclude_code_paths
-        let mut paths = VecDeque::new();
-        for p in &settings.exclude_code_paths {
-            let p = try!(utils::do_strfmt(utils::get_path_str(p)?, &vars, &settings_path));
+    fn resolve_paths(ignore_errors: bool,
+                     name: &str,
+                     paths: &HashSet<PathBuf>,
+                     vars: &HashMap<String, String>,
+                     settings_path: &Path)
+                     -> Result<HashSet<PathBuf>> {
+        // push resolved exclude_artifact_paths
+        let mut out = HashSet::new();
+        for p in paths {
+            let p =
+                utils::do_strfmt(utils::get_path_str(p)?, &vars, &settings_path).chain_err(|| {
+                        format!("replacing variables failed at {}: {}", name, p.display())
+                    })?;
             // if an exclude path doesn't exist that's fine
             let p = match utils::canonicalize(Path::new(&p)) {
                 Ok(p) => p,
-                Err(_) => {
-                    info!("could not find exclude path: {}", p);
-                    continue;
+                Err(err) => {
+                    if ignore_errors {
+                        debug!("could not find {} path: {}", name, p);
+                        continue;
+                    } else {
+                        return Err(err).chain_err(|| format!("could not find {}: {}", name, p));
+                    }
                 }
             };
-            paths.push_back(p);
+            out.insert(p);
         }
-        settings.exclude_code_paths = paths;
+        Ok(out)
     }
+    settings.artifact_paths = resolve_paths(false,
+                                            "artifact_paths",
+                                            &settings.artifact_paths,
+                                            &vars,
+                                            &settings_path)?;
+    settings.exclude_artifact_paths = resolve_paths(true,
+                                                    "exclude_artifact_paths",
+                                                    &settings.exclude_artifact_paths,
+                                                    &vars,
+                                                    &settings_path)?;
+    settings.code_paths = resolve_paths(false,
+                                        "code_paths",
+                                        &settings.code_paths,
+                                        &vars,
+                                        &settings_path)?;
+    settings.exclude_code_paths = resolve_paths(true,
+                                                "exclude_code_paths",
+                                                &settings.exclude_code_paths,
+                                                &vars,
+                                                &settings_path)?;
     Ok(())
 }
 
@@ -138,8 +144,7 @@ mod tests {
                 HashSet::from_iter(vec![PathBuf::from("{cwd}/test"),
                                         PathBuf::from("{repo}/test")]));
         assert!(set.code_paths ==
-                VecDeque::from_iter(vec![PathBuf::from("{cwd}/src"),
-                                         PathBuf::from("{repo}/src2")]));
+                HashSet::from_iter(vec![PathBuf::from("{cwd}/src"), PathBuf::from("{repo}/src2")]));
 
         let toml_invalid = r#"
         artifact_paths = ['hi']

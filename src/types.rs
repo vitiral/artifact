@@ -269,18 +269,18 @@ impl Artifact {
 #[derive(Debug, Default, Clone, PartialEq)]
 pub struct Settings {
     pub artifact_paths: HashSet<PathBuf>,
-    pub code_paths: VecDeque<PathBuf>,
-    pub exclude_code_paths: VecDeque<PathBuf>,
-    pub additional_repos: VecDeque<PathBuf>,
+    pub exclude_artifact_paths: HashSet<PathBuf>,
+    pub code_paths: HashSet<PathBuf>,
+    pub exclude_code_paths: HashSet<PathBuf>,
 }
 
 impl Settings {
     pub fn new() -> Settings {
         Settings {
             artifact_paths: HashSet::new(),
-            code_paths: VecDeque::new(),
-            exclude_code_paths: VecDeque::new(),
-            additional_repos: VecDeque::new(),
+            exclude_artifact_paths: HashSet::new(),
+            code_paths: HashSet::new(),
+            exclude_code_paths: HashSet::new(),
         }
     }
 }

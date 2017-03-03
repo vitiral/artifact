@@ -19,9 +19,9 @@ use types::*;
 use cmd::types::*;
 
 
-const SETTINGS_TOML: &'static [u8] = include_bytes!("data/settings-template.toml");
+pub const SETTINGS_TOML: &'static [u8] = include_bytes!("data/settings-template.toml");
 
-const PURPOSE_TOML: &'static [u8] = include_bytes!("data/purpose-template.toml");
+pub const PURPOSE_TOML: &'static [u8] = include_bytes!("data/purpose-template.toml");
 
 pub fn get_subcommand<'a, 'b>() -> App<'a, 'b> {
     // #SPC-cmd-init

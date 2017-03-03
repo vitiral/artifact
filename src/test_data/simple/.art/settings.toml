@@ -1,3 +1,4 @@
 artifact_paths = [ "{repo}/design" ]
+exclude_artifact_paths = [ "{repo}/design/excluded" ]
 code_paths = ["{repo}/src"]
 exclude_code_paths = []

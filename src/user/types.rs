@@ -30,7 +30,7 @@ pub struct UserArtifact {
 #[derive(Debug, Clone, PartialEq, RustcEncodable, RustcDecodable)]
 pub struct RawSettings {
     pub artifact_paths: Option<Vec<String>>,
+    pub exclude_artifact_paths: Option<Vec<String>>,
     pub code_paths: Option<Vec<String>>,
     pub exclude_code_paths: Option<Vec<String>>,
-    pub additional_repos: Option<Vec<String>>,
 }

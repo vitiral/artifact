@@ -4,6 +4,7 @@ use dev_prefix::*;
 use types::*;
 use user;
 use cmd::tutorial as tut;
+use cmd::init;
 use test_data;
 
 
@@ -17,7 +18,9 @@ lazy_static! {
 /// just test some assumptions, like that the different "levels"
 /// of files aren't equal and that toml files can be loaded
 /// by artifact
-fn test_tutorial_basic() {
+///
+/// This also test's init files because it fits in easily
+fn test_cmd_data_valid() {
     assert_ne!(tut::D_SETTINGS_1_TOML, tut::D_SETTINGS_2_TOML);
     assert_ne!(tut::D_SETTINGS_1_TOML, tut::D_SETTINGS_4_TOML);
     assert_ne!(tut::D_SETTINGS_2_TOML, tut::D_SETTINGS_4_TOML);
@@ -25,11 +28,16 @@ fn test_tutorial_basic() {
     assert_ne!(tut::D_LOAD_1_PY, tut::D_LOAD_2_PY);
     assert_ne!(tut::D_LOAD_1_TOML, tut::D_LOAD_2_TOML);
 
-    let toml_files =
-        vec![tut::D_TUTORIAL_TOML, tut::D_PURPOSE_TOML, tut::D_LOAD_1_TOML, tut::D_LOAD_2_TOML];
+    let toml_files = vec![tut::D_TUTORIAL_TOML,
+                          tut::D_PURPOSE_TOML,
+                          tut::D_LOAD_1_TOML,
+                          tut::D_LOAD_2_TOML,
+                          init::PURPOSE_TOML];
 
-    let settings_files =
-        vec![tut::D_SETTINGS_1_TOML, tut::D_SETTINGS_2_TOML, tut::D_SETTINGS_4_TOML];
+    let settings_files = vec![tut::D_SETTINGS_1_TOML,
+                              tut::D_SETTINGS_2_TOML,
+                              tut::D_SETTINGS_4_TOML,
+                              init::SETTINGS_TOML];
 
     let p = Path::new("foo");
     for (i, toml) in toml_files.iter().enumerate() {
