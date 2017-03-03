@@ -387,7 +387,7 @@ pub fn run_cmd<W: Write>(mut w: &mut W, cwd: &Path, cmd: &Cmd, project: &Project
             tw.flush()?; // this is necessary for actually writing the output
         }
         OutType::Json => {
-            w.write_all(export::project_artifacts_to_json(&project, Some(&names)).as_bytes())?;
+            w.write_all(export::project_artifacts_to_json(project, Some(&names)).as_bytes())?;
         }
     }
     if !dne.is_empty() {

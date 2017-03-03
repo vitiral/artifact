@@ -87,7 +87,7 @@ fn resolve_settings_paths(repo: &Path, settings: &mut Settings) -> Result<()> {
         let mut out = HashSet::new();
         for p in paths {
             let p =
-                utils::do_strfmt(utils::get_path_str(p)?, &vars, &settings_path).chain_err(|| {
+                utils::do_strfmt(utils::get_path_str(p)?, vars, settings_path).chain_err(|| {
                         format!("replacing variables failed at {}: {}", name, p.display())
                     })?;
             // if an exclude path doesn't exist that's fine

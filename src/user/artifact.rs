@@ -63,8 +63,8 @@ pub fn load_text(ptext: &mut ProjectText,
 }
 
 
-/// method to convert ProjectText -> Project
-/// Project may be extended by more than one ProjectText
+/// method to convert `ProjectText` -> `Project`
+/// Project may be extended by more than one `ProjectText`
 pub fn extend_text(project: &mut Project, project_text: &ProjectText) -> Result<u64> {
     let mut count = 0;
     for (path, text) in &project_text.files {

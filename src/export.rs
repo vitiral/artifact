@@ -134,7 +134,7 @@ impl Artifact {
 pub fn project_artifacts_to_json(project: &Project, names: Option<&[NameRc]>) -> String {
     let out_arts: Vec<_> = if let Some(names) = names {
         names.iter()
-            .map(|n| project.artifacts.get(n).unwrap().to_data(&project.origin, n))
+            .map(|n| project.artifacts[n].to_data(&project.origin, n))
             .collect()
     } else {
         project.artifacts

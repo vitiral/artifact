@@ -130,7 +130,7 @@ pub trait LoadFromStr: Sized {
 
 /// Artifacts organized by name
 pub type Artifacts = HashMap<NameRc, Artifact>;
-/// Names in a HashSet for fast lookup
+/// Names in a `HashSet` for fast lookup
 pub type Names = HashSet<NameRc>;
 pub type NameRc = Arc<Name>;
 
