@@ -60,14 +60,25 @@ pub fn fmt_artifact(name: &NameRc,
             out.text = Some(artifact.text.clone());
         } else {
             // return only the first "line" according to markdown
-            let mut s = String::new();
-            for l in artifact.text.lines() {
-                let l = l.trim();
-                if l == "" {
-                    break;
-                }
-                s.write_str(l).unwrap();
-                s.push(' ');
+            let mut end = artifact.text.find('\n').unwrap_or(artifact.text.len());
+            // TODO: Calculate Unicode width?
+            const MAX_LINE_LEN: usize = 50;
+            let should_add_ellipsis: bool;
+            if end > MAX_LINE_LEN {
+                should_add_ellipsis = true;
+                // Allow space for '...'
+                end = MAX_LINE_LEN - 3;
+            } else {
+                should_add_ellipsis = false;
+            }
+            // Find a Unicode-safe place to split
+            // TODO: Split at a grapheme cluster?
+            while !artifact.text.is_char_boundary(end) {
+                end -= 1;
+            }
+            let mut s = artifact.text[..end].into();
+            if should_add_ellipsis {
+                s += "...";
             }
             out.text = Some(s);
         }

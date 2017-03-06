@@ -84,8 +84,8 @@ const LS_REQ_FOO: &'static [u8] = LS_REQ_FOO_NO_COL;
 const LS_S_C_STAR_FOO_NO_COL: &'static [u8] = b"|  | DONE TEST | NAME     | \
 PARTS                      | PARTOF     | IMPLEMENTED     | DEFINED              | TEXT\n|D-| \
 100%  50% | REQ-foo  | SPC-foo                    | REQ        |                 | ../../reqs/foo.\
-toml  | req for foo \n|--|  -1%  -1% | SPC      | SPC-foo, SPC-unresolvable  |            \
-|                 | PARENT               | AUTO \n";
+toml  | req for foo\n|--|  -1%  -1% | SPC      | SPC-foo, SPC-unresolvable  |            \
+|                 | PARENT               | AUTO\n";
 
 
 
@@ -93,8 +93,8 @@ toml  | req for foo \n|--|  -1%  -1% | SPC      | SPC-foo, SPC-unresolvable  |  
 const LS_S_C_STAR_FOO_NO_COL: &'static [u8] = b"|  | DONE TEST | NAME     | \
 PARTS                      | PARTOF     | IMPLEMENTED     | DEFINED              | TEXT\n|D-| \
 100%  50% | REQ-foo  | SPC-foo                    | REQ        |                 | \
-..\\..\\reqs\\foo.toml  | req for foo \n|--|  -1%  -1% | SPC      | SPC-foo, SPC-unresolvable  \
-|            |                 | PARENT               | AUTO \n";
+..\\..\\reqs\\foo.toml  | req for foo\n|--|  -1%  -1% | SPC      | SPC-foo, SPC-unresolvable  \
+|            |                 | PARENT               | AUTO\n";
 
 
 #[cfg(not(windows))]
@@ -102,13 +102,44 @@ const LS_S_C_STAR_FOO: &'static [u8] = b"\x1b[1m|  | DONE TEST | NAME      | \
 PARTS                      | PARTOF     | IMPLEMENTED     | DEFINED              | TEXT\n\x1b\
 [0m|\x1b[1;34mD\x1b[0m\x1b[1;33m-\x1b[0m| \x1b[1;34m100\x1b[0m%  \x1b[1;33m50\x1b[0m% | \x1b\
 [1;4;34mREQ-foo\x1b[0m   | \x1b[34mSPC-foo\x1b[0m                    | \x1b[33mREQ\x1b[0m        \
-| \x1b[32m\x1b[0m                | ../../reqs/foo.toml  | req for foo \n|\x1b[1;5;31m!\x1b[0m\x1b\
+| \x1b[32m\x1b[0m                | ../../reqs/foo.toml  | req for foo\n|\x1b[1;5;31m!\x1b[0m\x1b\
 [1;5;31m!\x1b[0m|  \x1b[1;5;31m-1\x1b[0m%  \x1b[1;5;31m-1\x1b[0m% | \x1b[1;4;31mSPC\x1b[0m       \
 | \x1b[34mSPC-foo\x1b[0m, \x1b[31mSPC-unresolvable\x1b[0m  |            | \x1b[32m\x1b\
-[0m                | PARENT               | AUTO \n";
+[0m                | PARENT               | AUTO\n";
 
 #[cfg(windows)]
 const LS_S_C_STAR_FOO: &'static [u8] = LS_S_C_STAR_FOO_NO_COL;
+
+#[cfg(not(windows))]
+const LS_T_LONG: &'static [u8] = b"\x1b[1m|  | DONE TEST | NAME            | \
+ TEXT\n\x1b[0m|\x1b[1;31m-\x1b[0m\x1b[1;31m-\x1b[0m|   \x1b[1;31m0\x1b[0m%   \
+ \x1b[1;31m0\x1b[0m% | \x1b[1;4;31mTST-line-long\x1b[0m   | \
+ This line is very very very very long and it sh...\n";
+
+#[cfg(windows)]
+const LS_T_LONG: &'static [u8] = b"|  | DONE TEST | NAME            | TEXT\n\
+|--|   0%   0% | TST-line-long   | This line is very very very very long and it sh...";
+
+#[cfg(not(windows))]
+const LS_T_MULTI: &'static [u8] = b"\x1b[1m|  | DONE TEST | NAME             | \
+TEXT\n\x1b[0m|\x1b[1;31m-\x1b[0m\x1b[1;31m-\x1b[0m|   \x1b[1;31m0\x1b[0m%   \
+\x1b[1;31m0\x1b[0m% | \x1b[1;4;31mTST-line-multi\x1b[0m   | \
+This text has multiple lines.\n";
+
+#[cfg(windows)]
+const LS_T_MULTI: &'static [u8] = b"|  | DONE TEST | NAME             | TEXT\n\
+|--|   0%   0% | TST-line-multi   | This text has multiple lines.";
+
+#[cfg(not(windows))]
+const LS_L_MULTI: &'static [u8] = b"|\x1b[1;31m-\x1b[0m\x1b[1;31m-\x1b[0m|   \
+\x1b[1;31m0\x1b[0m%   \x1b[1;31m0\x1b[0m% | \x1b[1;4;31mTST-line-multi\x1b[0m \
+\x1b[32m\n * text:\n\x1b[0mThis text has multiple lines.\nThis is the second one.\n\
+You shouldn't see these later lines!\n\n";
+
+#[cfg(windows)]
+const LS_L_MULTI: &'static [u8] = b"|--|   0%   0% | TST-line-multi \n\
+ * text:\nThis text has multiple lines.\nThis is the second one.\n\
+You shouldn't see these later lines!\n\n";
 
 const LS_FILTER: &'static [u8] =
     b"|  | DONE TEST | NAME     | PARTS   \n|DT| 100% 100% | TST-foo  | \n";
@@ -153,6 +184,14 @@ text = 'tst for foo'
 [TST-foo_bar]
 partof = 'SPC-foo'
 text = 'tst for foo_bar'
+[TST-line-long]
+text = 'This line is very very very very long and it should probably get trimmed down.'
+[TST-line-multi]
+text = '''
+This text has multiple lines.
+This is the second one.
+You shouldn't see these later lines!
+'''
 
 [SPC-unresolvable]
 partof = 'SPC-unresolvable-1-1'
@@ -188,7 +227,7 @@ partof = 'REQ-dne'
     fn debug_bytes(result: &[u8], expected: &[u8]) {
         // sleep for a bit so stderr passes us
         thread::sleep(time::Duration::new(0, 2e8 as u32));
-        println!("Debug Result:");
+        println!("\nDebug Result:");
         for b in result {
             print!("{}", *b as char);
         }
@@ -204,8 +243,7 @@ partof = 'REQ-dne'
         println!("Repr Expected:");
         repr_bytes(expected);
         println!("");
-        println!("--Expected Repr DONE");
-
+        println!("--Expected Repr DONE\n");
     }
 
     let dne_locs: HashMap<_, _> = HashMap::from_iter(vec![(Name::from_str("SPC-dne").unwrap(),
@@ -240,10 +278,37 @@ partof = 'REQ-dne'
     assert!(ls::run_cmd(&mut w, &cwd, &cmd, &project).is_err());
     assert_eq!(vb(b""), w);
 
+    // Test that if the first line is too long that it's trimmed
+    w.clear();
+    cmd.pattern = "TST-line-long".to_string();
+    cmd.fmt_settings.color = COLOR_IF_POSSIBLE;
+    cmd.fmt_settings.text = true;
+    ls::run_cmd(&mut w, &cwd, &cmd, &project).unwrap();
+    // debug_bytes(&w, LS_T_LONG);
+    assert_eq!(vb(LS_T_LONG), w);
+
+    // Test that only the first line is selected
+    w.clear();
+    cmd.pattern = "TST-line-multi".to_string();
+    cmd.fmt_settings.text = true;
+    ls::run_cmd(&mut w, &cwd, &cmd, &project).unwrap();
+    // debug_bytes(&w, LS_T_MULTI);
+    assert_eq!(vb(LS_T_MULTI), w);
+
+    // Test that -l output looks correct
+    w.clear();
+    cmd.pattern = "TST-line-multi".to_string();
+    cmd.fmt_settings.text = true;
+    cmd.fmt_settings.long = true;
+    ls::run_cmd(&mut w, &cwd, &cmd, &project).unwrap();
+    // debug_bytes(&w, LS_L_MULTI);
+    assert_eq!(vb(LS_L_MULTI), w);
+
     // ls all fields
     // do a search in only parts using regex s.c
     w.clear();
     cmd.pattern = "s.c.*foo".to_string();
+    cmd.fmt_settings.long = false;
     cmd.fmt_settings.color = COLOR_IF_POSSIBLE;
     cmd.fmt_settings.path = true;
     cmd.fmt_settings.parts = true;
