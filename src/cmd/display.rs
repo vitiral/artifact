@@ -206,7 +206,9 @@ impl FmtArtifact {
         if let Some(ref text) = self.text {
             self.write_start(w, "\n * text:\n", color);
             w.write_all(text.trim_right().as_ref()).unwrap();
-            w.write_all("\n".as_ref()).unwrap();
+            if self.long {
+                w.write_all("\n".as_ref()).unwrap();
+            }
         }
 
         try!(w.write_all("\n".as_ref()));

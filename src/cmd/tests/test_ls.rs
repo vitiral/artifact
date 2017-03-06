@@ -84,8 +84,8 @@ const LS_REQ_FOO: &'static [u8] = LS_REQ_FOO_NO_COL;
 const LS_S_C_STAR_FOO_NO_COL: &'static [u8] = b"|  | DONE TEST | NAME     | \
 PARTS                      | PARTOF     | IMPLEMENTED     | DEFINED              | TEXT\n|D-| \
 100%  50% | REQ-foo  | SPC-foo                    | REQ        |                 | ../../reqs/foo.\
-toml  | req for foo \n|--|  -1%  -1% | SPC      | SPC-foo, SPC-unresolvable  |            \
-|                 | PARENT               | AUTO \n";
+toml  | req for foo\n|--|  -1%  -1% | SPC      | SPC-foo, SPC-unresolvable  |            \
+|                 | PARENT               | AUTO\n";
 
 
 
@@ -93,8 +93,8 @@ toml  | req for foo \n|--|  -1%  -1% | SPC      | SPC-foo, SPC-unresolvable  |  
 const LS_S_C_STAR_FOO_NO_COL: &'static [u8] = b"|  | DONE TEST | NAME     | \
 PARTS                      | PARTOF     | IMPLEMENTED     | DEFINED              | TEXT\n|D-| \
 100%  50% | REQ-foo  | SPC-foo                    | REQ        |                 | \
-..\\..\\reqs\\foo.toml  | req for foo \n|--|  -1%  -1% | SPC      | SPC-foo, SPC-unresolvable  \
-|            |                 | PARENT               | AUTO \n";
+..\\..\\reqs\\foo.toml  | req for foo\n|--|  -1%  -1% | SPC      | SPC-foo, SPC-unresolvable  \
+|            |                 | PARENT               | AUTO\n";
 
 
 #[cfg(not(windows))]
@@ -102,10 +102,10 @@ const LS_S_C_STAR_FOO: &'static [u8] = b"\x1b[1m|  | DONE TEST | NAME      | \
 PARTS                      | PARTOF     | IMPLEMENTED     | DEFINED              | TEXT\n\x1b\
 [0m|\x1b[1;34mD\x1b[0m\x1b[1;33m-\x1b[0m| \x1b[1;34m100\x1b[0m%  \x1b[1;33m50\x1b[0m% | \x1b\
 [1;4;34mREQ-foo\x1b[0m   | \x1b[34mSPC-foo\x1b[0m                    | \x1b[33mREQ\x1b[0m        \
-| \x1b[32m\x1b[0m                | ../../reqs/foo.toml  | req for foo \n|\x1b[1;5;31m!\x1b[0m\x1b\
+| \x1b[32m\x1b[0m                | ../../reqs/foo.toml  | req for foo\n|\x1b[1;5;31m!\x1b[0m\x1b\
 [1;5;31m!\x1b[0m|  \x1b[1;5;31m-1\x1b[0m%  \x1b[1;5;31m-1\x1b[0m% | \x1b[1;4;31mSPC\x1b[0m       \
 | \x1b[34mSPC-foo\x1b[0m, \x1b[31mSPC-unresolvable\x1b[0m  |            | \x1b[32m\x1b\
-[0m                | PARENT               | AUTO \n";
+[0m                | PARENT               | AUTO\n";
 
 #[cfg(windows)]
 const LS_S_C_STAR_FOO: &'static [u8] = LS_S_C_STAR_FOO_NO_COL;
