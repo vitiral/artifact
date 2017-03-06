@@ -204,10 +204,9 @@ impl FmtArtifact {
         // format the text
         // TODO: use markdown to apply styles to the text
         if let Some(ref text) = self.text {
-            self.write_start(w, "\n * text:\n    ", color);
-            let lines: Vec<_> = text.split('\n').collect();
-            let text = lines.join("\n    ");
-            w.write_all(text.as_ref()).unwrap();
+            self.write_start(w, "\n * text:\n", color);
+            w.write_all(text.trim_right().as_ref()).unwrap();
+            w.write_all("\n".as_ref()).unwrap();
         }
 
         try!(w.write_all("\n".as_ref()));
