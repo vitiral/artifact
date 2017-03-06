@@ -5,7 +5,7 @@ Specifications for the artifact cmdline interface
 
 [SPC-cmd-ls]
 text = '''
-The `art ls` command shall be used to list information the artifacts in a 
+The `art ls` command shall be used to list information the artifacts in a
 project.
 
 `ls` is the primary window into a user's artifacts, creating a simple
@@ -40,8 +40,8 @@ The following **will** be followed:
 - names that are very litle or not complete will be red
 - names that are in ERROR will *blink bold red*
 
-For completed, the levels are: (100%, 70%, 40%, 0%) which correspond to points (3, 2, 1, 0)
-and colors (blue, yellow, yellow, red)
+For completed, the levels are: (100%, 70%, 40%, 0%) which correspond to points
+(3, 2, 1, 0) and colors (blue, yellow, yellow, red)
 
 For tested, the levels are: (100%, 50%, 0%) which correspond to points (2, 1, 0)
 and colors (blue, yellow, red)
@@ -60,9 +60,9 @@ The following flags are used to specify what to display:
 - D: display the path to where the artifact is defined
 - P: display parts names in reduced form
 - O: display partof names in reduced form
-- T: display the text formatted as markdown. If `-l` is not specified,
-this will display the first 30 chars of the "debug" representation
-of the text
+- T: display the text formatted as markdown. If `-l` is not specified, this
+  will display up to 50 chars of the first line of the text, truncating it
+  with ... if necessary.
 - L: display the loc path (implementation path)
 '''
 
@@ -96,4 +96,5 @@ Tests for ls are relatively straightforward and mostly involve:
 - having an example project
 - running the ls command with various different parameters
 - validating the output looks as expected
+- checking that long and multi-line text is split up as it should be
 '''
