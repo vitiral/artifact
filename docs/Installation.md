@@ -7,10 +7,17 @@ For Linux and Mac, simply download and unpack the tarball with
 `tar -zxvf RELEASE.tar.gz`. Then put it somewhere in your
 [PATH](http://unix.stackexchange.com/questions/26047/how-to-correctly-add-a-path-to-path)
 
+### Windows
 > Note: windows guide is incomplete. Need to add how to add it to your "PATH"
 
 For Windows, simply download the zip file (\*windows-gnu.zip for windows10),
 unzip it and run `./artifact.exe` via git-bash.
+
+### Arch Linux
+In addition to the installation methods above, Artifact is maintained as a
+package on the Arch AUR by [@rubdos][4]:
+
+https://aur.archlinux.org/packages/artifact/
 
 ## Installing with [cargo](https://github.com/rust-lang/cargo)
 
@@ -41,3 +48,4 @@ Then copy `target/release/art` somewhere onto your `PATH`
 [1]: https://github.com/vitiral/artifact
 [2]: https://github.com/vitiral/artifact/blob/master/docs/ExportingHtml.md
 [3]: https://github.com/vitiral/artifact/tree/server
+[4]: https://github.com/rubdos
