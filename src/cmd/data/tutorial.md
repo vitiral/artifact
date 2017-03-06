@@ -7,7 +7,7 @@ that might come up.
 In order to follow along, you must have artifact installed somewhere on your
 PATH. Check out the [Installation Guide][1] for instructions.
 
-Note: every time `artifact tutorial ...` gets called it will delete the files it
+Note: every time `art tutorial ...` gets called it will delete the files it
 created. This is so that it can update the files to be interactive. If you are
 taking notes or creating other design docs, you should do so in separate files
 than the ones created, or use revision control like git as you progress
@@ -17,13 +17,13 @@ than the ones created, or use revision control like git as you progress
 
 --------------------------------------------------
 ## Tutorial Stage 1: follow along document
-Start out by running `artifact tutorial` and read the created
+Start out by running `art tutorial` and read the created
 [`tutorial.toml`](tutorial.toml) file that is created. This will give you an
 overview of artifact syntax and how to write design docs
 
 --------------------------------------------------
 ## Tutorial Stage 2: purpose documents
-> **Run `artifact tutorial 2` to set the local directory to this stage**
+> **Run `art tutorial 2` to set the local directory to this stage**
 
 A few changes have been made to your local directory:
  - [`tutorial.toml`](tutorial.toml) has been removed
@@ -92,7 +92,7 @@ Once you are done, continue onto stage 3.
 
 --------------------------------------------------
 ## Tutorial Stage 3: detailed design and test design of the loading function
-> **Run `artifact tutorial 3` to reset the local directory to this stage**
+> **Run `art tutorial 3` to reset the local directory to this stage**
 
 A few changes have been made to your local directory:
  - [`design/load.toml`](load-1.toml) has been created
@@ -101,7 +101,7 @@ A few changes have been made to your local directory:
 > Read through [`design/load.toml`](load-1.toml) and see if the general plan
 > makes sense to you. What would you change? Feel free to make any edits you
 > think should be made. You can always return it to it's original state with
-> `artifact tutorial 3`
+> `art tutorial 3`
 
 The first task we are going to address is how we load the questions into
 the program. This is all defined under SPC-load. Run:
@@ -123,7 +123,7 @@ coding.
 
 --------------------------------------------------
 ## Tutorial Stage 4: writing and linking code
-> **Run `artifact tutorial 4` to start this stage of the tutorial**
+> **Run `art tutorial 4` to start this stage of the tutorial**
 
 A few changes have been made to your local directory:
  - `flash/` has been created with two files, `__init__.py`
@@ -172,7 +172,7 @@ can be found there for TST artifacts.
 
 --------------------------------------------------
 ## Tutorial Stage 5: handling errors
-> **Run `artifact tutorial 5` to start this stage of the tutorial**
+> **Run `art tutorial 5` to start this stage of the tutorial**
 
 A few changes have been made to your local directory:
  - [`design/load.toml`](load-2.toml) has been changed to have a bunch of errors
