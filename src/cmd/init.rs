@@ -26,8 +26,8 @@ pub const PURPOSE_TOML: &'static [u8] = include_bytes!("data/purpose-template.to
 pub fn get_subcommand<'a, 'b>() -> App<'a, 'b> {
     // #SPC-cmd-init
     SubCommand::with_name("init")
-        .about("initialize the repository in the cwd")
-        .settings(&[AS::DeriveDisplayOrder, COLOR])
+        .about("Initialize an artifact repository in the current directory")
+        .settings(&SUBCMD_SETTINGS)
 }
 
 pub fn run_cmd(path: &Path) -> Result<u8> {

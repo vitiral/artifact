@@ -60,7 +60,7 @@ pub fn fmt_artifact(name: &NameRc,
             out.text = Some(artifact.text.clone());
         } else {
             // return only the first "line" according to markdown
-            let mut end = artifact.text.find('\n').unwrap_or(artifact.text.len());
+            let mut end = artifact.text.find('\n').unwrap_or_else(|| artifact.text.len());
             // TODO: Calculate Unicode width?
             const MAX_LINE_LEN: usize = 50;
             let should_add_ellipsis: bool;
