@@ -21,8 +21,8 @@ use utils;
 
 pub fn get_subcommand<'a, 'b>() -> App<'a, 'b> {
     SubCommand::with_name("check")
-        .about("check for any errors in the project")
-        .settings(&[AS::DeriveDisplayOrder, COLOR])
+        .about("Check for any errors in the project")
+        .settings(&[AS::DeriveDisplayOrder, COLOR, AS::ColoredHelp])
 }
 
 // Helper functions

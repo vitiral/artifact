@@ -23,21 +23,21 @@ use user;
 
 pub fn get_subcommand<'a, 'b>() -> App<'a, 'b> {
     SubCommand::with_name("fmt")
-        .about("format your design documents")
+        .about("Format your design documents")
+        .settings(&[AS::DeriveDisplayOrder, COLOR, AS::ColoredHelp])
         //.arg(Arg:with_name("diff")
         //     .short("d")
-        //     .help("only get the diff printed to stdout"))
+        //     .help("Only get the diff printed to stdout"))
         .arg(Arg::with_name("list")
              .short("l")
-             .help("list files that will be affected and exit"))
+             .help("List files that will be affected and exit"))
         .arg(Arg::with_name("diff")
              .short("d")
-             .help("print out the diff stdout and exit"))
+             .help("Print out the diff stdout and exit"))
         .arg(Arg::with_name("write")
              .short("w")
-             .help("If a file's formatting is different from art fmt,
+             .help("If a file's formatting is different from art fmt, \
                     overwrite it with art fmt's vesion"))
-        .settings(&[AS::DeriveDisplayOrder, COLOR])
 }
 
 #[derive(Debug, Copy, Clone, PartialEq)]
