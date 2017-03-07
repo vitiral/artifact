@@ -149,7 +149,8 @@ pub fn cmd<W, I, T>(w: &mut W, args: I) -> Result<u8>
         ls::run_cmd(w, &work_tree, &cmd, &project)
     } else if matches.subcommand_matches("check").is_some() {
         info!("Calling the check command");
-        check::run_cmd(w, &work_tree, &project)
+        let cmd = check::Cmd { color: types::COLOR_IF_POSSIBLE };
+        check::run_cmd(w, &work_tree, &project, &cmd)
     } else if let Some(mat) = matches.subcommand_matches("fmt") {
         info!("Calling the fmt command");
         let c = fmt::get_cmd(mat)?;

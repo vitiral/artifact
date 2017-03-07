@@ -26,22 +26,22 @@ pub fn get_subcommand<'a, 'b>() -> App<'a, 'b> {
 }
 
 // Helper functions
-fn paint_it<W: Write>(w: &mut W, msg: &str) {
-    if COLOR_IF_POSSIBLE {
+fn paint_it<W: Write>(w: &mut W, msg: &str, cmd: &Cmd) {
+    if cmd.color {
         write!(w, "{}", Red.paint(msg)).unwrap();
     } else {
         write!(w, "{}", msg).unwrap();
     }
 }
-fn paint_it_bold<W: Write>(w: &mut W, msg: &str) {
-    if COLOR_IF_POSSIBLE {
+fn paint_it_bold<W: Write>(w: &mut W, msg: &str, cmd: &Cmd) {
+    if cmd.color {
         write!(w, "{}", Red.bold().paint(msg)).unwrap();
     } else {
         write!(w, "{}", msg).unwrap();
     }
 }
 
-fn display_invalid_partof<W: Write>(w: &mut W, cwd: &Path, project: &Project) -> u64 {
+fn display_invalid_partof<W: Write>(w: &mut W, cwd: &Path, project: &Project, cmd: &Cmd) -> u64 {
     let mut error: u64 = 0;
 
     // display invalid partof names and locations
@@ -61,7 +61,7 @@ fn display_invalid_partof<W: Write>(w: &mut W, cwd: &Path, project: &Project) ->
             let mut msg = String::new();
             if !displayed_header {
                 displayed_header = true;
-                paint_it_bold(w, "\nFound partof names that do not exist:\n");
+                paint_it_bold(w, "\nFound partof names that do not exist:\n", cmd);
             }
             write!(msg,
                    "    {} [{}]: {:?}\n",
@@ -69,14 +69,14 @@ fn display_invalid_partof<W: Write>(w: &mut W, cwd: &Path, project: &Project) ->
                    utils::relative_path(&artifact.path, cwd).display(),
                    invalid_partof)
                 .unwrap();
-            paint_it(w, &msg);
+            paint_it(w, &msg, cmd);
         }
     }
 
     error
 }
 
-fn display_unresolvable<W: Write>(w: &mut W, project: &Project) -> u64 {
+fn display_unresolvable<W: Write>(w: &mut W, project: &Project, cmd: &Cmd) -> u64 {
     let mut error: u64 = 0;
 
     // display unresolvable partof names
@@ -141,7 +141,8 @@ fn display_unresolvable<W: Write>(w: &mut W, project: &Project) -> u64 {
             }
         }
         paint_it_bold(w,
-                      "\nArtifacts partof contains at least one recursive reference:\n");
+                      "\nArtifacts partof contains at least one recursive reference:\n",
+                      cmd);
         let mut unresolved_partof: Vec<_> = unresolved_partof.drain()
             .map(|mut v| (v.0, v.1.drain().collect::<Vec<_>>()))
             .collect();
@@ -156,7 +157,7 @@ fn display_unresolvable<W: Write>(w: &mut W, project: &Project) -> u64 {
     error
 }
 
-fn display_invalid_locs<W: Write>(w: &mut W, cwd: &Path, project: &Project) -> u64 {
+fn display_invalid_locs<W: Write>(w: &mut W, cwd: &Path, project: &Project, cmd: &Cmd) -> u64 {
     let mut error: u64 = 0;
 
     // display invalid locations
@@ -171,7 +172,7 @@ fn display_invalid_locs<W: Write>(w: &mut W, cwd: &Path, project: &Project) -> u
             invalid_locs.get_mut(&loc.path).unwrap().push((name.clone(), loc.clone()));
         }
         let header = "\nFound implementation links in the code that do not exist:\n";
-        paint_it_bold(w, header);
+        paint_it_bold(w, header, cmd);
         let mut invalid_locs: Vec<(PathBuf, Vec<(Name, Loc)>)> =
             Vec::from_iter(invalid_locs.drain());
         invalid_locs.sort_by(|a, b| a.0.cmp(&b.0));
@@ -182,12 +183,12 @@ fn display_invalid_locs<W: Write>(w: &mut W, cwd: &Path, project: &Project) -> u
                    "    {}:\n",
                    utils::relative_path(&path, cwd).display())
                 .unwrap();
-            paint_it(w, &pathstr);
+            paint_it(w, &pathstr, cmd);
             locs.sort_by(|a, b| a.1.line.cmp(&b.1.line));
             for (name, loc) in locs {
                 let mut loc_str = String::new();
                 write!(loc_str, "    - [{}]", loc.line).unwrap();
-                paint_it(w, &loc_str);
+                paint_it(w, &loc_str, cmd);
                 write!(w, " {}\n", name).unwrap();
             }
         }
@@ -197,7 +198,7 @@ fn display_invalid_locs<W: Write>(w: &mut W, cwd: &Path, project: &Project) -> u
 }
 
 
-fn display_hanging_artifacts<W: Write>(w: &mut W, cwd: &Path, project: &Project) -> u64 {
+fn display_hanging_artifacts<W: Write>(w: &mut W, cwd: &Path, project: &Project, cmd: &Cmd) -> u64 {
     let mut error: u64 = 0;
 
     // find hanging artifacts
@@ -229,7 +230,7 @@ fn display_hanging_artifacts<W: Write>(w: &mut W, cwd: &Path, project: &Project)
     if !hanging.is_empty() {
         error += 1;
         let msg = "\nHanging artifacts found (top-level but not partof a higher type):\n";
-        paint_it_bold(w, msg);
+        paint_it_bold(w, msg, cmd);
         for (h, p) in hanging {
             let mut msg = String::new();
             write!(msg,
@@ -244,7 +245,11 @@ fn display_hanging_artifacts<W: Write>(w: &mut W, cwd: &Path, project: &Project)
     error
 }
 
-fn display_hanging_references<W: Write>(w: &mut W, cwd: &Path, project: &Project) -> u64 {
+fn display_hanging_references<W: Write>(w: &mut W,
+                                        cwd: &Path,
+                                        project: &Project,
+                                        cmd: &Cmd)
+                                        -> u64 {
     let mut error: u64 = 0;
 
     let regexp = Regex::new(&format!(r"(?i)\[\[({})\]\]", NAME_VALID_STR)).expect("tested regexp");
@@ -267,7 +272,8 @@ fn display_hanging_references<W: Write>(w: &mut W, cwd: &Path, project: &Project
 
     if !hanging.is_empty() {
         paint_it_bold(w,
-                      "\nArtifacts text contains invalid [[ART-name]] references:\n");
+                      "\nArtifacts text contains invalid [[ART-name]] references:\n",
+                      cmd);
         let mut hanging: Vec<_> = hanging.drain().collect();
         hanging.sort();
         for &(ref name, ref found) in &hanging {
@@ -275,7 +281,8 @@ fn display_hanging_references<W: Write>(w: &mut W, cwd: &Path, project: &Project
             paint_it(w,
                      &format!("    {} ({}):\n",
                               name,
-                              utils::relative_path(&artifact.path, cwd).display()));
+                              utils::relative_path(&artifact.path, cwd).display()),
+                     cmd);
             for f in found {
                 write!(w, "    - {}", f).unwrap();
             }
@@ -284,16 +291,20 @@ fn display_hanging_references<W: Write>(w: &mut W, cwd: &Path, project: &Project
     error
 }
 
+pub struct Cmd {
+    pub color: bool,
+}
+
 /// #SPC-cmd-check
 #[allow(cyclomatic_complexity)] // TODO: break this up
-pub fn run_cmd<W: Write>(w: &mut W, cwd: &Path, project: &Project) -> Result<u8> {
+pub fn run_cmd<W: Write>(w: &mut W, cwd: &Path, project: &Project, cmd: &Cmd) -> Result<u8> {
     let mut error: u64 = 0;
 
-    error += display_invalid_partof(w, cwd, project);
-    error += display_unresolvable(w, project);
-    error += display_invalid_locs(w, cwd, project);
-    error += display_hanging_artifacts(w, cwd, project);
-    error += display_hanging_references(w, cwd, project);
+    error += display_invalid_partof(w, cwd, project, cmd);
+    error += display_unresolvable(w, project, cmd);
+    error += display_invalid_locs(w, cwd, project, cmd);
+    error += display_hanging_artifacts(w, cwd, project, cmd);
+    error += display_hanging_references(w, cwd, project, cmd);
 
     if error == 0 {
         let mut msg = String::new();
