@@ -28,7 +28,7 @@ toml = "0.2"
 
 [dependencies.clap]
 default-features = false
-features = ["suggestions", "color"]
+features = ["suggestions", "color", "wrap_help"]
 version = "2"
 
 [dependencies.error-chain]

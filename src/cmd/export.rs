@@ -12,11 +12,10 @@ const WEB_STATIC_TAR: &'static [u8] = include_bytes!("data/web-ui-static.tar");
 pub fn get_subcommand<'a, 'b>() -> App<'a, 'b> {
     // #SPC-cmd-export
     SubCommand::with_name("export")
-        .about("export artifacts as static file (only html currently)")
-        .settings(&[AS::DeriveDisplayOrder, COLOR])
+        .about("Export artifacts as static files")
+        .settings(&[AS::DeriveDisplayOrder, COLOR, AS::ColoredHelp])
         .arg(Arg::with_name("type")
-            .help("type of export.\n- html: static html. Writes to `index.html` and `css/` dir \
-                   in cwd"))
+            .help("Type of export.\n- html: static html. Writes to `./index.html` and `./css/`"))
 }
 
 #[derive(Debug)]

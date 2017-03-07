@@ -30,27 +30,29 @@ pub fn get_matches<'a, I, T>(args: I) -> ClapResult<ArgMatches<'a>>
 {
     let app = App::new("artifact")
         .version(env!("CARGO_PKG_VERSION"))
-        .about("the requirements tracking tool made for developers. Call `art tutorial` for \
-                a tutorial")
+        .about("The requirements tracking tool made for developers. \
+                Call `art tutorial` for a tutorial")
         .author("https://github.com/vitiral/artifact")
         .settings(&[AS::ArgRequiredElseHelp,
                     AS::DeriveDisplayOrder,
                     AS::SubcommandRequiredElseHelp,
                     AS::VersionlessSubcommands,
-                    COLOR])
-        .arg(Arg::with_name("v")
+                    COLOR,
+                    AS::ColoredHelp])
+        .arg(Arg::with_name("verbose")
             .short("v")
             .multiple(true)
-            .help("sets the level of verbosity, use multiple (up to 3) to increase")
+            .help("Verbose, pass up to 3 times to increase the level")
             .global(true))
         .arg(Arg::with_name("quiet")
             .short("q")
             .long("quiet")
-            .help("if set no output will be printed")
+            .help("If set no output will be printed")
             .global(true))
         .arg(Arg::with_name("work-tree")
             .long("work-tree")
-            .help("use a different working tree instead of cwd")
+            .value_name("PATH")
+            .help("Use a different working tree instead of cwd")
             .takes_value(true)
             .global(true))
         .subcommand(tutorial::get_subcommand())
