@@ -101,15 +101,20 @@ fn test_trim_unicode_length() {
     assert_eq!(trim_unicode_length("hello", 2), "he");
     assert_eq!(trim_unicode_length("H\u{200D}e\u{200D}l\u{200D}l\u{200D}o", 5),
                "H\u{200D}e\u{200D}l\u{200D}l\u{200D}o");
-    assert_eq!(trim_unicode_length("H\u{200D}e\u{200D}", 2), "H\u{200D}e\u{200D}");
+    assert_eq!(trim_unicode_length("H\u{200D}e\u{200D}", 2),
+               "H\u{200D}e\u{200D}");
     // Hello, World!
     assert_eq!(trim_unicode_length("你好世界", 8), "你好世界");
     assert_eq!(trim_unicode_length("你好世界", 4), "你好");
     assert_eq!(trim_unicode_length("你好世界", 5), "你好");
-    assert_eq!(trim_unicode_length("γειά σου κόσμος", 15), "γειά σου κόσμος");
-    assert_eq!(trim_unicode_length("γειά σου κόσμος", 8), "γειά σου");
-    assert_eq!(trim_unicode_length("γειά σου κόσμος", 3), "γει");
+    assert_eq!(trim_unicode_length("γειά σου κόσμος", 15),
+               "γειά σου κόσμος");
+    assert_eq!(trim_unicode_length("γειά σου κόσμος", 8),
+               "γειά σου");
+    assert_eq!(trim_unicode_length("γειά σου κόσμος", 3),
+               "γει");
     // ZALGO!
-    assert_eq!(trim_unicode_length("Z̡͕̃͗͐ͩ͐̽A̶̱͉ͩ̒̀̒L̋̒ͮ̎͛G̨̖̯̖̲͇Ö̵̹͔̞̱͖̾̍", 5),
+    assert_eq!(trim_unicode_length("Z̡͕̃͗͐ͩ͐̽A̶̱͉ͩ̒̀̒L̋̒ͮ̎͛G̨̖̯̖̲͇Ö̵̹͔̞̱͖̾̍",
+                                   5),
                "Z̡͕̃͗͐ͩ͐̽A̶̱͉ͩ̒̀̒L̋̒ͮ̎͛G̨̖̯̖̲͇Ö̵̹͔̞̱͖̾̍");
 }
