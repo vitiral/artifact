@@ -25,6 +25,8 @@ strfmt = "0.1"
 tar = "0.4"
 time = "0.1"
 toml = "0.2"
+unicode-segmentation = "1.1.0"
+unicode-width = "0.1.4"
 
 [dependencies.clap]
 default-features = false

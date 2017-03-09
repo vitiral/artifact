@@ -307,7 +307,7 @@ fn test_cmd_ls() {
     cmd.fmt_settings.color = COLOR_IF_POSSIBLE;
     cmd.fmt_settings.text = true;
     ls::run_cmd(&mut w, &cwd, &cmd, &project).unwrap();
-    // debug_bytes(&w, LS_T_LONG);
+    debug_bytes(&w, LS_T_LONG);
     assert_eq!(to_vec(LS_T_LONG), w);
 
     w.clear();
