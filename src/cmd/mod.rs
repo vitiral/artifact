@@ -130,7 +130,7 @@ pub fn cmd<W, I, T>(w: &mut W, args: I) -> Result<u8>
     let repo = match utils::find_repo(&work_tree) {
         Some(r) => r,
         None => {
-            let msg = "Could not find .art folder. Try running `art init -t`";
+            let msg = "Could not find .art folder. Try running `art init`";
             return Err(ErrorKind::CmdError(msg.to_string()).into());
         }
     };
