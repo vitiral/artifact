@@ -37,6 +37,8 @@ extern crate strfmt;
 extern crate time;
 extern crate rustc_serialize;
 extern crate difference;
+extern crate unicode_segmentation;
+extern crate unicode_width;
 
 // # cmdline crates
 extern crate clap;

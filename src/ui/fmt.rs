@@ -1,6 +1,8 @@
 use dev_prefix::*;
 use types::*;
 use ui::types::*;
+use unicode_width::UnicodeWidthStr;
+use unicode_segmentation::UnicodeSegmentation;
 
 /// format `Names` in a reasonable way
 pub fn fmt_names(names: &[NameRc]) -> String {
@@ -59,30 +61,60 @@ pub fn fmt_artifact(name: &NameRc,
         if fmtset.long {
             out.text = Some(artifact.text.clone());
         } else {
-            // return only the first "line" according to markdown
-            let mut end = artifact.text.find('\n').unwrap_or_else(|| artifact.text.len());
-            // TODO: Calculate Unicode width?
             const MAX_LINE_LEN: usize = 50;
-            let should_add_ellipsis: bool;
-            if end > MAX_LINE_LEN {
-                should_add_ellipsis = true;
-                // Allow space for '...'
-                end = MAX_LINE_LEN - 3;
+            let line_end = artifact.text.find('\n').unwrap_or_else(|| artifact.text.len());
+            let width = UnicodeWidthStr::width(&artifact.text[..line_end]);
+            if width > MAX_LINE_LEN {
+                // We need to allow space for '...'
+                let trimmed = trim_unicode_length(&artifact.text, MAX_LINE_LEN - 3);
+                out.text = Some(trimmed.to_string() + "...");
             } else {
-                should_add_ellipsis = false;
+                out.text = Some(artifact.text[..line_end].into());
             }
-            // Find a Unicode-safe place to split
-            // TODO: Split at a grapheme cluster?
-            while !artifact.text.is_char_boundary(end) {
-                end -= 1;
-            }
-            let mut s = artifact.text[..end].into();
-            if should_add_ellipsis {
-                s += "...";
-            }
-            out.text = Some(s);
         }
     }
     out.name = name.clone();
     out
+}
+
+fn trim_unicode_length(text: &str, length: usize) -> &str {
+    let mut end = 0;
+    let mut width_accum = 0;
+    for (begin, cluster) in text.grapheme_indices(true) {
+        end = begin;
+        width_accum += UnicodeWidthStr::width(cluster);
+        if width_accum > length {
+            break;
+        }
+    }
+    if width_accum <= length {
+        text
+    } else {
+        &text[..end]
+    }
+}
+
+#[test]
+fn test_trim_unicode_length() {
+    assert_eq!(trim_unicode_length("", 10), "");
+    assert_eq!(trim_unicode_length("hello", 10), "hello");
+    assert_eq!(trim_unicode_length("hello", 2), "he");
+    assert_eq!(trim_unicode_length("H\u{200D}e\u{200D}l\u{200D}l\u{200D}o", 5),
+               "H\u{200D}e\u{200D}l\u{200D}l\u{200D}o");
+    assert_eq!(trim_unicode_length("H\u{200D}e\u{200D}", 2),
+               "H\u{200D}e\u{200D}");
+    // Hello, World!
+    assert_eq!(trim_unicode_length("你好世界", 8), "你好世界");
+    assert_eq!(trim_unicode_length("你好世界", 4), "你好");
+    assert_eq!(trim_unicode_length("你好世界", 5), "你好");
+    assert_eq!(trim_unicode_length("γειά σου κόσμος", 15),
+               "γειά σου κόσμος");
+    assert_eq!(trim_unicode_length("γειά σου κόσμος", 8),
+               "γειά σου");
+    assert_eq!(trim_unicode_length("γειά σου κόσμος", 3),
+               "γει");
+    // ZALGO!
+    assert_eq!(trim_unicode_length("Z̡͕̃͗͐ͩ͐̽A̶̱͉ͩ̒̀̒L̋̒ͮ̎͛G̨̖̯̖̲͇Ö̵̹͔̞̱͖̾̍",
+                                   5),
+               "Z̡͕̃͗͐ͩ͐̽A̶̱͉ͩ̒̀̒L̋̒ͮ̎͛G̨̖̯̖̲͇Ö̵̹͔̞̱͖̾̍");
 }
