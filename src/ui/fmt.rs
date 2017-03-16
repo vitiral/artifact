@@ -9,7 +9,11 @@ pub fn fmt_names(names: &[NameRc]) -> String {
     if names.is_empty() {
         return "".to_string();
     }
-    names.iter().map(|n| &n.raw).cloned().collect::<Vec<_>>().join(", ")
+    names.iter()
+        .map(|n| &n.raw)
+        .cloned()
+        .collect::<Vec<_>>()
+        .join(", ")
 }
 
 /// use several configuration options and pieces of data to represent
@@ -43,11 +47,13 @@ pub fn fmt_artifact(name: &NameRc,
         out.parts = Some(parts);
     }
     if fmtset.partof {
-        let mut partof = artifact.partof.iter().cloned().collect::<Vec<NameRc>>();
+        let mut partof = artifact.partof
+            .iter()
+            .cloned()
+            .collect::<Vec<NameRc>>();
         partof.sort();
-        let partof = partof.drain(0..)
-            .map(|n| FmtArtifact { name: n, ..FmtArtifact::default() })
-            .collect();
+        let partof =
+            partof.drain(0..).map(|n| FmtArtifact { name: n, ..FmtArtifact::default() }).collect();
         out.partof = Some(partof);
     }
     if fmtset.loc_path {
@@ -114,7 +120,7 @@ fn test_trim_unicode_length() {
     assert_eq!(trim_unicode_length("γειά σου κόσμος", 3),
                "γει");
     // ZALGO!
-    assert_eq!(trim_unicode_length("Z̡͕̃͗͐ͩ͐̽A̶̱͉ͩ̒̀̒L̋̒ͮ̎͛G̨̖̯̖̲͇Ö̵̹͔̞̱͖̾̍",
-                                   5),
-               "Z̡͕̃͗͐ͩ͐̽A̶̱͉ͩ̒̀̒L̋̒ͮ̎͛G̨̖̯̖̲͇Ö̵̹͔̞̱͖̾̍");
+    let z = "Z̡͕̃͗͐ͩ͐̽A̶̱͉ͩ̒̀̒L̋̒ͮ̎͛G̨̖̯̖̲͇Ö̵̹͔̞̱͖̾̍";
+    let r = "Z̡͕̃͗͐ͩ͐̽A̶̱͉ͩ̒̀̒L̋̒ͮ̎͛G̨̖̯̖̲͇Ö̵̹͔̞̱͖̾̍";
+    assert_eq!(trim_unicode_length(z, 5), r);
 }

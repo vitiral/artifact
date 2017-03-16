@@ -82,7 +82,10 @@ pub fn find_repo(dir: &Path) -> Option<PathBuf> {
             Err(_) => false,
             Ok(e) => {
                 let p = e.path();
-                let fname = p.file_name().unwrap().to_str().unwrap();
+                let fname = p.file_name()
+                    .unwrap()
+                    .to_str()
+                    .unwrap();
                 // trace!("fname: {:?}", fname);
                 fname == ".art" && p.is_dir()
             }

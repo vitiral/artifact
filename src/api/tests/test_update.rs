@@ -119,7 +119,10 @@ fn test_update() {
             let new_project = update::update_artifacts(&data_artifacts, &p, &new_artifacts)
                 .unwrap();
 
-            let mut expected = p.artifacts.get(&req_purpose).unwrap().clone();
+            let mut expected = p.artifacts
+                .get(&req_purpose)
+                .unwrap()
+                .clone();
             expected.text = new_text.to_string();
             assert_eq!(new_project.artifacts.get(&req_purpose).unwrap(), &expected);
         }

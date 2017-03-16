@@ -68,7 +68,7 @@ fn display_invalid_partof<W: Write>(w: &mut W, cwd: &Path, project: &Project, cm
                    name,
                    utils::relative_path(&artifact.path, cwd).display(),
                    invalid_partof)
-                .unwrap();
+                    .unwrap();
             paint_it(w, &msg, cmd);
         }
     }
@@ -80,12 +80,13 @@ fn display_unresolvable<W: Write>(w: &mut W, project: &Project, cmd: &Cmd) -> u6
     let mut error: u64 = 0;
 
     // display unresolvable partof names
-    let unresolved: Vec<(NameRc, &Artifact)> = Vec::from_iter(project.artifacts
-        .iter()
-        .filter(|a| a.1.completed < 0. || a.1.tested < 0.)
-        .map(|n| (n.0.clone(), n.1)));
-    let unknown_names: HashSet<NameRc> = HashSet::from_iter(unresolved.iter()
-        .map(|u| u.0.clone()));
+    let unresolved: Vec<(NameRc, &Artifact)> =
+        Vec::from_iter(project.artifacts
+                           .iter()
+                           .filter(|a| a.1.completed < 0. || a.1.tested < 0.)
+                           .map(|n| (n.0.clone(), n.1)));
+    let unknown_names: HashSet<NameRc> =
+        HashSet::from_iter(unresolved.iter().map(|u| u.0.clone()));
 
     if !unresolved.is_empty() {
         error += 1;
@@ -94,9 +95,9 @@ fn display_unresolvable<W: Write>(w: &mut W, project: &Project, cmd: &Cmd) -> u6
             let partof: HashSet<_> = artifact.partof
                 .iter()
                 .filter(|n| {
-                    !project.artifacts.contains_key(n.as_ref()) ||
-                    unknown_names.contains(n.as_ref())
-                })
+                            !project.artifacts.contains_key(n.as_ref()) ||
+                            unknown_names.contains(n.as_ref())
+                        })
                 .cloned()
                 .collect();
             unresolved_partof.insert(name.clone(), partof);
@@ -143,9 +144,8 @@ fn display_unresolvable<W: Write>(w: &mut W, project: &Project, cmd: &Cmd) -> u6
         paint_it_bold(w,
                       "\nArtifacts partof contains at least one recursive reference:\n",
                       cmd);
-        let mut unresolved_partof: Vec<_> = unresolved_partof.drain()
-            .map(|mut v| (v.0, v.1.drain().collect::<Vec<_>>()))
-            .collect();
+        let mut unresolved_partof: Vec<_> =
+            unresolved_partof.drain().map(|mut v| (v.0, v.1.drain().collect::<Vec<_>>())).collect();
         unresolved_partof.sort_by(|a, b| a.0.cmp(&b.0));
         for (name, partof) in unresolved_partof.drain(0..) {
             let mut msg = String::new();
@@ -182,7 +182,7 @@ fn display_invalid_locs<W: Write>(w: &mut W, cwd: &Path, project: &Project, cmd:
             write!(pathstr,
                    "    {}:\n",
                    utils::relative_path(&path, cwd).display())
-                .unwrap();
+                    .unwrap();
             paint_it(w, &pathstr, cmd);
             locs.sort_by(|a, b| a.1.line.cmp(&b.1.line));
             for (name, loc) in locs {
@@ -219,10 +219,10 @@ fn display_hanging_artifacts<W: Write>(w: &mut W, cwd: &Path, project: &Project,
         if (ty != Type::REQ) && !artifact.is_parent() && !name.is_root() &&
            name.parent().unwrap().is_root() &&
            match ty {
-            Type::TST => !partof_types(artifact, &rsk_spc_types),
-            Type::SPC | Type::RSK => !partof_types(artifact, &req_types),
-            _ => unreachable!(),
-        } {
+               Type::TST => !partof_types(artifact, &rsk_spc_types),
+               Type::SPC | Type::RSK => !partof_types(artifact, &req_types),
+               _ => unreachable!(),
+           } {
             hanging.push((name.clone(), &artifact.path));
         }
     }
@@ -237,7 +237,7 @@ fn display_hanging_artifacts<W: Write>(w: &mut W, cwd: &Path, project: &Project,
                    "    {:<30}: {}\n",
                    utils::relative_path(p, cwd).display(),
                    h)
-                .unwrap();
+                    .unwrap();
             write!(w, "{}", msg).unwrap();
         }
     }

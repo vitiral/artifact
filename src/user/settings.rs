@@ -44,11 +44,7 @@ pub fn from_table(tbl: &Table) -> Result<(RawSettings, Settings)> {
 
     fn to_paths(paths: &Option<Vec<String>>) -> HashSet<PathBuf> {
         match *paths {
-            Some(ref p) => {
-                p.iter()
-                    .map(|p| PathBuf::from(utils::convert_path_str(p)))
-                    .collect()
-            }
+            Some(ref p) => p.iter().map(|p| PathBuf::from(utils::convert_path_str(p))).collect(),
             None => HashSet::new(),
         }
     }
@@ -88,8 +84,10 @@ fn resolve_settings_paths(repo: &Path, settings: &mut Settings) -> Result<()> {
         for p in paths {
             let p =
                 utils::do_strfmt(utils::get_path_str(p)?, vars, settings_path).chain_err(|| {
-                        format!("replacing variables failed at {}: {}", name, p.display())
-                    })?;
+                                   format!("replacing variables failed at {}: {}",
+                                           name,
+                                           p.display())
+                               })?;
             // if an exclude path doesn't exist that's fine
             let p = match utils::canonicalize(Path::new(&p)) {
                 Ok(p) => p,

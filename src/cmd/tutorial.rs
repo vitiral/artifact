@@ -156,9 +156,9 @@ pub fn run_cmd(cwd: &Path, part: u8) -> Result<u8> {
         // make sure the directory is empty -- we don't want to
         // delete anything we shouldn't
         if fs::read_dir(&cwd)
-            .chain_err(|| format!("could not read dir: {}", cwd.display()))?
-            .next()
-            .is_some() {
+               .chain_err(|| format!("could not read dir: {}", cwd.display()))?
+               .next()
+               .is_some() {
             println!("ERROR: can only start the artifact tutorial in an empty directory. \
                       To make an empty directory and change-dir to it, run:\n    \
                       mkdir ~/tryrst; cd ~/tryrst");

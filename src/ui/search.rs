@@ -18,13 +18,11 @@ impl FromStr for SearchSettings {
     fn from_str(s: &str) -> Result<SearchSettings> {
         let pattern = HashSet::from_iter(s.chars());
         debug!("got search pattern: {:?}", pattern);
-        let invalid: HashSet<char> = pattern.difference(&VALID_SEARCH_FIELDS)
-            .cloned()
-            .collect();
+        let invalid: HashSet<char> = pattern.difference(&VALID_SEARCH_FIELDS).cloned().collect();
         if !invalid.is_empty() {
             return Err(ErrorKind::CmdError(format!("Unknown search fields in pattern: {:?}",
                                                    invalid))
-                .into());
+                               .into());
         }
         let mut set = SearchSettings {
             use_regex: true,
@@ -77,10 +75,10 @@ pub fn show_artifact(name: &Name,
         (ss.partof && matches_name(pat_case, &art.partof)) ||
         (ss.loc &&
          match art.done {
-            Done::Code(ref l) => pat_case.is_match(l.path.to_string_lossy().as_ref()),
-            Done::Defined(ref s) => pat_case.is_match(s),
-            Done::NotDone => false,
-        }) || (ss.text && pat_case.is_match(&art.text))
+             Done::Code(ref l) => pat_case.is_match(l.path.to_string_lossy().as_ref()),
+             Done::Defined(ref s) => pat_case.is_match(s),
+             Done::NotDone => false,
+         }) || (ss.text && pat_case.is_match(&art.text))
     }
 }
 

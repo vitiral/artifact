@@ -46,9 +46,8 @@ pub fn split_artifacts(project: &Project,
                        data_artifacts: &[ArtifactData],
                        new_artifacts: &[ArtifactData])
                        -> result::Result<(HashMap<u64, ArtifactData>, Artifacts), RpcError> {
-    let mut unchanged_artifacts: HashMap<u64, ArtifactData> = data_artifacts.iter()
-        .map(|a| (a.id, a.clone()))
-        .collect();
+    let mut unchanged_artifacts: HashMap<u64, ArtifactData> =
+        data_artifacts.iter().map(|a| (a.id, a.clone())).collect();
 
     let mut save_artifacts: Artifacts = Artifacts::new();
 
@@ -85,16 +84,12 @@ pub fn split_artifacts(project: &Project,
     }
     if !files_not_found.is_empty() {
         data.insert("filesNotFound",
-                    files_not_found.iter()
-                        .map(|f| format!("{}", f.display()))
-                        .collect());
+                    files_not_found.iter().map(|f| format!("{}", f.display())).collect());
         err = Some(constants::X_FILES_NOT_FOUND);
     }
     if !ids_not_found.is_empty() {
         data.insert("idsNotFound",
-                    ids_not_found.iter()
-                        .map(u64::to_string)
-                        .collect());
+                    ids_not_found.iter().map(u64::to_string).collect());
         err = Some(constants::X_IDS_NOT_FOUND);
     }
     if data.len() > 1 {
@@ -102,10 +97,10 @@ pub fn split_artifacts(project: &Project,
     }
     if let Some(msg) = err {
         return Err(RpcError {
-            code: constants::SERVER_ERROR,
-            message: msg.to_string(),
-            data: Some(serde_json::to_value(data).unwrap()),
-        });
+                       code: constants::SERVER_ERROR,
+                       message: msg.to_string(),
+                       data: Some(serde_json::to_value(data).unwrap()),
+                   });
     }
 
     Ok((unchanged_artifacts, save_artifacts))
@@ -126,13 +121,14 @@ pub fn update_artifacts(data_artifacts: &[ArtifactData],
         let (n, a) = match convert_artifact(&project.origin, art_data) {
             Ok(v) => v,
             Err(msg) => {
-                return Err(RpcError {
+                let e = RpcError {
                     code: constants::SERVER_ERROR,
                     message: format!("Could not convert artifact back {:?}, GOT ERROR: {}",
                                      art_data,
                                      msg),
                     data: None,
-                })
+                };
+                return Err(e);
             }
         };
         // TODO: preserve old id here?
@@ -144,10 +140,10 @@ pub fn update_artifacts(data_artifacts: &[ArtifactData],
 
     if let Err(err) = user::process_project(&mut new_project) {
         return Err(RpcError {
-            code: constants::SERVER_ERROR,
-            message: err.to_string(),
-            data: None,
-        });
+                       code: constants::SERVER_ERROR,
+                       message: err.to_string(),
+                       data: None,
+                   });
     }
 
     Ok(new_project)
@@ -174,20 +170,20 @@ impl RpcMethodSync for UpdateArtifacts {
             Ok(t) => t,
             Err(e) => {
                 return Err(RpcError {
-                    code: ErrorCode::InternalError,
-                    message: format!("{:?}", e.display()),
-                    data: None,
-                })
+                               code: ErrorCode::InternalError,
+                               message: format!("{:?}", e.display()),
+                               data: None,
+                           })
             }
         };
 
         // save the ProjectText to files
         if let Err(e) = text.dump() {
             return Err(RpcError {
-                code: ErrorCode::InternalError,
-                message: format!("{:?}", e.display()),
-                data: None,
-            });
+                           code: ErrorCode::InternalError,
+                           message: format!("{:?}", e.display()),
+                           data: None,
+                       });
         }
 
         // get the data artifacts

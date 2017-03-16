@@ -53,8 +53,7 @@ fn names_equal(a: &Artifacts, b: &Artifacts) -> Result<()> {
     let a_keys: HashSet<NameRc> = a.keys().cloned().collect();
     let b_keys: HashSet<NameRc> = b.keys().cloned().collect();
     if b_keys != a_keys {
-        let missing = a_keys.symmetric_difference(&b_keys)
-            .collect::<Vec<_>>();
+        let missing = a_keys.symmetric_difference(&b_keys).collect::<Vec<_>>();
         let msg = format!("missing artifacts: {:?}\nFIRST:\n{:?}\nSECOND:\n{:?}",
                           missing,
                           a_keys,

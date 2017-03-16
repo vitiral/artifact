@@ -50,20 +50,26 @@ impl Artifact {
         let (code, done) = match self.done {
             Done::Code(ref l) => {
                 (Some(LocData {
-                     path: l.path
-                         .strip_prefix(origin)
-                         .expect("origin invalid")
-                         .to_string_lossy()
-                         .to_string(),
-                     line: l.line as u64,
-                 }),
+                          path: l.path
+                              .strip_prefix(origin)
+                              .expect("origin invalid")
+                              .to_string_lossy()
+                              .to_string(),
+                          line: l.line as u64,
+                      }),
                  None)
             }
             Done::Defined(ref s) => (None, Some(s.clone())),
             Done::NotDone => (None, None),
         };
-        let mut partof: Vec<_> = self.partof.iter().map(|n| n.raw.clone()).collect();
-        let mut parts: Vec<_> = self.parts.iter().map(|n| n.raw.clone()).collect();
+        let mut partof: Vec<_> = self.partof
+            .iter()
+            .map(|n| n.raw.clone())
+            .collect();
+        let mut parts: Vec<_> = self.parts
+            .iter()
+            .map(|n| n.raw.clone())
+            .collect();
 
         partof.sort();
         parts.sort();
@@ -105,9 +111,9 @@ impl Artifact {
             Done::Defined(d.clone())
         } else if let Some(ref c) = data.code {
             Done::Code(Loc {
-                path: repo.join(&c.path),
-                line: c.line as usize,
-            })
+                           path: repo.join(&c.path),
+                           line: c.line as usize,
+                       })
         } else {
             Done::NotDone
         };
@@ -133,9 +139,7 @@ impl Artifact {
 /// convert the project's artifacts to a json list
 pub fn project_artifacts_to_json(project: &Project, names: Option<&[NameRc]>) -> String {
     let out_arts: Vec<_> = if let Some(names) = names {
-        names.iter()
-            .map(|n| project.artifacts[n].to_data(&project.origin, n))
-            .collect()
+        names.iter().map(|n| project.artifacts[n].to_data(&project.origin, n)).collect()
     } else {
         project.artifacts
             .iter()
@@ -158,9 +162,9 @@ fn test_serde() {
         parts: Vec::from_iter(vec!["part-1".to_string()]),
         done: None,
         code: Some(LocData {
-            path: "path".to_string(),
-            line: 10,
-        }),
+                       path: "path".to_string(),
+                       line: 10,
+                   }),
         completed: 0.,
         tested: 0.,
     };

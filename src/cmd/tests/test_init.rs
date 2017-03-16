@@ -24,18 +24,11 @@ fn test_init() {
         assert!(settings.exists());
         assert!(purpose.exists());
 
-        let write = |p| {
-            fs::File::create(p)
-                .expect("create")
-                .write_all(expected.as_bytes())
-                .expect("write")
-        };
+        let write =
+            |p| fs::File::create(p).expect("create").write_all(expected.as_bytes()).expect("write");
         let read = |p| {
             let mut out = String::new();
-            fs::File::open(p)
-                .expect("open")
-                .read_to_string(&mut out)
-                .expect("read");
+            fs::File::open(p).expect("open").read_to_string(&mut out).expect("read");
             out
         };
 

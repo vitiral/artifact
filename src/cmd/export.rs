@@ -29,7 +29,10 @@ pub struct Cmd {
 }
 
 pub fn get_cmd(matches: &ArgMatches) -> Result<Cmd> {
-    let ty = match matches.value_of("type").unwrap_or("").to_ascii_lowercase().as_str() {
+    let ty = match matches.value_of("type")
+              .unwrap_or("")
+              .to_ascii_lowercase()
+              .as_str() {
         "html" => ExportType::Html,
         t => return Err(ErrorKind::CmdError(format!("unknown type: {}", t)).into()),
     };

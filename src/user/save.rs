@@ -94,9 +94,9 @@ impl ProjectText {
             text.insert(p, serialize::pretty_toml(&v)?);
         }
         Ok(ProjectText {
-            files: text,
-            origin: project.origin.clone(),
-        })
+               files: text,
+               origin: project.origin.clone(),
+           })
     }
 
     /// dump text to origin

@@ -106,7 +106,7 @@ pub fn _get_percent(s: &str) -> result::Result<(Option<bool>, Option<i8>), Strin
         _ => {
             return Err("percent must be of the form: [SIGN]NUM where NUM is between 0 and 100 and \
                         SIGN is an optional < or >"
-                .to_string())
+                               .to_string())
         }
     }
     if had_sign {
@@ -133,41 +133,41 @@ pub fn _get_percent(s: &str) -> result::Result<(Option<bool>, Option<i8>), Strin
 
 fn get_percent(s: &str) -> result::Result<PercentSearch, String> {
     Ok(match _get_percent(s) {
-        Ok((lt, perc)) => {
-            if lt.is_none() && perc.is_none() {
-                PercentSearch {
-                    lt: false,
-                    perc: 100,
-                }
-            } else if perc.is_none() {
-                if lt.unwrap() {
-                    PercentSearch {
-                        lt: true,
-                        perc: 0,
-                    }
-                } else {
-                    PercentSearch {
-                        lt: false,
-                        perc: 100,
-                    }
-                }
-            } else {
-                let lt = match lt {
-                    None => false,
-                    Some(l) => l,
-                };
-                let perc = match perc {
-                    None => 100,
-                    Some(p) => p,
-                };
-                PercentSearch {
-                    lt: lt,
-                    perc: perc,
-                }
+           Ok((lt, perc)) => {
+               if lt.is_none() && perc.is_none() {
+                   PercentSearch {
+                       lt: false,
+                       perc: 100,
+                   }
+               } else if perc.is_none() {
+        if lt.unwrap() {
+            PercentSearch {
+                lt: true,
+                perc: 0,
+            }
+        } else {
+            PercentSearch {
+                lt: false,
+                perc: 100,
             }
         }
-        Err(e) => return Err(e),
-    })
+    } else {
+        let lt = match lt {
+            None => false,
+            Some(l) => l,
+        };
+        let perc = match perc {
+            None => 100,
+            Some(p) => p,
+        };
+        PercentSearch {
+            lt: lt,
+            perc: perc,
+        }
+    }
+           }
+           Err(e) => return Err(e),
+       })
 }
 
 #[test]
@@ -183,39 +183,39 @@ fn test_get_percent() {
     // test full struct
     assert_eq!(get_percent(""),
                Ok(PercentSearch {
-                   lt: false,
-                   perc: 100,
-               }));
+                      lt: false,
+                      perc: 100,
+                  }));
     assert_eq!(get_percent("<"),
                Ok(PercentSearch {
-                   lt: true,
-                   perc: 0,
-               }));
+                      lt: true,
+                      perc: 0,
+                  }));
     assert_eq!(get_percent(">"),
                Ok(PercentSearch {
-                   lt: false,
-                   perc: 100,
-               }));
+                      lt: false,
+                      perc: 100,
+                  }));
     assert_eq!(get_percent("89"),
                Ok(PercentSearch {
-                   lt: false,
-                   perc: 89,
-               }));
+                      lt: false,
+                      perc: 89,
+                  }));
     assert_eq!(get_percent(">89"),
                Ok(PercentSearch {
-                   lt: false,
-                   perc: 89,
-               }));
+                      lt: false,
+                      perc: 89,
+                  }));
     assert_eq!(get_percent("<89"),
                Ok(PercentSearch {
-                   lt: true,
-                   perc: 89,
-               }));
+                      lt: true,
+                      perc: 89,
+                  }));
     assert_eq!(get_percent(">-1"),
                Ok(PercentSearch {
-                   lt: false,
-                   perc: -1,
-               }));
+                      lt: false,
+                      perc: -1,
+                  }));
 
     // invalid
     assert!(get_percent(">101").is_err());
@@ -354,9 +354,7 @@ pub fn run_cmd<W: Write>(mut w: &mut W, cwd: &Path, cmd: &Cmd, project: &Project
     // filter by various settings (not just pattern, also test/completeness %, etc)
     let names: Vec<_> = {
         let pat = if cmd.search_settings.use_regex {
-            let p = RegexBuilder::new(&cmd.pattern)
-                .case_insensitive(true)
-                .build();
+            let p = RegexBuilder::new(&cmd.pattern).case_insensitive(true).build();
             match p {
                 Ok(p) => p,
                 Err(e) => {
@@ -368,9 +366,9 @@ pub fn run_cmd<W: Write>(mut w: &mut W, cwd: &Path, cmd: &Cmd, project: &Project
         };
         names.drain(0..)
             .filter(|n| {
-                let a = artifacts.get(n).unwrap(); // we are guaranteed the name exists
-                ui::show_artifact(n, a, &pat, &cmd.search_settings)
-            })
+                        let a = artifacts.get(n).unwrap(); // we are guaranteed the name exists
+                        ui::show_artifact(n, a, &pat, &cmd.search_settings)
+                    })
             .collect()
     };
     debug!("artifact names selected: {:?}", names);
@@ -400,7 +398,7 @@ pub fn run_cmd<W: Write>(mut w: &mut W, cwd: &Path, cmd: &Cmd, project: &Project
     if !dne.is_empty() {
         return Err(ErrorKind::NameNotFound(format!("The following artifacts do not exist: {:?}",
                                                    dne))
-            .into());
+                           .into());
     }
     Ok(0)
 }

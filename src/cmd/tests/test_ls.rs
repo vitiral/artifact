@@ -49,9 +49,9 @@ fn test_get_matches() {
 
 fn to_vec(b: &'static [u8]) -> Vec<u8> {
     Vec::from_iter(b.iter().map(|c| match *c {
-        b'/' => MAIN_SEPARATOR as u8,
-        _ => c.clone(),
-    }))
+                                    b'/' => MAIN_SEPARATOR as u8,
+                                    _ => c.clone(),
+                                }))
 }
 
 
@@ -96,7 +96,8 @@ toml           : SPC-unresolvable\n\n";
 const LS_SPC_DNE: &'static [u8] = LS_SPC_DNE_NC;
 
 #[cfg(not(windows))]
-const LS_SPC_DNE: &'static [u8] = b"\x1b[1;31m\nFound partof names that do not \
+const LS_SPC_DNE: &'static [u8] =
+    b"\x1b[1;31m\nFound partof names that do not \
 exist:\n\x1b[0m\x1b[31m    REQ-invalid-parts [../../reqs/foo.toml]: {REQ-DNE}\
 \n\x1b[0m\x1b[1;31m\nArtifacts partof contains at least one recursive reference:\
 \n\x1b[0m    SPC-unresolvable              : [SPC-UNRESOLVABLE-1-1]\n    \
@@ -138,7 +139,8 @@ PARTS                      | PARTOF     | IMPLEMENTED     | DEFINED             
 #[cfg(windows)]
 const LS_S_C_STAR_FOO: &'static [u8] = LS_S_C_STAR_FOO_NC;
 
-const LS_T_LONG_NC: &'static [u8] = b"|  | DONE TEST | NAME           | TEXT\n|--|   0%   0% | \
+const LS_T_LONG_NC: &'static [u8] =
+    b"|  | DONE TEST | NAME           | TEXT\n|--|   0%   0% | \
 TST-line-long  | This line is very very very very long and it sh...\n";
 
 #[cfg(not(windows))]
@@ -163,7 +165,8 @@ This text has multiple lines.\n";
 #[cfg(windows)]
 const LS_T_MULTI: &'static [u8] = LS_T_MULTI_NC;
 
-const LS_L_MULTI_NC: &'static [u8] = b"|--|   0%   0% | TST-line-multi\n * text:\nThis text has \
+const LS_L_MULTI_NC: &'static [u8] =
+    b"|--|   0%   0% | TST-line-multi\n * text:\nThis text has \
 multiple lines.\nThis is the second one.\nYou shouldn't see these later lines!\n\n";
 
 #[cfg(not(windows))]

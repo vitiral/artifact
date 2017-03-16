@@ -142,7 +142,7 @@ fn from_table(name: &Name, path: &Path, tbl: &Table) -> Result<Artifact> {
     if let Some(invalid) = decoder.toml {
         return Err(ErrorKind::InvalidArtifact(name.to_string(),
                                               format!("invalid attrs: {}", invalid))
-            .into());
+                           .into());
     }
     let done = match raw.done {
         Some(s) => Done::Defined(s),
@@ -150,15 +150,15 @@ fn from_table(name: &Name, path: &Path, tbl: &Table) -> Result<Artifact> {
     };
 
     Ok(Artifact {
-        path: path.to_path_buf(),
-        text: raw.text.unwrap_or_default(),
-        partof: Names::from_str(&raw.partof.unwrap_or_default())?,
-        done: done,
-        // calculated vars
-        parts: HashSet::new(),
-        completed: -1.0,
-        tested: -1.0,
-    })
+           path: path.to_path_buf(),
+           text: raw.text.unwrap_or_default(),
+           partof: Names::from_str(&raw.partof.unwrap_or_default())?,
+           done: done,
+           // calculated vars
+           parts: HashSet::new(),
+           completed: -1.0,
+           tested: -1.0,
+       })
 }
 
 #[cfg(test)]

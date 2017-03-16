@@ -28,9 +28,8 @@ use types::*;
 /// string with format `REQ-foo-[bar, baz-boo], SPC-foo`
 pub fn collapse_names(mut names: Vec<String>) -> String {
     names.sort();
-    let names: Vec<Vec<String>> = names.iter()
-        .map(|n| n.split('-').map(|s| s.to_string()).collect())
-        .collect();
+    let names: Vec<Vec<String>> =
+        names.iter().map(|n| n.split('-').map(|s| s.to_string()).collect()).collect();
     let mut piece = NamePiece {
         raw: names,
         prefix: String::new(),
@@ -60,10 +59,10 @@ impl FromStr for Name {
         let value: Vec<String> = value.split('-').map(|s| s.to_string()).collect();
         let ty = _get_type(&value[0], s)?;
         Ok(Name {
-            raw: s.to_string(),
-            value: value,
-            ty: ty,
-        })
+               raw: s.to_string(),
+               value: value,
+               ty: ty,
+           })
     }
 }
 
@@ -79,10 +78,10 @@ impl Name {
         let mut value = self.value.clone();
         value.pop().unwrap();
         Some(Name {
-            raw: value.join("-"),
-            value: value,
-            ty: self.ty,
-        })
+                 raw: value.join("-"),
+                 value: value,
+                 ty: self.ty,
+             })
     }
 
     /// return whether this artifact is the root type
@@ -206,7 +205,7 @@ fn _get_type(value: &str, raw: &str) -> Result<Type> {
             Err(ErrorKind::InvalidName(format!("name must start with REQ-, RSK-, SPC- or TST-: \
                                                 {}",
                                                raw))
-                .into())
+                        .into())
         }
     }
 }
@@ -229,7 +228,7 @@ fn parse_names<I>(raw: &mut I, in_brackets: bool) -> Result<Vec<String>>
                 if in_brackets {
                     // SPC-names.2: do validation
                     return Err(ErrorKind::InvalidName("brackets are not closed".to_string())
-                        .into());
+                                   .into());
                 }
                 break;
             }
@@ -241,7 +240,7 @@ fn parse_names<I>(raw: &mut I, in_brackets: bool) -> Result<Vec<String>>
                     // SPC-names.2: more validation
                     let msg = "cannot have '[' after characters ',' or ']'\
                                or at start of string"
-                        .to_string();
+                            .to_string();
                     return Err(ErrorKind::InvalidName(msg).into());
                 }
                 // SPC-names.3: recurse for brackets
@@ -262,7 +261,10 @@ fn parse_names<I>(raw: &mut I, in_brackets: bool) -> Result<Vec<String>>
         }
     }
     strout.write_str(&current).unwrap();
-    Ok(strout.split(',').filter(|s| s != &"").map(|s| s.to_string()).collect())
+    Ok(strout.split(',')
+           .filter(|s| s != &"")
+           .map(|s| s.to_string())
+           .collect())
 }
 
 // Private: Collapsing Names
@@ -301,11 +303,17 @@ impl NamePiece {
                 // found (at least) two parts with the same prefix
                 // store the part in raw without it's prefix
                 let i = pieces.len() - 1; // wow, you can't do this inline...
-                pieces[i].raw.push(part.split_first().unwrap().1.to_vec())
+                pieces[i].raw.push(part.split_first()
+                                       .unwrap()
+                                       .1
+                                       .to_vec())
             } else {
                 // we found a new prefix, create a new piece to store it
                 prefix = part[0].clone();
-                let raw = part.iter().skip(1).cloned().collect();
+                let raw = part.iter()
+                    .skip(1)
+                    .cloned()
+                    .collect();
                 let piece = NamePiece::from(prefix.clone(), vec![raw]);
                 pieces.push(piece);
             }

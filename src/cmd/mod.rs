@@ -160,21 +160,21 @@ pub fn cmd<W, I, T>(w: &mut W, args: I) -> Result<u8>
         let c = export::get_cmd(mat)?;
         export::run_cmd(&cwd, &project, &c)
     } else if match run_server(&project, &matches) {
-        Ok(r) => return Ok(r),
-        Err(err) => {
-            match *err.kind() {
-                ErrorKind::NothingDone => false,
-                _ => return Err(err),
-            }
-        }
-    } {
+                  Ok(r) => return Ok(r),
+                  Err(err) => {
+                      match *err.kind() {
+                          ErrorKind::NothingDone => false,
+                          _ => return Err(err),
+                      }
+                  }
+              } {
         unreachable!();
     } else {
         write!(w,
                "{} {}: use -h to show help",
                Green.bold().paint("artifact"),
                Green.paint(VERSION))
-            .unwrap();
+                .unwrap();
         return Ok(0);
     }
 }
