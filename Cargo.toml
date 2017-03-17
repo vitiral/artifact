@@ -12,6 +12,7 @@ version = "0.6.5"
 [dependencies]
 ansi_term = "0.7"
 difference = "1.0"
+dotenv = "0.8.0"
 fern = "0.3.5"
 itertools = "0.5"
 lazy_static = "0.1.*"
@@ -32,6 +33,14 @@ unicode-width = "0.1.4"
 default-features = false
 features = ["suggestions", "color", "wrap_help"]
 version = "2"
+
+[dependencies.diesel]
+features = ["postgres"]
+version = "0.11.0"
+
+[dependencies.diesel_codegen]
+features = ["postgres"]
+version = "0.11.0"
 
 [dependencies.error-chain]
 default-features = false
