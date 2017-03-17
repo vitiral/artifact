@@ -19,45 +19,59 @@ use utils::parse_toml;
 /// recursively load the directory into text files, making sure
 /// not to load files that have already been loaded
 pub fn load_text(ptext: &mut ProjectText,
-                 load_dir: &Path,
+                 load_path: &Path,
                  loaded_paths: &mut HashSet<PathBuf>)
                  -> Result<()> {
-    loaded_paths.insert(load_dir.to_path_buf());
+    let mut files_to_load: Vec<PathBuf> = Vec::new();
     let mut dirs_to_load: Vec<PathBuf> = Vec::new();
-    let dir_entries =
-        fs::read_dir(load_dir).chain_err(|| format!("could not get dir: {}", load_dir.display()))?;
-    // just read text from all .toml files in the directory
-    // and record which directories need to be loaded
-    for entry in dir_entries.filter_map(|e| e.ok()) {
-        let fpath = entry.path();
-        if loaded_paths.contains(&fpath) {
-            continue;
-        }
-        let ftype = entry.file_type()
-            .chain_err(|| format!("error reading type: {}", fpath.display()))?;
-        if ftype.is_dir() {
-            dirs_to_load.push(fpath.clone());
-        } else if ftype.is_file() {
-            let ext = match fpath.extension() {
-                None => continue,
-                Some(ext) => ext,
-            };
-            if ext != "toml" {
-                // only load toml files
+    let ptype = load_path.metadata()
+        .chain_err(|| format!("cannot get type: {}", load_path.display()))?
+        .file_type();
+    if ptype.is_dir() {
+        // just read text from all .toml files in the directory
+        // and record which directories need to be loaded
+        // TODO: replace with walk_dir
+        let dir_entries = fs::read_dir(load_path)
+            .chain_err(|| format!("could not get dir: {}", load_path.display()))?;
+        for entry in dir_entries.filter_map(|e| e.ok()) {
+            let fpath = entry.path();
+            if loaded_paths.contains(&fpath) {
                 continue;
             }
-            let mut text = String::new();
-            let mut fp =
-                fs::File::open(&fpath).chain_err(|| format!("error opening: {}", fpath.display()))?;
-            fp.read_to_string(&mut text)
-                .chain_err(|| format!("Error loading path {}", fpath.display()))?;
-            ptext.files.insert(fpath.to_path_buf(), text);
+            loaded_paths.insert(fpath.to_path_buf());
+            let ftype = entry.file_type()
+                .chain_err(|| format!("error reading type: {}", fpath.display()))?;
+            if ftype.is_dir() {
+                dirs_to_load.push(fpath.clone());
+            } else if ftype.is_file() {
+                files_to_load.push(fpath.clone());
+            }
         }
+    } else if ptype.is_file() {
+        files_to_load.push(load_path.to_path_buf());
+    } else {
+        let msg = format!("invalid path: {}", load_path.display());
+        return Err(ErrorKind::PathNotFound(msg).into());
+    }
+
+    for fpath in files_to_load {
+        let ext = match fpath.extension() {
+            None => continue,
+            Some(ext) => ext,
+        };
+        if ext != "toml" {
+            // only load toml files
+            continue;
+        }
+        let mut text = String::new();
+        let mut fp =
+            fs::File::open(&fpath).chain_err(|| format!("error opening: {}", fpath.display()))?;
+        fp.read_to_string(&mut text)
+            .chain_err(|| format!("Error loading path {}", fpath.display()))?;
+        ptext.files.insert(fpath.to_path_buf(), text);
     }
     for dir in dirs_to_load {
-        if !loaded_paths.contains(dir.as_path()) {
-            load_text(ptext, dir.as_path(), loaded_paths)?;
-        }
+        load_text(ptext, dir.as_path(), loaded_paths)?;
     }
     Ok(())
 }

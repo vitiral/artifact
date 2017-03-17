@@ -1,0 +1,5 @@
+
+[SPC-excluded]
+text = '''
+this file should not be found
+'''

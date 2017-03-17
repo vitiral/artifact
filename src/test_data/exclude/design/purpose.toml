@@ -1,0 +1,15 @@
+[REQ-purpose]
+text = '''
+This test data repo is for testing the exclude settings
+'''
+
+[SPC-not-implemented]
+text = '''
+this should not be implemented because it's src file is
+excluded
+'''
+
+[SPC-implemented]
+text = '''
+this should be implemented
+'''

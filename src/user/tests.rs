@@ -396,3 +396,26 @@ fn test_save_idempotent() {
     result.equal(&result2).unwrap();
     assert_eq!(result_text, result_text2);
 }
+
+#[test]
+fn test_exclude() {
+    let exclude = &test_data::TEXCLUDE_DIR;
+    let p = user::load_repo(exclude.as_path()).unwrap();
+
+    assert_eq!(p.artifacts
+                   .get(&NameRc::from_str("SPC-implemented").unwrap())
+                   .unwrap()
+                   .completed,
+               1.0);
+    assert_eq!(p.artifacts
+                   .get(&NameRc::from_str("SPC-file").unwrap())
+                   .unwrap()
+                   .completed,
+               1.0);
+    assert_eq!(p.artifacts
+                   .get(&NameRc::from_str("SPC-not-implemented").unwrap())
+                   .unwrap()
+                   .completed,
+               0.0);
+    assert!(!p.artifacts.contains_key(&NameRc::from_str("SPC-excluded").unwrap()));
+}

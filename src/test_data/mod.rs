@@ -14,6 +14,7 @@ lazy_static!{
         file!()).parent().unwrap().to_path_buf());
     pub static ref TEMPTY_DIR: PathBuf = TDATA_DIR.join(PathBuf::from("empty"));
     pub static ref TSIMPLE_DIR: PathBuf = TDATA_DIR.join(PathBuf::from("simple"));
+    pub static ref TEXCLUDE_DIR: PathBuf = TDATA_DIR.join(PathBuf::from("exclude"));
     pub static ref TINVALID_DIR: PathBuf = TDATA_DIR.join(PathBuf::from("invalid"));
     pub static ref TINVALID_BOUNDS: PathBuf = TINVALID_DIR.join("out-bounds");
     pub static ref TLOC_DIR: PathBuf = TDATA_DIR.join(PathBuf::from("loc"));

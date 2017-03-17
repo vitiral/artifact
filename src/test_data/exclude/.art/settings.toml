@@ -1,0 +1,27 @@
+# artifact project settings
+
+# Note: {cwd} == current directory of THIS file
+#       {repo} == directory of the `.art` file
+
+# directories containing artifact toml files
+artifact_paths = [
+    "{repo}/design",
+    "{repo}/file.toml",
+]
+
+exclude_artifact_paths = [
+    "{repo}/design/excluded.toml",
+    "{repo}/design/excluded",
+]
+
+# directories containing code that has artifact links
+code_paths = [
+    "{repo}/src",
+    "{repo}/file.py",
+]
+
+# directories to exclude when searching through code
+exclude_code_paths = [
+    "{repo}/src/excluded.py",
+    "{repo}/src/excluded",
+]

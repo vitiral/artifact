@@ -12,15 +12,15 @@ lazy_static!{
 pub fn find_locs(settings: &Settings) -> Result<HashMap<Name, Loc>> {
     info!("parsing code files for artifacts...");
     let mut locs: HashMap<Name, Loc> = HashMap::new();
-    let mut loaded_dirs: HashSet<PathBuf> =
+    let mut loaded: HashSet<PathBuf> =
         HashSet::from_iter(settings.exclude_code_paths.iter().map(|p| p.to_path_buf()));
-    debug!("excluded code paths: {:?}", loaded_dirs);
-    for dir in &settings.code_paths {
-        if loaded_dirs.contains(dir) {
+    debug!("excluded code paths: {:?}", loaded);
+    for path in &settings.code_paths {
+        if loaded.contains(path) {
             continue;
         }
-        debug!("Loading from code: {:?}", dir);
-        find_locs_dir(dir, &mut loaded_dirs, &mut locs)?;
+        debug!("Loading from code: {:?}", path);
+        find_locs_path(path, &mut loaded, &mut locs)?;
     }
     Ok(locs)
 }
@@ -95,14 +95,17 @@ fn find_locs_file(path: &Path, locs: &mut HashMap<Name, Loc>) -> Result<()> {
 
 /// recursively find all locs given a directory
 fn find_locs_dir(path: &PathBuf,
-                 loaded_dirs: &mut HashSet<PathBuf>,
+                 loaded: &mut HashSet<PathBuf>,
                  locs: &mut HashMap<Name, Loc>)
                  -> Result<()> {
-    loaded_dirs.insert(path.to_path_buf());
+    loaded.insert(path.to_path_buf());
     let read_dir = fs::read_dir(path).chain_err(|| format!("loading dir {}", path.display()))?;
     let mut dirs_to_load: Vec<PathBuf> = Vec::new(); // TODO: use references
     for entry in read_dir.filter_map(|e| e.ok()) {
         let fpath = entry.path();
+        if loaded.contains(&fpath) {
+            continue;
+        }
         // don't parse .toml files for locations
         // TODO: make general instead
         match fpath.extension() {
@@ -122,11 +125,28 @@ fn find_locs_dir(path: &PathBuf,
     }
 
     for d in dirs_to_load {
-        if !loaded_dirs.contains(&d) {
-            find_locs_dir(&d, loaded_dirs, locs)?;
-        }
+        find_locs_dir(&d, loaded, locs)?;
     }
     Ok(())
+}
+
+/// recursively find all locs given a directory
+fn find_locs_path(path: &PathBuf,
+                  loaded: &mut HashSet<PathBuf>,
+                  locs: &mut HashMap<Name, Loc>)
+                  -> Result<()> {
+    let ty = path.metadata()
+        .chain_err(|| format!("invalid path: {}", path.display()))?
+        .file_type();
+    if ty.is_file() {
+        loaded.insert(path.to_path_buf());
+        find_locs_file(path, locs)
+    } else if ty.is_dir() {
+        find_locs_dir(path, loaded, locs)
+    } else {
+        let msg = format!("invalid path: {}", path.display());
+        return Err(ErrorKind::PathNotFound(msg).into());
+    }
 }
 
 #[cfg(test)]

@@ -82,18 +82,16 @@ pub fn load_repo(repo: &Path) -> Result<Project> {
     let settings = settings::load_settings(repo)?;
 
     let mut project_text = ProjectText::default();
-    let mut loaded_dirs: HashSet<PathBuf> = HashSet::new();
-    loaded_dirs.insert(repo.join(REPO_DIR.as_path()));
-    loaded_dirs.extend(settings.exclude_artifact_paths.iter().cloned());
+    let mut loaded_paths: HashSet<PathBuf> = HashSet::new();
+    loaded_paths.insert(repo.join(REPO_DIR.as_path()));
+    loaded_paths.extend(settings.exclude_artifact_paths.iter().cloned());
 
-    for dir in &settings.artifact_paths {
-        if loaded_dirs.contains(dir) {
-            warn!("artifact_paths tried to load a directory twice: {}",
-                  dir.display());
+    for path in &settings.artifact_paths {
+        if loaded_paths.contains(path) {
             continue;
         }
-        loaded_dirs.insert(dir.to_path_buf());
-        artifact::load_text(&mut project_text, dir.as_path(), &mut loaded_dirs)?;
+        loaded_paths.insert(path.to_path_buf());
+        artifact::load_text(&mut project_text, path.as_path(), &mut loaded_paths)?;
     }
 
     let mut project = Project::default();
