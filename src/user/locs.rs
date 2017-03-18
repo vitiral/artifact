@@ -145,7 +145,7 @@ fn find_locs_path(path: &PathBuf,
         find_locs_dir(path, loaded, locs)
     } else {
         let msg = format!("invalid path: {}", path.display());
-        return Err(ErrorKind::PathNotFound(msg).into());
+        Err(ErrorKind::PathNotFound(msg).into())
     }
 }
 
