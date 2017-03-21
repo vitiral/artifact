@@ -76,7 +76,7 @@ api: # run the api server (without the web-ui)
 	cargo run -- -v server
 
 serve: build-elm  # run the full frontend
-	TG={{target}} {{nightly}} cargo run -- -v server
+	TG={{target}} {{nightly}} cargo run -- -v serve
 
 self-check: # build self and run `art check` using own binary
 	TG={{target}} {{nightly}} cargo run -- check

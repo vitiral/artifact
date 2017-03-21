@@ -128,9 +128,21 @@ fullArtifactUrl : Model -> String -> String
 fullArtifactUrl model indexName =
   let
     addrName = String.toLower (indexNameUnchecked indexName)
+    -- super hacky way to get the origin: might fail for files
+    -- I tried location.origin... doesn't work for some reason.
+    -- neither does location.host + location.pathname
+    origin = case List.head (String.split "#" model.location.href) of
+      Just o -> removeSlashEnd o
+      Nothing -> "ERROR-origin-no-head"
   in
-    model.location.origin ++ "/" ++ artifactsUrl ++ "/" ++ addrName
+    origin ++ "/" ++ artifactsUrl ++ "/" ++ addrName
 
+removeSlashEnd : String -> String
+removeSlashEnd path =
+  if String.endsWith "/" path then
+    removeSlashEnd (String.dropRight 1 path)
+  else
+    path
 
 -- replace [[ART-name]] with [ART-name](link)
 replaceArtifactLinks : Model -> String -> String

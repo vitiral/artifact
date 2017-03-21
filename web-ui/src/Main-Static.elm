@@ -30,7 +30,8 @@ initialModel location addr route =
 init : Navigation.Location -> (Model, Cmd AppMsg)
 init location =
     let
-
+      _ = Debug.log ("origin=" ++ location.origin ++ " host="++location.host ++
+                     " pathname=" ++ location.pathname)
       model = initialModel location "fake-addr" <| Routing.router location
     in
       ( model, Cmd.none )
