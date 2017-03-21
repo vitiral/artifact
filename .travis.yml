@@ -85,6 +85,11 @@ matrix:
       addons:
         apt:
           packages: *musl_packages
+
+    # beta channel
+    - os: linux
+      rust: beta
+      env: TARGET=x86_64-unknown-linux-gnu
   allow_failures:
     # DONE You might need to allow failures for some target on some channel for some reason. Below
     # there's one (commented out) example of how to do that. Just change the OS, channel and TARGET
