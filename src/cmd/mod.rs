@@ -62,7 +62,7 @@ pub fn get_loglevel(matches: &ArgMatches) -> Option<(u8, bool)> {
 
 #[cfg(feature="server")]
 fn run_server(project: &Project, matches: &ArgMatches) -> Result<u8> {
-    if let Some(mat) = matches.subcommand_matches("server") {
+    if let Some(mat) = matches.subcommand_matches("serve") {
         let addr = server::get_cmd(mat);
         server::run_cmd(project.clone(), &addr);
         Ok(0)

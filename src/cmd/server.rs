@@ -11,17 +11,18 @@ pub fn get_subcommand<'a, 'b>() -> App<'a, 'b> {
         .about("serve the web-ui and json-rpc backend")
         .settings(&SUBCMD_SETTINGS)
         .arg(Arg::with_name("addr")
-            .help("full address to start server on. Default='127.0.0.1:8000'")
-            .use_delimiter(false))
+            .help("full address to start server on. Default='127.0.0.1:4000'")
+            .use_delimiter(false)
+            .required(false))
         .arg(Arg::with_name("edit")
             .long("edit")
             .short("e")
-            .help("enable editing. ALPHA NOTICE: this feature is not yet
-                    \
+            .help("enable editing. ALPHA NOTICE: this feature is not yet \
                    secure. DO NOT USE ON NON TRUSTED NETWORK"))
 }
 
 
+#[derive(Debug)]
 pub struct Cmd {
     pub addr: String,
     pub edit: bool,
@@ -39,5 +40,6 @@ pub fn get_cmd(matches: &ArgMatches) -> Cmd {
 // need to do conditional compilation on types
 // to auto-convert web errors
 pub fn run_cmd(project: Project, cmd: &Cmd) {
+    debug!("running server: {:?}", cmd);
     api::start_api(project, &cmd.addr, cmd.edit);
 }
