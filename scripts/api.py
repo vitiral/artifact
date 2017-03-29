@@ -19,7 +19,7 @@ import argparse
 parser = argparse.ArgumentParser(description='run against artifact JSON-RPC')
 parser.add_argument('addr', help='address of artifact server')
 parser.add_argument('method', help='method to use. Default=GetArtifacts',
-                    default='GetArtifacts', nargs='?')
+                    default='GetTests', nargs='?')
 
 args = parser.parse_args()
 addr = args.addr + '/json-rpc'

@@ -49,7 +49,36 @@ fn config_json_res(res: &mut Response) {
     res.set(MediaType::Json);
     res.set(StatusCode::Ok);
 }
+/*
+fn handle_db<'a>(req: &mut Request, mut res: Response<'a>) -> MiddlewareResult<'a> {
+    setup_headers(&mut res);
+    let mut body = vec![];
+    req.origin.read_to_end(&mut body).unwrap();
+    let body = match str::from_utf8(&body) {
+        Ok(b) => b,
+        Err(e) => {
+            res.set(StatusCode::BadRequest);
+            return res.send(format!("infalid utf8: {:?}", e));
+        }
+    };
 
+    trace!("request: {:?}", body);
+    match handler::RPC_HANDLER.handle_request_sync(body) {
+        Some(body) => {
+            trace!("- response {}", body);
+            config_json_res(&mut res);
+            res.send(body)
+        }
+        None => {
+            let msg = "InternalServerError: Got None from json-rps handler";
+            error!("{}", msg);
+            res.set(StatusCode::InternalServerError);
+            res.send(msg)
+        }
+    }
+
+}
+*/
 fn handle_artifacts<'a>(req: &mut Request, mut res: Response<'a>) -> MiddlewareResult<'a> {
     setup_headers(&mut res);
     debug!("handling json-rpc request");
@@ -148,9 +177,14 @@ pub fn start_api(project: Project, addr: &str, edit: bool) {
     server.put(endpoint, handle_artifacts);
     server.options(endpoint, handle_options);
 
+//    server.get("/test", middleware! { |_, mut response|
+//                                       format!("Hellow from test /test")
+//    });
+
     // host the frontend files using a static file handler
     // and own the tmpdir for as long as needed
     let tmp_dir = host_frontend(&mut server, addr);
 
     server.listen(addr).expect("cannot connect to port");
 }
+
