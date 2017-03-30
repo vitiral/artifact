@@ -1,4 +1,10 @@
 """
+Before running server:
+    set up and run postgres server with database `artifact` and table `test_name`
+    run `echo DATABASE_URL=postgres://username:password@localhost/artifact > .env' 
+        to create .env file in /artifact directory
+        
+
 Run the artifact server with:
     cargo run --features server -- -v serve
 
