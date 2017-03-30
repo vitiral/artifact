@@ -1,10 +1,9 @@
 use super::schema::test_name;
 
-#[derive(Insertable)]
+#[derive(Insertable, Serialize)]
 #[table_name="test_name"]
-#[derive(Serialize)]
-pub struct NewTestName {
-    pub name: String,
+pub struct NewTestName<'a> {
+    pub name: &'a str,
 }
 
 #[derive(Queryable)]

@@ -109,3 +109,17 @@ pub fn establish_connection() -> PgConnection {
     PgConnection::establish(&database_url)
         .expect(&format!("Error connection to {}", database_url))
 }
+
+use models::*;
+pub fn store_test<'a, 'b>(conn: &'a PgConnection, name: &'b str) -> Result<serde_json::Value> {
+	use schema::test_name;
+	
+	let new_test_name = NewTestName {
+		name: name,
+	};
+	
+	Ok(diesel::insert(&new_test_name).into(test_name::table)
+		.get_result(conn)
+		.expect("Error saving new test"))
+		
+}

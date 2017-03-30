@@ -23,6 +23,7 @@ fn init_rpc_handler() -> IoHandler {
     // handler.add_method("UpdateArtifacts", update::UpdateArtifacts);
 
     handler.add_method("GetTests", GetTests);
+    handler.add_method("AddTest", AddTest);
     handler
 }
 
@@ -54,4 +55,19 @@ impl RpcMethodSync for GetTests {
 
         Ok(serde_json::to_value(result).expect("serde"))
     }
+}
+
+/// `AddTests` API Handler
+use store_test;
+struct AddTest;
+impl RpcMethodSync for AddTest {
+	fn call(&self, params: Params) -> result::Result<serde_json::Value, RpcError> {
+		use schema::test_name::dsl::*;
+		let connection = establish_connection();
+		
+		let testname = serde_json::to_value(params).expect("superman");
+		println!("{:?}", testname);
+		
+		store_test(&connection, testname.get("name").unwrap().to_string().as_str()).wrap()
+	}
 }
