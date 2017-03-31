@@ -20,6 +20,11 @@ use tempdir::TempDir;
 use types::Project;
 use export::ArtifactData;
 
+use diesel::prelude::*;
+use diesel::pg::PgConnection;
+use dotenv::dotenv;
+use std::env;
+
 mod constants;
 mod utils;
 mod handler;
@@ -27,6 +32,8 @@ mod update;
 
 #[cfg(test)]
 mod tests;
+
+mod types;
 
 const WEB_FRONTEND_TAR: &'static [u8] = include_bytes!("data/web-ui.tar");
 
@@ -43,6 +50,18 @@ fn setup_headers(res: &mut Response) {
                  vec![bv("GET, POST, OPTIONS, PUT, PATCH, DELETE")]);
     head.set_raw("Access-Control-Allow-Headers",
                  vec![bv("X-Requested-With,content-type")]);
+}
+
+
+
+
+pub fn establish_connection() -> PgConnection {
+    dotenv().ok();
+
+    let database_url = env::var("DATABASE_URL")
+        .expect("DATABASE_URL must be set");
+    PgConnection::establish(&database_url)
+        .expect(&format!("Error connection to {}", database_url))
 }
 
 fn config_json_res(res: &mut Response) {

@@ -1,8 +1,12 @@
+extern crate diesel;
 
 use dev_prefix::*;
 use jsonrpc_core::{IoHandler, RpcMethodSync, Params, Error as RpcError};
 use serde_json;
 
+use diesel::prelude::*;
+use api::establish_connection;
+use api::types::*;
 use export::ArtifactData;
 
 use super::ARTIFACTS;
@@ -15,6 +19,7 @@ fn init_rpc_handler() -> IoHandler {
     // TODO: update is disabled until it is feature complete
     // (specifically security needs to be added)
     // handler.add_method("UpdateArtifacts", update::UpdateArtifacts);
+    handler.add_method("GetTests", GetTests);
     handler
 }
 
@@ -32,3 +37,19 @@ impl RpcMethodSync for GetArtifacts {
         Ok(serde_json::to_value(artifacts).expect("serde"))
     }
 }
+
+/// `GetTests` API Handler
+struct GetTests;
+impl RpcMethodSync for GetTests {
+	fn call(&self, _: Params) -> result::Result<serde_json::Value, RpcError> {
+	    use self::test_name::dsl::*;
+        let connection = establish_connection();
+        info!("GetTests called");
+
+        let result = test_name.load::<TestName>(&connection)
+            .expect("Error loading test names");
+
+        Ok(serde_json::to_value(result).expect("serde"))
+    }
+}
+

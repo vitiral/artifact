@@ -53,6 +53,15 @@ extern crate nickel;
 extern crate jsonrpc_core;
 extern crate tempdir;
 
+#[macro_use]
+#[cfg(feature="server")]
+extern crate diesel;
+#[cfg(feature="server")]
+#[macro_use]
+extern crate diesel_codegen;
+#[cfg(feature="server")]
+extern crate dotenv;
+
 // serialization
 #[macro_use]
 extern crate serde_derive;
@@ -82,6 +91,7 @@ pub mod test_data;
 
 // server modules
 #[cfg(feature="server")]
-mod api;
+pub mod api;
 
 pub use types::*;
+
