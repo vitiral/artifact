@@ -5,8 +5,8 @@ use jsonrpc_core::{IoHandler, RpcMethodSync, Params, Error as RpcError};
 use serde_json;
 
 use diesel::prelude::*;
-use establish_connection;
-use TestName;
+use api::establish_connection;
+use api::types::*;
 use export::ArtifactData;
 
 use super::ARTIFACTS;
@@ -42,7 +42,7 @@ impl RpcMethodSync for GetArtifacts {
 struct GetTests;
 impl RpcMethodSync for GetTests {
 	fn call(&self, _: Params) -> result::Result<serde_json::Value, RpcError> {
-	    use test_name::dsl::*;
+	    use self::test_name::dsl::*;
         let connection = establish_connection();
         info!("GetTests called");
 
