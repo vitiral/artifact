@@ -33,6 +33,20 @@ default-features = false
 features = ["suggestions", "color", "wrap_help"]
 version = "2"
 
+[dependencies.diesel]
+features = ["postgres"]
+optional = true
+version = "0.11.0"
+
+[dependencies.diesel_codegen]
+features = ["postgres"]
+optional = true
+version = "0.11.0"
+
+[dependencies.dotenv]
+optional = true
+version = "0.8.0"
+
 [dependencies.error-chain]
 default-features = false
 version = "0.9.0"
@@ -56,7 +70,7 @@ version = "0.3"
 
 [features]
 default = []
-server = ["nickel", "jsonrpc-core", "tempdir"]
+server = ["nickel", "jsonrpc-core", "tempdir", "diesel", "diesel_codegen", "dotenv"]
 
 [profile]
 
