@@ -1,10 +1,16 @@
+//extern crate artifact_app;
+extern crate diesel;
 
 use dev_prefix::*;
 use jsonrpc_core::{IoHandler, RpcMethodSync, Params, Error as RpcError};
 use serde_json;
 
+use diesel::prelude::*;
+//use self::artifact_app::*;
+//use self::diesel::prelude::*;
+use establish_connection;
 use export::ArtifactData;
-
+use models::TestName;
 use super::ARTIFACTS;
 
 /// the rpc initializer that implements the API spec
@@ -15,6 +21,9 @@ fn init_rpc_handler() -> IoHandler {
     // TODO: update is disabled until it is feature complete
     // (specifically security needs to be added)
     // handler.add_method("UpdateArtifacts", update::UpdateArtifacts);
+
+    handler.add_method("GetTests", GetTests);
+    handler.add_method("AddTest", AddTest);
     handler
 }
 
@@ -31,4 +40,34 @@ impl RpcMethodSync for GetArtifacts {
         let artifacts: &Vec<ArtifactData> = locked.as_ref();
         Ok(serde_json::to_value(artifacts).expect("serde"))
     }
+}
+
+/// `GetTests` API Handler
+struct GetTests;
+impl RpcMethodSync for GetTests {
+    fn call(&self, _: Params) -> result::Result<serde_json::Value, RpcError> {
+        use schema::test_name::dsl::*;
+        let connection = establish_connection();
+        info!("GetTests called");
+
+        let result = test_name.load::<TestName>(&connection)
+            .expect("Error loading test names");
+
+        Ok(serde_json::to_value(result).expect("serde"))
+    }
+}
+
+/// `AddTests` API Handler
+use store_test;
+struct AddTest;
+impl RpcMethodSync for AddTest {
+	fn call(&self, params: Params) -> result::Result<serde_json::Value, RpcError> {
+		use schema::test_name::dsl::*;
+		let connection = establish_connection();
+		
+		let testname = serde_json::to_value(params).expect("superman");
+		println!("{:?}", testname);
+		
+		store_test(&connection, testname.get("name").unwrap().to_string().as_str()).wrap()
+	}
 }

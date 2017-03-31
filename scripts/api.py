@@ -1,4 +1,10 @@
 """
+Before running server:
+    set up and run postgres server with database `artifact` and table `test_name`
+    run `echo DATABASE_URL=postgres://username:password@localhost/artifact > .env' 
+        to create .env file in /artifact directory
+        
+
 Run the artifact server with:
     cargo run --features server -- -v serve
 
@@ -19,7 +25,7 @@ import argparse
 parser = argparse.ArgumentParser(description='run against artifact JSON-RPC')
 parser.add_argument('addr', help='address of artifact server')
 parser.add_argument('method', help='method to use. Default=GetArtifacts',
-                    default='GetArtifacts', nargs='?')
+                    default='GetTests', nargs='?')
 
 args = parser.parse_args()
 addr = args.addr + '/json-rpc'
