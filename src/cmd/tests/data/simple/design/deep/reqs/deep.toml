@@ -1,3 +1,0 @@
-[REQ-deep]
-partof = "REQ-purpose"
-text = 'used to test path lookup into "deep" dirs'

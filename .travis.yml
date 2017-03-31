@@ -1,144 +1,97 @@
-language: rust
-#before_script:
-# - cargo run -- check
+# Based on the "trust" template v0.1.1
+# https://github.com/japaric/trust/tree/v0.1.1
 
-cache: cargo
+dist: trusty
+language: rust
+services: docker
+sudo: required
 
 env:
   global:
-    # This will be part of the release tarball
-    - PROJECT_NAME=rst
-    # DONE comment out this variable if you don't want to build .deb packages on all the targets.
-    #- MAKE_DEB=yes
-    # DONE update these two variables. They are part of the .deb package metadata
-    - DEB_MAINTAINER="Garrett Berg <vitiral@gmail.com>"
-    - DEB_DESCRIPTION="requirements tracking tool made for developers"
+    - CRATE_NAME=artifact-app
 
-# AFAICT There are a few ways to set up the build jobs. This one is not the DRYest but I feel is the
-# easiest to reason about.
-# DONE Feel free to remove the channels/targets you don't need
-# NOTE Make *sure* you don't remove a reference (&foo) if you are going to dereference it (*foo)
 matrix:
   include:
-    # Stable channel
-    #- os: linux
-    #  rust: stable
-    #  env: TARGET=aarch64-unknown-linux-gnu
-    #  # need Trusty because the glibc in Precise is too old and doesn't support 64-bit arm
-    #  dist: trusty
-    #  sudo: required
-    #  # Extra packages only for this job
-    #  addons:
-    #    apt:
-    #      packages: &aarch64_unknown_linux_gnu
-    #        # Transparent emulation
-    #        - qemu-user-static
-    #        - binfmt-support
-    #- os: linux
-    #  rust: stable
-    #  env: TARGET=armv7-unknown-linux-gnueabihf
-    #  # sudo is needed for binfmt_misc, which is needed for transparent user qemu emulation
-    #  sudo: required
-    #  addons:
-    #    apt:
-    #      packages: &armv7_unknown_linux_gnueabihf
-    #        # Cross compiler and cross compiled C libraries
-    #        - gcc-arm-linux-gnueabihf
-    #        - libc6-armhf-cross
-    #        - libc6-dev-armhf-cross
-    #        # Transparent emulation
-    #        - qemu-user-static
-    #        - binfmt-support
-    - os: osx
-      rust: stable
-      env: TARGET=i686-apple-darwin
-    - os: linux
-      rust: stable
-      env: TARGET=i686-unknown-linux-gnu
-      addons:
-        apt:
-          packages: &i686_unknown_linux_gnu
-            # Cross compiler and cross compiled C libraries
-            - gcc-multilib
-    - os: linux
-      rust: stable
-      env: TARGET=i686-unknown-linux-musl
-      dist: trusty
-      sudo: required
-      addons:
-        apt:
-          packages: &musl_packages
-          - musl
-          - musl-dev
-          - musl-tools
-    - os: osx
-      rust: stable
-      env: TARGET=x86_64-apple-darwin
-    - os: linux
-      rust: stable
-      env: TARGET=x86_64-unknown-linux-gnu
-    - os: linux
-      rust: stable
-      env: TARGET=x86_64-unknown-linux-musl
-      dist: trusty
-      sudo: required
-      addons:
-        apt:
-          packages: *musl_packages
+    # Linux
+    - env: TARGET=i686-unknown-linux-gnu
+    - env: TARGET=i686-unknown-linux-musl
+    - env: TARGET=x86_64-unknown-linux-gnu
+    - env: TARGET=x86_64-unknown-linux-musl
 
-    # beta channel
-    - os: linux
-      rust: beta
-      env: TARGET=x86_64-unknown-linux-gnu
-  allow_failures:
-    # DONE You might need to allow failures for some target on some channel for some reason. Below
-    # there's one (commented out) example of how to do that. Just change the OS, channel and TARGET
-    # as needed.
-    # - os: linux
-    #   rust: stable
-    #   env: TARGET=x86_64-unknown-linux-gnu
+    ## FIXME: OSX is failing tests currently
+    ## OSX
+    #- env: TARGET=i686-apple-darwin
+    #  os: osx
+    #- env: TARGET=x86_64-apple-darwin
+    #  os: osx
 
-before_install:
-  - export PATH="$PATH:$HOME/.cargo/bin"
+    ## *BSD
+    #- env: TARGET=i686-unknown-freebsd DISABLE_TESTS=1
+    #- env: TARGET=x86_64-unknown-freebsd DISABLE_TESTS=1
+    #- env: TARGET=x86_64-unknown-netbsd DISABLE_TESTS=1
+
+    ## Other architectures
+    #- env: TARGET=aarch64-unknown-linux-gnu
+    #- env: TARGET=armv7-unknown-linux-gnueabihf
+    #- env: TARGET=mips-unknown-linux-gnu
+    #- env: TARGET=mips64-unknown-linux-gnuabi64
+    #- env: TARGET=mips64el-unknown-linux-gnuabi64
+    #- env: TARGET=mipsel-unknown-linux-gnu
+    #- env: TARGET=powerpc-unknown-linux-gnu
+    #- env: TARGET=powerpc64-unknown-linux-gnu
+    #- env: TARGET=powerpc64le-unknown-linux-gnu
+    #- env: TARGET=s390x-unknown-linux-gnu DISABLE_TESTS=1
+
+    ## Testing other channels
+    #- env: TARGET=x86_64-unknown-linux-gnu
+    #  rust: beta
+    #- env: TARGET=x86_64-apple-darwin
+    #  os: osx
+    #  rust: beta
+
+before_install: set -e
 
 install:
-  - bash ci/install.sh
+  - sh ci/install.sh
+  - source ~/.cargo/env || true
 
 script:
   - bash ci/script.sh
 
+after_script: set +e
+
 before_deploy:
-  - bash ci/before_deploy.sh
+  - sh ci/before_deploy.sh
 
 deploy:
-  provider: releases
-  # DONE Regenerate this api_key for your project, this one won't work for you. Here's how:
-  # - Go to 'https://github.com/settings/tokens/new' and generate a Token with only the
-  # `public_repo` scope enabled
-  # - Call `travis encrypt $github_token` where $github_token is the token you got in the previous
-  # step and `travis` is the official Travis CI gem (see https://rubygems.org/gems/travis/)
-  # - Enter the "encrypted value" below
+  # update `api_key.secure`
+  # - Create a `public_repo` GitHub token. Go to: https://github.com/settings/tokens/new
+  # - Encrypt it: `travis encrypt YOUR_TOKEN`
+  # - Paste the output down here
   api_key:
     secure: mup1wr3gAlbMJARUpcE/573zjVHWIM3iwdzcH/6hW8RqcSJNuNz964AF/xQcIrCC4y8aZOboOPZLtc2Spo5oDk0NmygOaSbQXlJwJWdbWJ15GXTi0FMzsC83waBCO7xwKXkewqCc+NCsuPbkVoJugcETcgx0ymDaeFP6i3NAs43uIjxdHeVv58BshAwZszp0DuQZWg73Vy4diPSWyVvDYQYtYRVs6Xl9/xlIGL1peORZnk/dFhfI0zvxajNqoOyhwIJzp8nUuwVBxomsBtJ5sKa4T7FAN5HGe4EnMFfnSwAYl5ffjVd4okyMrmDAdl6nveSgeGxcT8kmMpjrLTAEjd7JBw1Pa5mIY+7YduR/XrruLwLCCix0UJpjETppXG18J0gla+znqRCMxSil2GQ18d7TW7c8uetBSDjTn+tLHqSigfXtKExLYnkFOxEzISkHYw0jTHwAadtcxJLaKMsG2MOOFc7eeHuevIftJz7r2ONkORo9s9AX64hGEZVea9+qm27y+QJ6Cor8CZa+8cmdm/NsiWAcbXDg1YpG2MSAHeF/tmqfeVSJiloKJnCnMDE1Rcg2ZmHLd12qUfuF+CrbqpVdunjfFUN6bq0igjN1BfocIsl1285KCiOBZr5p91Wg5Mn87YNR3hihRkU5s32TTH2gETHP+Y24jXtLZQZxdPw=
   file_glob: true
-  file: ${PROJECT_NAME}-${TRAVIS_TAG}-${TARGET}.*
-  # don't delete the artifacts from previous phases
-  skip_cleanup: true
-  # deploy when a new tag is pushed
+  file: $CRATE_NAME-$TRAVIS_TAG-$TARGET.*
   on:
-    # channel to use to produce the release artifacts
-    # NOTE make sure you only release *once* per target
-    # DONE you may want to pick a different channel
+    # Here you can pick which targets will generate binary releases
+    # In this example, there are some targets that are tested using the stable
+    # and nightly channels. This condition makes sure there is only one release
+    # for such targets and that's generated using the stable channel
     condition: $TRAVIS_RUST_VERSION = stable
     tags: true
+  provider: releases
+  skip_cleanup: true
+
+cache: cargo
+before_cache:
+  # Travis can't cache files that are not readable by "others"
+  - chmod -R a+r $HOME/.cargo
 
 branches:
   only:
-    # Pushes and PR to the master branch
-    - master
-    # IMPORTANT Ruby regex to match tags. Required, or travis won't trigger deploys when a new tag
-    # is pushed. This regex matches semantic versions like v1.2.3-rc4+2016.02.22
+    # release tags
     - /^v\d+\.\d+\.\d+.*$/
+    - master
 
 notifications:
   email:

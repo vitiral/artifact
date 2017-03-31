@@ -1,3 +1,0 @@
-artifact_paths = [ "{repo}/design" ]
-code_paths = ["{repo}/src"]
-exclude_code_paths = []
