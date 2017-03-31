@@ -284,3 +284,9 @@ impl Settings {
         }
     }
 }
+
+#[derive(Queryable, Serialize, Deserialize)]
+pub struct TestName {
+    pub id: i32,
+    pub name: String,
+}
