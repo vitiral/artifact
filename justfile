@@ -75,8 +75,11 @@ test-e2e: # run e2e tests, still in development
 api: # run the api server (without the web-ui)
 	cargo run -- -v server
 
-serve: build-elm  # run the full frontend
+serve-rust: 
 	TG={{target}} {{nightly}} cargo run --features server -- -v serve
+
+serve: build-elm  # run the full frontend
+	just serve-rust
 
 self-check: # build self and run `art check` using own binary
 	TG={{target}} {{nightly}} cargo run -- check

@@ -51,7 +51,6 @@ extern crate tar;
 extern crate nickel;
 #[cfg(feature="server")]
 extern crate jsonrpc_core;
-#[cfg(feature="server")]
 extern crate tempdir;
 
 // serialization
@@ -60,6 +59,10 @@ extern crate serde_derive;
 extern crate serde;
 extern crate serde_json;
 extern crate toml;
+
+// crates for test
+#[cfg(test)]
+extern crate fs_extra;
 
 // "core" modules
 pub mod dev_prefix;
