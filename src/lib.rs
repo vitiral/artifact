@@ -54,6 +54,15 @@ extern crate jsonrpc_core;
 #[cfg(feature="server")]
 extern crate tempdir;
 
+#[macro_use]
+//#[cfg(features="server")]
+extern crate diesel;
+//#[cfg(features="server")]
+#[macro_use]
+extern crate diesel_codegen;
+//#[cfg(features="server")]
+extern crate dotenv;
+
 // serialization
 #[macro_use]
 extern crate serde_derive;
@@ -79,6 +88,25 @@ pub mod test_data;
 
 // server modules
 #[cfg(feature="server")]
-mod api;
+pub mod api;
+//#[cfg(features="server")]
+pub mod schema;
+//#[cfg(features="server")]
+pub mod models;
 
 pub use types::*;
+
+use diesel::prelude::*;
+use diesel::pg::PgConnection;
+use dotenv::dotenv;
+use std::env;
+
+pub fn establish_connection() -> PgConnection {
+    dotenv().ok();
+
+    let database_url = env::var("DATABASE_URL")
+        .expect("DATABASE_URL must be set");
+    PgConnection::establish(&database_url)
+        .expect(&format!("Error connection to {}", database_url))
+}
+
