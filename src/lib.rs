@@ -89,10 +89,6 @@ pub mod test_data;
 // server modules
 #[cfg(feature="server")]
 pub mod api;
-//#[cfg(features="server")]
-pub mod schema;
-//#[cfg(features="server")]
-pub mod models;
 
 pub use types::*;
 

@@ -6,7 +6,7 @@ use serde_json;
 
 use diesel::prelude::*;
 use establish_connection;
-use models::TestName;
+use TestName;
 use export::ArtifactData;
 
 use super::ARTIFACTS;
@@ -42,7 +42,7 @@ impl RpcMethodSync for GetArtifacts {
 struct GetTests;
 impl RpcMethodSync for GetTests {
 	fn call(&self, _: Params) -> result::Result<serde_json::Value, RpcError> {
-	    use schema::test_name::dsl::*;
+	    use test_name::dsl::*;
         let connection = establish_connection();
         info!("GetTests called");
 
