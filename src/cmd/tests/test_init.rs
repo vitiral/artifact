@@ -4,13 +4,14 @@ use dev_prefix::*;
 
 use cmd::init;
 
+use tempdir;
+
 
 #[test]
 /// #TST-cmd-init
 fn test_init() {
-    let dir = Path::new("DEL_ME");
-    fs::create_dir(&dir).expect("test dir exists!");
-
+    let tmpdir = tempdir::TempDir::new("artifact").unwrap();
+    let dir = tmpdir.path();
 
     // basically try/finally for rust -- need to make sure we don't change
     // the actual data
@@ -54,6 +55,6 @@ fn test_init() {
         assert!(!purpose.exists());
 
     }));
-    let _ = fs::remove_dir_all(&dir);
+    drop(dir);
     result.unwrap();
 }

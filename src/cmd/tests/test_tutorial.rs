@@ -1,5 +1,7 @@
 //! #TST-cmd-tutorial
 
+use tempdir;
+
 use dev_prefix::*;
 use types::*;
 use user;
@@ -93,8 +95,8 @@ fn test_line_length() {
 /// just make sure we can run the tutorial without errors
 /// in any order
 fn test_run_through() {
-    let tmp = TEST_DIR.join("test_tmp");
-    fs::create_dir(&tmp).unwrap();
+    let tmpdir = tempdir::TempDir::new("artifact").unwrap();
+    let tmp = tmpdir.path();
     tut::run_cmd(&tmp, 1).expect("part 1");
     tut::run_cmd(&tmp, 2).expect("part 2");
     tut::run_cmd(&tmp, 3).expect("part 3");

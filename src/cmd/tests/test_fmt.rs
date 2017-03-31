@@ -3,18 +3,24 @@
 use std::panic;
 use dev_prefix::*;
 use types::*;
-use super::TSIMPLE_DIR;
 use cmd;
 use user;
 use test_data;
 use utils;
 
+use tempdir;
+use fs_extra::dir;
 
 #[test]
 fn test_fmt_security() {
+    let tmpdir = tempdir::TempDir::new("artifact").unwrap();
+    let writedir = tmpdir.path();
+    dir::copy(&test_data::TINVALID_BOUNDS.as_path(), &writedir, 
+              &dir::CopyOptions::new()).unwrap();
+
     // make sure that we can't load invalid stuff
     let mut w: Vec<u8> = Vec::new();
-    let design = test_data::TINVALID_BOUNDS.join("repo").join("design");
+    let design = writedir.join("out-bounds").join("repo").join("design");
     let repo = utils::find_repo(&design).unwrap();
     let project = user::load_repo(&repo).unwrap();
     let c = cmd::fmt::Cmd::Write;
@@ -32,8 +38,14 @@ fn test_fmt_security() {
 /// partof: #TST-cmd-fmt
 #[test]
 fn test_fmt() {
+    let tmpdir = tempdir::TempDir::new("artifact").unwrap();
+    let writedir = tmpdir.path();
+    dir::copy(&test_data::TSIMPLE_DIR.as_path(), &writedir, 
+              &dir::CopyOptions::new()).unwrap();
+    let simple = writedir.join("simple");
+
     let mut w: Vec<u8> = Vec::new();
-    let simple = TSIMPLE_DIR.lock().unwrap();
+
     let design = simple.join("design");
 
     let mut original_text = user::ProjectText::default();

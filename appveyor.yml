@@ -1,79 +1,91 @@
+# Based on the "trust" template v0.1.1
+# https://github.com/japaric/trust/tree/v0.1.1
+
 environment:
   global:
-    # This will be used as part of the zipfile name
-    # DONE change the project name
-    PROJECT_NAME: artifact
-  # DONE feel free to delete targets/channels you don't need
+  # This is the Rust channel that build jobs will use by default but can be
+  # overridden on a case by case basis down below
+    RUST_VERSION: stable
+
+    CRATE_NAME: artifact-app
+
+  # TODO These are all the build jobs. Adjust as necessary. Comment out what you
+  # don't need
   matrix:
-    # Stable channel
+    # MinGW
     - TARGET: i686-pc-windows-gnu
-      CHANNEL: stable
-    - TARGET: i686-pc-windows-msvc
-      CHANNEL: stable
     - TARGET: x86_64-pc-windows-gnu
-      CHANNEL: stable
+
+    # MSVC
+    - TARGET: i686-pc-windows-msvc
     - TARGET: x86_64-pc-windows-msvc
-      CHANNEL: stable
 
-# Install Rust and Cargo
-# (Based on from https://github.com/rust-lang/libc/blob/master/appveyor.yml)
+    ## Testing other channels
+    #- TARGET: x86_64-pc-windows-gnu
+    #  RUST_VERSION: beta
+    #- TARGET: x86_64-pc-windows-msvc
+    #  RUST_VERSION: beta
+
 install:
-  # curl is not on the default path
-  - set PATH=C:\Program Files\Git\mingw64\bin;%PATH%
-
-  # setup rust tools
-  - curl -sSf -o rustup-init.exe https://win.rustup.rs
-  - rustup-init.exe --default-host %TARGET% --default-toolchain %CHANNEL% -y
+  - ps: >-
+      If ($Env:TARGET -eq 'x86_64-pc-windows-gnu') {
+        $Env:PATH += ';C:\msys64\mingw64\bin'
+      } ElseIf ($Env:TARGET -eq 'i686-pc-windows-gnu') {
+        $Env:PATH += ';C:\msys64\mingw32\bin'
+      }
+  - curl -sSf -o rustup-init.exe https://win.rustup.rs/
+  - rustup-init.exe -y --default-host %TARGET% --default-toolchain %RUST_VERSION%
   - set PATH=%PATH%;C:\Users\appveyor\.cargo\bin
   - rustc -Vv
   - cargo -V
 
-# 'cargo test' takes care of building for us, so disable Appveyor's build stage. This prevents
-# the "directory does not contain a project or solution file" error.
-# source: https://github.com/starkat99/appveyor-rust/blob/master/appveyor.yml#L113
-build: false
-
-# Equivalent to Travis' `script` phase
-# DONE modify this phase as you see fit
+# TODO This is the "test phase", tweak it as you see fit
 test_script:
-  - cargo build --verbose
-  - cargo run -- check
-  - cargo test
+  # we don't run the "test phase" when doing deploys
+  - if [%APPVEYOR_REPO_TAG%]==[false] (
+      cargo build --target %TARGET% &&
+      cargo build --target %TARGET% --release &&
+      cargo test --target %TARGET% &&
+      cargo test --target %TARGET% --release &&
+      cargo run --target %TARGET% &&
+      cargo run --target %TARGET% --release
+    )
 
 before_deploy:
-  # Generate artifacts for release
-  - cargo build --release
-  - mkdir staging
-  # DONE update this part to copy the artifacts that make sense for your project
-  - copy target\release\art.exe staging
-  - cd staging
-    # release zipfile will look like 'rust-everywhere-v1.2.3-x86_64-pc-windows-msvc'
-  - 7z a ../%PROJECT_NAME%-%APPVEYOR_REPO_TAG_NAME%-%TARGET%.zip *
-  - appveyor PushArtifact ../%PROJECT_NAME%-%APPVEYOR_REPO_TAG_NAME%-%TARGET%.zip
+  - cargo rustc --target %TARGET% --release --bin hello -- -C lto
+  - ps: ci\before_deploy.ps1
 
 deploy:
-  description: 'Windows release'
-  # All the zipped artifacts will be deployed
   artifact: /.*\.zip/
-  # DONE Regenerate this auth_token for your project, this one won't work for you. Here's how:
-  # - Go to 'https://github.com/settings/tokens/new' and generate a Token with only the
-  # `public_repo` scope enabled
-  # - Then go to 'https://ci.appveyor.com/tools/encrypt' and enter the newly generated token.
-  # - Enter the "encrypted value" below
+  # `auth_token.secure`
+  # - Create a `public_repo` GitHub token. Go to: https://github.com/settings/tokens/new
+  # - Encrypt it. Go to https://ci.appveyor.com/tools/encrypt
+  # - Paste the output down here
   auth_token:
     secure: e2pyiI8N9p6VD2W2ZdetwUTm7FsBBQ7E7dsHpR3b5GzH+qE2JgjS9XYRjo72SwwF
-  provider: GitHub
-  # deploy when a new tag is pushed and only on the stable channel
+  description: ''
   on:
-    # channel to use to produce the release artifacts
-    # NOTE make sure you only release *once* per target
-    # DONE you may want to pick a different channel
-    CHANNEL: stable
+    # Pick which targets will generate binary releases
+    # In this example, there are some targets that are tested using the stable
+    # and nightly channels. This condition makes sure there is only one release
+    # for such targets and that's generated using the stable channel
+    RUST_VERSION: stable
     appveyor_repo_tag: true
+  provider: GitHub
+
+cache:
+  - C:\Users\appveyor\.cargo\registry
+  - target
 
 branches:
   only:
-    - master
-    # IMPORTANT Regex to match tags. Required, or appveyor may not trigger deploys when a new tag
-    # is pushed. This regex matches semantic versions like v1.2.3-rc4+2016.02.22
+    # Release tags
     - /^v\d+\.\d+\.\d+.*$/
+    - master
+
+notifications:
+  - provider: Email
+    on_build_success: false
+
+# disable automatic builds
+build: false
