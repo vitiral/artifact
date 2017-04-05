@@ -40,40 +40,6 @@ pub fn get_path_str(path: &Path) -> Result<&str> {
     }
 }
 
-#[cfg(windows)]
-/// windows does terrible things to their path when
-/// you get the absolute path -- make it work to be
-/// more linux like. We don't need to be accessing
-/// other servers or whatever they made this for
-///
-/// What should be:
-///         C:\projects\artifact
-/// Is instead:
-///     \\?\C:\projects\artifact
-///
-/// wut??? I get that they are "speeding up file access"
-/// and all... but is this REALLY necessary?
-pub fn canonicalize(path: &Path) -> io::Result<PathBuf> {
-    let canon = fs::canonicalize(path)?;
-    let mut path_iter = canon.iter();
-    let prefix = path_iter.next().unwrap();
-    let prefix_str = prefix.to_os_string().into_string().unwrap();
-    let (icky, new_prefix_str) = prefix_str.split_at(4);
-    assert_eq!(icky, r"\\?\");
-    let new_prefix = OsString::from(new_prefix_str.to_string());
-    let mut new_path = PathBuf::from(&new_prefix);
-    new_path.extend(path_iter);
-
-    Ok(new_path)
-
-}
-
-#[cfg(not(windows))]
-/// for other systems, just return `fs::canonicalize`
-pub fn canonicalize(path: &Path) -> io::Result<PathBuf> {
-    fs::canonicalize(path)
-}
-
 /// in windows we need to convert raw path strings
 /// to use the correct separator
 pub fn convert_path_str(path: &str) -> String {

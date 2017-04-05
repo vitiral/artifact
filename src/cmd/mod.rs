@@ -128,8 +128,8 @@ pub fn cmd<W, I, T>(w: &mut W, args: I) -> Result<u8>
 
     // load the artifacts
     let repo = match utils::find_repo(&work_tree) {
-        Some(r) => r,
-        None => {
+        Ok(r) => r,
+        Err(_) => {
             let msg = "Could not find .art folder. Try running `art init`";
             return Err(ErrorKind::CmdError(msg.to_string()).into());
         }

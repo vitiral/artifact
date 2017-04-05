@@ -49,7 +49,7 @@ optional = true
 version = "0.8.0"
 
 [dependencies.error-chain]
-default-features = false
+default-features = true
 version = "0.9.0"
 
 [dependencies.jsonrpc-core]

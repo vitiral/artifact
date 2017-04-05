@@ -1,6 +1,8 @@
 use itertools::{Itertools, EitherOrBoth as EoB};
 use toml::{Parser, Table};
 
+use std::io;
+
 use dev_prefix::*;
 use types::*;
 
@@ -70,9 +72,10 @@ fn test_relative_path() {
 
 
 /// finds the closest repo given a directory
-pub fn find_repo(dir: &Path) -> Option<PathBuf> {
+pub fn find_repo(dir: &Path) -> Result<PathBuf> {
     // trace!("start dir: {:?}", dir);
     let dir = env::current_dir().unwrap().join(dir);
+    // trace!("abs dir: {:?}", dir);
     assert!(dir.is_dir(), "{}", dir.display());
 
     let mut dir = dir.as_path();
@@ -92,16 +95,15 @@ pub fn find_repo(dir: &Path) -> Option<PathBuf> {
     }
 
     loop {
-        let mut read_dir = match fs::read_dir(dir) {
-            Ok(d) => d,
-            Err(_) => return None,
-        };
+        let mut read_dir = fs::read_dir(dir)?;
         if read_dir.any(has_rst_dir) {
-            return Some(dir.to_path_buf());
+            let repo = canonicalize(dir)?;
+            return Ok(repo);
         }
         dir = match dir.parent() {
             Some(d) => d,
-            None => return None,
+            None => return Err(io::Error::new(io::ErrorKind::NotFound,
+                                              "repo not found").into()),
         };
         // trace!("dir: {:?}", dir);
     }
@@ -118,6 +120,41 @@ mod tests {
         assert_eq!(find_repo(simple.as_path()).unwrap(), simple.as_path());
         assert_eq!(find_repo(simple.join("design").join("lvl_1").as_path()).unwrap(),
                    simple.as_path());
-        assert!(find_repo(env::temp_dir().as_path()).is_none());
+        assert!(find_repo(env::temp_dir().as_path()).is_err());
     }
 }
+
+#[cfg(windows)]
+/// windows does terrible things to their path when
+/// you get the absolute path -- make it work to be
+/// more linux like. We don't need to be accessing
+/// other servers or whatever they made this for
+///
+/// What should be:
+///         C:\projects\artifact
+/// Is instead:
+///     \\?\C:\projects\artifact
+///
+/// wut??? I get that they are "speeding up file access"
+/// and all... but is this REALLY necessary?
+pub fn canonicalize(path: &Path) -> io::Result<PathBuf> {
+    let canon = fs::canonicalize(path)?;
+    let mut path_iter = canon.iter();
+    let prefix = path_iter.next().unwrap();
+    let prefix_str = prefix.to_os_string().into_string().unwrap();
+    let (icky, new_prefix_str) = prefix_str.split_at(4);
+    assert_eq!(icky, r"\\?\");
+    let new_prefix = OsString::from(new_prefix_str.to_string());
+    let mut new_path = PathBuf::from(&new_prefix);
+    new_path.extend(path_iter);
+
+    Ok(new_path)
+
+}
+
+#[cfg(not(windows))]
+/// for other systems, just return `fs::canonicalize`
+pub fn canonicalize(path: &Path) -> io::Result<PathBuf> {
+    fs::canonicalize(path)
+}
+

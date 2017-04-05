@@ -19,6 +19,7 @@
 use time;
 use dev_prefix::*;
 use types::*;
+use security;
 
 mod types;
 mod utils;
@@ -80,6 +81,7 @@ pub fn load_repo(repo: &Path) -> Result<Project> {
     info!("loading path: {}", repo.display());
 
     let settings = settings::load_settings(repo)?;
+    security::validate_settings(repo, &settings)?;
 
     let mut project_text = ProjectText::default();
     let mut loaded_paths: HashSet<PathBuf> = HashSet::new();

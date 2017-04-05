@@ -46,6 +46,20 @@ pub fn validate(repo: &Path, project: &Project) -> Result<()> {
     Ok(())
 }
 
+pub fn validate_settings(repo: &Path, settings: &Settings) -> Result<()> {
+    println!("repo={:?}, artifact_paths={:?}", repo, settings.artifact_paths);
+    if settings.artifact_paths
+            .iter()
+            .any(|p| !p.starts_with(repo)) {
+        //TODO improve message
+        let msg = format!("artifact_paths invalid");
+        Err(ErrorKind::Security(msg).into())
+    }
+    else {
+        Ok(())
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -53,18 +67,44 @@ mod tests {
     use utils;
     use user;
 
+    // TODO: not sure if this is even needed anymore... will check again
+    // later
+    //#[test]
+    ///// make sure that artifacts which are loaded "out of bounds"
+    ///// don't make it past the security checker
+    ///// partof: #TST-security-gen
+    //fn test_bounds_checker() {
+    //    let design = test_data::TINVALID_BOUNDS.join("repo").join("design");
+    //    let repo = utils::find_repo(&design).unwrap();
+    //    match user::load_repo(&repo) {
+    //        Err(e) => {
+    //            match *e.kind() {
+    //                ErrorKind::Security(_) => { [> expected <] }
+    //                _ => panic!("unexpected error: {:?}", e.display()),
+    //            }
+    //        }
+    //        Ok(_) => panic!("fmt accidentally suceeded -- may need to reset with git"),
+    //    }
+    //    //let project = user::load_repo(&repo).unwrap();
+    //    //let req_bounds = NameRc::from_str("REQ-bounds").unwrap();
+    //    //assert!(project.artifacts.contains_key(&req_bounds));
+    //    //assert_eq!(project.artifacts[&req_bounds].path,
+    //    //           test_data::TINVALID_BOUNDS.join("out_bounds.toml"));
+    //    //assert!(validate(&repo, &project).is_err());
+    //}
+
     #[test]
-    /// make sure that artifacts which are loaded "out of bounds"
-    /// don't make it past the security checker
-    /// partof: #TST-security-gen
-    fn test_bounds_checker() {
+    fn test_security() {
         let design = test_data::TINVALID_BOUNDS.join("repo").join("design");
         let repo = utils::find_repo(&design).unwrap();
-        let project = user::load_repo(&repo).unwrap();
-        let req_bounds = NameRc::from_str("REQ-bounds").unwrap();
-        assert!(project.artifacts.contains_key(&req_bounds));
-        assert_eq!(project.artifacts[&req_bounds].path,
-                   test_data::TINVALID_BOUNDS.join("out_bounds.toml"));
-        assert!(validate(&repo, &project).is_err());
+        match user::load_repo(&repo) {
+            Err(e) => {
+                match *e.kind() {
+                    ErrorKind::Security(_) => { /* expected */ }
+                    _ => panic!("unexpected error: {:?}", e.display()),
+                }
+            }
+            Ok(_) => panic!("fmt accidentally suceeded -- may need to reset with git"),
+        }
     }
 }

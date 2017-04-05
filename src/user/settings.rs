@@ -7,7 +7,7 @@ use dev_prefix::*;
 use types::*;
 use user::types::*;
 use user::utils;
-use utils::parse_toml;
+use utils::{parse_toml, canonicalize};
 
 // Public Methods
 
@@ -89,7 +89,7 @@ fn resolve_settings_paths(repo: &Path, settings: &mut Settings) -> Result<()> {
                                            p.display())
                                })?;
             // if an exclude path doesn't exist that's fine
-            let p = match utils::canonicalize(Path::new(&p)) {
+            let p = match canonicalize(Path::new(&p)) {
                 Ok(p) => p,
                 Err(err) => {
                     if ignore_errors {
