@@ -5,7 +5,7 @@ pub struct TestName {
     pub id: i32,
     pub name: String,
 }
-/*
+
 #[derive(Insertable)]
 #[table_name="test_names"]
 pub struct NewTestName {
@@ -38,9 +38,9 @@ pub struct TestInfo {
 	//pub date: ,	// what goes here?
 	pub version: i32,
 	pub link: Option<String>,
-	pub data: Option< >,	// what goes here?
+	pub data: Option<Vec<u8>>,	// what goes here?
 }
-*/
+
 table! {
 	test_names (id) {
 		id -> Int4,
@@ -53,7 +53,7 @@ table! {
 		name -> Text,
 	}
 }
-/*
+
 table! {
 	version (id) {
 		id -> Int4,
@@ -71,8 +71,8 @@ table! {
 		passed -> Bool,
 		artifacts -> Array<Text>,
 		date -> Timestamp,
-		version -> Int4
-		link -> Nullable<text>,
+		version -> Int4,
+		link -> Nullable<Text>,
 		data -> Nullable<Array<Bytea>>,
 	}
-}*/
+}
