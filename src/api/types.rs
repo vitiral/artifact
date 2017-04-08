@@ -1,4 +1,4 @@
-
+extern crate chrono;
 
 #[derive(Queryable, Serialize, Deserialize, Identifiable)]
 pub struct TestName {
@@ -33,9 +33,9 @@ pub struct Version {
 pub struct TestInfo {
 	pub id: i32,
 	pub test_name: String,
-	pub passed: boolean,
+	pub passed: bool,
 	pub artifacts: Vec<String>,
-	//pub date: ,	// what goes here?
+	pub date: chrono::NaiveDateTime,	// what goes here?
 	pub version: i32,
 	pub link: Option<String>,
 	pub data: Option<Vec<u8>>,	// what goes here?
