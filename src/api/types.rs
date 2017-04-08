@@ -1,15 +1,9 @@
 extern crate chrono;
 
-#[derive(Queryable, Serialize, Deserialize, Identifiable)]
-pub struct TestName {
-    pub id: i32,
-    pub name: String,
-}
-
-#[derive(Insertable)]
+#[derive(Queryable, Insertable, Serialize, Deserialize)]
 #[table_name="test_names"]
-pub struct NewTestName {
-	pub name: String,
+pub struct TestName {
+    pub name: String,
 }
 
 #[derive(Queryable, Insertable)]
@@ -22,7 +16,7 @@ pub struct ArtifactName {
 #[table_name="version"]
 pub struct Version {
 	pub id: i32,
-	pub major: Option<String>,
+	pub major: String,
 	pub minor: Option<String>,
 	pub patch: Option<String>,
 	pub build: Option<String>,
@@ -42,8 +36,7 @@ pub struct TestInfo {
 }
 
 table! {
-	test_names (id) {
-		id -> Int4,
+	test_names (name) {
 		name -> Text,
 	}
 }
@@ -57,7 +50,7 @@ table! {
 table! {
 	version (id) {
 		id -> Int4,
-		major -> Nullable<Text>,
+		major -> Text,
 		minor -> Nullable<Text>,
 		patch -> Nullable<Text>,
 		build -> Nullable<Text>,
