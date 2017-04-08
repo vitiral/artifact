@@ -1,7 +1,7 @@
-dump database schema:
+### dump database schema
 pg_dump <dbname> -s -F c -f <dumpname>
 
-restore:
+### restore from dump:
 pg_restore <dumpname> -d <dbname>
 (must specify an existing database to import to)
 
