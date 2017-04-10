@@ -61,6 +61,8 @@ extern crate diesel;
 extern crate diesel_codegen;
 #[cfg(feature="server")]
 extern crate dotenv;
+#[cfg(features="server")]
+extern crate chrono;
 
 // serialization
 #[macro_use]

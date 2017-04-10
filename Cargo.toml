@@ -11,6 +11,7 @@ version = "0.6.5"
 
 [dependencies]
 ansi_term = "0.7"
+chrono = "0.3.0"
 difference = "1.0"
 fern = "0.3.5"
 itertools = "0.5"
@@ -35,7 +36,7 @@ features = ["suggestions", "color", "wrap_help"]
 version = "2"
 
 [dependencies.diesel]
-features = ["postgres"]
+features = ["postgres", "chrono"]
 optional = true
 version = "0.11.0"
 
