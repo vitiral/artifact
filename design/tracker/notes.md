@@ -15,5 +15,5 @@ To find where this is:
 	`exit` to go back to normal user
 	`mv db.dump <pathGivenByReadlink/db.dump>`
 	
-	now switch back to user postgres again
-	now pg_restore should work as above
+now switch back to user postgres again
+now pg_restore should work as above
