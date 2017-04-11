@@ -1,13 +1,13 @@
 extern crate chrono;
 
 #[derive(Queryable, Insertable, Serialize, Deserialize)]
-#[table_name="test_names"]
+#[table_name="test_name"]
 pub struct TestName {
     pub name: String,
 }
 
 #[derive(Queryable, Insertable)]
-#[table_name="artifact_names"]
+#[table_name="artifact_name"]
 pub struct ArtifactName {
 	pub name: String,
 }
@@ -23,8 +23,8 @@ pub struct Version {
 }
 
 #[derive(Queryable, Insertable)]
-#[table_name="test_info"]
-pub struct TestInfo {
+#[table_name="test_run"]
+pub struct TestRun {
 	pub id: i32,
 	pub test_name: String,
 	pub passed: bool,
@@ -36,13 +36,13 @@ pub struct TestInfo {
 }
 
 table! {
-	test_names (name) {
+	test_name (name) {
 		name -> Text,
 	}
 }
 
 table! {
-	artifact_names (name) {
+	artifact_name (name) {
 		name -> Text,
 	}
 }
@@ -58,7 +58,7 @@ table! {
 }
 
 table! {
-	test_info (id) {
+	test_run (id) {
 		id -> Int4,
 		test_name -> Text,
 		passed -> Bool,

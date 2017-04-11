@@ -1,12 +1,11 @@
 ### dump database schema
-pg_dump <dbname> -s -F c -f <dumpname>
+`pg_dump <dbname> -s -F c -f <dumpname>`
 
 ### restore from dump:
-pg_restore <dumpname> -d <dbname>
+`pg_restore <dumpname> -d <dbname>`
 (must specify an existing database to import to)
 
-important: db.dump must be in user `postgres` home directory (or whatever user
-	accesses postgres)
+important: db.dump must be in user `postgres` home directory (or whatever user accesses postgres)
 	
 To find where this is:
 
@@ -22,4 +21,4 @@ To find where this is:
 	
 switch back to user postgres again
 
-pg_restore should now work as above (pg_restore <dumpname> -d <dbname>)
+pg_restore should now work as above (`pg_restore <dumpname> -d <dbname>`)

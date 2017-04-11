@@ -42,11 +42,11 @@ impl RpcMethodSync for GetArtifacts {
 struct GetTests;
 impl RpcMethodSync for GetTests {
 	fn call(&self, _: Params) -> result::Result<serde_json::Value, RpcError> {
-	    use self::test_names::dsl::*;
+	    use self::test_name::dsl::*;
         let connection = establish_connection();
         info!("GetTests called");
 
-        let result = test_names.load::<TestName>(&connection)
+        let result = test_name.load::<TestName>(&connection)
             .expect("Error loading test names");
 
         Ok(serde_json::to_value(result).expect("serde"))
