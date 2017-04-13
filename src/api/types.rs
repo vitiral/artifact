@@ -32,7 +32,7 @@ pub struct Version {
 	pub build: Option<String>,
 }
 
-#[derive(Debug, Queryable, Insertable, Serialize)]
+#[derive(Debug, Queryable, Insertable, Serialize, Deserialize)]
 #[table_name="test_run"]
 pub struct TestRun {
 	pub id: i32,
