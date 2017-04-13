@@ -121,6 +121,7 @@ impl RpcMethodSync for GetRuns {
 struct GetAllTestRuns;
 impl RpcMethodSync for GetAllTestRuns {
 	fn call(&self, _: Params) -> result::Result<serde_json::Value, RpcError> {
+
 		let connection = establish_connection();
 		info!("GetAllTestRuns called");
 		
