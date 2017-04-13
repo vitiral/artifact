@@ -55,8 +55,6 @@ pub struct NewTestRun {
 	pub data: Option<Vec<u8>>,
 }
 
-
-
 // Holds any possible way to search for test runs
 // Used to return all test runs that match the non-`none` fields
 #[derive(Debug, Serialize, Deserialize)]
