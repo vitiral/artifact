@@ -36,7 +36,7 @@ pub struct TestRun {
 #[derive(Debug, Insertable, Serialize, Deserialize)]
 #[table_name="test_run"]
 pub struct NewTestRun {
-	pub name: String,
+	pub test_name: String,
 	pub passed: bool,
 	pub artifacts: Vec<String>,
 	pub date: String,	
