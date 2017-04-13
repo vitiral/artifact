@@ -1,6 +1,9 @@
+<<<<<<< e2f450c178f5d4f99b42068b1c5fc0f5cb3fd73b
 extern crate diesel;
 
 
+=======
+>>>>>>> changed table schema
 #[derive(Queryable, Insertable, Serialize, Deserialize)]
 #[table_name="test_name"]
 pub struct TestName {
@@ -47,7 +50,6 @@ pub struct NewTestRun {
 	pub link: Option<String>,
 	pub data: Option<Vec<u8>>,
 }
-
 
 table! {
 	test_name (name) {
