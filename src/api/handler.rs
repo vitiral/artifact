@@ -23,6 +23,7 @@ fn init_rpc_handler() -> IoHandler {
     handler.add_method("GetTests", GetTests);
     handler.add_method("GetAllTestRuns", GetAllTestRuns);
     handler.add_method("GetRuns", GetRuns);
+    handler.add_method("AddTestRun", AddTestRun);
     handler
 }
 
@@ -128,6 +129,28 @@ impl RpcMethodSync for GetAllTestRuns {
 			.expect("Error loading test runs");
 		
 		Ok(serde_json::to_value(result).expect("serde"))
+	}
+}
+
+/// `AddTestRun` API Handler
+struct AddTestRun;
+impl RpcMethodSync for AddTestRun {
+	fn call(&self, params: Params) -> result::Result<serde_json::Value, RpcError> {
+		info!("AddTestRun called");
+		let connection = establish_connection();
+		
+		let val = serde_json::to_value(params).unwrap();
+		info!("{:?}", val);
+		let new_test_run: NewTestRun = serde_json::from_value(val).unwrap();
+		info!("{:?}", new_test_run);
+		
+		let a = diesel::insert(&newTestRun).into(test_run::table)
+			.get_result::<TestRun>(&connection)
+			.expect("Error adding new test run to database");
+			
+		let c = serde_json::to_value::<TestRun>(a).unwrap();
+		
+		Ok(c)
 	}
 }
 
