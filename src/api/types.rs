@@ -1,3 +1,6 @@
+extern crate diesel;
+
+
 #[derive(Queryable, Insertable, Serialize, Deserialize)]
 #[table_name="test_name"]
 pub struct TestName {
@@ -27,10 +30,10 @@ pub struct TestRun {
 	pub test_name: String,
 	pub passed: bool,
 	pub artifacts: Vec<String>,
-	pub date: String,	// what goes here?
-	pub version: i32,
+	pub date: f32,
+	pub version_id: i32,
 	pub link: Option<String>,
-	pub data: Option<String>,	// what goes here?
+	pub data: Option<Vec<u8>>,
 }
 
 #[derive(Debug, Insertable, Serialize, Deserialize)]
@@ -39,10 +42,10 @@ pub struct NewTestRun {
 	pub test_name: String,
 	pub passed: bool,
 	pub artifacts: Vec<String>,
-	pub date: String,	
-	pub version: i32,
+	pub date: f32,	
+	pub version_id: i32,
 	pub link: Option<String>,
-	pub data: Option<String>,
+	pub data: Option<Vec<u8>>,
 }
 
 
@@ -74,9 +77,9 @@ table! {
 		test_name -> Text,
 		passed -> Bool,
 		artifacts -> Array<Text>,
-		date -> Text,
-		version -> Int4,
+		date -> Float,
+		version_id -> Int4,
 		link -> Nullable<Text>,
-		data -> Nullable<Text>,
+		data -> Nullable<Binary>,
 	}
 }
