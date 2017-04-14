@@ -144,7 +144,7 @@ impl RpcMethodSync for AddTestRun {
 		let new_test_run: NewTestRun = serde_json::from_value(val).unwrap();
 		info!("{:?}", new_test_run);
 		
-		let a = diesel::insert(&newTestRun).into(test_run::table)
+		let a = diesel::insert(&new_test_run).into(test_run::table)
 			.get_result::<TestRun>(&connection)
 			.expect("Error adding new test run to database");
 			

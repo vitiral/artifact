@@ -30,8 +30,8 @@ pub struct NewVersion {
 	pub build: Option<String>,
 }
 
-#[derive(Debug, Queryable, Insertable, Serialize, Deserialize)]
-#[table_name="test_run"]
+#[derive(Debug, Queryable, Serialize, Deserialize)]
+//#[table_name="test_run"]
 pub struct TestRun {
 	pub id: i32,
 	pub test_name: String,

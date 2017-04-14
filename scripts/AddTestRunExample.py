@@ -34,11 +34,11 @@ payload = {
     'jsonrpc': '2.0',
     'id': 1,
     'method': args.method,
-    'params': {'name': 'testymctesterson', 
+    'params': {'test_name': 'testymctestersons', 
     		   'passed': 'true',
     		   'artifacts':  ['REQ-server'],
-    		   'date': '2020-09-05',
-    		   'version': 15}
+    		   'epoch': 678.889,
+    		   'version_id': 15}
 }
 
 print("calling with addr={}, payload={}".format(addr, payload))
