@@ -1,4 +1,5 @@
-extern crate chrono;
+extern crate diesel;
+
 
 #[derive(Queryable, Insertable, Serialize, Deserialize)]
 #[table_name="test_name"]
@@ -22,18 +23,31 @@ pub struct Version {
 	pub build: Option<String>,
 }
 
-#[derive(Queryable, Insertable)]
+#[derive(Debug, Queryable, Insertable, Serialize)]
 #[table_name="test_run"]
 pub struct TestRun {
 	pub id: i32,
 	pub test_name: String,
 	pub passed: bool,
 	pub artifacts: Vec<String>,
-	pub date: chrono::NaiveDateTime,	// what goes here?
-	pub version: i32,
+	pub epoch: f32,
+	pub version_id: i32,
 	pub link: Option<String>,
-	pub data: Option<Vec<u8>>,	// what goes here?
+	pub data: Option<Vec<u8>>,
 }
+
+#[derive(Debug, Insertable, Serialize, Deserialize)]
+#[table_name="test_run"]
+pub struct NewTestRun {
+	pub test_name: String,
+	pub passed: bool,
+	pub artifacts: Vec<String>,
+	pub epoch: f32,	
+	pub version_id: i32,
+	pub link: Option<String>,
+	pub data: Option<Vec<u8>>,
+}
+
 
 table! {
 	test_name (name) {
@@ -63,9 +77,9 @@ table! {
 		test_name -> Text,
 		passed -> Bool,
 		artifacts -> Array<Text>,
-		date -> Timestamp,
-		version -> Int4,
+		epoch -> Float,
+		version_id -> Int4,
 		link -> Nullable<Text>,
-		data -> Nullable<Array<Bytea>>,
+		data -> Nullable<Binary>,
 	}
 }
