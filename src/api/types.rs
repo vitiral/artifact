@@ -34,19 +34,7 @@ pub struct NewVersion {
 #[table_name="test_run"]
 pub struct TestRun {
 	pub id: i32,
-	pub name: String,
-	pub passed: bool,
-	pub artifacts: Vec<String>,
-	pub date: String,	// what goes here?
-	pub version: i32,
-	pub link: Option<String>,
-	pub data: Option<String>,	// what goes here?
-}
-
-#[derive(Debug, Insertable, Serialize, Deserialize)]
-#[table_name="test_run"]
-pub struct NewTestRun {
-	pub name: String,
+	pub test_name: String,
 	pub passed: bool,
 	pub artifacts: Vec<String>,
 	pub epoch: f32,
@@ -101,7 +89,7 @@ table! {
 table! {
 	test_run (id) {
 		id -> Int4,
-		name -> Text,
+		test_name -> Text,
 		passed -> Bool,
 		artifacts -> Array<Text>,
 		epoch -> Float,
