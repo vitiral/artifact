@@ -20,6 +20,7 @@ fn init_rpc_handler() -> IoHandler {
     // (specifically security needs to be added)
     // handler.add_method("UpdateArtifacts", update::UpdateArtifacts);
     handler.add_method("GetTests", GetTests);
+    handler.add_method("GetAllTestRuns", GetAllTestRuns);
     handler
 }
 
@@ -51,5 +52,19 @@ impl RpcMethodSync for GetTests {
 
         Ok(serde_json::to_value(result).expect("serde"))
     }
+}
+
+/// `GetAllTestRuns` API handler
+struct GetAllTestRuns;
+impl RpcMethodSync for GetAllTestRuns {
+	fn call(&self, _: Params) -> result::Result<serde_json::Value, RpcError> {
+		let connection = establish_connection();
+		info!("GetAllTestRuns called");
+		
+		let result = test_run::dsl::test_run.load::<TestRun>(&connection)
+			.expect("Error loading test runs");
+		
+		Ok(serde_json::to_value(result).expect("serde"))
+	}
 }
 

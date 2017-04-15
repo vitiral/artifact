@@ -1,6 +1,5 @@
 extern crate diesel;
 
-
 #[derive(Queryable, Insertable, Serialize, Deserialize)]
 #[table_name="test_name"]
 pub struct TestName {
@@ -23,7 +22,7 @@ pub struct Version {
 	pub build: Option<String>,
 }
 
-#[derive(Debug, Queryable, Insertable, Serialize)]
+#[derive(Debug, Queryable, Insertable, Serialize, Deserialize)]
 #[table_name="test_run"]
 pub struct TestRun {
 	pub id: i32,
@@ -47,7 +46,6 @@ pub struct NewTestRun {
 	pub link: Option<String>,
 	pub data: Option<Vec<u8>>,
 }
-
 
 table! {
 	test_name (name) {
