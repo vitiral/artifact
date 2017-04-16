@@ -154,7 +154,16 @@ impl RpcMethodSync for AddTestRun {
 		if version::table.filter(version::id.eq(&new_test_run.version_id))
 			.first::<Version>(&connection)
 			.is_err() {
-				return Err(utils::invalid_params(&format!("Version id \'{}\' not in database. Please add useing \'AddVersion\' before continuing", new_test_run.version_id)));
+				return Err(utils::invalid_params(&format!("Version id \'{}\' not in database. Please add using \'AddVersion\' before continuing", new_test_run.version_id)));
+		}
+			
+		for artifact in &new_test_run.artifacts {
+			let art_name = ArtifactName { name: artifact.clone() };
+			if artifact_name::table.filter(artifact_name::name.eq(artifact))
+				.first::<ArtifactName>(&connection)
+				.is_err() {
+					return Err(utils::invalid_params(&format!("Artifact \'{}\' not in database. Please add using \'AddArtifact\' before continuing", artifact)));
+				}
 		}
 		
 		//TODO: change variable names `a` and `c` to be more descriptive
