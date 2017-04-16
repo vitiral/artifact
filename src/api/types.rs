@@ -1,6 +1,6 @@
 extern crate diesel;
 
-#[derive(Queryable, Insertable, Serialize, Deserialize)]
+#[derive(Debug, Queryable, Insertable, Serialize, Deserialize)]
 #[table_name="test_name"]
 pub struct TestName {
     pub name: String,
