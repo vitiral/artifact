@@ -144,19 +144,20 @@ impl RpcMethodSync for AddTestRun {
 		info!("{:?}", new_test_run);
 		
 		//check test_name table for existance of test_name
-		let name_exists = test_name::table.filter(test_name::name.eq(&new_test_run.test_name))
-			  .first::<TestName>(&connection); 
-		
-		if name_exists.is_err() {
-			return Err(utils::invalid_params(&format!("Test name \'{}\' not in database. Please add using \'AddTest\' before continuing", new_test_run.test_name)));
+		if test_name::table.filter(test_name::name.eq(&new_test_run.test_name))
+			.first::<TestName>(&connection)
+			.is_err() { 
+				return Err(utils::invalid_params(&format!("Test name \'{}\' not in database. Please add using \'AddTest\' before continuing", new_test_run.test_name)));
 		}
 		
+		// check if version_id is valid
 		if version::table.filter(version::id.eq(&new_test_run.version_id))
 			.first::<Version>(&connection)
 			.is_err() {
 				return Err(utils::invalid_params(&format!("Version id \'{}\' not in database. Please add using \'AddVersion\' before continuing", new_test_run.version_id)));
 		}
-			
+		
+		// check if artifacts are in database	
 		for artifact in &new_test_run.artifacts {
 			let art_name = ArtifactName { name: artifact.clone() };
 			if artifact_name::table.filter(artifact_name::name.eq(artifact))
