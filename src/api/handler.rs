@@ -151,6 +151,12 @@ impl RpcMethodSync for AddTestRun {
 			return Err(utils::invalid_params(&format!("Test name \'{}\' not in database. Please add using \'AddTest\' before continuing", new_test_run.test_name)));
 		}
 		
+		if version::table.filter(version::id.eq(&new_test_run.version_id))
+			.first::<Version>(&connection)
+			.is_err() {
+				return Err(utils::invalid_params(&format!("Version id \'{}\' not in database. Please add useing \'AddVersion\' before continuing", new_test_run.version_id)));
+		}
+		
 		//TODO: change variable names `a` and `c` to be more descriptive
 		let a = diesel::insert(&new_test_run).into(test_run::table)
 			.get_result::<TestRun>(&connection)
