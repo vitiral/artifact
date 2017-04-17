@@ -95,7 +95,7 @@ impl RpcMethodSync for GetRuns {
 				query = query.filter(test_run::version_id.eq_any(version_ids));
 			}
 			
-			let mut finalresult: Vec<TestRun> = Vec::new();
+			//let mut finalresult: Vec<TestRun> = Vec::new();
 			
 			if let Some(min_epoch) = test_run_search.min_epoch {
 				query = query.filter(test_run::epoch.ge(min_epoch));
@@ -104,7 +104,7 @@ impl RpcMethodSync for GetRuns {
 				query = query.filter(test_run::epoch.le(max_epoch));
 			}
 			
-			let finalresult = extend(query.load::<TestRun>(&connection).unwrap());
+			let finalresult = query.load::<TestRun>(&connection).unwrap();
 				
 	
 			Ok(serde_json::to_value(finalresult).unwrap())
