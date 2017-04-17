@@ -22,6 +22,14 @@ pub struct Version {
 	pub build: Option<String>,
 }
 
+#[derive(Debug, Queryable, Serialize, Deserialize)]
+pub struct NewVersion {
+	pub major: String,
+	pub minor: Option<String>,
+	pub patch: Option<String>,
+	pub build: Option<String>,
+}
+
 #[derive(Debug, Queryable, Insertable, Serialize, Deserialize)]
 #[table_name="test_run"]
 pub struct TestRun {
@@ -45,6 +53,17 @@ pub struct NewTestRun {
 	pub version_id: i32,
 	pub link: Option<String>,
 	pub data: Option<Vec<u8>>,
+}
+
+
+
+// Holds any possible way to search for test runs
+// Used to return all test runs that match the non-`none` fields
+#[derive(Debug, Serialize, Deserialize)]
+pub struct TestRunSearch {
+	pub min_epoch: Option<f32>,
+	pub max_epoch: Option<f32>,
+	pub versions: Option<Vec<NewVersion>>,
 }
 
 table! {
