@@ -22,6 +22,7 @@ fn init_rpc_handler() -> IoHandler {
     // handler.add_method("UpdateArtifacts", update::UpdateArtifacts);
     handler.add_method("GetTests", GetTests);
     handler.add_method("GetAllTestRuns", GetAllTestRuns);
+    handler.add_method("GetRuns", GetRuns);
     handler
 }
 
@@ -58,13 +59,25 @@ impl RpcMethodSync for GetTests {
 /// `GetRuns` API Handler
 struct GetRuns;
 impl RpcMethodSync for GetRuns {
-	fn call(&self, params: Params) -> result::Result<serde_json::Value, RpcEror> {
+	fn call(&self, params: Params) -> result::Result<serde_json::Value, RpcError> {
 		info!("GetRuns called");
 		let connection = establish_connection();
 		
-		let val = serde_json::to_value(params);
-		info!("{:?}", val);
+		let val = serde_json::to_value(params).unwrap();
+		let test_run_search: TestRunSearch = serde_json::from_value(val).unwrap();
+
+		let mut myresult = Vec::new();
+
+		for v in test_run_search.versions.unwrap() {
+			info!("{:?}", v);
+			myresult = version::table.filter(version::major.eq(v.major).and(version::minor.eq(v.minor.unwrap())))
+									 .load::<Version>(&connection).unwrap();
+
+		}
+
 		
+		info!("{:?}", myresult);
+
 		return Err(utils::invalid_params("applesauce"));
 	}
 }
