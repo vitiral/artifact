@@ -63,22 +63,57 @@ impl RpcMethodSync for GetRuns {
 		info!("GetRuns called");
 		let connection = establish_connection();
 		
-		let val = serde_json::to_value(params).unwrap();
-		let test_run_search: TestRunSearch = serde_json::from_value(val).unwrap();
-
-		let mut myresult = Vec::new();
-
-		for v in test_run_search.versions.unwrap() {
-			info!("{:?}", v);
-			myresult = version::table.filter(version::major.eq(v.major).and(version::minor.eq(v.minor.unwrap())))
-									 .load::<Version>(&connection).unwrap();
-
-		}
-
 		
-		info!("{:?}", myresult);
+		let val = serde_json::to_value(params).unwrap();
+		if let Ok(test_run_search) = serde_json::from_value::<TestRunSearch>(val) {
 
-		return Err(utils::invalid_params("applesauce"));
+			let mut version_ids: Vec<i32> = Vec::new();
+	
+			let mut query = test_run::table.into_boxed();
+	
+			if test_run_search.versions.is_some() {
+				for v in test_run_search.versions.unwrap() {
+					// build the query for table `version`
+					let mut v_query = version::table.select(version::id).into_boxed();
+					v_query = v_query.filter(version::major.eq(v.major));
+		
+					if let Some(minor) = v.minor {
+						v_query = v_query.filter(version::minor.eq(minor));
+					}
+					if let Some(patch) = v.patch {
+						v_query = v_query.filter(version::patch.eq(patch));
+					}
+					if let Some(build) = v.build {
+						v_query = v_query.filter(version::build.eq(build));
+					}
+					
+					for k in v_query.load(&connection).unwrap() {
+						version_ids.push(k);
+					}
+		
+				}
+				query = query.filter(test_run::version_id.eq_any(version_ids));
+			}
+			
+			let mut finalresult: Vec<TestRun> = Vec::new();
+			
+			if let Some(min_epoch) = test_run_search.min_epoch {
+				query = query.filter(test_run::epoch.ge(min_epoch));
+			}
+			if let Some(max_epoch) = test_run_search.max_epoch {
+				query = query.filter(test_run::epoch.le(max_epoch));
+			}
+			
+			let finalresult = extend(query.load::<TestRun>(&connection).unwrap());
+				
+	
+			Ok(serde_json::to_value(finalresult).unwrap())
+		}
+		else {
+			Err(utils::invalid_params("Missing parameters"))
+		}
+		
+		
 	}
 }
 
