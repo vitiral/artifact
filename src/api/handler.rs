@@ -54,6 +54,17 @@ impl RpcMethodSync for GetTests {
     }
 }
 
+/// `GetRuns` API Handler
+struct GetRuns;
+impl RpcMethodSync for GetRuns {
+	fn call(&self, params: Params) -> result::Result<serde_json::Value, RpcEror> {
+		info!("GetRuns called");
+		let connection = establish_connection();
+		
+		
+	}
+}
+
 /// `GetAllTestRuns` API handler
 struct GetAllTestRuns;
 impl RpcMethodSync for GetAllTestRuns {
