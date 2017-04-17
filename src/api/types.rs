@@ -23,7 +23,6 @@ pub struct Version {
 }
 
 #[derive(Queryable)]
-#[table_name="version"]
 pub struct NewVersion {
 	pub major: String,
 	pub minor: Option<String>,

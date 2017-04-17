@@ -7,6 +7,7 @@ use serde_json;
 use diesel::prelude::*;
 use api::establish_connection;
 use api::types::*;
+use api::utils;
 use export::ArtifactData;
 
 use super::ARTIFACTS;
@@ -61,7 +62,10 @@ impl RpcMethodSync for GetRuns {
 		info!("GetRuns called");
 		let connection = establish_connection();
 		
+		let val = serde_json::to_value(params);
+		info!("{:?}", val);
 		
+		return Err(utils::invalid_params("applesauce"));
 	}
 }
 
