@@ -22,8 +22,7 @@ pub struct Version {
 	pub build: Option<String>,
 }
 
-#[derive(Queryable)]
-#[table_name="version"]
+#[derive(Debug, Queryable, Serialize, Deserialize)]
 pub struct NewVersion {
 	pub major: String,
 	pub minor: Option<String>,
