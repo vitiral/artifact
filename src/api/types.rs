@@ -47,6 +47,21 @@ pub struct NewTestRun {
 	pub data: Option<Vec<u8>>,
 }
 
+// Holds any possible way to search for test runs
+// Used to return all test runs that match the non-`none` fields
+#[derive(Debug, Serialize, Deserialize)]
+pub struct TestRunSearch {
+	pub test_name: Option<String>,
+	pub passed: Option<bool>,
+	pub artifacts: Option<Vec<String>>,
+	pub epoch: Option<f32>,
+	pub version_id: Option<i32>,
+	pub major: Option<String>,
+	pub minor: Option<String>,
+	pub patch: Option<String>,
+	pub build: Option<String>,
+}
+
 table! {
 	test_name (name) {
 		name -> Text,
