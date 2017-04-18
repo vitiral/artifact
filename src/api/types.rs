@@ -12,7 +12,7 @@ pub struct ArtifactName {
 	pub name: String,
 }
 
-#[derive(Queryable, Insertable)]
+#[derive(Debug, Queryable, Insertable, Serialize)]
 #[table_name="version"]
 pub struct Version {
 	pub id: i32,

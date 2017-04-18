@@ -7,6 +7,7 @@ use serde_json;
 use diesel::prelude::*;
 use api::establish_connection;
 use api::types::*;
+use api::utils;
 use export::ArtifactData;
 
 use super::ARTIFACTS;
@@ -21,6 +22,7 @@ fn init_rpc_handler() -> IoHandler {
     // handler.add_method("UpdateArtifacts", update::UpdateArtifacts);
     handler.add_method("GetTests", GetTests);
     handler.add_method("GetAllTestRuns", GetAllTestRuns);
+    handler.add_method("GetRuns", GetRuns);
     handler
 }
 
@@ -52,6 +54,67 @@ impl RpcMethodSync for GetTests {
 
         Ok(serde_json::to_value(result).expect("serde"))
     }
+}
+
+/// `GetRuns` API Handler
+struct GetRuns;
+impl RpcMethodSync for GetRuns {
+	fn call(&self, params: Params) -> result::Result<serde_json::Value, RpcError> {
+		info!("GetRuns called");
+		let connection = establish_connection();
+		
+		
+		let val = serde_json::to_value(params).unwrap();
+		if let Ok(test_run_search) = serde_json::from_value::<TestRunSearch>(val) {
+
+			let mut version_ids: Vec<i32> = Vec::new();
+	
+			let mut query = test_run::table.into_boxed();
+	
+			if test_run_search.versions.is_some() {
+				for v in test_run_search.versions.unwrap() {
+					// build the query for table `version`
+					let mut v_query = version::table.select(version::id).into_boxed();
+					v_query = v_query.filter(version::major.eq(v.major));
+		
+					if let Some(minor) = v.minor {
+						v_query = v_query.filter(version::minor.eq(minor));
+					}
+					if let Some(patch) = v.patch {
+						v_query = v_query.filter(version::patch.eq(patch));
+					}
+					if let Some(build) = v.build {
+						v_query = v_query.filter(version::build.eq(build));
+					}
+					
+					for k in v_query.load(&connection).unwrap() {
+						version_ids.push(k);
+					}
+		
+				}
+				query = query.filter(test_run::version_id.eq_any(version_ids));
+			}
+			
+			//let mut finalresult: Vec<TestRun> = Vec::new();
+			
+			if let Some(min_epoch) = test_run_search.min_epoch {
+				query = query.filter(test_run::epoch.ge(min_epoch));
+			}
+			if let Some(max_epoch) = test_run_search.max_epoch {
+				query = query.filter(test_run::epoch.le(max_epoch));
+			}
+			
+			let finalresult = query.load::<TestRun>(&connection).unwrap();
+				
+	
+			Ok(serde_json::to_value(finalresult).unwrap())
+		}
+		else {
+			Err(utils::invalid_params("Missing parameters"))
+		}
+		
+		
+	}
 }
 
 /// `GetAllTestRuns` API handler
