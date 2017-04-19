@@ -1,6 +1,6 @@
 extern crate diesel;
 
-#[derive(Queryable, Insertable, Serialize, Deserialize)]
+#[derive(Debug, Queryable, Insertable, Serialize, Deserialize)]
 #[table_name="test_name"]
 pub struct TestName {
     pub name: String,
@@ -30,8 +30,7 @@ pub struct NewVersion {
 	pub build: Option<String>,
 }
 
-#[derive(Debug, Queryable, Insertable, Serialize, Deserialize)]
-#[table_name="test_run"]
+#[derive(Debug, Queryable, Serialize, Deserialize)]
 pub struct TestRun {
 	pub id: i32,
 	pub test_name: String,
@@ -54,8 +53,6 @@ pub struct NewTestRun {
 	pub link: Option<String>,
 	pub data: Option<Vec<u8>>,
 }
-
-
 
 // Holds any possible way to search for test runs
 // Used to return all test runs that match the non-`none` fields

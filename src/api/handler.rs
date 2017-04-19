@@ -23,6 +23,7 @@ fn init_rpc_handler() -> IoHandler {
     handler.add_method("GetTests", GetTests);
     handler.add_method("GetAllTestRuns", GetAllTestRuns);
     handler.add_method("GetRuns", GetRuns);
+    handler.add_method("AddTestRun", AddTestRun);
     handler
 }
 
@@ -128,6 +129,52 @@ impl RpcMethodSync for GetAllTestRuns {
 			.expect("Error loading test runs");
 		
 		Ok(serde_json::to_value(result).expect("serde"))
+	}
+}
+
+/// `AddTestRun` API Handler
+struct AddTestRun;
+impl RpcMethodSync for AddTestRun {
+	fn call(&self, params: Params) -> result::Result<serde_json::Value, RpcError> {
+		info!("AddTestRun called");
+		let connection = establish_connection();
+		
+		let val = serde_json::to_value(params).unwrap();
+		let new_test_run: NewTestRun = serde_json::from_value(val).unwrap();
+		info!("{:?}", new_test_run);
+		
+		//check test_name table for existance of test_name
+		if test_name::table.filter(test_name::name.eq(&new_test_run.test_name))
+			.first::<TestName>(&connection)
+			.is_err() { 
+				return Err(utils::invalid_params(&format!("Test name \'{}\' not in database. Please add using \'AddTest\' before continuing", new_test_run.test_name)));
+		}
+		
+		// check if version_id is valid
+		if version::table.filter(version::id.eq(&new_test_run.version_id))
+			.first::<Version>(&connection)
+			.is_err() {
+				return Err(utils::invalid_params(&format!("Version id \'{}\' not in database. Please add using \'AddVersion\' before continuing", new_test_run.version_id)));
+		}
+		
+		// check if artifacts are in database	
+		for artifact in &new_test_run.artifacts {
+			//let art_name = ArtifactName { name: artifact.clone() };
+			if artifact_name::table.filter(artifact_name::name.eq(artifact))
+				.first::<ArtifactName>(&connection)
+				.is_err() {
+					return Err(utils::invalid_params(&format!("Artifact \'{}\' not in database. Please add using \'AddArtifact\' before continuing", artifact)));
+				}
+		}
+		
+		//TODO: change variable names `a` and `c` to be more descriptive
+		let a = diesel::insert(&new_test_run).into(test_run::table)
+			.get_result::<TestRun>(&connection)
+			.expect("Error adding new test run to database");
+			
+		let c = serde_json::to_value::<TestRun>(a).unwrap();
+		
+		Ok(c)
 	}
 }
 

@@ -35,7 +35,7 @@ features = ["suggestions", "color", "wrap_help"]
 version = "2"
 
 [dependencies.diesel]
-features = ["postgres", "chrono"]
+features = ["postgres"]
 optional = true
 version = "0.11.0"
 
