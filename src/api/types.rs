@@ -12,8 +12,7 @@ pub struct ArtifactName {
 	pub name: String,
 }
 
-#[derive(Debug, Queryable, Insertable, Serialize)]
-#[table_name="version"]
+#[derive(Debug, Queryable, Serialize)]
 pub struct Version {
 	pub id: i32,
 	pub major: String,
@@ -22,7 +21,8 @@ pub struct Version {
 	pub build: Option<String>,
 }
 
-#[derive(Debug, Queryable, Serialize, Deserialize)]
+#[derive(Debug, Queryable, Insertable, Serialize, Deserialize)]
+#[table_name="version"]
 pub struct NewVersion {
 	pub major: String,
 	pub minor: Option<String>,
