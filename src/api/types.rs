@@ -31,7 +31,6 @@ pub struct NewVersion {
 }
 
 #[derive(Debug, Queryable, Serialize, Deserialize)]
-//#[table_name="test_run"]
 pub struct TestRun {
 	pub id: i32,
 	pub test_name: String,

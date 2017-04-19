@@ -29,17 +29,13 @@ toml = "0.2"
 unicode-segmentation = "1.1.0"
 unicode-width = "0.1.4"
 
-[dependencies.chrono]
-features = ["serde"]
-version = "0.3"
-
 [dependencies.clap]
 default-features = false
 features = ["suggestions", "color", "wrap_help"]
 version = "2"
 
 [dependencies.diesel]
-features = ["postgres", "chrono"]
+features = ["postgres"]
 optional = true
 version = "0.11.0"
 

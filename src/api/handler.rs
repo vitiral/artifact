@@ -159,7 +159,7 @@ impl RpcMethodSync for AddTestRun {
 		
 		// check if artifacts are in database	
 		for artifact in &new_test_run.artifacts {
-			let art_name = ArtifactName { name: artifact.clone() };
+			//let art_name = ArtifactName { name: artifact.clone() };
 			if artifact_name::table.filter(artifact_name::name.eq(artifact))
 				.first::<ArtifactName>(&connection)
 				.is_err() {
