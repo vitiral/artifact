@@ -24,6 +24,7 @@ fn init_rpc_handler() -> IoHandler {
     handler.add_method("GetAllTestRuns", GetAllTestRuns);
     handler.add_method("GetRuns", GetRuns);
     handler.add_method("AddTestRun", AddTestRun);
+    handler.add_method("AddVersion", AddVersion);
     handler
 }
 
@@ -129,6 +130,27 @@ impl RpcMethodSync for GetAllTestRuns {
 			.expect("Error loading test runs");
 		
 		Ok(serde_json::to_value(result).expect("serde"))
+	}
+}
+
+/// `AddVersion` API Handler
+struct AddVersion;
+impl RpcMethodSync for AddVersion {
+	fn call(&self, params: Params) -> result::Result<serde_json::Value, RpcError> {
+		info!("AddVersion called");
+		let connection = establish_connection();
+		
+		let val = serde_json::to_value(params).unwrap();
+		if let Ok(new_version) = serde_json::from_value::<NewVersion>(val) {
+			let insert_result = diesel::insert(&new_version).into(version::table)
+				.get_result::<Version>(&connection)
+				.expect("Error adding new version to database");
+				
+			Ok(serde_json::to_value::<Version>(insert_result).unwrap())
+		}
+		else {
+			Err(utils::invalid_params("Cannot parse parameters"))
+		}
 	}
 }
 
