@@ -213,10 +213,10 @@ impl RpcMethodSync for AddTest {
 		
 		info!("{:?}", params);
 		
-		let mut newTest: NewTestName = Default::default();
-		let new_test_name;
+		//let mut newTest: TestName = Default::default();
+		//let new_test_name;
 		
-		match params {
+		/*match params {
 			Params::Map(mut dict) => {
 				new_test_name = match dict.remove("name") {
 					Some(value) => {
@@ -230,22 +230,24 @@ impl RpcMethodSync for AddTest {
 				}
 			}
 			_ => panic!("Error: AddTest API call missing 'name' key"),
-		};
+		};*/
 		
         #[derive(Deserialize)]
-        struct CheckName{
+        /*struct CheckName{
             name: String,
-        }
+        }*/
         //Checking if the test name is already in the test_name table
         let serialized_params = serde_json::to_value(params).unwrap();
-        let mut check_duplicate: CheckName = serde_json::from_value(serialized_params).unwrap();
-        let results = test_name.filter(test_name::name.eq(&check_duplicate.name)).load::<TestName>(&connection)
+        let mut newTest: TestName = serde_json::from_value(serialized_params).unwrap();
+        let results = test_name.filter(test_name::name.eq(&newTest.name)).load::<TestName>(&connection)
             .expect("Error loading test name table");
         // for test_name in results{
 
         // }
+        //let val = serde_json::to_value(params).unwrap();
+		//let newTest: TestName = serde_json::from_value(val).unwrap();
         if(results.is_empty()){
-            newTest.name = new_test_name?;
+            //newTest.name = new_test_name?;
             let a = diesel::insert(&newTest).into(test_name::table)
                 .get_result::<TestName>(&connection)
                 .expect("Error adding new test to database");
