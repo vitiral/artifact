@@ -3,7 +3,7 @@
 #
 # You can get to this stage in the tutorial at any time by running:
 #
-#     artifact tutorial
+#     art tutorial
 #
 # artifact is a command line, text based tool for requirements tracking.
 # It aims to be easy to use by anybody and especially productive
@@ -195,7 +195,7 @@ is partof SPC-LEARN. From there you could decide what to do.
 ##################################################
 # That is the end part 1 of the tutorial. Run the following
 # for part 2
-#     artifact tutorial 2
+#     art tutorial 2
 #
 # To view on the web go to:
 # https://github.com/vitiral/artifact/blob/master/src/cmd/data/tutorial.md
