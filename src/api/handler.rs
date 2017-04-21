@@ -25,6 +25,7 @@ fn init_rpc_handler() -> IoHandler {
     handler.add_method("GetRuns", GetRuns);
     handler.add_method("AddTestRun", AddTestRun);
     handler.add_method("AddVersion", AddVersion);
+    handler.add_method("AddTest", AddTest);
     handler
 }
 
@@ -204,64 +205,38 @@ impl RpcMethodSync for AddTestRun {
 struct AddTest;
 impl RpcMethodSync for AddTest {
 	fn call(&self, params: Params) -> result::Result<serde_json::Value, RpcError> {
+		info!("AddTest called");
 		use self::test_name::dsl::*;
 		use self::test_name;
 		use serde_json::Value as SerdeValue;
-		info!("AddTest called");
+		
 		
 		let connection = establish_connection();
 		
 		info!("{:?}", params);
 		
-		//let mut newTest: TestName = Default::default();
-		//let new_test_name;
 		
-		/*match params {
-			Params::Map(mut dict) => {
-				new_test_name = match dict.remove("name") {
-					Some(value) => {
-						info!("{:?}", value);
-						match serde_json::from_value::<String>(value) {
-							Ok(a) => Ok(a),
-							Err(e) => Err(utils::parse_error(&format!("{}", e))),
-						}
-					}
-					None => Err(utils::invalid_params("Error: missing 'name' param in AddTest API call")),
-				}
-			}
-			_ => panic!("Error: AddTest API call missing 'name' key"),
-		};*/
-		
-        #[derive(Deserialize)]
-        /*struct CheckName{
-            name: String,
-        }*/
         //Checking if the test name is already in the test_name table
         let serialized_params = serde_json::to_value(params).unwrap();
         let mut newTest: TestName = serde_json::from_value(serialized_params).unwrap();
         let results = test_name.filter(test_name::name.eq(&newTest.name)).load::<TestName>(&connection)
             .expect("Error loading test name table");
-        // for test_name in results{
-
-        // }
-        //let val = serde_json::to_value(params).unwrap();
-		//let newTest: TestName = serde_json::from_value(val).unwrap();
-        if(results.is_empty()){
-            //newTest.name = new_test_name?;
-            let a = diesel::insert(&newTest).into(test_name::table)
-                .get_result::<TestName>(&connection)
-                .expect("Error adding new test to database");
-            
-            
-            let c = serde_json::to_value::<TestName>(a).unwrap();
-            
-            println!("{:?}", c);
-            
-            return Ok(c)
+		for TestName in results{
+			let d = serde_json::to_value("Test is already added").unwrap();
+        	println!("{:?}", d);
+        	return Ok(d)
         }
+        let a = diesel::insert(&newTest).into(test_name::table)
+            .get_result::<TestName>(&connection)
+            .expect("Error adding new test to database");
+        
+        
+        let c = serde_json::to_value::<TestName>(a).unwrap();
+        
+        println!("{:?}", c);
+        
+        return Ok(c)
 
-        let d = serde_json::from_str("Test is already added").unwrap();
-        println!("{:?}", d);
-        Ok(d)
+        
 	}
 }
