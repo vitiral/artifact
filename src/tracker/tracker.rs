@@ -1,4 +1,3 @@
-
 use dev_prefix::*;
 use jsonrpc_core::{IoHandler, RpcMethodSync, Params, Error as RpcError};
 use serde_json;
@@ -6,9 +5,10 @@ use serde_json;
 use diesel;
 use diesel::prelude::*;
 use diesel::pg::PgConnection;
-use api::types::*;
 use api::utils;
 use dotenv::dotenv;
+
+use tracker::types::*;
 
 pub fn init_rpc_handler_tracker(handler: &mut IoHandler) {
     handler.add_method("GetTests", GetTests);

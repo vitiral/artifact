@@ -20,7 +20,7 @@ fn init_rpc_handler() -> IoHandler {
 
 #[cfg(feature="tracker")]
 fn init_tracker(tracker: &mut IoHandler) {
-    ::api::tracker::init_rpc_handler_tracker(tracker);
+    ::tracker::init_rpc_handler_tracker(tracker);
 }
 
 #[cfg(not(feature="tracker"))]

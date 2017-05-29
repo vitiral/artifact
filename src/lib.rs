@@ -91,9 +91,9 @@ pub mod cmd;
 
 #[cfg(test)]
 pub mod test_data;
-
-// server modules
 #[cfg(feature="server")]
 pub mod api;
+#[cfg(feature="tracker")]
+pub mod tracker;
 
 pub use types::*;

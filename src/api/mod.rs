@@ -12,17 +12,12 @@ use types::Project;
 use export::ArtifactData;
 
 mod constants;
-mod utils;
+pub mod utils;
 mod handler;
 mod update;
 
 #[cfg(test)]
 mod tests;
-
-#[cfg(feature = "tracker")]
-mod tracker;
-#[cfg(feature = "tracker")]
-mod types;
 
 const WEB_FRONTEND_TAR: &'static [u8] = include_bytes!("data/web-ui.tar");
 
