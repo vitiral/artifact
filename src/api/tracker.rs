@@ -200,39 +200,42 @@ impl RpcMethodSync for AddTestRun {
 /// `AddTests` API Handler
 struct AddTest;
 impl RpcMethodSync for AddTest {
-	fn call(&self, params: Params) -> result::Result<serde_json::Value, RpcError> {
-		info!("AddTest called");
-		use self::test_name::dsl::*;
-		use self::test_name;
-		use serde_json::Value as SerdeValue;
-		
-		
-		let connection = establish_connection();
-		
-		info!("{:?}", params);
-		
-		
+    fn call(&self, params: Params) -> result::Result<serde_json::Value, RpcError> {
+        info!("AddTest called");
+        use self::test_name::dsl::*;
+        use self::test_name;
+        use serde_json::Value as SerdeValue;
+
+
+        let connection = establish_connection();
+
+        info!("{:?}", params);
+
+
         //Checking if the test name is already in the test_name table
         let serialized_params = serde_json::to_value(params).unwrap();
         let mut newTest: TestName = serde_json::from_value(serialized_params).unwrap();
-        let results = test_name.filter(test_name::name.eq(&newTest.name)).load::<TestName>(&connection)
+        let results = test_name
+            .filter(test_name::name.eq(&newTest.name))
+            .load::<TestName>(&connection)
             .expect("Error loading test name table");
-		for TestName in results{
-			let d = serde_json::to_value("Test is already added").unwrap();
-        	println!("{:?}", d);
-        	return Ok(d)
+        for TestName in results {
+            let d = serde_json::to_value("Test is already added").unwrap();
+            println!("{:?}", d);
+            return Ok(d);
         }
-        let a = diesel::insert(&newTest).into(test_name::table)
+        let a = diesel::insert(&newTest)
+            .into(test_name::table)
             .get_result::<TestName>(&connection)
             .expect("Error adding new test to database");
-        
-        
-        let c = serde_json::to_value::<TestName>(a).unwrap();
-        
-        println!("{:?}", c);
-        
-        return Ok(c)
 
-        
-	}
+
+        let c = serde_json::to_value::<TestName>(a).unwrap();
+
+        println!("{:?}", c);
+
+        return Ok(c);
+
+
+    }
 }

@@ -84,7 +84,10 @@ pub fn split_artifacts(project: &Project,
     }
     if !files_not_found.is_empty() {
         data.insert("filesNotFound",
-                    files_not_found.iter().map(|f| format!("{}", f.display())).collect());
+                    files_not_found
+                        .iter()
+                        .map(|f| format!("{}", f.display()))
+                        .collect());
         err = Some(constants::X_FILES_NOT_FOUND);
     }
     if !ids_not_found.is_empty() {
@@ -136,7 +139,10 @@ pub fn update_artifacts(data_artifacts: &[ArtifactData],
     }
 
     // process the new set of artifacts to make sure they are valid
-    let mut new_project = Project { artifacts: save_artifacts, ..project.clone() };
+    let mut new_project = Project {
+        artifacts: save_artifacts,
+        ..project.clone()
+    };
 
     if let Err(err) = user::process_project(&mut new_project) {
         return Err(RpcError {
@@ -187,7 +193,8 @@ impl RpcMethodSync for UpdateArtifacts {
         }
 
         // get the data artifacts
-        let new_artifacts: Vec<_> = new_project.artifacts
+        let new_artifacts: Vec<_> = new_project
+            .artifacts
             .iter()
             .map(|(n, a)| a.to_data(&project.origin, n))
             .collect();

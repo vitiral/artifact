@@ -81,7 +81,8 @@ fn display_unresolvable<W: Write>(w: &mut W, project: &Project, cmd: &Cmd) -> u6
 
     // display unresolvable partof names
     let unresolved: Vec<(NameRc, &Artifact)> =
-        Vec::from_iter(project.artifacts
+        Vec::from_iter(project
+                           .artifacts
                            .iter()
                            .filter(|a| a.1.completed < 0. || a.1.tested < 0.)
                            .map(|n| (n.0.clone(), n.1)));
@@ -92,7 +93,8 @@ fn display_unresolvable<W: Write>(w: &mut W, project: &Project, cmd: &Cmd) -> u6
         error += 1;
         let mut unresolved_partof: HashMap<NameRc, HashSet<NameRc>> = HashMap::new();
         for &(ref name, artifact) in &unresolved {
-            let partof: HashSet<_> = artifact.partof
+            let partof: HashSet<_> = artifact
+                .partof
                 .iter()
                 .filter(|n| {
                             !project.artifacts.contains_key(n.as_ref()) ||
@@ -144,8 +146,10 @@ fn display_unresolvable<W: Write>(w: &mut W, project: &Project, cmd: &Cmd) -> u6
         paint_it_bold(w,
                       "\nArtifacts partof contains at least one recursive reference:\n",
                       cmd);
-        let mut unresolved_partof: Vec<_> =
-            unresolved_partof.drain().map(|mut v| (v.0, v.1.drain().collect::<Vec<_>>())).collect();
+        let mut unresolved_partof: Vec<_> = unresolved_partof
+            .drain()
+            .map(|mut v| (v.0, v.1.drain().collect::<Vec<_>>()))
+            .collect();
         unresolved_partof.sort_by(|a, b| a.0.cmp(&b.0));
         for (name, partof) in unresolved_partof.drain(0..) {
             let mut msg = String::new();
@@ -169,12 +173,15 @@ fn display_invalid_locs<W: Write>(w: &mut W, cwd: &Path, project: &Project, cmd:
             if !invalid_locs.contains_key(&loc.path) {
                 invalid_locs.insert(loc.path.clone(), Vec::new());
             }
-            invalid_locs.get_mut(&loc.path).unwrap().push((name.clone(), loc.clone()));
+            invalid_locs
+                .get_mut(&loc.path)
+                .unwrap()
+                .push((name.clone(), loc.clone()));
         }
         let header = "\nFound implementation links in the code that do not exist:\n";
         paint_it_bold(w, header, cmd);
-        let mut invalid_locs: Vec<(PathBuf, Vec<(Name, Loc)>)> =
-            Vec::from_iter(invalid_locs.drain());
+        let mut invalid_locs: Vec<(PathBuf, Vec<(Name, Loc)>)> = Vec::from_iter(invalid_locs
+                                                                                    .drain());
         invalid_locs.sort_by(|a, b| a.0.cmp(&b.0));
         for (path, mut locs) in invalid_locs.drain(0..) {
             // sort by where they appear in the file
@@ -280,8 +287,8 @@ fn display_hanging_references<W: Write>(w: &mut W,
             let artifact = project.artifacts.get(name).expect("inserted from");
             paint_it(w,
                      &format!("    {} ({}):\n",
-                              name,
-                              utils::relative_path(&artifact.path, cwd).display()),
+                             name,
+                             utils::relative_path(&artifact.path, cwd).display()),
                      cmd);
             for f in found {
                 write!(w, "    - {}", f).unwrap();

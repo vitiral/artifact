@@ -9,7 +9,8 @@ pub fn fmt_names(names: &[NameRc]) -> String {
     if names.is_empty() {
         return "".to_string();
     }
-    names.iter()
+    names
+        .iter()
         .map(|n| &n.raw)
         .cloned()
         .collect::<Vec<_>>()
@@ -47,13 +48,17 @@ pub fn fmt_artifact(name: &NameRc,
         out.parts = Some(parts);
     }
     if fmtset.partof {
-        let mut partof = artifact.partof
-            .iter()
-            .cloned()
-            .collect::<Vec<NameRc>>();
+        let mut partof = artifact.partof.iter().cloned().collect::<Vec<NameRc>>();
         partof.sort();
-        let partof =
-            partof.drain(0..).map(|n| FmtArtifact { name: n, ..FmtArtifact::default() }).collect();
+        let partof = partof
+            .drain(0..)
+            .map(|n| {
+                     FmtArtifact {
+                         name: n,
+                         ..FmtArtifact::default()
+                     }
+                 })
+            .collect();
         out.partof = Some(partof);
     }
     if fmtset.loc_path {
@@ -68,7 +73,10 @@ pub fn fmt_artifact(name: &NameRc,
             out.text = Some(artifact.text.clone());
         } else {
             const MAX_LINE_LEN: usize = 50;
-            let line_end = artifact.text.find('\n').unwrap_or_else(|| artifact.text.len());
+            let line_end = artifact
+                .text
+                .find('\n')
+                .unwrap_or_else(|| artifact.text.len());
             let width = UnicodeWidthStr::width(&artifact.text[..line_end]);
             if width > MAX_LINE_LEN {
                 // We need to allow space for '...'

@@ -31,60 +31,60 @@ pub fn get_subcommand<'a, 'b>() -> App<'a, 'b> {
         .about("List artifacts according to various parameters")
         .settings(&SUBCMD_SETTINGS)
         .arg(Arg::with_name("search")
-            .help("Artifact names given in the brace pattern form \
+                 .help("Artifact names given in the brace pattern form \
                    e.g. REQ-foo-[bar, baz-[1,2]] \
                    OR regexp pattern if -p is given. Regular expressions use \
                    the rust regular expression syntax \
                    https://doc.rust-lang.org/regex/regex/index.html#syntax")
-            .use_delimiter(false))
+                 .use_delimiter(false))
         .arg(Arg::with_name("pattern")
-            .short("p")
-            .help("Search FIELDS using regexp SEARCH.")
-            .value_name("FIELDS")
-            .takes_value(true)
-            .max_values(1)
-            .min_values(0))
+                 .short("p")
+                 .help("Search FIELDS using regexp SEARCH.")
+                 .value_name("FIELDS")
+                 .takes_value(true)
+                 .max_values(1)
+                 .min_values(0))
         .arg(Arg::with_name("long")
-            .short("l")
-            .help("Print items in the 'long form'"))
+                 .short("l")
+                 .help("Print items in the 'long form'"))
         .arg(Arg::with_name("completed")
-            .value_name("COMPLETED")
-            .short("c")
-            .help("Filter by completeness (e.g. '<45'), < and > are inclusive. \
+                 .value_name("COMPLETED")
+                 .short("c")
+                 .help("Filter by completeness (e.g. '<45'), < and > are inclusive. \
                    < is a shortcut for 0%, and > is a shortcut for 100%")
-            .takes_value(true))
+                 .takes_value(true))
         .arg(Arg::with_name("tested")
-            .value_name("TESTED")
-            .short("t")
-            .help("Filter by testedness in percent. See '-c'")
-            .takes_value(true))
+                 .value_name("TESTED")
+                 .short("t")
+                 .help("Filter by testedness in percent. See '-c'")
+                 .takes_value(true))
         .arg(Arg::with_name("all")
-            .short("A")
-            .help("If set, additional flags will be *deactivated* instead of activated"))
+                 .short("A")
+                 .help("If set, additional flags will be *deactivated* instead of activated"))
         .arg(Arg::with_name("path")
-            .short("D")
-            .help("Display the path where the artifact is defined"))
+                 .short("D")
+                 .help("Display the path where the artifact is defined"))
         .arg(Arg::with_name("parts")
-            .short("P")
-            .help("Display the parts of the artifact"))
+                 .short("P")
+                 .help("Display the parts of the artifact"))
         .arg(Arg::with_name("partof")
-            .short("O")
-            .help("Display the artifacts which this artifact is a partof"))
+                 .short("O")
+                 .help("Display the artifacts which this artifact is a partof"))
         .arg(Arg::with_name("loc")
-            .short("L")
-            .help("Display location name"))
+                 .short("L")
+                 .help("Display location name"))
         .arg(Arg::with_name("text")
-            .short("T")
-            .help("Display the first line text description of this artifact. \
+                 .short("T")
+                 .help("Display the first line text description of this artifact. \
                    Print the full description with -l, otherwise the first line."))
         .arg(Arg::with_name("plain")
-            .long("plain")
-            .help("Do not display color in the output"))
+                 .long("plain")
+                 .help("Do not display color in the output"))
         .arg(Arg::with_name("type")
-            .long("type")
-            .value_name("TYPE")
-            .takes_value(true)
-            .help("Output type, default 'list'. Supported types: list, json"))
+                 .long("type")
+                 .value_name("TYPE")
+                 .takes_value(true)
+                 .help("Output type, default 'list'. Supported types: list, json"))
     //.arg(Arg::with_name("file")
     //    .long("file")
     //    .takes_value(true)
@@ -140,31 +140,25 @@ fn get_percent(s: &str) -> result::Result<PercentSearch, String> {
                        perc: 100,
                    }
                } else if perc.is_none() {
-        if lt.unwrap() {
-            PercentSearch {
-                lt: true,
-                perc: 0,
-            }
-        } else {
-            PercentSearch {
-                lt: false,
-                perc: 100,
-            }
-        }
-    } else {
-        let lt = match lt {
-            None => false,
-            Some(l) => l,
-        };
-        let perc = match perc {
-            None => 100,
-            Some(p) => p,
-        };
-        PercentSearch {
-            lt: lt,
-            perc: perc,
-        }
-    }
+                   if lt.unwrap() {
+                       PercentSearch { lt: true, perc: 0 }
+                   } else {
+                       PercentSearch {
+                           lt: false,
+                           perc: 100,
+                       }
+                   }
+               } else {
+                   let lt = match lt {
+                       None => false,
+                       Some(l) => l,
+                   };
+                   let perc = match perc {
+                       None => 100,
+                       Some(p) => p,
+                   };
+                   PercentSearch { lt: lt, perc: perc }
+               }
            }
            Err(e) => return Err(e),
        })
@@ -186,11 +180,7 @@ fn test_get_percent() {
                       lt: false,
                       perc: 100,
                   }));
-    assert_eq!(get_percent("<"),
-               Ok(PercentSearch {
-                      lt: true,
-                      perc: 0,
-                  }));
+    assert_eq!(get_percent("<"), Ok(PercentSearch { lt: true, perc: 0 }));
     assert_eq!(get_percent(">"),
                Ok(PercentSearch {
                       lt: false,
@@ -206,11 +196,7 @@ fn test_get_percent() {
                       lt: false,
                       perc: 89,
                   }));
-    assert_eq!(get_percent("<89"),
-               Ok(PercentSearch {
-                      lt: true,
-                      perc: 89,
-                  }));
+    assert_eq!(get_percent("<89"), Ok(PercentSearch { lt: true, perc: 89 }));
     assert_eq!(get_percent(">-1"),
                Ok(PercentSearch {
                       lt: false,
@@ -354,7 +340,9 @@ pub fn run_cmd<W: Write>(mut w: &mut W, cwd: &Path, cmd: &Cmd, project: &Project
     // filter by various settings (not just pattern, also test/completeness %, etc)
     let names: Vec<_> = {
         let pat = if cmd.search_settings.use_regex {
-            let p = RegexBuilder::new(&cmd.pattern).case_insensitive(true).build();
+            let p = RegexBuilder::new(&cmd.pattern)
+                .case_insensitive(true)
+                .build();
             match p {
                 Ok(p) => p,
                 Err(e) => {
@@ -364,7 +352,8 @@ pub fn run_cmd<W: Write>(mut w: &mut W, cwd: &Path, cmd: &Cmd, project: &Project
         } else {
             Regex::new("").unwrap()
         };
-        names.drain(0..)
+        names
+            .drain(0..)
             .filter(|n| {
                         let a = artifacts.get(n).unwrap(); // we are guaranteed the name exists
                         ui::show_artifact(n, a, &pat, &cmd.search_settings)

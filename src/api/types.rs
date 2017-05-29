@@ -9,58 +9,58 @@ pub struct TestName {
 #[derive(Queryable, Insertable)]
 #[table_name="artifact_name"]
 pub struct ArtifactName {
-	pub name: String,
+    pub name: String,
 }
 
 #[derive(Debug, Queryable, Serialize)]
 pub struct Version {
-	pub id: i32,
-	pub major: String,
-	pub minor: Option<String>,
-	pub patch: Option<String>,
-	pub build: Option<String>,
+    pub id: i32,
+    pub major: String,
+    pub minor: Option<String>,
+    pub patch: Option<String>,
+    pub build: Option<String>,
 }
 
 #[derive(Debug, Queryable, Insertable, Serialize, Deserialize)]
 #[table_name="version"]
 pub struct NewVersion {
-	pub major: String,
-	pub minor: Option<String>,
-	pub patch: Option<String>,
-	pub build: Option<String>,
+    pub major: String,
+    pub minor: Option<String>,
+    pub patch: Option<String>,
+    pub build: Option<String>,
 }
 
 #[derive(Debug, Queryable, Serialize, Deserialize)]
 pub struct TestRun {
-	pub id: i32,
-	pub test_name: String,
-	pub passed: bool,
-	pub artifacts: Vec<String>,
-	pub epoch: f32,
-	pub version_id: i32,
-	pub link: Option<String>,
-	pub data: Option<Vec<u8>>,
+    pub id: i32,
+    pub test_name: String,
+    pub passed: bool,
+    pub artifacts: Vec<String>,
+    pub epoch: f32,
+    pub version_id: i32,
+    pub link: Option<String>,
+    pub data: Option<Vec<u8>>,
 }
 
 #[derive(Debug, Insertable, Serialize, Deserialize)]
 #[table_name="test_run"]
 pub struct NewTestRun {
-	pub test_name: String,
-	pub passed: bool,
-	pub artifacts: Vec<String>,
-	pub epoch: f32,	
-	pub version_id: i32,
-	pub link: Option<String>,
-	pub data: Option<Vec<u8>>,
+    pub test_name: String,
+    pub passed: bool,
+    pub artifacts: Vec<String>,
+    pub epoch: f32,
+    pub version_id: i32,
+    pub link: Option<String>,
+    pub data: Option<Vec<u8>>,
 }
 
 // Holds any possible way to search for test runs
 // Used to return all test runs that match the non-`none` fields
 #[derive(Debug, Serialize, Deserialize)]
 pub struct TestRunSearch {
-	pub min_epoch: Option<f32>,
-	pub max_epoch: Option<f32>,
-	pub versions: Option<Vec<NewVersion>>,
+    pub min_epoch: Option<f32>,
+    pub max_epoch: Option<f32>,
+    pub versions: Option<Vec<NewVersion>>,
 }
 
 table! {

@@ -118,10 +118,11 @@ impl<'a> fmt::Display for Key<'a> {
             if i != 0 {
                 try!(write!(f, "."));
             }
-            let ok = part.chars().all(|c| match c {
-                                          'a'...'z' | 'A'...'Z' | '0'...'9' | '-' | '_' => true,
-                                          _ => false,
-                                      });
+            let ok = part.chars()
+                .all(|c| match c {
+                         'a'...'z' | 'A'...'Z' | '0'...'9' | '-' | '_' => true,
+                         _ => false,
+                     });
             if ok {
                 try!(write!(f, "{}", part));
             } else {

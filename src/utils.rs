@@ -84,10 +84,7 @@ pub fn find_repo(dir: &Path) -> Result<PathBuf> {
             Err(_) => false,
             Ok(e) => {
                 let p = e.path();
-                let fname = p.file_name()
-                    .unwrap()
-                    .to_str()
-                    .unwrap();
+                let fname = p.file_name().unwrap().to_str().unwrap();
                 // trace!("fname: {:?}", fname);
                 fname == ".art" && p.is_dir()
             }
@@ -102,8 +99,7 @@ pub fn find_repo(dir: &Path) -> Result<PathBuf> {
         }
         dir = match dir.parent() {
             Some(d) => d,
-            None => return Err(io::Error::new(io::ErrorKind::NotFound,
-                                              "repo not found").into()),
+            None => return Err(io::Error::new(io::ErrorKind::NotFound, "repo not found").into()),
         };
         // trace!("dir: {:?}", dir);
     }
@@ -157,4 +153,3 @@ pub fn canonicalize(path: &Path) -> io::Result<PathBuf> {
 pub fn canonicalize(path: &Path) -> io::Result<PathBuf> {
     fs::canonicalize(path)
 }
-

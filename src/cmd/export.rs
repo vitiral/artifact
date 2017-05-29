@@ -36,7 +36,8 @@ pub struct Cmd<'a> {
 }
 
 pub fn get_cmd<'a>(matches: &'a ArgMatches) -> Result<Cmd<'a>> {
-    let ty = match matches.value_of("type")
+    let ty = match matches
+              .value_of("type")
               .unwrap_or("")
               .to_ascii_lowercase()
               .as_str() {
@@ -67,7 +68,9 @@ pub fn run_cmd(cwd: &Path, project: &Project, cmd: &Cmd) -> Result<u8> {
                     return Err(e.into());
                 }
             }
-            archive.unpack(&output).expect("unable to unpack web frontend");
+            archive
+                .unpack(&output)
+                .expect("unable to unpack web frontend");
             let index_path = output.join("index.html");
             let mut index = fs::OpenOptions::new()
                 .read(true)
@@ -75,12 +78,16 @@ pub fn run_cmd(cwd: &Path, project: &Project, cmd: &Cmd) -> Result<u8> {
                 .open(index_path)
                 .expect("couldn't open app.js");
             let mut text = String::new();
-            index.read_to_string(&mut text).expect("index.html couldn't be read");
+            index
+                .read_to_string(&mut text)
+                .expect("index.html couldn't be read");
 
             // replace index.html to include the artifacts inline
             index.seek(SeekFrom::Start(0)).unwrap();
             index.set_len(0).unwrap(); // delete what is there
-            index.write_all(text.replace("REPLACE_WITH_ARTIFACTS", &data).as_bytes()).unwrap();
+            index
+                .write_all(text.replace("REPLACE_WITH_ARTIFACTS", &data).as_bytes())
+                .unwrap();
             index.flush().unwrap();
         }
     }

@@ -31,7 +31,8 @@ pub fn get_subcommand<'a, 'b>() -> App<'a, 'b> {
 }
 
 pub fn run_cmd(path: &Path) -> Result<u8> {
-    let mut read_dir = fs::read_dir(path).chain_err(|| format!("dir: {}", path.display()))?;
+    let mut read_dir = fs::read_dir(path)
+        .chain_err(|| format!("dir: {}", path.display()))?;
     let exists = read_dir.any(|e| match e {
                                   Err(_) => false,
                                   Ok(e) => {
@@ -39,10 +40,7 @@ pub fn run_cmd(path: &Path) -> Result<u8> {
                                           false
                                       } else {
                                           let p = e.path();
-                                          let fname = p.file_name()
-            .unwrap()
-            .to_str()
-            .unwrap();
+                                          let fname = p.file_name().unwrap().to_str().unwrap();
                                           fname == ".art"
                                       }
                                   }
@@ -50,7 +48,8 @@ pub fn run_cmd(path: &Path) -> Result<u8> {
     let repo = path.join(".art");
     let design = path.join("design");
     if !exists {
-        fs::create_dir(&repo).chain_err(|| format!("create dir: {}", repo.display()))?;
+        fs::create_dir(&repo)
+            .chain_err(|| format!("create dir: {}", repo.display()))?;
         let _ = fs::create_dir(&design);
 
         // create settings
@@ -65,7 +64,10 @@ pub fn run_cmd(path: &Path) -> Result<u8> {
                 .write_all(SETTINGS_TOML.as_ref())
                 .unwrap();
             println!("art initialized at {}", settings.display());
-            if let Ok(mut f) = fs::OpenOptions::new().create_new(true).write(true).open(&purpose) {
+            if let Ok(mut f) = fs::OpenOptions::new()
+                   .create_new(true)
+                   .write(true)
+                   .open(&purpose) {
                 f.write_all(PURPOSE_TOML.as_ref()).unwrap();
                 println!("art created initial design.toml at {}", design.display())
             }

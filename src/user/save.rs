@@ -60,7 +60,8 @@ impl ProjectText {
                 let mut auto_partof = name.named_partofs();
                 auto_partof.push(name.parent().expect("no parent"));
                 let auto_partof: HashSet<Name> = HashSet::from_iter(auto_partof.drain(0..));
-                let strs = artifact.partof
+                let strs = artifact
+                    .partof
                     .iter()
                     .filter(|p| !auto_partof.contains(p))
                     .map(|p| p.raw.clone())

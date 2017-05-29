@@ -72,9 +72,11 @@ pub fn run_cmd(w: &mut Write, repo: &Path, project: &Project, cmd: &Cmd) -> Resu
     };
     // check to make sure nothing has actually changed
     // see: TST-fmt
-    let fmt_project = user::process_project_text(project.settings.clone(), &ptext).chain_err(
-        || "internal fmt error: could not process project text.".to_string())?;
-    project.equal(&fmt_project)
+    let fmt_project =
+        user::process_project_text(project.settings.clone(), &ptext)
+            .chain_err(|| "internal fmt error: could not process project text.".to_string())?;
+    project
+        .equal(&fmt_project)
         .chain_err(|| "internal fmt error: formatted project has different data.".to_string())?;
     security::validate(repo, project)?;
     match *cmd {
@@ -98,8 +100,9 @@ pub fn run_cmd(w: &mut Write, repo: &Path, project: &Project, cmd: &Cmd) -> Resu
                         } else {
                             "".to_string()
                         };
-                        let header =
-                            Style::new().bold().paint(format!("{}{}", indent, path.display()));
+                        let header = Style::new()
+                            .bold()
+                            .paint(format!("{}{}", indent, path.display()));
                         write!(w, "{}\n{}", header, disp)?;
                     }
                 }

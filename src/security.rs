@@ -27,7 +27,8 @@ pub fn validate(repo: &Path, project: &Project) -> Result<()> {
             return Err(ErrorKind::Security(msg).into());
         }
         // only allow files that are in the artifact_paths
-        if !project.settings
+        if !project
+                .settings
                 .artifact_paths
                 .iter()
                 .any(|p| f.starts_with(p)) {
@@ -47,15 +48,14 @@ pub fn validate(repo: &Path, project: &Project) -> Result<()> {
 }
 
 pub fn validate_settings(repo: &Path, settings: &Settings) -> Result<()> {
-    println!("repo={:?}, artifact_paths={:?}", repo, settings.artifact_paths);
-    if settings.artifact_paths
-            .iter()
-            .any(|p| !p.starts_with(repo)) {
+    println!("repo={:?}, artifact_paths={:?}",
+             repo,
+             settings.artifact_paths);
+    if settings.artifact_paths.iter().any(|p| !p.starts_with(repo)) {
         //TODO improve message
         let msg = format!("artifact_paths invalid");
         Err(ErrorKind::Security(msg).into())
-    }
-    else {
+    } else {
         Ok(())
     }
 }

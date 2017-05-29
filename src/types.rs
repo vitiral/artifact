@@ -284,4 +284,3 @@ impl Settings {
         }
     }
 }
-

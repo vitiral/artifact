@@ -15,13 +15,13 @@ use utils::{parse_toml, canonicalize};
 pub fn load_settings(repo: &Path) -> Result<Settings> {
     let settings_path = repo.join(SETTINGS_PATH.as_path());
     let mut text = String::new();
-    let mut f = fs::File::open(&settings_path).chain_err(|| format!(
-        "error opening settings: {}", settings_path.display()))?;
+    let mut f = fs::File::open(&settings_path)
+        .chain_err(|| format!("error opening settings: {}", settings_path.display()))?;
     f.read_to_string(&mut text)
         .chain_err(|| format!("error reading settings: {}", settings_path.display()))?;
 
-    let tbl = parse_toml(&text).chain_err(|| format!(
-        "error parsing settings: {}", settings_path.display()))?;
+    let tbl = parse_toml(&text)
+        .chain_err(|| format!("error parsing settings: {}", settings_path.display()))?;
     let (_, mut settings) = from_table(&tbl)?;
 
     resolve_settings_paths(repo, &mut settings)?;
@@ -36,7 +36,8 @@ pub fn load_settings(repo: &Path) -> Result<Settings> {
 pub fn from_table(tbl: &Table) -> Result<(RawSettings, Settings)> {
     let value = Value::Table(tbl.clone());
     let mut decoder = Decoder::new(value);
-    let raw = RawSettings::decode(&mut decoder).chain_err(|| "invalid settings")?;
+    let raw = RawSettings::decode(&mut decoder)
+        .chain_err(|| "invalid settings")?;
 
     if let Some(invalid) = decoder.toml {
         return Err(ErrorKind::InvalidSettings(format!("{:?}", invalid)).into());
@@ -44,7 +45,11 @@ pub fn from_table(tbl: &Table) -> Result<(RawSettings, Settings)> {
 
     fn to_paths(paths: &Option<Vec<String>>) -> HashSet<PathBuf> {
         match *paths {
-            Some(ref p) => p.iter().map(|p| PathBuf::from(utils::convert_path_str(p))).collect(),
+            Some(ref p) => {
+                p.iter()
+                    .map(|p| PathBuf::from(utils::convert_path_str(p)))
+                    .collect()
+            }
             None => HashSet::new(),
         }
     }
@@ -83,7 +88,8 @@ fn resolve_settings_paths(repo: &Path, settings: &mut Settings) -> Result<()> {
         let mut out = HashSet::new();
         for p in paths {
             let p =
-                utils::do_strfmt(utils::get_path_str(p)?, vars, settings_path).chain_err(|| {
+                utils::do_strfmt(utils::get_path_str(p)?, vars, settings_path)
+                    .chain_err(|| {
                                    format!("replacing variables failed at {}: {}",
                                            name,
                                            p.display())

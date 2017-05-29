@@ -28,8 +28,10 @@ use types::*;
 /// string with format `REQ-foo-[bar, baz-boo], SPC-foo`
 pub fn collapse_names(mut names: Vec<String>) -> String {
     names.sort();
-    let names: Vec<Vec<String>> =
-        names.iter().map(|n| n.split('-').map(|s| s.to_string()).collect()).collect();
+    let names: Vec<Vec<String>> = names
+        .iter()
+        .map(|n| n.split('-').map(|s| s.to_string()).collect())
+        .collect();
     let mut piece = NamePiece {
         raw: names,
         prefix: String::new(),
@@ -261,7 +263,8 @@ fn parse_names<I>(raw: &mut I, in_brackets: bool) -> Result<Vec<String>>
         }
     }
     strout.write_str(&current).unwrap();
-    Ok(strout.split(',')
+    Ok(strout
+           .split(',')
            .filter(|s| s != &"")
            .map(|s| s.to_string())
            .collect())
@@ -303,17 +306,11 @@ impl NamePiece {
                 // found (at least) two parts with the same prefix
                 // store the part in raw without it's prefix
                 let i = pieces.len() - 1; // wow, you can't do this inline...
-                pieces[i].raw.push(part.split_first()
-                                       .unwrap()
-                                       .1
-                                       .to_vec())
+                pieces[i].raw.push(part.split_first().unwrap().1.to_vec())
             } else {
                 // we found a new prefix, create a new piece to store it
                 prefix = part[0].clone();
-                let raw = part.iter()
-                    .skip(1)
-                    .cloned()
-                    .collect();
+                let raw = part.iter().skip(1).cloned().collect();
                 let piece = NamePiece::from(prefix.clone(), vec![raw]);
                 pieces.push(piece);
             }
@@ -406,6 +403,8 @@ fn test_name() {
         assert!(Name::from_str(name).is_err())
     }
     // remove spaces
-    assert_eq!(Name::from_str("   R E Q    -    f   o  o   ").unwrap().value,
+    assert_eq!(Name::from_str("   R E Q    -    f   o  o   ")
+                   .unwrap()
+                   .value,
                ["REQ", "FOO"]);
 }

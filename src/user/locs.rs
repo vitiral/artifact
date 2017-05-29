@@ -81,13 +81,15 @@ fn find_locs_text(path: &Path, text: &str, locs: &mut HashMap<Name, Loc>) -> Res
 fn find_locs_file(path: &Path, locs: &mut HashMap<Name, Loc>) -> Result<()> {
     debug!("resolving locs at: {:?}", path);
     let mut text = String::new();
-    let mut f = fs::File::open(path).chain_err(|| format!("opening file: {}", path.display()))?;
+    let mut f = fs::File::open(path)
+        .chain_err(|| format!("opening file: {}", path.display()))?;
     if let Err(e) = f.read_to_string(&mut text) {
         if e.kind() == io::ErrorKind::InvalidData {
             warn!("non-utf8 file: {}", path.display());
             return Ok(());
         } else {
-            Err(e).chain_err(|| format!("reading file: {}", path.display()))?;
+            Err(e)
+                .chain_err(|| format!("reading file: {}", path.display()))?;
         }
     }
     find_locs_text(path, &text, locs)
@@ -99,7 +101,8 @@ fn find_locs_dir(path: &PathBuf,
                  locs: &mut HashMap<Name, Loc>)
                  -> Result<()> {
     loaded.insert(path.to_path_buf());
-    let read_dir = fs::read_dir(path).chain_err(|| format!("loading dir {}", path.display()))?;
+    let read_dir = fs::read_dir(path)
+        .chain_err(|| format!("loading dir {}", path.display()))?;
     let mut dirs_to_load: Vec<PathBuf> = Vec::new(); // TODO: use references
     for entry in read_dir.filter_map(|e| e.ok()) {
         let fpath = entry.path();
@@ -116,7 +119,9 @@ fn find_locs_dir(path: &PathBuf,
                 }
             }
         }
-        let ftype = entry.file_type().chain_err(|| format!("{}", fpath.display()))?;
+        let ftype = entry
+            .file_type()
+            .chain_err(|| format!("{}", fpath.display()))?;
         if ftype.is_dir() {
             dirs_to_load.push(fpath.clone());
         } else if ftype.is_file() {
@@ -174,8 +179,10 @@ mod tests {
         let spc_who = locs.get(&Name::from_str("SPC-who").unwrap()).unwrap();
         let spc_what = locs.get(&Name::from_str("SPC-what").unwrap()).unwrap();
         let spc_where = locs.get(&Name::from_str("SPC-where").unwrap()).unwrap();
-        let tst_long = locs.get(&Name::from_str("TST-foo-what-where-2-b-3").unwrap()).unwrap();
-        let spc_error = locs.get(&Name::from_str("SPC-core-load-erro").unwrap()).unwrap();
+        let tst_long = locs.get(&Name::from_str("TST-foo-what-where-2-b-3").unwrap())
+            .unwrap();
+        let spc_error = locs.get(&Name::from_str("SPC-core-load-erro").unwrap())
+            .unwrap();
 
         assert_eq!(spc_who.line, 1);
         assert_eq!(spc_what.line, 2);

@@ -220,13 +220,15 @@ pub fn set_completed(artifacts: &mut Artifacts) -> usize {
                         let artifact = artifacts.get(name).unwrap();
                         // get the completed values, ignoring TSTs that are part of SPCs
                         let completed: Vec<f32> = if name.ty == Type::SPC {
-                            artifact.parts
+                            artifact
+                                .parts
                                 .iter()
                                 .filter(|n| n.ty != Type::TST)
                                 .map(|n| artifacts.get(n).unwrap().completed)
                                 .collect()
                         } else {
-                            artifact.parts
+                            artifact
+                                .parts
                                 .iter()
                                 .map(|n| artifacts.get(n).unwrap().completed)
                                 .collect()
@@ -292,7 +294,8 @@ pub fn set_tested(artifacts: &mut Artifacts) -> usize {
             if got_it {
                 artifacts.get_mut(name).unwrap().tested = {
                     let artifact = artifacts.get(name).unwrap();
-                    artifact.parts
+                    artifact
+                        .parts
                         .iter()
                         .map(|n| artifacts.get(n).unwrap().tested)
                         .fold(0.0, |sum, x| sum + x) /

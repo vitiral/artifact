@@ -23,7 +23,8 @@ fn test_split() {
 
     let req_purpose = NameRc::from_str("REQ-purpose").unwrap();
 
-    let mut changed_data = data_artifacts.iter()
+    let mut changed_data = data_artifacts
+        .iter()
         .filter(|a| a.name == "REQ-purpose")
         .next()
         .unwrap()
@@ -38,7 +39,10 @@ fn test_split() {
             update::split_artifacts(&p, &data_artifacts, &new_artifacts).unwrap();
 
         assert_eq!(save_artifacts.len(), 1);
-        let new_data = save_artifacts.get(&req_purpose).unwrap().to_data(&p.origin, &req_purpose);
+        let new_data = save_artifacts
+            .get(&req_purpose)
+            .unwrap()
+            .to_data(&p.origin, &req_purpose);
         assert_eq!(new_data.text, changed_data.text);
         assert_eq!(unchanged_artifacts.len(), starting_len - 1);
     }
@@ -53,9 +57,14 @@ fn test_split() {
         let new_artifacts = vec![changed_data.clone()];
         let (_, save_artifacts) = update::split_artifacts(&p, &data_artifacts, &new_artifacts)
             .unwrap();
-        let new_data = save_artifacts.get(&req_purpose).unwrap().to_data(&p.origin, &req_purpose);
+        let new_data = save_artifacts
+            .get(&req_purpose)
+            .unwrap()
+            .to_data(&p.origin, &req_purpose);
         assert_eq!(Path::new(&new_data.path),
-                   Path::new(&new_path).strip_prefix(&simple.as_path()).unwrap());
+                   Path::new(&new_path)
+                       .strip_prefix(&simple.as_path())
+                       .unwrap());
 
         changed_data.path = original;
     }
@@ -104,7 +113,8 @@ fn test_update() {
 
         let req_purpose = NameRc::from_str("REQ-purpose").unwrap();
 
-        let mut changed_data = data_artifacts.iter()
+        let mut changed_data = data_artifacts
+            .iter()
             .filter(|a| a.name == "REQ-purpose")
             .next()
             .unwrap()
@@ -119,10 +129,7 @@ fn test_update() {
             let new_project = update::update_artifacts(&data_artifacts, &p, &new_artifacts)
                 .unwrap();
 
-            let mut expected = p.artifacts
-                .get(&req_purpose)
-                .unwrap()
-                .clone();
+            let mut expected = p.artifacts.get(&req_purpose).unwrap().clone();
             expected.text = new_text.to_string();
             assert_eq!(new_project.artifacts.get(&req_purpose).unwrap(), &expected);
         }

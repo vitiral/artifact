@@ -24,7 +24,8 @@ pub fn load_text(ptext: &mut ProjectText,
                  -> Result<()> {
     let mut files_to_load: Vec<PathBuf> = Vec::new();
     let mut dirs_to_load: Vec<PathBuf> = Vec::new();
-    let ptype = load_path.metadata()
+    let ptype = load_path
+        .metadata()
         .chain_err(|| format!("cannot get type: {}", load_path.display()))?
         .file_type();
     if ptype.is_dir() {
@@ -39,7 +40,8 @@ pub fn load_text(ptext: &mut ProjectText,
                 continue;
             }
             loaded_paths.insert(fpath.to_path_buf());
-            let ftype = entry.file_type()
+            let ftype = entry
+                .file_type()
                 .chain_err(|| format!("error reading type: {}", fpath.display()))?;
             if ftype.is_dir() {
                 dirs_to_load.push(fpath.clone());
@@ -64,8 +66,8 @@ pub fn load_text(ptext: &mut ProjectText,
             continue;
         }
         let mut text = String::new();
-        let mut fp =
-            fs::File::open(&fpath).chain_err(|| format!("error opening: {}", fpath.display()))?;
+        let mut fp = fs::File::open(&fpath)
+            .chain_err(|| format!("error opening: {}", fpath.display()))?;
         fp.read_to_string(&mut text)
             .chain_err(|| format!("Error loading path {}", fpath.display()))?;
         ptext.files.insert(fpath.to_path_buf(), text);
@@ -229,16 +231,24 @@ mod tests {
         let dne_locs = locs::attach_locs(&mut p.artifacts, locs).unwrap();
         assert_eq!(num, 8);
         assert_eq!(dne_locs.len(), 0);
-        assert!(p.artifacts.contains_key(&Name::from_str("REQ-foo").unwrap()));
-        assert!(p.artifacts.contains_key(&Name::from_str("SPC-foo").unwrap()));
-        assert!(p.artifacts.contains_key(&Name::from_str("RSK-foo").unwrap()));
-        assert!(p.artifacts.contains_key(&Name::from_str("TST-foo").unwrap()));
-        assert!(p.artifacts.contains_key(&Name::from_str("SPC-bar").unwrap()));
+        assert!(p.artifacts
+                    .contains_key(&Name::from_str("REQ-foo").unwrap()));
+        assert!(p.artifacts
+                    .contains_key(&Name::from_str("SPC-foo").unwrap()));
+        assert!(p.artifacts
+                    .contains_key(&Name::from_str("RSK-foo").unwrap()));
+        assert!(p.artifacts
+                    .contains_key(&Name::from_str("TST-foo").unwrap()));
+        assert!(p.artifacts
+                    .contains_key(&Name::from_str("SPC-bar").unwrap()));
 
         // will be loaded later
-        assert!(!p.artifacts.contains_key(&Name::from_str("REQ-baz").unwrap()));
-        assert!(!p.artifacts.contains_key(&Name::from_str("RSK-foo-2").unwrap()));
-        assert!(!p.artifacts.contains_key(&Name::from_str("TST-foo-2").unwrap()));
+        assert!(!p.artifacts
+                     .contains_key(&Name::from_str("REQ-baz").unwrap()));
+        assert!(!p.artifacts
+                     .contains_key(&Name::from_str("RSK-foo-2").unwrap()));
+        assert!(!p.artifacts
+                     .contains_key(&Name::from_str("TST-foo-2").unwrap()));
 
         {
             // test to make sure default attrs are correct
@@ -281,9 +291,12 @@ mod tests {
 
         let num = load_toml(&path, test_data::TOML_RST2, &mut p).unwrap();
         assert_eq!(num, 3);
-        assert!(p.artifacts.contains_key(&Name::from_str("REQ-baz").unwrap()));
-        assert!(p.artifacts.contains_key(&Name::from_str("RSK-foo-2").unwrap()));
-        assert!(p.artifacts.contains_key(&Name::from_str("TST-foo-2").unwrap()));
+        assert!(p.artifacts
+                    .contains_key(&Name::from_str("REQ-baz").unwrap()));
+        assert!(p.artifacts
+                    .contains_key(&Name::from_str("RSK-foo-2").unwrap()));
+        assert!(p.artifacts
+                    .contains_key(&Name::from_str("TST-foo-2").unwrap()));
     }
 
 }

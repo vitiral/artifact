@@ -18,7 +18,7 @@ use fs_extra::dir;
 //     let writedir = tmpdir.path();
 //     // let writedir = Path::new("junk");
 //     println!("temppath: {}", writedir.display());
-//     dir::copy(&test_data::TINVALID_BOUNDS.as_path(), &writedir, 
+//     dir::copy(&test_data::TINVALID_BOUNDS.as_path(), &writedir,
 //               &dir::CopyOptions::new()).unwrap();
 
 
@@ -44,8 +44,10 @@ use fs_extra::dir;
 fn test_fmt() {
     let tmpdir = tempdir::TempDir::new("artifact").unwrap();
     let writedir = tmpdir.path();
-    dir::copy(&test_data::TSIMPLE_DIR.as_path(), &writedir, 
-              &dir::CopyOptions::new()).unwrap();
+    dir::copy(&test_data::TSIMPLE_DIR.as_path(),
+              &writedir,
+              &dir::CopyOptions::new())
+            .unwrap();
     let simple = writedir.join("simple");
 
     let mut w: Vec<u8> = Vec::new();

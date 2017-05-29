@@ -47,10 +47,14 @@ fn test_toml_assumptions() {
 fn test_load_repo() {
     // init_logger_test();
     info!("running test_load_repo");
-    assert!(user::load_repo(test_data::TINVALID_DIR.join(&PathBuf::from("attr")).as_path())
-                .is_err());
-    assert!(user::load_repo(test_data::TINVALID_DIR.join(&PathBuf::from("same_names")).as_path())
-                .is_err());
+    assert!(user::load_repo(test_data::TINVALID_DIR
+                                .join(&PathBuf::from("attr"))
+                                .as_path())
+                    .is_err());
+    assert!(user::load_repo(test_data::TINVALID_DIR
+                                .join(&PathBuf::from("same_names"))
+                                .as_path())
+                    .is_err());
 
     let simple = &test_data::TSIMPLE_DIR;
     let design = simple.join("design");
@@ -67,17 +71,31 @@ fn test_load_repo() {
     let artifacts = p.artifacts;
     assert!(artifacts.contains_key(&Name::from_str("REQ-purpose").unwrap()));
 
-    artifacts.get(&Name::from_str("REQ-purpose").unwrap()).unwrap();
+    artifacts
+        .get(&Name::from_str("REQ-purpose").unwrap())
+        .unwrap();
 
     // load all artifacts that should exist
-    artifacts.get(&Name::from_str("REQ-lvl-1").unwrap()).unwrap();
-    let spc_lvl1 = artifacts.get(&Name::from_str("SPC-lvl-1").unwrap()).unwrap();
-    artifacts.get(&Name::from_str("SPC-loc-dne").unwrap()).unwrap();
+    artifacts
+        .get(&Name::from_str("REQ-lvl-1").unwrap())
+        .unwrap();
+    let spc_lvl1 = artifacts
+        .get(&Name::from_str("SPC-lvl-1").unwrap())
+        .unwrap();
+    artifacts
+        .get(&Name::from_str("SPC-loc-dne").unwrap())
+        .unwrap();
     let spc_loc = artifacts.get(&Name::from_str("SPC-loc").unwrap()).unwrap();
 
-    artifacts.get(&Name::from_str("REQ-lvl-2").unwrap()).unwrap();
-    artifacts.get(&Name::from_str("SPC-lvl-2").unwrap()).unwrap();
-    artifacts.get(&Name::from_str("TST-lvl-2").unwrap()).unwrap();
+    artifacts
+        .get(&Name::from_str("REQ-lvl-2").unwrap())
+        .unwrap();
+    artifacts
+        .get(&Name::from_str("SPC-lvl-2").unwrap())
+        .unwrap();
+    artifacts
+        .get(&Name::from_str("TST-lvl-2").unwrap())
+        .unwrap();
     assert!(!artifacts.contains_key(&Name::from_str("REQ-unreachable").unwrap()));
     assert!(!artifacts.contains_key(&Name::from_str("SPC-exclude").unwrap()));
 
@@ -117,15 +135,9 @@ fn test_load_repo() {
 }
 
 fn remove_parents(project: &mut Project) {
-    let names: Vec<_> = project.artifacts
-        .keys()
-        .cloned()
-        .collect();
+    let names: Vec<_> = project.artifacts.keys().cloned().collect();
     for n in &names {
-        if project.artifacts
-               .get(n)
-               .unwrap()
-               .path == PARENT_PATH.as_path() {
+        if project.artifacts.get(n).unwrap().path == PARENT_PATH.as_path() {
             project.artifacts.remove(n).unwrap();
         }
     }
@@ -174,12 +186,14 @@ fn test_process_project() {
             .map(|(n, a)| a.to_data(&p.origin, n))
             .collect();
         let new_artifacts =
-            HashMap::from_iter(data_artifacts.iter().map(|d| {
-                                                             Artifact::from_data(&p.origin, d)
-                                                                 .unwrap()
-                                                         }));
+            HashMap::from_iter(data_artifacts
+                                   .iter()
+                                   .map(|d| Artifact::from_data(&p.origin, d).unwrap()));
 
-        let mut new_p = Project { artifacts: new_artifacts, ..p.clone() };
+        let mut new_p = Project {
+            artifacts: new_artifacts,
+            ..p.clone()
+        };
 
         remove_parents(&mut new_p);
         remove_loc(&mut new_p);
@@ -197,7 +211,9 @@ fn test_basic_link() {
     // note: SPC-bar is done via attribute
     let path = PathBuf::from("hi/there");
     for sname in &["SPC-foo", "TST-foo"] {
-        let art = artifacts.get_mut(&NameRc::from_str(sname).unwrap()).unwrap();
+        let art = artifacts
+            .get_mut(&NameRc::from_str(sname).unwrap())
+            .unwrap();
         art.done = Done::Code(Loc {
                                   path: path.clone(),
                                   line: 1,
@@ -222,36 +238,51 @@ fn test_basic_link() {
     assert_eq!(link::set_tested(&mut artifacts), 0);
 
     let req = artifacts.get(&req_name).unwrap();
-    let req_parts = artifacts.get(&NameRc::from_str("REQ-parts").unwrap()).unwrap();
-    let req_parts_p1 = artifacts.get(&NameRc::from_str("REQ-parts-p1").unwrap()).unwrap();
-    let req_parts_p1_a = artifacts.get(&NameRc::from_str("REQ-parts-p1-a").unwrap()).unwrap();
-    let spc_foo = artifacts.get(&NameRc::from_str("SPC-foo").unwrap()).unwrap();
-    let req_foo = artifacts.get(&NameRc::from_str("REQ-foo").unwrap()).unwrap();
-    let tst_foo = artifacts.get(&NameRc::from_str("TST-foo").unwrap()).unwrap();
+    let req_parts = artifacts
+        .get(&NameRc::from_str("REQ-parts").unwrap())
+        .unwrap();
+    let req_parts_p1 = artifacts
+        .get(&NameRc::from_str("REQ-parts-p1").unwrap())
+        .unwrap();
+    let req_parts_p1_a = artifacts
+        .get(&NameRc::from_str("REQ-parts-p1-a").unwrap())
+        .unwrap();
+    let spc_foo = artifacts
+        .get(&NameRc::from_str("SPC-foo").unwrap())
+        .unwrap();
+    let req_foo = artifacts
+        .get(&NameRc::from_str("REQ-foo").unwrap())
+        .unwrap();
+    let tst_foo = artifacts
+        .get(&NameRc::from_str("TST-foo").unwrap())
+        .unwrap();
 
     // test parts
     assert_eq!(req.partof, HashSet::new());
     assert_eq!(req.parts,
-               HashSet::from_iter(["REQ-parts", "REQ-foo"].iter().map(|n| {
-                                                                          NameRc::from_str(n)
-                                                                              .unwrap()
-                                                                      })));
+               HashSet::from_iter(["REQ-parts", "REQ-foo"]
+                                      .iter()
+                                      .map(|n| NameRc::from_str(n).unwrap())));
 
     assert_eq!(req_parts.partof, Names::from_iter(vec![req_name.clone()]));
     assert_eq!(req_parts.parts,
                HashSet::from_iter(["REQ-parts-p1", "REQ-parts-p2"]
-                   .iter()
-                   .map(|n| NameRc::from_str(n).unwrap())));
+                                      .iter()
+                                      .map(|n| NameRc::from_str(n).unwrap())));
 
     assert_eq!(req_foo.parts,
-               HashSet::from_iter(["SPC-foo", "SPC-bar"].iter().map(|n| {
-                                                                        NameRc::from_str(n).unwrap()
-                                                                    })));
+               HashSet::from_iter(["SPC-foo", "SPC-bar"]
+                                      .iter()
+                                      .map(|n| NameRc::from_str(n).unwrap())));
     assert_eq!(spc_foo.partof,
-               HashSet::from_iter(["REQ-foo", "SPC"].iter().map(|n| NameRc::from_str(n).unwrap())));
+               HashSet::from_iter(["REQ-foo", "SPC"]
+                                      .iter()
+                                      .map(|n| NameRc::from_str(n).unwrap())));
 
     assert_eq!(req_parts_p1_a.partof,
-               HashSet::from_iter(["REQ-parts-p1"].iter().map(|n| NameRc::from_str(n).unwrap())));
+               HashSet::from_iter(["REQ-parts-p1"]
+                                      .iter()
+                                      .map(|n| NameRc::from_str(n).unwrap())));
     assert_eq!(req_parts_p1_a.parts, HashSet::new());
 
     // test completed %
@@ -282,7 +313,9 @@ fn test_link_completed_tested() {
                    "TST-core-bob-1-b-2",
                    "SPC-core-bob-2-b",
                    "TST-core-bob-2-a"] {
-        let art = artifacts.get_mut(&NameRc::from_str(sname).unwrap()).unwrap();
+        let art = artifacts
+            .get_mut(&NameRc::from_str(sname).unwrap())
+            .unwrap();
         art.done = Done::Code(Loc {
                                   path: path.clone(),
                                   line: 1,
@@ -295,11 +328,13 @@ fn test_link_completed_tested() {
     link::validate_partof(&artifacts).unwrap();
 
     // just checking that this artifact is good throughout the process
-    assert_eq!(artifacts.get(&NameRc::from_str("SPC-core-bob").unwrap()).unwrap().partof,
-               HashSet::from_iter(["REQ-core-bob", "SPC-core"].iter().map(|n| {
-                                                                              NameRc::from_str(n)
-                                                                                  .unwrap()
-                                                                          })));
+    assert_eq!(artifacts
+                   .get(&NameRc::from_str("SPC-core-bob").unwrap())
+                   .unwrap()
+                   .partof,
+               HashSet::from_iter(["REQ-core-bob", "SPC-core"]
+                                      .iter()
+                                      .map(|n| NameRc::from_str(n).unwrap())));
 
     assert_eq!(link::link_parts(&mut artifacts), 0);
     assert_eq!(link::set_completed(&mut artifacts), 0);
@@ -307,29 +342,59 @@ fn test_link_completed_tested() {
 
     let req_name = Arc::new(NameRc::from_str("REQ-1").unwrap().parent().unwrap());
     let req = artifacts.get(&req_name).unwrap();
-    artifacts.get(&NameRc::from_str("REQ-core").unwrap()).unwrap();
-    let req_bob = artifacts.get(&NameRc::from_str("REQ-core-bob").unwrap()).unwrap();
-    artifacts.get(&NameRc::from_str("SPC-core-bob").unwrap()).unwrap();
-    let spc_bob = artifacts.get(&NameRc::from_str("SPC-core-bob").unwrap()).unwrap();
+    artifacts
+        .get(&NameRc::from_str("REQ-core").unwrap())
+        .unwrap();
+    let req_bob = artifacts
+        .get(&NameRc::from_str("REQ-core-bob").unwrap())
+        .unwrap();
+    artifacts
+        .get(&NameRc::from_str("SPC-core-bob").unwrap())
+        .unwrap();
+    let spc_bob = artifacts
+        .get(&NameRc::from_str("SPC-core-bob").unwrap())
+        .unwrap();
 
     // bob 1
-    let spc_bob_1 = artifacts.get(&NameRc::from_str("SPC-core-bob-1").unwrap()).unwrap();
-    let tst_bob_1 = artifacts.get(&NameRc::from_str("TST-core-bob-1").unwrap()).unwrap();
-    let tst_bob_1_a = artifacts.get(&NameRc::from_str("TST-core-bob-1-a").unwrap()).unwrap();
-    let tst_bob_1_b = artifacts.get(&NameRc::from_str("TST-core-bob-1-b").unwrap()).unwrap();
-    artifacts.get(&NameRc::from_str("TST-core-bob-1-b-1").unwrap()).unwrap();
-    let tst_bob_1_b_2 = artifacts.get(&NameRc::from_str("TST-core-bob-1-b-2").unwrap()).unwrap();
+    let spc_bob_1 = artifacts
+        .get(&NameRc::from_str("SPC-core-bob-1").unwrap())
+        .unwrap();
+    let tst_bob_1 = artifacts
+        .get(&NameRc::from_str("TST-core-bob-1").unwrap())
+        .unwrap();
+    let tst_bob_1_a = artifacts
+        .get(&NameRc::from_str("TST-core-bob-1-a").unwrap())
+        .unwrap();
+    let tst_bob_1_b = artifacts
+        .get(&NameRc::from_str("TST-core-bob-1-b").unwrap())
+        .unwrap();
+    artifacts
+        .get(&NameRc::from_str("TST-core-bob-1-b-1").unwrap())
+        .unwrap();
+    let tst_bob_1_b_2 = artifacts
+        .get(&NameRc::from_str("TST-core-bob-1-b-2").unwrap())
+        .unwrap();
 
     // bob 2
-    let spc_bob_2 = artifacts.get(&NameRc::from_str("SPC-core-bob-2").unwrap()).unwrap();
-    artifacts.get(&NameRc::from_str("SPC-core-bob-2-a").unwrap()).unwrap();
-    artifacts.get(&Name::from_str("SPC-core-bob-2-b").unwrap()).unwrap();
+    let spc_bob_2 = artifacts
+        .get(&NameRc::from_str("SPC-core-bob-2").unwrap())
+        .unwrap();
+    artifacts
+        .get(&NameRc::from_str("SPC-core-bob-2-a").unwrap())
+        .unwrap();
+    artifacts
+        .get(&Name::from_str("SPC-core-bob-2-b").unwrap())
+        .unwrap();
 
     assert_eq!(tst_bob_1_b_2.tested, 1.);
 
     // jane and joe
-    artifacts.get(&NameRc::from_str("REQ-core-joe").unwrap()).unwrap();
-    artifacts.get(&NameRc::from_str("REQ-core-jane").unwrap()).unwrap();
+    artifacts
+        .get(&NameRc::from_str("REQ-core-joe").unwrap())
+        .unwrap();
+    artifacts
+        .get(&NameRc::from_str("REQ-core-jane").unwrap())
+        .unwrap();
 
     // assert parts make some sense
     // SPC-core-bob automatically has REQ-core-bob
@@ -337,14 +402,17 @@ fn test_link_completed_tested() {
     assert_eq!(req.parts,
                HashSet::from_iter(["REQ-core"].iter().map(|n| NameRc::from_str(n).unwrap())));
     assert_eq!(spc_bob.partof,
-               HashSet::from_iter(["SPC-core", "REQ-core-bob"].iter().map(|n| {
-                                                                              NameRc::from_str(n)
-                                                                                  .unwrap()
-                                                                          })));
+               HashSet::from_iter(["SPC-core", "REQ-core-bob"]
+                                      .iter()
+                                      .map(|n| NameRc::from_str(n).unwrap())));
     assert_eq!(req_bob.parts,
-               HashSet::from_iter(["SPC-core-bob"].iter().map(|n| NameRc::from_str(n).unwrap())));
+               HashSet::from_iter(["SPC-core-bob"]
+                                      .iter()
+                                      .map(|n| NameRc::from_str(n).unwrap())));
     assert_eq!(spc_bob_1.parts,
-               HashSet::from_iter(["TST-core-bob-1"].iter().map(|n| NameRc::from_str(n).unwrap())));
+               HashSet::from_iter(["TST-core-bob-1"]
+                                      .iter()
+                                      .map(|n| NameRc::from_str(n).unwrap())));
 
     // assert completed
     let bob_complete = (1. + (1. + 0.) / 2.) / 2.;
@@ -417,5 +485,6 @@ fn test_exclude() {
                    .unwrap()
                    .completed,
                0.0);
-    assert!(!p.artifacts.contains_key(&NameRc::from_str("SPC-excluded").unwrap()));
+    assert!(!p.artifacts
+                 .contains_key(&NameRc::from_str("SPC-excluded").unwrap()));
 }
