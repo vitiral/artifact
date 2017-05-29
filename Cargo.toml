@@ -29,6 +29,10 @@ toml = "0.2"
 unicode-segmentation = "1.1.0"
 unicode-width = "0.1.4"
 
+[dependencies.chrono]
+optional = true
+version = "0.3.1"
+
 [dependencies.clap]
 default-features = false
 features = ["suggestions", "color", "wrap_help"]
@@ -65,13 +69,13 @@ default-features = false
 features = ["ansi_formatting"]
 version = "1.0.3"
 
-
 [dev-dependencies]
 fs_extra = "1.0.0"
 
 [features]
 default = []
-server = ["nickel", "jsonrpc-core", "diesel", "diesel_codegen", "dotenv"]
+server = ["nickel", "jsonrpc-core"]
+tracker = ["diesel", "diesel_codegen", "dotenv", "chrono"]
 
 [profile]
 

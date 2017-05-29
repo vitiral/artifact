@@ -1,15 +1,6 @@
 use dev_prefix::*;
 use std::sync::Mutex;
 
-// extern crate rustc_serialize;
-// #[macro_use] extern crate nickel;
-// #[macro_use] extern crate lazy_static;
-// extern crate jsonrpc_core;
-
-// #[macro_use] extern crate serde;
-// #[macro_use] extern crate serde_derive;
-// extern crate serde_json;
-
 use nickel::{Request, Response, MiddlewareResult, Nickel, HttpRouter, MediaType};
 use nickel::status::StatusCode;
 
@@ -20,11 +11,6 @@ use tempdir::TempDir;
 use types::Project;
 use export::ArtifactData;
 
-use diesel::prelude::*;
-use diesel::pg::PgConnection;
-use dotenv::dotenv;
-use std::env;
-
 mod constants;
 mod utils;
 mod handler;
@@ -33,6 +19,9 @@ mod update;
 #[cfg(test)]
 mod tests;
 
+#[cfg(feature = "tracker")]
+mod tracker;
+#[cfg(feature = "tracker")]
 mod types;
 
 const WEB_FRONTEND_TAR: &'static [u8] = include_bytes!("data/web-ui.tar");
@@ -50,18 +39,6 @@ fn setup_headers(res: &mut Response) {
                  vec![bv("GET, POST, OPTIONS, PUT, PATCH, DELETE")]);
     head.set_raw("Access-Control-Allow-Headers",
                  vec![bv("X-Requested-With,content-type")]);
-}
-
-
-
-
-pub fn establish_connection() -> PgConnection {
-    dotenv().ok();
-
-    let database_url = env::var("DATABASE_URL")
-        .expect("DATABASE_URL must be set");
-    PgConnection::establish(&database_url)
-        .expect(&format!("Error connection to {}", database_url))
 }
 
 fn config_json_res(res: &mut Response) {
@@ -126,11 +103,15 @@ fn host_frontend(server: &mut Nickel, addr: &str) -> TempDir {
         .open(app_js_path)
         .expect("couldn't open app.js");
     let mut text = String::new();
-    app_js.read_to_string(&mut text).expect("app.js couldn't be read");
+    app_js
+        .read_to_string(&mut text)
+        .expect("app.js couldn't be read");
     app_js.seek(SeekFrom::Start(0)).unwrap();
     app_js.set_len(0).unwrap(); // delete what is there
     // the elm app uses a certain address by default, replace it
-    app_js.write_all(text.replace("localhost:3733", addr).as_bytes()).unwrap();
+    app_js
+        .write_all(text.replace("localhost:3733", addr).as_bytes())
+        .unwrap();
     app_js.flush().unwrap();
 
     server.utilize(StaticFilesHandler::new(&dir));
@@ -144,7 +125,8 @@ pub fn start_api(project: Project, addr: &str, edit: bool) {
     // store artifacts and files into global mutex
 
     {
-        let artifacts: Vec<ArtifactData> = project.artifacts
+        let artifacts: Vec<ArtifactData> = project
+            .artifacts
             .iter()
             .map(|(name, model)| model.to_data(&project.origin, name))
             .collect();
