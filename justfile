@@ -57,7 +57,7 @@ filter PATTERN: # run only specific tests
 	RUST_BACKTRACE=1 cargo test --lib {{PATTERN}}
 
 lint: # run linter
-	CARGO_TARGET_DIR={{target}}/nightly rustup run nightly cargo clippy
+	CARGO_TARGET_DIR={{target}}/nightly rustup run nightly cargo clippy --features server
 	
 test-server-only:
 	RUST_BACKTRACE=1 cargo test --lib --features server

@@ -53,7 +53,7 @@ pub fn validate_settings(repo: &Path, settings: &Settings) -> Result<()> {
              settings.artifact_paths);
     if settings.artifact_paths.iter().any(|p| !p.starts_with(repo)) {
         //TODO improve message
-        let msg = format!("artifact_paths invalid");
+        let msg = "artifact_paths invalid".to_string();
         Err(ErrorKind::Security(msg).into())
     } else {
         Ok(())
