@@ -1,5 +1,3 @@
--- #TST-web-unit
-
 module Tests exposing (..)
 
 import Test exposing (..)

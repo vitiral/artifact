@@ -17,9 +17,8 @@ The workflow would be:
  - entire organization can then edit requirements directly
  - admin has to periodically: 
     - (probably) stop the server
-    - apply changes to files
-    - merge with the master branch
-    - make sure the merges 
+    - apply changes from db to files
+    - merge with the master branch and resolve conflicts
     - (probably) start the server
 
 ## Advantages
@@ -32,7 +31,7 @@ simple to integrate it with the text-based nature of artifact that expects
 revision control be be completely handled by the user (an advantage of being
 text based).
 
-artifact is intended to allow separate teams to work on their own subset of
+Artifact is intended to allow separate teams to work on their own subset of
 requirements and only merge with the larger org when they are done. This is
 almost impossible with a traditional web-server approach.
 
@@ -65,6 +64,8 @@ The general workflow will be:
 ## Disadvantages
 - lower performance
 - might not work the way some newcomers expect
+- cannot support simultanious org-wide reqirements editing (must
+  use revision control for organization wide editing)
 '''
 
 [SPC-web-view]
@@ -83,19 +84,27 @@ In addition, there shall always be a refresh button and navigation header.
 
 [TST-web]
 text = '''
-web tests are split into unit tests and e2e tests
-'''
+## E2E tests
+End-to-end tests will be written using the tool selenium. Artifact
+is a fairly simple tool, however the following use cases must be tested:
+- naviagation: make sure all references complete and navbar changes for
+  all links.
+    - Start at list, go to artifact, click link in "parts", click link
+      in text. 
+    - Start at full url, navigate back to list.
+    - Start at full url, switch to different url.
+    - Go to invalid url
+    - Start at full url, click invalid link
+- editing: make sure editing works as expected
+    - Go to full url. Edit text. Validate file has changed. Go to list,
+      click on edited artifact and verify it changed. Refresh and
+      verify again.
+    - In first thread go to full url. In second thread, go to same url and change text.
+      In first thread, try and change text. Expect error.
 
-[TST-web-selenium]
-text = '''
-TODO: create selenium tests
-'''
-
-[TST-web-unit]
-text = '''
+## Unit Tests
 - test json input/output
 - test validation of
     - names
     - partof
-# TODO: more tests
 '''
