@@ -248,14 +248,24 @@ impl fmt::Display for Done {
 /// #SPC-artifact
 #[derive(Clone, Debug, PartialEq)]
 pub struct Artifact {
-    // directly loaded types
+    /// constant id for this instance
+    pub id: u64,
+    /// revision id for edit functionality
+    pub revision: u64,
+    /// path of definition (.toml file)
     pub path: PathBuf,
+    /// `text` attr
     pub text: String,
+    /// explicit and processed `partof` attribute
     pub partof: Names,
-    pub parts: Names,
+    /// `done` attribute
     pub done: Done,
-    pub completed: f32, // completed ratio (calculated)
-    pub tested: f32, // tested ratio (calculated)
+    /// parts is inverse of partof (calculated)
+    pub parts: Names,
+    /// completed ratio (calculated)
+    pub completed: f32,
+    /// tested ratio (calculated)
+    pub tested: f32, 
 }
 
 impl Artifact {

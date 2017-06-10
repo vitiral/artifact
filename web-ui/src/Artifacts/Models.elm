@@ -36,7 +36,7 @@ type alias Name =
   }
 
 -- How artifacts are stored
-type alias Artifacts = Dict.Dict NameKey Artifact
+type alias Artifacts = Dict.Dict ArtifactId Artifact
 
 initialArtifacts : Artifacts
 initialArtifacts =
@@ -46,6 +46,7 @@ initialArtifacts =
 -- representation of an Artifact object
 type alias Artifact =
   { id : ArtifactId
+  , revision: Int
   , name : Name
   , path : String
   , text : String
@@ -55,30 +56,37 @@ type alias Artifact =
   , done : Maybe String
   , completed : Float
   , tested : Float
-  , edited : Maybe ArtifactEditable
+  , edited : Maybe EditableArtifact
   }
 
 -- Editable part of an artifact
-type alias ArtifactEditable =
-  { name : Name
+type alias EditableArtifact =
+  { name : String
   , path : String
   , text : String
   , partof : List Name
+  , done: String
   }
 
 -- gets the edited variable of the artifact
 -- or creates the default one
-getEdited : Artifact -> ArtifactEditable
-getEdited artifact =
+getEditable : Artifact -> EditableArtifact
+getEditable artifact =
   case artifact.edited of
     Just e -> e
     Nothing ->
-      { name = artifact.name
-      , path = artifact.path
-      , text = artifact.text
-      , partof = artifact.partof
-      }
+      createEditable artifact
 
+createEditable : Artifact -> EditableArtifact
+createEditable artifact = 
+  { name = artifact.name.raw
+  , path = artifact.path
+  , text = artifact.text
+  , partof = artifact.partof
+  , done = case artifact.done of
+    Just s -> s
+    Nothing -> ""
+  }
 
 type alias ArtifactsResponse =
   { result: Maybe (List Artifact)
@@ -128,14 +136,13 @@ initName name =
       Err err ->
         Err err
 
--- convert a list of artifacts to a dictionary
+-- convert a list of artifacts to a dictionary by Name
 artifactsFromList : List Artifact -> Artifacts
 artifactsFromList artifacts =
   let
-    pairs = List.map (\a -> ( a.name.value, a )) artifacts
+    pairs = List.map (\a -> ( a.id, a )) artifacts
   in
     Dict.fromList pairs
-
 
 -- VIEW Models
 
@@ -177,11 +184,13 @@ initialSearch =
   , text = False
   }
 
-type alias EditState =
-  { rendered : Bool -- display the rendered tab
+type alias TextViewState =
+  { rendered_edit : Bool -- display the rendered tab for edit view
+  , rendered_read : Bool -- display the rendered tab for read view
   }
 
-initialEditState : EditState
-initialEditState =
-  { rendered = True
+initialTextViewState : TextViewState
+initialTextViewState =
+  { rendered_edit = False
+  , rendered_read = True
   }

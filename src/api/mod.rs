@@ -14,7 +14,7 @@ use export::ArtifactData;
 mod constants;
 pub mod utils;
 mod handler;
-mod update;
+mod crud;
 
 #[cfg(test)]
 mod tests;
@@ -55,7 +55,7 @@ fn handle_artifacts<'a>(req: &mut Request, mut res: Response<'a>) -> MiddlewareR
         }
     };
 
-    trace!("request: {:?}", body);
+    debug!("body: {:?}", body);
     match handler::RPC_HANDLER.handle_request_sync(body) {
         Some(body) => {
             trace!("- response {}", body);
@@ -120,11 +120,7 @@ pub fn start_api(project: Project, addr: &str, edit: bool) {
     // store artifacts and files into global mutex
 
     {
-        let artifacts: Vec<ArtifactData> = project
-            .artifacts
-            .iter()
-            .map(|(name, model)| model.to_data(&project.origin, name))
-            .collect();
+        let artifacts = utils::convert_to_data(&project);
         let mut locked = ARTIFACTS.lock().unwrap();
         let global: &mut Vec<ArtifactData> = locked.deref_mut();
         let compare_by = |a: &ArtifactData| a.name.replace(" ", "").to_ascii_uppercase();

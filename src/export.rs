@@ -1,19 +1,9 @@
 //! Methods for exporting artifact to other data types (like json)
 
-use std::sync::atomic::{AtomicUsize, Ordering as AtomicOrdering};
 use serde_json;
 
 use dev_prefix::*;
 use types::*;
-
-lazy_static!{
-    static ref INCREMENTING_ID: AtomicUsize = AtomicUsize::new(0);
-}
-
-/// used for artifact ids
-fn get_unique_id() -> usize {
-    INCREMENTING_ID.fetch_add(1, AtomicOrdering::SeqCst)
-}
 
 #[derive(Serialize, Deserialize, Debug, Clone, Eq, PartialEq)]
 pub struct LocData {
@@ -24,6 +14,7 @@ pub struct LocData {
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct ArtifactData {
     pub id: u64,
+    pub revision: u64,
     pub name: String,
     pub path: String,
     pub text: String,
@@ -31,16 +22,20 @@ pub struct ArtifactData {
 
     // // TODO: until I serde gets up to speed, the web-api will
     // // have to send these values even though they are ignored
-    //#[serde(default)]
+    #[serde(default)]
     pub parts: Vec<String>,
-    //#[serde(default)]
+    #[serde(default)]
     pub code: Option<LocData>,
-    //#[serde(default)]
+    #[serde(default)]
     pub done: Option<String>,
-    //#[serde(default = -1)]
+    #[serde(default = "default_comp_tested")]
     pub completed: f32,
-    //#[serde(default = -1)]
+    #[serde(default = "default_comp_tested")]
     pub tested: f32,
+}
+
+fn default_comp_tested() -> f32 {
+    -1.0_f32
 }
 
 
@@ -77,7 +72,8 @@ impl Artifact {
                 .to_string()
         };
         ArtifactData {
-            id: get_unique_id() as u64,
+            id: self.id,
+            revision: self.revision,
             name: name.raw.clone(),
             path: path,
             text: self.text.clone(),
@@ -119,6 +115,8 @@ impl Artifact {
         };
         Ok((name,
             Artifact {
+                id: data.id,
+                revision: data.revision,
                 path: path,
                 text: data.text.clone(),
                 partof: partof,
@@ -153,6 +151,7 @@ pub fn project_artifacts_to_json(project: &Project, names: Option<&[NameRc]>) ->
 fn test_serde() {
     let artifact = ArtifactData {
         id: 10,
+        revision: 0,
         name: "name".to_string(),
         path: "path".to_string(),
         text: "text".to_string(),

@@ -15,7 +15,7 @@ Note:
 
 [SPC-rpc-artifacts]
 text = '''
-# GetArtifacts
+# ReadArtifacts
 params:
 - ids: list[int]: ids to get
 - names: list[string]: names to get

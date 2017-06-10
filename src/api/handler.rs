@@ -1,19 +1,19 @@
-use dev_prefix::*;
-use jsonrpc_core::{IoHandler, RpcMethodSync, Params, Error as RpcError};
-use serde_json;
+use jsonrpc_core::{IoHandler};
 
-use export::ArtifactData;
+use api::crud;
 
-use super::ARTIFACTS;
+lazy_static! {
+    pub static ref RPC_HANDLER: IoHandler = init_rpc_handler();
+}
 
 /// the rpc initializer that implements the API spec
 fn init_rpc_handler() -> IoHandler {
     // partof: #SPC-rpc-artifacts
     let mut handler = IoHandler::new();
-    handler.add_method("GetArtifacts", GetArtifacts);
-    // TODO: update is disabled until it is feature complete
-    // (specifically security needs to be added)
-    // handler.add_method("UpdateArtifacts", update::UpdateArtifacts);
+    handler.add_method("CreateArtifacts", crud::CreateArtifacts);
+    handler.add_method("ReadArtifacts", crud::ReadArtifacts);
+    handler.add_method("UpdateArtifacts", crud::UpdateArtifacts);
+    // TODO: DeleteArtifacts
     init_tracker(&mut handler);
     handler
 }
@@ -26,17 +26,3 @@ fn init_tracker(tracker: &mut IoHandler) {
 #[cfg(not(feature="tracker"))]
 fn init_tracker(_: &mut IoHandler) {}
 
-lazy_static! {
-    pub static ref RPC_HANDLER: IoHandler = init_rpc_handler();
-}
-
-/// `GetArtifacts` API Handler
-struct GetArtifacts;
-impl RpcMethodSync for GetArtifacts {
-    fn call(&self, _: Params) -> result::Result<serde_json::Value, RpcError> {
-        info!("GetArtifacts called");
-        let locked = ARTIFACTS.lock().unwrap();
-        let artifacts: &Vec<ArtifactData> = locked.as_ref();
-        Ok(serde_json::to_value(artifacts).expect("serde"))
-    }
-}

@@ -7,7 +7,7 @@ use dev_prefix::*;
 use types::*;
 use user::types::*;
 use user::save::ProjectText;
-use utils::parse_toml;
+use utils::{parse_toml, unique_id};
 
 // Public Methods
 
@@ -166,14 +166,16 @@ fn from_table(name: &Name, path: &Path, tbl: &Table) -> Result<Artifact> {
     };
 
     Ok(Artifact {
-           path: path.to_path_buf(),
-           text: raw.text.unwrap_or_default(),
-           partof: Names::from_str(&raw.partof.unwrap_or_default())?,
-           done: done,
-           // calculated vars
-           parts: HashSet::new(),
-           completed: -1.0,
-           tested: -1.0,
+            id: unique_id(),
+            revision: 0,
+            path: path.to_path_buf(),
+            text: raw.text.unwrap_or_default(),
+            partof: Names::from_str(&raw.partof.unwrap_or_default())?,
+            done: done,
+            // calculated vars
+            parts: HashSet::new(),
+            completed: -1.0,
+            tested: -1.0,
        })
 }
 

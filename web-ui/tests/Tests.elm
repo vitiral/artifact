@@ -16,6 +16,7 @@ import Artifacts.Commands exposing (
 artifact : Artifact
 artifact =
   { id = 10
+  , revision = 0
   , name = { value = "REQ-NAME", raw = "req-name" }
   , path = "path"
   , text = "text"
@@ -29,12 +30,13 @@ artifact =
   }
 
 expectedEncoded = 
-  "{\"id\":10,\"name\":\"req-name\",\"path\":\"path\",\"text\":\"text\",\"partof\":[\"req-partof-1\"]}"
+  "{\"id\":10,\"revision\":0,\"name\":\"req-name\",\"path\":\"path\",\"text\":\"text\",\"partof\":[\"req-partof-1\"]}"
 
 artifactsJson =
   """
   [
-    { "id":10
+    { "id": 10
+    , "revision": 0
     , "name":"req-name"
     , "path":"path"
     , "text": "text"
@@ -71,7 +73,7 @@ all =
       , test "decode artifact" <|
         \() ->
           let
-            expected = Dict.singleton "REQ-NAME" artifact
+            expected = Dict.singleton 10 artifact
           in
             Expect.equal (artifactsFromStrUnsafe artifactsJson) expected
       ]

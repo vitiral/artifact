@@ -1,10 +1,22 @@
+use std::sync::atomic::{AtomicUsize, Ordering as AtomicOrdering};
+use std::io;
+
 use itertools::{Itertools, EitherOrBoth as EoB};
 use toml::{Parser, Table};
 
-use std::io;
 
 use dev_prefix::*;
 use types::*;
+
+lazy_static!{
+    static ref INCREMENTING_ID: AtomicUsize = AtomicUsize::new(0);
+}
+
+/// used for artifact ids
+pub fn unique_id() -> u64 {
+    INCREMENTING_ID.fetch_add(1, AtomicOrdering::SeqCst) as u64
+}
+
 
 /// just parse toml using a std error for this library
 pub fn parse_toml(toml: &str) -> Result<Table> {

@@ -18,6 +18,7 @@
 
 use dev_prefix::*;
 use types::*;
+use utils::unique_id;
 
 pub fn do_links(artifacts: &mut Artifacts) -> Result<()> {
     validate_done(artifacts)?;
@@ -56,6 +57,8 @@ pub fn create_parents(artifacts: &mut Artifacts) {
 
     for name in create_names.drain() {
         let art = Artifact {
+            id: unique_id(),
+            revision: 0,
             path: PARENT_PATH.clone(),
             text: "AUTO".to_string(),
             partof: HashSet::new(),

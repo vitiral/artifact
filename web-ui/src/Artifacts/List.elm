@@ -63,7 +63,7 @@ selectColBtn name visible setter =
   in
     button
       [ class ("btn bold " ++ color)
-      , onClick <| ArtifactsMsg <| ColumnsChanged <|setter <| not visible
+      , onClick <| ArtifactsMsg <| ChangeColumns <|setter <| not visible
       ]
       [ text name ]
 
@@ -91,7 +91,7 @@ searchInput sch =
   input 
     [ size 40
     , readonly False
-    , onInput (\t -> (ArtifactsMsg (SearchChanged { sch | pattern = t })))
+    , onInput (\t -> (ArtifactsMsg (ChangeSearch { sch | pattern = t })))
     ] 
     [ text sch.pattern ]
 
@@ -105,7 +105,7 @@ searchAttrBtn name sel setter =
   in
     button
       [ class ("btn bold " ++ color)
-      , onClick <| ArtifactsMsg <| SearchChanged <| setter (not sel)
+      , onClick <| ArtifactsMsg <| ChangeSearch <| setter (not sel)
       ]
       [ text name ]
 

@@ -1,9 +1,9 @@
 module Main exposing (..)
-
+import Dict
 import Navigation
---import Html exposing (program)
+
 import Messages exposing (AppMsg(..), Route)
-import Models exposing (Model, initialErrors, initialSettings, initialState)
+import Models exposing (Model, initialLogs, initialSettings, initialState)
 import View exposing (view)
 import Update exposing (update)
 import Routing
@@ -16,12 +16,14 @@ type alias Flags =
 initialModel : Navigation.Location -> String -> Route -> Model
 initialModel location addr route =
   { artifacts = artifactsFromStrUnsafe "[]"
+  , names = Dict.empty
   , route = route
   , location = location
-  , errors = initialErrors
-  , settings = initialSettings
+  , logs = initialLogs
+  , settings = initialSettings False
   , addr = addr
   , state = initialState
+  , jsonId = 1
   }
 
 init : Flags -> Navigation.Location -> (Model, Cmd AppMsg)

@@ -4,7 +4,7 @@ import Dict
 
 import Html exposing (Html, div, text)
 import Messages exposing (AppMsg(..), Route(..))
-import Models exposing (Model)
+import Models exposing (Model, getArtifact, memberArtifact)
 import Artifacts.List
 import Artifacts.Edit
 import Artifacts.Models exposing (NameKey, indexNameUnchecked)
@@ -26,7 +26,7 @@ page model =
         -- TODO: should fail if invalid name
         name = indexNameUnchecked raw_name
       in
-        if Dict.member name model.artifacts then
+        if memberArtifact name model then
           artifactEditPage model name
         else
           notFoundView
@@ -36,7 +36,7 @@ page model =
 
 artifactEditPage : Model -> NameKey -> Html AppMsg
 artifactEditPage model name =
-  case Dict.get name model.artifacts of
+  case getArtifact name model of
     Just artifact -> 
       Artifacts.Edit.view model artifact
 

@@ -237,7 +237,7 @@ test execution data to it.
 The API server will serve as the backend for both REQ-web and REQ-tracker
 
 For the Web UI the RPC shall have the following endpionts:
-- GetArtifacts
+- ReadArtifacts
 - UpdateArtifacts
 - CreateArtifacts
 - DeleteArtifacts

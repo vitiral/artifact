@@ -13,6 +13,7 @@ import Artifacts.Models exposing (..)
 import Messages exposing (AppMsg(..))
 import Artifacts.Messages exposing (..)
 import Artifacts.View as View
+import Utils exposing (isJust)
 
 -- regex to search for and replace [[ART-name]]
 artifactLinkRegex : Regex.Regex
@@ -21,24 +22,48 @@ artifactLinkRegex =
 
 view : Model -> Artifact -> Html AppMsg
 view model artifact =
-  div []
-    [ nav model
-    , form model artifact
-    ]
+  let 
+    edit = if isJust artifact.edited && (not model.settings.readonly) then
+      [ form model artifact artifact.edited
+      -- Header for original view
+      , h1 [id "uneditedhead"] [ text "Previous:" ]
+      ]
+    else
+      []
+  in
+    div []
+      ([nav model artifact] 
+      ++ edit 
+      ++ [form model artifact Nothing])
 
-nav : Model -> Html AppMsg
-nav model =
-  div [ class "clearfix mb2 white bg-black p1" ]
-    [ listBtn ]
+
+nav : Model -> Artifact -> Html AppMsg
+nav model artifact =
+  let
+    edit = if model.settings.readonly then
+      []
+    else if artifact.edited == Nothing then
+      [editBtn artifact False]
+    else
+      [editBtn artifact True
+      , saveBtn artifact
+      ]
+  in
+    div 
+      [ class "clearfix mb2 white bg-black p1" ]
+      (
+        [ listBtn ]
+        ++ edit
+      )
 
 
-form : Model -> Artifact -> Html AppMsg
-form model artifact =
+form : Model -> Artifact -> Maybe EditableArtifact -> Html AppMsg
+form model artifact edited =
   div [ class "m3" ]
-    [ h1 [id "ehead"] [ text artifact.name.raw ]
+    [ h1 [getId "ehead" edited] [ text artifact.name.raw ]
     , div [ class "clearfix py1" ]
       [ formColumnOne model artifact
-      , formColumnTwo model artifact
+      , formColumnTwo model artifact edited
       ]
     ]
 
@@ -62,19 +87,28 @@ formColumnOne model artifact =
     ]
 
 -- Text column
-formColumnTwo : Model -> Artifact -> Html AppMsg
-formColumnTwo model artifact =
+formColumnTwo : Model -> Artifact -> Maybe EditableArtifact -> Html AppMsg
+formColumnTwo model artifact edited =
   div [ class "col col-6" ] 
     [ h3 [] [ text "Text" ]
-    , selectRenderedBtns model
-    , displayText model artifact
+    , selectRenderedBtns model (isJust edited)
+    , displayText model artifact edited
     ]
 
-selectRenderedBtns : Model -> Html AppMsg
-selectRenderedBtns model =
+selectRenderedBtns : Model -> Bool -> Html AppMsg
+selectRenderedBtns model editable =
   let
-    edit = model.state.edit
-    (rendered_clr, raw_clr) = if edit.rendered then
+    newView render =
+      let
+        view = model.state.textView 
+      in
+        if editable then
+          { view | rendered_edit = render }
+        else
+          { view | rendered_read = render }
+
+    textView = model.state.textView
+    (rendered_clr, raw_clr) = if getRendered model editable then
       ("black", "gray")
     else
       ("gray", "black")
@@ -82,38 +116,60 @@ selectRenderedBtns model =
     span []
       [ button -- rendered
         [ class ("btn bold " ++ rendered_clr)
-        , onClick <| ArtifactsMsg <| EditStateChanged { rendered = True }
+        , onClick <| ArtifactsMsg <| ChangeTextViewState <| newView True
         ]
         [ text "rendered" ]
       , button -- raw
         [ class ("btn bold " ++ raw_clr)
-        , onClick <| ArtifactsMsg <| EditStateChanged { rendered = False }
+        , onClick <| ArtifactsMsg <| ChangeTextViewState <| newView False
         ]
         [ text "raw" ]
       ]
 
-displayText : Model -> Artifact -> Html AppMsg
-displayText model artifact =
-  if model.state.edit.rendered then
+getRendered : Model -> Bool -> Bool
+getRendered model edit =
+  let
+    view = model.state.textView
+  in
+    if edit then
+      view.rendered_edit
+    else
+      view.rendered_read
+
+displayText : Model -> Artifact -> Maybe EditableArtifact -> Html AppMsg
+displayText model artifact edited =
+  if getRendered model (isJust edited) then
     toHtml [] (replaceArtifactLinks model artifact.text)
   else
-    displayRawText model artifact
+    displayRawText model artifact edited
 
-displayRawText : Model -> Artifact -> Html AppMsg
-displayRawText model artifact =
+-- display raw text in a way that can be edited
+displayRawText : Model -> Artifact -> Maybe EditableArtifact -> Html AppMsg
+displayRawText model artifact edited =
   let
-    edited = getEdited artifact
-  in
-    textarea 
+    editedAttrs = 
+      case edited of
+        Just e -> 
+          [(onInput (\t -> (ArtifactsMsg (EditArtifact artifact.id
+              { e | text = t }))))]
+        Nothing ->
+          []
+
+    attrs = 
       [ class "h3" -- class=h3 otherwise it is really tiny for some reason
       , rows 35
       , cols 80
-      , readonly model.settings.readonly 
-      , id ("text_" ++ artifact.name.value)
-      , onInput (\t -> (ArtifactsMsg (ArtifactEdited artifact.name.value 
-        { edited | text = t })))
-      ] 
-      [ text artifact.text ]
+      , readonly <| not <| isJust edited
+      , getId ("text_" ++ artifact.name.value) edited
+      ] ++ editedAttrs
+    
+    rawText = case edited of 
+      -- show the edited version
+      Just e -> e.text
+      -- show the original version
+      Nothing -> artifact.text
+  in
+    textarea attrs [ text rawText ]
 
 listBtn : Html AppMsg
 listBtn =
@@ -122,6 +178,43 @@ listBtn =
     , onClick (ArtifactsMsg ShowArtifacts)
     ]
     [ i [ class "fa fa-chevron-left mr1" ] [], text "List" ]
+
+editBtn : Artifact -> Bool -> Html AppMsg
+editBtn artifact in_progress =
+  button
+    [ class "btn regular"
+    , if in_progress then
+      onClick (ArtifactsMsg (CancelEditArtifact artifact.id))
+    else
+      onClick (ArtifactsMsg (EditArtifact artifact.id (getEditable artifact)))
+    ]
+    [ i [ class "fa fa-pencil mr1" ] []
+    , text (if in_progress then 
+      "Cancel"
+    else
+      "Edit")
+    ]
+
+saveBtn : Artifact -> Html AppMsg
+saveBtn artifact =
+  button
+    [ class "btn regular"
+    , onClick <| ArtifactsMsg <| SaveArtifact artifact.id
+    ]
+    [ i [ class "fa fa-floppy-o mr1" ] []
+    , text "Save"
+    ]
+
+------------------------
+-- Helpers
+
+getId : String -> Maybe EditableArtifact -> Attribute m
+getId id_ edited =
+  if edited == Nothing then
+    id ("rd_" ++ id_) -- read
+  else
+    id ("ed_" ++ id_) -- edit
+
 
 -- get the full url to a single artifact
 fullArtifactUrl : Model -> String -> String
@@ -157,3 +250,5 @@ replaceArtifactLinks model text =
         Nothing -> "INTERNAL_ERROR"
   in
     Regex.replace Regex.All artifactLinkRegex replace text
+
+

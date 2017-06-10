@@ -10,7 +10,7 @@ import Html.Attributes exposing (class, href, title, id)
 import Html.Events exposing (onClick)
 
 import Messages exposing (AppMsg(..), Route(..))
-import Models exposing (Model)
+import Models exposing (Model, getArtifact, memberArtifact)
 import Artifacts.Models exposing (Artifact, artifactNameUrl, indexName, indexNameUnchecked)
 import Artifacts.Messages exposing (Msg(..))
 
@@ -188,11 +188,11 @@ seeArtifactName model name =
 
     url = (artifactNameUrl indexName)
 
-    color = case Dict.get indexName model.artifacts of
+    color = case getArtifact indexName model of
       Just a -> artifactColor a
       Nothing -> "purple"
   in 
-    if Dict.member indexName model.artifacts then
+    if memberArtifact indexName model then
       a 
         [ class ("btn bold " ++ color)
         , href url

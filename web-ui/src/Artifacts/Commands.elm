@@ -1,7 +1,6 @@
 module Artifacts.Commands exposing (..)
 
 import Http
-import Dict
 import Json.Decode as Decode
 import Json.Encode as Encode
 import Json.Decode.Pipeline exposing (decode, required, optional, hardcoded)
@@ -9,8 +8,8 @@ import Messages exposing (AppMsg(..))
 import Models exposing (Model)
 import Artifacts.Messages exposing (..)
 import Artifacts.Models exposing 
-  ( NameKey, Artifact, Artifacts, Loc, ArtifactsResponse
-  , Name, initName, artifactsFromList)
+  ( NameKey, Artifact, Artifacts, EditableArtifact, Loc, ArtifactsResponse
+  , Name, initName, artifactsFromList, getEditable)
 import JsonRpc exposing (RpcError, formatJsonRpcError)
 
 isErr : Result e a -> Bool
@@ -35,29 +34,46 @@ endpoint = "/json-rpc"
 
 -- COMMANDS
 
+-- fetch artifacts
 fetchAll : Model -> Cmd AppMsg
 fetchAll model =
   let
-    request = Http.request
+    body = Http.jsonBody <| getArtifactsRequestEncoded model.jsonId
+    request = createJsonRequest model body artifactsResponseDecoder
+  in
+    Http.send gotArtifactsMsg request
+
+
+saveArtifacts : Model -> List Artifact -> Cmd AppMsg
+saveArtifacts model artList =
+  let
+    body = Http.jsonBody <| updateArtifactsRequestEncoded model.jsonId artList
+    request = createJsonRequest model body artifactsResponseDecoder
+  in
+    Http.send gotArtifactsMsg request
+
+-- Helpers
+
+createJsonRequest : Model -> Http.Body -> Decode.Decoder d -> Http.Request d
+createJsonRequest model body decoder =
+    Http.request
       { method = "PUT"
-      , headers = 
+      , headers =
         [ Http.header "Content-Type" "application/json"
         ]
       , url = model.addr ++ endpoint
-      , body = Http.jsonBody <| getArtifactsRequestEncoded 1 -- TODO: use better RPC id
-      , expect = Http.expectJson getArtifactsResponseDecoder
+      , body = body
+      , expect = Http.expectJson decoder
       , timeout = Nothing
       , withCredentials = False
       }
-  in
-    Http.send newArtifactsMsg request
 
-newArtifactsMsg : (Result Http.Error (ArtifactsResponse)) -> AppMsg
-newArtifactsMsg result =
+gotArtifactsMsg : (Result Http.Error (ArtifactsResponse)) -> AppMsg
+gotArtifactsMsg result =
   case result of
     Ok response -> case response.result of
-      Just newArtifacts -> 
-        ArtifactsMsg (NewArtifacts newArtifacts)
+      Just gotArtifacts -> 
+        ArtifactsMsg (ReceivedArtifacts gotArtifacts)
 
       -- TODO: break this out to a function
       Nothing -> case response.error of
@@ -69,29 +85,6 @@ newArtifactsMsg result =
     Err err ->
       HttpError err
 
-
-saveAll : Model -> Artifacts -> Cmd AppMsg
-saveAll model artifacts = 
-  let
-    artList = Dict.values artifacts
-
-    -- TODO: use better RPC id
-    body = Http.jsonBody (updateArtifactsRequestEncoded 1 artList)
-
-    request = Http.request
-      { method = "PUT"
-      , headers = 
-        [ Http.header "Content-Type" "application/json"
-        ]
-      , url = model.addr ++ endpoint
-      , body = body
-      , expect = Http.expectJson getArtifactsResponseDecoder
-      , timeout = Nothing
-      , withCredentials = False
-      }
-  in
-    Http.send newArtifactsMsg request
-
 -- REQUESTS
 
 getArtifactsRequestEncoded : Int -> Encode.Value
@@ -100,7 +93,7 @@ getArtifactsRequestEncoded rpc_id =
     attrs =
       [ ( "jsonrpc", Encode.string "2.0" )
       , ( "id", Encode.int rpc_id )
-      , ( "method", Encode.string "GetArtifacts" )
+      , ( "method", Encode.string "ReadArtifacts" )
       ]
   in
     Encode.object attrs
@@ -117,7 +110,7 @@ updateArtifactsRequestEncoded rpc_id artifacts =
     attrs = 
       [ ( "jsonrpc", Encode.string "2.0" )
       , ( "id", Encode.int rpc_id )
-      , ( "method", Encode.string "GetArtifacts" )
+      , ( "method", Encode.string "UpdateArtifacts" )
       , ( "params", params )
       ]
   in
@@ -134,13 +127,15 @@ artifactsEncoded artifacts =
 artifactEncoded : Artifact -> Encode.Value
 artifactEncoded artifact =
   let
-    partof = List.map (\p -> p.raw) artifact.partof
+    edited = getEditable artifact
+    partof = List.map (\p -> p.raw) edited.partof
 
     attrs =
       [ ( "id", Encode.int artifact.id )
-      , ( "name", Encode.string artifact.name.raw )
-      , ( "path", Encode.string artifact.path )
-      , ( "text", Encode.string artifact.text )
+      , ( "revision", Encode.int artifact.revision )
+      , ( "name", Encode.string edited.name )
+      , ( "path", Encode.string edited.path )
+      , ( "text", Encode.string edited.text )
       , ( "partof", Encode.list (List.map Encode.string partof) )
       ]
   in
@@ -170,8 +165,8 @@ errorDecoder =
 
 
 -- API Calls
-getArtifactsResponseDecoder : Decode.Decoder ArtifactsResponse
-getArtifactsResponseDecoder = 
+artifactsResponseDecoder : Decode.Decoder ArtifactsResponse
+artifactsResponseDecoder = 
   Decode.map2 ArtifactsResponse
     (Decode.maybe (Decode.field "result" artifactsDecoder))
     (Decode.maybe (Decode.field "error" errorDecoder))
@@ -187,6 +182,7 @@ artifactDecoder : Decode.Decoder Artifact
 artifactDecoder =
   decode Artifact
     |> required "id" Decode.int
+    |> required "revision" Decode.int
     |> required "name" nameDecoder
     |> required "path" Decode.string
     |> required "text" Decode.string

@@ -1,11 +1,11 @@
 
-use std::panic;
 use dev_prefix::*;
 use types::*;
 use user;
 use test_data;
 
-use api::update;
+use api::crud;
+use api::utils;
 
 
 #[test]
@@ -36,7 +36,7 @@ fn test_split() {
         let new_artifacts = vec![changed_data.clone()];
 
         let (unchanged_artifacts, save_artifacts) =
-            update::split_artifacts(&p, &data_artifacts, &new_artifacts).unwrap();
+            utils::split_artifacts(&p, &data_artifacts, &new_artifacts, false).unwrap();
 
         assert_eq!(save_artifacts.len(), 1);
         let new_data = save_artifacts
@@ -55,7 +55,8 @@ fn test_split() {
         changed_data.path = new_path.clone();
 
         let new_artifacts = vec![changed_data.clone()];
-        let (_, save_artifacts) = update::split_artifacts(&p, &data_artifacts, &new_artifacts)
+        let (_, save_artifacts) = utils::split_artifacts(
+            &p, &data_artifacts, &new_artifacts, false)
             .unwrap();
         let new_data = save_artifacts
             .get(&req_purpose)
@@ -74,7 +75,7 @@ fn test_split() {
         let original = changed_data.path;
         changed_data.path = design.join("dne.toml").to_string_lossy().to_string();
         let new_artifacts = vec![changed_data.clone()];
-        assert!(update::split_artifacts(&p, &data_artifacts, &new_artifacts).is_err());
+        assert!(utils::split_artifacts(&p, &data_artifacts, &new_artifacts, false).is_err());
         changed_data.path = original;
     }
 
@@ -83,7 +84,7 @@ fn test_split() {
         let original = changed_data.id;
         changed_data.id = 42424242;
         let new_artifacts = vec![changed_data.clone()];
-        assert!(update::split_artifacts(&p, &data_artifacts, &new_artifacts).is_err());
+        assert!(utils::split_artifacts(&p, &data_artifacts, &new_artifacts, false).is_err());
         changed_data.id = original;
 
     }
@@ -93,7 +94,7 @@ fn test_split() {
         let original = changed_data.name;
         changed_data.name = "invalid-REQ-name".to_string();
         let new_artifacts = vec![changed_data.clone()];
-        assert!(update::split_artifacts(&p, &data_artifacts, &new_artifacts).is_err());
+        assert!(utils::split_artifacts(&p, &data_artifacts, &new_artifacts, false).is_err());
         changed_data.name = original;
 
     }
@@ -104,47 +105,44 @@ fn test_update() {
     let simple = &test_data::TSIMPLE_DIR;
     let design = simple.join("design");
 
-    let result = panic::catch_unwind(panic::AssertUnwindSafe(|| {
-        let p = user::load_repo(simple.as_path()).unwrap();
-        let data_artifacts: Vec<_> = p.artifacts
-            .iter()
-            .map(|(n, a)| a.to_data(&p.origin, n))
-            .collect();
+    let p = user::load_repo(simple.as_path()).unwrap();
+    let data_artifacts: Vec<_> = p.artifacts
+        .iter()
+        .map(|(n, a)| a.to_data(&p.origin, n))
+        .collect();
 
-        let req_purpose = NameRc::from_str("REQ-purpose").unwrap();
+    let req_purpose = NameRc::from_str("REQ-purpose").unwrap();
 
-        let mut changed_data = data_artifacts
-            .iter()
-            .filter(|a| a.name == "REQ-purpose")
-            .next()
-            .unwrap()
-            .clone();
+    let mut changed_data = data_artifacts
+        .iter()
+        .filter(|a| a.name == "REQ-purpose")
+        .next()
+        .unwrap()
+        .clone();
 
-        // changing text is OK
-        {
-            let new_text = "changed to something else";
-            changed_data.text = new_text.to_string();
-            let new_artifacts = vec![changed_data.clone()];
+    // changing text is OK
+    {
+        let new_text = "changed to something else";
+        changed_data.text = new_text.to_string();
+        let new_artifacts = vec![changed_data.clone()];
 
-            let new_project = update::update_artifacts(&data_artifacts, &p, &new_artifacts)
-                .unwrap();
+        let new_project = crud::update_project(&data_artifacts, &p, &new_artifacts, false)
+            .unwrap();
 
-            let mut expected = p.artifacts.get(&req_purpose).unwrap().clone();
-            expected.text = new_text.to_string();
-            assert_eq!(new_project.artifacts.get(&req_purpose).unwrap(), &expected);
-        }
+        let mut expected = p.artifacts.get(&req_purpose).unwrap().clone();
+        expected.text = new_text.to_string();
+        expected.revision += 1;
+        assert_eq!(new_project.artifacts.get(&req_purpose).unwrap(), &expected);
+    }
 
-        // changing path to new path NOT ok
-        {
-            let original = changed_data.path;
-            changed_data.path = design.join("dne.toml").to_string_lossy().to_string();
-            let new_artifacts = vec![changed_data.clone()];
+    // changing path to new path NOT ok
+    {
+        let original = changed_data.path;
+        changed_data.path = design.join("dne.toml").to_string_lossy().to_string();
+        let new_artifacts = vec![changed_data.clone()];
 
-            assert!(update::update_artifacts(&data_artifacts, &p, &new_artifacts).is_err());
-            changed_data.path = original;
-        }
-    }));
-
-    result.unwrap();
+        assert!(crud::update_project(&data_artifacts, &p, &new_artifacts, false).is_err());
+        changed_data.path = original;
+    }
 
 }

@@ -60,7 +60,7 @@ lint: # run linter
 	CARGO_TARGET_DIR={{target}}/nightly rustup run nightly cargo clippy --features server
 	
 test-server-only:
-	RUST_BACKTRACE=1 cargo test --lib --features server
+	TG={{target}} {{nightly}} cargo test --lib --features server
 
 test-server: build-elm # run the test-server for e2e testing, still in development
 	just test-server-only
@@ -76,7 +76,7 @@ api: # run the api server (without the web-ui)
 	cargo run -- -v server
 
 serve-rust: 
-	TG={{target}} {{nightly}} cargo run --features server -- -v serve
+	TG={{target}} {{nightly}} cargo run --features server -- -vv serve
 
 serve: build-elm  # run the full frontend
 	just serve-rust

@@ -62,7 +62,7 @@ version = "7.0.0"
 
 [dependencies.nickel]
 optional = true
-version = "0.9"
+version = "0.10"
 
 [dependencies.tabwriter]
 default-features = false

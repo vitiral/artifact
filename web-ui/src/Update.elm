@@ -1,7 +1,7 @@
 module Update exposing (..)
 
 import Messages exposing (AppMsg(..), formatHttpError)
-import Models exposing (Model, appendError)
+import Models exposing (Model, log)
 import Artifacts.Update
 
 
@@ -17,7 +17,7 @@ update msg model =
     -- TODO: these should do some kind of command to clear the
     -- error later
     HttpError err ->
-      ( appendError model <| formatHttpError err, Cmd.none )
+      ( log model <| formatHttpError err, Cmd.none )
 
     AppError err ->
-      ( appendError model <| "AppError: " ++ err, Cmd.none )
+      ( log model <| "AppError: " ++ err, Cmd.none )
