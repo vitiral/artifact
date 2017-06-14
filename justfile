@@ -66,7 +66,7 @@ test-server: build-elm # run the test-server for e2e testing, still in developme
 	just test-server-only
 
 test-e2e: # run e2e tests, still in development
-	(cd web-ui; py2t e2e_tests/basic.py)
+	cd web-ui; py.test2 e2e_tests/basic.py
 
 
 ##################################################
@@ -77,6 +77,9 @@ api: # run the api server (without the web-ui)
 
 serve-rust: 
 	TG={{target}} {{nightly}} cargo run --features server -- -vv serve
+
+serve-e2e: build-elm
+	TG={{target}} {{nightly}} cargo run --features server -- --work-tree web-ui/e2e_tests/ex_proj serve
 
 serve: build-elm  # run the full frontend
 	just serve-rust

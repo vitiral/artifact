@@ -11,7 +11,9 @@ import Html.Events exposing (onClick)
 
 import Messages exposing (AppMsg(..), Route(..))
 import Models exposing (Model, getArtifact, memberArtifact)
-import Artifacts.Models exposing (Artifact, artifactNameUrl, indexName, indexNameUnchecked)
+import Artifacts.Models exposing (
+  Artifact, EditableArtifact, artifactNameUrl,
+  indexName, indexNameUnchecked)
 import Artifacts.Messages exposing (Msg(..))
 
 completion : Artifact -> Html AppMsg
@@ -108,8 +110,11 @@ parts model artifact =
     rawParts = List.map (\p -> p.raw) artifact.parts
   in
     ul
-      [ id ("parts_" ++ artifact.name.value) ] 
-      (List.map (\p -> li [ class "underline" ] [ seeArtifactName model p ]) rawParts)
+      [ getId ("parts_" ++ artifact.name.value) Nothing ] 
+      (List.map (\p -> li 
+        [ class "underline" ] 
+        [ seeArtifactName model p artifact "parts" ]) 
+        rawParts)
 
 
 -- TODO: allow editing when not readonly
@@ -119,8 +124,11 @@ partof model artifact =
     rawPartof = List.map (\p -> p.raw) artifact.partof
   in
     ul 
-      [ id ("partof_" ++ artifact.name.value) ] 
-      (List.map (\p -> li [ class "underline" ] [ seeArtifactName model p ]) rawPartof)
+      [ getId ("partof_" ++ artifact.name.value) Nothing ] 
+      (List.map (\p -> li 
+        [ class "underline" ] 
+        [ seeArtifactName model p artifact "partof"]) 
+        rawPartof)
 
 -- TODO: don't wrap text
 textPiece : Model -> Artifact -> Html AppMsg
@@ -181,8 +189,8 @@ seeArtifact model artifact =
     [ text (artifact.name.raw ++ "  ") ]
 
 -- TODO: do color and other special stuff for non-existent names
-seeArtifactName : Model -> String -> Html AppMsg
-seeArtifactName model name =
+seeArtifactName : Model -> String -> Artifact -> String -> Html AppMsg
+seeArtifactName model name parent attr =
   let
     indexName = indexNameUnchecked name
 
@@ -197,6 +205,21 @@ seeArtifactName model name =
         [ class ("btn bold " ++ color)
         , href url
         , onClick ( ArtifactsMsg <| ShowArtifact <| indexName ) 
+        , id <| parent.name.value ++ attr ++ name
         ] [ text name ]
     else
       span [ class ("btn " ++ color) ] [ text name ]
+
+
+------------------------
+-- Helpers
+
+-- get the id html attribute
+getId : String -> Maybe EditableArtifact -> Attribute m
+getId id_ edited =
+  if edited == Nothing then
+    id ("rd_" ++ id_) -- read
+  else
+    id ("ed_" ++ id_) -- edit
+
+

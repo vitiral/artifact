@@ -60,7 +60,7 @@ nav model artifact =
 form : Model -> Artifact -> Maybe EditableArtifact -> Html AppMsg
 form model artifact edited =
   div [ class "m3" ]
-    [ h1 [getId "ehead" edited] [ text artifact.name.raw ]
+    [ h1 [View.getId "ehead" edited] [ text artifact.name.raw ]
     , div [ class "clearfix py1" ]
       [ formColumnOne model artifact
       , formColumnTwo model artifact edited
@@ -160,7 +160,7 @@ displayRawText model artifact edited =
       , rows 35
       , cols 80
       , readonly <| not <| isJust edited
-      , getId ("text_" ++ artifact.name.value) edited
+      , View.getId ("text_" ++ artifact.name.value) edited
       ] ++ editedAttrs
     
     rawText = case edited of 
@@ -204,17 +204,6 @@ saveBtn artifact =
     [ i [ class "fa fa-floppy-o mr1" ] []
     , text "Save"
     ]
-
-------------------------
--- Helpers
-
-getId : String -> Maybe EditableArtifact -> Attribute m
-getId id_ edited =
-  if edited == Nothing then
-    id ("rd_" ++ id_) -- read
-  else
-    id ("ed_" ++ id_) -- edit
-
 
 -- get the full url to a single artifact
 fullArtifactUrl : Model -> String -> String
