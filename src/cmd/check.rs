@@ -68,7 +68,7 @@ fn display_invalid_partof<W: Write>(w: &mut W, cwd: &Path, project: &Project, cm
                    name,
                    utils::relative_path(&artifact.path, cwd).display(),
                    invalid_partof)
-                    .unwrap();
+                .unwrap();
             paint_it(w, &msg, cmd);
         }
     }
@@ -86,8 +86,7 @@ fn display_unresolvable<W: Write>(w: &mut W, project: &Project, cmd: &Cmd) -> u6
                            .iter()
                            .filter(|a| a.1.completed < 0. || a.1.tested < 0.)
                            .map(|n| (n.0.clone(), n.1)));
-    let unknown_names: HashSet<NameRc> =
-        HashSet::from_iter(unresolved.iter().map(|u| u.0.clone()));
+    let unknown_names: HashSet<NameRc> = HashSet::from_iter(unresolved.iter().map(|u| u.0.clone()));
 
     if !unresolved.is_empty() {
         error += 1;
@@ -189,7 +188,7 @@ fn display_invalid_locs<W: Write>(w: &mut W, cwd: &Path, project: &Project, cmd:
             write!(pathstr,
                    "    {}:\n",
                    utils::relative_path(&path, cwd).display())
-                    .unwrap();
+                .unwrap();
             paint_it(w, &pathstr, cmd);
             locs.sort_by(|a, b| a.1.line.cmp(&b.1.line));
             for (name, loc) in locs {
@@ -244,7 +243,7 @@ fn display_hanging_artifacts<W: Write>(w: &mut W, cwd: &Path, project: &Project,
                    "    {:<30}: {}\n",
                    utils::relative_path(p, cwd).display(),
                    h)
-                    .unwrap();
+                .unwrap();
             write!(w, "{}", msg).unwrap();
         }
     }
@@ -287,8 +286,8 @@ fn display_hanging_references<W: Write>(w: &mut W,
             let artifact = project.artifacts.get(name).expect("inserted from");
             paint_it(w,
                      &format!("    {} ({}):\n",
-                             name,
-                             utils::relative_path(&artifact.path, cwd).display()),
+                              name,
+                              utils::relative_path(&artifact.path, cwd).display()),
                      cmd);
             for f in found {
                 write!(w, "    - {}", f).unwrap();

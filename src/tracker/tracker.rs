@@ -154,9 +154,11 @@ impl RpcMethodSync for AddTestRun {
                .filter(test_name::name.eq(&new_test_run.test_name))
                .first::<TestName>(&connection)
                .is_err() {
-            let msg = format!("Test name \'{}\' not in database. Please \
+            let msg = format!(
+                "Test name \'{}\' not in database. Please \
                 add using \'AddTest\' before continuing",
-                              new_test_run.test_name);
+                new_test_run.test_name
+            );
             return Err(utils::invalid_params(&msg));
         }
 
@@ -165,9 +167,11 @@ impl RpcMethodSync for AddTestRun {
                .filter(version::id.eq(&new_test_run.version_id))
                .first::<Version>(&connection)
                .is_err() {
-            let msg = format!("Version id \'{}\' not in database. \
+            let msg = format!(
+                "Version id \'{}\' not in database. \
                 Please add using \'AddVersion\' before continuing",
-                              new_test_run.version_id);
+                new_test_run.version_id
+            );
             return Err(utils::invalid_params(&msg));
         }
 
@@ -178,9 +182,11 @@ impl RpcMethodSync for AddTestRun {
                    .filter(artifact_name::name.eq(artifact))
                    .first::<ArtifactName>(&connection)
                    .is_err() {
-                let msg = format!("Artifact \'{}\' not in database. \
+                let msg = format!(
+                    "Artifact \'{}\' not in database. \
                     Please add using \'AddArtifact\' before continuing",
-                                  artifact);
+                    artifact
+                );
                 return Err(utils::invalid_params(&msg));
             }
         }

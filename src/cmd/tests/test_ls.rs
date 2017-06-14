@@ -48,11 +48,10 @@ fn test_get_matches() {
 
 
 fn to_vec(b: &'static [u8]) -> Vec<u8> {
-    Vec::from_iter(b.iter()
-                       .map(|c| match *c {
-                                b'/' => MAIN_SEPARATOR as u8,
-                                _ => c.clone(),
-                            }))
+    Vec::from_iter(b.iter().map(|c| match *c {
+                                    b'/' => MAIN_SEPARATOR as u8,
+                                    _ => c.clone(),
+                                }))
 }
 
 

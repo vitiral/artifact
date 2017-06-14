@@ -50,11 +50,11 @@ fn test_load_repo() {
     assert!(user::load_repo(test_data::TINVALID_DIR
                                 .join(&PathBuf::from("attr"))
                                 .as_path())
-                    .is_err());
+                .is_err());
     assert!(user::load_repo(test_data::TINVALID_DIR
                                 .join(&PathBuf::from("same_names"))
                                 .as_path())
-                    .is_err());
+                .is_err());
 
     let simple = &test_data::TSIMPLE_DIR;
     let design = simple.join("design");
@@ -185,10 +185,9 @@ fn test_process_project() {
             .iter()
             .map(|(n, a)| a.to_data(&p.origin, n))
             .collect();
-        let new_artifacts =
-            HashMap::from_iter(data_artifacts
-                                   .iter()
-                                   .map(|d| Artifact::from_data(&p.origin, d).unwrap()));
+        let new_artifacts = HashMap::from_iter(data_artifacts.iter().map(|d| {
+            Artifact::from_data(&p.origin, d).unwrap()
+        }));
 
         let mut new_p = Project {
             artifacts: new_artifacts,
@@ -486,5 +485,5 @@ fn test_exclude() {
                    .completed,
                0.0);
     assert!(!p.artifacts
-                 .contains_key(&NameRc::from_str("SPC-excluded").unwrap()));
+                .contains_key(&NameRc::from_str("SPC-excluded").unwrap()));
 }

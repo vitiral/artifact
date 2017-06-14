@@ -30,13 +30,17 @@ pub fn get_subcommand<'a, 'b>() -> App<'a, 'b> {
     SubCommand::with_name("ls")
         .about("List artifacts according to various parameters")
         .settings(&SUBCMD_SETTINGS)
-        .arg(Arg::with_name("search")
-                 .help("Artifact names given in the brace pattern form \
+        .arg(
+            Arg::with_name("search")
+                .help(
+                    "Artifact names given in the brace pattern form \
                    e.g. REQ-foo-[bar, baz-[1,2]] \
                    OR regexp pattern if -p is given. Regular expressions use \
                    the rust regular expression syntax \
-                   https://doc.rust-lang.org/regex/regex/index.html#syntax")
-                 .use_delimiter(false))
+                   https://doc.rust-lang.org/regex/regex/index.html#syntax",
+                )
+                .use_delimiter(false),
+        )
         .arg(Arg::with_name("pattern")
                  .short("p")
                  .help("Search FIELDS using regexp SEARCH.")
@@ -47,12 +51,16 @@ pub fn get_subcommand<'a, 'b>() -> App<'a, 'b> {
         .arg(Arg::with_name("long")
                  .short("l")
                  .help("Print items in the 'long form'"))
-        .arg(Arg::with_name("completed")
-                 .value_name("COMPLETED")
-                 .short("c")
-                 .help("Filter by completeness (e.g. '<45'), < and > are inclusive. \
-                   < is a shortcut for 0%, and > is a shortcut for 100%")
-                 .takes_value(true))
+        .arg(
+            Arg::with_name("completed")
+                .value_name("COMPLETED")
+                .short("c")
+                .help(
+                    "Filter by completeness (e.g. '<45'), < and > are inclusive. \
+                   < is a shortcut for 0%, and > is a shortcut for 100%",
+                )
+                .takes_value(true),
+        )
         .arg(Arg::with_name("tested")
                  .value_name("TESTED")
                  .short("t")
@@ -73,10 +81,10 @@ pub fn get_subcommand<'a, 'b>() -> App<'a, 'b> {
         .arg(Arg::with_name("loc")
                  .short("L")
                  .help("Display location name"))
-        .arg(Arg::with_name("text")
-                 .short("T")
-                 .help("Display the first line text description of this artifact. \
-                   Print the full description with -l, otherwise the first line."))
+        .arg(Arg::with_name("text").short("T").help(
+            "Display the first line text description of this artifact. \
+                   Print the full description with -l, otherwise the first line.",
+        ))
         .arg(Arg::with_name("plain")
                  .long("plain")
                  .help("Do not display color in the output"))
@@ -106,7 +114,7 @@ pub fn _get_percent(s: &str) -> result::Result<(Option<bool>, Option<i8>), Strin
         _ => {
             return Err("percent must be of the form: [SIGN]NUM where NUM is between 0 and 100 and \
                         SIGN is an optional < or >"
-                               .to_string())
+                           .to_string())
         }
     }
     if had_sign {
@@ -387,7 +395,7 @@ pub fn run_cmd<W: Write>(mut w: &mut W, cwd: &Path, cmd: &Cmd, project: &Project
     if !dne.is_empty() {
         return Err(ErrorKind::NameNotFound(format!("The following artifacts do not exist: {:?}",
                                                    dne))
-                           .into());
+                       .into());
     }
     Ok(0)
 }

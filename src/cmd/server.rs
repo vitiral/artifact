@@ -14,11 +14,10 @@ pub fn get_subcommand<'a, 'b>() -> App<'a, 'b> {
                  .help("full address to start server on. Default='127.0.0.1:4000'")
                  .use_delimiter(false)
                  .required(false))
-        .arg(Arg::with_name("edit")
-                 .long("edit")
-                 .short("e")
-                 .help("enable editing. ALPHA NOTICE: this feature is not yet \
-                   secure. DO NOT USE ON NON TRUSTED NETWORK"))
+        .arg(Arg::with_name("edit").long("edit").short("e").help(
+            "enable editing. ALPHA NOTICE: this feature is not yet \
+                   secure. DO NOT USE ON NON TRUSTED NETWORK",
+        ))
 }
 
 

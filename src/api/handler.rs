@@ -1,4 +1,4 @@
-use jsonrpc_core::{IoHandler};
+use jsonrpc_core::IoHandler;
 
 use api::crud;
 
@@ -18,11 +18,10 @@ fn init_rpc_handler() -> IoHandler {
     handler
 }
 
-#[cfg(feature="tracker")]
+#[cfg(feature = "tracker")]
 fn init_tracker(tracker: &mut IoHandler) {
     ::tracker::init_rpc_handler_tracker(tracker);
 }
 
-#[cfg(not(feature="tracker"))]
+#[cfg(not(feature = "tracker"))]
 fn init_tracker(_: &mut IoHandler) {}
-

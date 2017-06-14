@@ -47,9 +47,9 @@ extern crate tabwriter;
 extern crate tar;
 
 // # server crates
-#[cfg(feature="server")]
+#[cfg(feature = "server")]
 extern crate nickel;
-#[cfg(feature="server")]
+#[cfg(feature = "server")]
 extern crate jsonrpc_core;
 extern crate tempdir;
 
@@ -62,14 +62,14 @@ extern crate toml;
 
 // # tracker
 #[macro_use]
-#[cfg(feature="tracker")]
+#[cfg(feature = "tracker")]
 extern crate diesel;
 #[macro_use]
-#[cfg(feature="tracker")]
+#[cfg(feature = "tracker")]
 extern crate diesel_codegen;
-#[cfg(feature="tracker")]
+#[cfg(feature = "tracker")]
 extern crate dotenv;
-#[cfg(features="tracker")]
+#[cfg(features = "tracker")]
 extern crate chrono;
 
 // crates for test
@@ -91,9 +91,9 @@ pub mod cmd;
 
 #[cfg(test)]
 pub mod test_data;
-#[cfg(feature="server")]
+#[cfg(feature = "server")]
 pub mod api;
-#[cfg(feature="tracker")]
+#[cfg(feature = "tracker")]
 pub mod tracker;
 
 pub use types::*;

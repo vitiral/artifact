@@ -55,9 +55,8 @@ fn test_split() {
         changed_data.path = new_path.clone();
 
         let new_artifacts = vec![changed_data.clone()];
-        let (_, save_artifacts) = utils::split_artifacts(
-            &p, &data_artifacts, &new_artifacts, false)
-            .unwrap();
+        let (_, save_artifacts) =
+            utils::split_artifacts(&p, &data_artifacts, &new_artifacts, false).unwrap();
         let new_data = save_artifacts
             .get(&req_purpose)
             .unwrap()
@@ -126,8 +125,7 @@ fn test_update() {
         changed_data.text = new_text.to_string();
         let new_artifacts = vec![changed_data.clone()];
 
-        let new_project = crud::update_project(&data_artifacts, &p, &new_artifacts, false)
-            .unwrap();
+        let new_project = crud::update_project(&data_artifacts, &p, &new_artifacts, false).unwrap();
 
         let mut expected = p.artifacts.get(&req_purpose).unwrap().clone();
         expected.text = new_text.to_string();

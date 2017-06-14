@@ -326,11 +326,13 @@ mod tests {
 
     #[test]
     fn test_link_named_partofs() {
-        let mut artifacts = test_data::load_toml_simple("\
+        let mut artifacts = test_data::load_toml_simple(
+            "\
             [REQ-one]
             [SPC-one]
             [TST-one]
-            [RSK-one]\n");
+            [RSK-one]\n",
+        );
         let req_one = NameRc::from_str("REQ-one").unwrap();
         let spc_one = NameRc::from_str("SPC-one").unwrap();
         let tst_one = NameRc::from_str("TST-one").unwrap();

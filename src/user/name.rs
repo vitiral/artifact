@@ -207,7 +207,7 @@ fn _get_type(value: &str, raw: &str) -> Result<Type> {
             Err(ErrorKind::InvalidName(format!("name must start with REQ-, RSK-, SPC- or TST-: \
                                                 {}",
                                                raw))
-                        .into())
+                    .into())
         }
     }
 }
@@ -242,7 +242,7 @@ fn parse_names<I>(raw: &mut I, in_brackets: bool) -> Result<Vec<String>>
                     // SPC-names.2: more validation
                     let msg = "cannot have '[' after characters ',' or ']'\
                                or at start of string"
-                            .to_string();
+                        .to_string();
                     return Err(ErrorKind::InvalidName(msg).into());
                 }
                 // SPC-names.3: recurse for brackets

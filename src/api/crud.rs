@@ -11,7 +11,7 @@ use utils::unique_id;
 
 use super::{ARTIFACTS, PROJECT};
 
-//################################################## 
+//##################################################
 //# Create
 
 /// `UpdateArtifacts` API Handler
@@ -23,7 +23,7 @@ impl RpcMethodSync for CreateArtifacts {
     }
 }
 
-//################################################## 
+//##################################################
 //# Read
 
 /// `ReadArtifacts` API Handler
@@ -37,7 +37,7 @@ impl RpcMethodSync for ReadArtifacts {
     }
 }
 
-//################################################## 
+//##################################################
 //# Update
 
 /// `UpdateArtifacts` API Handler
@@ -49,25 +49,23 @@ impl RpcMethodSync for UpdateArtifacts {
     }
 }
 
-//################################################## 
+//##################################################
 //# Delete
 
 
 
-//################################################## 
+//##################################################
 //# Some Helpers
 
 /// The create and update commands have almost identical logic
-fn do_cu_call(params: Params, for_create: bool) 
-    -> result::Result<serde_json::Value, RpcError> {
+fn do_cu_call(params: Params, for_create: bool) -> result::Result<serde_json::Value, RpcError> {
     // get the changed artifacts
     let updated_artifacts = utils::get_artifacts(params)?;
     let mut data_artifacts = ARTIFACTS.lock().unwrap();
     let mut project = PROJECT.lock().unwrap();
 
     // perform the update (but don't mutate global yet)
-    let new_project = update_project(
-        &data_artifacts, &project, &updated_artifacts, for_create)?;
+    let new_project = update_project(&data_artifacts, &project, &updated_artifacts, for_create)?;
     drop(updated_artifacts);
 
     let new_artifacts = utils::convert_to_data(&new_project);
@@ -83,10 +81,10 @@ fn do_cu_call(params: Params, for_create: bool)
 }
 
 pub(in api) fn update_project(data_artifacts: &[ArtifactData],
-                      project: &Project,
-                      new_artifacts: &[ArtifactData],
-                      for_create: bool)
-                        -> result::Result<Project, RpcError> {
+                              project: &Project,
+                              new_artifacts: &[ArtifactData],
+                              for_create: bool)
+                              -> result::Result<Project, RpcError> {
 
     let (unchanged_artifacts, mut save_artifacts) =
         utils::split_artifacts(project, data_artifacts, new_artifacts, for_create)?;

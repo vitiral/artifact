@@ -265,7 +265,7 @@ pub struct Artifact {
     /// completed ratio (calculated)
     pub completed: f32,
     /// tested ratio (calculated)
-    pub tested: f32, 
+    pub tested: f32,
 }
 
 impl Artifact {

@@ -1,13 +1,13 @@
 extern crate diesel;
 
 #[derive(Debug, Queryable, Insertable, Serialize, Deserialize)]
-#[table_name="test_name"]
+#[table_name = "test_name"]
 pub struct TestName {
     pub name: String,
 }
 
 #[derive(Queryable, Insertable)]
-#[table_name="artifact_name"]
+#[table_name = "artifact_name"]
 pub struct ArtifactName {
     pub name: String,
 }
@@ -22,7 +22,7 @@ pub struct Version {
 }
 
 #[derive(Debug, Queryable, Insertable, Serialize, Deserialize)]
-#[table_name="version"]
+#[table_name = "version"]
 pub struct NewVersion {
     pub major: String,
     pub minor: Option<String>,
@@ -43,7 +43,7 @@ pub struct TestRun {
 }
 
 #[derive(Debug, Insertable, Serialize, Deserialize)]
-#[table_name="test_run"]
+#[table_name = "test_run"]
 pub struct NewTestRun {
     pub test_name: String,
     pub passed: bool,

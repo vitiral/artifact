@@ -47,7 +47,7 @@ fn test_fmt() {
     dir::copy(&test_data::TSIMPLE_DIR.as_path(),
               &writedir,
               &dir::CopyOptions::new())
-            .unwrap();
+        .unwrap();
     let simple = writedir.join("simple");
 
     let mut w: Vec<u8> = Vec::new();

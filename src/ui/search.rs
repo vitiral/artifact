@@ -22,7 +22,7 @@ impl FromStr for SearchSettings {
         if !invalid.is_empty() {
             return Err(ErrorKind::CmdError(format!("Unknown search fields in pattern: {:?}",
                                                    invalid))
-                               .into());
+                           .into());
         }
         let mut set = SearchSettings {
             use_regex: true,

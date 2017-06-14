@@ -28,10 +28,10 @@ pub fn validate(repo: &Path, project: &Project) -> Result<()> {
         }
         // only allow files that are in the artifact_paths
         if !project
-                .settings
-                .artifact_paths
-                .iter()
-                .any(|p| f.starts_with(p)) {
+               .settings
+               .artifact_paths
+               .iter()
+               .any(|p| f.starts_with(p)) {
             let msg = format!("{} is not a subdir of any artifact_paths {:?}",
                               f.display(),
                               project.settings.artifact_paths);

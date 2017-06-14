@@ -118,11 +118,10 @@ impl<'a> fmt::Display for Key<'a> {
             if i != 0 {
                 try!(write!(f, "."));
             }
-            let ok = part.chars()
-                .all(|c| match c {
-                         'a'...'z' | 'A'...'Z' | '0'...'9' | '-' | '_' => true,
-                         _ => false,
-                     });
+            let ok = part.chars().all(|c| match c {
+                                          'a'...'z' | 'A'...'Z' | '0'...'9' | '-' | '_' => true,
+                                          _ => false,
+                                      });
             if ok {
                 try!(write!(f, "{}", part));
             } else {
@@ -137,7 +136,7 @@ impl<'a> fmt::Display for Key<'a> {
 // Tests
 
 //#[test]
-#[cfg(feature="FIXME")]
+#[cfg(feature = "FIXME")]
 fn test_pretty() {
     // examples of the form (input, expected output). If expected output==None,
     // then it == input
@@ -170,10 +169,12 @@ text = "this is some text"
 b_second = ''' woot '''
 a_first = "hello world"
 "##,
-                             Some(r##"[example]
+                             Some(
+        r##"[example]
 a_first = "hello world"
 b_second = " woot "
-"##)),
+"##
+    )),
 
                             // toml reorders tables alphabetically
                             ("[b]\n[a]\n", Some("[a]\n\n[b]\n"))];

@@ -26,8 +26,8 @@ pub fn parse_error(desc: &str) -> RpcError {
 /// convert an artifact from it's data representation
 /// to it's internal artifact representation
 pub fn convert_artifact(origin: &Path,
-                    artifact_data: &ArtifactData)
-                    -> result::Result<(NameRc, Artifact), String> {
+                        artifact_data: &ArtifactData)
+                        -> result::Result<(NameRc, Artifact), String> {
     Artifact::from_data(origin, artifact_data).map_err(|err| err.to_string())
 }
 
@@ -50,7 +50,8 @@ pub fn get_artifacts(params: Params) -> result::Result<Vec<ArtifactData>, RpcErr
 }
 
 pub fn convert_to_data(project: &Project) -> Vec<ArtifactData> {
-    project.artifacts
+    project
+        .artifacts
         .iter()
         .map(|(n, a)| a.to_data(&project.origin, n))
         .collect()
@@ -84,7 +85,7 @@ pub fn dump_artifacts(project: &Project) -> result::Result<(), RpcError> {
 /// artifacts which are changed.
 ///
 /// Also do lots of error checking and validation
-/// 
+///
 /// If create flag is true, this is for the Create command
 /// (only expect new artifacts). Otherwise it is for the
 /// Update command (only expect artifacts that exist).
@@ -146,9 +147,10 @@ pub fn split_artifacts(project: &Project,
     // check that there are no name collisions
     {
         let mut existing_names: HashSet<NameRc> = HashSet::new();
-        for name in unchanged_artifacts.values()
+        for name in unchanged_artifacts
+                .values()
                 .map(|a| NameRc::from_str(&a.name).unwrap() /* already validated */)
-                .chain(save_artifacts.keys().cloned()){
+                .chain(save_artifacts.keys().cloned()) {
             if !existing_names.insert(name.clone()) {
                 name_overlap.push(format!("{}", name));
             }
@@ -202,5 +204,3 @@ pub fn split_artifacts(project: &Project,
 
     Ok((unchanged_artifacts, save_artifacts))
 }
-
-

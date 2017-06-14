@@ -42,7 +42,7 @@ mod fmt;
 mod init;
 mod tutorial;
 
-#[cfg(feature="server")]
+#[cfg(feature = "server")]
 mod server;
 
 #[cfg(test)]
@@ -60,7 +60,7 @@ pub fn get_loglevel(matches: &ArgMatches) -> Option<(u8, bool)> {
     Some((verbosity, quiet))
 }
 
-#[cfg(feature="server")]
+#[cfg(feature = "server")]
 fn run_server(project: &Project, matches: &ArgMatches) -> Result<u8> {
     if let Some(mat) = matches.subcommand_matches("serve") {
         let addr = server::get_cmd(mat);
@@ -71,7 +71,7 @@ fn run_server(project: &Project, matches: &ArgMatches) -> Result<u8> {
     }
 }
 
-#[cfg(not(feature="server"))]
+#[cfg(not(feature = "server"))]
 fn run_server(_: &Project, _: &ArgMatches) -> Result<u8> {
     Err(ErrorKind::NothingDone.into())
 }
@@ -174,7 +174,7 @@ pub fn cmd<W, I, T>(w: &mut W, args: I) -> Result<u8>
                "{} {}: use -h to show help",
                Green.bold().paint("artifact"),
                Green.paint(VERSION))
-                .unwrap();
+            .unwrap();
         return Ok(0);
     }
 }
