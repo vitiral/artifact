@@ -1,196 +1,265 @@
 module Artifacts.Models exposing (..)
+
 import Dict
 import Set
-
 import Regex
-
 import JsonRpc exposing (RpcError)
 
 
 spacePat : Regex.Regex
-spacePat = Regex.regex " "
+spacePat =
+    Regex.regex " "
+
 
 artifactValidRaw : String
-artifactValidRaw = 
-  "(REQ|SPC|RSK|TST)(-[A-Z0-9_-]*[A-Z0-9_])?"
+artifactValidRaw =
+    "(REQ|SPC|RSK|TST)(-[A-Z0-9_-]*[A-Z0-9_])?"
+
 
 artifactValidPat : Regex.Regex
-artifactValidPat = Regex.regex <| "^" ++ artifactValidRaw ++ "$"
+artifactValidPat =
+    Regex.regex <| "^" ++ artifactValidRaw ++ "$"
+
+
 
 -- pretty much only used when updating artifacts
+
+
 type alias ArtifactId =
-  Int
+    Int
+
+
 
 -- the standard lookup method for artifacts
-type alias NameKey = 
-  String
+
+
+type alias NameKey =
+    String
+
 
 type alias Loc =
-  { path : String
-  , line : Int
-  }
+    { path : String
+    , line : Int
+    }
+
 
 type alias Name =
-  { raw: String
-  , value: String
-  }
+    { raw : String
+    , value : String
+    }
+
+
 
 -- How artifacts are stored
-type alias Artifacts = Dict.Dict ArtifactId Artifact
+
+
+type alias Artifacts =
+    Dict.Dict ArtifactId Artifact
+
 
 initialArtifacts : Artifacts
 initialArtifacts =
-  Dict.empty
+    Dict.empty
+
 
 
 -- representation of an Artifact object
+
+
 type alias Artifact =
-  { id : ArtifactId
-  , revision: Int
-  , name : Name
-  , path : String
-  , text : String
-  , partof : List Name
-  , parts : List Name
-  , code : Maybe Loc
-  , done : Maybe String
-  , completed : Float
-  , tested : Float
-  , edited : Maybe EditableArtifact
-  }
+    { id : ArtifactId
+    , revision : Int
+    , name : Name
+    , path : String
+    , text : String
+    , partof : List Name
+    , parts : List Name
+    , code : Maybe Loc
+    , done : Maybe String
+    , completed : Float
+    , tested : Float
+    , edited : Maybe EditableArtifact
+    }
+
+
 
 -- Editable part of an artifact
+
+
 type alias EditableArtifact =
-  { name : String
-  , path : String
-  , text : String
-  , partof : List Name
-  , done: String
-  }
+    { name : String
+    , path : String
+    , text : String
+    , partof : List Name
+    , done : String
+    }
+
+
 
 -- gets the edited variable of the artifact
 -- or creates the default one
+
+
 getEditable : Artifact -> EditableArtifact
 getEditable artifact =
-  case artifact.edited of
-    Just e -> e
-    Nothing ->
-      createEditable artifact
+    case artifact.edited of
+        Just e ->
+            e
+
+        Nothing ->
+            createEditable artifact
+
 
 createEditable : Artifact -> EditableArtifact
-createEditable artifact = 
-  { name = artifact.name.raw
-  , path = artifact.path
-  , text = artifact.text
-  , partof = artifact.partof
-  , done = case artifact.done of
-    Just s -> s
-    Nothing -> ""
-  }
+createEditable artifact =
+    { name = artifact.name.raw
+    , path = artifact.path
+    , text = artifact.text
+    , partof = artifact.partof
+    , done =
+        case artifact.done of
+            Just s ->
+                s
+
+            Nothing ->
+                ""
+    }
+
 
 type alias ArtifactsResponse =
-  { result: Maybe (List Artifact)
-  , error: Maybe RpcError
-  }
+    { result : Maybe (List Artifact)
+    , error : Maybe RpcError
+    }
 
 
 artifactsUrl : String
 artifactsUrl =
-  "#artifacts" 
+    "#artifacts"
+
 
 artifactNameUrl : String -> String
 artifactNameUrl name =
-  "#artifacts/" ++ name
+    "#artifacts/" ++ name
+
 
 
 -- get the real name from a raw name
+
+
 indexNameUnchecked : String -> String
 indexNameUnchecked name =
-  let
-    replaced = Regex.replace Regex.All spacePat (\_ -> "") name
-  in
-    String.toUpper replaced
+    let
+        replaced =
+            Regex.replace Regex.All spacePat (\_ -> "") name
+    in
+        String.toUpper replaced
+
+
 
 -- get the real name from a raw name
 -- return Err if name is invalid
+
+
 indexName : String -> Result String String
 indexName name =
-  let
-    index = indexNameUnchecked name
-  in
-    if Regex.contains artifactValidPat index then
-      Ok index
-    else
-      Err ("Invalid name: " ++ name)
+    let
+        index =
+            indexNameUnchecked name
+    in
+        if Regex.contains artifactValidPat index then
+            Ok index
+        else
+            Err ("Invalid name: " ++ name)
+
 
 initName : String -> Result String Name
 initName name =
-  let
-    value = indexName name
-  in
-    case value of
-      Ok value -> Ok <|
-        { raw = name
-        , value = value
-        }
-      Err err ->
-        Err err
+    let
+        value =
+            indexName name
+    in
+        case value of
+            Ok value ->
+                Ok <|
+                    { raw = name
+                    , value = value
+                    }
+
+            Err err ->
+                Err err
+
+
 
 -- convert a list of artifacts to a dictionary by Name
+
+
 artifactsFromList : List Artifact -> Artifacts
 artifactsFromList artifacts =
-  let
-    pairs = List.map (\a -> ( a.id, a )) artifacts
-  in
-    Dict.fromList pairs
+    let
+        pairs =
+            List.map (\a -> ( a.id, a )) artifacts
+    in
+        Dict.fromList pairs
+
+
 
 -- VIEW Models
-
 -- artifact attributes which can be displayed
 -- or searched for
+
+
 type alias Columns =
-  { parts : Bool
-  , partof : Bool
-  , text : Bool
-  , path : Bool
-  , loc : Bool
-  }
+    { parts : Bool
+    , partof : Bool
+    , text : Bool
+    , path : Bool
+    , loc : Bool
+    }
+
 
 initialColumns : Columns
 initialColumns =
-  { parts = True
-  , partof = False
-  , text = True
-  , path = False
-  , loc = False
-  }
+    { parts = True
+    , partof = False
+    , text = True
+    , path = False
+    , loc = False
+    }
+
 
 type alias Search =
-  { pattern : String  -- the pattern to search for
-  , regex : Bool      -- whether to use regex or raw-string
-  , name : Bool    
-  , parts : Bool
-  , partof : Bool
-  , text : Bool
-  }
+    { pattern :
+        String
+        -- the pattern to search for
+    , name : Bool
+    , parts : Bool
+    , partof : Bool
+    , text : Bool
+    }
+
 
 initialSearch : Search
 initialSearch =
-  { pattern = ""
-  , regex = False
-  , name = True
-  , parts = False
-  , partof = False
-  , text = False
-  }
+    { pattern = ""
+    , name = True
+    , parts = False
+    , partof = False
+    , text = False
+    }
+
 
 type alias TextViewState =
-  { rendered_edit : Bool -- display the rendered tab for edit view
-  , rendered_read : Bool -- display the rendered tab for read view
-  }
+    { rendered_edit :
+        Bool
+        -- display the rendered tab for edit view
+    , rendered_read :
+        Bool
+        -- display the rendered tab for read view
+    }
+
 
 initialTextViewState : TextViewState
 initialTextViewState =
-  { rendered_edit = False
-  , rendered_read = True
-  }
+    { rendered_edit = False
+    , rendered_read = True
+    }

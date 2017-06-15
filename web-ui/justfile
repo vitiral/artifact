@@ -1,0 +1,22 @@
+
+@build-server:
+	npm run build
+	(cd dist; tar -cvf ../../src/api/data/web-ui.tar *)
+
+@build-static:
+	elm make src/Main-Static.elm
+	rm -rf dist && mkdir dist
+	cp -r index.html css dist
+	# copy and link the style sheets
+	sed -e 's/<title>Main<\/title>/<title>Design Documents<\/title>/g' dist/index.html -i
+	sed -e 's/<head>/<head><link rel="stylesheet" type="text\/css" href="css\/index.css" \/>/g' dist/index.html -i
+	(cd dist && tar -cvf ../../src/cmd/data/web-ui-static.tar *)
+
+build: build-server build-static
+	@echo "-- full elm build complete"
+
+@test:
+	elm test
+
+fmt:
+	elm-format src/ --yes
