@@ -1,0 +1,7 @@
+requests
+selenium
+pytest
+pylint
+docformatter
+autopep8
+
