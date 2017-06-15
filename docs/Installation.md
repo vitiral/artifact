@@ -24,8 +24,8 @@ https://aur.archlinux.org/packages/artifact/
 Install rust with [rustup](https://github.com/rust-lang-nursery/rustup.rs) and
 type `cargo install artifact-app` (upgrade with `-f`)
 
-Note that as of version 0.6.4 this will not include the web server (but does have static
-html export). That will be fixed in the next release.
+Note that as of version 0.6.7 this will not include the web server (but does have static
+html export). That will be fixed in a future release.
 
 ## Installing the Server
 
