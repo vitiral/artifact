@@ -67,12 +67,29 @@ def make_parser():
     return parser
 
 
+def readline_setup(exports):
+    try:
+        import readline
+    except ImportError:
+        readline = None
+        return
+    else:
+        import rlcompleter
+        readline.set_completer(rlcompleter.Completer(namespace=exports).complete)
+
+
 def start_interactive(api):
     create = api.create_art
     read = api.read_art
     update = api.update_art
     delete = api.delete_art
-    code.interact(banner=__doc__, local=locals())
+
+    local = locals()
+    exports = globals().copy()
+    exports.update(local)
+
+    readline_setup(exports)
+    code.interact(banner=__doc__, local=local)
 
 
 def main():
