@@ -59,7 +59,7 @@ pub fn convert_to_data(project: &Project) -> Vec<ArtifactData> {
 
 pub fn dump_artifacts(project: &Project) -> result::Result<(), RpcError> {
     // get the raw ProjectText for saving to disk
-    let text = match user::ProjectText::from_project(&project) {
+    let text = match user::ProjectText::from_project(project) {
         Ok(t) => t,
         Err(e) => {
             return Err(RpcError {
@@ -120,17 +120,15 @@ pub fn split_artifacts(project: &Project,
             if new_artifact.revision != 0 {
                 invalid_revisions.push(new_artifact.revision)
             }
-        } else {
-            if let Some(a) = unchanged_artifacts.remove(&new_artifact.id) {
-                // Artifact exists but revision must also be identical.
-                // This ensures that the artifact didn't "change out from under" the user.
-                if new_artifact.revision != a.revision {
-                    invalid_revisions.push(new_artifact.revision)
-                }
-            } else {
-                // must update only existing ids
-                invalid_ids.push(new_artifact.id)
+        } else if let Some(a) = unchanged_artifacts.remove(&new_artifact.id) {
+            // Artifact exists but revision must also be identical.
+            // This ensures that the artifact didn't "change out from under" the user.
+            if new_artifact.revision != a.revision {
+                invalid_revisions.push(new_artifact.revision)
             }
+        } else {
+            // must update only existing ids
+            invalid_ids.push(new_artifact.id)
         }
         let (name, a) = match convert_artifact(&project.origin, new_artifact) {
             Ok(v) => v,
@@ -139,7 +137,7 @@ pub fn split_artifacts(project: &Project,
                 continue;
             }
         };
-        if let Some(_) = save_artifacts.insert(name.clone(), a) {
+        if save_artifacts.insert(name.clone(), a).is_some() {
             name_overlap.push(format!("{}", name));
         }
     }
