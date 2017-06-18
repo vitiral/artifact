@@ -70,7 +70,7 @@ nav model artifact =
 form : Model -> Artifact -> Maybe EditableArtifact -> Html AppMsg
 form model artifact edited =
     div [ class "m3" ]
-        [ h1 [ View.getId "ehead" edited ] [ text artifact.name.raw ]
+        [ h1 [ View.getId "name" artifact edited ] [ text artifact.name.raw ]
         , div [ class "clearfix py1" ]
             [ formColumnOne model artifact
             , formColumnTwo model artifact edited
@@ -152,14 +152,14 @@ selectRenderedBtns model editable =
             [ button
                 -- rendered
                 [ class ("btn bold " ++ rendered_clr)
-                , getId "select_text_rendered"
+                , getId "select_rendered_text"
                 , onClick <| ArtifactsMsg <| ChangeTextViewState <| newView True
                 ]
                 [ text "rendered" ]
             , button
                 -- raw
                 [ class ("btn bold " ++ raw_clr)
-                , getId "select_text_raw"
+                , getId "select_raw_text"
                 , onClick <| ArtifactsMsg <| ChangeTextViewState <| newView False
                 ]
                 [ text "raw" ]
@@ -190,7 +190,7 @@ displayRenderedText : Model -> Artifact -> Maybe EditableArtifact -> Html AppMsg
 displayRenderedText model artifact edited =
     let
         id =
-            View.getId ("rendered_text_" ++ artifact.name.value) edited
+            View.getId "rendered_text" artifact edited
 
         rawText =
             case edited of
@@ -240,7 +240,7 @@ displayRawText model artifact edited =
             , rows 35
             , cols 80
             , readonly <| not <| isJust edited
-            , View.getId ("raw_text_" ++ artifact.name.value) edited
+            , View.getId "raw_text" artifact edited
             ]
                 ++ editedAttrs
 

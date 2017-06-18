@@ -81,7 +81,7 @@ testedPerc artifact =
 defined : Model -> Artifact -> Html AppMsg
 defined model artifact =
     div
-        [ getId "path" Nothing
+        [ getId "path" artifact Nothing
         ]
         [ span [ class "bold" ] [ text "Defined at: " ]
         , text artifact.path
@@ -139,7 +139,7 @@ implementedBasic model artifact =
                     -- TODO: send error message
                     ( [ class "bold red" ], "ERROR: code+done both set" )
     in
-        span (s ++ [ getId "implemented" Nothing ]) [ text t ]
+        span (s ++ [ getId "implemented" artifact Nothing ]) [ text t ]
 
 
 parts : Model -> Artifact -> Html AppMsg
@@ -149,7 +149,7 @@ parts model artifact =
             List.map (\p -> p.raw) artifact.parts
     in
         ul
-            [ getId ("parts_" ++ artifact.name.value) Nothing ]
+            [ getId "parts" artifact Nothing ]
             (List.map
                 (\p ->
                     li
@@ -171,7 +171,7 @@ partof model artifact =
             List.map (\p -> p.raw) artifact.partof
     in
         ul
-            [ getId ("partof_" ++ artifact.name.value) Nothing ]
+            [ getId "partof" artifact Nothing ]
             (List.map
                 (\p ->
                     li
@@ -296,13 +296,13 @@ seeArtifactName model name parent attr =
 -- get the id html attribute
 
 
-getId : String -> Maybe EditableArtifact -> Attribute m
-getId id_ edited =
+getId : String -> Artifact -> Maybe EditableArtifact -> Attribute m
+getId id_ artifact edited =
     if edited == Nothing then
-        id ("rd_" ++ id_)
+        id ("rd_" ++ id_ ++ "_" ++ artifact.name.value)
         -- read
     else
-        id ("ed_" ++ id_)
+        id ("ed_" ++ id_ ++ "_" ++ artifact.name.value)
 
 
 
