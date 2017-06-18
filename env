@@ -1,0 +1,113 @@
+# This is for creating a local developer environment to run non-rust commands.
+# 
+# # Prerequisites
+# This assumes you have the following installed:
+# - python2.7
+# - virtuanenv (with any python version) 
+# - npm
+# - rustup + cargo
+#
+# Python recommended command: `sudo pip install virtualenv`
+#
+# # Usage
+# To use simply execute the following. All your paths will be setup for you:
+# ```
+# source env
+# ```
+if [[ `uname` == "Darwin" ]]; then
+    export PATH="/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/opt/X11/bin"
+else
+    export PATH="/usr/local/sbin:/usr/local/bin:/usr/bin"
+fi
+
+
+errcho() {
+  >&2 echo "\e[1m\e[32m${1}\e[0m"
+}
+
+if [ ! -d ".git" ] || [ ! -d "web-ui" ]; then
+    errcho "Must be run in repository root."
+    exit 1
+fi
+
+pathinsert() {
+    # insert path at beginning of PATH only if it does
+    # not already exist in PATH
+    if [ -d "$1" ] && [[ ":$PATH:" != *":$1:"* ]]; then
+        export PATH="$1:$PATH"
+    fi
+}
+
+################################################################################
+# create env directories and set up constants
+export ENV_DIR=$PWD/target/env
+export NIGHTLY_VERSION="nightly-2017-06-17"
+export RUSTFMT_VERSION="0.1.3"
+export RUSTCLIPPY_VERSION="0.0.140"
+export NPM_PACKAGES="\
+elm@0.18.0 \
+webpack@2.6.1 \
+elm-format@0.6.1-alpha \
+phantomjs@2.1.7"
+
+mkdir -p $ENV_DIR
+
+################################################################################
+# setup rust
+errcho "-- setting up rust --"
+RUST_DIR=$ENV_DIR/rust
+export CARGO_HOME=$RUST_DIR/cargo
+export RUSTUP_HOME=$RUST_DIR/multirust
+mkdir -p $CARGO_HOME
+RUST_BIN=$CARGO_HOME/bin
+
+if [ ! -d $RUSTUP_HOME ]; then
+    errcho "- installing rustup"
+    curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain $NIGHTLY_VERSION || return $?
+fi
+
+# always make sure the default is up-to-date
+pathinsert $RUST_BIN || return $?
+rustup default $NIGHTLY_VERSION || return $?
+export CARGO_INCREMENTAL=1
+
+################################################################################
+# setup python virtualenv and packages
+errcho "-- setting up python --"
+PY_DIR=$ENV_DIR/art
+PY_ACTIVATE=$PY_DIR/bin/activate
+
+if [ ! -d $PY_DIR ]; then
+    virtualenv $PY_DIR -p python2.7 || return $?
+    source $PY_ACTIVATE || return $?
+else
+    source $PY_ACTIVATE || return $?
+fi
+
+################################################################################
+# set up node path and packages
+errcho "-- setting up node.js and elm --"
+NODE_DIR=$ENV_DIR/node_modules
+
+################################################################################
+# Do final updates
+errcho "-- do final update of dependencies --"
+if [ ! -e $RUST_BIN/just ]; then
+    errcho "- installing build tools"
+    # install required packages. They can be updated with `just update`
+    cargo install cargo-update || return $?
+    cargo install just || return $?
+    just update || return $?
+fi
+
+pathinsert $NODE_DIR/.bin || return $?
+
+if [ ! -e $RUST_BIN/art ]; then
+    errcho "- building release+debug artifact as art+artd"
+    # build artifact in release mode and debug mode and link both
+    cargo build --release --features server || return $?
+    cargo build --features server || return $?
+    ln -s $PWD/target/release/art $RUST_BIN/art || return $?
+    ln -s $PWD/target/debug/art $RUST_BIN/artd || return $?
+fi
+errcho "-- artifact environment has been set up successfully --"

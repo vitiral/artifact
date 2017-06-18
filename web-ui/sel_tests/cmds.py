@@ -15,6 +15,33 @@ TARGET_ART = os.environ['TARGET_BIN']
 # pylint: disable=too-few-public-methods
 
 
+class Phantom(object):
+    """run phantomjs in the background"""
+    def __init__(self):
+        self.stdout = None
+        self.cmd = None
+
+    def start(self):
+        """start an instance that has has the project initialized."""
+        cmd = [
+            "phantomjs",
+        ]
+
+        self.stdout = tempfile.NamedTemporaryFile("wb")
+        self.cmd = subprocess.Popen(cmd, bufsize=1, stdout=self.stdout, stderr=self.stdout)
+        print("ran cmd: ", cmd)
+
+    def stop(self):
+        if self.cmd:
+            self.cmd.kill()
+            self.cmd = None
+
+        if self.stdout:
+            self.stdout.close()
+            self.stdout = None
+
+
+
 class Artifact(object):
     """Copies the project into a temporary directory and runs it.
 
@@ -42,13 +69,13 @@ class Artifact(object):
         """start an instance that has has the project initialized."""
         assert self.stdout is None, "process already running"
 
-        self.stdout = tempfile.NamedTemporaryFile("rb+")
+        self.stdout = tempfile.NamedTemporaryFile("wb")
         cmd = [
             TARGET_ART,
             "--work-tree", self.tmp_proj,
             "serve"
         ]
-        self.art = subprocess.Popen(cmd, bufsize=1, stdout=self.stdout)
+        self.art = subprocess.Popen(cmd, bufsize=1, stdout=self.stdout, stderr=self.stdout)
         print("ran cmd: ", cmd)
 
         with open(self.stdout.name, "rb") as stdout:

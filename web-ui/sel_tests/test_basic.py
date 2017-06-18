@@ -11,7 +11,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-from . import artifact
+from . import cmds
 from . import webapp
 
 LIST_VIEW_ID = "list_view"
@@ -30,13 +30,19 @@ class TestStuff(unittest.TestCase):
     """
     @classmethod
     def setUpClass(cls):
-        cls.app = webapp.App(webdriver.Firefox())
+        cls.phantom = cmds.Phantom()
+        cls.phantom.start()
+        cls.app = webapp.App(webdriver.PhantomJS())
 
     @classmethod
     def tearDownClass(cls):
         app = getattr(cls, 'app', None)
         if app:
             app.quit()
+
+        phantom = getattr(cls, 'phantom', None)
+        if phantom:
+            phantom.stop()
 
     def test_req(self):
         """navigate to REQ and check that it is valid."""
@@ -46,7 +52,7 @@ class TestStuff(unittest.TestCase):
         app = self.app
         F = webapp.Fields
 
-        with artifact.Artifact(EXAMPLE_PROJ) as url:
+        with cmds.Artifact(EXAMPLE_PROJ) as url:
             app.driver.get(url)
             name = "REQ"
             app.assert_list_view(timeout=10)
@@ -85,7 +91,7 @@ class TestStuff(unittest.TestCase):
         app = self.app
         F = webapp.Fields
 
-        art = artifact.Artifact(EXAMPLE_PROJ)
+        art = cmds.Artifact(EXAMPLE_PROJ)
         with art as url:
             app.driver.get(url)
             name = "SPC-LAYOUT"
