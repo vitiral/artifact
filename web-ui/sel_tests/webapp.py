@@ -24,6 +24,7 @@ class Fields(object):
 
 
 def field_id(name, field, edit=False):
+    """return the formatted field id."""
     return "{}_{}_{}".format(_get_type(edit), field, name)
 
 
@@ -38,6 +39,7 @@ class App(object):
         self.driver = driver
 
     def quit(self):
+        """quit the app."""
         self.driver.quit()
 
     # General Purpose Methods

@@ -38,11 +38,52 @@ class TestStuff(unittest.TestCase):
         if app:
             app.quit()
 
-    # pylint: disable=too-many-statements
+    def test_req(self):
+        """navigate to REQ and check that it is valid."""
+        expected_parts = sorted(["REQ-purpose", "REQ-layout"])
+        expected_partof = sorted([])
+
+        app = self.app
+        F = webapp.Fields
+
+        with artifact.Artifact(EXAMPLE_PROJ) as url:
+            app.driver.get(url)
+            name = "REQ"
+            app.assert_list_view(timeout=10)
+            app.goto_artifact(name, timeout=5)
+
+            # make sure all values look good
+            app.assert_edit_view(timeout=5)
+            app.get_value(name, F.name, timeout=2)
+            assert app.get_items(name, F.parts) == expected_parts
+            assert app.get_items(name, F.partof) == expected_partof
+
+            # go back to list and assert values
+            app.goto_list()
+            app.assert_list_view(timeout=2)
+
+            # parts are open by default, partof isn't
+            assert app.get_items(name, F.parts, timeout=2) == expected_parts
+            with self.assertRaises(exceptions.NoSuchElementException):
+                app.get_items(name, F.partof)
+
+            app.open_column(F.partof)
+            assert app.get_items(name, F.partof, timeout=2) == expected_partof
+
+            # now close columns and assert
+            app.close_column(F.parts)
+            WebDriverWait(app.driver, 1).until(
+                EC.invisibility_of_element_located(
+                    (By.ID, webapp.field_id(name, F.parts))))
+            app.close_column(F.partof)
+            WebDriverWait(app.driver, 1).until(
+                EC.invisibility_of_element_located(
+                    (By.ID, webapp.field_id(name, F.partof))))
+
     def test_edit_text(self):
         """Test editing a text field."""
         app = self.app
-        F = webapp.Fields  # pylint: disable=invalid-name
+        F = webapp.Fields
 
         art = artifact.Artifact(EXAMPLE_PROJ)
         with art as url:
@@ -100,48 +141,6 @@ class TestStuff(unittest.TestCase):
             app.goto_artifact(name, timeout=5)
             app.select_text(F.raw_text, timeout=2)
             assert app.get_value(name, F.raw_text, timeout=2) == expected
-
-    def test_req(self):
-        """navigate to REQ and check that it is valid."""
-        expected_parts = sorted(["REQ-purpose", "REQ-layout"])
-        expected_partof = sorted([])
-
-        app = self.app
-        F = webapp.Fields  # pylint: disable=invalid-name
-
-        with artifact.Artifact(EXAMPLE_PROJ) as url:
-            app.driver.get(url)
-            name = "REQ"
-            app.assert_list_view(timeout=10)
-            app.goto_artifact(name, timeout=5)
-
-            # make sure all values look good
-            app.assert_edit_view(timeout=5)
-            app.get_value(name, F.name, timeout=2)
-            assert app.get_items(name, F.parts) == expected_parts
-            assert app.get_items(name, F.partof) == expected_partof
-
-            # go back to list and assert values
-            app.goto_list()
-            app.assert_list_view(timeout=2)
-
-            # parts are open by default, partof isn't
-            assert app.get_items(name, F.parts, timeout=2) == expected_parts
-            with self.assertRaises(exceptions.NoSuchElementException):
-                app.get_items(name, F.partof)
-
-            app.open_column(F.partof)
-            assert app.get_items(name, F.partof, timeout=2) == expected_partof
-
-            # now close columns and assert
-            app.close_column(F.parts)
-            WebDriverWait(app.driver, 1).until(
-                EC.invisibility_of_element_located(
-                    (By.ID, webapp.field_id(name, F.parts))))
-            app.close_column(F.partof)
-            WebDriverWait(app.driver, 1).until(
-                EC.invisibility_of_element_located(
-                    (By.ID, webapp.field_id(name, F.partof))))
 
 
 # if __name__ == "__main__":
