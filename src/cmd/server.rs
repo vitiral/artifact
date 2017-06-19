@@ -10,10 +10,12 @@ pub fn get_subcommand<'a, 'b>() -> App<'a, 'b> {
     SubCommand::with_name("serve")
         .about("serve the web-ui and json-rpc backend")
         .settings(&SUBCMD_SETTINGS)
-        .arg(Arg::with_name("addr")
-                 .help("full address to start server on. Default='127.0.0.1:4000'")
-                 .use_delimiter(false)
-                 .required(false))
+        .arg(
+            Arg::with_name("addr")
+                .help("full address to start server on. Default='127.0.0.1:4000'")
+                .use_delimiter(false)
+                .required(false),
+        )
         .arg(Arg::with_name("edit").long("edit").short("e").help(
             "enable editing. ALPHA NOTICE: this feature is not yet \
                    secure. DO NOT USE ON NON TRUSTED NETWORK",

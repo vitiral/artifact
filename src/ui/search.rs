@@ -20,9 +20,10 @@ impl FromStr for SearchSettings {
         debug!("got search pattern: {:?}", pattern);
         let invalid: HashSet<char> = pattern.difference(&VALID_SEARCH_FIELDS).cloned().collect();
         if !invalid.is_empty() {
-            return Err(ErrorKind::CmdError(format!("Unknown search fields in pattern: {:?}",
-                                                   invalid))
-                           .into());
+            return Err(
+                ErrorKind::CmdError(format!("Unknown search fields in pattern: {:?}", invalid))
+                    .into(),
+            );
         }
         let mut set = SearchSettings {
             use_regex: true,
@@ -56,29 +57,31 @@ fn matches_name(pat: &Regex, names: &Names) -> bool {
 }
 
 /// return true if the artifact meets the criteria
-pub fn show_artifact(name: &Name,
-                     art: &Artifact,
-                     pat_case: &Regex,
-                     search_settings: &SearchSettings)
-                     -> bool {
+pub fn show_artifact(
+    name: &Name,
+    art: &Artifact,
+    pat_case: &Regex,
+    search_settings: &SearchSettings,
+) -> bool {
     let ss = search_settings;
     let completed = (art.completed * 100.0).round() as i8;
     let tested = (art.tested * 100.0).round() as i8;
     if (ss.completed.lt && completed > ss.completed.perc) ||
-       (!ss.completed.lt && completed < ss.completed.perc) ||
-       (ss.tested.lt && tested > ss.tested.perc) ||
-       (!ss.tested.lt && tested < ss.tested.perc) {
+        (!ss.completed.lt && completed < ss.completed.perc) ||
+        (ss.tested.lt && tested > ss.tested.perc) ||
+        (!ss.tested.lt && tested < ss.tested.perc)
+    {
         false
     } else {
         !ss.use_regex || (ss.name && pat_case.is_match(&name.raw)) ||
-        (ss.parts && matches_name(pat_case, &art.parts)) ||
-        (ss.partof && matches_name(pat_case, &art.partof)) ||
-        (ss.loc &&
-         match art.done {
-             Done::Code(ref l) => pat_case.is_match(l.path.to_string_lossy().as_ref()),
-             Done::Defined(ref s) => pat_case.is_match(s),
-             Done::NotDone => false,
-         }) || (ss.text && pat_case.is_match(&art.text))
+            (ss.parts && matches_name(pat_case, &art.parts)) ||
+            (ss.partof && matches_name(pat_case, &art.partof)) ||
+            (ss.loc &&
+                 match art.done {
+                     Done::Code(ref l) => pat_case.is_match(l.path.to_string_lossy().as_ref()),
+                     Done::Defined(ref s) => pat_case.is_match(s),
+                     Done::NotDone => false,
+                 }) || (ss.text && pat_case.is_match(&art.text))
     }
 }
 

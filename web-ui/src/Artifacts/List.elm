@@ -17,7 +17,8 @@ view : Model -> Artifacts -> Html AppMsg
 view model artifacts =
     div [ id "list_view" ]
         [ nav artifacts
-          -- select / search bar
+
+        -- select / search bar
         , div [ class "clearfix py1" ]
             [ span [ class "left border" ] [ select model ]
             , span [ class "right border" ] [ searchBar model ]

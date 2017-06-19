@@ -41,16 +41,20 @@ pub fn get_subcommand<'a, 'b>() -> App<'a, 'b> {
                 )
                 .use_delimiter(false),
         )
-        .arg(Arg::with_name("pattern")
-                 .short("p")
-                 .help("Search FIELDS using regexp SEARCH.")
-                 .value_name("FIELDS")
-                 .takes_value(true)
-                 .max_values(1)
-                 .min_values(0))
-        .arg(Arg::with_name("long")
-                 .short("l")
-                 .help("Print items in the 'long form'"))
+        .arg(
+            Arg::with_name("pattern")
+                .short("p")
+                .help("Search FIELDS using regexp SEARCH.")
+                .value_name("FIELDS")
+                .takes_value(true)
+                .max_values(1)
+                .min_values(0),
+        )
+        .arg(
+            Arg::with_name("long")
+                .short("l")
+                .help("Print items in the 'long form'"),
+        )
         .arg(
             Arg::with_name("completed")
                 .value_name("COMPLETED")
@@ -61,38 +65,52 @@ pub fn get_subcommand<'a, 'b>() -> App<'a, 'b> {
                 )
                 .takes_value(true),
         )
-        .arg(Arg::with_name("tested")
-                 .value_name("TESTED")
-                 .short("t")
-                 .help("Filter by testedness in percent. See '-c'")
-                 .takes_value(true))
-        .arg(Arg::with_name("all")
-                 .short("A")
-                 .help("If set, additional flags will be *deactivated* instead of activated"))
-        .arg(Arg::with_name("path")
-                 .short("D")
-                 .help("Display the path where the artifact is defined"))
-        .arg(Arg::with_name("parts")
-                 .short("P")
-                 .help("Display the parts of the artifact"))
-        .arg(Arg::with_name("partof")
-                 .short("O")
-                 .help("Display the artifacts which this artifact is a partof"))
-        .arg(Arg::with_name("loc")
-                 .short("L")
-                 .help("Display location name"))
+        .arg(
+            Arg::with_name("tested")
+                .value_name("TESTED")
+                .short("t")
+                .help("Filter by testedness in percent. See '-c'")
+                .takes_value(true),
+        )
+        .arg(Arg::with_name("all").short("A").help(
+            "If set, additional flags will be *deactivated* instead of activated",
+        ))
+        .arg(
+            Arg::with_name("path")
+                .short("D")
+                .help("Display the path where the artifact is defined"),
+        )
+        .arg(
+            Arg::with_name("parts")
+                .short("P")
+                .help("Display the parts of the artifact"),
+        )
+        .arg(
+            Arg::with_name("partof")
+                .short("O")
+                .help("Display the artifacts which this artifact is a partof"),
+        )
+        .arg(
+            Arg::with_name("loc")
+                .short("L")
+                .help("Display location name"),
+        )
         .arg(Arg::with_name("text").short("T").help(
             "Display the first line text description of this artifact. \
                    Print the full description with -l, otherwise the first line.",
         ))
-        .arg(Arg::with_name("plain")
-                 .long("plain")
-                 .help("Do not display color in the output"))
-        .arg(Arg::with_name("type")
-                 .long("type")
-                 .value_name("TYPE")
-                 .takes_value(true)
-                 .help("Output type, default 'list'. Supported types: list, json"))
+        .arg(
+            Arg::with_name("plain")
+                .long("plain")
+                .help("Do not display color in the output"),
+        )
+        .arg(
+            Arg::with_name("type")
+                .long("type")
+                .value_name("TYPE")
+                .takes_value(true)
+                .help("Output type, default 'list'. Supported types: list, json"),
+        )
     //.arg(Arg::with_name("file")
     //    .long("file")
     //    .takes_value(true)
@@ -112,9 +130,11 @@ pub fn _get_percent(s: &str) -> result::Result<(Option<bool>, Option<i8>), Strin
         '>' => lt = Some(false),
         '0'...'9' => had_sign = false,
         _ => {
-            return Err("percent must be of the form: [SIGN]NUM where NUM is between 0 and 100 and \
+            return Err(
+                "percent must be of the form: [SIGN]NUM where NUM is between 0 and 100 and \
                         SIGN is an optional < or >"
-                           .to_string())
+                    .to_string(),
+            )
         }
     }
     if had_sign {
@@ -141,35 +161,35 @@ pub fn _get_percent(s: &str) -> result::Result<(Option<bool>, Option<i8>), Strin
 
 fn get_percent(s: &str) -> result::Result<PercentSearch, String> {
     Ok(match _get_percent(s) {
-           Ok((lt, perc)) => {
-               if lt.is_none() && perc.is_none() {
-                   PercentSearch {
-                       lt: false,
-                       perc: 100,
-                   }
-               } else if perc.is_none() {
-                   if lt.unwrap() {
-                       PercentSearch { lt: true, perc: 0 }
-                   } else {
-                       PercentSearch {
-                           lt: false,
-                           perc: 100,
-                       }
-                   }
-               } else {
-                   let lt = match lt {
-                       None => false,
-                       Some(l) => l,
-                   };
-                   let perc = match perc {
-                       None => 100,
-                       Some(p) => p,
-                   };
-                   PercentSearch { lt: lt, perc: perc }
-               }
-           }
-           Err(e) => return Err(e),
-       })
+        Ok((lt, perc)) => {
+            if lt.is_none() && perc.is_none() {
+                PercentSearch {
+                    lt: false,
+                    perc: 100,
+                }
+            } else if perc.is_none() {
+                if lt.unwrap() {
+                    PercentSearch { lt: true, perc: 0 }
+                } else {
+                    PercentSearch {
+                        lt: false,
+                        perc: 100,
+                    }
+                }
+            } else {
+                let lt = match lt {
+                    None => false,
+                    Some(l) => l,
+                };
+                let perc = match perc {
+                    None => 100,
+                    Some(p) => p,
+                };
+                PercentSearch { lt: lt, perc: perc }
+            }
+        }
+        Err(e) => return Err(e),
+    })
 }
 
 #[test]
@@ -183,33 +203,43 @@ fn test_get_percent() {
     assert_eq!(_get_percent(">-100"), Ok((Some(false), Some(-100))));
 
     // test full struct
-    assert_eq!(get_percent(""),
-               Ok(PercentSearch {
-                      lt: false,
-                      perc: 100,
-                  }));
+    assert_eq!(
+        get_percent(""),
+        Ok(PercentSearch {
+            lt: false,
+            perc: 100,
+        })
+    );
     assert_eq!(get_percent("<"), Ok(PercentSearch { lt: true, perc: 0 }));
-    assert_eq!(get_percent(">"),
-               Ok(PercentSearch {
-                      lt: false,
-                      perc: 100,
-                  }));
-    assert_eq!(get_percent("89"),
-               Ok(PercentSearch {
-                      lt: false,
-                      perc: 89,
-                  }));
-    assert_eq!(get_percent(">89"),
-               Ok(PercentSearch {
-                      lt: false,
-                      perc: 89,
-                  }));
+    assert_eq!(
+        get_percent(">"),
+        Ok(PercentSearch {
+            lt: false,
+            perc: 100,
+        })
+    );
+    assert_eq!(
+        get_percent("89"),
+        Ok(PercentSearch {
+            lt: false,
+            perc: 89,
+        })
+    );
+    assert_eq!(
+        get_percent(">89"),
+        Ok(PercentSearch {
+            lt: false,
+            perc: 89,
+        })
+    );
     assert_eq!(get_percent("<89"), Ok(PercentSearch { lt: true, perc: 89 }));
-    assert_eq!(get_percent(">-1"),
-               Ok(PercentSearch {
-                      lt: false,
-                      perc: -1,
-                  }));
+    assert_eq!(
+        get_percent(">-1"),
+        Ok(PercentSearch {
+            lt: false,
+            perc: -1,
+        })
+    );
 
     // invalid
     assert!(get_percent(">101").is_err());
@@ -262,8 +292,9 @@ pub fn get_cmd(matches: &ArgMatches) -> Result<Cmd> {
         fmt_set.loc_path = !fmt_set.loc_path;
         fmt_set.text = !fmt_set.text;
     } else if fmt_set.long &&
-              !(fmt_set.path || fmt_set.parts || fmt_set.partof || fmt_set.loc_path ||
-                fmt_set.text) {
+               !(fmt_set.path || fmt_set.parts || fmt_set.partof || fmt_set.loc_path ||
+                     fmt_set.text)
+    {
         // if long is specified but no other display attributes are specified
         fmt_set.path = true;
         fmt_set.parts = true;
@@ -354,7 +385,9 @@ pub fn run_cmd<W: Write>(mut w: &mut W, cwd: &Path, cmd: &Cmd, project: &Project
             match p {
                 Ok(p) => p,
                 Err(e) => {
-                    return Err(ErrorKind::CmdError(format!("Invalid pattern: {}", e)).into());
+                    return Err(
+                        ErrorKind::CmdError(format!("Invalid pattern: {}", e)).into(),
+                    );
                 }
             }
         } else {
@@ -363,9 +396,9 @@ pub fn run_cmd<W: Write>(mut w: &mut W, cwd: &Path, cmd: &Cmd, project: &Project
         names
             .drain(0..)
             .filter(|n| {
-                        let a = artifacts.get(n).unwrap(); // we are guaranteed the name exists
-                        ui::show_artifact(n, a, &pat, &cmd.search_settings)
-                    })
+                let a = artifacts.get(n).unwrap(); // we are guaranteed the name exists
+                ui::show_artifact(n, a, &pat, &cmd.search_settings)
+            })
             .collect()
     };
     debug!("artifact names selected: {:?}", names);
@@ -389,13 +422,17 @@ pub fn run_cmd<W: Write>(mut w: &mut W, cwd: &Path, cmd: &Cmd, project: &Project
             tw.flush()?; // this is necessary for actually writing the output
         }
         OutType::Json => {
-            w.write_all(export::project_artifacts_to_json(project, Some(&names)).as_bytes())?;
+            w.write_all(
+                export::project_artifacts_to_json(project, Some(&names))
+                    .as_bytes(),
+            )?;
         }
     }
     if !dne.is_empty() {
-        return Err(ErrorKind::NameNotFound(format!("The following artifacts do not exist: {:?}",
-                                                   dne))
-                       .into());
+        return Err(
+            ErrorKind::NameNotFound(format!("The following artifacts do not exist: {:?}", dne))
+                .into(),
+        );
     }
     Ok(0)
 }

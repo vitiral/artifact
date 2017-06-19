@@ -49,9 +49,9 @@ fn test_get_matches() {
 
 fn to_vec(b: &'static [u8]) -> Vec<u8> {
     Vec::from_iter(b.iter().map(|c| match *c {
-                                    b'/' => MAIN_SEPARATOR as u8,
-                                    _ => c.clone(),
-                                }))
+        b'/' => MAIN_SEPARATOR as u8,
+        _ => c.clone(),
+    }))
 }
 
 
@@ -239,8 +239,8 @@ fn get_project() -> Project {
         }
     }
     user::do_links(&mut artifacts).unwrap();
-    let dne_locs: HashMap<_, _> = HashMap::from_iter(vec![(Name::from_str("SPC-dne").unwrap(),
-                                                           Loc::fake())]);
+    let dne_locs: HashMap<_, _> =
+        HashMap::from_iter(vec![(Name::from_str("SPC-dne").unwrap(), Loc::fake())]);
     let mut project = Project::default();
     project.artifacts = artifacts;
     project.dne_locs = dne_locs;

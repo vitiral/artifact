@@ -1,6 +1,5 @@
-"""This module defines the App class, which has helper methods
-for navigating around the application.
-"""
+"""This module defines the App class, which has helper methods for navigating
+around the application."""
 
 import time
 
@@ -11,8 +10,9 @@ from selenium.common import exceptions
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
+
 class Fields(object):
-    """Available Fields/Columns"""
+    """Available Fields/Columns."""
     name = 'name'
     parts = 'parts'
     partof = 'partof'
@@ -34,7 +34,9 @@ def get_items(list_element):
 
 
 class App(object):
-    """Helper methods for accessing navigating the web-app and getting/setting values."""
+    """Helper methods for accessing navigating the web-app and getting/setting
+    values."""
+
     def __init__(self, driver):
         self.driver = driver
 
@@ -48,6 +50,7 @@ class App(object):
         """find an element of id with a timeout.
 
         If timeout=None, just use driver.find_element_by_id
+
         """
         if timeout is None:
             return self.driver.find_element_by_id(id_)
@@ -58,6 +61,7 @@ class App(object):
         """Return a list of all ids in the page.
 
         Mostly for debugging.
+
         """
         ids = self.driver.find_elements_by_xpath('//*[@id]')
         out = []
@@ -90,7 +94,6 @@ class App(object):
         elem = self.find_id(field_id(name, field, edit), timeout)
         return get_items(elem)
 
-
     ################################################################################
     # List View Helpers
 
@@ -99,13 +102,14 @@ class App(object):
         assert self.find_id('list_view', timeout), 'not in list view'
 
     def goto_artifact(self, name, timeout=None):
-        """Goto an artifact while in the list view"""
+        """Goto an artifact while in the list view."""
         self.find_id(name, timeout).click()
 
     def open_column(self, column):
         """Open the requested column. If column is already open raise an error.
 
         This should only be run on a loaded page
+
         """
         try:
             self.find_id("th_" + column)
@@ -115,14 +119,15 @@ class App(object):
         self.find_id("select_col_" + column).click()
 
     def close_column(self, column):
-        """Close the requested column. If column is already open raise an error.
+        """Close the requested column. If column is already open raise an
+        error.
 
         This should only be run on a loaded page
+
         """
         # assert column is open
         assert self.find_id("th_" + column), "column is not open"
         self.find_id("select_col_" + column).click()
-
 
     def search(self, pattern, timeout=None):
         """enter text into the search bar, clearing what was there."""
@@ -131,7 +136,6 @@ class App(object):
         elem.send_keys(pattern)
         time.sleep(0.1)  # sleep seems to improve stability
         assert elem.text == pattern, "search input didn't register"
-
 
     ################################################################################
     # Edit View Helpers
@@ -147,7 +151,8 @@ class App(object):
     def select_text(self, field, edit=False, timeout=None):
         """select a specific kind of text field."""
         assert field in {Fields.raw_text, Fields.rendered_text}
-        self.find_id("{}_select_{}".format(_get_type(edit), field), timeout).click()
+        self.find_id("{}_select_{}".format(
+            _get_type(edit), field), timeout).click()
 
     def start_edit(self, timeout=None):
         """Start edit and wait for it to start."""

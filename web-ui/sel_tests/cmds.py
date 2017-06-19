@@ -16,7 +16,8 @@ TARGET_ART = os.environ['TARGET_BIN']
 
 
 class Phantom(object):
-    """run phantomjs in the background"""
+    """run phantomjs in the background."""
+
     def __init__(self):
         self.stdout = None
         self.cmd = None
@@ -28,7 +29,8 @@ class Phantom(object):
         ]
 
         self.stdout = tempfile.NamedTemporaryFile("wb")
-        self.cmd = subprocess.Popen(cmd, bufsize=1, stdout=self.stdout, stderr=self.stdout)
+        self.cmd = subprocess.Popen(
+            cmd, bufsize=1, stdout=self.stdout, stderr=self.stdout)
         print("ran cmd: ", cmd)
 
     def stop(self):
@@ -39,7 +41,6 @@ class Phantom(object):
         if self.stdout:
             self.stdout.close()
             self.stdout = None
-
 
 
 class Artifact(object):
@@ -75,7 +76,8 @@ class Artifact(object):
             "--work-tree", self.tmp_proj,
             "serve"
         ]
-        self.art = subprocess.Popen(cmd, bufsize=1, stdout=self.stdout, stderr=self.stdout)
+        self.art = subprocess.Popen(
+            cmd, bufsize=1, stdout=self.stdout, stderr=self.stdout)
         print("ran cmd: ", cmd)
 
         with open(self.stdout.name, "rb") as stdout:

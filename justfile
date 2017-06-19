@@ -6,7 +6,7 @@
 version = `sed -En 's/version = "([^"]+)"/\1/p' Cargo.toml | head -n1`
 target = "$PWD/target"
 export_bin = "export TARGET_BIN=" + target + "/debug/art" + " &&"
-python_dirs="web-ui/sel_tests scripts"
+python_dirs = "web-ui/sel_tests" # TODO: add scripts, waiting on PR
 
 # just get the version
 echo-version:
@@ -19,6 +19,11 @@ echo-version:
 build:
 	just web-ui/build 
 	just build-rust
+
+# build in release mode
+build-release:
+	just web-ui/build 
+	cargo build --features server --release
 
 # build only rust
 build-rust:
@@ -52,13 +57,21 @@ test-sel-py:
 	# TODO: add browser type export
 	{{export_bin}} py.test web-ui/sel_tests -sx
 
-# run the full test suite
+# run the full test suite. This is required for all merges
 @test-all:
-	#just check-fmt
-	art check
 	just lint
 	just test
 	just test-sel
+	just check-fmt
+	art check
+
+# run all formatters in "check" mode to make sure code has been formatted
+check-fmt:
+	cargo fmt -- --write-mode=diff >& /dev/null
+	case "$(autopep8 {{python_dirs}} -r --diff)" in ("") true;; (*) false;; esac
+	case "$(docformatter {{python_dirs}} -r)" in ("") true;; (*) false;; esac
+	just web-ui/check-fmt
+	art fmt -d >& /dev/null
 
 
 ##################################################
@@ -77,8 +90,9 @@ fmt:
 	just fmt-rust
 	just fmt-py
 	just web-ui/fmt
+	art fmt -w
 
-# run rustfmt
+# run rust formatter
 fmt-rust:
 	cargo fmt -- --write-mode overwrite  # don't generate *.bk files
 	art fmt -w
@@ -88,17 +102,11 @@ fmt-py:
     autopep8 {{python_dirs}} -r --in-place
     docformatter {{python_dirs}} -r --in-place
 
-# check that code has been formatted
-check-fmt:
-	cargo fmt -- --write-mode=diff
-
-# make sure git is clean and on master
-git-verify:
-	git branch | grep '* master'
-	git diff --no-ext-diff --quiet --exit-code
-
 # publish to github and crates.io
 publish: 
+	@# make sure code is clean on master
+	git branch | grep '* master'
+	git diff --no-ext-diff --quiet --exit-code
 	# TODO: switch to build when web-ui done
 	just git-verify lint build-static
 	just lint test self-check
@@ -121,7 +129,8 @@ publish-site: build-site
 ##################################################
 # developer installation helpers
 
-update: # update rust and tools used by this lib
+# update all developer build/test/lint/etc tools
+update:
 	cargo install-update -i just
 	cargo install-update -i cargo-update
 	cargo install-update -i rustfmt-nightly:$RUSTFMT_VERSION

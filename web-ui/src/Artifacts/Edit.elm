@@ -34,7 +34,8 @@ view model artifact =
         edit =
             if isJust artifact.edited && (not model.settings.readonly) then
                 [ form model artifact artifact.edited
-                  -- Header for original view
+
+                -- Header for original view
                 , h1 [ id "unedited_head" ] [ text "Previous:" ]
                 ]
             else
@@ -236,7 +237,8 @@ displayRawText model artifact edited =
 
         attrs =
             [ class "h3"
-              -- class=h3 otherwise it is really tiny for some reason
+
+            -- class=h3 otherwise it is really tiny for some reason
             , rows 35
             , cols 80
             , readonly <| not <| isJust edited

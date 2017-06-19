@@ -230,7 +230,8 @@ initialColumns =
 type alias Search =
     { pattern :
         String
-        -- the pattern to search for
+
+    -- the pattern to search for
     , name : Bool
     , parts : Bool
     , partof : Bool
@@ -251,10 +252,12 @@ initialSearch =
 type alias TextViewState =
     { rendered_edit :
         Bool
-        -- display the rendered tab for edit view
+
+    -- display the rendered tab for edit view
     , rendered_read :
         Bool
-        -- display the rendered tab for read view
+
+    -- display the rendered tab for read view
     }
 
 

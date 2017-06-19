@@ -104,8 +104,10 @@ pub fn load_repo(repo: &Path) -> Result<Project> {
     project.origin = repo.to_path_buf();
 
     let total = time::get_time() - start;
-    info!("Done loading: {} artifacts loaded successfullly in {:.3} seconds",
-          project.artifacts.len(),
-          total.num_milliseconds() as f64 * 1e-3);
+    info!(
+        "Done loading: {} artifacts loaded successfullly in {:.3} seconds",
+        project.artifacts.len(),
+        total.num_milliseconds() as f64 * 1e-3
+    );
     Ok(project)
 }

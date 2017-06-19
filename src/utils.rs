@@ -69,17 +69,31 @@ pub fn relative_path(path: &Path, relative_to_dir: &Path) -> PathBuf {
 
 #[test]
 fn test_relative_path() {
-    assert_eq!(relative_path(&PathBuf::from("/foo/bar/txt.t"),
-                             &PathBuf::from("/foo/bar/")),
-               PathBuf::from("txt.t"));
-    assert_eq!(relative_path(&PathBuf::from("/foo/bar/baz/txt.t"),
-                             &PathBuf::from("/foo/bar/")),
-               PathBuf::from("baz/txt.t"));
-    assert_eq!(relative_path(&PathBuf::from("foo/bar/txt.t"), &PathBuf::from("foo/baz/")),
-               PathBuf::from("../bar/txt.t"));
-    assert_eq!(relative_path(&PathBuf::from("/home/user/projects/what/src/foo/bar.txt"),
-                             &PathBuf::from("/home/user/projects/what/reqs/left/right/a/b/c/")),
-               PathBuf::from("../../../../../../src/foo/bar.txt"));
+    assert_eq!(
+        relative_path(
+            &PathBuf::from("/foo/bar/txt.t"),
+            &PathBuf::from("/foo/bar/"),
+        ),
+        PathBuf::from("txt.t")
+    );
+    assert_eq!(
+        relative_path(
+            &PathBuf::from("/foo/bar/baz/txt.t"),
+            &PathBuf::from("/foo/bar/"),
+        ),
+        PathBuf::from("baz/txt.t")
+    );
+    assert_eq!(
+        relative_path(&PathBuf::from("foo/bar/txt.t"), &PathBuf::from("foo/baz/")),
+        PathBuf::from("../bar/txt.t")
+    );
+    assert_eq!(
+        relative_path(
+            &PathBuf::from("/home/user/projects/what/src/foo/bar.txt"),
+            &PathBuf::from("/home/user/projects/what/reqs/left/right/a/b/c/"),
+        ),
+        PathBuf::from("../../../../../../src/foo/bar.txt")
+    );
 }
 
 
@@ -111,7 +125,11 @@ pub fn find_repo(dir: &Path) -> Result<PathBuf> {
         }
         dir = match dir.parent() {
             Some(d) => d,
-            None => return Err(io::Error::new(io::ErrorKind::NotFound, "repo not found").into()),
+            None => {
+                return Err(
+                    io::Error::new(io::ErrorKind::NotFound, "repo not found").into(),
+                )
+            }
         };
         // trace!("dir: {:?}", dir);
     }
@@ -126,8 +144,10 @@ mod tests {
     fn test_find_repo() {
         let simple = &test_data::TSIMPLE_DIR;
         assert_eq!(find_repo(simple.as_path()).unwrap(), simple.as_path());
-        assert_eq!(find_repo(simple.join("design").join("lvl_1").as_path()).unwrap(),
-                   simple.as_path());
+        assert_eq!(
+            find_repo(simple.join("design").join("lvl_1").as_path()).unwrap(),
+            simple.as_path()
+        );
         assert!(find_repo(env::temp_dir().as_path()).is_err());
     }
 }

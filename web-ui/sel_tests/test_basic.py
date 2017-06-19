@@ -113,7 +113,8 @@ class TestStuff(unittest.TestCase):
             app.start_edit(timeout=1)
             assert_initial(edit=True, timeout=1)
             app.set_value(name, F.raw_text, expected)
-            assert_initial(edit=False, timeout=1) # editing does not change read
+            # editing does not change read
+            assert_initial(edit=False, timeout=1)
 
             # undo the edit
             app.cancel_edit()

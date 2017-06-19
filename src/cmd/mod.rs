@@ -77,9 +77,10 @@ fn run_server(_: &Project, _: &ArgMatches) -> Result<u8> {
 }
 
 pub fn cmd<W, I, T>(w: &mut W, args: I) -> Result<u8>
-    where I: IntoIterator<Item = T>,
-          T: Into<OsString> + clone::Clone,
-          W: io::Write
+where
+    I: IntoIterator<Item = T>,
+    T: Into<OsString> + clone::Clone,
+    W: io::Write,
 {
     let matches = match matches::get_matches(args) {
         Ok(m) => m,
@@ -106,8 +107,10 @@ pub fn cmd<W, I, T>(w: &mut W, args: I) -> Result<u8>
         None => cwd.to_path_buf(),
     };
     if !work_tree.is_dir() {
-        let msg = format!("ERROR: work-tree {} is not a directory",
-                          work_tree.display());
+        let msg = format!(
+            "ERROR: work-tree {} is not a directory",
+            work_tree.display()
+        );
         return Err(ErrorKind::CmdError(msg).into());
     }
 
@@ -160,21 +163,23 @@ pub fn cmd<W, I, T>(w: &mut W, args: I) -> Result<u8>
         let c = export::get_cmd(mat)?;
         export::run_cmd(&cwd, &project, &c)
     } else if match run_server(&project, &matches) {
-                  Ok(r) => return Ok(r),
-                  Err(err) => {
-                      match *err.kind() {
-                          ErrorKind::NothingDone => false,
-                          _ => return Err(err),
-                      }
-                  }
-              } {
+               Ok(r) => return Ok(r),
+               Err(err) => {
+                   match *err.kind() {
+                       ErrorKind::NothingDone => false,
+                       _ => return Err(err),
+                   }
+               }
+           }
+    {
         unreachable!();
     } else {
-        write!(w,
-               "{} {}: use -h to show help",
-               Green.bold().paint("artifact"),
-               Green.paint(VERSION))
-            .unwrap();
+        write!(
+            w,
+            "{} {}: use -h to show help",
+            Green.bold().paint("artifact"),
+            Green.paint(VERSION)
+        ).unwrap();
         return Ok(0);
     }
 }

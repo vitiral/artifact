@@ -105,7 +105,7 @@ createJsonRequest model body decoder =
         }
 
 
-gotArtifactsMsg : Result Http.Error (ArtifactsResponse) -> AppMsg
+gotArtifactsMsg : Result Http.Error ArtifactsResponse -> AppMsg
 gotArtifactsMsg result =
     case result of
         Ok response ->

@@ -26,9 +26,10 @@ pub fn find_locs(settings: &Settings) -> Result<HashMap<Name, Loc>> {
 }
 
 /// attach the locations to the artifacts, returning locations that were not used.
-pub fn attach_locs(artifacts: &mut Artifacts,
-                   mut locs: HashMap<Name, Loc>)
-                   -> Result<HashMap<Name, Loc>> {
+pub fn attach_locs(
+    artifacts: &mut Artifacts,
+    mut locs: HashMap<Name, Loc>,
+) -> Result<HashMap<Name, Loc>> {
     let mut dne: HashMap<Name, Loc> = HashMap::new();
     for (lname, loc) in locs.drain() {
         let artifact = match artifacts.get_mut(&lname) {
@@ -60,12 +61,14 @@ fn find_locs_text(path: &Path, text: &str, locs: &mut HashMap<Name, Loc>) -> Res
                 line: line,
             };
             if let Some(first) = locs.insert(name, loc) {
-                warn!("locations found twice. first: {}({}), \
+                warn!(
+                    "locations found twice. first: {}({}), \
                       second: {}({})",
-                      first.path.display(),
-                      first.line,
-                      path.display(),
-                      line);
+                    first.path.display(),
+                    first.line,
+                    path.display(),
+                    line
+                );
             }
         } else {
             debug_assert!(cap.get(2).is_some());
@@ -96,10 +99,11 @@ fn find_locs_file(path: &Path, locs: &mut HashMap<Name, Loc>) -> Result<()> {
 }
 
 /// recursively find all locs given a directory
-fn find_locs_dir(path: &PathBuf,
-                 loaded: &mut HashSet<PathBuf>,
-                 locs: &mut HashMap<Name, Loc>)
-                 -> Result<()> {
+fn find_locs_dir(
+    path: &PathBuf,
+    loaded: &mut HashSet<PathBuf>,
+    locs: &mut HashMap<Name, Loc>,
+) -> Result<()> {
     loaded.insert(path.to_path_buf());
     let read_dir = fs::read_dir(path)
         .chain_err(|| format!("loading dir {}", path.display()))?;
@@ -136,10 +140,11 @@ fn find_locs_dir(path: &PathBuf,
 }
 
 /// recursively find all locs given a directory
-fn find_locs_path(path: &PathBuf,
-                  loaded: &mut HashSet<PathBuf>,
-                  locs: &mut HashMap<Name, Loc>)
-                  -> Result<()> {
+fn find_locs_path(
+    path: &PathBuf,
+    loaded: &mut HashSet<PathBuf>,
+    locs: &mut HashMap<Name, Loc>,
+) -> Result<()> {
     let ty = path.metadata()
         .chain_err(|| format!("invalid path: {}", path.display()))?
         .file_type();

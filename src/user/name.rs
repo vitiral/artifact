@@ -61,10 +61,10 @@ impl FromStr for Name {
         let value: Vec<String> = value.split('-').map(|s| s.to_string()).collect();
         let ty = _get_type(&value[0], s)?;
         Ok(Name {
-               raw: s.to_string(),
-               value: value,
-               ty: ty,
-           })
+            raw: s.to_string(),
+            value: value,
+            ty: ty,
+        })
     }
 }
 
@@ -80,10 +80,10 @@ impl Name {
         let mut value = self.value.clone();
         value.pop().unwrap();
         Some(Name {
-                 raw: value.join("-"),
-                 value: value,
-                 ty: self.ty,
-             })
+            raw: value.join("-"),
+            value: value,
+            ty: self.ty,
+        })
     }
 
     /// return whether this artifact is the root type
@@ -204,10 +204,13 @@ fn _get_type(value: &str, raw: &str) -> Result<Type> {
         "RSK" => Ok(Type::RSK),
         "TST" => Ok(Type::TST),
         _ => {
-            Err(ErrorKind::InvalidName(format!("name must start with REQ-, RSK-, SPC- or TST-: \
+            Err(
+                ErrorKind::InvalidName(format!(
+                    "name must start with REQ-, RSK-, SPC- or TST-: \
                                                 {}",
-                                               raw))
-                    .into())
+                    raw
+                )).into(),
+            )
         }
     }
 }
@@ -216,7 +219,8 @@ fn _get_type(value: &str, raw: &str) -> Result<Type> {
 
 /// subfunction to parse names from a names-str recusively
 fn parse_names<I>(raw: &mut I, in_brackets: bool) -> Result<Vec<String>>
-    where I: Iterator<Item = char>
+where
+    I: Iterator<Item = char>,
 {
     // hello-[there, you-[are, great]]
     // hello-there, hello-you-are, hello-you-great
@@ -229,8 +233,9 @@ fn parse_names<I>(raw: &mut I, in_brackets: bool) -> Result<Vec<String>>
             None => {
                 if in_brackets {
                     // SPC-names.2: do validation
-                    return Err(ErrorKind::InvalidName("brackets are not closed".to_string())
-                                   .into());
+                    return Err(
+                        ErrorKind::InvalidName("brackets are not closed".to_string()).into(),
+                    );
                 }
                 break;
             }
@@ -263,11 +268,13 @@ fn parse_names<I>(raw: &mut I, in_brackets: bool) -> Result<Vec<String>>
         }
     }
     strout.write_str(&current).unwrap();
-    Ok(strout
-           .split(',')
-           .filter(|s| s != &"")
-           .map(|s| s.to_string())
-           .collect())
+    Ok(
+        strout
+            .split(',')
+            .filter(|s| s != &"")
+            .map(|s| s.to_string())
+            .collect(),
+    )
 }
 
 // Private: Collapsing Names
@@ -378,8 +385,10 @@ fn do_test_parse_collapse(user: &str, expected_collapsed: &[&str]) {
 fn test_parse_names() {
     do_test_parse_collapse("hi, ho", &["hi", "ho"]);
     do_test_parse_collapse("hi-[he, ho]", &["hi-he", "hi-ho"]);
-    do_test_parse_collapse("he-[ha-[ha, he], hi, ho], hi-[he, ho]",
-                           &["he-ha-ha", "he-ha-he", "he-hi", "he-ho", "hi-he", "hi-ho"]);
+    do_test_parse_collapse(
+        "he-[ha-[ha, he], hi, ho], hi-[he, ho]",
+        &["he-ha-ha", "he-ha-he", "he-hi", "he-ho", "hi-he", "hi-ho"],
+    );
     assert!(parse_names(&mut "[]".chars(), false).is_err());
     assert!(parse_names(&mut "[hi]".chars(), false).is_err());
     assert!(parse_names(&mut "hi-[ho, [he]]".chars(), false).is_err());
@@ -389,22 +398,27 @@ fn test_parse_names() {
 #[test]
 fn test_name() {
     // valid names
-    for name in vec!["REQ-foo",
-                     "REQ-foo-2",
-                     "REQ-foo2",
-                     "REQ-foo2",
-                     "REQ-foo-bar-2_3",
-                     "SPC-foo",
-                     "RSK-foo",
-                     "TST-foo"] {
+    for name in vec![
+        "REQ-foo",
+        "REQ-foo-2",
+        "REQ-foo2",
+        "REQ-foo2",
+        "REQ-foo-bar-2_3",
+        "SPC-foo",
+        "RSK-foo",
+        "TST-foo",
+    ]
+    {
         assert!(Name::from_str(name).is_ok());
     }
     for name in vec!["REQ-foo*", "REQ-foo\n", "REQ-foo-"] {
         assert!(Name::from_str(name).is_err())
     }
     // remove spaces
-    assert_eq!(Name::from_str("   R E Q    -    f   o  o   ")
-                   .unwrap()
-                   .value,
-               ["REQ", "FOO"]);
+    assert_eq!(
+        Name::from_str("   R E Q    -    f   o  o   ")
+            .unwrap()
+            .value,
+        ["REQ", "FOO"]
+    );
 }

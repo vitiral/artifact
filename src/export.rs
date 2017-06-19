@@ -44,15 +44,17 @@ impl Artifact {
     pub fn to_data(&self, origin: &Path, name: &NameRc) -> ArtifactData {
         let (code, done) = match self.done {
             Done::Code(ref l) => {
-                (Some(LocData {
-                          path: l.path
-                              .strip_prefix(origin)
-                              .expect("origin invalid")
-                              .to_string_lossy()
-                              .to_string(),
-                          line: l.line as u64,
-                      }),
-                 None)
+                (
+                    Some(LocData {
+                        path: l.path
+                            .strip_prefix(origin)
+                            .expect("origin invalid")
+                            .to_string_lossy()
+                            .to_string(),
+                        line: l.line as u64,
+                    }),
+                    None,
+                )
             }
             Done::Defined(ref s) => (None, Some(s.clone())),
             Done::NotDone => (None, None),
@@ -101,9 +103,9 @@ impl Artifact {
             Done::Defined(d.clone())
         } else if let Some(ref c) = data.code {
             Done::Code(Loc {
-                           path: repo.join(&c.path),
-                           line: c.line as usize,
-                       })
+                path: repo.join(&c.path),
+                line: c.line as usize,
+            })
         } else {
             Done::NotDone
         };
@@ -113,7 +115,8 @@ impl Artifact {
         } else {
             repo.join(&data.path)
         };
-        Ok((name,
+        Ok((
+            name,
             Artifact {
                 id: data.id,
                 revision: data.revision,
@@ -124,7 +127,8 @@ impl Artifact {
                 parts: HashSet::new(),
                 completed: -1.0,
                 tested: -1.0,
-            }))
+            },
+        ))
     }
 }
 
@@ -159,9 +163,9 @@ fn test_serde() {
         parts: Vec::from_iter(vec!["part-1".to_string()]),
         done: None,
         code: Some(LocData {
-                       path: "path".to_string(),
-                       line: 10,
-                   }),
+            path: "path".to_string(),
+            line: 10,
+        }),
         completed: 0.,
         tested: 0.,
     };

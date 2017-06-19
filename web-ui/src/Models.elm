@@ -26,7 +26,8 @@ type alias Model =
     { artifacts : Artifacts
     , names :
         Dict.Dict NameKey ArtifactId
-        -- get the id of a name
+
+    -- get the id of a name
     , route : Route
     , location : Navigation.Location
     , logs : Logs

@@ -20,3 +20,6 @@ build: build-server build-static
 
 fmt:
 	elm-format src/ --yes
+
+check-fmt:
+	elm-format src/ --validate

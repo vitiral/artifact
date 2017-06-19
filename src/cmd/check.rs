@@ -63,12 +63,13 @@ fn display_invalid_partof<W: Write>(w: &mut W, cwd: &Path, project: &Project, cm
                 displayed_header = true;
                 paint_it_bold(w, "\nFound partof names that do not exist:\n", cmd);
             }
-            write!(msg,
-                   "    {} [{}]: {:?}\n",
-                   name,
-                   utils::relative_path(&artifact.path, cwd).display(),
-                   invalid_partof)
-                .unwrap();
+            write!(
+                msg,
+                "    {} [{}]: {:?}\n",
+                name,
+                utils::relative_path(&artifact.path, cwd).display(),
+                invalid_partof
+            ).unwrap();
             paint_it(w, &msg, cmd);
         }
     }
@@ -80,12 +81,13 @@ fn display_unresolvable<W: Write>(w: &mut W, project: &Project, cmd: &Cmd) -> u6
     let mut error: u64 = 0;
 
     // display unresolvable partof names
-    let unresolved: Vec<(NameRc, &Artifact)> =
-        Vec::from_iter(project
-                           .artifacts
-                           .iter()
-                           .filter(|a| a.1.completed < 0. || a.1.tested < 0.)
-                           .map(|n| (n.0.clone(), n.1)));
+    let unresolved: Vec<(NameRc, &Artifact)> = Vec::from_iter(
+        project
+            .artifacts
+            .iter()
+            .filter(|a| a.1.completed < 0. || a.1.tested < 0.)
+            .map(|n| (n.0.clone(), n.1)),
+    );
     let unknown_names: HashSet<NameRc> = HashSet::from_iter(unresolved.iter().map(|u| u.0.clone()));
 
     if !unresolved.is_empty() {
@@ -96,9 +98,9 @@ fn display_unresolvable<W: Write>(w: &mut W, project: &Project, cmd: &Cmd) -> u6
                 .partof
                 .iter()
                 .filter(|n| {
-                            !project.artifacts.contains_key(n.as_ref()) ||
-                            unknown_names.contains(n.as_ref())
-                        })
+                    !project.artifacts.contains_key(n.as_ref()) ||
+                        unknown_names.contains(n.as_ref())
+                })
                 .cloned()
                 .collect();
             unresolved_partof.insert(name.clone(), partof);
@@ -142,9 +144,11 @@ fn display_unresolvable<W: Write>(w: &mut W, project: &Project, cmd: &Cmd) -> u6
                 break;
             }
         }
-        paint_it_bold(w,
-                      "\nArtifacts partof contains at least one recursive reference:\n",
-                      cmd);
+        paint_it_bold(
+            w,
+            "\nArtifacts partof contains at least one recursive reference:\n",
+            cmd,
+        );
         let mut unresolved_partof: Vec<_> = unresolved_partof
             .drain()
             .map(|mut v| (v.0, v.1.drain().collect::<Vec<_>>()))
@@ -172,23 +176,24 @@ fn display_invalid_locs<W: Write>(w: &mut W, cwd: &Path, project: &Project, cmd:
             if !invalid_locs.contains_key(&loc.path) {
                 invalid_locs.insert(loc.path.clone(), Vec::new());
             }
-            invalid_locs
-                .get_mut(&loc.path)
-                .unwrap()
-                .push((name.clone(), loc.clone()));
+            invalid_locs.get_mut(&loc.path).unwrap().push((
+                name.clone(),
+                loc.clone(),
+            ));
         }
         let header = "\nFound implementation links in the code that do not exist:\n";
         paint_it_bold(w, header, cmd);
-        let mut invalid_locs: Vec<(PathBuf, Vec<(Name, Loc)>)> = Vec::from_iter(invalid_locs
-                                                                                    .drain());
+        let mut invalid_locs: Vec<(PathBuf, Vec<(Name, Loc)>)> =
+            Vec::from_iter(invalid_locs.drain());
         invalid_locs.sort_by(|a, b| a.0.cmp(&b.0));
         for (path, mut locs) in invalid_locs.drain(0..) {
             // sort by where they appear in the file
             let mut pathstr = String::new();
-            write!(pathstr,
-                   "    {}:\n",
-                   utils::relative_path(&path, cwd).display())
-                .unwrap();
+            write!(
+                pathstr,
+                "    {}:\n",
+                utils::relative_path(&path, cwd).display()
+            ).unwrap();
             paint_it(w, &pathstr, cmd);
             locs.sort_by(|a, b| a.1.line.cmp(&b.1.line));
             for (name, loc) in locs {
@@ -223,12 +228,13 @@ fn display_hanging_artifacts<W: Write>(w: &mut W, cwd: &Path, project: &Project,
     for (name, artifact) in &project.artifacts {
         let ty = name.ty;
         if (ty != Type::REQ) && !artifact.is_parent() && !name.is_root() &&
-           name.parent().unwrap().is_root() &&
-           match ty {
-               Type::TST => !partof_types(artifact, &rsk_spc_types),
-               Type::SPC | Type::RSK => !partof_types(artifact, &req_types),
-               _ => unreachable!(),
-           } {
+            name.parent().unwrap().is_root() &&
+            match ty {
+                Type::TST => !partof_types(artifact, &rsk_spc_types),
+                Type::SPC | Type::RSK => !partof_types(artifact, &req_types),
+                _ => unreachable!(),
+            }
+        {
             hanging.push((name.clone(), &artifact.path));
         }
     }
@@ -239,11 +245,12 @@ fn display_hanging_artifacts<W: Write>(w: &mut W, cwd: &Path, project: &Project,
         paint_it_bold(w, msg, cmd);
         for (h, p) in hanging {
             let mut msg = String::new();
-            write!(msg,
-                   "    {:<30}: {}\n",
-                   utils::relative_path(p, cwd).display(),
-                   h)
-                .unwrap();
+            write!(
+                msg,
+                "    {:<30}: {}\n",
+                utils::relative_path(p, cwd).display(),
+                h
+            ).unwrap();
             write!(w, "{}", msg).unwrap();
         }
     }
@@ -251,11 +258,12 @@ fn display_hanging_artifacts<W: Write>(w: &mut W, cwd: &Path, project: &Project,
     error
 }
 
-fn display_hanging_references<W: Write>(w: &mut W,
-                                        cwd: &Path,
-                                        project: &Project,
-                                        cmd: &Cmd)
-                                        -> u64 {
+fn display_hanging_references<W: Write>(
+    w: &mut W,
+    cwd: &Path,
+    project: &Project,
+    cmd: &Cmd,
+) -> u64 {
     let mut error: u64 = 0;
 
     let regexp = Regex::new(&format!(r"(?i)\[\[({})\]\]", NAME_VALID_STR)).expect("tested regexp");
@@ -277,18 +285,24 @@ fn display_hanging_references<W: Write>(w: &mut W,
     }
 
     if !hanging.is_empty() {
-        paint_it_bold(w,
-                      "\nArtifacts text contains invalid [[ART-name]] references:\n",
-                      cmd);
+        paint_it_bold(
+            w,
+            "\nArtifacts text contains invalid [[ART-name]] references:\n",
+            cmd,
+        );
         let mut hanging: Vec<_> = hanging.drain().collect();
         hanging.sort();
         for &(ref name, ref found) in &hanging {
             let artifact = project.artifacts.get(name).expect("inserted from");
-            paint_it(w,
-                     &format!("    {} ({}):\n",
-                              name,
-                              utils::relative_path(&artifact.path, cwd).display()),
-                     cmd);
+            paint_it(
+                w,
+                &format!(
+                    "    {} ({}):\n",
+                    name,
+                    utils::relative_path(&artifact.path, cwd).display()
+                ),
+                cmd,
+            );
             for f in found {
                 write!(w, "    - {}", f).unwrap();
             }
@@ -324,7 +338,9 @@ pub fn run_cmd<W: Write>(w: &mut W, cwd: &Path, project: &Project, cmd: &Cmd) ->
         write!(w, "\n").unwrap();
     }
     if error != 0 {
-        Err(ErrorKind::CmdError("errors found during ls, see logs".to_string()).into())
+        Err(
+            ErrorKind::CmdError("errors found during ls, see logs".to_string()).into(),
+        )
     } else {
         Ok(0)
     }

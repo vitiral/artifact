@@ -26,7 +26,9 @@ pub fn get_subcommand<'a, 'b>() -> App<'a, 'b> {
     SubCommand::with_name("tutorial")
         .about("Start the interactive tutorial")
         .settings(&SUBCMD_SETTINGS)
-        .arg(Arg::with_name("part").help("The section of the tutorial to view"))
+        .arg(
+            Arg::with_name("part").help("The section of the tutorial to view"),
+        )
 }
 
 /// parse the matches to create the cmd
@@ -71,8 +73,10 @@ pub const D_TUTORIAL_TOML: &'static [u8] = include_bytes!("data/tutorial.toml");
 pub const D_TUTORIAL_MD: &'static [u8] = include_bytes!("data/tutorial.md");
 
 pub const D_CAPITOLS_CSV: &'static [u8] = include_bytes!("data/capitols.csv");
-pub const D_FLASH_CARD_CHALLENGE_HTM: &'static [u8] = include_bytes!("data/flash-card-challenge.\
-                                                                      htm");
+pub const D_FLASH_CARD_CHALLENGE_HTM: &'static [u8] = include_bytes!(
+    "data/flash-card-challenge.\
+                                                                      htm"
+);
 pub const D_PURPOSE_TOML: &'static [u8] = include_bytes!("data/purpose.toml");
 
 pub const D_LOAD_1_PY: &'static [u8] = include_bytes!("data/load-1.py");
@@ -119,20 +123,24 @@ pub fn run_cmd(cwd: &Path, part: u8) -> Result<u8> {
     let TEST_LOAD_PY: PathBuf = TESTS_DIR.join(PathBuf::from("test_load.py"));
     let TEST_DATA_CSV: PathBuf = TESTS_DIR.join(PathBuf::from("example.csv"));
 
-    let PART_1_FILES: HashSet<PathBuf> = HashSet::from_iter(vec![SETTINGS_TOML.clone(),
-                                                                 TUTORIAL_TOML.clone()]);
+    let PART_1_FILES: HashSet<PathBuf> =
+        HashSet::from_iter(vec![SETTINGS_TOML.clone(), TUTORIAL_TOML.clone()]);
 
-    let PART_2_FILES: HashSet<PathBuf> = HashSet::from_iter(vec![SETTINGS_TOML.clone(),
-                                                                 TUTORIAL_MD.clone(),
-                                                                 CAPITOLS_CSV.clone(),
-                                                                 FLASH_CARD_CHALLENGE_HTM.clone(),
-                                                                 PURPOSE_TOML.clone()]);
+    let PART_2_FILES: HashSet<PathBuf> = HashSet::from_iter(vec![
+        SETTINGS_TOML.clone(),
+        TUTORIAL_MD.clone(),
+        CAPITOLS_CSV.clone(),
+        FLASH_CARD_CHALLENGE_HTM.clone(),
+        PURPOSE_TOML.clone(),
+    ]);
 
-    let mut PART_3_FILES: HashSet<PathBuf> = HashSet::from_iter(vec![LOAD_TOML.clone(),
-                                                                     INIT_PY.clone(),
-                                                                     LOAD_PY.clone(),
-                                                                     TEST_INIT_PY.clone(),
-                                                                     TEST_LOAD_PY.clone()]);
+    let mut PART_3_FILES: HashSet<PathBuf> = HashSet::from_iter(vec![
+        LOAD_TOML.clone(),
+        INIT_PY.clone(),
+        LOAD_PY.clone(),
+        TEST_INIT_PY.clone(),
+        TEST_LOAD_PY.clone(),
+    ]);
 
     PART_3_FILES.extend(PART_2_FILES.iter().cloned());
 
@@ -156,12 +164,15 @@ pub fn run_cmd(cwd: &Path, part: u8) -> Result<u8> {
         // make sure the directory is empty -- we don't want to
         // delete anything we shouldn't
         if fs::read_dir(&cwd)
-               .chain_err(|| format!("could not read dir: {}", cwd.display()))?
-               .next()
-               .is_some() {
-            println!("ERROR: can only start the artifact tutorial in an empty directory. \
+            .chain_err(|| format!("could not read dir: {}", cwd.display()))?
+            .next()
+            .is_some()
+        {
+            println!(
+                "ERROR: can only start the artifact tutorial in an empty directory. \
                       To make an empty directory and change-dir to it, run:\n    \
-                      mkdir ~/tryrst; cd ~/tryrst");
+                      mkdir ~/tryrst; cd ~/tryrst"
+            );
             return Ok(0);
         }
     } else {
@@ -181,7 +192,10 @@ pub fn run_cmd(cwd: &Path, part: u8) -> Result<u8> {
         create_dir(&DESIGN_DIR);
         try!(write_file(&TUTORIAL_MD, D_TUTORIAL_MD));
         try!(write_file(&CAPITOLS_CSV, D_CAPITOLS_CSV));
-        try!(write_file(&FLASH_CARD_CHALLENGE_HTM, D_FLASH_CARD_CHALLENGE_HTM));
+        try!(write_file(
+            &FLASH_CARD_CHALLENGE_HTM,
+            D_FLASH_CARD_CHALLENGE_HTM,
+        ));
         try!(write_file(&PURPOSE_TOML, D_PURPOSE_TOML));
         if part == 2 {
             // stage 2: purpose document
@@ -206,13 +220,17 @@ pub fn run_cmd(cwd: &Path, part: u8) -> Result<u8> {
                 try!(write_file(&INIT_PY, b""));
                 try!(write_file(&TEST_INIT_PY, b""));
                 if part == 4 {
-                    println!("  Tutorial part 4: open tutorial.md with a text editor and see \
-                              part 4");
+                    println!(
+                        "  Tutorial part 4: open tutorial.md with a text editor and see \
+                              part 4"
+                    );
                     try!(write_file(&LOAD_PY, D_LOAD_1_PY));
                 } else {
                     // stage 5: handling errors
-                    println!("  Tutorial part 5: open tutorial.md with a text editor and see \
-                              part 5");
+                    println!(
+                        "  Tutorial part 5: open tutorial.md with a text editor and see \
+                              part 5"
+                    );
                     try!(write_file(&LOAD_TOML, D_LOAD_2_TOML));
                     try!(write_file(&LOAD_PY, D_LOAD_2_PY));
                 }
