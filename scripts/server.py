@@ -1,9 +1,9 @@
-"""
-Before running server:
-    set up and run postgres server with database `artifact` and table `test_name`
-    run `echo DATABASE_URL=postgres://username:password@localhost/artifact > .env'
-        to create .env file in /artifact directory
-    (the database name might be changeable, as long as it is specified in the .env)
+"""Before running server: set up and run postgres server with database
+`artifact` and table `test_name` run `echo
+DATABASE_URL=postgres://username:password@localhost/artifact > .env' to create.
+
+.env file in /artifact directory (the database name might be changeable, as
+long as it is specified in the .env)
 
 Run the artifact server with:
     cargo run --features server -- -v serve
@@ -12,6 +12,7 @@ When running this script in interactive mode you can access all functions throug
     create, read, update and delete
 or directly through the object:
     api
+
 """
 
 from __future__ import print_function
@@ -69,8 +70,10 @@ def make_parser():
 
 def readline_setup(exports):
     """setup readline completion, if available.
+
     :param exports: the namespace to be used for completion
     :return: True on success
+
     """
     try:
         import readline
@@ -80,13 +83,16 @@ def readline_setup(exports):
         return False
     else:
         import rlcompleter
-        readline.set_completer(rlcompleter.Completer(namespace=exports).complete)
+        readline.set_completer(
+            rlcompleter.Completer(namespace=exports).complete)
         return True
 
 
 def start_interactive(api):
     """start an interactive shell for the API.
+
     :param api: the CrudApi session object.
+
     """
     create = api.create_artifact
     read = api.read_artifact

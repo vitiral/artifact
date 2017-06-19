@@ -1,9 +1,9 @@
-"""
-Before running server:
-    set up and run postgres server with database `artifact` and table `test_name`
-    run `echo DATABASE_URL=postgres://username:password@localhost/artifact > .env' 
-        to create .env file in /artifact directory
-    (the database name might be changeable, as long as it is specified in the .env)
+"""Before running server: set up and run postgres server with database
+`artifact` and table `test_name` run `echo
+DATABASE_URL=postgres://username:password@localhost/artifact > .env' to create.
+
+.env file in /artifact directory (the database name might be changeable, as
+long as it is specified in the .env)
 
 Run the artifact server with:
     cargo run --features server -- -v serve
@@ -12,6 +12,7 @@ Then in a separate shell run this script to interact with it by calling:
     python2 scripts/api.py
 
 This script may grow in the future.
+
 """
 
 from __future__ import print_function

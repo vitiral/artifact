@@ -16,14 +16,14 @@ TARGET_ART = os.environ['TARGET_BIN']
 
 
 class Phantom(object):
-    """run phantomjs in the background."""
+    """start/stop phantomjs in the background for emulating a browser"""
 
     def __init__(self):
         self.stdout = None
         self.cmd = None
 
     def start(self):
-        """start an instance that has has the project initialized."""
+        """start the phantom server"""
         cmd = [
             "phantomjs",
         ]
@@ -34,6 +34,7 @@ class Phantom(object):
         print("ran cmd: ", cmd)
 
     def stop(self):
+        """stop the phantom server"""
         if self.cmd:
             self.cmd.kill()
             self.cmd = None

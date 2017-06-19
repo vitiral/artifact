@@ -6,7 +6,7 @@
 version = `sed -En 's/version = "([^"]+)"/\1/p' Cargo.toml | head -n1`
 target = "$PWD/target"
 export_bin = "export TARGET_BIN=" + target + "/debug/art" + " &&"
-python_dirs = "web-ui/sel_tests" # TODO: add scripts, waiting on PR
+python_dirs = "web-ui/sel_tests scripts" # TODO: add scripts, waiting on PR
 
 # just get the version
 echo-version:
@@ -45,7 +45,16 @@ test TESTS="":
 
 # run all lints
 lint:
+	just lint-rust
+	just lint-py
+
+# lint rust code
+lint-rust:
 	cargo clippy --features server
+
+# lint python code
+lint-py:
+	pylint {{python_dirs}}
 	
 # build and run selenium tests
 test-sel: 

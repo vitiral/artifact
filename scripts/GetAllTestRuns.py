@@ -1,7 +1,6 @@
-"""
-Before running server:
-    
-    run `echo DATABASE_URL=postgres://username:password@localhost/artifact > .env' 
+"""Before running server:
+
+    run `echo DATABASE_URL=postgres://username:password@localhost/artifact > .env'
         to create .env file in /artifact directory
     (the database name might be changeable, as long as it is specified in the .env)
 
@@ -12,6 +11,7 @@ Then in a separate shell run this script to interact with it by calling:
     python2 scripts/api.py
 
 This script may grow in the future.
+
 """
 
 from __future__ import print_function
