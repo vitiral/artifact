@@ -20,7 +20,7 @@ import argparse
 import code
 import pprint
 
-from JsonRpc import JsonRpc
+from json_rpc import JsonRpc
 
 
 class CrudApi(JsonRpc):
