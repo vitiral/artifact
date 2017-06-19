@@ -51,11 +51,11 @@ matrix:
 before_install: set -e
 
 install:
+  - source $PWD/env || true
   - sh ci/install.sh
-  - source ~/.cargo/env || true
+  #- source ~/.cargo/env || true
 
 script:
-  - source env
   - bash ci/script.sh
 
 after_script: set +e

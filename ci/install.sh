@@ -1,8 +1,8 @@
 set -ex
 
 main() {
-    curl https://sh.rustup.rs -sSf | \
-        sh -s -- -y --default-toolchain $TRAVIS_RUST_VERSION
+    #curl https://sh.rustup.rs -sSf | \
+    #    sh -s -- -y --default-toolchain $TRAVIS_RUST_VERSION
 
     local target=
     if [ $TRAVIS_OS_NAME = linux ]; then
