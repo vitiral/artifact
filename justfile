@@ -145,4 +145,4 @@ update:
 	cargo install-update -i rustfmt-nightly:$RUSTFMT_VERSION
 	cargo install-update -i clippy:$RUSTCLIPPY_VERSION
 	pip install -r scripts/requirements.txt
-	npm install $NPM_PACKAGES --prefix $ENV_DIR
+	npm install $NPM_PACKAGES --prefix $NODE_DIR
