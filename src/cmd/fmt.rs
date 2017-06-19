@@ -55,7 +55,9 @@ pub fn get_cmd(matches: &ArgMatches) -> Result<Cmd> {
     } else if matches.is_present("write") {
         Ok(Cmd::Write)
     } else {
-        Err(ErrorKind::CmdError("must give one option: -l, -d, -w".to_string()).into())
+        Err(
+            ErrorKind::CmdError("must give one option: -l, -d, -w".to_string()).into(),
+        )
     }
 }
 
@@ -72,21 +74,27 @@ pub fn run_cmd(w: &mut Write, repo: &Path, project: &Project, cmd: &Cmd) -> Resu
     };
     // check to make sure nothing has actually changed
     // see: TST-fmt
-    let fmt_project =
-        user::process_project_text(project.settings.clone(), &ptext)
-            .chain_err(|| "internal fmt error: could not process project text.".to_string())?;
+    let fmt_project = user::process_project_text(project.settings.clone(), &ptext)
+        .chain_err(|| {
+            "internal fmt error: could not process project text.".to_string()
+        })?;
     project
         .equal(&fmt_project)
-        .chain_err(|| "internal fmt error: formatted project has different data.".to_string())?;
+        .chain_err(|| {
+            "internal fmt error: formatted project has different data.".to_string()
+        })?;
     security::validate(repo, project)?;
     match *cmd {
         Cmd::List | Cmd::Diff => {
             // just list the files that will change
+            let mut diff_detected = 0_u8;
             let project_diff = ptext.diff()?;
             for (path, value) in project_diff {
                 match value {
                     PathDiff::NotUtf8 => {
-                        return Err(ErrorKind::InvalidUnicode(format!("{}", path.display())).into())
+                        return Err(
+                            ErrorKind::InvalidUnicode(format!("{}", path.display())).into(),
+                        )
                     }
                     PathDiff::None => {}
                     // TODO: need to handle case where file is deleted...
@@ -104,10 +112,11 @@ pub fn run_cmd(w: &mut Write, repo: &Path, project: &Project, cmd: &Cmd) -> Resu
                             .bold()
                             .paint(format!("{}{}", indent, path.display()));
                         write!(w, "{}\n{}", header, disp)?;
+                        diff_detected = 1;
                     }
                 }
             }
-            Ok(0)
+            Ok(diff_detected)
         }
         Cmd::Write => {
             // dump the ptext and then make sure nothing changed...
@@ -116,19 +125,23 @@ pub fn run_cmd(w: &mut Write, repo: &Path, project: &Project, cmd: &Cmd) -> Resu
                 Ok(p) => p,
                 Err(err) => {
                     // see: TST-fmt
-                    error!("Something went horribly wrong! Your project may be
+                    error!(
+                        "Something went horribly wrong! Your project may be
                             deleted and I'm really sorry! Please investigate
-                            and open a ticket :( :( :(");
+                            and open a ticket :( :( :("
+                    );
                     return Err(err);
                 }
             };
             // see: TST-fmt
             if let Err(err) = project.equal(&new_project) {
-                error!("we tried formatting your project but something went
+                error!(
+                    "we tried formatting your project but something went
                         wrong and it has changed. We are very sorry :( :( \n
                         Please investigate and open a ticket, then you can
                         hopefully revert your design and .art folders back using
-                        `git checkout .art design`");
+                        `git checkout .art design`"
+                );
                 Err(err)
             } else {
                 info!("fmt was successful");

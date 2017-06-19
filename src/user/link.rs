@@ -106,17 +106,21 @@ pub fn validate_done(artifacts: &Artifacts) -> Result<()> {
         match artifact.done {
             Done::NotDone => {} // correct!
             Done::Code(ref l) => {
-                error!("{} was declared implemented in code at {}. {}",
-                       name,
-                       l,
-                       valid_for);
+                error!(
+                    "{} was declared implemented in code at {}. {}",
+                    name,
+                    l,
+                    valid_for
+                );
                 error = true;
             }
             Done::Defined(_) => {
-                error!("{} was defined as done at {}. {}",
-                       name,
-                       artifact.path.display(),
-                       valid_for);
+                error!(
+                    "{} was defined as done at {}. {}",
+                    name,
+                    artifact.path.display(),
+                    valid_for
+                );
                 error = true;
             }
         }
@@ -143,11 +147,13 @@ pub fn validate_partof(artifacts: &Artifacts) -> Result<()> {
                 (&Type::TST, &Type::RSK) |
                 (&Type::TST, &Type::SPC) => {}
                 (_, _) => {
-                    error!("[{:?}:{}]: {:?} can not be a partof {:?}",
-                           artifact.path,
-                           name,
-                           p_type,
-                           n_type);
+                    error!(
+                        "[{:?}:{}]: {:?} can not be a partof {:?}",
+                        artifact.path,
+                        name,
+                        p_type,
+                        n_type
+                    );
                     error = true;
                 }
             }
@@ -169,10 +175,12 @@ pub fn link_parts(artifacts: &mut Artifacts) -> u64 {
         // get the artifacts this is a `partof`, this artifact should be in all of their `parts`
         for partof in &artifact.partof {
             if !artifacts.contains_key(partof) {
-                debug!("[{:?}] {} has invalid partof = {}",
-                       artifact.path,
-                       name,
-                       partof);
+                debug!(
+                    "[{:?}] {} has invalid partof = {}",
+                    artifact.path,
+                    name,
+                    partof
+                );
                 warnings += 1;
                 continue;
             }
@@ -241,7 +249,7 @@ pub fn set_completed(artifacts: &mut Artifacts) -> usize {
                             0 => 0.0,
                             _ => {
                                 completed.iter().fold(0.0, |sum, x| sum + x) /
-                                completed.len() as f32
+                                    completed.len() as f32
                             }
                         }
                     }
@@ -302,7 +310,7 @@ pub fn set_tested(artifacts: &mut Artifacts) -> usize {
                         .iter()
                         .map(|n| artifacts.get(n).unwrap().tested)
                         .fold(0.0, |sum, x| sum + x) /
-                    artifact.parts.len() as f32
+                        artifact.parts.len() as f32
                 };
                 found.insert(name.clone());
                 known.insert(name.clone());
@@ -339,10 +347,14 @@ mod tests {
         let rsk_one = NameRc::from_str("RSK-one").unwrap();
         link_named_partofs(&mut artifacts);
         assert_eq!(artifacts.get(&req_one).unwrap().partof, Names::new());
-        assert_eq!(artifacts.get(&spc_one).unwrap().partof,
-                   Names::from_iter(vec![req_one.clone()]));
-        assert_eq!(artifacts.get(&tst_one).unwrap().partof,
-                   Names::from_iter(vec![spc_one.clone()]));
+        assert_eq!(
+            artifacts.get(&spc_one).unwrap().partof,
+            Names::from_iter(vec![req_one.clone()])
+        );
+        assert_eq!(
+            artifacts.get(&tst_one).unwrap().partof,
+            Names::from_iter(vec![spc_one.clone()])
+        );
         assert_eq!(artifacts.get(&rsk_one).unwrap().partof, Names::new());
     }
 
@@ -352,8 +364,10 @@ mod tests {
         let spc_foo = NameRc::from_str("spc-foo").unwrap();
 
         let mut artifacts = test_data::load_toml_simple(test_data::TOML_DONE);
-        assert_eq!(artifacts.get(&spc_foo).unwrap().done,
-                   Done::Defined("foo".to_string()));
+        assert_eq!(
+            artifacts.get(&spc_foo).unwrap().done,
+            Done::Defined("foo".to_string())
+        );
 
         do_links(&mut artifacts).unwrap();
         assert_eq!(artifacts.get(&req_foo).unwrap().completed, 1.0);

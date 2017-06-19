@@ -80,11 +80,12 @@ fn do_cu_call(params: Params, for_create: bool) -> result::Result<serde_json::Va
     Ok(out)
 }
 
-pub(in api) fn update_project(data_artifacts: &[ArtifactData],
-                              project: &Project,
-                              new_artifacts: &[ArtifactData],
-                              for_create: bool)
-                              -> result::Result<Project, RpcError> {
+pub(in api) fn update_project(
+    data_artifacts: &[ArtifactData],
+    project: &Project,
+    new_artifacts: &[ArtifactData],
+    for_create: bool,
+) -> result::Result<Project, RpcError> {
 
     let (unchanged_artifacts, mut save_artifacts) =
         utils::split_artifacts(project, data_artifacts, new_artifacts, for_create)?;
@@ -107,9 +108,11 @@ pub(in api) fn update_project(data_artifacts: &[ArtifactData],
             Err(msg) => {
                 let e = RpcError {
                     code: constants::SERVER_ERROR,
-                    message: format!("Could not convert artifact back {:?}, GOT ERROR: {}",
-                                     art_data,
-                                     msg),
+                    message: format!(
+                        "Could not convert artifact back {:?}, GOT ERROR: {}",
+                        art_data,
+                        msg
+                    ),
                     data: None,
                 };
                 return Err(e);
@@ -126,10 +129,10 @@ pub(in api) fn update_project(data_artifacts: &[ArtifactData],
 
     if let Err(err) = user::process_project(&mut new_project) {
         return Err(RpcError {
-                       code: constants::SERVER_ERROR,
-                       message: err.to_string(),
-                       data: None,
-                   });
+            code: constants::SERVER_ERROR,
+            message: err.to_string(),
+            data: None,
+        });
     }
 
     Ok(new_project)

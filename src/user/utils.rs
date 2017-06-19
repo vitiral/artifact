@@ -28,7 +28,9 @@ lazy_static! {
 
 /// perform the strfmt, converting the error
 pub fn do_strfmt(s: &str, vars: &HashMap<String, String>, fpath: &Path) -> Result<String> {
-    strfmt::strfmt(s, vars).chain_err(|| format!("ERROR at {}: {}", fpath.display(), s.to_string()))
+    strfmt::strfmt(s, vars).chain_err(|| {
+        format!("ERROR at {}: {}", fpath.display(), s.to_string())
+    })
 }
 
 /// Hacky: convert the path to a string... raising an error if it doesn't.
@@ -36,7 +38,9 @@ pub fn do_strfmt(s: &str, vars: &HashMap<String, String>, fpath: &Path) -> Resul
 pub fn get_path_str(path: &Path) -> Result<&str> {
     match path.to_str() {
         Some(p) => Ok(p),
-        None => Err(ErrorKind::InvalidUnicode(format!("{}", path.display())).into()),
+        None => Err(
+            ErrorKind::InvalidUnicode(format!("{}", path.display())).into(),
+        ),
     }
 }
 

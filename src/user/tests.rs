@@ -47,23 +47,31 @@ fn test_toml_assumptions() {
 fn test_load_repo() {
     // init_logger_test();
     info!("running test_load_repo");
-    assert!(user::load_repo(test_data::TINVALID_DIR
-                                .join(&PathBuf::from("attr"))
-                                .as_path())
-                .is_err());
-    assert!(user::load_repo(test_data::TINVALID_DIR
-                                .join(&PathBuf::from("same_names"))
-                                .as_path())
-                .is_err());
+    assert!(
+        user::load_repo(
+            test_data::TINVALID_DIR
+                .join(&PathBuf::from("attr"))
+                .as_path(),
+        ).is_err()
+    );
+    assert!(
+        user::load_repo(
+            test_data::TINVALID_DIR
+                .join(&PathBuf::from("same_names"))
+                .as_path(),
+        ).is_err()
+    );
 
     let simple = &test_data::TSIMPLE_DIR;
     let design = simple.join("design");
 
     let p = user::load_repo(simple.as_path()).unwrap();
     assert_eq!(p.origin, simple.as_path());
-    assert!(p.files.contains(&design.join("config.toml")),
-            "config.toml does not exist in: {:?}",
-            p.files);
+    assert!(
+        p.files.contains(&design.join("config.toml")),
+        "config.toml does not exist in: {:?}",
+        p.files
+    );
     assert!(p.files.contains(&design.join("deep/reqs/deep.toml")));
     assert!(p.files.contains(&design.join("lvl_1/req.toml")));
 
@@ -97,17 +105,22 @@ fn test_load_repo() {
         .get(&Name::from_str("TST-lvl-2").unwrap())
         .unwrap();
     assert!(!artifacts.contains_key(&Name::from_str("REQ-unreachable").unwrap()));
-    assert!(!artifacts.contains_key(&Name::from_str("SPC-exclude").unwrap()));
+    assert!(!artifacts
+        .contains_key(&Name::from_str("SPC-exclude").unwrap()));
 
     let src_dir = simple.join(PathBuf::from("src"));
     let lvl1_dir = simple.join(PathBuf::from("lvl_1"));
     lvl1_dir.as_path().to_str().unwrap(); // make sure it converts
 
     // settings
-    assert_eq!(p.settings.artifact_paths,
-               HashSet::from_iter(vec![design.to_path_buf()]));
-    assert_eq!(p.settings.code_paths,
-               HashSet::from_iter(vec![src_dir.to_path_buf()]));
+    assert_eq!(
+        p.settings.artifact_paths,
+        HashSet::from_iter(vec![design.to_path_buf()])
+    );
+    assert_eq!(
+        p.settings.code_paths,
+        HashSet::from_iter(vec![src_dir.to_path_buf()])
+    );
     assert_eq!(p.dne_locs.len(), 2);
 
     // locations
@@ -185,9 +198,11 @@ fn test_process_project() {
             .iter()
             .map(|(n, a)| a.to_data(&p.origin, n))
             .collect();
-        let new_artifacts = HashMap::from_iter(data_artifacts.iter().map(|d| {
-            Artifact::from_data(&p.origin, d).unwrap()
-        }));
+        let new_artifacts = HashMap::from_iter(
+            data_artifacts
+                .iter()
+                .map(|d| Artifact::from_data(&p.origin, d).unwrap()),
+        );
 
         let mut new_p = Project {
             artifacts: new_artifacts,
@@ -214,9 +229,9 @@ fn test_basic_link() {
             .get_mut(&NameRc::from_str(sname).unwrap())
             .unwrap();
         art.done = Done::Code(Loc {
-                                  path: path.clone(),
-                                  line: 1,
-                              });
+            path: path.clone(),
+            line: 1,
+        });
     }
 
     link::validate_done(&artifacts).unwrap();
@@ -258,30 +273,50 @@ fn test_basic_link() {
 
     // test parts
     assert_eq!(req.partof, HashSet::new());
-    assert_eq!(req.parts,
-               HashSet::from_iter(["REQ-parts", "REQ-foo"]
-                                      .iter()
-                                      .map(|n| NameRc::from_str(n).unwrap())));
+    assert_eq!(
+        req.parts,
+        HashSet::from_iter(
+            ["REQ-parts", "REQ-foo"]
+                .iter()
+                .map(|n| NameRc::from_str(n).unwrap()),
+        )
+    );
 
     assert_eq!(req_parts.partof, Names::from_iter(vec![req_name.clone()]));
-    assert_eq!(req_parts.parts,
-               HashSet::from_iter(["REQ-parts-p1", "REQ-parts-p2"]
-                                      .iter()
-                                      .map(|n| NameRc::from_str(n).unwrap())));
+    assert_eq!(
+        req_parts.parts,
+        HashSet::from_iter(
+            ["REQ-parts-p1", "REQ-parts-p2"]
+                .iter()
+                .map(|n| NameRc::from_str(n).unwrap()),
+        )
+    );
 
-    assert_eq!(req_foo.parts,
-               HashSet::from_iter(["SPC-foo", "SPC-bar"]
-                                      .iter()
-                                      .map(|n| NameRc::from_str(n).unwrap())));
-    assert_eq!(spc_foo.partof,
-               HashSet::from_iter(["REQ-foo", "SPC"]
-                                      .iter()
-                                      .map(|n| NameRc::from_str(n).unwrap())));
+    assert_eq!(
+        req_foo.parts,
+        HashSet::from_iter(
+            ["SPC-foo", "SPC-bar"]
+                .iter()
+                .map(|n| NameRc::from_str(n).unwrap()),
+        )
+    );
+    assert_eq!(
+        spc_foo.partof,
+        HashSet::from_iter(
+            ["REQ-foo", "SPC"]
+                .iter()
+                .map(|n| NameRc::from_str(n).unwrap()),
+        )
+    );
 
-    assert_eq!(req_parts_p1_a.partof,
-               HashSet::from_iter(["REQ-parts-p1"]
-                                      .iter()
-                                      .map(|n| NameRc::from_str(n).unwrap())));
+    assert_eq!(
+        req_parts_p1_a.partof,
+        HashSet::from_iter(
+            ["REQ-parts-p1"]
+                .iter()
+                .map(|n| NameRc::from_str(n).unwrap()),
+        )
+    );
     assert_eq!(req_parts_p1_a.parts, HashSet::new());
 
     // test completed %
@@ -307,18 +342,21 @@ fn test_link_completed_tested() {
     let mut artifacts = test_data::load_toml_simple(&test_data::TOML_LINK);
 
     let path = PathBuf::from("hi/there");
-    for sname in &["SPC-core-bob-1",
-                   "TST-core-bob-1-a",
-                   "TST-core-bob-1-b-2",
-                   "SPC-core-bob-2-b",
-                   "TST-core-bob-2-a"] {
+    for sname in &[
+        "SPC-core-bob-1",
+        "TST-core-bob-1-a",
+        "TST-core-bob-1-b-2",
+        "SPC-core-bob-2-b",
+        "TST-core-bob-2-a",
+    ]
+    {
         let art = artifacts
             .get_mut(&NameRc::from_str(sname).unwrap())
             .unwrap();
         art.done = Done::Code(Loc {
-                                  path: path.clone(),
-                                  line: 1,
-                              });
+            path: path.clone(),
+            line: 1,
+        });
     }
 
     link::link_named_partofs(&mut artifacts);
@@ -327,13 +365,17 @@ fn test_link_completed_tested() {
     link::validate_partof(&artifacts).unwrap();
 
     // just checking that this artifact is good throughout the process
-    assert_eq!(artifacts
-                   .get(&NameRc::from_str("SPC-core-bob").unwrap())
-                   .unwrap()
-                   .partof,
-               HashSet::from_iter(["REQ-core-bob", "SPC-core"]
-                                      .iter()
-                                      .map(|n| NameRc::from_str(n).unwrap())));
+    assert_eq!(
+        artifacts
+            .get(&NameRc::from_str("SPC-core-bob").unwrap())
+            .unwrap()
+            .partof,
+        HashSet::from_iter(
+            ["REQ-core-bob", "SPC-core"]
+                .iter()
+                .map(|n| NameRc::from_str(n).unwrap()),
+        )
+    );
 
     assert_eq!(link::link_parts(&mut artifacts), 0);
     assert_eq!(link::set_completed(&mut artifacts), 0);
@@ -398,20 +440,34 @@ fn test_link_completed_tested() {
     // assert parts make some sense
     // SPC-core-bob automatically has REQ-core-bob
     // SPC-core-bob automatically has SPC-core
-    assert_eq!(req.parts,
-               HashSet::from_iter(["REQ-core"].iter().map(|n| NameRc::from_str(n).unwrap())));
-    assert_eq!(spc_bob.partof,
-               HashSet::from_iter(["SPC-core", "REQ-core-bob"]
-                                      .iter()
-                                      .map(|n| NameRc::from_str(n).unwrap())));
-    assert_eq!(req_bob.parts,
-               HashSet::from_iter(["SPC-core-bob"]
-                                      .iter()
-                                      .map(|n| NameRc::from_str(n).unwrap())));
-    assert_eq!(spc_bob_1.parts,
-               HashSet::from_iter(["TST-core-bob-1"]
-                                      .iter()
-                                      .map(|n| NameRc::from_str(n).unwrap())));
+    assert_eq!(
+        req.parts,
+        HashSet::from_iter(["REQ-core"].iter().map(|n| NameRc::from_str(n).unwrap()))
+    );
+    assert_eq!(
+        spc_bob.partof,
+        HashSet::from_iter(
+            ["SPC-core", "REQ-core-bob"]
+                .iter()
+                .map(|n| NameRc::from_str(n).unwrap()),
+        )
+    );
+    assert_eq!(
+        req_bob.parts,
+        HashSet::from_iter(
+            ["SPC-core-bob"]
+                .iter()
+                .map(|n| NameRc::from_str(n).unwrap()),
+        )
+    );
+    assert_eq!(
+        spc_bob_1.parts,
+        HashSet::from_iter(
+            ["TST-core-bob-1"]
+                .iter()
+                .map(|n| NameRc::from_str(n).unwrap()),
+        )
+    );
 
     // assert completed
     let bob_complete = (1. + (1. + 0.) / 2.) / 2.;
@@ -469,21 +525,29 @@ fn test_exclude() {
     let exclude = &test_data::TEXCLUDE_DIR;
     let p = user::load_repo(exclude.as_path()).unwrap();
 
-    assert_eq!(p.artifacts
-                   .get(&NameRc::from_str("SPC-implemented").unwrap())
-                   .unwrap()
-                   .completed,
-               1.0);
-    assert_eq!(p.artifacts
-                   .get(&NameRc::from_str("SPC-file").unwrap())
-                   .unwrap()
-                   .completed,
-               1.0);
-    assert_eq!(p.artifacts
-                   .get(&NameRc::from_str("SPC-not-implemented").unwrap())
-                   .unwrap()
-                   .completed,
-               0.0);
-    assert!(!p.artifacts
-                .contains_key(&NameRc::from_str("SPC-excluded").unwrap()));
+    assert_eq!(
+        p.artifacts
+            .get(&NameRc::from_str("SPC-implemented").unwrap())
+            .unwrap()
+            .completed,
+        1.0
+    );
+    assert_eq!(
+        p.artifacts
+            .get(&NameRc::from_str("SPC-file").unwrap())
+            .unwrap()
+            .completed,
+        1.0
+    );
+    assert_eq!(
+        p.artifacts
+            .get(&NameRc::from_str("SPC-not-implemented").unwrap())
+            .unwrap()
+            .completed,
+        0.0
+    );
+    assert!(
+        !p.artifacts
+            .contains_key(&NameRc::from_str("SPC-excluded").unwrap())
+    );
 }

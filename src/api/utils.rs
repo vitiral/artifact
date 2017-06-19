@@ -25,9 +25,10 @@ pub fn parse_error(desc: &str) -> RpcError {
 
 /// convert an artifact from it's data representation
 /// to it's internal artifact representation
-pub fn convert_artifact(origin: &Path,
-                        artifact_data: &ArtifactData)
-                        -> result::Result<(NameRc, Artifact), String> {
+pub fn convert_artifact(
+    origin: &Path,
+    artifact_data: &ArtifactData,
+) -> result::Result<(NameRc, Artifact), String> {
     Artifact::from_data(origin, artifact_data).map_err(|err| err.to_string())
 }
 
@@ -59,24 +60,24 @@ pub fn convert_to_data(project: &Project) -> Vec<ArtifactData> {
 
 pub fn dump_artifacts(project: &Project) -> result::Result<(), RpcError> {
     // get the raw ProjectText for saving to disk
-    let text = match user::ProjectText::from_project(&project) {
+    let text = match user::ProjectText::from_project(project) {
         Ok(t) => t,
         Err(e) => {
             return Err(RpcError {
-                           code: ErrorCode::InternalError,
-                           message: format!("{}", e.display()),
-                           data: None,
-                       })
+                code: ErrorCode::InternalError,
+                message: format!("{}", e.display()),
+                data: None,
+            })
         }
     };
 
     // save the ProjectText to files
     if let Err(e) = text.dump() {
         return Err(RpcError {
-                       code: ErrorCode::InternalError,
-                       message: format!("{}", e.display()),
-                       data: None,
-                   });
+            code: ErrorCode::InternalError,
+            message: format!("{}", e.display()),
+            data: None,
+        });
     }
     Ok(())
 }
@@ -90,11 +91,12 @@ pub fn dump_artifacts(project: &Project) -> result::Result<(), RpcError> {
 /// (only expect new artifacts). Otherwise it is for the
 /// Update command (only expect artifacts that exist).
 #[allow(useless_let_if_seq)]
-pub fn split_artifacts(project: &Project,
-                       data_artifacts: &[ArtifactData],
-                       new_artifacts: &[ArtifactData],
-                       for_create: bool)
-                       -> result::Result<(HashMap<u64, ArtifactData>, Artifacts), RpcError> {
+pub fn split_artifacts(
+    project: &Project,
+    data_artifacts: &[ArtifactData],
+    new_artifacts: &[ArtifactData],
+    for_create: bool,
+) -> result::Result<(HashMap<u64, ArtifactData>, Artifacts), RpcError> {
     let mut unchanged_artifacts: HashMap<u64, ArtifactData> =
         data_artifacts.iter().map(|a| (a.id, a.clone())).collect();
 
@@ -120,17 +122,15 @@ pub fn split_artifacts(project: &Project,
             if new_artifact.revision != 0 {
                 invalid_revisions.push(new_artifact.revision)
             }
-        } else {
-            if let Some(a) = unchanged_artifacts.remove(&new_artifact.id) {
-                // Artifact exists but revision must also be identical.
-                // This ensures that the artifact didn't "change out from under" the user.
-                if new_artifact.revision != a.revision {
-                    invalid_revisions.push(new_artifact.revision)
-                }
-            } else {
-                // must update only existing ids
-                invalid_ids.push(new_artifact.id)
+        } else if let Some(a) = unchanged_artifacts.remove(&new_artifact.id) {
+            // Artifact exists but revision must also be identical.
+            // This ensures that the artifact didn't "change out from under" the user.
+            if new_artifact.revision != a.revision {
+                invalid_revisions.push(new_artifact.revision)
             }
+        } else {
+            // must update only existing ids
+            invalid_ids.push(new_artifact.id)
         }
         let (name, a) = match convert_artifact(&project.origin, new_artifact) {
             Ok(v) => v,
@@ -139,7 +139,7 @@ pub fn split_artifacts(project: &Project,
                 continue;
             }
         };
-        if let Some(_) = save_artifacts.insert(name.clone(), a) {
+        if save_artifacts.insert(name.clone(), a).is_some() {
             name_overlap.push(format!("{}", name));
         }
     }
@@ -148,9 +148,12 @@ pub fn split_artifacts(project: &Project,
     {
         let mut existing_names: HashSet<NameRc> = HashSet::new();
         for name in unchanged_artifacts
-                .values()
-                .map(|a| NameRc::from_str(&a.name).unwrap() /* already validated */)
-                .chain(save_artifacts.keys().cloned()) {
+            .values()
+            .map(
+                |a| NameRc::from_str(&a.name).unwrap(), /* already validated */
+            )
+            .chain(save_artifacts.keys().cloned())
+        {
             if !existing_names.insert(name.clone()) {
                 name_overlap.push(format!("{}", name));
             }
@@ -165,11 +168,13 @@ pub fn split_artifacts(project: &Project,
         err = Some(constants::X_INVALID_NAME);
     }
     if !files_not_found.is_empty() {
-        data.insert(constants::X_FILES_NOT_FOUND,
-                    files_not_found
-                        .iter()
-                        .map(|f| format!("{}", f.display()))
-                        .collect());
+        data.insert(
+            constants::X_FILES_NOT_FOUND,
+            files_not_found
+                .iter()
+                .map(|f| format!("{}", f.display()))
+                .collect(),
+        );
         err = Some(constants::X_FILES_NOT_FOUND);
     }
     if !invalid_ids.is_empty() {
@@ -196,10 +201,10 @@ pub fn split_artifacts(project: &Project,
     }
     if let Some(msg) = err {
         return Err(RpcError {
-                       code: constants::SERVER_ERROR,
-                       message: msg.to_string(),
-                       data: Some(serde_json::to_value(data).unwrap()),
-                   });
+            code: constants::SERVER_ERROR,
+            message: msg.to_string(),
+            data: Some(serde_json::to_value(data).unwrap()),
+        });
     }
 
     Ok((unchanged_artifacts, save_artifacts))

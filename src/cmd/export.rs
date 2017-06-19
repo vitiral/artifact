@@ -14,14 +14,19 @@ pub fn get_subcommand<'a, 'b>() -> App<'a, 'b> {
     SubCommand::with_name("export")
         .about("Export artifacts as static files")
         .settings(&SUBCMD_SETTINGS)
-        .arg(Arg::with_name("type")
-            .help("Type of export.\n- html: static html. Writes to `./index.html` and `./css/`"))
-        .arg(Arg::with_name("output")
-            .short("o")
-            .long("output")
-            .value_name("PATH")
-            .help("The export output directory. If omitted, the current working directory \
-                  is used."))
+        .arg(Arg::with_name("type").help(
+            "Type of export.\n- html: static html. Writes to `./index.html` and `./css/`",
+        ))
+        .arg(
+            Arg::with_name("output")
+                .short("o")
+                .long("output")
+                .value_name("PATH")
+                .help(
+                    "The export output directory. If omitted, the current working directory \
+                  is used.",
+                ),
+        )
 }
 
 #[derive(Debug)]
@@ -37,18 +42,18 @@ pub struct Cmd<'a> {
 
 pub fn get_cmd<'a>(matches: &'a ArgMatches) -> Result<Cmd<'a>> {
     let ty = match matches
-              .value_of("type")
-              .unwrap_or("")
-              .to_ascii_lowercase()
-              .as_str() {
+        .value_of("type")
+        .unwrap_or("")
+        .to_ascii_lowercase()
+        .as_str() {
         "html" => ExportType::Html,
         t => return Err(ErrorKind::CmdError(format!("unknown type: {}", t)).into()),
     };
     let dir = matches.value_of("output").map(|x| Path::new(x).as_ref());
     Ok(Cmd {
-           ty: ty,
-           output: dir,
-       })
+        ty: ty,
+        output: dir,
+    })
 }
 
 pub fn run_cmd(cwd: &Path, project: &Project, cmd: &Cmd) -> Result<u8> {

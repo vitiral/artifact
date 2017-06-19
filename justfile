@@ -5,138 +5,135 @@
 # constants
 version = `sed -En 's/version = "([^"]+)"/\1/p' Cargo.toml | head -n1`
 target = "$PWD/target"
-nightly = "CARGO_TARGET_DIR=$TG/nightly CARGO_INCREMENTAL=1 rustup run nightly"
+export_bin = "export TARGET_BIN=" + target + "/debug/art" + " &&"
+python_dirs = "web-ui/sel_tests" # TODO: add scripts, waiting on PR
 
+# just get the version
 echo-version:
-	echo {{version}}
-
-doc:
-	cargo doc --open
-
+	@echo {{version}}
 
 ##################################################
 # build commands
-build-dev: # build using nightly and incremental compilation
-	TG={{target}} {{nightly}} cargo build
-	echo "built binary to: target/nightly/debug/art"
 
-build-elm: # build just elm (not rust)
-	(cd web-ui; npm run build)
-	(cd web-ui/dist; tar -cvf ../../src/api/data/web-ui.tar *)
+# do the standard build, including the full server and static web-ui
+build:
+	just web-ui/build 
+	just build-rust
 
-build-static: # build and package elm as a static index.html
-	(cd web-ui; elm make src/Main-Static.elm)
-	rm -rf target/web
-	mkdir target/web
-	cp web-ui/index.html target/web
-	cp -r web-ui/css target/web
-	# copy and link the style sheets
-	sed -e 's/<title>Main<\/title>/<title>Design Documents<\/title>/g' target/web/index.html -i
-	sed -e 's/<head>/<head><link rel="stylesheet" type="text\/css" href="css\/index.css" \/>/g' target/web/index.html -i
-	(cd target/web; tar -cvf ../../src/cmd/data/web-ui-static.tar *)
+# build in release mode
+build-release:
+	just web-ui/build 
+	cargo build --features server --release
 
-# full build for a std release. Currently doesn't include the server code
-build-full: build-static
-	just build-dev
+# build only rust
+build-rust:
+	cargo build --features server
+
+# build with only static html (not server)
+build-static: 
+	just web-ui/build-static
+	just build
 
 
 ##################################################
 # unit testing/linting commands
-test: # do tests with web=false
-	RUST_BACKTRACE=1 cargo test --lib
 
-test-dev: # test using nightly and incremental compilation
-	TG={{target}} {{nightly}} cargo test --lib
+# run all unit tests
+test TESTS="":
+	@just web-ui/test
+	cargo test --lib --features server {{TESTS}}
 
-test-elm: 
-	(cd web-ui; elm test)
-
-test-all: test-elm test
-
-filter PATTERN: # run only specific tests
-	RUST_BACKTRACE=1 cargo test --lib {{PATTERN}}
-
-lint: # run linter
-	CARGO_TARGET_DIR={{target}}/nightly rustup run nightly cargo clippy --features server
+# run all lints
+lint:
+	cargo clippy --features server
 	
-test-server-only:
-	TG={{target}} {{nightly}} cargo test --lib --features server
+# build and run selenium tests
+test-sel: 
+	just build
+	just test-sel-py
 
-test-server: build-elm # run the test-server for e2e testing, still in development
-	just test-server-only
+# run selenium tests
+test-sel-py:
+	# TODO: add browser type export
+	{{export_bin}} py.test web-ui/sel_tests -sx
 
-test-e2e: # run e2e tests, still in development
-	cd web-ui; py.test2 e2e_tests/basic.py
+# run the full test suite. This is required for all merges
+@test-all:
+	just lint
+	just test
+	just test-sel
+	just check-fmt
+	art check
+
+# run all formatters in "check" mode to make sure code has been formatted
+check-fmt:
+	cargo fmt -- --write-mode=diff >& /dev/null
+	case "$(autopep8 {{python_dirs}} -r --diff)" in ("") true;; (*) false;; esac
+	case "$(docformatter {{python_dirs}} -r)" in ("") true;; (*) false;; esac
+	just web-ui/check-fmt
+	art fmt -d >& /dev/null
 
 
 ##################################################
 # running commands
 
-api: # run the api server (without the web-ui)
-	cargo run -- -v server
-
-serve-rust: 
-	TG={{target}} {{nightly}} cargo run --features server -- -vv serve
-
-serve-e2e: build-elm
-	TG={{target}} {{nightly}} cargo run --features server -- --work-tree web-ui/e2e_tests/ex_proj serve
-
-serve: build-elm  # run the full frontend
-	just serve-rust
-
-self-check: # build self and run `art check` using own binary
-	TG={{target}} {{nightly}} cargo run -- check
-
+# run the artifact binary with any args
+run ARGS="":
+	just web-ui/build
+	cargo run --features server -- -v {{ARGS}}
 
 ##################################################
 # release command
 
+# run all formatters
 fmt:
+	just fmt-rust
+	just fmt-py
+	just web-ui/fmt
+	art fmt -w
+
+# run rust formatter
+fmt-rust:
 	cargo fmt -- --write-mode overwrite  # don't generate *.bk files
 	art fmt -w
 
-check-fmt:
-	cargo fmt -- --write-mode=diff
+# run python formatters
+fmt-py:
+    autopep8 {{python_dirs}} -r --in-place
+    docformatter {{python_dirs}} -r --in-place
 
-check: check-fmt
-	art check
-
-git-verify: # make sure git is clean and on master
+# publish to github and crates.io
+publish: 
+	@# make sure code is clean on master
 	git branch | grep '* master'
 	git diff --no-ext-diff --quiet --exit-code
-
-#publish: git-verify lint build-full test-all self-check # publish to github and crates.io
-publish: git-verify build-full test-all self-check # publish to github and crates.io
+	# TODO: switch to build when web-ui done
+	just git-verify lint build-static
+	just lint test self-check
 	git commit -a -m "v{{version}} release"
-	just publish-cargo
-	just publish-git
-
-export-site: build-full
-	rm -rf _gh-pages/index.html _gh-pages/css
-	TG={{target}} {{nightly}} cargo run -- export html && mv index.html css _gh-pages
-
-publish-site: export-site
-	rm -rf _gh-pages/index.html _gh-pages/css
-	TG={{target}} {{nightly}} cargo run -- export html && mv index.html css _gh-pages
-	(cd _gh-pages; git commit -am 'v{{version}}' && git push origin gh-pages)
-
-publish-cargo: # publish cargo without verification
+	@# push to cargo
 	cargo publish --no-verify
-
-publish-git: # publish git without verification
+	@#push to git
 	git push origin master
 	git tag -a "v{{version}}" -m "v{{version}}"
 	git push origin --tags
 
+# build the static html
+build-site:
+	cargo run --features server -- export html -o _gh-pages
+
+# push the static html design docs to git-pages
+publish-site: build-site
+	(cd _gh-pages; git commit -am 'v{{version}}' && git push origin gh-pages)
 
 ##################################################
 # developer installation helpers
 
-update: # update rust and tools used by this lib
-	rustup update
-	(cargo install just -f)
-	(cargo install rustfmt -f)
-	rustup run nightly cargo install clippy -f
-
-install-nightly:
-	rustup install nightly
+# update all developer build/test/lint/etc tools
+update:
+	cargo install-update -i just
+	cargo install-update -i cargo-update
+	cargo install-update -i rustfmt-nightly:$RUSTFMT_VERSION
+	cargo install-update -i clippy:$RUSTCLIPPY_VERSION
+	pip install -r scripts/requirements.txt
+	npm install $NPM_PACKAGES --prefix $ENV_DIR

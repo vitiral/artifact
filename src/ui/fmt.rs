@@ -19,12 +19,13 @@ pub fn fmt_names(names: &[NameRc]) -> String {
 
 /// use several configuration options and pieces of data to represent
 /// how the artifact should be formatted
-pub fn fmt_artifact(name: &NameRc,
-                    artifacts: &Artifacts,
-                    fmtset: &FmtSettings,
-                    recurse: u8,
-                    displayed: &mut Names)
-                    -> FmtArtifact {
+pub fn fmt_artifact(
+    name: &NameRc,
+    artifacts: &Artifacts,
+    fmtset: &FmtSettings,
+    recurse: u8,
+    displayed: &mut Names,
+) -> FmtArtifact {
     let artifact = artifacts.get(name).unwrap();
     let mut out = FmtArtifact::default();
     out.long = fmtset.long;
@@ -53,11 +54,11 @@ pub fn fmt_artifact(name: &NameRc,
         let partof = partof
             .drain(0..)
             .map(|n| {
-                     FmtArtifact {
-                         name: n,
-                         ..FmtArtifact::default()
-                     }
-                 })
+                FmtArtifact {
+                    name: n,
+                    ..FmtArtifact::default()
+                }
+            })
             .collect();
         out.partof = Some(partof);
     }
@@ -113,20 +114,30 @@ fn test_trim_unicode_length() {
     assert_eq!(trim_unicode_length("", 10), "");
     assert_eq!(trim_unicode_length("hello", 10), "hello");
     assert_eq!(trim_unicode_length("hello", 2), "he");
-    assert_eq!(trim_unicode_length("H\u{200D}e\u{200D}l\u{200D}l\u{200D}o", 5),
-               "H\u{200D}e\u{200D}l\u{200D}l\u{200D}o");
-    assert_eq!(trim_unicode_length("H\u{200D}e\u{200D}", 2),
-               "H\u{200D}e\u{200D}");
+    assert_eq!(
+        trim_unicode_length("H\u{200D}e\u{200D}l\u{200D}l\u{200D}o", 5),
+        "H\u{200D}e\u{200D}l\u{200D}l\u{200D}o"
+    );
+    assert_eq!(
+        trim_unicode_length("H\u{200D}e\u{200D}", 2),
+        "H\u{200D}e\u{200D}"
+    );
     // Hello, World!
     assert_eq!(trim_unicode_length("你好世界", 8), "你好世界");
     assert_eq!(trim_unicode_length("你好世界", 4), "你好");
     assert_eq!(trim_unicode_length("你好世界", 5), "你好");
-    assert_eq!(trim_unicode_length("γειά σου κόσμος", 15),
-               "γειά σου κόσμος");
-    assert_eq!(trim_unicode_length("γειά σου κόσμος", 8),
-               "γειά σου");
-    assert_eq!(trim_unicode_length("γειά σου κόσμος", 3),
-               "γει");
+    assert_eq!(
+        trim_unicode_length("γειά σου κόσμος", 15),
+        "γειά σου κόσμος"
+    );
+    assert_eq!(
+        trim_unicode_length("γειά σου κόσμος", 8),
+        "γειά σου"
+    );
+    assert_eq!(
+        trim_unicode_length("γειά σου κόσμος", 3),
+        "γει"
+    );
     // ZALGO!
     let z = "Z̡͕̃͗͐ͩ͐̽A̶̱͉ͩ̒̀̒L̋̒ͮ̎͛G̨̖̯̖̲͇Ö̵̹͔̞̱͖̾̍";
     let r = "Z̡͕̃͗͐ͩ͐̽A̶̱͉ͩ̒̀̒L̋̒ͮ̎͛G̨̖̯̖̲͇Ö̵̹͔̞̱͖̾̍";

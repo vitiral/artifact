@@ -28,13 +28,14 @@ impl FmtArtifact {
     ///
     /// #SPC-cmd-ls-color
     #[allow(cyclomatic_complexity)] // TODO: break this up
-    pub fn write<W: io::Write>(&self,
-                               w: &mut W,
-                               cwd: &Path,
-                               artifacts: &Artifacts,
-                               color: bool,
-                               indent: u8)
-                               -> io::Result<()> {
+    pub fn write<W: io::Write>(
+        &self,
+        w: &mut W,
+        cwd: &Path,
+        artifacts: &Artifacts,
+        color: bool,
+        indent: u8,
+    ) -> io::Result<()> {
         let nfno = indent > 0 && self.name_only(); // not-first-name-only
         if !self.name_only() {
             for _ in 0..(indent * 2) {
@@ -69,59 +70,67 @@ impl FmtArtifact {
         let completed_len = completed_str.len();
         let tested_len = tested_str.len();
         if color {
-            let (d_sym, d_perc, t_sym, t_perc, name) = if artifact.completed >= 1. &&
-                                                          artifact.tested >= 1. {
-                let name = if nfno {
-                    Green.paint(self.name.raw.as_str())
+            let (d_sym, d_perc, t_sym, t_perc, name) =
+                if artifact.completed >= 1. && artifact.tested >= 1. {
+                    let name = if nfno {
+                        Green.paint(self.name.raw.as_str())
+                    } else {
+                        Green.bold().underline().paint(self.name.raw.as_str())
+                    };
+                    (
+                        Green.bold().paint("D"),
+                        Green.bold().paint(completed_str),
+                        Green.bold().paint("T"),
+                        Green.bold().paint(tested_str),
+                        name,
+                    )
                 } else {
-                    Green.bold().underline().paint(self.name.raw.as_str())
+                    let mut score = 0;
+                    let (d_sym, d_perc) = if artifact.completed >= 1. {
+                        score += 3;
+                        (Blue.bold().paint("D"), Blue.bold().paint(completed_str))
+                    } else if artifact.completed >= 0.7 {
+                        score += 2;
+                        (Yellow.bold().paint("-"), Yellow.bold().paint(completed_str))
+                    } else if artifact.completed >= 0.4 {
+                        score += 1;
+                        (Yellow.bold().paint("-"), Yellow.bold().paint(completed_str))
+                    } else if artifact.completed < 0. {
+                        (
+                            Red.bold().blink().paint("!"),
+                            Red.bold().blink().paint(completed_str),
+                        )
+                    } else {
+                        (Red.bold().paint("-"), Red.bold().paint(completed_str))
+                    };
+                    let (t_sym, t_perc) = if artifact.tested >= 1. {
+                        score += 2;
+                        (Blue.bold().paint("T"), Blue.bold().paint(tested_str))
+                    } else if artifact.tested >= 0.5 {
+                        score += 1;
+                        (Yellow.bold().paint("-"), Yellow.bold().paint(tested_str))
+                    } else if artifact.tested < 0. {
+                        (
+                            Red.bold().blink().paint("!"),
+                            Red.bold().blink().paint(tested_str),
+                        )
+                    } else {
+                        (Red.bold().paint("-"), Red.bold().paint(tested_str))
+                    };
+                    let name = match score {
+                        3...4 => Blue,
+                        1...2 => Yellow,
+                        0 => Red,
+                        _ => unreachable!(),
+                    };
+                    let sname = self.name.raw.as_str();
+                    let name = if nfno {
+                        name.paint(sname)
+                    } else {
+                        name.bold().underline().paint(sname)
+                    };
+                    (d_sym, d_perc, t_sym, t_perc, name)
                 };
-                (Green.bold().paint("D"),
-                 Green.bold().paint(completed_str),
-                 Green.bold().paint("T"),
-                 Green.bold().paint(tested_str),
-                 name)
-            } else {
-                let mut score = 0;
-                let (d_sym, d_perc) = if artifact.completed >= 1. {
-                    score += 3;
-                    (Blue.bold().paint("D"), Blue.bold().paint(completed_str))
-                } else if artifact.completed >= 0.7 {
-                    score += 2;
-                    (Yellow.bold().paint("-"), Yellow.bold().paint(completed_str))
-                } else if artifact.completed >= 0.4 {
-                    score += 1;
-                    (Yellow.bold().paint("-"), Yellow.bold().paint(completed_str))
-                } else if artifact.completed < 0. {
-                    (Red.bold().blink().paint("!"), Red.bold().blink().paint(completed_str))
-                } else {
-                    (Red.bold().paint("-"), Red.bold().paint(completed_str))
-                };
-                let (t_sym, t_perc) = if artifact.tested >= 1. {
-                    score += 2;
-                    (Blue.bold().paint("T"), Blue.bold().paint(tested_str))
-                } else if artifact.tested >= 0.5 {
-                    score += 1;
-                    (Yellow.bold().paint("-"), Yellow.bold().paint(tested_str))
-                } else if artifact.tested < 0. {
-                    (Red.bold().blink().paint("!"), Red.bold().blink().paint(tested_str))
-                } else {
-                    (Red.bold().paint("-"), Red.bold().paint(tested_str))
-                };
-                let name = match score {
-                    3...4 => Blue,
-                    1...2 => Yellow,
-                    0 => Red,
-                    _ => unreachable!(),
-                };
-                let sname = self.name.raw.as_str();
-                let name = if nfno {
-                    name.paint(sname)
-                } else {
-                    name.bold().underline().paint(sname)
-                };
-                (d_sym, d_perc, t_sym, t_perc, name)
-            };
             if nfno {
                 try!(write!(w, "{}", name));
             } else {
@@ -143,13 +152,15 @@ impl FmtArtifact {
         } else {
             let d_sym = if artifact.completed >= 1. { "D" } else { "-" };
             let t_sym = if artifact.tested >= 1. { "T" } else { "-" };
-            try!(write!(w,
-                        "|{}{}| {:>3}% {:>3}% | {}",
-                        d_sym,
-                        t_sym,
-                        completed_str,
-                        tested_str,
-                        &self.name.raw));
+            try!(write!(
+                w,
+                "|{}{}| {:>3}% {:>3}% | {}",
+                d_sym,
+                t_sym,
+                completed_str,
+                tested_str,
+                &self.name.raw
+            ));
         }
 
         if nfno {
@@ -230,7 +241,13 @@ impl FmtArtifact {
     /// return whether this object is only the name
     /// if it is, it is formatted differently
     fn name_only(&self) -> bool {
-        match (&self.path, &self.parts, &self.partof, &self.done, &self.text) {
+        match (
+            &self.path,
+            &self.parts,
+            &self.partof,
+            &self.done,
+            &self.text,
+        ) {
             (&None, &None, &None, &None, &None) => true,
             _ => false,
         }

@@ -18,10 +18,11 @@ use utils::{parse_toml, unique_id};
 // - resolving all settings at the end
 /// recursively load the directory into text files, making sure
 /// not to load files that have already been loaded
-pub fn load_text(ptext: &mut ProjectText,
-                 load_path: &Path,
-                 loaded_paths: &mut HashSet<PathBuf>)
-                 -> Result<()> {
+pub fn load_text(
+    ptext: &mut ProjectText,
+    load_path: &Path,
+    loaded_paths: &mut HashSet<PathBuf>,
+) -> Result<()> {
     let mut files_to_load: Vec<PathBuf> = Vec::new();
     let mut dirs_to_load: Vec<PathBuf> = Vec::new();
     let ptype = load_path
@@ -111,9 +112,11 @@ pub fn load_toml(path: &Path, text: &str, project: &mut Project) -> Result<u64> 
         };
         // check for overlap
         if let Some(overlap) = project.artifacts.get(&aname) {
-            let msg = format!("Overlapping key found <{}> other key at: {}",
-                              name,
-                              overlap.path.display());
+            let msg = format!(
+                "Overlapping key found <{}> other key at: {}",
+                name,
+                overlap.path.display()
+            );
             return Err(ErrorKind::Load(msg).into());
         }
         let artifact = from_table(&aname, path, art_tbl)?;
@@ -132,13 +135,19 @@ impl Artifact {
     pub fn from_str(toml: &str) -> Result<(NameRc, Artifact)> {
         let table = try!(parse_toml(toml));
         if table.len() != 1 {
-            return Err(ErrorKind::Load("must contain a single table".to_string()).into());
+            return Err(
+                ErrorKind::Load("must contain a single table".to_string()).into(),
+            );
         }
         let (name, value) = table.iter().next().unwrap();
         let name = try!(Name::from_str(name));
         let value = match *value {
             Value::Table(ref t) => t,
-            _ => return Err(ErrorKind::Load("must contain a single table".to_string()).into()),
+            _ => {
+                return Err(
+                    ErrorKind::Load("must contain a single table".to_string()).into(),
+                )
+            }
         };
         let artifact = try!(from_table(&name, &Path::new("from_str"), value));
         Ok((Arc::new(name), artifact))
@@ -153,12 +162,17 @@ fn from_table(name: &Name, path: &Path, tbl: &Table) -> Result<Artifact> {
     let mut decoder = Decoder::new(value);
     let raw = match UserArtifact::decode(&mut decoder) {
         Ok(v) => v,
-        Err(e) => return Err(ErrorKind::InvalidArtifact(name.to_string(), e.to_string()).into()),
+        Err(e) => {
+            return Err(
+                ErrorKind::InvalidArtifact(name.to_string(), e.to_string()).into(),
+            )
+        }
     };
     if let Some(invalid) = decoder.toml {
-        return Err(ErrorKind::InvalidArtifact(name.to_string(),
-                                              format!("invalid attrs: {}", invalid))
-                       .into());
+        return Err(
+            ErrorKind::InvalidArtifact(name.to_string(), format!("invalid attrs: {}", invalid))
+                .into(),
+        );
     }
     let done = match raw.done {
         Some(s) => Done::Defined(s),
@@ -166,17 +180,17 @@ fn from_table(name: &Name, path: &Path, tbl: &Table) -> Result<Artifact> {
     };
 
     Ok(Artifact {
-           id: unique_id(),
-           revision: 0,
-           path: path.to_path_buf(),
-           text: raw.text.unwrap_or_default(),
-           partof: Names::from_str(&raw.partof.unwrap_or_default())?,
-           done: done,
-           // calculated vars
-           parts: HashSet::new(),
-           completed: -1.0,
-           tested: -1.0,
-       })
+        id: unique_id(),
+        revision: 0,
+        path: path.to_path_buf(),
+        text: raw.text.unwrap_or_default(),
+        partof: Names::from_str(&raw.partof.unwrap_or_default())?,
+        done: done,
+        // calculated vars
+        parts: HashSet::new(),
+        completed: -1.0,
+        tested: -1.0,
+    })
 }
 
 #[cfg(test)]
@@ -206,10 +220,14 @@ mod tests {
             let raw = UserArtifact::decode(&mut decoder).unwrap();
             artifacts.insert(name.clone(), raw);
         }
-        assert_eq!(artifacts.get("REQ-one").unwrap().text,
-                   Some("        I am text\n        ".to_string()));
-        assert_eq!(artifacts.get("REQ-one").unwrap().partof,
-                   Some("REQ-1".to_string()));
+        assert_eq!(
+            artifacts.get("REQ-one").unwrap().text,
+            Some("        I am text\n        ".to_string())
+        );
+        assert_eq!(
+            artifacts.get("REQ-one").unwrap().partof,
+            Some("REQ-1".to_string())
+        );
     }
 
     #[test]
@@ -233,24 +251,34 @@ mod tests {
         let dne_locs = locs::attach_locs(&mut p.artifacts, locs).unwrap();
         assert_eq!(num, 8);
         assert_eq!(dne_locs.len(), 0);
-        assert!(p.artifacts
-                    .contains_key(&Name::from_str("REQ-foo").unwrap()));
-        assert!(p.artifacts
-                    .contains_key(&Name::from_str("SPC-foo").unwrap()));
-        assert!(p.artifacts
-                    .contains_key(&Name::from_str("RSK-foo").unwrap()));
-        assert!(p.artifacts
-                    .contains_key(&Name::from_str("TST-foo").unwrap()));
-        assert!(p.artifacts
-                    .contains_key(&Name::from_str("SPC-bar").unwrap()));
+        assert!(
+            p.artifacts
+                .contains_key(&Name::from_str("REQ-foo").unwrap())
+        );
+        assert!(
+            p.artifacts
+                .contains_key(&Name::from_str("SPC-foo").unwrap())
+        );
+        assert!(
+            p.artifacts
+                .contains_key(&Name::from_str("RSK-foo").unwrap())
+        );
+        assert!(
+            p.artifacts
+                .contains_key(&Name::from_str("TST-foo").unwrap())
+        );
+        assert!(
+            p.artifacts
+                .contains_key(&Name::from_str("SPC-bar").unwrap())
+        );
 
         // will be loaded later
         assert!(!p.artifacts
-                    .contains_key(&Name::from_str("REQ-baz").unwrap()));
+            .contains_key(&Name::from_str("REQ-baz").unwrap()));
         assert!(!p.artifacts
-                    .contains_key(&Name::from_str("RSK-foo-2").unwrap()));
+            .contains_key(&Name::from_str("RSK-foo-2").unwrap()));
         assert!(!p.artifacts
-                    .contains_key(&Name::from_str("TST-foo-2").unwrap()));
+            .contains_key(&Name::from_str("TST-foo-2").unwrap()));
 
         {
             // test to make sure default attrs are correct
@@ -293,12 +321,18 @@ mod tests {
 
         let num = load_toml(&path, test_data::TOML_RST2, &mut p).unwrap();
         assert_eq!(num, 3);
-        assert!(p.artifacts
-                    .contains_key(&Name::from_str("REQ-baz").unwrap()));
-        assert!(p.artifacts
-                    .contains_key(&Name::from_str("RSK-foo-2").unwrap()));
-        assert!(p.artifacts
-                    .contains_key(&Name::from_str("TST-foo-2").unwrap()));
+        assert!(
+            p.artifacts
+                .contains_key(&Name::from_str("REQ-baz").unwrap())
+        );
+        assert!(
+            p.artifacts
+                .contains_key(&Name::from_str("RSK-foo-2").unwrap())
+        );
+        assert!(
+            p.artifacts
+                .contains_key(&Name::from_str("TST-foo-2").unwrap())
+        );
     }
 
 }

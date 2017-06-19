@@ -30,10 +30,14 @@ fn setup_headers(res: &mut Response) {
     let head = res.headers_mut();
     let bv = |s: &str| Vec::from(s.as_bytes());
     head.set_raw("Access-Control-Allow-Origin", vec![bv("*")]);
-    head.set_raw("Access-Control-Allow-Methods",
-                 vec![bv("GET, POST, OPTIONS, PUT, PATCH, DELETE")]);
-    head.set_raw("Access-Control-Allow-Headers",
-                 vec![bv("X-Requested-With,content-type")]);
+    head.set_raw(
+        "Access-Control-Allow-Methods",
+        vec![bv("GET, POST, OPTIONS, PUT, PATCH, DELETE")],
+    );
+    head.set_raw(
+        "Access-Control-Allow-Headers",
+        vec![bv("X-Requested-With,content-type")],
+    );
 }
 
 fn config_json_res(res: &mut Response) {

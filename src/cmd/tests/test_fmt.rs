@@ -44,10 +44,11 @@ use fs_extra::dir;
 fn test_fmt() {
     let tmpdir = tempdir::TempDir::new("artifact").unwrap();
     let writedir = tmpdir.path();
-    dir::copy(&test_data::TSIMPLE_DIR.as_path(),
-              &writedir,
-              &dir::CopyOptions::new())
-        .unwrap();
+    dir::copy(
+        &test_data::TSIMPLE_DIR.as_path(),
+        &writedir,
+        &dir::CopyOptions::new(),
+    ).unwrap();
     let simple = writedir.join("simple");
 
     let mut w: Vec<u8> = Vec::new();

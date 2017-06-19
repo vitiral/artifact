@@ -151,9 +151,10 @@ impl RpcMethodSync for AddTestRun {
 
         //check test_name table for existance of test_name
         if test_name::table
-               .filter(test_name::name.eq(&new_test_run.test_name))
-               .first::<TestName>(&connection)
-               .is_err() {
+            .filter(test_name::name.eq(&new_test_run.test_name))
+            .first::<TestName>(&connection)
+            .is_err()
+        {
             let msg = format!(
                 "Test name \'{}\' not in database. Please \
                 add using \'AddTest\' before continuing",
@@ -164,9 +165,10 @@ impl RpcMethodSync for AddTestRun {
 
         // check if version_id is valid
         if version::table
-               .filter(version::id.eq(&new_test_run.version_id))
-               .first::<Version>(&connection)
-               .is_err() {
+            .filter(version::id.eq(&new_test_run.version_id))
+            .first::<Version>(&connection)
+            .is_err()
+        {
             let msg = format!(
                 "Version id \'{}\' not in database. \
                 Please add using \'AddVersion\' before continuing",
@@ -179,9 +181,10 @@ impl RpcMethodSync for AddTestRun {
         for artifact in &new_test_run.artifacts {
             //let art_name = ArtifactName { name: artifact.clone() };
             if artifact_name::table
-                   .filter(artifact_name::name.eq(artifact))
-                   .first::<ArtifactName>(&connection)
-                   .is_err() {
+                .filter(artifact_name::name.eq(artifact))
+                .first::<ArtifactName>(&connection)
+                .is_err()
+            {
                 let msg = format!(
                     "Artifact \'{}\' not in database. \
                     Please add using \'AddArtifact\' before continuing",

@@ -9,34 +9,48 @@ impl Project {
     /// better than equal... has reasons why NOT equal!
     pub fn equal(&self, other: &Project) -> Result<()> {
         names_equal(&self.artifacts, &other.artifacts)?;
-        attr_equal("path",
-                   &self.artifacts,
-                   &other.artifacts,
-                   &|a: &Artifact| &a.path)?;
-        attr_equal("text",
-                   &self.artifacts,
-                   &other.artifacts,
-                   &|a: &Artifact| &a.text)?;
-        attr_equal("partof",
-                   &self.artifacts,
-                   &other.artifacts,
-                   &|a: &Artifact| &a.partof)?;
-        attr_equal("parts",
-                   &self.artifacts,
-                   &other.artifacts,
-                   &|a: &Artifact| &a.parts)?;
-        attr_equal("done",
-                   &self.artifacts,
-                   &other.artifacts,
-                   &|a: &Artifact| &a.done)?;
-        float_equal("completed",
-                    &self.artifacts,
-                    &other.artifacts,
-                    &|a: &Artifact| a.completed)?;
-        float_equal("tested",
-                    &self.artifacts,
-                    &other.artifacts,
-                    &|a: &Artifact| a.tested)?;
+        attr_equal(
+            "path",
+            &self.artifacts,
+            &other.artifacts,
+            &|a: &Artifact| &a.path,
+        )?;
+        attr_equal(
+            "text",
+            &self.artifacts,
+            &other.artifacts,
+            &|a: &Artifact| &a.text,
+        )?;
+        attr_equal(
+            "partof",
+            &self.artifacts,
+            &other.artifacts,
+            &|a: &Artifact| &a.partof,
+        )?;
+        attr_equal(
+            "parts",
+            &self.artifacts,
+            &other.artifacts,
+            &|a: &Artifact| &a.parts,
+        )?;
+        attr_equal(
+            "done",
+            &self.artifacts,
+            &other.artifacts,
+            &|a: &Artifact| &a.done,
+        )?;
+        float_equal(
+            "completed",
+            &self.artifacts,
+            &other.artifacts,
+            &|a: &Artifact| a.completed,
+        )?;
+        float_equal(
+            "tested",
+            &self.artifacts,
+            &other.artifacts,
+            &|a: &Artifact| a.tested,
+        )?;
         proj_attr_equal("origin", &self.origin, &other.origin)?;
         proj_attr_equal("settings", &self.settings, &other.settings)?;
         proj_attr_equal("files", &self.files, &other.files)?;
@@ -54,10 +68,12 @@ fn names_equal(a: &Artifacts, b: &Artifacts) -> Result<()> {
     let b_keys: HashSet<NameRc> = b.keys().cloned().collect();
     if b_keys != a_keys {
         let missing = a_keys.symmetric_difference(&b_keys).collect::<Vec<_>>();
-        let msg = format!("missing artifacts: {:?}\nFIRST:\n{:?}\nSECOND:\n{:?}",
-                          missing,
-                          a_keys,
-                          b_keys);
+        let msg = format!(
+            "missing artifacts: {:?}\nFIRST:\n{:?}\nSECOND:\n{:?}",
+            missing,
+            a_keys,
+            b_keys
+        );
         Err(ErrorKind::NotEqual(msg).into())
     } else {
         Ok(())
@@ -70,8 +86,9 @@ fn names_equal(a: &Artifacts, b: &Artifacts) -> Result<()> {
 ///
 /// This is very expensive for values that differ
 fn attr_equal<T, F>(attr: &str, a: &Artifacts, b: &Artifacts, get_attr: &F) -> Result<()>
-    where T: Debug + PartialEq,
-          F: Fn(&Artifact) -> &T
+where
+    T: Debug + PartialEq,
+    F: Fn(&Artifact) -> &T,
 {
     let mut diff: Vec<String> = Vec::new();
 
@@ -86,20 +103,30 @@ fn attr_equal<T, F>(attr: &str, a: &Artifacts, b: &Artifacts, get_attr: &F) -> R
             let b_big = if b_str.len() > 100 { "..." } else { "" };
             a_str.truncate(100);
             b_str.truncate(100);
-            diff.push(format!("[{}: {}{} != {}{}]", a_name, a_str, a_big, b_str, b_big));
+            diff.push(format!(
+                "[{}: {}{} != {}{}]",
+                a_name,
+                a_str,
+                a_big,
+                b_str,
+                b_big
+            ));
         }
     }
 
     if diff.is_empty() {
         Ok(())
     } else {
-        Err(ErrorKind::NotEqual(format!("{} different: {:?}", attr, diff)).into())
+        Err(
+            ErrorKind::NotEqual(format!("{} different: {:?}", attr, diff)).into(),
+        )
     }
 }
 
 /// num *approximately* equal
 fn float_equal<F>(attr: &str, a: &Artifacts, b: &Artifacts, get_num: &F) -> Result<()>
-    where F: Fn(&Artifact) -> f32
+where
+    F: Fn(&Artifact) -> f32,
 {
     let mut diff: Vec<String> = Vec::new();
     fn thous(f: f32) -> i64 {
@@ -122,15 +149,20 @@ fn float_equal<F>(attr: &str, a: &Artifacts, b: &Artifacts, get_num: &F) -> Resu
     if diff.is_empty() {
         Ok(())
     } else {
-        Err(ErrorKind::NotEqual(format!("{} different: {:?}", attr, diff)).into())
+        Err(
+            ErrorKind::NotEqual(format!("{} different: {:?}", attr, diff)).into(),
+        )
     }
 }
 
 fn proj_attr_equal<T>(attr: &str, a: &T, b: &T) -> Result<()>
-    where T: Debug + PartialEq
+where
+    T: Debug + PartialEq,
 {
     if a != b {
-        Err(ErrorKind::NotEqual(format!("{} FIRST:\n{:?}\n\nSECOND:\n{:?}", attr, a, b)).into())
+        Err(
+            ErrorKind::NotEqual(format!("{} FIRST:\n{:?}\n\nSECOND:\n{:?}", attr, a, b)).into(),
+        )
     } else {
         Ok(())
     }

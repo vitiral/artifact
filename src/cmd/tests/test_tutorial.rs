@@ -24,52 +24,62 @@ fn test_cmd_data_valid() {
     assert_ne!(tut::D_LOAD_1_PY, tut::D_LOAD_2_PY);
     assert_ne!(tut::D_LOAD_1_TOML, tut::D_LOAD_2_TOML);
 
-    let toml_files = vec![tut::D_TUTORIAL_TOML,
-                          tut::D_PURPOSE_TOML,
-                          tut::D_LOAD_1_TOML,
-                          tut::D_LOAD_2_TOML,
-                          init::PURPOSE_TOML];
+    let toml_files = vec![
+        tut::D_TUTORIAL_TOML,
+        tut::D_PURPOSE_TOML,
+        tut::D_LOAD_1_TOML,
+        tut::D_LOAD_2_TOML,
+        init::PURPOSE_TOML,
+    ];
 
-    let settings_files = vec![tut::D_SETTINGS_1_TOML,
-                              tut::D_SETTINGS_2_TOML,
-                              tut::D_SETTINGS_4_TOML,
-                              init::SETTINGS_TOML];
+    let settings_files = vec![
+        tut::D_SETTINGS_1_TOML,
+        tut::D_SETTINGS_2_TOML,
+        tut::D_SETTINGS_4_TOML,
+        init::SETTINGS_TOML,
+    ];
 
     let p = Path::new("foo");
     for (i, toml) in toml_files.iter().enumerate() {
         let mut project = Project::default();
         let text = str::from_utf8(toml).unwrap();
-        user::load_toml(&p, text, &mut project)
-            .expect(&format!("could not load tutorial toml at index: {}", i));
+        user::load_toml(&p, text, &mut project).expect(&format!(
+            "could not load tutorial toml at index: {}",
+            i
+        ));
     }
 
     for (i, toml) in settings_files.iter().enumerate() {
         let text = str::from_utf8(toml).unwrap();
         let tbl = test_data::parse_text(text);
-        user::settings_from_table(&tbl)
-            .expect(&format!("could not load tutorial settings at index: {}", i));
+        user::settings_from_table(&tbl).expect(&format!(
+            "could not load tutorial settings at index: {}",
+            i
+        ));
     }
 }
 
 #[test]
 fn test_line_length() {
-    let files = vec![("tut_toml", tut::D_TUTORIAL_TOML),
-                     ("tut_md", tut::D_TUTORIAL_MD),
+    let files = vec![
+        ("tut_toml", tut::D_TUTORIAL_TOML),
+        ("tut_md", tut::D_TUTORIAL_MD),
 
-                     ("capitols.csv", tut::D_CAPITOLS_CSV),
-                     //("flash-cards.htm", tut::D_FLASH_CARD_CHALLENGE_HTM), # htm exempt
-                     ("purpose.toml", tut::D_PURPOSE_TOML),
+        ("capitols.csv", tut::D_CAPITOLS_CSV),
+        //("flash-cards.htm", tut::D_FLASH_CARD_CHALLENGE_HTM), # htm exempt
+        ("purpose.toml", tut::D_PURPOSE_TOML),
 
-                     ("load-1.py", tut::D_LOAD_1_PY),
-                     ("load_-1.toml", tut::D_LOAD_1_TOML),
-                     ("load-2.py", tut::D_LOAD_2_PY),
-                     ("load_-2.toml", tut::D_LOAD_2_TOML),
+        ("load-1.py", tut::D_LOAD_1_PY),
+        ("load_-1.toml", tut::D_LOAD_1_TOML),
+        ("load-2.py", tut::D_LOAD_2_PY),
+        ("load_-2.toml", tut::D_LOAD_2_TOML),
 
-                     ("test_load.py", tut::D_TEST_LOAD_PY),
-                     ("test_data.csv", tut::D_TEST_DATA_CSV),
-                     ("set 1", tut::D_SETTINGS_1_TOML),
-                     ("set 2", tut::D_SETTINGS_2_TOML),
-                     ("set 4", tut::D_SETTINGS_4_TOML)];
+        ("test_load.py", tut::D_TEST_LOAD_PY),
+        ("test_data.csv", tut::D_TEST_DATA_CSV),
+        ("set 1", tut::D_SETTINGS_1_TOML),
+        ("set 2", tut::D_SETTINGS_2_TOML),
+        ("set 4", tut::D_SETTINGS_4_TOML),
+    ];
 
     for (fname, f) in files {
         let s = str::from_utf8(f).unwrap();

@@ -21,26 +21,33 @@ pub fn validate(repo: &Path, project: &Project) -> Result<()> {
         }
         // only allow files that are in the cwd repo
         if !f.starts_with(repo) {
-            let msg = format!("{} is not a subdir of cwd repo {}",
-                              f.display(),
-                              repo.display());
+            let msg = format!(
+                "{} is not a subdir of cwd repo {}",
+                f.display(),
+                repo.display()
+            );
             return Err(ErrorKind::Security(msg).into());
         }
         // only allow files that are in the artifact_paths
         if !project
-               .settings
-               .artifact_paths
-               .iter()
-               .any(|p| f.starts_with(p)) {
-            let msg = format!("{} is not a subdir of any artifact_paths {:?}",
-                              f.display(),
-                              project.settings.artifact_paths);
+            .settings
+            .artifact_paths
+            .iter()
+            .any(|p| f.starts_with(p))
+        {
+            let msg = format!(
+                "{} is not a subdir of any artifact_paths {:?}",
+                f.display(),
+                project.settings.artifact_paths
+            );
             return Err(ErrorKind::Security(msg).into());
         }
         // files that do not already exist are invalid
         if !f.exists() {
-            let msg = format!("{} does not already exist and cannot be created here",
-                              f.display());
+            let msg = format!(
+                "{} does not already exist and cannot be created here",
+                f.display()
+            );
             return Err(ErrorKind::Security(msg).into());
         }
     }
@@ -48,9 +55,11 @@ pub fn validate(repo: &Path, project: &Project) -> Result<()> {
 }
 
 pub fn validate_settings(repo: &Path, settings: &Settings) -> Result<()> {
-    println!("repo={:?}, artifact_paths={:?}",
-             repo,
-             settings.artifact_paths);
+    println!(
+        "repo={:?}, artifact_paths={:?}",
+        repo,
+        settings.artifact_paths
+    );
     if settings.artifact_paths.iter().any(|p| !p.starts_with(repo)) {
         //TODO improve message
         let msg = "artifact_paths invalid".to_string();

@@ -34,17 +34,17 @@ pub fn run_cmd(path: &Path) -> Result<u8> {
     let mut read_dir = fs::read_dir(path)
         .chain_err(|| format!("dir: {}", path.display()))?;
     let exists = read_dir.any(|e| match e {
-                                  Err(_) => false,
-                                  Ok(e) => {
-                                      if !e.file_type().unwrap().is_dir() {
-                                          false
-                                      } else {
-                                          let p = e.path();
-                                          let fname = p.file_name().unwrap().to_str().unwrap();
-                                          fname == ".art"
-                                      }
-                                  }
-                              });
+        Err(_) => false,
+        Ok(e) => {
+            if !e.file_type().unwrap().is_dir() {
+                false
+            } else {
+                let p = e.path();
+                let fname = p.file_name().unwrap().to_str().unwrap();
+                fname == ".art"
+            }
+        }
+    });
     let repo = path.join(".art");
     let design = path.join("design");
     if !exists {
@@ -65,9 +65,10 @@ pub fn run_cmd(path: &Path) -> Result<u8> {
                 .unwrap();
             println!("art initialized at {}", settings.display());
             if let Ok(mut f) = fs::OpenOptions::new()
-                   .create_new(true)
-                   .write(true)
-                   .open(&purpose) {
+                .create_new(true)
+                .write(true)
+                .open(&purpose)
+            {
                 f.write_all(PURPOSE_TOML.as_ref()).unwrap();
                 println!("art created initial design.toml at {}", design.display())
             }
