@@ -14,12 +14,10 @@
 # ```
 # source env
 # ```
+export PATH="/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/usr/local/sbin"
 if [[ `uname` == "Darwin" ]]; then
-    export PATH="/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/opt/X11/bin"
-else
-    export PATH="/usr/local/sbin:/usr/local/bin:/usr/bin"
+    export PATH="$PATH:/opt/X11/bin"
 fi
-
 
 errcho() {
   >&2 echo "\e[1m\e[32m${1}\e[0m"
