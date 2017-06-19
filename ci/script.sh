@@ -1,7 +1,5 @@
 # This script takes care of testing your crate
 
-source env
-
 set -ex
 
 main() {
