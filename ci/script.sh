@@ -5,7 +5,6 @@ set -ex
 main() {
     #export RUST_BACKTRACE=1
     #cross build --target $TARGET --verbose
-    just build
 
     if [ ! -z $DISABLE_TESTS ]; then
         return
