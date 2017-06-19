@@ -29,28 +29,28 @@ class CrudApi(JsonRpc):
             'method': 'CreateArtifacts',
             'params': params,
         }
-        self.post(self.host, json=payload)
+        self.put(self.address, json=payload)
 
     def read_art(self, params):
         payload = {
             'method': 'ReadArtifacts',
             'params': params,
         }
-        self.post(self.host, json=payload)
+        self.put(self.address, json=payload)
 
     def update_art(self, params):
         payload = {
             'method': 'UpdateArtifacts',
             'params': params,
         }
-        self.post(self.host, json=payload)
+        self.put(self.address, json=payload)
 
     def delete_art(self, params):
         payload = {
             'method': 'DeleteArtifacts',
             'params': params,
         }
-        self.post(self.host, json=payload)
+        self.put(self.address, json=payload)
 
 
 def make_parser():
@@ -68,27 +68,38 @@ def make_parser():
 
 
 def readline_setup(exports):
+    """setup readline completion, if available.
+    :param exports: the namespace to be used for completion
+    :return: True on success
+    """
     try:
         import readline
     except ImportError:
+        # no completion for you.
         readline = None
-        return
+        return False
     else:
         import rlcompleter
         readline.set_completer(rlcompleter.Completer(namespace=exports).complete)
+        return True
 
 
 def start_interactive(api):
-    create = api.create_art
-    read = api.read_art
-    update = api.update_art
-    delete = api.delete_art
+    """start an interactive shell for the API.
+    :param api: the CrudApi session object.
+    """
+    create = api.create_artifact
+    read = api.read_artifact
+    update = api.update_artifact
+    delete = api.delete_artifact
 
     local = locals()
     exports = globals().copy()
     exports.update(local)
 
+    # completion for global and local namespace
     readline_setup(exports)
+    # dir() will only show locals()
     code.interact(banner=__doc__, local=local)
 
 

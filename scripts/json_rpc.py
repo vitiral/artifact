@@ -4,9 +4,9 @@ import requests
 class JsonRpc(requests.Session):
     rpc_path = '/json-rpc'
 
-    def __init__(self, address):
+    def __init__(self, host):
         super(JsonRpc, self).__init__()
-        self.host = address + self.rpc_path
+        self.address = host + self.rpc_path
         self._id = 0
 
     def request(self, http_method, url, json=None, **kwargs):
