@@ -27,9 +27,6 @@ main() {
            --tag $tag \
            --target $target \
            --to $RUST_BIN
-
-    # install personal stuff
-    #cargo install rustfmt --force --debug  # force+debug until --update
 }
 
 main
