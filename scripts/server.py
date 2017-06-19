@@ -24,28 +24,28 @@ from json_rpc import JsonRpc
 
 
 class CrudApi(JsonRpc):
-    def create_art(self, params):
+    def create_artifact(self, params):
         payload = {
             'method': 'CreateArtifacts',
             'params': params,
         }
         self.put(self.address, json=payload)
 
-    def read_art(self, params):
+    def read_artifact(self, params):
         payload = {
             'method': 'ReadArtifacts',
             'params': params,
         }
         self.put(self.address, json=payload)
 
-    def update_art(self, params):
+    def update_artifact(self, params):
         payload = {
             'method': 'UpdateArtifacts',
             'params': params,
         }
         self.put(self.address, json=payload)
 
-    def delete_art(self, params):
+    def delete_artifact(self, params):
         payload = {
             'method': 'DeleteArtifacts',
             'params': params,
