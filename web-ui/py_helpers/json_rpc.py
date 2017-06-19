@@ -1,3 +1,5 @@
+"""Helper class for doing json-rpc requests with the server within a
+session."""
 import requests
 
 
@@ -10,7 +12,8 @@ class JsonRpc(requests.Session):
       - id can be any string or integral value and is preferred to be not Null.
       - method must be provided by the caller.
 
-    A Session object will also keep track of Cookies and provides basic authentication for the session life time.
+    A Session object will also keep track of Cookies and provides basic
+    authentication for the session life time.
 
     [1] http://www.jsonrpc.org/specification#request_object
 
@@ -22,11 +25,12 @@ class JsonRpc(requests.Session):
         self.address = host + self.rpc_path
         self._id = 0
 
+    # pylint: disable=arguments-differ
     def request(self, http_method, url, json=None, **kwargs):
         """Overrides the super class to insert mandatory fields, then calls it
         with those additions. You are not supposed to call this method
         directly, the super class will take care of then when calling post(),
-        get() … etc. on this object.
+        get()... etc. on this object.
 
         :param http_method:
         :param url:

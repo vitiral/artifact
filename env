@@ -44,11 +44,19 @@ export ENV_DIR=$PWD/target/env
 export NIGHTLY_VERSION="nightly-2017-06-17"
 export RUSTFMT_VERSION="0.1.3"
 export RUSTCLIPPY_VERSION="0.0.140"
+
 export NPM_PACKAGES="\
 elm@0.18.0 \
 webpack@2.6.1 \
 elm-format@0.6.1-alpha \
-phantomjs@2.1.7"
+phantomjs@2.1.7 \
+"
+
+export PYTHON_STUFF="\
+web-ui/sel_tests \
+web-ui/py_helpers \
+scripts/interact.py \
+"
 
 mkdir -p $ENV_DIR
 
@@ -76,13 +84,14 @@ export CARGO_INCREMENTAL=1
 errcho "-- setting up python --"
 PY_DIR=$ENV_DIR/art
 PY_ACTIVATE=$PY_DIR/bin/activate
-
+export PYTHONPATH="web-ui"
 if [ ! -d $PY_DIR ]; then
     virtualenv $PY_DIR -p python2.7 || return $?
     source $PY_ACTIVATE || return $?
 else
     source $PY_ACTIVATE || return $?
 fi
+
 
 ################################################################################
 # set up node path and packages
