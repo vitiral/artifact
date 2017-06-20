@@ -35,9 +35,16 @@ scripts/interact.py \
 
 export NODE_VERSION="v8.1.2"
 
-export PATH="/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/usr/local/sbin"
+if [ -z $TRAVIS_BUILD_DIR ]; then
+    # if non-travis, create in target directory and override PATH
+    export ENV_DIR=$PWD/target/env
+    export PATH="/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/usr/local/sbin"
+else
+    # if on travis, create in ~/build_environment and leave PATH alone
+    export ENV_DIR=$HOME/build_environment
+fi
+
 if [[ `uname` == "Darwin" ]]; then
-    export PATH="$PATH:/opt/X11/bin"
     NODE_URL="https://nodejs.org/dist/${NODE_VERSION}/node-${NODE_VERSION}-darwin-x64.tar.gz"
 else
     NODE_URL="https://nodejs.org/dist/${NODE_VERSION}/node-${NODE_VERSION}-linux-x64.tar.xz"
@@ -55,17 +62,6 @@ fi
 pathinsert() {
     export PATH="$1:$PATH"
 }
-
-################################################################################
-# create env directories and set up constants
-if [ -z $TRAVIS_BUILD_DIR ]; then
-    # if local, create in target directory
-    export ENV_DIR=$PWD/target/env
-else
-    # if on travis, create in build_environment
-    export ENV_DIR=$HOME/build_environment
-fi
-
 
 mkdir -p $ENV_DIR
 

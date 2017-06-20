@@ -141,12 +141,8 @@ publish-site: build-site
 # update all developer build/test/lint/etc tools
 update:
 	pip install -r scripts/requirements.txt
-	just update-node
-	just web-ui/init
+	just web-ui/update
 	cargo install-update -i just
 	cargo install-update -i cargo-update
 	cargo install-update -i rustfmt-nightly:$RUSTFMT_VERSION
 	cargo install-update -i clippy:$RUSTCLIPPY_VERSION
-
-update-node:
-	npm install $NPM_PACKAGES --prefix $NODE_DIR
