@@ -82,7 +82,7 @@ if [ ! -d $RUSTUP_HOME ]; then
     errcho "- installing rustup"
     curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain $RUST_VERSION || return $?
 fi
-pathinsert $RUST_BIN || return $?
+pathinsert $RUST_BIN
 
 # always make sure the default is up-to-date
 rustup default $RUST_VERSION || return $?
@@ -117,7 +117,6 @@ if [ ! -x $NODE_BIN/node ] || [ "$current_node_version" != "$NODE_VERSION" ]; th
     rm -rf $NODE_DIR && mkdir $NODE_DIR || return $?
     curl -LSfs $NODE_URL | \
         tar xJ --directory $NODE_DIR --strip-components=1 --
-    just update-node
 fi
 pathinsert $NODE_DIR/node_modules/.bin
 pathinsert $NODE_BIN
@@ -133,7 +132,7 @@ if [ ! -e $RUST_BIN/just ]; then
     just update || return $?
 fi
 
-pathinsert $NODE_DIR/node_modules/.bin || return $?
+pathinsert $NODE_DIR/node_modules/.bin
 
 if [ ! -e $RUST_BIN/art ]; then
     errcho "- building release+debug artifact as art+artd"
