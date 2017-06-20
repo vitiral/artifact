@@ -111,7 +111,7 @@ fi
 errcho "-- setting up node.js and elm --"
 
 export NODE_DIR=$ENV_DIR/node
-NODE_BIN=$NODE_DIR/bin/node
+NODE_BIN=$NODE_DIR/bin
 
 if [ ! -f $NODE_BIN ] || [[ `$NODE_BIN --version` != $NODE_VERSION ]]; then
     errcho "- installing node.js + npm"
@@ -120,8 +120,8 @@ if [ ! -f $NODE_BIN ] || [[ `$NODE_BIN --version` != $NODE_VERSION ]]; then
         tar xJ --directory $NODE_DIR --strip-components=1 --
 fi
 export NODE_PATH=$NODE_DIR/node_modules
-pathinsert $NODE_DIR/bin || return $?
-
+export PATH="$NODE_PATH/.bin:$PATH"
+export PATH="$NODE_BIN:$PATH"
 
 ################################################################################
 # Do final updates
