@@ -4,9 +4,9 @@
   "description": "the design doc tool made for developers",
   "main": "index.js",
   "scripts": {
-      "build": "webpack",
-      "watch": "webpack --watch",
-      "dev": "webpack-dev-server --port 3000"
+    "build": "webpack",
+    "watch": "webpack --watch",
+    "dev": "webpack-dev-server --port 3000"
   },
   "author": "vitiral@gmail.com",
   "license": "LGPLv3+",

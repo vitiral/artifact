@@ -27,11 +27,12 @@ elm-format@0.6.1-alpha \
 phantomjs@2.1.7 \
 "
 
-export PYTHON_STUFF="\
+export PYTHON_CHECK="\
 web-ui/sel_tests \
 web-ui/py_helpers \
 scripts/interact.py \
 "
+
 export NODE_VERSION="v8.1.2"
 
 export PATH="/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/usr/local/sbin"
@@ -118,6 +119,7 @@ if [ ! -f $NODE_BIN ] || [[ `$NODE_BIN --version` != $NODE_VERSION ]]; then
     curl -LSfs $NODE_URL | \
         tar xJ --directory $NODE_DIR --strip-components=1 --
 fi
+export NODE_PATH=$NODE_DIR/node_modules
 pathinsert $NODE_DIR/bin || return $?
 
 

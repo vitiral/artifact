@@ -23,3 +23,7 @@ fmt:
 
 check-fmt:
 	elm-format src/ --validate
+
+init:
+	npm install
+	elm make src/Main.elm --yes

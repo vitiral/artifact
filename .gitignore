@@ -6,5 +6,5 @@ _gh-pages
 .cache
 *.log
 node_modules
-
+web-ui/package-lock.json
 notes.md

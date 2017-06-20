@@ -53,8 +53,8 @@ lint-rust:
 
 # lint python code
 lint-py:
-	@echo "pylint $PYTHON_STUFF"
-	@pylint $PYTHON_STUFF
+	@echo "pylint $PYTHON_CHECK"
+	@pylint $PYTHON_CHECK
 	
 # build and run selenium tests
 test-sel: 
@@ -77,8 +77,8 @@ test-sel-py:
 # run all formatters in "check" mode to make sure code has been formatted
 check-fmt:
 	cargo fmt -- --write-mode=diff >& /dev/null
-	case "$(autopep8 $PYTHON_STUFF -r --diff)" in ("") true;; (*) false;; esac
-	case "$(docformatter $PYTHON_STUFF -r)" in ("") true;; (*) false;; esac
+	case "$(autopep8 $PYTHON_CHECK -r --diff)" in ("") true;; (*) false;; esac
+	case "$(docformatter $PYTHON_CHECK -r)" in ("") true;; (*) false;; esac
 	just web-ui/check-fmt
 	art fmt -d >& /dev/null
 
@@ -108,8 +108,8 @@ fmt-rust:
 
 # run python formatters
 fmt-py:
-    autopep8 $PYTHON_STUFF -r --in-place
-    docformatter $PYTHON_STUFF -r --in-place
+    autopep8 $PYTHON_CHECK -r --in-place
+    docformatter $PYTHON_CHECK -r --in-place
 
 # publish to github and crates.io
 publish: 
@@ -142,6 +142,7 @@ publish-site: build-site
 update:
 	pip install -r scripts/requirements.txt
 	npm install $NPM_PACKAGES --prefix $NODE_DIR
+	just web-ui/init
 	cargo install-update -i just
 	cargo install-update -i cargo-update
 	cargo install-update -i rustfmt-nightly:$RUSTFMT_VERSION
