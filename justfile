@@ -76,11 +76,11 @@ test-sel-py:
 
 # run all formatters in "check" mode to make sure code has been formatted
 check-fmt:
-	cargo fmt -- --write-mode=diff >& /dev/null
+	cargo fmt -- --write-mode=diff > /dev/null 2>&1
 	case "$(autopep8 $PYTHON_CHECK -r --diff)" in ("") true;; (*) false;; esac
 	case "$(docformatter $PYTHON_CHECK -r)" in ("") true;; (*) false;; esac
 	just web-ui/check-fmt
-	art fmt -d >& /dev/null
+	art fmt -d > /dev/null 2>&1
 
 
 ##################################################

@@ -22,7 +22,7 @@ fmt:
 	elm-format src/ --yes
 
 check-fmt:
-	elm-format src/ --validate
+	elm-format src/ --validate 2>&1
 
 init:
 	npm install
