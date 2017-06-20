@@ -149,4 +149,4 @@ update:
 	cargo install-update -i clippy:$RUSTCLIPPY_VERSION
 
 update-node:
-	npm install $NPM_PACKAGES
+	npm install $NPM_PACKAGES --prefix $NODE_DIR
