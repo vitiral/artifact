@@ -25,5 +25,5 @@ check-fmt:
 	elm-format src/ --validate 2>&1
 
 init:
-	npm install
+	npm install --prefix=$NODE_DIR
 	elm make src/Main.elm --yes
