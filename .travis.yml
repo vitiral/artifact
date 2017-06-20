@@ -43,7 +43,11 @@ matrix:
 before_install: set -e
 
 install:
-  - which sed && exit 1
+  - echo $PATH
+  - which sed 
+  - sed -e 's/<title>Main<\/title>/<title>Design Documents<\/title>/g' fake-index.html -i
+  - sed -e 's/<head>/<head><link rel="stylesheet" type="text\/css" href="css\/index.css" \/>/g' fake-index.html -i
+  - exit 1
   - source $PWD/env
   - just update
   - sh ci/install.sh
