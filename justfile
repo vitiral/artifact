@@ -70,7 +70,8 @@ test-sel-py:
 @test-all:
 	just lint
 	just test
-	just test-sel
+	just build
+	test "$(uname)" = "Darwin" && echo "TODO: selenium timeout issue on mac" || just test-sel-py
 	just check-fmt
 	art check
 
@@ -146,3 +147,5 @@ update:
 	cargo install-update -i cargo-update
 	cargo install-update -i rustfmt-nightly:$RUSTFMT_VERSION
 	cargo install-update -i clippy:$RUSTCLIPPY_VERSION
+
+test-test:
