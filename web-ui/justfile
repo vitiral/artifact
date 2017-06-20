@@ -8,8 +8,8 @@
 	rm -rf dist && mkdir dist
 	cp -r index.html css dist
 	# copy and link the style sheets
-	sed -i -e 's/<title>Main<\/title>/<title>Design Documents<\/title>/g' dist/index.html
-	sed -i -e 's/<head>/<head><link rel="stylesheet" type="text\/css" href="css\/index.css" \/>/g' dist/index.html
+	sed -i'' -e 's/<title>Main<\/title>/<title>Design Documents<\/title>/g' dist/index.html
+	sed -i'' -e 's/<head>/<head><link rel="stylesheet" type="text\/css" href="css\/index.css" \/>/g' dist/index.html
 	(cd dist && tar -cvf ../../src/cmd/data/web-ui-static.tar *)
 
 build: build-server build-static
