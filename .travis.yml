@@ -43,6 +43,7 @@ matrix:
 before_install: set -e
 
 install:
+  - which sed && exit 1
   - source $PWD/env
   - just update
   - sh ci/install.sh
