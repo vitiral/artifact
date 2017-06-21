@@ -39,7 +39,6 @@ build-static:
 
 # run all unit tests
 test TESTS="":
-	@just web-ui/test
 	cargo test --lib --features server {{TESTS}}
 
 # run all lints

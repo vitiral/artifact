@@ -54,7 +54,7 @@ impl FromStr for Name {
     type Err = Error;
     /// #SPC-partof-load
     fn from_str(s: &str) -> Result<Name> {
-        let value = s.to_ascii_uppercase().replace(' ', "");
+        let value = s.to_ascii_uppercase();
         if !NAME_VALID.is_match(&value) {
             return Err(ErrorKind::InvalidName(s.to_string()).into());
         }
@@ -414,11 +414,6 @@ fn test_name() {
     for name in vec!["REQ-foo*", "REQ-foo\n", "REQ-foo-"] {
         assert!(Name::from_str(name).is_err())
     }
-    // remove spaces
-    assert_eq!(
-        Name::from_str("   R E Q    -    f   o  o   ")
-            .unwrap()
-            .value,
-        ["REQ", "FOO"]
-    );
+    // spaces are invalid
+    assert!(Name::from_str("REQ-foo ").is_err());
 }
