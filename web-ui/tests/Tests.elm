@@ -30,7 +30,7 @@ artifact =
   }
 
 expectedEncoded = 
-  "{\"id\":10,\"revision\":0,\"name\":\"req-name\",\"path\":\"path\",\"text\":\"text\",\"partof\":[\"req-partof-1\"]}"
+  "{\"id\":10,\"revision\":0,\"name\":\"req-name\",\"path\":\"path\",\"text\":\"text\",\"partof\":[\"req-partof-1\"],\"done\":null}"
 
 artifactsJson =
   """

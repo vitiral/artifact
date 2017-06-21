@@ -4,8 +4,6 @@
 # This assumes you have the following installed:
 # - python2.7
 # - virtuanenv (with any python version) 
-# - npm
-# - rustup + cargo
 #
 # Python recommended command: `sudo pip install virtualenv`
 #
