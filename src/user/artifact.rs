@@ -175,7 +175,17 @@ fn from_table(name: &Name, path: &Path, tbl: &Table) -> Result<Artifact> {
         );
     }
     let done = match raw.done {
-        Some(s) => Done::Defined(s),
+        Some(s) => {
+            if s == "" {
+                return Err(
+                    ErrorKind::InvalidAttr(
+                        name.to_string(),
+                        "done cannot be an empty string.".to_string(),
+                    ).into(),
+                );
+            }
+            Done::Defined(s)
+        }
         None => Done::NotDone,
     };
 
