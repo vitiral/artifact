@@ -53,8 +53,8 @@ lint-rust:
 
 # lint python code
 lint-py:
-	@echo "pylint $PYTHON_STUFF"
-	@pylint $PYTHON_STUFF
+	@echo "pylint $PYTHON_CHECK"
+	@pylint $PYTHON_CHECK
 	
 # build and run selenium tests
 test-sel: 
@@ -70,17 +70,18 @@ test-sel-py:
 @test-all:
 	just lint
 	just test
-	just test-sel
+	just build
+	test "$(uname)" = "Darwin" && echo "TODO: selenium timeout issue on mac" || just test-sel-py
 	just check-fmt
 	art check
 
 # run all formatters in "check" mode to make sure code has been formatted
 check-fmt:
-	cargo fmt -- --write-mode=diff >& /dev/null
-	case "$(autopep8 $PYTHON_STUFF -r --diff)" in ("") true;; (*) false;; esac
-	case "$(docformatter $PYTHON_STUFF -r)" in ("") true;; (*) false;; esac
+	cargo fmt -- --write-mode=diff > /dev/null 2>&1
+	case "$(autopep8 $PYTHON_CHECK -r --diff)" in ("") true;; (*) false;; esac
+	case "$(docformatter $PYTHON_CHECK -r)" in ("") true;; (*) false;; esac
 	just web-ui/check-fmt
-	art fmt -d >& /dev/null
+	art fmt -d > /dev/null 2>&1
 
 
 ##################################################
@@ -108,8 +109,8 @@ fmt-rust:
 
 # run python formatters
 fmt-py:
-    autopep8 $PYTHON_STUFF -r --in-place
-    docformatter $PYTHON_STUFF -r --in-place
+    autopep8 $PYTHON_CHECK -r --in-place
+    docformatter $PYTHON_CHECK -r --in-place
 
 # publish to github and crates.io
 publish: 
@@ -140,9 +141,11 @@ publish-site: build-site
 
 # update all developer build/test/lint/etc tools
 update:
+	pip install -r scripts/requirements.txt
+	just web-ui/update
 	cargo install-update -i just
 	cargo install-update -i cargo-update
 	cargo install-update -i rustfmt-nightly:$RUSTFMT_VERSION
 	cargo install-update -i clippy:$RUSTCLIPPY_VERSION
-	pip install -r scripts/requirements.txt
-	npm install $NPM_PACKAGES --prefix $ENV_DIR
+
+test-test:

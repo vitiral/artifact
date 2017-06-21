@@ -2,9 +2,8 @@
 # https://github.com/japaric/trust/tree/v0.1.1
 
 dist: trusty
-language: rust
+language: generic
 services: docker
-sudo: required
 
 env:
   global:
@@ -41,18 +40,13 @@ matrix:
     #- env: TARGET=powerpc64le-unknown-linux-gnu
     #- env: TARGET=s390x-unknown-linux-gnu DISABLE_TESTS=1
 
-    ## Testing other channels
-    #- env: TARGET=x86_64-unknown-linux-gnu
-    #  rust: beta
-    #- env: TARGET=x86_64-apple-darwin
-    #  os: osx
-    #  rust: beta
-
 before_install: set -e
 
 install:
+  - source $PWD/env
+  - just update
   - sh ci/install.sh
-  - source ~/.cargo/env || true
+  #- source ~/.cargo/env || true
 
 script:
   - bash ci/script.sh
@@ -81,10 +75,13 @@ deploy:
   provider: releases
   skip_cleanup: true
 
-cache: cargo
 before_cache:
   # Travis can't cache files that are not readable by "others"
-  - chmod -R a+r $HOME/.cargo
+  - chmod -R a+r $ENV_DIR
+
+cache:
+    directories:
+    - $ENV_DIR
 
 branches:
   only:

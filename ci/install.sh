@@ -1,8 +1,8 @@
 set -ex
 
 main() {
-    curl https://sh.rustup.rs -sSf | \
-        sh -s -- -y --default-toolchain $TRAVIS_RUST_VERSION
+    #curl https://sh.rustup.rs -sSf | \
+    #    sh -s -- -y --default-toolchain $TRAVIS_RUST_VERSION
 
     local target=
     if [ $TRAVIS_OS_NAME = linux ]; then
@@ -25,10 +25,8 @@ main() {
            --force \
            --git japaric/cross \
            --tag $tag \
-           --target $target
-
-    # install personal stuff
-    #cargo install rustfmt --force --debug  # force+debug until --update
+           --target $target \
+           --to $RUST_BIN
 }
 
 main
