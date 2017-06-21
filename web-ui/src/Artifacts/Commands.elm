@@ -178,6 +178,12 @@ artifactEncoded artifact =
         partof =
             List.map (\p -> p.raw) edited.partof
 
+        done =
+            if edited.done == "" then
+                Encode.null
+            else
+                Encode.string edited.done
+
         attrs =
             [ ( "id", Encode.int artifact.id )
             , ( "revision", Encode.int artifact.revision )
@@ -185,6 +191,7 @@ artifactEncoded artifact =
             , ( "path", Encode.string edited.path )
             , ( "text", Encode.string edited.text )
             , ( "partof", Encode.list (List.map Encode.string partof) )
+            , ( "done", done )
             ]
     in
         Encode.object attrs

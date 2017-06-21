@@ -100,6 +100,14 @@ impl Artifact {
             let msg = "has both done and code defined".to_string();
             return Err(ErrorKind::InvalidArtifact(data.name.clone(), msg).into());
         } else if let Some(ref d) = data.done {
+            if d == "" {
+                return Err(
+                    ErrorKind::InvalidAttr(
+                        name.to_string(),
+                        "done cannot be an empty string.".to_string(),
+                    ).into(),
+                );
+            }
             Done::Defined(d.clone())
         } else if let Some(ref c) = data.code {
             Done::Code(Loc {
