@@ -32,7 +32,8 @@ class TestStuff(unittest.TestCase):
     def setUpClass(cls):
         cls.phantom = cmds.Phantom()
         cls.phantom.start()
-        cls.app = webapp.App(webdriver.PhantomJS())
+        driver = webdriver.PhantomJS(service_log_path=os.path.devnull)
+        cls.app = webapp.App(driver)
 
     @classmethod
     def tearDownClass(cls):

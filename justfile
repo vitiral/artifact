@@ -147,5 +147,3 @@ update:
 	cargo install-update -i cargo-update
 	cargo install-update -i rustfmt-nightly:$RUSTFMT_VERSION
 	cargo install-update -i clippy:$RUSTCLIPPY_VERSION
-
-test-test:
