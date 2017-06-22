@@ -39,6 +39,10 @@ build-static:
 
 # run all unit tests
 test TESTS="":
+	@just test-rust -- {{TESTS}}
+
+# test only the rust code
+test-rust TESTS="":
 	cargo test --lib --features server {{TESTS}}
 
 # run all lints

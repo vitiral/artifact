@@ -32,19 +32,38 @@ pub fn get_subcommand<'a, 'b>() -> App<'a, 'b> {
         .settings(&SUBCMD_SETTINGS)
         .arg(
             Arg::with_name("search")
+                .value_name("SEARCH")
                 .help(
-                    "Artifact names given in the brace pattern form \
-                   e.g. REQ-foo-[bar, baz-[1,2]] \
-                   OR regexp pattern if -p is given. Regular expressions use \
-                   the rust regular expression syntax \
-                   https://doc.rust-lang.org/regex/regex/index.html#syntax",
+                    "Artifacts to search for. By default this is the full artifact name \
+                    (i.e. REQ-foo-bar).\n\n\
+                    If `-p FIELDS` is passed, SEARCH is the regexp and FIELDS \
+                    are the fields to search.\n\
+                    - N/name: search the \"name\" field (artifact name)\n\
+                    - D/path: search the \"path\" field (see -D) \n\
+                    - P/parts: search the \"parts\" field (see -P)\n\
+                    - O/partof: search the \"partof\" field (see -O)\n\
+                    - L/loc: search the \"loc\" field (see -L)\n\
+                    - T/text: search the text field (see -T)\n\n\
+
+                    Fields can be listed by all caps, or comma-separated lowercase. \
+                    Both of these commands will list only artifacts with \"foobar\" \
+                    in the name or text fields of all artifacts.\n    \
+                    art ls foobar -p NT\n    \
+                    art ls foobar -p name,text\n\n\
+
+                    Regular expressions use the rust regular expression syntax, \
+                    which is almost identical to perl/python with a few minor differences\n\
+                    https://doc.rust-lang.org/regex/regex/index.html#syntax.\n\
+
+                    ",
                 )
                 .use_delimiter(false),
         )
         .arg(
             Arg::with_name("pattern")
                 .short("p")
-                .help("Search FIELDS using regexp SEARCH.")
+                .long("pattern")
+                .help("Filter FIELDS using SEARCH as a regexp. See SEARCH docs")
                 .value_name("FIELDS")
                 .takes_value(true)
                 .max_values(1)
@@ -53,12 +72,14 @@ pub fn get_subcommand<'a, 'b>() -> App<'a, 'b> {
         .arg(
             Arg::with_name("long")
                 .short("l")
+                .long("long")
                 .help("Print items in the 'long form'"),
         )
         .arg(
             Arg::with_name("completed")
                 .value_name("COMPLETED")
                 .short("c")
+                .long("completed")
                 .help(
                     "Filter by completeness (e.g. '<45'), < and > are inclusive. \
                    < is a shortcut for 0%, and > is a shortcut for 100%",
@@ -72,32 +93,35 @@ pub fn get_subcommand<'a, 'b>() -> App<'a, 'b> {
                 .help("Filter by testedness in percent. See '-c'")
                 .takes_value(true),
         )
-        .arg(Arg::with_name("all").short("A").help(
-            "If set, additional flags will be *deactivated* instead of activated",
+        .arg(Arg::with_name("all").short("A").long("all").help(
+            "\"all\" fields. If set, additional flags will *deactivate* fields",
         ))
         .arg(
             Arg::with_name("path")
                 .short("D")
-                .help("Display the path where the artifact is defined"),
+                .long("path")
+                .help("\"path\" field: file the artifact is defined"),
         )
         .arg(
             Arg::with_name("parts")
                 .short("P")
-                .help("Display the parts of the artifact"),
+                .long("parts")
+                .help("\"parts\" field: artifacts that specify this one"),
         )
         .arg(
             Arg::with_name("partof")
                 .short("O")
-                .help("Display the artifacts which this artifact is a partof"),
+                .long("partof")
+                .help("\"partof\" field: artifacts that this artifact specifies"),
         )
         .arg(
             Arg::with_name("loc")
                 .short("L")
-                .help("Display location name"),
+                .long("loc")
+                .help("\"location\" field: code implementation file and line"),
         )
-        .arg(Arg::with_name("text").short("T").help(
-            "Display the first line text description of this artifact. \
-                   Print the full description with -l, otherwise the first line.",
+        .arg(Arg::with_name("text").short("T").long("text").help(
+            "Display \"text\" field: use -l to display full text, otherwise just first line.",
         ))
         .arg(
             Arg::with_name("plain")
