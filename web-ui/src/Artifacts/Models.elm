@@ -6,11 +6,6 @@ import Regex
 import JsonRpc exposing (RpcError)
 
 
-spacePat : Regex.Regex
-spacePat =
-    Regex.regex " "
-
-
 artifactValidRaw : String
 artifactValidRaw =
     "(REQ|SPC|RSK|TST)(-[A-Z0-9_-]*[A-Z0-9_])?"
@@ -148,11 +143,7 @@ artifactNameUrl name =
 
 indexNameUnchecked : String -> String
 indexNameUnchecked name =
-    let
-        replaced =
-            Regex.replace Regex.All spacePat (\_ -> "") name
-    in
-        String.toUpper replaced
+    String.toUpper name
 
 
 
