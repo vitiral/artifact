@@ -27,7 +27,7 @@ impl FmtSettings {
 #[derive(Debug, Default)]
 pub struct FmtArtifact {
     pub long: bool,
-    pub path: Option<PathBuf>,
+    pub def: Option<PathBuf>,
     pub parts: Option<Vec<FmtArtifact>>,
     pub partof: Option<Vec<FmtArtifact>>,
     pub done: Option<String>,
@@ -58,7 +58,7 @@ impl Default for PercentSearch {
 pub struct SearchSettings {
     pub use_regex: bool,
     pub name: bool,
-    pub path: bool,
+    pub def: bool,
     pub parts: bool,
     pub partof: bool,
     pub loc: bool,

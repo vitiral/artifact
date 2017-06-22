@@ -10,7 +10,7 @@ use ui::types::*;
 lazy_static!{
     pub static ref VALID_SEARCH_FIELDS: HashSet<String> = HashSet::from_iter(
         ["N", "D", "P", "O", "L", "R", "T", "A",
-        "name", "path", "parts", "partof", "loc", "recurse", "text", "all"]
+        "name", "def", "parts", "partof", "loc", "recurse", "text", "all"]
         .iter().map(|s| s.to_string()));
 }
 
@@ -48,7 +48,7 @@ impl FromStr for SearchSettings {
         let mut set = SearchSettings {
             use_regex: true,
             name: pc("N") || pc("name"),
-            path: pc("D") || pc("path"),
+            def: pc("D") || pc("def"),
             parts: pc("P") || pc("parts"),
             partof: pc("O") || pc("partof"),
             loc: pc("L") || pc("loc"),
@@ -57,7 +57,7 @@ impl FromStr for SearchSettings {
         };
         if pc("A") || pc("all") {
             set.name = !set.name;
-            set.path = !set.path;
+            set.def = !set.def;
             set.parts = !set.parts;
             set.partof = !set.partof;
             set.loc = !set.loc;
@@ -122,7 +122,7 @@ fn test_search_settings() {
             ..SearchSettings::default()
         }
     );
-    assert_eq!(fs("NDPL"), fs("name, path, parts, loc"));
+    assert_eq!(fs("NDPL"), fs("name, def, parts, loc"));
 
     // build it up one at a time
     {
@@ -132,7 +132,7 @@ fn test_search_settings() {
         assert_eq!(set, fs("N"));
         set.parts = true;
         assert_eq!(set, fs("NP"));
-        set.path = true;
+        set.def = true;
         assert_eq!(set, fs("NPD"));
         set.partof = true;
         assert_eq!(set, fs("NPDO"));

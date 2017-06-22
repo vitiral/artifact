@@ -230,7 +230,7 @@ fn get_project() -> Project {
     let mut artifacts = test_data::load_toml_simple(ARTIFACT_TEXT);
     let reqs_path = PathBuf::from("reqs/foo.toml");
     for (n, a) in artifacts.iter_mut() {
-        a.path = reqs_path.clone();
+        a.def = reqs_path.clone();
         if n.as_ref() == &Name::from_str("spc-foo").unwrap() {
             a.done = Done::Code(Loc::fake());
         }

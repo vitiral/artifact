@@ -206,10 +206,10 @@ impl FmtArtifact {
         }
 
         // format where the artifact is defined
-        if let Some(ref path) = self.path {
+        if let Some(ref def) = self.def {
             self.write_start(w, "\n * defined-at: ", color);
-            let path = utils::relative_path(path.as_path(), cwd);
-            try!(write!(w, "{}", path.display()));
+            let def = utils::relative_path(def.as_path(), cwd);
+            try!(write!(w, "{}", def.display()));
         }
 
         // format the text
@@ -241,13 +241,7 @@ impl FmtArtifact {
     /// return whether this object is only the name
     /// if it is, it is formatted differently
     fn name_only(&self) -> bool {
-        match (
-            &self.path,
-            &self.parts,
-            &self.partof,
-            &self.done,
-            &self.text,
-        ) {
+        match (&self.def, &self.parts, &self.partof, &self.done, &self.text) {
             (&None, &None, &None, &None, &None) => true,
             _ => false,
         }

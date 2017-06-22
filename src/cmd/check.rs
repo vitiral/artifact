@@ -67,7 +67,7 @@ fn display_invalid_partof<W: Write>(w: &mut W, cwd: &Path, project: &Project, cm
                 msg,
                 "    {} [{}]: {:?}\n",
                 name,
-                utils::relative_path(&artifact.path, cwd).display(),
+                utils::relative_path(&artifact.def, cwd).display(),
                 invalid_partof
             ).unwrap();
             paint_it(w, &msg, cmd);
@@ -235,7 +235,7 @@ fn display_hanging_artifacts<W: Write>(w: &mut W, cwd: &Path, project: &Project,
                 _ => unreachable!(),
             }
         {
-            hanging.push((name.clone(), &artifact.path));
+            hanging.push((name.clone(), &artifact.def));
         }
     }
     hanging.sort_by(|a, b| a.1.cmp(b.1));
@@ -299,7 +299,7 @@ fn display_hanging_references<W: Write>(
                 &format!(
                     "    {} ({}):\n",
                     name,
-                    utils::relative_path(&artifact.path, cwd).display()
+                    utils::relative_path(&artifact.def, cwd).display()
                 ),
                 cmd,
             );

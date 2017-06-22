@@ -75,16 +75,16 @@ testedPerc artifact =
 
 
 
--- TODO: add editing of path
+-- TODO: add editing of def
 
 
 defined : Model -> Artifact -> Html AppMsg
 defined model artifact =
     div
-        [ getId "path" artifact Nothing
+        [ getId "def" artifact Nothing
         ]
         [ span [ class "bold" ] [ text "Defined at: " ]
-        , text artifact.path
+        , text artifact.def
         ]
 
 

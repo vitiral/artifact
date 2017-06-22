@@ -18,7 +18,7 @@ artifact =
   { id = 10
   , revision = 0
   , name = { value = "REQ-NAME", raw = "req-name" }
-  , path = "path"
+  , def = "path"
   , text = "text"
   , partof = [ {value = "REQ-PARTOF-1", raw = "req-partof-1"} ]
   , parts = [ {value = "REQ-PART-1", raw = "req-part-1"} ]
@@ -30,7 +30,7 @@ artifact =
   }
 
 expectedEncoded = 
-  "{\"id\":10,\"revision\":0,\"name\":\"req-name\",\"path\":\"path\",\"text\":\"text\",\"partof\":[\"req-partof-1\"],\"done\":null}"
+  "{\"id\":10,\"revision\":0,\"name\":\"req-name\",\"def\":\"path\",\"text\":\"text\",\"partof\":[\"req-partof-1\"],\"done\":null}"
 
 artifactsJson =
   """
@@ -38,7 +38,7 @@ artifactsJson =
     { "id": 10
     , "revision": 0
     , "name":"req-name"
-    , "path":"path"
+    , "def":"path"
     , "text": "text"
     , "partof": ["req-partof-1"]
     , "parts": ["req-part-1"]

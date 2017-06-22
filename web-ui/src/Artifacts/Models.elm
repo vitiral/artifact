@@ -65,7 +65,7 @@ type alias Artifact =
     { id : ArtifactId
     , revision : Int
     , name : Name
-    , path : String
+    , def : String
     , text : String
     , partof : List Name
     , parts : List Name
@@ -83,7 +83,7 @@ type alias Artifact =
 
 type alias EditableArtifact =
     { name : String
-    , path : String
+    , def : String
     , text : String
     , partof : List Name
     , done : String
@@ -108,7 +108,7 @@ getEditable artifact =
 createEditable : Artifact -> EditableArtifact
 createEditable artifact =
     { name = artifact.name.raw
-    , path = artifact.path
+    , def = artifact.def
     , text = artifact.text
     , partof = artifact.partof
     , done =
@@ -203,7 +203,7 @@ type alias Columns =
     { parts : Bool
     , partof : Bool
     , text : Bool
-    , path : Bool
+    , def : Bool
     , loc : Bool
     }
 
@@ -213,7 +213,7 @@ initialColumns =
     { parts = True
     , partof = False
     , text = True
-    , path = False
+    , def = False
     , loc = False
     }
 

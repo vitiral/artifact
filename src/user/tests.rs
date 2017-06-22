@@ -150,7 +150,7 @@ fn test_load_repo() {
 fn remove_parents(project: &mut Project) {
     let names: Vec<_> = project.artifacts.keys().cloned().collect();
     for n in &names {
-        if project.artifacts.get(n).unwrap().path == PARENT_PATH.as_path() {
+        if project.artifacts.get(n).unwrap().def == PARENT_DEF.as_path() {
             project.artifacts.remove(n).unwrap();
         }
     }

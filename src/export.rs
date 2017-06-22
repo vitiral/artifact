@@ -16,7 +16,7 @@ pub struct ArtifactData {
     pub id: u64,
     pub revision: u64,
     pub name: String,
-    pub path: String,
+    pub def: String,
     pub text: String,
     pub partof: Vec<String>,
 
@@ -65,9 +65,9 @@ impl Artifact {
         partof.sort();
         parts.sort();
         let path = if self.is_parent() {
-            self.path.to_string_lossy().to_string()
+            self.def.to_string_lossy().to_string()
         } else {
-            self.path
+            self.def
                 .strip_prefix(origin)
                 .expect("origin invalid")
                 .to_string_lossy()
@@ -77,7 +77,7 @@ impl Artifact {
             id: self.id,
             revision: self.revision,
             name: name.raw.clone(),
-            path: path,
+            def: path,
             text: self.text.clone(),
             partof: partof,
             parts: parts,
@@ -118,17 +118,17 @@ impl Artifact {
             Done::NotDone
         };
 
-        let path = if Path::new(&data.path) == PARENT_PATH.as_path() {
-            PARENT_PATH.clone()
+        let path = if Path::new(&data.def) == PARENT_DEF.as_path() {
+            PARENT_DEF.clone()
         } else {
-            repo.join(&data.path)
+            repo.join(&data.def)
         };
         Ok((
             name,
             Artifact {
                 id: data.id,
                 revision: data.revision,
-                path: path,
+                def: path,
                 text: data.text.clone(),
                 partof: partof,
                 done: done,
@@ -165,7 +165,7 @@ fn test_serde() {
         id: 10,
         revision: 0,
         name: "name".to_string(),
-        path: "path".to_string(),
+        def: "path".to_string(),
         text: "text".to_string(),
         partof: Vec::from_iter(vec!["partof-1".to_string()]),
         parts: Vec::from_iter(vec!["part-1".to_string()]),

@@ -42,7 +42,7 @@ nav artifacts =
 -- SELECT COL
 -- select which attrs to view
 --
--- ids: select_col_{arts, partof, text, def-at, done}
+-- ids: select_col_{arts, partof, text, def, done}
 
 
 select : Model -> Html AppMsg
@@ -56,7 +56,7 @@ select model =
             , selectColBtn "parts" cols.parts (\s -> { cols | parts = s })
             , selectColBtn "partof" cols.partof (\s -> { cols | partof = s })
             , selectColBtn "text" cols.text (\s -> { cols | text = s })
-            , selectColBtn "def-at" cols.path (\s -> { cols | path = s })
+            , selectColBtn "def" cols.def (\s -> { cols | def = s })
             , selectColBtn "done" cols.loc (\s -> { cols | loc = s })
             ]
 
@@ -239,8 +239,8 @@ list model =
                     else
                         []
                    )
-                ++ (if columns.path then
-                        [ th [ cls, w2, id "th_path" ] [ text "Def-At" ] ]
+                ++ (if columns.def then
+                        [ th [ cls, w2, id "th_def" ] [ text "Def-At" ] ]
                     else
                         []
                    )
@@ -293,8 +293,8 @@ artifactRow model artifact =
                     else
                         []
                    )
-                ++ (if columns.path then
-                        [ td [ s, cls, w2 ] [ text artifact.path ] ]
+                ++ (if columns.def then
+                        [ td [ s, cls, w2 ] [ text artifact.def ] ]
                     else
                         []
                    )

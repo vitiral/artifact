@@ -41,7 +41,7 @@ pub fn relative_path(path: &Path, relative_to_dir: &Path) -> PathBuf {
     let mut relative = PathBuf::new();
     let mut remaining = PathBuf::new();
     let mut still_alike = true;
-    if path == PARENT_PATH.as_path() {
+    if path == PARENT_DEF.as_path() {
         return path.to_path_buf();
     }
     for zipped in path.components().zip_longest(relative_to_dir.components()) {

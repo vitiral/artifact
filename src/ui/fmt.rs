@@ -30,7 +30,7 @@ pub fn fmt_artifact(
     let mut out = FmtArtifact::default();
     out.long = fmtset.long;
     if fmtset.path {
-        out.path = Some(artifact.path.clone());
+        out.def = Some(artifact.def.clone());
     }
     if fmtset.parts {
         let mut parts: Vec<FmtArtifact> = Vec::new();

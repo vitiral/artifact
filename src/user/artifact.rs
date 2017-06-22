@@ -115,7 +115,7 @@ pub fn load_toml(path: &Path, text: &str, project: &mut Project) -> Result<u64> 
             let msg = format!(
                 "Overlapping key found <{}> other key at: {}",
                 name,
-                overlap.path.display()
+                overlap.def.display()
             );
             return Err(ErrorKind::Load(msg).into());
         }
@@ -192,7 +192,7 @@ fn from_table(name: &Name, path: &Path, tbl: &Table) -> Result<Artifact> {
     Ok(Artifact {
         id: unique_id(),
         revision: 0,
-        path: path.to_path_buf(),
+        def: path.to_path_buf(),
         text: raw.text.unwrap_or_default(),
         partof: Names::from_str(&raw.partof.unwrap_or_default())?,
         done: done,
@@ -295,7 +295,7 @@ mod tests {
             let rsk_foo = Name::from_str("RSK-foo").unwrap();
             let art = p.artifacts.get(&rsk_foo).unwrap();
             assert_eq!(rsk_foo.ty, Type::RSK);
-            assert_eq!(art.path, path);
+            assert_eq!(art.def, path);
             assert_eq!(art.text, "");
             let expected: Names = HashSet::new();
             assert_eq!(art.partof, expected);
@@ -307,7 +307,7 @@ mod tests {
             let spc_bar = Name::from_str("SPC-bar").unwrap();
             let art = p.artifacts.get(&spc_bar).unwrap();
             assert_eq!(spc_bar.ty, Type::SPC);
-            assert_eq!(art.path, path);
+            assert_eq!(art.def, path);
             assert_eq!(art.text, "bar");
 
             let expected = ["REQ-Foo", "REQ-Bar-1", "REQ-Bar-2"]

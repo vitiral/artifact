@@ -13,7 +13,7 @@ impl Project {
             "path",
             &self.artifacts,
             &other.artifacts,
-            &|a: &Artifact| &a.path,
+            &|a: &Artifact| &a.def,
         )?;
         attr_equal(
             "text",

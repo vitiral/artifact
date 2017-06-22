@@ -49,10 +49,10 @@ fn test_split() {
 
     // changing the path to a valid place is OK
     {
-        let original = changed_data.path;
+        let original = changed_data.def;
 
         let new_path = design.join("lvl_1/req.toml").to_string_lossy().to_string();
-        changed_data.path = new_path.clone();
+        changed_data.def = new_path.clone();
 
         let new_artifacts = vec![changed_data.clone()];
         let (_, save_artifacts) =
@@ -62,22 +62,22 @@ fn test_split() {
             &req_purpose,
         );
         assert_eq!(
-            Path::new(&new_data.path),
+            Path::new(&new_data.def),
             Path::new(&new_path)
                 .strip_prefix(&simple.as_path())
                 .unwrap()
         );
 
-        changed_data.path = original;
+        changed_data.def = original;
     }
 
     // changing path to new path NOT ok
     {
-        let original = changed_data.path;
-        changed_data.path = design.join("dne.toml").to_string_lossy().to_string();
+        let original = changed_data.def;
+        changed_data.def = design.join("dne.toml").to_string_lossy().to_string();
         let new_artifacts = vec![changed_data.clone()];
         assert!(utils::split_artifacts(&p, &data_artifacts, &new_artifacts, false).is_err());
-        changed_data.path = original;
+        changed_data.def = original;
     }
 
     // having unmatching id NOT ok
@@ -137,12 +137,12 @@ fn test_update() {
 
     // changing path to new path NOT ok
     {
-        let original = changed_data.path;
-        changed_data.path = design.join("dne.toml").to_string_lossy().to_string();
+        let original = changed_data.def;
+        changed_data.def = design.join("dne.toml").to_string_lossy().to_string();
         let new_artifacts = vec![changed_data.clone()];
 
         assert!(crud::update_project(&data_artifacts, &p, &new_artifacts, false).is_err());
-        changed_data.path = original;
+        changed_data.def = original;
     }
 
 }

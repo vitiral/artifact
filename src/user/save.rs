@@ -32,7 +32,7 @@ pub enum PathDiff {
 impl Default for ProjectText {
     fn default() -> ProjectText {
         ProjectText {
-            origin: PARENT_PATH.to_path_buf(),
+            origin: PARENT_DEF.to_path_buf(),
             files: HashMap::default(),
         }
     }
@@ -47,14 +47,14 @@ impl ProjectText {
         // TODO: how to make the equivalent of a yielding function,
         // to not copy/paste the path filtering code.
         for (name, artifact) in &project.artifacts {
-            if artifact.path == PARENT_PATH.as_path() {
+            if artifact.def == PARENT_DEF.as_path() {
                 continue; // auto-create artifacts that are not actually written
             }
             // insert artifact into a table
-            if !files.contains_key(&artifact.path) {
-                files.insert(artifact.path.clone(), Table::new());
+            if !files.contains_key(&artifact.def) {
+                files.insert(artifact.def.clone(), Table::new());
             }
-            let tbl = files.get_mut(&artifact.path).unwrap();
+            let tbl = files.get_mut(&artifact.def).unwrap();
 
             let partof = {
                 let mut auto_partof = name.named_partofs();

@@ -1,3 +1,5 @@
+@make:
+	elm make src/Main-Static.elm
 
 @build-server:
 	npm run build

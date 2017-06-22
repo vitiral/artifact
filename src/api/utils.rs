@@ -110,7 +110,7 @@ pub fn split_artifacts(
     let mut name_overlap: Vec<String> = Vec::new();
 
     for new_artifact in new_artifacts {
-        let path = project.origin.join(&new_artifact.path);
+        let path = project.origin.join(&new_artifact.def);
         if !project.files.contains(&path) {
             files_not_found.push(path);
         }

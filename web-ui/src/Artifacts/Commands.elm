@@ -188,7 +188,7 @@ artifactEncoded artifact =
             [ ( "id", Encode.int artifact.id )
             , ( "revision", Encode.int artifact.revision )
             , ( "name", Encode.string edited.name )
-            , ( "path", Encode.string edited.path )
+            , ( "def", Encode.string edited.def )
             , ( "text", Encode.string edited.text )
             , ( "partof", Encode.list (List.map Encode.string partof) )
             , ( "done", done )
@@ -254,7 +254,7 @@ artifactDecoder =
         |> required "id" Decode.int
         |> required "revision" Decode.int
         |> required "name" nameDecoder
-        |> required "path" Decode.string
+        |> required "def" Decode.string
         |> required "text" Decode.string
         |> required "partof" (Decode.list nameDecoder)
         |> required "parts" (Decode.list nameDecoder)

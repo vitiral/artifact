@@ -14,7 +14,7 @@ lazy_static!{
     // cannot end with "-"
     pub static ref NAME_VALID: Regex = Regex::new(
         &format!("^{}$", NAME_VALID_STR)).unwrap();
-    pub static ref PARENT_PATH: PathBuf = PathBuf::from("PARENT");
+    pub static ref PARENT_DEF: PathBuf = PathBuf::from("PARENT");
     pub static ref REPO_DIR: PathBuf = PathBuf::from(".art");
     pub static ref SETTINGS_PATH: PathBuf = REPO_DIR.join("settings.toml");
 }
@@ -156,7 +156,7 @@ impl Default for Project {
             files: HashSet::default(),
             dne_locs: HashMap::default(),
 
-            origin: PARENT_PATH.to_path_buf(),
+            origin: PARENT_DEF.to_path_buf(),
             repo_map: HashMap::default(),
         }
     }
@@ -253,15 +253,15 @@ pub struct Artifact {
     /// revision id for edit functionality
     pub revision: u64,
     /// path of definition (.toml file)
-    pub path: PathBuf,
+    pub def: PathBuf,
     /// `text` attr
     pub text: String,
-    /// explicit and processed `partof` attribute
+    /// explicit and calculated `partof` attribute
     pub partof: Names,
-    /// `done` attribute
-    pub done: Done,
     /// parts is inverse of partof (calculated)
     pub parts: Names,
+    /// `done` attribute, allows user to "define as done"
+    pub done: Done,
     /// completed ratio (calculated)
     pub completed: f32,
     /// tested ratio (calculated)
@@ -271,7 +271,7 @@ pub struct Artifact {
 impl Artifact {
     /// artifact was automatically created as a parent
     pub fn is_parent(&self) -> bool {
-        self.path == PARENT_PATH.as_path()
+        self.def == PARENT_DEF.as_path()
     }
 }
 

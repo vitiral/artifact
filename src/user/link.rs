@@ -59,7 +59,7 @@ pub fn create_parents(artifacts: &mut Artifacts) {
         let art = Artifact {
             id: unique_id(),
             revision: 0,
-            path: PARENT_PATH.clone(),
+            def: PARENT_DEF.clone(),
             text: "AUTO".to_string(),
             partof: HashSet::new(),
             parts: HashSet::new(),
@@ -118,7 +118,7 @@ pub fn validate_done(artifacts: &Artifacts) -> Result<()> {
                 error!(
                     "{} was defined as done at {}. {}",
                     name,
-                    artifact.path.display(),
+                    artifact.def.display(),
                     valid_for
                 );
                 error = true;
@@ -149,7 +149,7 @@ pub fn validate_partof(artifacts: &Artifacts) -> Result<()> {
                 (_, _) => {
                     error!(
                         "[{:?}:{}]: {:?} can not be a partof {:?}",
-                        artifact.path,
+                        artifact.def,
                         name,
                         p_type,
                         n_type
@@ -177,7 +177,7 @@ pub fn link_parts(artifacts: &mut Artifacts) -> u64 {
             if !artifacts.contains_key(partof) {
                 debug!(
                     "[{:?}] {} has invalid partof = {}",
-                    artifact.path,
+                    artifact.def,
                     name,
                     partof
                 );
