@@ -6,7 +6,7 @@ use types::*;
 pub struct FmtSettings {
     pub long: bool,
     pub recurse: u8,
-    pub path: bool,
+    pub def: bool,
     pub parts: bool,
     pub partof: bool,
     pub loc_path: bool,
@@ -16,7 +16,7 @@ pub struct FmtSettings {
 
 impl FmtSettings {
     pub fn is_empty(&self) -> bool {
-        !self.long && !self.path && !self.parts && !self.partof && !self.loc_path && !self.text
+        !self.long && !self.def && !self.parts && !self.partof && !self.loc_path && !self.text
     }
 }
 

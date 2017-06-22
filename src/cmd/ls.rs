@@ -39,7 +39,7 @@ pub fn get_subcommand<'a, 'b>() -> App<'a, 'b> {
                     If `-p FIELDS` is passed, SEARCH is the regexp and FIELDS \
                     are the fields to search.\n\
                     - N/name: search the \"name\" field (artifact name)\n\
-                    - D/path: search the \"path\" field (see -D) \n\
+                    - D/def: search the \"def\" field (see -D) \n\
                     - P/parts: search the \"parts\" field (see -P)\n\
                     - O/partof: search the \"partof\" field (see -O)\n\
                     - L/loc: search the \"loc\" field (see -L)\n\
@@ -97,10 +97,10 @@ pub fn get_subcommand<'a, 'b>() -> App<'a, 'b> {
             "\"all\" fields. If set, additional flags will *deactivate* fields",
         ))
         .arg(
-            Arg::with_name("path")
+            Arg::with_name("def")
                 .short("D")
-                .long("path")
-                .help("\"path\" field: file the artifact is defined"),
+                .long("def")
+                .help("\"def\" field: file the artifact is defined"),
         )
         .arg(
             Arg::with_name("parts")
@@ -301,7 +301,7 @@ pub fn get_cmd(matches: &ArgMatches) -> Result<Cmd> {
     let mut fmt_set = FmtSettings::default();
     fmt_set.long = matches.is_present("long");
     // fmt_set.recurse = matches.value_of("recursive").unwrap().parse::<u8>().unwrap();
-    fmt_set.path = matches.is_present("path");
+    fmt_set.def = matches.is_present("def");
     fmt_set.parts = matches.is_present("parts");
     fmt_set.partof = matches.is_present("partof");
     fmt_set.loc_path = matches.is_present("loc");
@@ -310,17 +310,17 @@ pub fn get_cmd(matches: &ArgMatches) -> Result<Cmd> {
     // #SPC-cmd-ls-display
     if matches.is_present("all") {
         // reverse everything
-        fmt_set.path = !fmt_set.path;
+        fmt_set.def = !fmt_set.def;
         fmt_set.parts = !fmt_set.parts;
         fmt_set.partof = !fmt_set.partof;
         fmt_set.loc_path = !fmt_set.loc_path;
         fmt_set.text = !fmt_set.text;
     } else if fmt_set.long &&
-               !(fmt_set.path || fmt_set.parts || fmt_set.partof || fmt_set.loc_path ||
+               !(fmt_set.def || fmt_set.parts || fmt_set.partof || fmt_set.loc_path ||
                      fmt_set.text)
     {
         // if long is specified but no other display attributes are specified
-        fmt_set.path = true;
+        fmt_set.def = true;
         fmt_set.parts = true;
         fmt_set.partof = true;
         fmt_set.loc_path = true;

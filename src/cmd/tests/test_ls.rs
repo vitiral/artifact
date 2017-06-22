@@ -356,7 +356,7 @@ fn test_cmd_ls() {
     cmd.pattern = "s.c.*foo".to_string();
     cmd.fmt_settings.long = false;
     cmd.fmt_settings.color = COLOR_IF_POSSIBLE;
-    cmd.fmt_settings.path = true;
+    cmd.fmt_settings.def = true;
     cmd.fmt_settings.parts = true;
     cmd.fmt_settings.partof = true;
     cmd.fmt_settings.loc_path = true;

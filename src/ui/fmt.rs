@@ -29,7 +29,7 @@ pub fn fmt_artifact(
     let artifact = artifacts.get(name).unwrap();
     let mut out = FmtArtifact::default();
     out.long = fmtset.long;
-    if fmtset.path {
+    if fmtset.def {
         out.def = Some(artifact.def.clone());
     }
     if fmtset.parts {

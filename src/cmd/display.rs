@@ -260,7 +260,7 @@ pub fn write_table_header<W: io::Write>(w: &mut W, fmt_set: &FmtSettings) {
     if fmt_set.loc_path {
         header.write_str("\t| IMPLEMENTED   ").unwrap();
     }
-    if fmt_set.path {
+    if fmt_set.def {
         header.write_str("\t| DEFINED   ").unwrap();
     }
     if fmt_set.text {
