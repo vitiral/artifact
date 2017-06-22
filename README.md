@@ -91,8 +91,9 @@ A quick source code overview:
 ## Licensing
 All documentation and tutorials for the artifact application are released under
 the CC0 Creative Commons Public Domain License with the intent that you should
-feel free to copy, paste and modify any of the designs, guides or examples
-for any purpose without the need of attribution. You can read more about CC0 here:
+feel free to copy, paste and modify any of the designs, guides examples or
+exported data for any purpose (including commercial) without the need of
+attribution. You can read more about CC0 here:
 https://creativecommons.org/publicdomain/
 
 The CC0 license applies to:
@@ -101,16 +102,16 @@ The CC0 license applies to:
     (also located in `design/`)
 - The Artifact Documentation (located in `docs/`) except the logo in `docs/logo`
 - The [Artifact Wiki](https://github.com/vitiral/artifact/wiki)
-- Any documents created by `art init` (in `src/cmd/data`)
-- Any documents created by `art tutorial` (n `src/cmd/data`)
+- Any file or data created by any artifact command, including:
+    - documents created by `art init`
+    - documents created by `art tutorial`
+    - compiled html/css/json files created by `art export`
 
 The artifact logo (named Tula) is licensed under Creative Commons
 Attribution-ShareAlike (CC BY-SA) and can be used by the artifact project for
 any purpose without needing additional attribution. The artifact logo is located
 in `docs/logo` and was originally created by @packapotatoes
 
-The artifact library and Web UI (located in `src/` and `web-ui/src`) are
-licensed under the LGPLv3+, except for files which say otherwise in their
-header or folders containing a different LICENSE.txt. See LICENSE.txt for more
-information.
-
+The artifact source code (located in `src/` and `web-ui/src`) are licensed under
+the LGPLv3+, except for files which say otherwise in their header or folders
+containing a different LICENSE.txt. See LICENSE.txt for more information.
