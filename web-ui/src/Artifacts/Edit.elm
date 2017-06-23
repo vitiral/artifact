@@ -14,20 +14,18 @@ import Artifacts.View as View
 import Utils exposing (isJust)
 
 
--- regex to search for and replace [[ART-name]]
-
-
+{-| regex to search for and replace [[ART-name]]
+-}
 artifactLinkRegex : Regex.Regex
 artifactLinkRegex =
     Regex.caseInsensitive <| Regex.regex <| "\\[\\[(" ++ artifactValidRaw ++ ")\\]\\]"
 
 
+{-| the entire view
 
--- the entire view
---
--- ids: unedited_head
+ids: unedited_head
 
-
+-}
 view : Model -> Artifact -> Html AppMsg
 view model artifact =
     let
@@ -79,10 +77,8 @@ form model artifact edited =
         ]
 
 
-
--- attributes column (non-text)
-
-
+{-| attributes column (non-text)
+-}
 formColumnOne : Model -> Artifact -> Html AppMsg
 formColumnOne model artifact =
     div [ class "col col-6" ]
@@ -102,10 +98,8 @@ formColumnOne model artifact =
         ]
 
 
-
--- Text column
-
-
+{-| Text column
+-}
 formColumnTwo : Model -> Artifact -> Maybe EditableArtifact -> Html AppMsg
 formColumnTwo model artifact edited =
     div [ class "col col-6" ]
@@ -116,9 +110,9 @@ formColumnTwo model artifact edited =
 
 
 
--- select which text view to see (raw or rendered)
---
--- ids = {ed_, rd_}_text_{raw, rendered}
+{- select which text view to see (raw or rendered)
+   ids = {ed_, rd_}_text_{raw, rendered}
+-}
 
 
 selectRenderedBtns : Model -> Bool -> Html AppMsg
@@ -209,12 +203,11 @@ displayRenderedText model artifact edited =
         toHtml [ id ] rendered
 
 
+{-| display raw text in a way that can be edited
 
--- display raw text in a way that can be edited
---
--- ids: {rd, ed}_text_(artifact.name.value)
+ids: {rd, ed}*text*(artifact.name.value)
 
-
+-}
 displayRawText : Model -> Artifact -> Maybe EditableArtifact -> Html AppMsg
 displayRawText model artifact edited =
     let
@@ -261,11 +254,13 @@ displayRawText model artifact edited =
 
 
 -- BUTTONS
--- navigate back to the list page
---
--- ids: list
 
 
+{-| navigate back to the list page
+
+ids: list
+
+-}
 listBtn : Html AppMsg
 listBtn =
     button
@@ -276,12 +271,11 @@ listBtn =
         [ i [ class "fa fa-chevron-left mr1" ] [], text "List" ]
 
 
+{-| start/stop editing
 
--- start/stop editing
---
--- ids: edit/cancel_edit
+ids: edit/cancel_edit
 
-
+-}
 editBtn : Artifact -> Bool -> Html AppMsg
 editBtn artifact in_progress =
     button
@@ -306,12 +300,11 @@ editBtn artifact in_progress =
         ]
 
 
+{-| save the current edit state. This button does not always exist.
 
--- save the current edit state. This button does not always exist.
---
--- ids: save
+ids: save
 
-
+-}
 saveBtn : Artifact -> Html AppMsg
 saveBtn artifact =
     button
@@ -326,9 +319,10 @@ saveBtn artifact =
 
 
 -- HELPERS
--- get the full url to a single artifact
 
 
+{-| get the full url to a single artifact
+-}
 fullArtifactUrl : Model -> String -> String
 fullArtifactUrl model indexName =
     let
@@ -357,10 +351,8 @@ removeSlashEnd path =
         path
 
 
-
--- replace [[ART-name]] with [ART-name](link)
-
-
+{-| replace [[ART-name]] with [ART-name](link)
+-}
 replaceArtifactLinks : Model -> String -> String
 replaceArtifactLinks model text =
     let

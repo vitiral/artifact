@@ -1,6 +1,7 @@
 module JsonRpc exposing (..)
 
--- module for defining JSON RPC related models
+{-| module for defining JSON RPC related models
+-}
 
 
 type alias RpcError =

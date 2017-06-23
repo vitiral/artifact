@@ -59,9 +59,10 @@ endpoint =
 
 
 -- COMMANDS
--- fetch artifacts
 
 
+{-| fetch artifacts
+-}
 fetchAll : Model -> Cmd AppMsg
 fetchAll model =
     let
@@ -199,10 +200,11 @@ artifactEncoded artifact =
 
 
 -- DECODERS
--- WARNING: just returns nothing if json is invalid
--- must be used with trusted input only
 
 
+{-| WARNING: just returns nothing if json is invalid
+must be used with trusted input only
+-}
 artifactsFromStrUnsafe : String -> Artifacts
 artifactsFromStrUnsafe json =
     let
@@ -217,10 +219,8 @@ artifactsFromStrUnsafe json =
         artifactsFromList artifacts
 
 
-
--- Generic RPC Error
-
-
+{-| Generic RPC Error
+-}
 errorDecoder : Decode.Decoder RpcError
 errorDecoder =
     Decode.map2 RpcError

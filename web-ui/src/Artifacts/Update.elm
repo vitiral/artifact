@@ -114,19 +114,15 @@ update msg model =
                     ( logInvalidId model "save" id, Cmd.none )
 
 
-
--- set the edited variable on the requested artifact
-
-
+{-| set the edited variable on the requested artifact
+-}
 setEdited : Artifacts -> Artifact -> Maybe EditableArtifact -> Artifacts
 setEdited artifacts art edited =
     Dict.insert art.id { art | edited = edited } artifacts
 
 
-
--- we need to make sure we keep any edited data that has not been applied but
-
-
+{-| we need to make sure we keep any edited data that has not been applied but
+-}
 handleReceived : Model -> List Artifact -> Model
 handleReceived model artifactList =
     let

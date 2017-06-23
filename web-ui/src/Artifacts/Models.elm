@@ -44,10 +44,8 @@ type alias Name =
     }
 
 
-
--- How artifacts are stored
-
-
+{-| How artifacts are stored
+-}
 type alias Artifacts =
     Dict.Dict ArtifactId Artifact
 
@@ -57,10 +55,8 @@ initialArtifacts =
     Dict.empty
 
 
-
--- representation of an Artifact object
-
-
+{-| representation of an Artifact object
+-}
 type alias Artifact =
     { id : ArtifactId
     , revision : Int
@@ -77,10 +73,8 @@ type alias Artifact =
     }
 
 
-
--- Editable part of an artifact
-
-
+{-| Editable part of an artifact
+-}
 type alias EditableArtifact =
     { name : String
     , def : String
@@ -90,11 +84,9 @@ type alias EditableArtifact =
     }
 
 
-
--- gets the edited variable of the artifact
--- or creates the default one
-
-
+{-| gets the edited variable of the artifact
+or creates the default one
+-}
 getEditable : Artifact -> EditableArtifact
 getEditable artifact =
     case artifact.edited of
@@ -137,20 +129,16 @@ artifactNameUrl name =
     "#artifacts/" ++ name
 
 
-
--- get the real name from a raw name
-
-
+{-| get the real name from a raw name
+-}
 indexNameUnchecked : String -> String
 indexNameUnchecked name =
     String.toUpper name
 
 
-
--- get the real name from a raw name
--- return Err if name is invalid
-
-
+{-| get the real name from a raw name
+return Err if name is invalid
+-}
 indexName : String -> Result String String
 indexName name =
     let
@@ -180,10 +168,8 @@ initName name =
                 Err err
 
 
-
--- convert a list of artifacts to a dictionary by Name
-
-
+{-| convert a list of artifacts to a dictionary by Name
+-}
 artifactsFromList : List Artifact -> Artifacts
 artifactsFromList artifacts =
     let
@@ -195,10 +181,11 @@ artifactsFromList artifacts =
 
 
 -- VIEW Models
--- artifact attributes which can be displayed
--- or searched for
 
 
+{-| artifact attributes which can be displayed
+or searched for
+-}
 type alias Columns =
     { parts : Bool
     , partof : Bool

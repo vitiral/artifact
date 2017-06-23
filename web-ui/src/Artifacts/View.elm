@@ -182,10 +182,8 @@ partof model artifact =
             )
 
 
-
--- TODO: don't wrap text
-
-
+{-| TODO: don't wrap text
+-}
 textPiece : Model -> Artifact -> Html AppMsg
 textPiece model artifact =
     let
@@ -257,10 +255,8 @@ seeArtifact model artifact =
         [ text (artifact.name.raw ++ "  ") ]
 
 
-
--- TODO: do color and other special stuff for non-existent names
-
-
+{-| TODO: do color and other special stuff for non-existent names
+-}
 seeArtifactName : Model -> String -> Artifact -> String -> Html AppMsg
 seeArtifactName model name parent attr =
     let
@@ -293,9 +289,10 @@ seeArtifactName model name parent attr =
 
 ------------------------
 -- Helpers
--- get the id html attribute
 
 
+{-| get the id html attribute
+-}
 getId : String -> Artifact -> Maybe EditableArtifact -> Attribute m
 getId id_ artifact edited =
     if edited == Nothing then

@@ -27,10 +27,8 @@ view model artifacts =
         ]
 
 
-
--- navigation toolbar
-
-
+{-| navigation toolbar
+-}
 nav : Artifacts -> Html AppMsg
 nav artifacts =
     div [ class "clearfix mb2 white bg-black" ]
@@ -38,13 +36,12 @@ nav artifacts =
         ]
 
 
+{-| SELECT COL
+select which attrs to view
 
--- SELECT COL
--- select which attrs to view
---
--- ids: select_col_{arts, partof, text, def, done}
+ids: select_col_{arts, partof, text, def, done}
 
-
+-}
 select : Model -> Html AppMsg
 select model =
     let
@@ -61,11 +58,9 @@ select model =
             ]
 
 
-
--- Button which takes the current value and a method
--- for how to set the Column
-
-
+{-| Button which takes the current value and a method
+for how to set the Column
+-}
 selectColBtn : String -> Bool -> (Bool -> Columns) -> Html AppMsg
 selectColBtn name visible setter =
     let
@@ -83,13 +78,12 @@ selectColBtn name visible setter =
             [ text name ]
 
 
+{-| SEARCH
+specify what to search for
 
--- SEARCH
--- specify what to search for
---
--- ids: search_input, search_attr_{name, parts, partof, text}
+ids: search_input, search_attr_{name, parts, partof, text}
 
-
+-}
 searchBar : Model -> Html AppMsg
 searchBar model =
     let
@@ -134,10 +128,8 @@ searchAttrBtn name sel setter =
             [ text name ]
 
 
-
--- Apply search settings to artifacts
-
-
+{-| Apply search settings to artifacts
+-}
 search : Model -> List Artifact
 search model =
     let

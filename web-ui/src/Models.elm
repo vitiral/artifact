@@ -98,10 +98,8 @@ initialLogs =
     }
 
 
-
--- log an error
-
-
+{-| log an error
+-}
 log : Model -> String -> Model
 log model msg =
     let
@@ -124,10 +122,13 @@ logInvalidId model desc id =
 
 
 -- STATE
--- current user selections
--- TODO: store this in a cookie or something...
 
 
+{-| current user selections
+
+TODO: store this in a cookie or something...
+
+-}
 type alias State =
     { columns : Columns
     , search : Search
