@@ -1,16 +1,16 @@
 module Artifacts.List exposing (..)
 
 import Dict
-import String
 import Regex
 import Html exposing (..)
-import Html.Attributes exposing (class, type_, width, id, readonly, cols, size)
+import Html.Attributes exposing (class, type_, width, id, readonly, cols, size, value)
 import Html.Events exposing (onClick, onInput)
 import Messages exposing (AppMsg(..))
 import Models exposing (Model)
 import Artifacts.Messages exposing (..)
 import Artifacts.Models exposing (Artifact, Artifacts, Columns, Search)
 import Artifacts.View as View
+import Artifacts.Select as Select
 
 
 view : Model -> Artifacts -> Html AppMsg
@@ -107,8 +107,9 @@ searchInput sch =
         , size 40
         , readonly False
         , onInput (\t -> (ArtifactsMsg (ChangeSearch { sch | pattern = t })))
+        , value sch.pattern
         ]
-        [ text sch.pattern ]
+        []
 
 
 searchAttrBtn : String -> Bool -> (Bool -> Search) -> Html AppMsg
@@ -232,7 +233,7 @@ list model =
                         []
                    )
                 ++ (if columns.def then
-                        [ th [ cls, w2, id "th_def" ] [ text "Def-At" ] ]
+                        [ th [ cls, w2, id "th_def" ] [ text "Def" ] ]
                     else
                         []
                    )
@@ -276,7 +277,7 @@ artifactRow model artifact =
                         []
                    )
                 ++ (if columns.partof then
-                        [ td [ s, cls, w2 ] [ View.partof model artifact ] ]
+                        [ td [ s, cls, w2 ] [ Select.partof model artifact Nothing ] ]
                     else
                         []
                    )

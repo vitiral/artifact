@@ -1,2 +1,2 @@
 [MESSAGES CONTROL]
-disable=locally-disabled,too-few-public-methods,invalid-name,too-many-statements
+disable=locally-disabled,too-few-public-methods,invalid-name,too-many-statements,too-many-public-methods,too-many-instance-attributes,redefined-builtin,too-many-arguments

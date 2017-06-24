@@ -5,6 +5,7 @@ import os
 import time
 import unittest
 
+
 from selenium import webdriver
 from selenium.common import exceptions
 from selenium.webdriver.common.by import By
@@ -21,6 +22,19 @@ LIST_ID = "list"
 EXAMPLE_PROJ = "web-ui/sel_tests/ex_proj"
 
 
+def artifact_url(base, name):
+    """get the artifact-edit url."""
+    return "{}/#artifacts/{}".format(base, name)
+
+
+def setup_phantom():
+    """setup phantom and return the bin handler and the driver."""
+    phantom = cmds.Phantom()
+    phantom.start()
+    driver = webdriver.PhantomJS(service_log_path=os.path.devnull)
+    return (phantom, driver)
+
+
 class TestStuff(unittest.TestCase):
     """TODO: this is basically a proving ground for how to write tests in
     selenium.
@@ -30,9 +44,8 @@ class TestStuff(unittest.TestCase):
     """
     @classmethod
     def setUpClass(cls):
-        cls.phantom = cmds.Phantom()
-        cls.phantom.start()
-        driver = webdriver.PhantomJS(service_log_path=os.path.devnull)
+        cls.phantom, driver = setup_phantom()
+        # driver = webdriver.Firefox()
         cls.app = webapp.App(driver)
 
     @classmethod
@@ -132,10 +145,9 @@ class TestStuff(unittest.TestCase):
             app.select_text(F.raw_text, timeout=2)
             assert app.get_value(name, F.raw_text, timeout=1) == expected
 
-            # make sure the file itself has changed
-            with open(os.path.join(art.tmp_proj, "design/purpose.toml")) as purpose:
-                file_text = purpose.read()
-            assert expected in file_text
+            # make sure the file itself has changed as expected
+            toml_arts = art.get_artifacts("design/purpose.toml")
+            assert toml_arts["SPC-layout"].text == expected
 
             # navigate away and then back... make sure it's still changed
             app.goto_list()
@@ -150,6 +162,56 @@ class TestStuff(unittest.TestCase):
             app.select_text(F.raw_text, timeout=2)
             assert app.get_value(name, F.raw_text, timeout=2) == expected
 
+    def test_edit_partof(self):
+        """Test editing a text field."""
+        app = self.app
+        F = webapp.Fields
 
-# if __name__ == "__main__":
-#     unittest.main()
+        art = cmds.Artifact(EXAMPLE_PROJ)
+        with art as url:
+            app.driver.get(url)
+            name = "SPC-LAYOUT"
+            expected_partof = sorted(["REQ-layout", "SPC", "SPC-alone"])
+
+            app.assert_list_view(timeout=10)
+            app.goto_artifact(name, timeout=5)
+            app.assert_edit_view(timeout=2)
+            app.start_edit(timeout=1)
+            # do some wiggling, note that each call auto-validates
+            app.add_partof(name, "SPC-alone", timeout=2)
+            app.set_partof(name, "SPC-alone", "REQ-purpose")
+            app.set_partof(name, "REQ-purpose", "SPC-alone")
+            app.remove_partof(name, "SPC-alone")
+
+            # finally add it and save
+            app.add_partof(name, "SPC-alone")
+            app.save_edit()
+            assert app.get_items(name, F.partof) == expected_partof
+
+            toml_arts = art.get_artifacts("design/purpose.toml")
+            assert toml_arts["SPC-layout"].partof == "SPC-alone"
+
+    def test_edit_name(self):
+        """Test that editing the name works as expected."""
+        app = self.app
+        F = webapp.Fields
+
+        art = cmds.Artifact(EXAMPLE_PROJ)
+        with art as url:
+            app.driver.get(url)
+            name = "SPC-LAYOUT"
+
+            app.assert_list_view(timeout=10)
+            app.goto_artifact(name, timeout=5)
+            app.assert_edit_view(timeout=2)
+            assert app.driver.current_url == artifact_url(url, name.lower())
+            app.start_edit(timeout=1)
+
+            new_name_raw = "SPC-lay"
+            new_name = new_name_raw.upper()
+            app.set_value(name, F.name, new_name_raw, 2)
+            app.save_edit()
+            # assert name changed and url changed
+            assert app.get_value(new_name, F.name, timeout=1) == new_name_raw
+            assert app.driver.current_url == artifact_url(
+                url, new_name.lower())

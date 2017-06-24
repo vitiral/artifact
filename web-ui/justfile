@@ -1,5 +1,5 @@
 @make:
-	elm make src/Main-Static.elm
+	elm make src/Main-Static.elm --warn
 
 @build-server:
 	npm run build
@@ -20,8 +20,13 @@ build: build-server build-static
 @test:
 	elm test
 
+lint:
+	@#poor mans lint
+	rm -rf elm-stuff/build_artifacts
+	just make
+
 fmt:
-	elm-format src/ --yes
+	elm-format src/ tests/ --yes
 
 check-fmt:
 	elm-format src/ --validate 2>&1

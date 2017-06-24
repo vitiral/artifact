@@ -1,6 +1,5 @@
 module Artifacts.Messages exposing (..)
 
-import Http
 import Artifacts.Models
     exposing
         ( ArtifactId

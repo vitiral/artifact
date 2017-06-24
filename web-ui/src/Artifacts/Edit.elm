@@ -5,12 +5,13 @@ import Html.Attributes exposing (class, style, value, href, readonly, rows, cols
 import Html.Events exposing (onClick, onInput)
 import Regex
 import Markdown exposing (toHtml)
-import Models exposing (Model)
-import Routing
+import Models exposing (Model, memberArtifact)
+import Styles exposing (warning)
 import Artifacts.Models exposing (..)
 import Messages exposing (AppMsg(..))
 import Artifacts.Messages exposing (..)
 import Artifacts.View as View
+import Artifacts.Select as Select
 import Utils exposing (isJust)
 
 
@@ -30,14 +31,31 @@ view : Model -> Artifact -> Html AppMsg
 view model artifact =
     let
         edit =
-            if isJust artifact.edited && (not model.settings.readonly) then
-                [ form model artifact artifact.edited
+            case artifact.edited of
+                Just e ->
+                    ((if e.revision == artifact.revision then
+                        []
+                      else
+                        [ h1
+                            [ class "h1 red"
+                            , id "warn_edit_change"
+                            ]
+                            [ text <|
+                                "!! This artifact has been changed"
+                                    ++ " by another user since editing"
+                                    ++ " started !!"
+                            ]
+                        ]
+                     )
+                        ++ [ form model artifact artifact.edited
 
-                -- Header for original view
-                , h1 [ id "unedited_head" ] [ text "Previous:" ]
-                ]
-            else
-                []
+                           -- Header for original view
+                           , h1 [ id "unedited_head" ] [ text "Previous:" ]
+                           ]
+                    )
+
+                Nothing ->
+                    []
     in
         div [ id "edit_view" ]
             ([ nav model artifact ]
@@ -69,33 +87,44 @@ nav model artifact =
 form : Model -> Artifact -> Maybe EditableArtifact -> Html AppMsg
 form model artifact edited =
     div [ class "m3" ]
-        [ h1 [ View.getId "name" artifact edited ] [ text artifact.name.raw ]
-        , div [ class "clearfix py1" ]
-            [ formColumnOne model artifact
-            , formColumnTwo model artifact edited
-            ]
-        ]
+        ((nameElements model artifact edited)
+            ++ [ div [ class "clearfix py1" ]
+                    [ formColumnOne model artifact edited
+                    , formColumnTwo model artifact edited
+                    ]
+               ]
+        )
 
 
 {-| attributes column (non-text)
 -}
-formColumnOne : Model -> Artifact -> Html AppMsg
-formColumnOne model artifact =
-    div [ class "col col-6" ]
-        [ View.completion artifact
-        , View.defined model artifact
-        , View.implemented model artifact
-        , div [ class "clearfix py1" ]
-            [ div [ class "col col-6" ]
-                [ h3 [] [ text "Partof" ]
-                , View.partof model artifact
-                ]
-            , div [ class "col col-6" ]
-                [ h3 [] [ text "Parts" ]
-                , View.parts model artifact
-                ]
+formColumnOne : Model -> Artifact -> Maybe EditableArtifact -> Html AppMsg
+formColumnOne model artifact edited =
+    let
+        partofEls =
+            [ h3 [] [ text "Partof" ]
+            , Select.partof model artifact edited
             ]
-        ]
+
+        -- don't display parts when editing
+        els =
+            [ View.completion artifact
+            , Select.defined model artifact edited
+            , View.implemented model artifact
+            ]
+                ++ [ if isJust edited then
+                        div [] partofEls
+                     else
+                        div [ class "clearfix py1" ]
+                            [ div [ class "col col-6" ] partofEls
+                            , div [ class "col col-6" ]
+                                [ h3 [] [ text "Parts" ]
+                                , View.parts model artifact
+                                ]
+                            ]
+                   ]
+    in
+        div [ class "col col-6" ] els
 
 
 {-| Text column
@@ -110,11 +139,51 @@ formColumnTwo model artifact edited =
 
 
 
-{- select which text view to see (raw or rendered)
-   ids = {ed_, rd_}_text_{raw, rendered}
+-- NAME
+
+
+nameElements : Model -> Artifact -> Maybe EditableArtifact -> List (Html AppMsg)
+nameElements model artifact edited =
+    let
+        name_id =
+            View.getId "name" artifact edited
+    in
+        case edited of
+            Just e ->
+                let
+                    warn_els =
+                        case checkName model e.name artifact.name of
+                            Ok _ ->
+                                []
+
+                            Err e ->
+                                [ warning e ]
+
+                    editMsg t =
+                        ArtifactsMsg <| EditArtifact artifact.id { e | name = t }
+
+                    input_el =
+                        input
+                            [ class "h1"
+                            , name_id
+                            , onInput editMsg
+                            , value e.name
+                            ]
+                            []
+                in
+                    [ input_el ] ++ warn_els
+
+            Nothing ->
+                [ h1 [ name_id ] [ text artifact.name.raw ] ]
+
+
+
+-- TEXT
+
+
+{-| select which text view to see (raw or rendered)
+ids = {ed_, rd_}*text*{raw, rendered}
 -}
-
-
 selectRenderedBtns : Model -> Bool -> Html AppMsg
 selectRenderedBtns model editable =
     let
@@ -171,6 +240,10 @@ getRendered model edit =
             view.rendered_edit
         else
             view.rendered_read
+
+
+
+-- TEXT
 
 
 displayText : Model -> Artifact -> Maybe EditableArtifact -> Html AppMsg
@@ -371,3 +444,22 @@ replaceArtifactLinks model text =
                     "INTERNAL_ERROR"
     in
         Regex.replace Regex.All artifactLinkRegex replace text
+
+
+{-| Just check that the name is valid and that it doesn't
+already exist.
+-}
+checkName : Model -> String -> Name -> Result String Name
+checkName model name original =
+    case initName name of
+        Ok name ->
+            if name == original then
+                -- name already exists... because its the same name!
+                Ok name
+            else if memberArtifact name.value model then
+                Err "name already exists"
+            else
+                Ok name
+
+        Err _ ->
+            Err "invalid name"

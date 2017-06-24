@@ -1,6 +1,5 @@
 module View exposing (..)
 
-import Dict
 import Html exposing (Html, div, text)
 import Messages exposing (AppMsg(..), Route(..))
 import Models exposing (Model, getArtifact, memberArtifact)

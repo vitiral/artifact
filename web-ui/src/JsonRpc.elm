@@ -8,8 +8,6 @@ type alias RpcError =
     { code : Int
     , message :
         String
-
-    --, data: Nothing
     }
 
 

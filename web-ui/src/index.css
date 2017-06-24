@@ -1,0 +1,11 @@
+.select-tiny {
+  /*min-width: 0rem;*/
+  /*max-width: 0rem;*/
+  width: auto;
+}
+
+.select-tiny:focus {
+  font-family: inherit;
+  font-size: inherit;
+  width: auto;
+}

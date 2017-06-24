@@ -4,7 +4,8 @@ import String
 import Dict
 import Navigation
 import Models exposing (Model, nameIds, getArtifact, log, logInvalidId)
-import Messages exposing (AppMsg(AppError))
+import Messages exposing (AppMsg(AppError), Route(ArtifactNameRoute))
+import Utils exposing (assertOr)
 import Artifacts.Messages exposing (Msg(..))
 import Artifacts.Models
     exposing
@@ -27,16 +28,7 @@ update : Msg -> Model -> ( Model, Cmd AppMsg )
 update msg model =
     case msg of
         ReceivedArtifacts artifactList ->
-            let
-                artifacts =
-                    artifactsFromList artifactList
-
-                names =
-                    nameIds artifacts
-            in
-                ( handleReceived model artifactList
-                , Cmd.none
-                )
+            handleReceived model artifactList
 
         ShowArtifacts ->
             ( model, Navigation.newUrl artifactsUrl )
@@ -44,8 +36,7 @@ update msg model =
         ShowArtifact name ->
             ( model
             , Navigation.newUrl <|
-                artifactNameUrl <|
-                    String.toLower (indexNameUnchecked name)
+                artifactNameUrl (indexNameUnchecked name)
             )
 
         ChangeColumns columns ->
@@ -81,9 +72,15 @@ update msg model =
         EditArtifact id edited ->
             case Dict.get id model.artifacts of
                 Just art ->
-                    ( { model | artifacts = setEdited model.artifacts art (Just edited) }
-                    , Cmd.none
-                    )
+                    let
+                        -- update revision so that any warnings of prior
+                        -- change go away
+                        e =
+                            { edited | revision = art.revision }
+                    in
+                        ( { model | artifacts = setEdited model.artifacts art (Just e) }
+                        , Cmd.none
+                        )
 
                 Nothing ->
                     ( logInvalidId model "edit" id, Cmd.none )
@@ -121,52 +118,91 @@ setEdited artifacts art edited =
     Dict.insert art.id { art | edited = edited } artifacts
 
 
-{-| we need to make sure we keep any edited data that has not been applied but
+{-| we need to make sure we keep any edited data that has not been applied
 -}
-handleReceived : Model -> List Artifact -> Model
+handleReceived : Model -> List Artifact -> ( Model, Cmd AppMsg )
 handleReceived model artifactList =
     let
-        keepEdited : Artifact -> Artifact
-        keepEdited newArt =
+        process : Artifact -> ( Maybe String, Artifact )
+        process newArt =
             case Dict.get newArt.id model.artifacts of
                 Just oldArt ->
                     let
-                        -- get the edited, keeping in mind that changes may
-                        -- have been applied
+                        -- handle the "edited" field
                         edited =
-                            if oldArt.revision == newArt.revision then
-                                oldArt.edited
-                            else
-                                case oldArt.edited of
-                                    Just e ->
-                                        if e == createEditable newArt then
-                                            Nothing
-                                            -- the changes were applied
-                                        else
-                                            -- The changes have not been applied
-                                            -- but the artifact has changed (by someone else)!
-                                            -- That's fine, just keep the old edit data
-                                            -- TODO: log or something here. The UI should show
-                                            -- "this artifact has changed" or something.
-                                            Just e
+                            handleEditedReceived oldArt newArt
 
-                                    Nothing ->
+                        route =
+                            case model.route of
+                                ArtifactNameRoute route_name ->
+                                    if (indexNameUnchecked route_name) == oldArt.name.value then
+                                        -- artifact name we are viewing got changed
+                                        -- go to new route
+                                        Just newArt.name.value
+                                    else
                                         Nothing
+
+                                _ ->
+                                    Nothing
                     in
-                        -- return the new one, but keep the edited data
-                        { newArt | edited = edited }
+                        ( route, { newArt | edited = edited } )
 
                 Nothing ->
                     -- artifact is completely new
-                    newArt
+                    ( Nothing, newArt )
 
         processed =
-            List.map keepEdited artifactList
+            List.map process artifactList
 
         artifacts =
-            artifactsFromList processed
+            artifactsFromList <| List.map Tuple.second processed
 
         names =
             nameIds artifacts
+
+        routes =
+            List.filterMap Tuple.first processed
+
+        _ =
+            assertOr ((List.length routes) <= 1) 0 "impossible routes"
+
+        ( route, cmd ) =
+            case List.head routes of
+                Just r ->
+                    ( ArtifactNameRoute r
+                    , Navigation.newUrl <| artifactNameUrl r
+                    )
+
+                Nothing ->
+                    ( model.route, Cmd.none )
     in
-        { model | artifacts = artifacts, names = names }
+        ( { model | artifacts = artifacts, names = names, route = route }
+        , cmd
+        )
+
+
+{-| get the edited, keeping in mind that changes may have been applied
+-}
+handleEditedReceived : Artifact -> Artifact -> Maybe EditableArtifact
+handleEditedReceived oldArt newArt =
+    if oldArt.revision == newArt.revision then
+        oldArt.edited
+    else
+        case oldArt.edited of
+            Just e ->
+                let
+                    newEd =
+                        createEditable newArt
+                in
+                    if e == { newEd | revision = e.revision } then
+                        -- the changes were applied
+                        Nothing
+                    else
+                        -- The changes have not been applied
+                        -- but the artifact has changed (by someone else)!
+                        -- That's fine, keep the old edited data
+                        -- and edited.revision will be used for a warning
+                        Just e
+
+            Nothing ->
+                Nothing

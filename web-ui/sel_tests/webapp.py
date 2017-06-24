@@ -5,9 +5,8 @@ import time
 
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
-# from selenium.common import exceptions import NoSuchElementException
 from selenium.common import exceptions
-from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support.ui import (WebDriverWait, Select)
 from selenium.webdriver.support import expected_conditions as EC
 
 
@@ -23,9 +22,19 @@ class Fields(object):
     done = 'done'
 
 
-def field_id(name, field, edit=False):
+class Event(object):
+    """Available events."""
+    input = 'input'
+
+
+F = Fields
+E = Event
+
+
+def field_id(name, field, edit=False, extra=None):
     """return the formatted field id."""
-    return "{}_{}_{}".format(_get_type(edit), field, name)
+    extra = "" if extra is None else "_" + extra
+    return "{}_{}_{}{}".format(_get_type(edit), field, name, extra)
 
 
 def get_items(list_element):
@@ -57,6 +66,25 @@ class App(object):
         return WebDriverWait(self.driver, timeout).until(
             EC.presence_of_element_located((By.ID, id_)))
 
+    def assert_no_id(self, id_, timeout=None, msg=None):
+        """Assert that the id goes out of existence within timeout."""
+        try:
+            if timeout is None:
+                try:
+                    self.find_id(id_)
+                    assert False, "id {} exists".format(id_)
+                except exceptions.NoSuchElementException:
+                    pass
+            else:
+                WebDriverWait(self.driver, timeout).until(
+                    EC.invisibility_of_element_located(
+                        (By.ID, id_)))
+        except Exception as e:  # pylint: disable=broad-except
+            if msg is None:
+                raise
+            else:
+                raise AssertionError("{}: {}", e, msg)
+
     def get_ids(self, must_contain=None):
         """Return a list of all ids in the page.
 
@@ -72,6 +100,20 @@ class App(object):
             out.append(attr)
         return out
 
+    def trigger_event(self, id_, event):
+        """Hack to force an event to trigger in the webapp.
+
+        This is to get around bugs related to selenium.
+
+        """
+        js = '''
+        var event = new Event("%s");
+        element = document.getElementById("%s")
+        element.dispatchEvent(event);
+        return true;
+        ''' % (event, id_)
+        assert self.driver.execute_script(js)
+
     ################################################################################
     # Both List and Edit Views
 
@@ -85,7 +127,7 @@ class App(object):
         elem.send_keys(Keys.LEFT_CONTROL, "a")
         elem.send_keys(value)
         start = time.time()
-        while elem.text != value:
+        while elem.get_attribute('value') != value:
             time.sleep(0.2)
             assert time.time() - start < 2, "timeout"
 
@@ -111,11 +153,7 @@ class App(object):
         This should only be run on a loaded page
 
         """
-        try:
-            self.find_id("th_" + column)
-            assert False, "column already open"
-        except exceptions.NoSuchElementException:
-            pass
+        self.assert_no_id("th_" + column, timeout=2, msg="column already open")
         self.find_id("select_col_" + column).click()
 
     def close_column(self, column):
@@ -150,9 +188,37 @@ class App(object):
 
     def select_text(self, field, edit=False, timeout=None):
         """select a specific kind of text field."""
-        assert field in {Fields.raw_text, Fields.rendered_text}
+        assert field in {F.raw_text, F.rendered_text}
         self.find_id("{}_select_{}".format(
             _get_type(edit), field), timeout).click()
+
+    def add_partof(self, name, partof, timeout=None):
+        """Add a partof item to artifact name in the edit view."""
+        select_id = "add_partof_" + name
+        select = self.find_id(select_id, timeout)
+        Select(select).select_by_visible_text("  " + partof)
+        self.trigger_event(select_id, E.input)
+
+        # validate that it appears
+        id_ = field_id(name, F.partof, edit=True, extra=partof.upper())
+        assert self.find_id(id_, timeout=1)
+
+    def set_partof(self, name, from_partof, to_partof, timeout=None):
+        """Change a partof value to a new value in the edit view."""
+        select_id = "select_partof_{}_{}".format(name, from_partof.upper())
+        select = self.find_id(select_id, timeout)
+        Select(select).select_by_visible_text("  " + to_partof)
+        self.trigger_event(select_id, E.input)
+        # validate that it appears
+        assert self.find_id(field_id(name, F.partof, edit=True, extra=to_partof.upper()),
+                            timeout=2)
+
+    def remove_partof(self, name, partof):
+        """Remove a partof in the edit view."""
+        self.find_id("delete_partof_{}_{}".format(
+            name, partof.upper())).click()
+        self.assert_no_id(field_id(name, F.partof, edit=True, extra=partof),
+                          timeout=1)
 
     def start_edit(self, timeout=None):
         """Start edit and wait for it to start."""

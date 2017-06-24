@@ -1,7 +1,6 @@
 module Artifacts.Models exposing (..)
 
 import Dict
-import Set
 import Regex
 import JsonRpc exposing (RpcError)
 
@@ -16,20 +15,128 @@ artifactValidPat =
     Regex.regex <| "^" ++ artifactValidRaw ++ "$"
 
 
-
--- pretty much only used when updating artifacts
-
-
+{-| pretty much only used when updating artifacts
+-}
 type alias ArtifactId =
     Int
 
 
-
--- the standard lookup method for artifacts
-
-
+{-| the standard lookup method for artifacts
+-}
 type alias NameKey =
     String
+
+
+{-| the type of the artifact
+-}
+type Type
+    = Req
+    | Spc
+    | Rsk
+    | Tst
+
+
+{-| returns the type of the artifact based
+on it's name.
+
+Notice: this function is unsafe for unknown strings!
+
+-}
+getType : NameKey -> Maybe Type
+getType name =
+    case String.left 3 name of
+        "REQ" ->
+            Just Req
+
+        "SPC" ->
+            Just Spc
+
+        "RSK" ->
+            Just Rsk
+
+        "TST" ->
+            Just Tst
+
+        _ ->
+            Nothing
+
+
+{-| returns whether name can be a partof `partof`
+
+i.e. can name have `partof` in its "partof" field
+
+-}
+validPartof : Name -> Name -> Bool
+validPartof name partof =
+    if name == partof then
+        False
+    else
+        case ( name.ty, partof.ty ) of
+            -- req only partof req
+            ( Req, Req ) ->
+                True
+
+            -- spc only partof req or spc
+            ( Spc, Req ) ->
+                True
+
+            ( Spc, Spc ) ->
+                True
+
+            -- rsk only partof req or rsk
+            ( Rsk, Req ) ->
+                True
+
+            ( Rsk, Rsk ) ->
+                True
+
+            -- test only partof rsk, spc or tst
+            ( Tst, Spc ) ->
+                True
+
+            ( Tst, Rsk ) ->
+                True
+
+            ( Tst, Tst ) ->
+                True
+
+            -- all others false
+            _ ->
+                False
+
+
+{-| return whether `partof` will automatically be put in the
+partof field of an artifact named name
+-}
+autoPartof : Name -> Name -> Bool
+autoPartof name partof =
+    let
+        name_sp =
+            String.split "-" name.value
+
+        partof_sp =
+            String.split "-" partof.value
+
+        name_len =
+            List.length name_sp
+
+        partof_len =
+            List.length partof_sp
+    in
+        if partof_len == name_len - 1 && (List.take partof_len name_sp) == partof_sp then
+            -- name is the prefix for `partof`
+            True
+        else if name.ty == Rsk then
+            -- Other than the above, RSK can never be auto
+            False
+        else if
+            (validPartof name partof)
+                && ((List.drop 1 name_sp) == (List.drop 1 partof_sp))
+        then
+            -- `partof` is valid partof with same postfix
+            True
+        else
+            False
 
 
 type alias Loc =
@@ -41,6 +148,7 @@ type alias Loc =
 type alias Name =
     { raw : String
     , value : String
+    , ty : Type
     }
 
 
@@ -81,6 +189,7 @@ type alias EditableArtifact =
     , text : String
     , partof : List Name
     , done : String
+    , revision : Int
     }
 
 
@@ -110,6 +219,7 @@ createEditable artifact =
 
             Nothing ->
                 ""
+    , revision = artifact.revision
     }
 
 
@@ -126,7 +236,7 @@ artifactsUrl =
 
 artifactNameUrl : String -> String
 artifactNameUrl name =
-    "#artifacts/" ++ name
+    "#artifacts/" ++ (String.toLower name)
 
 
 {-| get the real name from a raw name
@@ -151,21 +261,40 @@ indexName name =
             Err ("Invalid name: " ++ name)
 
 
+{-| used for ONLY internal name handling when we
+convert to/from the DOM.
+-}
+initNameUnsafe : String -> Name
+initNameUnsafe raw =
+    case initName raw of
+        Ok n ->
+            n
+
+        Err e ->
+            Debug.crash e
+
+
+{-| initialize a name object and find it's type
+-}
 initName : String -> Result String Name
 initName name =
-    let
-        value =
-            indexName name
-    in
-        case value of
-            Ok value ->
-                Ok <|
-                    { raw = name
-                    , value = value
-                    }
+    case indexName name of
+        Ok value ->
+            case getType value of
+                Just ty ->
+                    Ok
+                        { raw = name
+                        , value = value
+                        , ty = ty
+                        }
 
-            Err err ->
-                Err err
+                Nothing ->
+                    -- this should NEVER happen
+                    -- (except for some internal usage)
+                    Err "Critical: invalid artifact type"
+
+        Err e ->
+            Err e
 
 
 {-| convert a list of artifacts to a dictionary by Name

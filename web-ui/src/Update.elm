@@ -21,3 +21,6 @@ update msg model =
 
         AppError err ->
             ( log model <| "AppError: " ++ err, Cmd.none )
+
+        Noop ->
+            ( model, Cmd.none )

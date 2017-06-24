@@ -1,5 +1,6 @@
 module Models exposing (..)
 
+import Set
 import Dict
 import Navigation
 import Messages exposing (Route)
@@ -26,8 +27,6 @@ type alias Model =
     { artifacts : Artifacts
     , names :
         Dict.Dict NameKey ArtifactId
-
-    -- get the id of a name
     , route : Route
     , location : Navigation.Location
     , logs : Logs
@@ -64,6 +63,17 @@ getArtifact name model =
 memberArtifact : NameKey -> Model -> Bool
 memberArtifact name model =
     isJust (getArtifact name model)
+
+
+{-| get all definition file paths
+-}
+getDefs : Model -> List String
+getDefs model =
+    let
+        defs =
+            Set.fromList (List.map (\a -> a.def) (Dict.values model.artifacts))
+    in
+        List.sort <| Set.toList defs
 
 
 

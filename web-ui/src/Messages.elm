@@ -15,6 +15,7 @@ type AppMsg
     | RouteChange Route
     | HttpError Http.Error
     | AppError String
+    | Noop
 
 
 formatHttpError : Http.Error -> String

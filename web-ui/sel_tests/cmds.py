@@ -8,6 +8,9 @@ import subprocess
 import tempfile
 import shutil
 
+import toml
+from py_helpers import models
+
 URL_PAT = re.compile(r"Listening on (\S+)")
 
 TARGET_ART = os.environ['TARGET_BIN']
@@ -58,6 +61,12 @@ class Artifact(object):
         self.tmp_proj = None
         self.stdout = None
         self.art = None
+
+    def get_artifacts(self, path):
+        """Return the artifacts located at ``path``."""
+        with open(os.path.join(self.tmp_proj, path)) as f:
+            data = toml.load(f)
+        return {k: models.ArtifactToml.deserialize(v) for (k, v) in data.items()}
 
     def restart(self):
         """Restart a running server instance in place (does NOT re-copy the

@@ -5,19 +5,25 @@ module Artifacts.View exposing (..)
 -}
 
 import String
-import Dict
 import Html exposing (..)
-import Html.Attributes exposing (class, href, title, id)
-import Html.Events exposing (onClick)
+import Html.Attributes exposing (value, class, href, title, id, selected)
+import Html.Events exposing (onClick, onInput)
 import Messages exposing (AppMsg(..), Route(..))
 import Models exposing (Model, getArtifact, memberArtifact)
 import Artifacts.Models
     exposing
         ( Artifact
+        , Name
+        , Type(..)
         , EditableArtifact
         , artifactNameUrl
         , indexName
         , indexNameUnchecked
+        , initNameUnsafe
+        , initName
+        , getType
+        , autoPartof
+        , validPartof
         )
 import Artifacts.Messages exposing (Msg(..))
 
@@ -74,24 +80,6 @@ testedPerc artifact =
             [ text <| (String.left 3 (toString (artifact.tested * 100))) ++ "%" ]
 
 
-
--- TODO: add editing of def
-
-
-defined : Model -> Artifact -> Html AppMsg
-defined model artifact =
-    div
-        [ getId "def" artifact Nothing
-        ]
-        [ span [ class "bold" ] [ text "Defined at: " ]
-        , text artifact.def
-        ]
-
-
-
--- for the full Edit view
-
-
 implemented : Model -> Artifact -> Html m
 implemented model artifact =
     div []
@@ -116,11 +104,9 @@ implemented model artifact =
         )
 
 
-
--- just the message, nothing else
+{-| show implemented with some settings
 -- TODO: enable editing
-
-
+-}
 implementedBasic : Model -> Artifact -> Html m
 implementedBasic model artifact =
     let
@@ -142,44 +128,22 @@ implementedBasic model artifact =
         span (s ++ [ getId "implemented" artifact Nothing ]) [ text t ]
 
 
+
+-- for the full Edit view
+
+
 parts : Model -> Artifact -> Html AppMsg
 parts model artifact =
-    let
-        rawParts =
-            List.map (\p -> p.raw) artifact.parts
-    in
-        ul
-            [ getId "parts" artifact Nothing ]
-            (List.map
-                (\p ->
-                    li
-                        [ class "underline" ]
-                        [ seeArtifactName model p artifact "parts" ]
-                )
-                rawParts
+    ul
+        [ getId "parts" artifact Nothing ]
+        (List.map
+            (\p ->
+                li
+                    [ class "underline" ]
+                    [ seeArtifactName model p artifact "parts" False ]
             )
-
-
-
--- TODO: allow editing when not readonly
-
-
-partof : Model -> Artifact -> Html AppMsg
-partof model artifact =
-    let
-        rawPartof =
-            List.map (\p -> p.raw) artifact.partof
-    in
-        ul
-            [ getId "partof" artifact Nothing ]
-            (List.map
-                (\p ->
-                    li
-                        [ class "underline" ]
-                        [ seeArtifactName model p artifact "partof" ]
-                )
-                rawPartof
-            )
+            artifact.parts
+        )
 
 
 {-| TODO: don't wrap text
@@ -240,10 +204,8 @@ artifactColor artifact =
             "red"
 
 
-
--- colors: olive, blue, orange, red
-
-
+{-| colors: olive, blue, orange, red
+-}
 seeArtifact : Model -> Artifact -> Html AppMsg
 seeArtifact model artifact =
     a
@@ -257,33 +219,43 @@ seeArtifact model artifact =
 
 {-| TODO: do color and other special stuff for non-existent names
 -}
-seeArtifactName : Model -> String -> Artifact -> String -> Html AppMsg
-seeArtifactName model name parent attr =
+seeArtifactName : Model -> Name -> Artifact -> String -> Bool -> Html AppMsg
+seeArtifactName model name parent attr ed =
     let
-        indexName =
-            indexNameUnchecked name
-
         url =
-            (artifactNameUrl indexName)
+            artifactNameUrl name.value
 
         color =
-            case getArtifact indexName model of
+            case getArtifact name.value model of
                 Just a ->
                     artifactColor a
 
                 Nothing ->
                     "purple"
+
+        prefix =
+            case ed of
+                True ->
+                    "ed_"
+
+                False ->
+                    "rd_"
     in
-        if memberArtifact indexName model then
+        if memberArtifact name.value model then
             a
                 [ class ("btn bold " ++ color)
-                , id <| parent.name.value ++ attr ++ name
+                , id <| prefix ++ attr ++ "_" ++ parent.name.value ++ "_" ++ name.value
                 , href url
-                , onClick (ArtifactsMsg <| ShowArtifact <| indexName)
+                , onClick <| ArtifactsMsg <| ShowArtifact name.value
+                , title <|
+                    if memberArtifact name.value model then
+                        "goto artifact"
+                    else
+                        "artifact not found"
                 ]
-                [ text name ]
+                [ text name.raw ]
         else
-            span [ class ("btn " ++ color) ] [ text name ]
+            span [ class ("btn " ++ color) ] [ text name.raw ]
 
 
 
@@ -294,13 +266,9 @@ seeArtifactName model name parent attr =
 {-| get the id html attribute
 -}
 getId : String -> Artifact -> Maybe EditableArtifact -> Attribute m
-getId id_ artifact edited =
+getId attr artifact edited =
     if edited == Nothing then
-        id ("rd_" ++ id_ ++ "_" ++ artifact.name.value)
+        id ("rd_" ++ attr ++ "_" ++ artifact.name.value)
         -- read
     else
-        id ("ed_" ++ id_ ++ "_" ++ artifact.name.value)
-
-
-
--- edit
+        id ("ed_" ++ attr ++ "_" ++ artifact.name.value)

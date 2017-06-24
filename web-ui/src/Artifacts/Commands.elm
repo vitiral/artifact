@@ -176,6 +176,8 @@ artifactEncoded artifact =
         edited =
             getEditable artifact
 
+        -- FIXME: remove partofs that were added automatically
+        -- BEFORE
         partof =
             List.map (\p -> p.raw) edited.partof
 
@@ -277,6 +279,7 @@ nameDecoderValue name =
             decode Name
                 |> hardcoded name.raw
                 |> hardcoded name.value
+                |> hardcoded name.ty
 
         Err err ->
             Decode.fail err

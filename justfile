@@ -60,14 +60,13 @@ lint-py:
 	@pylint $PYTHON_CHECK
 	
 # build and run selenium tests
-test-sel: 
+test-sel TESTS="": 
 	just build
-	just test-sel-py
+	just test-sel-py -- {{TESTS}}
 
 # run selenium tests
-test-sel-py:
-	# TODO: add browser type export
-	{{export_bin}} py.test web-ui/sel_tests -sx
+test-sel-py TESTS="":
+	{{export_bin}} py.test web-ui/sel_tests/{{TESTS}} -sx
 
 # run the full test suite. This is required for all merges
 @test-all:
@@ -94,6 +93,15 @@ check-fmt:
 run ARGS="":
 	just web-ui/build
 	cargo run --features server -- -v {{ARGS}}
+
+serve:
+	just web-ui/build
+	just serve-rust
+
+serve-rust:
+	rm -rf /tmp/rust-serve && cp -r web-ui/sel_tests/ex_proj /tmp/rust-serve
+	cargo run --features server -- -v --work-tree /tmp/rust-serve serve
+
 
 ##################################################
 # release command
