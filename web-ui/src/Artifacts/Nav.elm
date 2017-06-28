@@ -133,8 +133,9 @@ saveBtn model artifact edited =
 checkFull : Model -> Artifact -> EditableArtifact -> Bool
 checkFull model artifact edited =
     let
+        -- FIXME: needs to accept option
         ch_name =
-            isOk <| checkName model edited.name artifact.name
+            isOk <| checkName model edited.name (ChangeChoice artifact edited) 
 
         ch_partof =
             List.map (checkPartof model edited.name) edited.partof
@@ -146,21 +147,29 @@ checkFull model artifact edited =
 {-| Just check that the name is valid and that it doesn't
 already exist.
 -}
-checkName : Model -> String -> Name -> Result String Name
-checkName model name original =
+checkName : Model -> String -> EditOption -> Result String Name
+checkName model name option =
     case initName name of
         Ok name ->
-            if name == original then
-                -- name already exists... because its the same name!
-                Ok name
-            else if memberArtifact name.value model then
-                Err "name already exists"
-            else
-                Ok name
-
+            case option of
+                ChangeChoice artifact _ ->
+                    if name == artifact.name then
+                        -- name already exists... because its the same name!
+                        Ok name
+                    else
+                        checkNameSimple model name
+                CreateChoice _ ->
+                    checkNameSimple model name
         Err _ ->
             Err "invalid name"
 
+
+checkNameSimple : Model -> Name -> Result String Name
+checkNameSimple model name =
+    if memberArtifact name.value model then
+        Err "name already exists"
+    else
+        Ok name
 
 {-| return some error if the name cannot be a partof `partof`
 (i.e. if `partof` cannot be in name's partof attrs)

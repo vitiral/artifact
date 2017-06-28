@@ -103,9 +103,14 @@ type alias ArtifactsResponse =
     }
 
 
+type EditOption
+    = ChangeChoice Artifact EditableArtifact
+    | CreateChoice EditableArtifact
+
+
 type ViewOption
     = ReadChoice Artifact
-    | EditChoice Artifact EditableArtifact
+    | EditChoice EditOption
 
 
 
@@ -292,12 +297,14 @@ isRead option =
         ReadChoice _ ->
             True
 
-        EditChoice _ _ ->
+        EditChoice _ ->
             False
 
 
 {-| gets the edited variable of the artifact
 or creates the default one
+
+FIXME: delete
 -}
 getEditable : Artifact -> EditableArtifact
 getEditable artifact =
@@ -324,6 +331,31 @@ createEditable artifact =
                 ""
     , revision = artifact.revision
     }
+
+
+getEdited : EditOption -> EditableArtifact
+getEdited option =
+    case option of
+        ChangeChoice _ e -> e
+        CreateChoice e -> e
+
+
+getNameIndex : EditOption -> String
+getNameIndex option =
+    case option of
+        ChangeChoice artifact _ ->
+            artifact.name.value
+        CreateChoice _ ->
+            "CREATE"
+
+
+getArtifactId : EditOption -> ArtifactId
+getArtifactId option =
+    case option of
+        ChangeChoice artifact _ ->
+            artifact.id
+        CreateChoice _ ->
+            0
 
 
 artifactNameUrl : String -> String

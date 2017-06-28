@@ -47,7 +47,7 @@ view model artifact =
                             ]
                         ]
                      )
-                        ++ [ form model <| EditChoice artifact e
+                        ++ [ form model <| EditChoice (ChangeChoice artifact e)
 
                            -- Header for original view
                            , h1 [ id "unedited_head" ] [ text "Previous:" ]
@@ -108,7 +108,7 @@ formColumnOne model option =
                         ]
                     ]
 
-                EditChoice _ _ ->
+                EditChoice _ ->
                     -- only display editable information
                     [ Select.defined model option ] ++ partofEls
     in
@@ -140,10 +140,12 @@ nameElements model option =
             ReadChoice artifact ->
                 [ h1 [ name_id ] [ text artifact.name.raw ] ]
 
-            EditChoice artifact e ->
+            EditChoice choice ->
                 let
+                    edited = getEdited choice
+
                     warn_els =
-                        case Nav.checkName model e.name artifact.name of
+                        case Nav.checkName model edited.name choice of
                             Ok _ ->
                                 []
 
@@ -151,14 +153,14 @@ nameElements model option =
                                 [ warning e ]
 
                     editMsg t =
-                        ArtifactsMsg <| EditArtifact artifact.id { e | name = t }
+                        ArtifactsMsg <| EditArtifact (getArtifactId choice) { edited | name = t }
 
                     input_el =
                         input
                             [ class "h1"
                             , name_id
                             , onInput editMsg
-                            , value e.name
+                            , value edited.name
                             ]
                             []
                 in
@@ -244,8 +246,8 @@ displayRenderedText model option =
                 ReadChoice a ->
                     a.text
 
-                EditChoice _ e ->
-                    e.text
+                EditChoice c ->
+                    (getEdited c).text
 
         rendered =
             replaceArtifactLinks model rawText
@@ -263,11 +265,13 @@ displayRawText model option =
                 ReadChoice artifact ->
                     ( artifact.text, [] )
 
-                EditChoice artifact edited ->
+                EditChoice choice ->
                     let
+                        edited = getEdited choice
+
                         changedMsg t =
                             ArtifactsMsg <|
-                                EditArtifact artifact.id { edited | text = t }
+                                EditArtifact (getArtifactId choice) { edited | text = t }
                     in
                         ( edited.text, [ onInput changedMsg ] )
 

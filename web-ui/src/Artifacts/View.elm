@@ -126,7 +126,7 @@ parts model artifact =
             (\p ->
                 li
                     [ class "underline" ]
-                    [ seeArtifactName model p artifact "parts" False ]
+                    [ seeArtifactName model p (ReadChoice artifact) "parts" ]
             )
             artifact.parts
         )
@@ -205,8 +205,8 @@ seeArtifact model artifact =
 
 {-| TODO: do color and other special stuff for non-existent names
 -}
-seeArtifactName : Model -> Name -> Artifact -> String -> Bool -> Html AppMsg
-seeArtifactName model name parent attr ed =
+seeArtifactName : Model -> Name -> ViewOption -> String -> Html AppMsg
+seeArtifactName model name option attr =
     let
         url =
             artifactNameUrl name.value
@@ -218,19 +218,11 @@ seeArtifactName model name parent attr ed =
 
                 Nothing ->
                     "purple"
-
-        prefix =
-            case ed of
-                True ->
-                    "ed_"
-
-                False ->
-                    "rd_"
     in
         if memberArtifact name.value model then
             a
                 [ class ("btn bold " ++ color)
-                , id <| prefix ++ attr ++ "_" ++ parent.name.value ++ "_" ++ name.value
+                , id <| (idFmt attr option) ++ "_" ++ name.value
                 , href url
                 , onClick <| ArtifactsMsg <| ShowArtifact name.value
                 , title <|
@@ -270,20 +262,24 @@ idFmt attr option =
     let
         prefix =
             idPrefix option
-    in
-        case option of
-            ReadChoice artifact ->
-                prefix ++ attr ++ "_" ++ artifact.name.value
 
-            EditChoice artifact _ ->
-                prefix ++ attr ++ "_" ++ artifact.name.value
+        name = case option of
+            ReadChoice artifact ->
+                artifact.name.value
+
+            EditChoice choice ->
+                case choice of 
+                    ChangeChoice artifact _ ->
+                        artifact.name.value
+                    CreateChoice _ ->
+                        "CREATE"
+    in
+        prefix ++ attr ++ "_" ++ name
 
 
 idPrefix : ViewOption -> String
 idPrefix option =
-    case option of
-        ReadChoice artifact ->
-            "rd_"
-
-        EditChoice artifact _ ->
-            "ed_"
+    if isRead option then
+        "rd_"
+    else
+        "ed_"

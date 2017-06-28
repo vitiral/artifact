@@ -37,17 +37,19 @@ partof model option =
                         poItem ( _, name ) =
                             li
                                 [ class "underline" ]
-                                [ View.seeArtifactName model name artifact "partof" False ]
+                                [ View.seeArtifactName model name option "partof" ]
 
                         createPo =
                             []
                     in
                         ( artifact.partof, createPo, poItem )
 
-                EditChoice artifact edited ->
+                EditChoice choice ->
                     let
+                        edited = getEdited choice
+
                         ( a, b ) =
-                            editPartofComponents model artifact edited
+                            editPartofComponents model choice
                     in
                         ( edited.partof, a, b )
     in
@@ -69,30 +71,35 @@ returns:
 -}
 editPartofComponents :
     Model
-    -> Artifact
-    -> EditableArtifact
+    -> EditOption
     -> ( List (Html AppMsg), ( Int, Name ) -> Html AppMsg )
-editPartofComponents model artifact edited =
+editPartofComponents model option =
     let
+
+        edited = getEdited option
+
         -- return names that this name could be a partof
         validPartofs model name =
-            let
-                names =
-                    List.map (\a -> a.name) (Dict.values model.artifacts)
+            case initName name of
+                Ok name -> 
+                    let
+                        names =
+                            List.map (\a -> a.name) (Dict.values model.artifacts)
 
-                out =
-                    List.filter (\n -> validPartof name n) names
-            in
-                List.sortBy (\n -> n.value) out
+                        out =
+                            List.filter (\n -> validPartof name n) names
+                    in
+                        List.sortBy (\n -> n.value) out
+                Err _ ->
+                    []
 
-        -- FIXME: need to use edited.name
         valid =
-            validPartofs model artifact.name
+            validPartofs model edited.name
 
         getItem ( index, name ) =
             li
                 []
-                (partofItem model valid artifact edited index name)
+                (partofItem model valid option index name)
 
         emptyName : Name
         emptyName =
@@ -113,7 +120,7 @@ editPartofComponents model artifact edited =
                 in
                     ArtifactsMsg
                         (EditArtifact
-                            artifact.id
+                            (getArtifactId option)
                             { edited | partof = partof }
                         )
 
@@ -130,7 +137,7 @@ editPartofComponents model artifact edited =
                 model
                 ([ emptyName ] ++ create_valid)
                 emptyName
-                ("add_partof_" ++ artifact.name.value)
+                ("add_partof_" ++ (getNameIndex option))
                 createMsg
             ]
     in
@@ -153,22 +160,26 @@ In addition, it also handles the following cases:
 partofItem :
     Model
     -> List Name
-    -> Artifact
-    -> EditableArtifact
+    -> EditOption
     -> Int
     -> Name
     -> List (Html AppMsg)
-partofItem model valid_partofs artifact edited index name =
+partofItem model valid_partofs option index name =
     let
+        parent_name = (getNameIndex option)
+        
+        edited = getEdited option
+
         part_id =
-            artifact.name.value ++ "_" ++ name.value
+            parent_name ++ "_" ++ name.value
+
 
         deleteMsg =
             let
                 partof =
                     Tuple.second <| popIndexUnsafe index edited.partof
             in
-                ArtifactsMsg <| EditArtifact artifact.id { edited | partof = partof }
+                ArtifactsMsg <| EditArtifact (getArtifactId option) { edited | partof = partof }
 
         deleteBtn =
             button
@@ -190,12 +201,12 @@ partofItem model valid_partofs artifact edited index name =
             in
                 ArtifactsMsg
                     (EditArtifact
-                        artifact.id
+                        (getArtifactId option)
                         { edited | partof = partof }
                     )
 
         see_art =
-            View.seeArtifactName model name artifact "partof" True
+            View.seeArtifactName model name (EditChoice option) "partof"
     in
         case Nav.checkPartof model edited.name name of
             Err error ->
@@ -222,7 +233,7 @@ partofItem model valid_partofs artifact edited index name =
                         -- or to own current/future name
                         partof_exist =
                             Set.remove name.value <|
-                                Set.union (Set.fromList [ ed_name.value, artifact.name.value ]) <|
+                                Set.union (Set.fromList [ ed_name.value, parent_name ]) <|
                                     Set.fromList (List.map (\n -> n.value) edited.partof)
 
                         valid =
@@ -284,8 +295,8 @@ defined model option =
                         [ View.idAttr "def" option ]
                         [ text artifact.def ]
 
-                EditChoice artifact edited ->
-                    editDefined model artifact edited
+                EditChoice choice ->
+                    editDefined model choice
     in
         div []
             [ span [ class "bold" ] [ text "Defined at: " ]
@@ -293,17 +304,19 @@ defined model option =
             ]
 
 
-editDefined : Model -> Artifact -> EditableArtifact -> Html AppMsg
-editDefined model artifact edited =
+editDefined : Model -> EditOption -> Html AppMsg
+editDefined model ed_option =
     let
+        edited = getEdited ed_option
+
         selectMsg def =
-            ArtifactsMsg <| EditArtifact artifact.id { edited | def = def }
+            ArtifactsMsg <| EditArtifact (getArtifactId ed_option) { edited | def = def }
     in
         span []
             [ span [ class "bold" ] [ text edited.def ]
             , select
                 [ class "select-tiny"
-                , View.getId "def" artifact (Just edited)
+                , View.idAttr "def" (EditChoice ed_option)
                 , onChange selectMsg
                 ]
                 (List.map
