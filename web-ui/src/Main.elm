@@ -26,6 +26,7 @@ initialModel location addr route =
     , addr = addr
     , state = initialState
     , jsonId = 1
+    , create = Nothing
     }
 
 

@@ -22,6 +22,7 @@ type alias Model =
     , addr : String
     , state : State
     , jsonId : Int
+    , create : Maybe EditableArtifact
     }
 
 
@@ -100,6 +101,20 @@ getArtifact name model =
 memberArtifact : NameKey -> Model -> Bool
 memberArtifact name model =
     isJust (getArtifact name model)
+
+
+getCreateArtifact : Model -> EditableArtifact
+getCreateArtifact model =
+    case model.create of
+        Just c -> c
+        Nothing -> 
+            { name = ""
+            , def = ""
+            , text = ""
+            , partof = []
+            , done = ""
+            , revision = 0
+            }
 
 
 {-| get all definition file paths

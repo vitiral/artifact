@@ -42,7 +42,7 @@ artifactEditPage : Model -> NameKey -> Html AppMsg
 artifactEditPage model name =
     case getArtifact name model of
         Just artifact ->
-            Artifacts.Edit.view model artifact
+            Artifacts.Edit.view model artifact.id
 
         Nothing ->
             notFoundView

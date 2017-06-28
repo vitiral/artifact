@@ -1,11 +1,12 @@
 module Artifacts.Edit exposing (..)
 
+import Dict
 import Html exposing (..)
 import Html.Attributes exposing (class, style, value, href, readonly, rows, cols, id)
 import Html.Events exposing (onClick, onInput)
 import Regex
 import Markdown exposing (toHtml)
-import Models exposing (Model, memberArtifact)
+import Models exposing (Model, getArtifact, memberArtifact)
 import Styles exposing (warning)
 import Artifacts.Models exposing (..)
 import Messages exposing (AppMsg(..))
@@ -24,12 +25,17 @@ artifactLinkRegex =
 
 {-| the entire view
 
-ids: unedited_head
-
+This is the ONLY place that used the "artifact id" hack,
+where id=0 corresponds to "create"
 -}
-view : Model -> Artifact -> Html AppMsg
-view model artifact =
+view : Model -> ArtifactId -> Html AppMsg
+view model art_id =
     let
+        -- FIXME
+        artifact = case Dict.get art_id model.artifacts of
+            Just a -> a
+            Nothing -> Debug.crash "FIXME"
+
         edit =
             case artifact.edited of
                 Just e ->
