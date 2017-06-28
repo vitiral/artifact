@@ -6,20 +6,7 @@ import Models exposing (Model, nameIds, getArtifact, log, logInvalidId)
 import Messages exposing (AppMsg(AppError), Route(ArtifactNameRoute))
 import Utils exposing (assertOr)
 import Artifacts.Messages exposing (Msg(..))
-import Artifacts.Models
-    exposing
-        ( Artifact
-        , EditableArtifact
-        , Artifacts
-        , NameKey
-        , createEditable
-        , ArtifactsResponse
-        , artifactsUrl
-        , artifactNameUrl
-        , initName
-        , indexNameUnchecked
-        , artifactsFromList
-        )
+import Artifacts.Models exposing (..)
 import Artifacts.Commands exposing (saveArtifacts)
 
 
@@ -103,8 +90,10 @@ update msg model =
 
                         model3 =
                             { model2 | jsonId = model2.jsonId + 1 }
+
+                        value = Dict.singleton art.id (getEditable art)
                     in
-                        ( model3, saveArtifacts model [ art ] )
+                        ( model3, saveArtifacts model value )
 
                 Nothing ->
                     ( logInvalidId model "save" id, Cmd.none )

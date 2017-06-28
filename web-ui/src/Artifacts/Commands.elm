@@ -1,5 +1,6 @@
 module Artifacts.Commands exposing (..)
 
+import Dict
 import Http
 import Json.Decode as Decode
 import Json.Encode as Encode
@@ -7,19 +8,7 @@ import Json.Decode.Pipeline exposing (decode, required, optional, hardcoded)
 import Messages exposing (AppMsg(..))
 import Models exposing (Model)
 import Artifacts.Messages exposing (..)
-import Artifacts.Models
-    exposing
-        ( NameKey
-        , Artifact
-        , Artifacts
-        , EditableArtifact
-        , Loc
-        , ArtifactsResponse
-        , Name
-        , initName
-        , artifactsFromList
-        , getEditable
-        )
+import Artifacts.Models exposing (..)
 import JsonRpc exposing (RpcError, formatJsonRpcError)
 
 
@@ -75,17 +64,16 @@ fetchAll model =
         Http.send gotArtifactsMsg request
 
 
-saveArtifacts : Model -> List Artifact -> Cmd AppMsg
-saveArtifacts model artList =
+saveArtifacts : Model -> Dict.Dict ArtifactId EditableArtifact -> Cmd AppMsg
+saveArtifacts model update =
     let
         body =
-            Http.jsonBody <| updateArtifactsRequestEncoded model.jsonId artList
+            Http.jsonBody <| updateArtifactsRequestEncoded model.jsonId update
 
         request =
             createJsonRequest model body artifactsResponseDecoder
     in
         Http.send gotArtifactsMsg request
-
 
 
 -- Helpers
@@ -143,7 +131,7 @@ getArtifactsRequestEncoded rpc_id =
         Encode.object attrs
 
 
-updateArtifactsRequestEncoded : Int -> List Artifact -> Encode.Value
+updateArtifactsRequestEncoded : Int -> Dict.Dict ArtifactId EditableArtifact -> Encode.Value
 updateArtifactsRequestEncoded rpc_id artifacts =
     let
         params =
@@ -165,19 +153,14 @@ updateArtifactsRequestEncoded rpc_id artifacts =
 -- ENCODER
 
 
-artifactsEncoded : List Artifact -> Encode.Value
+artifactsEncoded : Dict.Dict ArtifactId EditableArtifact-> Encode.Value
 artifactsEncoded artifacts =
-    Encode.list (List.map artifactEncoded artifacts)
+    Encode.list <| List.map artifactEncoded (Dict.toList artifacts)
 
 
-artifactEncoded : Artifact -> Encode.Value
-artifactEncoded artifact =
+artifactEncoded : (ArtifactId, EditableArtifact) -> Encode.Value
+artifactEncoded (id, edited) =
     let
-        edited =
-            getEditable artifact
-
-        -- FIXME: remove partofs that were added automatically
-        -- BEFORE
         partof =
             List.map (\p -> p.raw) edited.partof
 
@@ -188,8 +171,8 @@ artifactEncoded artifact =
                 Encode.string edited.done
 
         attrs =
-            [ ( "id", Encode.int artifact.id )
-            , ( "revision", Encode.int artifact.revision )
+            [ ( "id", Encode.int id )
+            , ( "revision", Encode.int edited.revision )
             , ( "name", Encode.string edited.name )
             , ( "def", Encode.string edited.def )
             , ( "text", Encode.string edited.text )
