@@ -10,21 +10,7 @@ import Html.Attributes exposing (value, class, href, title, id, selected)
 import Html.Events exposing (onClick, onInput)
 import Messages exposing (AppMsg(..), Route(..))
 import Models exposing (Model, getArtifact, memberArtifact)
-import Artifacts.Models
-    exposing
-        ( Artifact
-        , Name
-        , Type(..)
-        , EditableArtifact
-        , artifactNameUrl
-        , indexName
-        , indexNameUnchecked
-        , initNameUnsafe
-        , initName
-        , getType
-        , autoPartof
-        , validPartof
-        )
+import Artifacts.Models exposing (..)
 import Artifacts.Messages exposing (Msg(..))
 
 
@@ -272,3 +258,32 @@ getId attr artifact edited =
         -- read
     else
         id ("ed_" ++ attr ++ "_" ++ artifact.name.value)
+
+
+idAttr : String -> ViewOption -> Attribute m
+idAttr attr option =
+    id <| idFmt attr option
+
+
+idFmt : String -> ViewOption -> String
+idFmt attr option =
+    let
+        prefix =
+            idPrefix option
+    in
+        case option of
+            ReadChoice artifact ->
+                prefix ++ attr ++ "_" ++ artifact.name.value
+
+            EditChoice artifact _ ->
+                prefix ++ attr ++ "_" ++ artifact.name.value
+
+
+idPrefix : ViewOption -> String
+idPrefix option =
+    case option of
+        ReadChoice artifact ->
+            "rd_"
+
+        EditChoice artifact _ ->
+            "ed_"

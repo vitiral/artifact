@@ -8,15 +8,23 @@ import Html.Events exposing (onClick, onInput)
 import Messages exposing (AppMsg(..))
 import Models exposing (Model)
 import Artifacts.Messages exposing (..)
-import Artifacts.Models exposing (Artifact, Artifacts, Columns, Search)
+import Artifacts.Models
+    exposing
+        ( Artifact
+        , Artifacts
+        , Columns
+        , Search
+        , ViewOption(ReadChoice)
+        )
 import Artifacts.View as View
 import Artifacts.Select as Select
+import Artifacts.Nav as Nav
 
 
 view : Model -> Artifacts -> Html AppMsg
 view model artifacts =
     div [ id "list_view" ]
-        [ nav artifacts
+        [ Nav.bar Nav.listBar
 
         -- select / search bar
         , div [ class "clearfix py1" ]
@@ -24,15 +32,6 @@ view model artifacts =
             , span [ class "right border" ] [ searchBar model ]
             ]
         , list model
-        ]
-
-
-{-| navigation toolbar
--}
-nav : Artifacts -> Html AppMsg
-nav artifacts =
-    div [ class "clearfix mb2 white bg-black" ]
-        [ div [ class "left p2" ] [ text "Artifacts" ]
         ]
 
 
@@ -277,7 +276,7 @@ artifactRow model artifact =
                         []
                    )
                 ++ (if columns.partof then
-                        [ td [ s, cls, w2 ] [ Select.partof model artifact Nothing ] ]
+                        [ td [ s, cls, w2 ] [ Select.partof model (ReadChoice artifact) ] ]
                     else
                         []
                    )

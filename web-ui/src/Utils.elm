@@ -11,6 +11,16 @@ isJust v =
             False
 
 
+isOk : Result e r -> Bool
+isOk result =
+    case result of
+        Ok _ ->
+            True
+
+        Err _ ->
+            False
+
+
 assertOr : Bool -> a -> String -> a
 assertOr test or_value msg =
     if test then

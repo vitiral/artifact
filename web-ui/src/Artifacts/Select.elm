@@ -6,64 +6,33 @@ import Dict
 import Set
 import Html exposing (..)
 import Html.Attributes exposing (value, class, href, title, id, selected)
-import Html.Events exposing (onClick, onInput)
+import Html.Events exposing (onClick, on, targetValue)
+import Json.Decode as Json
 import Styles exposing (warning)
 import Messages exposing (AppMsg(..), Route(..))
 import Models exposing (Model, getArtifact, memberArtifact, getDefs)
-import Utils
-    exposing
-        ( isJust
-        , assertOr
-        , enumerate
-        , memberIndexUnsafe
-        , setIndexUnsafe
-        , popIndexUnsafe
-        )
-import Artifacts.Models
-    exposing
-        ( Artifact
-        , Name
-        , Type(..)
-        , EditableArtifact
-        , indexName
-        , indexNameUnchecked
-        , initNameUnsafe
-        , initName
-        , getType
-        , autoPartof
-        , validPartof
-        )
+import Utils exposing (..)
+import Artifacts.Models exposing (..)
+import Artifacts.Nav as Nav
 import Artifacts.Messages exposing (Msg(..))
 import Artifacts.View as View
 
 
--- Notes: How to create custom events
---
---    import Html.Events exposing (on, targetValue)
---    import Json.Decode as Json
---    on "change" (Json.map selectMsg targetValue)
--- PARTOF ELEMENT
+{-| onChange is the correct event to use for select boxes
+-}
+onChange : (String -> msg) -> Attribute msg
+onChange msg =
+    on "change" <| Json.map msg targetValue
 
 
 {-| view or edit the partof fields
 -}
-partof : Model -> Artifact -> Maybe EditableArtifact -> Html AppMsg
-partof model artifact edited =
+partof : Model -> ViewOption -> Html AppMsg
+partof model option =
     let
-        values =
-            case edited of
-                Just a ->
-                    a.partof
-
-                Nothing ->
-                    artifact.partof
-
-        ( addPartof, getItem ) =
-            case edited of
-                Just e ->
-                    editPartofComponents model artifact e
-
-                Nothing ->
+        ( values, addPartof, getItem ) =
+            case option of
+                ReadChoice artifact ->
                     let
                         poItem ( _, name ) =
                             li
@@ -73,10 +42,17 @@ partof model artifact edited =
                         createPo =
                             []
                     in
-                        ( createPo, poItem )
+                        ( artifact.partof, createPo, poItem )
+
+                EditChoice artifact edited ->
+                    let
+                        ( a, b ) =
+                            editPartofComponents model artifact edited
+                    in
+                        ( edited.partof, a, b )
     in
         ul
-            [ View.getId "partof" artifact Nothing ]
+            [ View.idAttr "partof" option ]
             ((List.map getItem (enumerate values))
                 ++ addPartof
             )
@@ -221,7 +197,7 @@ partofItem model valid_partofs artifact edited index name =
         see_art =
             View.seeArtifactName model name artifact "partof" True
     in
-        case checkPartof model edited.name name of
+        case Nav.checkPartof model edited.name name of
             Err error ->
                 -- it is invalid. Only allow deletion
                 [ deleteBtn
@@ -276,7 +252,7 @@ selectPartof model valid_partofs name id_ selectMsg =
     select
         [ class "select-tiny"
         , id id_
-        , onInput selectMsg
+        , onChange selectMsg
         ]
         (List.map
             (\n ->
@@ -291,33 +267,6 @@ selectPartof model valid_partofs name id_ selectMsg =
         )
 
 
-{-| return some error if the name cannot be a partof `partof`
-(i.e. if `partof` cannot be in name's partof attrs)
-
-Possible errors:
-
-  - name is invalid
-  - partof does not exist
-  - partof/name are invalid types
-
-Otherwise return the valid name
-
--}
-checkPartof : Model -> String -> Name -> Result String Name
-checkPartof model name partof =
-    case initName name of
-        Ok name ->
-            if not <| memberArtifact partof.value model then
-                Err "does not exist"
-            else if not <| validPartof name partof then
-                Err "invalid type"
-            else
-                Ok name
-
-        Err _ ->
-            Err "invalid artifact name"
-
-
 
 -- DEFINED ELEMENT
 
@@ -325,19 +274,23 @@ checkPartof model name partof =
 {-| shows the location where the artifact is defined
 (which toml file it is written in)
 -}
-defined : Model -> Artifact -> Maybe EditableArtifact -> Html AppMsg
-defined model artifact edited =
-    case edited of
-        Just e ->
-            editDefined model artifact e
+defined : Model -> ViewOption -> Html AppMsg
+defined model option =
+    let
+        element =
+            case option of
+                ReadChoice artifact ->
+                    span
+                        [ View.idAttr "def" option ]
+                        [ text artifact.def ]
 
-        Nothing ->
-            div
-                [ View.getId "def" artifact Nothing
-                ]
-                [ span [ class "bold" ] [ text "Defined at: " ]
-                , text artifact.def
-                ]
+                EditChoice artifact edited ->
+                    editDefined model artifact edited
+    in
+        div []
+            [ span [ class "bold" ] [ text "Defined at: " ]
+            , element
+            ]
 
 
 editDefined : Model -> Artifact -> EditableArtifact -> Html AppMsg
@@ -346,12 +299,12 @@ editDefined model artifact edited =
         selectMsg def =
             ArtifactsMsg <| EditArtifact artifact.id { edited | def = def }
     in
-        div []
+        span []
             [ span [ class "bold" ] [ text edited.def ]
             , select
                 [ class "select-tiny"
                 , View.getId "def" artifact (Just edited)
-                , onInput selectMsg
+                , onChange selectMsg
                 ]
                 (List.map
                     (\d ->

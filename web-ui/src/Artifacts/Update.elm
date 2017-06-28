@@ -1,6 +1,5 @@
 module Artifacts.Update exposing (..)
 
-import String
 import Dict
 import Navigation
 import Models exposing (Model, nameIds, getArtifact, log, logInvalidId)

@@ -197,7 +197,6 @@ class App(object):
         select_id = "add_partof_" + name
         select = self.find_id(select_id, timeout)
         Select(select).select_by_visible_text("  " + partof)
-        self.trigger_event(select_id, E.input)
 
         # validate that it appears
         id_ = field_id(name, F.partof, edit=True, extra=partof.upper())
@@ -208,7 +207,6 @@ class App(object):
         select_id = "select_partof_{}_{}".format(name, from_partof.upper())
         select = self.find_id(select_id, timeout)
         Select(select).select_by_visible_text("  " + to_partof)
-        self.trigger_event(select_id, E.input)
         # validate that it appears
         assert self.find_id(field_id(name, F.partof, edit=True, extra=to_partof.upper()),
                             timeout=2)

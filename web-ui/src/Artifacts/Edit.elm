@@ -12,7 +12,7 @@ import Messages exposing (AppMsg(..))
 import Artifacts.Messages exposing (..)
 import Artifacts.View as View
 import Artifacts.Select as Select
-import Utils exposing (isJust)
+import Artifacts.Nav as Nav
 
 
 {-| regex to search for and replace [[ART-name]]
@@ -47,7 +47,7 @@ view model artifact =
                             ]
                         ]
                      )
-                        ++ [ form model artifact artifact.edited
+                        ++ [ form model <| EditChoice artifact e
 
                            -- Header for original view
                            , h1 [ id "unedited_head" ] [ text "Previous:" ]
@@ -56,41 +56,27 @@ view model artifact =
 
                 Nothing ->
                     []
+
+        nav =
+            if model.settings.readonly then
+                Nav.bar <| Nav.readBar model artifact
+            else
+                Nav.bar <| Nav.editBar model artifact
     in
         div [ id "edit_view" ]
-            ([ nav model artifact ]
+            ([ nav ]
                 ++ edit
-                ++ [ form model artifact Nothing ]
+                ++ [ form model <| ReadChoice artifact ]
             )
 
 
-nav : Model -> Artifact -> Html AppMsg
-nav model artifact =
-    let
-        edit =
-            if model.settings.readonly then
-                []
-            else if artifact.edited == Nothing then
-                [ editBtn artifact False ]
-            else
-                [ editBtn artifact True
-                , saveBtn artifact
-                ]
-    in
-        div
-            [ class "clearfix mb2 white bg-black p1" ]
-            ([ listBtn ]
-                ++ edit
-            )
-
-
-form : Model -> Artifact -> Maybe EditableArtifact -> Html AppMsg
-form model artifact edited =
+form : Model -> ViewOption -> Html AppMsg
+form model option =
     div [ class "m3" ]
-        ((nameElements model artifact edited)
+        ((nameElements model option)
             ++ [ div [ class "clearfix py1" ]
-                    [ formColumnOne model artifact edited
-                    , formColumnTwo model artifact edited
+                    [ formColumnOne model option
+                    , formColumnTwo model option
                     ]
                ]
         )
@@ -98,43 +84,45 @@ form model artifact edited =
 
 {-| attributes column (non-text)
 -}
-formColumnOne : Model -> Artifact -> Maybe EditableArtifact -> Html AppMsg
-formColumnOne model artifact edited =
+formColumnOne : Model -> ViewOption -> Html AppMsg
+formColumnOne model option =
     let
         partofEls =
             [ h3 [] [ text "Partof" ]
-            , Select.partof model artifact edited
+            , Select.partof model option
             ]
 
-        -- don't display parts when editing
-        els =
-            [ View.completion artifact
-            , Select.defined model artifact edited
-            , View.implemented model artifact
-            ]
-                ++ [ if isJust edited then
-                        div [] partofEls
-                     else
-                        div [ class "clearfix py1" ]
-                            [ div [ class "col col-6" ] partofEls
-                            , div [ class "col col-6" ]
-                                [ h3 [] [ text "Parts" ]
-                                , View.parts model artifact
-                                ]
+        elements =
+            case option of
+                ReadChoice artifact ->
+                    -- display all information
+                    [ View.completion artifact
+                    , Select.defined model option
+                    , View.implemented model artifact
+                    , div [ class "clearfix py1" ]
+                        [ div [ class "col col-6" ] partofEls
+                        , div [ class "col col-6" ]
+                            [ h3 [] [ text "Parts" ]
+                            , View.parts model artifact
                             ]
-                   ]
+                        ]
+                    ]
+
+                EditChoice _ _ ->
+                    -- only display editable information
+                    [ Select.defined model option ] ++ partofEls
     in
-        div [ class "col col-6" ] els
+        div [ class "col col-6" ] elements
 
 
 {-| Text column
 -}
-formColumnTwo : Model -> Artifact -> Maybe EditableArtifact -> Html AppMsg
-formColumnTwo model artifact edited =
+formColumnTwo : Model -> ViewOption -> Html AppMsg
+formColumnTwo model option =
     div [ class "col col-6" ]
         [ h3 [] [ text "Text" ]
-        , selectRenderedBtns model (isJust edited)
-        , displayText model artifact edited
+        , selectRenderedBtns model option
+        , displayText model option
         ]
 
 
@@ -142,17 +130,20 @@ formColumnTwo model artifact edited =
 -- NAME
 
 
-nameElements : Model -> Artifact -> Maybe EditableArtifact -> List (Html AppMsg)
-nameElements model artifact edited =
+nameElements : Model -> ViewOption -> List (Html AppMsg)
+nameElements model option =
     let
         name_id =
-            View.getId "name" artifact edited
+            View.idAttr "name" option
     in
-        case edited of
-            Just e ->
+        case option of
+            ReadChoice artifact ->
+                [ h1 [ name_id ] [ text artifact.name.raw ] ]
+
+            EditChoice artifact e ->
                 let
                     warn_els =
-                        case checkName model e.name artifact.name of
+                        case Nav.checkName model e.name artifact.name of
                             Ok _ ->
                                 []
 
@@ -173,9 +164,6 @@ nameElements model artifact edited =
                 in
                     [ input_el ] ++ warn_els
 
-            Nothing ->
-                [ h1 [ name_id ] [ text artifact.name.raw ] ]
-
 
 
 -- TEXT
@@ -184,30 +172,24 @@ nameElements model artifact edited =
 {-| select which text view to see (raw or rendered)
 ids = {ed_, rd_}*text*{raw, rendered}
 -}
-selectRenderedBtns : Model -> Bool -> Html AppMsg
-selectRenderedBtns model editable =
+selectRenderedBtns : Model -> ViewOption -> Html AppMsg
+selectRenderedBtns model option =
     let
         newView render =
             let
                 view =
                     model.state.textView
             in
-                if editable then
-                    { view | rendered_edit = render }
-                else
+                if isRead option then
                     { view | rendered_read = render }
-
-        getId id_ =
-            if editable then
-                id ("ed_" ++ id_)
-            else
-                id ("rd_" ++ id_)
+                else
+                    { view | rendered_edit = render }
 
         textView =
             model.state.textView
 
         ( rendered_clr, raw_clr ) =
-            if getRendered model editable then
+            if isTextRendered model option then
                 ( "black", "gray" )
             else
                 ( "gray", "black" )
@@ -216,90 +198,78 @@ selectRenderedBtns model editable =
             [ button
                 -- rendered
                 [ class ("btn bold " ++ rendered_clr)
-                , getId "select_rendered_text"
+                , id <| (View.idPrefix option) ++ "select_rendered_text"
                 , onClick <| ArtifactsMsg <| ChangeTextViewState <| newView True
                 ]
                 [ text "rendered" ]
             , button
                 -- raw
                 [ class ("btn bold " ++ raw_clr)
-                , getId "select_raw_text"
+                , id <| (View.idPrefix option) ++ "select_raw_text"
                 , onClick <| ArtifactsMsg <| ChangeTextViewState <| newView False
                 ]
                 [ text "raw" ]
             ]
 
 
-getRendered : Model -> Bool -> Bool
-getRendered model edit =
+isTextRendered : Model -> ViewOption -> Bool
+isTextRendered model option =
     let
         view =
             model.state.textView
     in
-        if edit then
-            view.rendered_edit
-        else
+        if isRead option then
             view.rendered_read
+        else
+            view.rendered_edit
 
 
 
 -- TEXT
 
 
-displayText : Model -> Artifact -> Maybe EditableArtifact -> Html AppMsg
-displayText model artifact edited =
-    if getRendered model (isJust edited) then
-        displayRenderedText model artifact edited
+displayText : Model -> ViewOption -> Html AppMsg
+displayText model option =
+    if isTextRendered model option then
+        displayRenderedText model option
     else
-        displayRawText model artifact edited
+        displayRawText model option
 
 
-displayRenderedText : Model -> Artifact -> Maybe EditableArtifact -> Html AppMsg
-displayRenderedText model artifact edited =
+displayRenderedText : Model -> ViewOption -> Html AppMsg
+displayRenderedText model option =
     let
-        id =
-            View.getId "rendered_text" artifact edited
-
         rawText =
-            case edited of
-                -- show the edited version
-                Just e ->
-                    e.text
+            case option of
+                ReadChoice a ->
+                    a.text
 
-                -- show the original version
-                Nothing ->
-                    artifact.text
+                EditChoice _ e ->
+                    e.text
 
         rendered =
             replaceArtifactLinks model rawText
     in
-        toHtml [ id ] rendered
+        toHtml [ View.idAttr "rendered_text" option ] rendered
 
 
 {-| display raw text in a way that can be edited
-
-ids: {rd, ed}*text*(artifact.name.value)
-
 -}
-displayRawText : Model -> Artifact -> Maybe EditableArtifact -> Html AppMsg
-displayRawText model artifact edited =
+displayRawText : Model -> ViewOption -> Html AppMsg
+displayRawText model option =
     let
-        editedAttrs =
-            case edited of
-                Just e ->
-                    [ (onInput
-                        (\t ->
-                            (ArtifactsMsg
-                                (EditArtifact artifact.id
-                                    { e | text = t }
-                                )
-                            )
-                        )
-                      )
-                    ]
+        ( rawText, editedAttrs ) =
+            case option of
+                ReadChoice artifact ->
+                    ( artifact.text, [] )
 
-                Nothing ->
-                    []
+                EditChoice artifact edited ->
+                    let
+                        changedMsg t =
+                            ArtifactsMsg <|
+                                EditArtifact artifact.id { edited | text = t }
+                    in
+                        ( edited.text, [ onInput changedMsg ] )
 
         attrs =
             [ class "h3"
@@ -307,87 +277,11 @@ displayRawText model artifact edited =
             -- class=h3 otherwise it is really tiny for some reason
             , rows 35
             , cols 80
-            , readonly <| not <| isJust edited
-            , View.getId "raw_text" artifact edited
+            , readonly <| isRead option
+            , View.idAttr "raw_text" option
             ]
-                ++ editedAttrs
-
-        rawText =
-            case edited of
-                -- show the edited version
-                Just e ->
-                    e.text
-
-                -- show the original version
-                Nothing ->
-                    artifact.text
     in
-        textarea attrs [ text rawText ]
-
-
-
--- BUTTONS
-
-
-{-| navigate back to the list page
-
-ids: list
-
--}
-listBtn : Html AppMsg
-listBtn =
-    button
-        [ class "btn regular"
-        , id "list"
-        , onClick (ArtifactsMsg ShowArtifacts)
-        ]
-        [ i [ class "fa fa-chevron-left mr1" ] [], text "List" ]
-
-
-{-| start/stop editing
-
-ids: edit/cancel_edit
-
--}
-editBtn : Artifact -> Bool -> Html AppMsg
-editBtn artifact in_progress =
-    button
-        ([ class "btn regular"
-         ]
-            ++ if in_progress then
-                [ id "cancel_edit"
-                , onClick (ArtifactsMsg (CancelEditArtifact artifact.id))
-                ]
-               else
-                [ id "edit"
-                , onClick (ArtifactsMsg (EditArtifact artifact.id (getEditable artifact)))
-                ]
-        )
-        [ i [ class "fa fa-pencil mr1" ] []
-        , text
-            (if in_progress then
-                "Cancel"
-             else
-                "Edit"
-            )
-        ]
-
-
-{-| save the current edit state. This button does not always exist.
-
-ids: save
-
--}
-saveBtn : Artifact -> Html AppMsg
-saveBtn artifact =
-    button
-        [ class "btn regular"
-        , id "save"
-        , onClick <| ArtifactsMsg <| SaveArtifact artifact.id
-        ]
-        [ i [ class "fa fa-floppy-o mr1" ] []
-        , text "Save"
-        ]
+        textarea (attrs ++ editedAttrs) [ text rawText ]
 
 
 
@@ -444,22 +338,3 @@ replaceArtifactLinks model text =
                     "INTERNAL_ERROR"
     in
         Regex.replace Regex.All artifactLinkRegex replace text
-
-
-{-| Just check that the name is valid and that it doesn't
-already exist.
--}
-checkName : Model -> String -> Name -> Result String Name
-checkName model name original =
-    case initName name of
-        Ok name ->
-            if name == original then
-                -- name already exists... because its the same name!
-                Ok name
-            else if memberArtifact name.value model then
-                Err "name already exists"
-            else
-                Ok name
-
-        Err _ ->
-            Err "invalid name"

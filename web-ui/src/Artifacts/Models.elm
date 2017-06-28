@@ -5,6 +5,9 @@ import Regex
 import JsonRpc exposing (RpcError)
 
 
+-- CONSTANTS
+
+
 artifactValidRaw : String
 artifactValidRaw =
     "(REQ|SPC|RSK|TST)(-[A-Z0-9_-]*[A-Z0-9_])?"
@@ -15,10 +18,59 @@ artifactValidPat =
     Regex.regex <| "^" ++ artifactValidRaw ++ "$"
 
 
+artifactsUrl : String
+artifactsUrl =
+    "#artifacts"
+
+
+
+-- TYPES
+
+
+{-| representation of an Artifact object
+-}
+type alias Artifact =
+    { id : ArtifactId
+    , revision : Int
+    , name : Name
+    , def : String
+    , text : String
+    , partof : List Name
+    , parts : List Name
+    , code : Maybe Loc
+    , done : Maybe String
+    , completed : Float
+    , tested : Float
+    , edited : Maybe EditableArtifact
+    }
+
+
+type alias Loc =
+    { path : String
+    , line : Int
+    }
+
+
+type alias Name =
+    { raw : String
+    , value : String
+    , ty : Type
+    }
+
+
 {-| pretty much only used when updating artifacts
 -}
 type alias ArtifactId =
     Int
+
+
+{-| the type of the artifact name
+-}
+type Type
+    = Req
+    | Spc
+    | Rsk
+    | Tst
 
 
 {-| the standard lookup method for artifacts
@@ -27,13 +79,108 @@ type alias NameKey =
     String
 
 
-{-| the type of the artifact
+{-| How artifacts are stored
 -}
-type Type
-    = Req
-    | Spc
-    | Rsk
-    | Tst
+type alias Artifacts =
+    Dict.Dict ArtifactId Artifact
+
+
+{-| Editable part of an artifact
+-}
+type alias EditableArtifact =
+    { name : String
+    , def : String
+    , text : String
+    , partof : List Name
+    , done : String
+    , revision : Int
+    }
+
+
+type alias ArtifactsResponse =
+    { result : Maybe (List Artifact)
+    , error : Maybe RpcError
+    }
+
+
+type ViewOption
+    = ReadChoice Artifact
+    | EditChoice Artifact EditableArtifact
+
+
+
+-- INIT
+
+
+initialArtifacts : Artifacts
+initialArtifacts =
+    Dict.empty
+
+
+{-| get the real name from a raw name
+return Err if name is invalid
+-}
+indexName : String -> Result String String
+indexName name =
+    let
+        index =
+            indexNameUnchecked name
+    in
+        if Regex.contains artifactValidPat index then
+            Ok index
+        else
+            Err ("Invalid name: " ++ name)
+
+
+{-| used for ONLY internal name handling when we
+convert to/from the DOM.
+-}
+initNameUnsafe : String -> Name
+initNameUnsafe raw =
+    case initName raw of
+        Ok n ->
+            n
+
+        Err e ->
+            Debug.crash e
+
+
+{-| initialize a name object and find it's type
+-}
+initName : String -> Result String Name
+initName name =
+    case indexName name of
+        Ok value ->
+            case getType value of
+                Just ty ->
+                    Ok
+                        { raw = name
+                        , value = value
+                        , ty = ty
+                        }
+
+                Nothing ->
+                    -- this should NEVER happen
+                    -- (except for some internal usage)
+                    Err "Critical: invalid artifact type"
+
+        Err e ->
+            Err e
+
+
+{-| convert a list of artifacts to a dictionary by Name
+-}
+artifactsFromList : List Artifact -> Artifacts
+artifactsFromList artifacts =
+    let
+        pairs =
+            List.map (\a -> ( a.id, a )) artifacts
+    in
+        Dict.fromList pairs
+
+
+
+-- METHODS
 
 
 {-| returns the type of the artifact based
@@ -139,58 +286,14 @@ autoPartof name partof =
             False
 
 
-type alias Loc =
-    { path : String
-    , line : Int
-    }
+isRead : ViewOption -> Bool
+isRead option =
+    case option of
+        ReadChoice _ ->
+            True
 
-
-type alias Name =
-    { raw : String
-    , value : String
-    , ty : Type
-    }
-
-
-{-| How artifacts are stored
--}
-type alias Artifacts =
-    Dict.Dict ArtifactId Artifact
-
-
-initialArtifacts : Artifacts
-initialArtifacts =
-    Dict.empty
-
-
-{-| representation of an Artifact object
--}
-type alias Artifact =
-    { id : ArtifactId
-    , revision : Int
-    , name : Name
-    , def : String
-    , text : String
-    , partof : List Name
-    , parts : List Name
-    , code : Maybe Loc
-    , done : Maybe String
-    , completed : Float
-    , tested : Float
-    , edited : Maybe EditableArtifact
-    }
-
-
-{-| Editable part of an artifact
--}
-type alias EditableArtifact =
-    { name : String
-    , def : String
-    , text : String
-    , partof : List Name
-    , done : String
-    , revision : Int
-    }
+        EditChoice _ _ ->
+            False
 
 
 {-| gets the edited variable of the artifact
@@ -223,17 +326,6 @@ createEditable artifact =
     }
 
 
-type alias ArtifactsResponse =
-    { result : Maybe (List Artifact)
-    , error : Maybe RpcError
-    }
-
-
-artifactsUrl : String
-artifactsUrl =
-    "#artifacts"
-
-
 artifactNameUrl : String -> String
 artifactNameUrl name =
     "#artifacts/" ++ (String.toLower name)
@@ -246,70 +338,8 @@ indexNameUnchecked name =
     String.toUpper name
 
 
-{-| get the real name from a raw name
-return Err if name is invalid
--}
-indexName : String -> Result String String
-indexName name =
-    let
-        index =
-            indexNameUnchecked name
-    in
-        if Regex.contains artifactValidPat index then
-            Ok index
-        else
-            Err ("Invalid name: " ++ name)
 
-
-{-| used for ONLY internal name handling when we
-convert to/from the DOM.
--}
-initNameUnsafe : String -> Name
-initNameUnsafe raw =
-    case initName raw of
-        Ok n ->
-            n
-
-        Err e ->
-            Debug.crash e
-
-
-{-| initialize a name object and find it's type
--}
-initName : String -> Result String Name
-initName name =
-    case indexName name of
-        Ok value ->
-            case getType value of
-                Just ty ->
-                    Ok
-                        { raw = name
-                        , value = value
-                        , ty = ty
-                        }
-
-                Nothing ->
-                    -- this should NEVER happen
-                    -- (except for some internal usage)
-                    Err "Critical: invalid artifact type"
-
-        Err e ->
-            Err e
-
-
-{-| convert a list of artifacts to a dictionary by Name
--}
-artifactsFromList : List Artifact -> Artifacts
-artifactsFromList artifacts =
-    let
-        pairs =
-            List.map (\a -> ( a.id, a )) artifacts
-    in
-        Dict.fromList pairs
-
-
-
--- VIEW Models
+-- VIEW Models -- TODO: move this somewhere else
 
 
 {-| artifact attributes which can be displayed

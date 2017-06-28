@@ -4,23 +4,11 @@ import Set
 import Dict
 import Navigation
 import Messages exposing (Route)
-import Artifacts.Models
-    exposing
-        ( Artifact
-        , Artifacts
-        , ArtifactId
-        , NameKey
-        , Columns
-        , TextViewState
-        , Search
-        , initialColumns
-        , initialTextViewState
-        , initialSearch
-        )
+import Artifacts.Models exposing (..)
 import Utils exposing (isJust)
 
 
--- MODEL: application level model, holds all app data
+-- TYPES
 
 
 type alias Model =
@@ -35,6 +23,55 @@ type alias Model =
     , state : State
     , jsonId : Int
     }
+
+
+type alias Settings =
+    { readonly : Bool
+    }
+
+
+type alias Logs =
+    { all : List String
+    }
+
+
+{-| current user selections. TODO: store this in a cookie or something...
+-}
+type alias State =
+    { columns : Columns
+    , search : Search
+    , textView : TextViewState
+    }
+
+
+
+-- INIT
+
+
+{-| settings from cmdline tool (injected into js)
+-}
+initialSettings : Bool -> Settings
+initialSettings readonly =
+    { readonly = readonly
+    }
+
+
+initialLogs : Logs
+initialLogs =
+    { all = []
+    }
+
+
+initialState : State
+initialState =
+    { columns = initialColumns
+    , search = initialSearch
+    , textView = initialTextViewState
+    }
+
+
+
+-- METHODS
 
 
 nameIds : Artifacts -> Dict.Dict NameKey ArtifactId
@@ -76,38 +113,6 @@ getDefs model =
         List.sort <| Set.toList defs
 
 
-
--- settings from cmdline tool (injected into js)
-
-
-type alias Settings =
-    { readonly : Bool
-    }
-
-
-initialSettings : Bool -> Settings
-initialSettings readonly =
-    { readonly = readonly
-    }
-
-
-
--- ERRORS: place to store errors that happen
--- TODO: this is supposed to display a list
--- that disappears over time
-
-
-type alias Logs =
-    { all : List String
-    }
-
-
-initialLogs : Logs
-initialLogs =
-    { all = []
-    }
-
-
 {-| log an error
 -}
 log : Model -> String -> Model
@@ -128,27 +133,3 @@ log model msg =
 logInvalidId : Model -> String -> Int -> Model
 logInvalidId model desc id =
     log model <| desc ++ ": invalid id " ++ (toString id)
-
-
-
--- STATE
-
-
-{-| current user selections
-
-TODO: store this in a cookie or something...
-
--}
-type alias State =
-    { columns : Columns
-    , search : Search
-    , textView : TextViewState
-    }
-
-
-initialState : State
-initialState =
-    { columns = initialColumns
-    , search = initialSearch
-    , textView = initialTextViewState
-    }
