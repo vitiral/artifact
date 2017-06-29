@@ -58,6 +58,27 @@ pub fn convert_to_data(project: &Project) -> Vec<ArtifactData> {
         .collect()
 }
 
+pub fn from_data(
+    origin: &Path,
+    data: &ArtifactData,
+) -> result::Result<(NameRc, Artifact), RpcError> {
+    match convert_artifact(origin, data) {
+        Ok(v) => Ok(v),
+        Err(msg) => {
+            let e = RpcError {
+                code: constants::SERVER_ERROR,
+                message: format!(
+                    "Could not convert artifact back {:?}, GOT ERROR: {}",
+                    data,
+                    msg
+                ),
+                data: None,
+            };
+            Err(e)
+        }
+    }
+}
+
 pub fn dump_artifacts(project: &Project) -> result::Result<(), RpcError> {
     // get the raw ProjectText for saving to disk
     let text = match user::ProjectText::from_project(project) {

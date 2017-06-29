@@ -64,6 +64,18 @@ createArtifacts model edited =
         Http.send gotArtifactsMsg request
 
 
+deleteArtifacts : Model -> List Artifact -> Cmd AppMsg
+deleteArtifacts model artifacts =
+    let
+        body =
+            Http.jsonBody <| deleteArtifactsRequestEncoded model.jsonId artifacts
+
+        request =
+            createJsonRequest model body artifactsResponseDecoder
+    in
+        Http.send gotArtifactsMsg request
+
+
 
 -- Helpers
 
@@ -160,6 +172,28 @@ createArtifactsRequestEncoded rpc_id edited =
         Encode.object attrs
 
 
+deleteArtifactsRequestEncoded : Int -> List Artifact -> Encode.Value
+deleteArtifactsRequestEncoded rpc_id artifacts =
+    let
+        -- when creating artifacts, they always have id=0
+        ids =
+            List.map (\a -> a.id) artifacts
+
+        params =
+            Encode.object
+                [ ( "ids", Encode.list <| List.map Encode.int ids )
+                ]
+
+        attrs =
+            [ ( "jsonrpc", Encode.string "2.0" )
+            , ( "id", Encode.int rpc_id )
+            , ( "method", Encode.string "DeleteArtifacts" )
+            , ( "params", params )
+            ]
+    in
+        Encode.object attrs
+
+
 
 -- ENCODER
 
@@ -187,7 +221,7 @@ artifactEncoded ( id, edited ) =
             , ( "name", Encode.string edited.name )
             , ( "def", Encode.string edited.def )
             , ( "text", Encode.string edited.text )
-            , ( "partof", Encode.list (List.map Encode.string partof) )
+            , ( "partof", Encode.list <| List.map Encode.string partof )
             , ( "done", done )
             ]
     in

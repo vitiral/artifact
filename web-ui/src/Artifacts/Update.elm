@@ -7,12 +7,13 @@ import Messages
     exposing
         ( createUrl
         , AppMsg(AppError)
-        , Route(ArtifactNameRoute, ArtifactCreateRoute)
+        , Route(..)
         )
 import Utils exposing (assertOr)
+import Log
 import Artifacts.Messages exposing (Msg(..))
 import Artifacts.Models exposing (..)
-import Artifacts.Commands exposing (updateArtifacts, createArtifacts)
+import Artifacts.Commands exposing (updateArtifacts, createArtifacts, deleteArtifacts)
 
 
 update : Msg -> Model -> ( Model, Cmd AppMsg )
@@ -112,6 +113,9 @@ update msg model =
                     in
                         ( model2, createArtifacts model [ edited ] )
 
+        DeleteArtifact artifact ->
+            ( model, deleteArtifacts model [ artifact ] )
+
 
 {-| set the edited variable on the requested artifact
 -}
@@ -171,8 +175,28 @@ handleReceived model artifactList =
                 , create = create
                 , logs = logs
             }
+
+        -- the artifact may have been deleted in which case, log a message and
+        -- switch to list
+        final_model =
+            case new_model.route of
+                ArtifactNameRoute rawName ->
+                    if Dict.member (indexNameUnchecked rawName) new_model.names then
+                        new_model
+                    else
+                        let
+                            logged =
+                                "Artifact Deletion Successful: "
+                                    ++ rawName
+                                    |> LogOk
+                                    |> Log.log model
+                        in
+                            { logged | route = ArtifactsRoute }
+
+                _ ->
+                    new_model
     in
-        ( new_model, cmd )
+        ( final_model, cmd )
 
 
 {-| get the edited, keeping in mind that changes may have been applied

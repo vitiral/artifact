@@ -13,7 +13,7 @@ fn init_rpc_handler() -> IoHandler {
     handler.add_method("CreateArtifacts", crud::CreateArtifacts);
     handler.add_method("ReadArtifacts", crud::ReadArtifacts);
     handler.add_method("UpdateArtifacts", crud::UpdateArtifacts);
-    // TODO: DeleteArtifacts
+    handler.add_method("DeleteArtifacts", crud::DeleteArtifacts);
     init_tracker(&mut handler);
     handler
 }

@@ -261,6 +261,11 @@ class App(object):
         """Save while in the create page."""
         self.find_id("save", timeout).click()
 
+    def delete(self, timeout=None):
+        """Delete the current artifact."""
+        self.find_id("delete", timeout).click()
+        self.assert_list_view(timeout=5)
+
     def cancel_edit(self, timeout=None):
         """Cancel edit and wait for it to be canceled."""
         self.find_id("cancel_edit", timeout).click()

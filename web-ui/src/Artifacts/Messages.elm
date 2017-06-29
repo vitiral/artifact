@@ -14,3 +14,4 @@ type Msg
     | EditArtifact EditOption
     | CancelEditArtifact EditOption
     | SaveArtifact EditOption
+    | DeleteArtifact Artifact

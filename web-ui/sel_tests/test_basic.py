@@ -23,6 +23,9 @@ LIST_ID = "list"
 
 EXAMPLE_PROJ = "web-ui/sel_tests/ex_proj"
 
+ALONE_PATH = "design/alone.toml"
+PURPOSE_PATH = "design/purpose.toml"
+
 
 def artifact_url(base, name):
     """get the artifact-edit url."""
@@ -31,6 +34,7 @@ def artifact_url(base, name):
 
 UPDATE_LOG_FMT = "Artifact Update Successful: {}".format
 CREATE_LOG_FMT = "Artifact Creation Successful: {}".format
+DELETE_LOG_FMT = "Artifact Deletion Successful: {}".format
 
 
 def setup_phantom():
@@ -154,7 +158,7 @@ class TestStuff(unittest.TestCase):
             assert app.get_value(name, F.raw_text, timeout=1) == expected
 
             # make sure the file itself has changed as expected
-            toml_arts = art.get_artifacts("design/purpose.toml")
+            toml_arts = art.get_artifacts(PURPOSE_PATH)
             assert toml_arts["SPC-layout"].text == expected
 
             # navigate away and then back... make sure it's still changed
@@ -199,7 +203,7 @@ class TestStuff(unittest.TestCase):
             app.assert_read_view()
             assert app.get_items(name, F.partof) == expected_partof
 
-            toml_arts = art.get_artifacts("design/purpose.toml")
+            toml_arts = art.get_artifacts(PURPOSE_PATH)
             assert toml_arts["SPC-layout"].partof == "SPC-alone"
 
     def test_edit_name(self):
@@ -239,23 +243,21 @@ class TestStuff(unittest.TestCase):
             app.driver.get(url)
             name_raw = "SPC-alone"
             name = name_raw.upper()
-            initial_path = "design/alone.toml"
-            new_path = "design/purpose.toml"
 
             app.assert_list_view(timeout=10)
             app.goto_artifact(name, timeout=5)
             app.assert_read_view(timeout=2)
             assert app.driver.current_url == artifact_url(url, name.lower())
-            assert app.get_value(name, F.def_at) == initial_path
+            assert app.get_value(name, F.def_at) == ALONE_PATH
             app.start_edit(timeout=1)
             app.assert_edit_view(timeout=2)
 
-            app.set_defined(name, new_path)
+            app.set_defined(name, PURPOSE_PATH)
             app.save_edit()
             app.ack_log(0, UPDATE_LOG_FMT(name_raw), timeout=1)
-            assert app.get_value(name, F.def_at) == new_path
-            assert name_raw not in art.get_artifacts(initial_path)
-            assert name_raw in art.get_artifacts(new_path)
+            assert app.get_value(name, F.def_at) == PURPOSE_PATH
+            assert name_raw not in art.get_artifacts(ALONE_PATH)
+            assert name_raw in art.get_artifacts(PURPOSE_PATH)
 
             art.restart()
 
@@ -271,7 +273,6 @@ class TestStuff(unittest.TestCase):
             name = name_raw.upper()
             expected = "I created this and it rocks\nwhoo!"
             expected_partof = sorted(["REQ-purpose", "SPC"])
-            defined = "design/purpose.toml"
 
             app.assert_list_view(timeout=10)
             app.goto_create()
@@ -281,7 +282,7 @@ class TestStuff(unittest.TestCase):
             app.set_value(CREATE, F.name, name_raw)
             app.set_value(CREATE, F.raw_text, expected)
             app.add_partof(CREATE, "REQ-purpose")
-            app.set_defined(CREATE, defined)
+            app.set_defined(CREATE, PURPOSE_PATH)
             app.save_create()
             app.ack_log(0, CREATE_LOG_FMT(name_raw), timeout=1)
 
@@ -294,4 +295,28 @@ class TestStuff(unittest.TestCase):
             app.select_text(F.raw_text, timeout=2)
             assert app.get_value(name, F.raw_text) == expected
             assert app.get_items(name, F.partof) == expected_partof
-            assert app.get_value(name, F.def_at) == defined
+            assert app.get_value(name, F.def_at) == PURPOSE_PATH
+
+    def test_delete(self):
+        """Test deleting artifacts."""
+        app = self.app
+
+        art = cmds.Artifact(EXAMPLE_PROJ)
+        with art as url:
+            app.driver.get(url)
+            name_raw = "SPC-alone"
+            name = name_raw.upper()
+
+            app.assert_list_view(timeout=10)
+            app.goto_artifact(name, timeout=5)
+            app.assert_read_view(timeout=2)
+            app.delete()
+            app.ack_log(0, DELETE_LOG_FMT(name_raw.lower()), timeout=1)
+            assert name_raw not in art.get_artifacts(ALONE_PATH)
+
+            name_raw = "SPC-layout"
+            name = name_raw.upper()
+            app.goto_artifact(name, timeout=2)
+            app.delete()
+            app.ack_log(0, DELETE_LOG_FMT(name_raw.lower()), timeout=1)
+            assert name_raw not in art.get_artifacts(PURPOSE_PATH)

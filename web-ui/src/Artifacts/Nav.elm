@@ -53,6 +53,7 @@ editBar model option =
             case option of
                 ReadChoice artifact ->
                     [ createBtn
+                    , deleteBtn artifact
                     , editBtn option
                     ]
 
@@ -60,6 +61,7 @@ editBar model option =
                     case choice of
                         ChangeChoice artifact edited ->
                             [ createBtn
+                            , deleteBtn artifact
                             , editBtn option
                             , saveBtn model choice
                             ]
@@ -98,7 +100,7 @@ createBtn =
         , onClick <| ArtifactsMsg CreateArtifact
         ]
         [ i [ class "fa fa-plus-square mr1" ] []
-        , text "Create"
+        , text "Create New"
         ]
 
 
@@ -157,6 +159,19 @@ saveBtn model option =
             [ i [ class "fa fa-floppy-o mr1" ] []
             , text "Save"
             ]
+
+
+deleteBtn : Artifact -> Html AppMsg
+deleteBtn artifact =
+    button
+        [ class "btn regular"
+        , id "delete"
+        , title "delete artifact"
+        , onClick <| ArtifactsMsg <| DeleteArtifact artifact
+        ]
+        [ i [ class "fa fa-trash mr1" ] []
+        , text "Delete"
+        ]
 
 
 
