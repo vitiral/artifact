@@ -34,25 +34,31 @@ listBar =
 
 {-| nav bar for read-only artifact view
 -}
-readBar : Model -> Artifact -> List (Html AppMsg)
-readBar model artifact =
+readBar : List (Html AppMsg)
+readBar =
     [ listBtn ]
 
 
 {-| nav bar for edit artifact view
 -}
-editBar : Model -> Artifact -> List (Html AppMsg)
-editBar model artifact =
+editBar : Model -> ViewOption -> List (Html AppMsg)
+editBar model option =
     let
         extra =
-            case artifact.edited of
-                Just e ->
-                    [ editBtn artifact True
-                    , saveBtn model artifact e
-                    ]
-
-                Nothing ->
+            case option of
+                ReadChoice artifact ->
                     [ editBtn artifact False ]
+
+                EditChoice choice ->
+                    case choice of
+                        ChangeChoice artifact edited ->
+                            [ editBtn artifact True
+                            , saveBtn model artifact edited
+                            ]
+
+                        CreateChoice edited ->
+                            -- SaveArtifact needs to accept choice
+                            Debug.crash "FIXME"
     in
         [ listBtn ] ++ extra
 

@@ -6,7 +6,7 @@ import Html.Attributes exposing (class, style, value, href, readonly, rows, cols
 import Html.Events exposing (onClick, onInput)
 import Regex
 import Markdown exposing (toHtml)
-import Models exposing (Model, getArtifact, memberArtifact)
+import Models exposing (Model, getArtifact, memberArtifact, getCreateArtifact)
 import Styles exposing (warning)
 import Artifacts.Models exposing (..)
 import Messages exposing (AppMsg(..))
@@ -23,25 +23,86 @@ artifactLinkRegex =
     Regex.caseInsensitive <| Regex.regex <| "\\[\\[(" ++ artifactValidRaw ++ ")\\]\\]"
 
 
+
 {-| the entire view
+-}
+view : Model -> ArtifactId -> Html AppMsg
+view model art_id =
+    case getOption model art_id of
+        Just option -> 
+            let
+                nav = if model.settings.readonly then
+                    Nav.bar <| Nav.readBar
+                else
+                    Nav.bar <| Nav.editBar model option
+
+                original = case option of
+                    ReadChoice choice ->
+                        []
+                    EditChoice choice ->
+                        case choice of
+                            ChangeChoice artifact _ -> 
+                               -- Header for original view
+                               [ h1 [ id "original_head" ] [ text "Previous:" ]
+                               , form model (ReadChoice artifact)
+                               ]
+                            CreateChoice _ ->
+                                []
+            in
+                div []
+                    <| List.concat
+                        [ [ nav ]
+                        , revisionWarnings model option
+                        , [ form model option ]
+                        , original
+                        ]
+
+        Nothing -> 
+            div 
+                [ id "not_found" ] 
+                [ text <| "artifact id " ++ (toString art_id) ++ " not found"
+                ]
+
+
+{-| return an option for viewing based on the artifact id.
 
 This is the ONLY place that used the "artifact id" hack,
 where id=0 corresponds to "create"
 -}
-view : Model -> ArtifactId -> Html AppMsg
-view model art_id =
-    let
-        -- FIXME
-        artifact = case Dict.get art_id model.artifacts of
-            Just a -> a
-            Nothing -> Debug.crash "FIXME"
+getOption : Model -> ArtifactId -> Maybe (ViewOption)
+getOption model art_id =
+    if model.settings.readonly then
+        case Dict.get art_id model.artifacts of
+            Just a -> Just <| ReadChoice a
+            Nothing -> Nothing
+    else
+        if art_id == 0 then
+            Just <| EditChoice <| CreateChoice <| getCreateArtifact model
+        else
+            case Dict.get art_id model.artifacts of
+                Just artifact -> 
+                    case artifact.edited of
+                        Just e -> 
+                            Just <| EditChoice <| ChangeChoice artifact e
+                        Nothing -> 
+                            Just <| ReadChoice <| artifact
+                Nothing -> 
+                    Nothing
 
-        edit =
-            case artifact.edited of
-                Just e ->
-                    ((if e.revision == artifact.revision then
+
+{-| display a warning if the artifact changed from under the user
+-}
+revisionWarnings : Model -> ViewOption -> List (Html AppMsg)
+revisionWarnings model option =
+    case option of
+        ReadChoice _ ->
+            []
+        EditChoice choice ->
+            case choice of
+                ChangeChoice artifact edited -> 
+                    if artifact.revision == edited.revision then
                         []
-                      else
+                    else
                         [ h1
                             [ class "h1 red"
                             , id "warn_edit_change"
@@ -52,28 +113,8 @@ view model art_id =
                                     ++ " started !!"
                             ]
                         ]
-                     )
-                        ++ [ form model <| EditChoice (ChangeChoice artifact e)
-
-                           -- Header for original view
-                           , h1 [ id "unedited_head" ] [ text "Previous:" ]
-                           ]
-                    )
-
-                Nothing ->
+                CreateChoice _ ->
                     []
-
-        nav =
-            if model.settings.readonly then
-                Nav.bar <| Nav.readBar model artifact
-            else
-                Nav.bar <| Nav.editBar model artifact
-    in
-        div [ id "edit_view" ]
-            ([ nav ]
-                ++ edit
-                ++ [ form model <| ReadChoice artifact ]
-            )
 
 
 form : Model -> ViewOption -> Html AppMsg
