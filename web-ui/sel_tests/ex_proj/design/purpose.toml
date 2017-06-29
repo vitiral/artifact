@@ -15,6 +15,3 @@ text = "This is literally just a partof REQ-layout"
 
 [TST-layout]
 text = "ditto"
-
-[SPC-alone]
-text = "this spc is not partof anything"

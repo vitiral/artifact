@@ -29,9 +29,9 @@ view model option =
     let
         nav =
             if model.settings.readonly then
-                Nav.bar <| Nav.readBar
+                Nav.bar model <| Nav.readBar
             else
-                Nav.bar <| Nav.editBar model option
+                Nav.bar model <| Nav.editBar model option
 
         original =
             case option of

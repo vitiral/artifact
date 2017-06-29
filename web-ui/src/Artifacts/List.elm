@@ -24,7 +24,7 @@ import Artifacts.Nav as Nav
 view : Model -> Artifacts -> Html AppMsg
 view model artifacts =
     div [ id "list_view" ]
-        [ Nav.bar Nav.listBar
+        [ Nav.bar model Nav.listBar
 
         -- select / search bar
         , div [ class "clearfix py1" ]

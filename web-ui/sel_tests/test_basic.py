@@ -15,6 +15,8 @@ from selenium.webdriver.support import expected_conditions as EC
 from . import cmds
 from . import webapp
 
+CREATE = "CREATE"
+
 LIST_VIEW_ID = "list_view"
 EDIT_VIEW_ID = "edit_view"
 LIST_ID = "list"
@@ -25,6 +27,10 @@ EXAMPLE_PROJ = "web-ui/sel_tests/ex_proj"
 def artifact_url(base, name):
     """get the artifact-edit url."""
     return "{}/#artifacts/{}".format(base, name)
+
+
+UPDATE_LOG_FMT = "Artifact Update Successful: {}".format
+CREATE_LOG_FMT = "Artifact Creation Successful: {}".format
 
 
 def setup_phantom():
@@ -141,6 +147,7 @@ class TestStuff(unittest.TestCase):
             assert_initial(edit=True, timeout=1)
             app.set_value(name, F.raw_text, expected)
             app.save_edit()
+            app.ack_log(0, UPDATE_LOG_FMT("SPC-layout"), timeout=1)
             time.sleep(0.5)
             app.driver.refresh()
             app.select_text(F.raw_text, timeout=2)
@@ -188,6 +195,7 @@ class TestStuff(unittest.TestCase):
             # finally add it and save
             app.add_partof(name, "SPC-alone")
             app.save_edit()
+            app.ack_log(0, UPDATE_LOG_FMT("SPC-layout"), timeout=1)
             app.assert_read_view()
             assert app.get_items(name, F.partof) == expected_partof
 
@@ -215,7 +223,75 @@ class TestStuff(unittest.TestCase):
             new_name = new_name_raw.upper()
             app.set_value(name, F.name, new_name_raw, 2)
             app.save_edit()
+            app.ack_log(0, UPDATE_LOG_FMT(new_name_raw), timeout=1)
             # assert name changed and url changed
             assert app.get_value(new_name, F.name, timeout=1) == new_name_raw
             assert app.driver.current_url == artifact_url(
                 url, new_name.lower())
+
+    def test_edit_defined(self):
+        """Test that editing the defined path works as expected."""
+        app = self.app
+        F = webapp.Fields
+
+        art = cmds.Artifact(EXAMPLE_PROJ)
+        with art as url:
+            app.driver.get(url)
+            name_raw = "SPC-alone"
+            name = name_raw.upper()
+            initial_path = "design/alone.toml"
+            new_path = "design/purpose.toml"
+
+            app.assert_list_view(timeout=10)
+            app.goto_artifact(name, timeout=5)
+            app.assert_read_view(timeout=2)
+            assert app.driver.current_url == artifact_url(url, name.lower())
+            assert app.get_value(name, F.def_at) == initial_path
+            app.start_edit(timeout=1)
+            app.assert_edit_view(timeout=2)
+
+            app.set_defined(name, new_path)
+            app.save_edit()
+            app.ack_log(0, UPDATE_LOG_FMT(name_raw), timeout=1)
+            assert app.get_value(name, F.def_at) == new_path
+            assert name_raw not in art.get_artifacts(initial_path)
+            assert name_raw in art.get_artifacts(new_path)
+
+            art.restart()
+
+    def test_create(self):
+        """Test editing a text field."""
+        app = self.app
+        F = webapp.Fields
+
+        art = cmds.Artifact(EXAMPLE_PROJ)
+        with art as url:
+            app.driver.get(url)
+            name_raw = "spc-created"
+            name = name_raw.upper()
+            expected = "I created this and it rocks\nwhoo!"
+            expected_partof = sorted(["REQ-purpose", "SPC"])
+            defined = "design/purpose.toml"
+
+            app.assert_list_view(timeout=10)
+            app.goto_create()
+            assert app.driver.current_url == url + "/#create"
+
+            assert app.get_attr("save", "disabled", timeout=2) == 'true'
+            app.set_value(CREATE, F.name, name_raw)
+            app.set_value(CREATE, F.raw_text, expected)
+            app.add_partof(CREATE, "REQ-purpose")
+            app.set_defined(CREATE, defined)
+            app.save_create()
+            app.ack_log(0, CREATE_LOG_FMT(name_raw), timeout=1)
+
+            # we have started a new session
+            assert app.get_attr("save", "disabled", timeout=2) == 'true'
+
+            app.goto_list()
+            app.goto_artifact(name, timeout=2)
+            assert app.get_value(name, F.name) == name_raw
+            app.select_text(F.raw_text, timeout=2)
+            assert app.get_value(name, F.raw_text) == expected
+            assert app.get_items(name, F.partof) == expected_partof
+            assert app.get_value(name, F.def_at) == defined

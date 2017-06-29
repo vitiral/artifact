@@ -6,7 +6,7 @@ import Navigation
 --import Html exposing (program)
 
 import Messages exposing (AppMsg(..), Route)
-import Models exposing (Model, initialLogs, initialSettings, initialState, nameIds)
+import Models exposing (..)
 import View exposing (view)
 import Update exposing (update)
 import Routing
@@ -31,7 +31,7 @@ initialModel location addr route =
         , names = nameIds artifacts
         , route = route
         , location = location
-        , logs = initialLogs
+        , logs = []
         , settings = initialSettings True
         , addr = addr
         , state = initialState

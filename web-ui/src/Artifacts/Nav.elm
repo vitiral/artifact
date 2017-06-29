@@ -9,6 +9,7 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (onClick)
 import Utils exposing (..)
 import Models exposing (..)
+import Log
 import Messages exposing (AppMsg(..))
 import Artifacts.Models exposing (..)
 import Artifacts.Messages exposing (..)
@@ -17,11 +18,14 @@ import Artifacts.Messages exposing (..)
 -- NAV BAR
 
 
-bar : List (Html AppMsg) -> Html AppMsg
-bar elements =
-    div
-        [ class "clearfix mb2 white bg-black p1" ]
-        elements
+bar : Model -> List (Html AppMsg) -> Html AppMsg
+bar model elements =
+    div []
+        [ div
+            [ class "clearfix mb2 white bg-black p1" ]
+            elements
+        , Log.view model
+        ]
 
 
 {-| nav bar for list view

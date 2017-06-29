@@ -18,7 +18,7 @@ class Fields(object):
     text = 'text'
     raw_text = 'raw_text'
     rendered_text = 'rendered_text'
-    def_at = 'def-at'
+    def_at = 'def'
     done = 'done'
 
 
@@ -65,6 +65,10 @@ class App(object):
             return self.driver.find_element_by_id(id_)
         return WebDriverWait(self.driver, timeout).until(
             EC.presence_of_element_located((By.ID, id_)))
+
+    def get_attr(self, id_, attr, timeout=None):
+        """Get an attribute value attached to id."""
+        return self.find_id(id_, timeout).get_attribute(attr)
 
     def assert_no_id(self, id_, timeout=None, msg=None):
         """Assert that the id goes out of existence within timeout."""
@@ -135,6 +139,17 @@ class App(object):
         """Get the items of artifact in a field."""
         elem = self.find_id(field_id(name, field, edit), timeout)
         return get_items(elem)
+
+    def ack_log(self, index, text, timeout=None):
+        """Assert that logs[index].text == text and ack."""
+        id_ = "log_text_{}".format(index)
+        assert self.find_id(id_, timeout).text == text
+        self.find_id("ack_log_{}".format(index)).click()
+
+    def goto_create(self, timeout=None):
+        """Goto the create page."""
+        self.find_id("create", timeout).click()
+        self.assert_create_view(timeout=2)
 
     ################################################################################
     # List View Helpers
@@ -226,6 +241,12 @@ class App(object):
         self.assert_no_id(field_id(name, F.partof, edit=True, extra=partof),
                           timeout=1)
 
+    def set_defined(self, name, value, timeout=None):
+        """Set the defined parameter."""
+        select = self.find_id(field_id(name, F.def_at, edit=True), timeout)
+        Select(select).select_by_visible_text(value)
+        assert select.get_attribute('value') == value
+
     def start_edit(self, timeout=None):
         """Start edit and wait for it to start."""
         self.find_id("edit", timeout).click()
@@ -235,6 +256,10 @@ class App(object):
         """Save an editing session and wait until it is registered."""
         self.find_id("save", timeout).click()
         assert self.find_id("edit", 10)
+
+    def save_create(self, timeout=None):
+        """Save while in the create page."""
+        self.find_id("save", timeout).click()
 
     def cancel_edit(self, timeout=None):
         """Cancel edit and wait for it to be canceled."""

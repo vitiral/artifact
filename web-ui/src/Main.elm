@@ -3,7 +3,7 @@ module Main exposing (..)
 import Dict
 import Navigation
 import Messages exposing (AppMsg(..), Route)
-import Models exposing (Model, initialLogs, initialSettings, initialState)
+import Models exposing (..)
 import View exposing (view)
 import Update exposing (update)
 import Routing
@@ -21,7 +21,7 @@ initialModel location addr route =
     , names = Dict.empty
     , route = route
     , location = location
-    , logs = initialLogs
+    , logs = []
     , settings = initialSettings False
     , addr = addr
     , state = initialState

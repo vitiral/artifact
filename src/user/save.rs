@@ -89,11 +89,21 @@ impl ProjectText {
             tbl.insert(name.raw.clone(), encode(&raw));
         }
 
+
         // convert Values to text
         let mut text: HashMap<PathBuf, String> = HashMap::new();
         for (p, v) in files.drain() {
             text.insert(p, serialize::pretty_toml(&v)?);
         }
+
+        // files that exist but have no data need to also be
+        // written
+        for p in &project.files {
+            if !text.contains_key(p) {
+                text.insert(p.clone(), String::with_capacity(0));
+            }
+        }
+
         Ok(ProjectText {
             files: text,
             origin: project.origin.clone(),

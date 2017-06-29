@@ -98,16 +98,12 @@ update msg model =
             case option of
                 ChangeChoice artifact edited ->
                     let
-                        model2 =
-                            log model <| "trying to save " ++ (toString artifact.name.value)
-
-                        model3 =
-                            { model2 | jsonId = model.jsonId + 1 }
-
                         value =
                             Dict.singleton artifact.id (getEditable artifact)
                     in
-                        ( model3, updateArtifacts model value )
+                        ( { model | jsonId = model.jsonId + 1 }
+                        , updateArtifacts model value
+                        )
 
                 CreateChoice edited ->
                     let
@@ -146,11 +142,7 @@ handleReceived model artifactList =
                 |> List.any (\a -> a)
 
         logs =
-            let
-                l =
-                    List.filterMap (\p -> p.log) processed
-            in
-                { all = List.append l model.logs.all }
+            model.logs ++ (List.filterMap (\p -> p.log) processed)
 
         _ =
             assertOr ((List.length routes) <= 1) 0 "impossible routes"
@@ -210,7 +202,7 @@ processNew :
     Model
     -> Artifact
     ->
-        { log : Maybe String
+        { log : Maybe LogMsg
         , clear_create : Bool
         , route : Maybe String
         , artifact : Artifact
@@ -235,11 +227,17 @@ processNew model newArt =
 
                         _ ->
                             Nothing
+
+                log =
+                    if oldArt.revision == newArt.revision then
+                        Nothing
+                    else
+                        Just <| LogOk <| "Artifact Update Successful: " ++ newArt.name.raw
             in
                 { clear_create = False
                 , route = route
                 , artifact = { newArt | edited = edited }
-                , log = Nothing
+                , log = log
                 }
 
         Nothing ->
@@ -252,7 +250,9 @@ processNew model newArt =
                     case model.create of
                         Just e ->
                             if editedEqual e edited then
-                                ( Just "Creation Successful", True )
+                                ( Just <| LogOk <| "Artifact Creation Successful: " ++ newArt.name.raw
+                                , True
+                                )
                             else
                                 ( Nothing, False )
 

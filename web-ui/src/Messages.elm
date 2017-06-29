@@ -25,6 +25,7 @@ type Route
 
 type AppMsg
     = ArtifactsMsg Artifacts.Messages.Msg
+    | AckLogMsg Int
     | RouteChange Route
     | HttpError Http.Error
     | AppError String

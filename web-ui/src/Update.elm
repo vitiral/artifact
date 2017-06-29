@@ -1,7 +1,9 @@
 module Update exposing (..)
 
 import Messages exposing (AppMsg(..), formatHttpError)
-import Models exposing (Model, log)
+import Models exposing (Model, LogMsg(..))
+import Log
+import Utils
 import Artifacts.Update
 
 
@@ -11,16 +13,23 @@ update msg model =
         ArtifactsMsg subMsg ->
             Artifacts.Update.update subMsg model
 
+        AckLogMsg index ->
+            let
+                ( _, logs ) =
+                    Utils.popIndexUnsafe index model.logs
+            in
+                ( { model | logs = logs }, Cmd.none )
+
         RouteChange route ->
             ( { model | route = route }, Cmd.none )
 
         -- TODO: these should do some kind of command to clear the
         -- error later
         HttpError err ->
-            ( log model <| formatHttpError err, Cmd.none )
+            ( Log.log model <| LogErr <| formatHttpError err, Cmd.none )
 
         AppError err ->
-            ( log model <| "AppError: " ++ err, Cmd.none )
+            ( Log.log model <| LogErr <| "AppError: " ++ err, Cmd.none )
 
         Noop ->
             ( model, Cmd.none )

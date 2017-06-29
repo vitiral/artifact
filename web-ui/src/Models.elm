@@ -18,7 +18,7 @@ type alias Model =
         Dict.Dict NameKey ArtifactId
     , route : Route
     , location : Navigation.Location
-    , logs : Logs
+    , logs : List LogMsg
     , settings : Settings
     , addr : String
     , state : State
@@ -32,11 +32,6 @@ type alias Settings =
     }
 
 
-type alias Logs =
-    { all : List String
-    }
-
-
 {-| current user selections. TODO: store this in a cookie or something...
 -}
 type alias State =
@@ -44,6 +39,13 @@ type alias State =
     , search : Search
     , textView : TextViewState
     }
+
+
+{-| We can log either a success or a failure to the user
+-}
+type LogMsg
+    = LogOk String
+    | LogErr String
 
 
 
@@ -55,12 +57,6 @@ type alias State =
 initialSettings : Bool -> Settings
 initialSettings readonly =
     { readonly = readonly
-    }
-
-
-initialLogs : Logs
-initialLogs =
-    { all = []
     }
 
 
@@ -140,25 +136,3 @@ getDefs model current =
         Set.remove "PARENT" tmp2
             |> Set.toList
             |> List.sort
-
-
-{-| log an error
--}
-log : Model -> String -> Model
-log model msg =
-    let
-        _ =
-            Debug.log msg
-
-        logs =
-            model.logs
-
-        newLogs =
-            { logs | all = List.append logs.all [ msg ] }
-    in
-        { model | logs = newLogs }
-
-
-logInvalidId : Model -> String -> Int -> Model
-logInvalidId model desc id =
-    log model <| desc ++ ": invalid id " ++ (toString id)
