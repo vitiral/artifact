@@ -263,16 +263,18 @@ idFmt attr option =
         prefix =
             idPrefix option
 
-        name = case option of
-            ReadChoice artifact ->
-                artifact.name.value
+        name =
+            case option of
+                ReadChoice artifact ->
+                    artifact.name.value
 
-            EditChoice choice ->
-                case choice of 
-                    ChangeChoice artifact _ ->
-                        artifact.name.value
-                    CreateChoice _ ->
-                        "CREATE"
+                EditChoice choice ->
+                    case choice of
+                        ChangeChoice artifact _ ->
+                            artifact.name.value
+
+                        CreateChoice _ ->
+                            "CREATE"
     in
         prefix ++ attr ++ "_" ++ name
 

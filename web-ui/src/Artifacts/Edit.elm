@@ -1,6 +1,5 @@
 module Artifacts.Edit exposing (..)
 
-import Dict
 import Html exposing (..)
 import Html.Attributes exposing (class, style, value, href, readonly, rows, cols, id)
 import Html.Events exposing (onClick, onInput)
@@ -23,71 +22,56 @@ artifactLinkRegex =
     Regex.caseInsensitive <| Regex.regex <| "\\[\\[(" ++ artifactValidRaw ++ ")\\]\\]"
 
 
-
 {-| the entire view
 -}
-view : Model -> ArtifactId -> Html AppMsg
-view model art_id =
-    case getOption model art_id of
-        Just option -> 
-            let
-                nav = if model.settings.readonly then
-                    Nav.bar <| Nav.readBar
-                else
-                    Nav.bar <| Nav.editBar model option
+view : Model -> ViewOption -> Html AppMsg
+view model option =
+    let
+        nav =
+            if model.settings.readonly then
+                Nav.bar <| Nav.readBar
+            else
+                Nav.bar <| Nav.editBar model option
 
-                original = case option of
-                    ReadChoice choice ->
-                        []
-                    EditChoice choice ->
-                        case choice of
-                            ChangeChoice artifact _ -> 
-                               -- Header for original view
-                               [ h1 [ id "original_head" ] [ text "Previous:" ]
-                               , form model (ReadChoice artifact)
-                               ]
-                            CreateChoice _ ->
-                                []
-            in
-                div []
-                    <| List.concat
-                        [ [ nav ]
-                        , revisionWarnings model option
-                        , [ form model option ]
-                        , original
-                        ]
+        original =
+            case option of
+                ReadChoice choice ->
+                    []
 
-        Nothing -> 
-            div 
-                [ id "not_found" ] 
-                [ text <| "artifact id " ++ (toString art_id) ++ " not found"
+                EditChoice choice ->
+                    case choice of
+                        ChangeChoice artifact _ ->
+                            -- Header for original view
+                            [ h1 [ id "original_head" ] [ text "Previous:" ]
+                            , form model (ReadChoice artifact)
+                            ]
+
+                        CreateChoice _ ->
+                            []
+    in
+        div [ viewIdAttr option ] <|
+            List.concat
+                [ [ nav ]
+                , revisionWarnings model option
+                , [ form model option ]
+                , original
                 ]
 
 
-{-| return an option for viewing based on the artifact id.
+viewIdAttr : ViewOption -> Attribute m
+viewIdAttr option =
+    id <|
+        case option of
+            ReadChoice _ ->
+                "read_view"
 
-This is the ONLY place that used the "artifact id" hack,
-where id=0 corresponds to "create"
--}
-getOption : Model -> ArtifactId -> Maybe (ViewOption)
-getOption model art_id =
-    if model.settings.readonly then
-        case Dict.get art_id model.artifacts of
-            Just a -> Just <| ReadChoice a
-            Nothing -> Nothing
-    else
-        if art_id == 0 then
-            Just <| EditChoice <| CreateChoice <| getCreateArtifact model
-        else
-            case Dict.get art_id model.artifacts of
-                Just artifact -> 
-                    case artifact.edited of
-                        Just e -> 
-                            Just <| EditChoice <| ChangeChoice artifact e
-                        Nothing -> 
-                            Just <| ReadChoice <| artifact
-                Nothing -> 
-                    Nothing
+            EditChoice choice ->
+                case choice of
+                    ChangeChoice _ _ ->
+                        "edit_view"
+
+                    CreateChoice _ ->
+                        "create_view"
 
 
 {-| display a warning if the artifact changed from under the user
@@ -97,9 +81,10 @@ revisionWarnings model option =
     case option of
         ReadChoice _ ->
             []
+
         EditChoice choice ->
             case choice of
-                ChangeChoice artifact edited -> 
+                ChangeChoice artifact edited ->
                     if artifact.revision == edited.revision then
                         []
                     else
@@ -113,6 +98,7 @@ revisionWarnings model option =
                                     ++ " started !!"
                             ]
                         ]
+
                 CreateChoice _ ->
                     []
 
@@ -189,7 +175,8 @@ nameElements model option =
 
             EditChoice choice ->
                 let
-                    edited = getEdited choice
+                    edited =
+                        getEdited choice
 
                     warn_els =
                         case Nav.checkName model edited.name choice of
@@ -200,7 +187,9 @@ nameElements model option =
                                 [ warning e ]
 
                     editMsg t =
-                        ArtifactsMsg <| EditArtifact (getArtifactId choice) { edited | name = t }
+                        ArtifactsMsg <|
+                            EditArtifact <|
+                                setEdited choice { edited | name = t }
 
                     input_el =
                         input
@@ -314,11 +303,13 @@ displayRawText model option =
 
                 EditChoice choice ->
                     let
-                        edited = getEdited choice
+                        edited =
+                            getEdited choice
 
                         changedMsg t =
                             ArtifactsMsg <|
-                                EditArtifact (getArtifactId choice) { edited | text = t }
+                                EditArtifact <|
+                                    setEdited choice { edited | text = t }
                     in
                         ( edited.text, [ onInput changedMsg ] )
 

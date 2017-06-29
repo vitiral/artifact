@@ -29,6 +29,7 @@ bar elements =
 listBar : List (Html AppMsg)
 listBar =
     [ div [ class "left p2" ] [ text "Artifacts" ]
+    , createBtn
     ]
 
 
@@ -47,18 +48,22 @@ editBar model option =
         extra =
             case option of
                 ReadChoice artifact ->
-                    [ editBtn artifact False ]
+                    [ createBtn
+                    , editBtn option
+                    ]
 
                 EditChoice choice ->
                     case choice of
                         ChangeChoice artifact edited ->
-                            [ editBtn artifact True
-                            , saveBtn model artifact edited
+                            [ createBtn
+                            , editBtn option
+                            , saveBtn model choice
                             ]
 
                         CreateChoice edited ->
-                            -- SaveArtifact needs to accept choice
-                            Debug.crash "FIXME"
+                            [ editBtn option
+                            , saveBtn model choice
+                            ]
     in
         [ listBtn ] ++ extra
 
@@ -74,44 +79,64 @@ listBtn =
     button
         [ class "btn regular"
         , id "list"
-        , onClick (ArtifactsMsg ShowArtifacts)
+        , onClick <| ArtifactsMsg ShowArtifacts
         ]
-        [ i [ class "fa fa-chevron-left mr1" ] [], text "List" ]
+        [ text "List" ]
+
+
+{-| navigate to the create page
+-}
+createBtn : Html AppMsg
+createBtn =
+    button
+        [ class "btn regular"
+        , id "create"
+        , onClick <| ArtifactsMsg CreateArtifact
+        ]
+        [ i [ class "fa fa-plus-square mr1" ] []
+        , text "Create"
+        ]
 
 
 {-| start/stop editing
 -}
-editBtn : Artifact -> Bool -> Html AppMsg
-editBtn artifact in_progress =
-    button
-        ([ class "btn regular"
-         ]
-            ++ if in_progress then
-                [ id "cancel_edit"
-                , onClick (ArtifactsMsg (CancelEditArtifact artifact.id))
-                ]
-               else
-                [ id "edit"
-                , onClick (ArtifactsMsg (EditArtifact artifact.id (getEditable artifact)))
-                ]
-        )
-        [ i [ class "fa fa-pencil mr1" ] []
-        , text
-            (if in_progress then
-                "Cancel"
-             else
-                "Edit"
-            )
-        ]
+editBtn : ViewOption -> Html AppMsg
+editBtn option =
+    let
+        ( t, attrs ) =
+            case option of
+                ReadChoice artifact ->
+                    -- editing has not yet started
+                    ( "Edit"
+                    , [ id "edit"
+                      , onClick <|
+                            ArtifactsMsg <|
+                                EditArtifact <|
+                                    ChangeChoice artifact (getEditable artifact)
+                      ]
+                    )
+
+                EditChoice choice ->
+                    ( "Cancel"
+                    , [ id "cancel_edit"
+                      , onClick <| ArtifactsMsg <| CancelEditArtifact choice
+                      ]
+                    )
+    in
+        button
+            ([ class "btn regular" ] ++ attrs)
+            [ i [ class "fa fa-pencil mr1" ] []
+            , text t
+            ]
 
 
 {-| save the current edit state. This button does not always exist.
 -}
-saveBtn : Model -> Artifact -> EditableArtifact -> Html AppMsg
-saveBtn model artifact edited =
+saveBtn : Model -> EditOption -> Html AppMsg
+saveBtn model option =
     let
         ( t, color, d ) =
-            case checkFull model artifact edited of
+            case checkFull model option of
                 True ->
                     ( "save artifact", "", False )
 
@@ -122,7 +147,7 @@ saveBtn model artifact edited =
             [ class <| "btn regular" ++ color
             , id "save"
             , title t
-            , onClick <| ArtifactsMsg <| SaveArtifact artifact.id
+            , onClick <| ArtifactsMsg <| SaveArtifact option
             , disabled d
             ]
             [ i [ class "fa fa-floppy-o mr1" ] []
@@ -136,18 +161,23 @@ saveBtn model artifact edited =
 
 {-| return False if the editable piece is not valid
 -}
-checkFull : Model -> Artifact -> EditableArtifact -> Bool
-checkFull model artifact edited =
+checkFull : Model -> EditOption -> Bool
+checkFull model option =
     let
-        -- FIXME: needs to accept option
         ch_name =
-            isOk <| checkName model edited.name (ChangeChoice artifact edited) 
+            isOk <| checkName model edited.name option
+
+        edited =
+            getEdited option
 
         ch_partof =
             List.map (checkPartof model edited.name) edited.partof
                 |> List.all isOk
+
+        ch_def =
+            isOk <| checkDef model edited
     in
-        ch_name && ch_partof
+        ch_name && ch_partof && ch_def
 
 
 {-| Just check that the name is valid and that it doesn't
@@ -164,8 +194,10 @@ checkName model name option =
                         Ok name
                     else
                         checkNameSimple model name
+
                 CreateChoice _ ->
                     checkNameSimple model name
+
         Err _ ->
             Err "invalid name"
 
@@ -176,6 +208,7 @@ checkNameSimple model name =
         Err "name already exists"
     else
         Ok name
+
 
 {-| return some error if the name cannot be a partof `partof`
 (i.e. if `partof` cannot be in name's partof attrs)
@@ -202,3 +235,11 @@ checkPartof model name partof =
 
         Err _ ->
             Err "invalid artifact name"
+
+
+checkDef : Model -> EditableArtifact -> Result String String
+checkDef model edited =
+    if List.member edited.def (getDefs model Nothing) then
+        Ok edited.def
+    else
+        Err "invalid definition path"

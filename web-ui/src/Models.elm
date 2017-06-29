@@ -8,6 +8,7 @@ import Artifacts.Models exposing (..)
 import Utils exposing (isJust)
 
 
+-- CONSTANTS
 -- TYPES
 
 
@@ -106,8 +107,10 @@ memberArtifact name model =
 getCreateArtifact : Model -> EditableArtifact
 getCreateArtifact model =
     case model.create of
-        Just c -> c
-        Nothing -> 
+        Just c ->
+            c
+
+        Nothing ->
             { name = ""
             , def = ""
             , text = ""
@@ -119,13 +122,24 @@ getCreateArtifact model =
 
 {-| get all definition file paths
 -}
-getDefs : Model -> List String
-getDefs model =
+getDefs : Model -> Maybe String -> List String
+getDefs model current =
     let
-        defs =
-            Set.fromList (List.map (\a -> a.def) (Dict.values model.artifacts))
+        tmp =
+            List.map (\a -> a.def) (Dict.values model.artifacts)
+                |> Set.fromList
+
+        tmp2 =
+            case current of
+                Just c ->
+                    Set.insert c tmp
+
+                Nothing ->
+                    tmp
     in
-        List.sort <| Set.toList defs
+        Set.remove "PARENT" tmp2
+            |> Set.toList
+            |> List.sort
 
 
 {-| log an error

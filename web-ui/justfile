@@ -1,4 +1,7 @@
 @make:
+	elm make src/Main.elm --warn
+
+@make-static:
 	elm make src/Main-Static.elm --warn
 
 @build-server:
@@ -21,9 +24,10 @@ build: build-server build-static
 	elm test
 
 lint:
-	@#poor mans lint
 	rm -rf elm-stuff/build_artifacts
 	just make
+	rm -rf elm-stuff/build_artifacts
+	just make-static
 
 fmt:
 	elm-format src/ tests/ --yes

@@ -2,10 +2,10 @@ module View exposing (..)
 
 import Html exposing (Html, div, text)
 import Messages exposing (AppMsg(..), Route(..))
-import Models exposing (Model, getArtifact, memberArtifact)
+import Models exposing (..)
+import Artifacts.Models exposing (..)
 import Artifacts.List
 import Artifacts.Edit
-import Artifacts.Models exposing (NameKey, indexNameUnchecked)
 
 
 -- partof: #SPC-web-view
@@ -24,28 +24,43 @@ page model =
             Artifacts.List.view model model.artifacts
 
         ArtifactNameRoute raw_name ->
-            let
-                -- TODO: should fail if invalid name
-                name =
-                    indexNameUnchecked raw_name
-            in
-                if memberArtifact name model then
-                    artifactEditPage model name
-                else
-                    notFoundView
+            case indexName raw_name of
+                Ok name ->
+                    case getArtifact name model of
+                        Just artifact ->
+                            Artifacts.Edit.view model <| getOption model artifact
+
+                        Nothing ->
+                            notFoundView
+
+                Err error ->
+                    div []
+                        [ text <| "invalid artifact name: " ++ error
+                        ]
+
+        ArtifactCreateRoute ->
+            getCreateArtifact model
+                |> CreateChoice
+                |> EditChoice
+                |> Artifacts.Edit.view model
 
         NotFoundRoute ->
             notFoundView
 
 
-artifactEditPage : Model -> NameKey -> Html AppMsg
-artifactEditPage model name =
-    case getArtifact name model of
-        Just artifact ->
-            Artifacts.Edit.view model artifact.id
+{-| get the viewing option for an existing artifact
+-}
+getOption : Model -> Artifact -> ViewOption
+getOption model artifact =
+    if model.settings.readonly then
+        ReadChoice artifact
+    else
+        case artifact.edited of
+            Just e ->
+                EditChoice <| ChangeChoice artifact e
 
-        Nothing ->
-            notFoundView
+            Nothing ->
+                ReadChoice <| artifact
 
 
 notFoundView : Html a

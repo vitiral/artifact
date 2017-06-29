@@ -73,7 +73,7 @@ class TestStuff(unittest.TestCase):
             app.goto_artifact(name, timeout=5)
 
             # make sure all values look good
-            app.assert_edit_view(timeout=5)
+            app.assert_read_view(timeout=5)
             app.get_value(name, F.name, timeout=2)
             assert app.get_items(name, F.parts) == expected_parts
             assert app.get_items(name, F.partof) == expected_partof
@@ -121,10 +121,11 @@ class TestStuff(unittest.TestCase):
             initial_text = "This is literally just a partof REQ-layout"
             expected = "this is testing that you can edit"
 
-            app.assert_edit_view(timeout=2)
+            app.assert_read_view(timeout=2)
             app.select_text(F.raw_text, timeout=2)
             assert_initial(edit=False, timeout=1)
             app.start_edit(timeout=1)
+            app.assert_edit_view(timeout=1)
             assert_initial(edit=True, timeout=1)
             app.set_value(name, F.raw_text, expected)
             # editing does not change read
@@ -175,8 +176,9 @@ class TestStuff(unittest.TestCase):
 
             app.assert_list_view(timeout=10)
             app.goto_artifact(name, timeout=5)
-            app.assert_edit_view(timeout=2)
+            app.assert_read_view(timeout=2)
             app.start_edit(timeout=1)
+            app.assert_edit_view(timeout=2)
             # do some wiggling, note that each call auto-validates
             app.add_partof(name, "SPC-alone", timeout=2)
             app.set_partof(name, "SPC-alone", "REQ-purpose")
@@ -186,6 +188,7 @@ class TestStuff(unittest.TestCase):
             # finally add it and save
             app.add_partof(name, "SPC-alone")
             app.save_edit()
+            app.assert_read_view()
             assert app.get_items(name, F.partof) == expected_partof
 
             toml_arts = art.get_artifacts("design/purpose.toml")
@@ -203,9 +206,10 @@ class TestStuff(unittest.TestCase):
 
             app.assert_list_view(timeout=10)
             app.goto_artifact(name, timeout=5)
-            app.assert_edit_view(timeout=2)
+            app.assert_read_view(timeout=2)
             assert app.driver.current_url == artifact_url(url, name.lower())
             app.start_edit(timeout=1)
+            app.assert_edit_view(timeout=2)
 
             new_name_raw = "SPC-lay"
             new_name = new_name_raw.upper()

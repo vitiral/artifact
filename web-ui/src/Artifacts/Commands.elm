@@ -12,35 +12,11 @@ import Artifacts.Models exposing (..)
 import JsonRpc exposing (RpcError, formatJsonRpcError)
 
 
-isErr : Result e a -> Bool
-isErr x =
-    case x of
-        Ok _ ->
-            False
-
-        Err _ ->
-            True
+-- CONSTANTS
 
 
-isOk : Result e a -> Bool
-isOk x =
-    not (isErr x)
-
-
-resultAsValue : Result String String -> String
-resultAsValue x =
-    case x of
-        Ok r ->
-            r
-
-        Err e ->
-            e
-
-
-
---url = "http://localhost:4000/json-rpc"
-
-
+{-| example url = "<http://localhost:4000/json-rpc">
+-}
 endpoint : String
 endpoint =
     "/json-rpc"
@@ -64,16 +40,29 @@ fetchAll model =
         Http.send gotArtifactsMsg request
 
 
-saveArtifacts : Model -> Dict.Dict ArtifactId EditableArtifact -> Cmd AppMsg
-saveArtifacts model update =
+updateArtifacts : Model -> Dict.Dict ArtifactId EditableArtifact -> Cmd AppMsg
+updateArtifacts model edited =
     let
         body =
-            Http.jsonBody <| updateArtifactsRequestEncoded model.jsonId update
+            Http.jsonBody <| updateArtifactsRequestEncoded model.jsonId edited
 
         request =
             createJsonRequest model body artifactsResponseDecoder
     in
         Http.send gotArtifactsMsg request
+
+
+createArtifacts : Model -> List EditableArtifact -> Cmd AppMsg
+createArtifacts model edited =
+    let
+        body =
+            Http.jsonBody <| createArtifactsRequestEncoded model.jsonId edited
+
+        request =
+            createJsonRequest model body artifactsResponseDecoder
+    in
+        Http.send gotArtifactsMsg request
+
 
 
 -- Helpers
@@ -132,11 +121,11 @@ getArtifactsRequestEncoded rpc_id =
 
 
 updateArtifactsRequestEncoded : Int -> Dict.Dict ArtifactId EditableArtifact -> Encode.Value
-updateArtifactsRequestEncoded rpc_id artifacts =
+updateArtifactsRequestEncoded rpc_id edited =
     let
         params =
             Encode.object
-                [ ( "artifacts", artifactsEncoded artifacts )
+                [ ( "artifacts", artifactsEncoded <| Dict.toList edited )
                 ]
 
         attrs =
@@ -149,17 +138,39 @@ updateArtifactsRequestEncoded rpc_id artifacts =
         Encode.object attrs
 
 
+createArtifactsRequestEncoded : Int -> List EditableArtifact -> Encode.Value
+createArtifactsRequestEncoded rpc_id edited =
+    let
+        -- when creating artifacts, they always have id=0
+        withIds =
+            List.map (\a -> ( 0, a )) edited
+
+        params =
+            Encode.object
+                [ ( "artifacts", artifactsEncoded withIds )
+                ]
+
+        attrs =
+            [ ( "jsonrpc", Encode.string "2.0" )
+            , ( "id", Encode.int rpc_id )
+            , ( "method", Encode.string "CreateArtifacts" )
+            , ( "params", params )
+            ]
+    in
+        Encode.object attrs
+
+
 
 -- ENCODER
 
 
-artifactsEncoded : Dict.Dict ArtifactId EditableArtifact-> Encode.Value
-artifactsEncoded artifacts =
-    Encode.list <| List.map artifactEncoded (Dict.toList artifacts)
+artifactsEncoded : List ( ArtifactId, EditableArtifact ) -> Encode.Value
+artifactsEncoded edited =
+    Encode.list <| List.map artifactEncoded edited
 
 
-artifactEncoded : (ArtifactId, EditableArtifact) -> Encode.Value
-artifactEncoded (id, edited) =
+artifactEncoded : ( ArtifactId, EditableArtifact ) -> Encode.Value
+artifactEncoded ( id, edited ) =
     let
         partof =
             List.map (\p -> p.raw) edited.partof

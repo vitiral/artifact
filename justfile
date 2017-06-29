@@ -49,6 +49,7 @@ test-rust TESTS="":
 lint:
 	just lint-rust
 	just lint-py
+	just web-ui/lint
 
 # lint rust code
 lint-rust:

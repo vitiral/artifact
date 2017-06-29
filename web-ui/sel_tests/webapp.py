@@ -178,9 +178,17 @@ class App(object):
     ################################################################################
     # Edit View Helpers
 
+    def assert_read_view(self, timeout=None):
+        """assert we are in the read view."""
+        assert self.find_id('read_view', timeout), 'not in read view'
+
     def assert_edit_view(self, timeout=None):
         """assert we are in the edit view."""
         assert self.find_id('edit_view', timeout), 'not in edit view'
+
+    def assert_create_view(self, timeout=None):
+        """assert we are in the create view."""
+        assert self.find_id('create_view', timeout), 'not in create view'
 
     def goto_list(self, timeout=None):
         """Go to the list view while in the edit view."""
@@ -226,7 +234,7 @@ class App(object):
     def save_edit(self, timeout=None):
         """Save an editing session and wait until it is registered."""
         self.find_id("save", timeout).click()
-        assert self.find_id("edit", 3)
+        assert self.find_id("edit", 10)
 
     def cancel_edit(self, timeout=None):
         """Cancel edit and wait for it to be canceled."""

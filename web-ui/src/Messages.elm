@@ -4,9 +4,22 @@ import Http
 import Artifacts.Messages
 
 
+-- CONSTANTS
+
+
+createUrl : String
+createUrl =
+    "create"
+
+
+
+-- TYPES
+
+
 type Route
     = ArtifactsRoute
     | ArtifactNameRoute String
+    | ArtifactCreateRoute
     | NotFoundRoute
 
 

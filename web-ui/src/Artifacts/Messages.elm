@@ -1,25 +1,16 @@
 module Artifacts.Messages exposing (..)
 
-import Artifacts.Models
-    exposing
-        ( ArtifactId
-        , NameKey
-        , Artifact
-        , Artifacts
-        , EditableArtifact
-        , Columns
-        , TextViewState
-        , Search
-        )
+import Artifacts.Models exposing (..)
 
 
 type Msg
     = ReceivedArtifacts (List Artifact)
     | ShowArtifacts
     | ShowArtifact String
+    | CreateArtifact
     | ChangeColumns Columns
     | ChangeSearch Search
     | ChangeTextViewState TextViewState
-    | EditArtifact ArtifactId EditableArtifact
-    | CancelEditArtifact ArtifactId
-    | SaveArtifact ArtifactId
+    | EditArtifact EditOption
+    | CancelEditArtifact EditOption
+    | SaveArtifact EditOption

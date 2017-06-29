@@ -1,5 +1,6 @@
 module Artifacts.Models exposing (..)
 
+import Set
 import Dict
 import Regex
 import JsonRpc exposing (RpcError)
@@ -305,6 +306,7 @@ isRead option =
 or creates the default one
 
 FIXME: delete
+
 -}
 getEditable : Artifact -> EditableArtifact
 getEditable artifact =
@@ -333,11 +335,66 @@ createEditable artifact =
     }
 
 
+editedDebug : EditableArtifact -> String
+editedDebug e =
+    [ "name = " ++ e.name
+    , "def = " ++ e.def
+    , "text = " ++ e.text
+    , "partof = " ++ (String.join ", " <| List.map (\p -> p.raw) e.partof)
+    , "done = " ++ e.done
+    , "revision = " ++ (toString e.revision)
+    ]
+        |> String.join " "
+
+
+{-| the edited artifacts are equal if their non-automatic
+partof is equal and everything except revision is equal.
+
+Always returns false if either name is invalid
+
+-}
+editedEqual : EditableArtifact -> EditableArtifact -> Bool
+editedEqual e1 e2 =
+    case ( initName e1.name, initName e2.name ) of
+        ( Ok n1, Ok n2 ) ->
+            let
+                nonAuto name partof =
+                    List.filter (\p -> not <| autoPartof name p) partof
+                        |> List.map (\p -> p.raw)
+
+                sanitize =
+                    (\e -> { e | partof = [], revision = 0 })
+
+                p1 =
+                    Set.fromList <| nonAuto n1 e1.partof
+
+                p2 =
+                    Set.fromList <| nonAuto n2 e2.partof
+            in
+                (p1 == p2) && ((sanitize e1) == (sanitize e2))
+
+        _ ->
+            False
+
+
 getEdited : EditOption -> EditableArtifact
 getEdited option =
     case option of
-        ChangeChoice _ e -> e
-        CreateChoice e -> e
+        ChangeChoice _ e ->
+            e
+
+        CreateChoice e ->
+            e
+
+
+setEdited : EditOption -> EditableArtifact -> EditOption
+setEdited option edited =
+    case option of
+        ChangeChoice a _ ->
+            ChangeChoice a edited
+
+        CreateChoice _ ->
+            CreateChoice edited
 
 
 getNameIndex : EditOption -> String
@@ -345,6 +402,7 @@ getNameIndex option =
     case option of
         ChangeChoice artifact _ ->
             artifact.name.value
+
         CreateChoice _ ->
             "CREATE"
 
@@ -354,6 +412,7 @@ getArtifactId option =
     case option of
         ChangeChoice artifact _ ->
             artifact.id
+
         CreateChoice _ ->
             0
 

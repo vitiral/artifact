@@ -46,7 +46,8 @@ partof model option =
 
                 EditChoice choice ->
                     let
-                        edited = getEdited choice
+                        edited =
+                            getEdited choice
 
                         ( a, b ) =
                             editPartofComponents model choice
@@ -75,13 +76,13 @@ editPartofComponents :
     -> ( List (Html AppMsg), ( Int, Name ) -> Html AppMsg )
 editPartofComponents model option =
     let
-
-        edited = getEdited option
+        edited =
+            getEdited option
 
         -- return names that this name could be a partof
         validPartofs model name =
             case initName name of
-                Ok name -> 
+                Ok name ->
                     let
                         names =
                             List.map (\a -> a.name) (Dict.values model.artifacts)
@@ -90,6 +91,7 @@ editPartofComponents model option =
                             List.filter (\n -> validPartof name n) names
                     in
                         List.sortBy (\n -> n.value) out
+
                 Err _ ->
                     []
 
@@ -118,11 +120,11 @@ editPartofComponents model option =
                             edited.partof
                                 ++ [ initNameUnsafe rawName ]
                 in
-                    ArtifactsMsg
-                        (EditArtifact
-                            (getArtifactId option)
-                            { edited | partof = partof }
-                        )
+                    ArtifactsMsg <|
+                        EditArtifact <|
+                            setEdited
+                                option
+                                { edited | partof = partof }
 
         -- you can only add elements that aren't already present
         partof_exist =
@@ -166,20 +168,21 @@ partofItem :
     -> List (Html AppMsg)
 partofItem model valid_partofs option index name =
     let
-        parent_name = (getNameIndex option)
-        
-        edited = getEdited option
+        parent_name =
+            (getNameIndex option)
+
+        edited =
+            getEdited option
 
         part_id =
             parent_name ++ "_" ++ name.value
-
 
         deleteMsg =
             let
                 partof =
                     Tuple.second <| popIndexUnsafe index edited.partof
             in
-                ArtifactsMsg <| EditArtifact (getArtifactId option) { edited | partof = partof }
+                ArtifactsMsg <| EditArtifact <| setEdited option { edited | partof = partof }
 
         deleteBtn =
             button
@@ -199,11 +202,11 @@ partofItem model valid_partofs option index name =
                     List.sortBy (\n -> n.value) <|
                         setIndexUnsafe index updateName edited.partof
             in
-                ArtifactsMsg
-                    (EditArtifact
-                        (getArtifactId option)
-                        { edited | partof = partof }
-                    )
+                ArtifactsMsg <|
+                    EditArtifact <|
+                        setEdited
+                            option
+                            { edited | partof = partof }
 
         see_art =
             View.seeArtifactName model name (EditChoice option) "partof"
@@ -307,26 +310,39 @@ defined model option =
 editDefined : Model -> EditOption -> Html AppMsg
 editDefined model ed_option =
     let
-        edited = getEdited ed_option
+        edited =
+            getEdited ed_option
 
         selectMsg def =
-            ArtifactsMsg <| EditArtifact (getArtifactId ed_option) { edited | def = def }
-    in
-        span []
-            [ span [ class "bold" ] [ text edited.def ]
-            , select
-                [ class "select-tiny"
-                , View.idAttr "def" (EditChoice ed_option)
-                , onChange selectMsg
-                ]
-                (List.map
-                    (\d ->
-                        option
-                            [ value d
-                            , selected (d == edited.def)
-                            ]
-                            [ text <| "  " ++ d ]
+            ArtifactsMsg <| EditArtifact <| setEdited ed_option { edited | def = def }
+
+        warn =
+            case Nav.checkDef model edited of
+                Ok _ ->
+                    []
+
+                Err e ->
+                    [ warning e ]
+
+        elements =
+            [ [ span [ class "bold" ] [ text edited.def ]
+              , select
+                    [ class "select-tiny"
+                    , View.idAttr "def" (EditChoice ed_option)
+                    , onChange selectMsg
+                    ]
+                    (List.map
+                        (\d ->
+                            option
+                                [ value d
+                                , selected (d == edited.def)
+                                ]
+                                [ text <| "  " ++ d ]
+                        )
+                        (getDefs model <| Just edited.def)
                     )
-                    (getDefs model)
-                )
+              ]
+            , warn
             ]
+    in
+        span [] <| List.concat elements
