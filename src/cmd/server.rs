@@ -1,7 +1,7 @@
 
 use super::types::*;
 
-use types::Project;
+use types::{Project, ServeCmd};
 use super::super::api;
 
 /// Get the server subcommand for the cmdline
@@ -10,40 +10,87 @@ pub fn get_subcommand<'a, 'b>() -> App<'a, 'b> {
     SubCommand::with_name("serve")
         .about("serve the web-ui and json-rpc backend")
         .settings(&SUBCMD_SETTINGS)
-        .arg(
-            Arg::with_name("addr")
-                .help("full address to start server on. Default='127.0.0.1:4000'")
-                .use_delimiter(false)
-                .required(false),
+        .help(
+            "The server is hosted at ADDRESS, which can also be a port number for
+              localhost.\n
+              If address is a non-port, the server is readonly by default.\n
+              if address is a port number (localost) then the server is editable by default.\n
+              Either can be overridden explicitly through the --readonly or --editable flags",
         )
-        .arg(Arg::with_name("edit").long("edit").short("e").help(
-            "enable editing. ALPHA NOTICE: this feature is not yet \
-                   secure. DO NOT USE ON NON TRUSTED NETWORK",
-        ))
+        .arg(
+            Arg::with_name("address")
+                .value_name("ADDRESS")
+                .help("full address OR localhost-port to host the server at."),
+        )
+        .arg(
+            Arg::with_name("readonly")
+                .short("r")
+                .long("readonly")
+                .help("host the server as readonly"),
+        )
+        .arg(
+            Arg::with_name("editable")
+                .short("e")
+                .long("editable")
+                .takes_value(true)
+                .value_name("ADDRESS")
+                .help(
+                    "DANGEROUS: host the server as editable. This is dangerous when
+                      not hosting on localhost as ANYONE with access will be able to
+                      at least edit your design documents. WE MAKE NO GUARANTEES ABOUT
+                      THE SECURITY OF THIS FEATURE.",
+                ),
+        )
+        .arg(
+            Arg::with_name("definition_url")
+                .long("definition-url")
+                .takes_value(true)
+                .help(
+                    "Use the given format for creating links to artifact definitions.\n\n
+                      \texample: https://github.com/my/proj/tree/SOME_HASH/{path}#{line}
+                      \nWhere SOME_HASH is a hash given by you and \"{path}\" and \"{line}\"
+                      are special markers that artifact uses for creating the link
+                      for each artifact.\n
+                      This is allows for easy viewing of the code where artifacts \
+                      are implemented.",
+                ),
+        )
+
 }
 
 
-#[derive(Debug)]
-pub struct Cmd {
-    pub addr: String,
-    pub edit: bool,
-}
+/// get command settings
+pub fn get_cmd(matches: &ArgMatches) -> ServeCmd {
+    let (mut readonly, addr) = {
+        let addr = matches.value_of("addr").unwrap_or("5373");
 
-/// pull out the command settings
-pub fn get_cmd(matches: &ArgMatches) -> Cmd {
-    Cmd {
-        addr: matches
-            .value_of("addr")
-            .unwrap_or("127.0.0.1:4000")
-            .to_string(),
-        edit: matches.is_present("edit"),
+        if let Ok(port) = addr.parse::<u64>() {
+            // localhost so readonly false by default
+            (false, format!("127.0.0.1:{}", port))
+        } else {
+            // non-localhost so readonly true by default
+            (true, addr.to_string())
+        }
+    };
+
+    if matches.is_present("editable") {
+        readonly = false;
+    }
+    if matches.is_present("readonly") {
+        readonly = true;
+    }
+
+    ServeCmd {
+        addr: addr,
+        readonly: readonly,
+        def_url: matches.value_of("def_url").unwrap_or("").to_string(),
     }
 }
 
 // TODO: should technically return result
 // need to do conditional compilation on types
 // to auto-convert web errors
-pub fn run_cmd(project: Project, cmd: &Cmd) {
-    debug!("running server: {:?}", cmd);
-    api::start_api(project, &cmd.addr, cmd.edit);
+pub fn run_cmd(project: Project, cmd: &ServeCmd) {
+    debug!("running server with: {:?}", cmd);
+    api::start_api(project, cmd);
 }

@@ -9,7 +9,7 @@ use api::constants;
 use api::utils;
 use utils::unique_id;
 
-use super::{ARTIFACTS, PROJECT};
+use super::LOCKED;
 
 //##################################################
 //# Create
@@ -31,9 +31,8 @@ pub struct ReadArtifacts;
 impl RpcMethodSync for ReadArtifacts {
     fn call(&self, _: Params) -> result::Result<serde_json::Value, RpcError> {
         info!("ReadArtifacts");
-        let locked = ARTIFACTS.lock().unwrap();
-        let artifacts: &Vec<ArtifactData> = locked.as_ref();
-        Ok(serde_json::to_value(artifacts).expect("serde"))
+        let locked = LOCKED.lock().unwrap();
+        Ok(serde_json::to_value(&locked.artifacts).expect("serde"))
     }
 }
 
@@ -56,7 +55,12 @@ impl RpcMethodSync for UpdateArtifacts {
 pub struct DeleteArtifacts;
 impl RpcMethodSync for DeleteArtifacts {
     fn call(&self, params: Params) -> result::Result<serde_json::Value, RpcError> {
-        info!("* UpdateArtifacts");
+        info!("* DeleteArtifacts");
+        // lock the artifacts
+        let mut locked = LOCKED.lock().unwrap();
+        if locked.cmd.readonly {
+            return Err(utils::readonly_error());
+        }
 
         // get the ids to delete
         let delete_ids = match params {
@@ -74,21 +78,17 @@ impl RpcMethodSync for DeleteArtifacts {
             _ => Err(utils::invalid_params("missing 'ids' key")),
         }?;
 
-        // lock the artifacts
-        let mut data_artifacts = ARTIFACTS.lock().unwrap();
-        let mut project = PROJECT.lock().unwrap();
-
         // get all the data artifacts by id
         // TODO: this should probably be moved and used by all these methods
         let mut remaining: HashMap<u64, ArtifactData> = {
-            let mut data_artifacts = utils::convert_to_data(&project);
+            let mut data_artifacts = utils::convert_to_data(&locked.project);
             let mut out: HashMap<u64, ArtifactData> = HashMap::new();
             for dart in data_artifacts.drain(..) {
-                let tmp = dart.id;
-                if out.insert(tmp, dart).is_some() {
+                let id = dart.id;
+                if out.insert(id, dart).is_some() {
                     return Err(RpcError {
                         code: ErrorCode::InternalError,
-                        message: format!("id exists twice: {}", tmp),
+                        message: format!("id exists twice: {}", id),
                         data: None,
                     });
                 }
@@ -101,8 +101,7 @@ impl RpcMethodSync for DeleteArtifacts {
         for id in delete_ids {
             if remaining.remove(&id).is_none() {
                 invalid_ids.push(id);
-                continue;
-            };
+            }
         }
 
         // send error message if one exists
@@ -118,13 +117,13 @@ impl RpcMethodSync for DeleteArtifacts {
         // convert from data back to artifacts and process
         let mut save_artifacts = HashMap::new();
         for d in remaining.values() {
-            let (name, a) = utils::from_data(&project.origin, d)?;
+            let (name, a) = utils::from_data(&locked.project.origin, d)?;
             save_artifacts.insert(name, a);
         }
 
         let mut new_project = Project {
             artifacts: save_artifacts,
-            ..project.clone()
+            ..locked.project.clone()
         };
 
         process_project(&mut new_project)?;
@@ -136,8 +135,8 @@ impl RpcMethodSync for DeleteArtifacts {
         utils::dump_artifacts(&new_project)?;
 
         // store globals and return
-        *project = new_project;
-        *data_artifacts = new_artifacts;
+        locked.project = new_project;
+        locked.artifacts = new_artifacts;
         Ok(out)
     }
 }
@@ -149,12 +148,20 @@ impl RpcMethodSync for DeleteArtifacts {
 /// The create and update commands have almost identical logic
 fn do_cu_call(params: Params, for_create: bool) -> result::Result<serde_json::Value, RpcError> {
     // get the changed artifacts
+    let mut locked = LOCKED.lock().unwrap();
+    if locked.cmd.readonly {
+        return Err(utils::readonly_error());
+    }
+
     let updated_artifacts = utils::get_artifacts(params)?;
-    let mut data_artifacts = ARTIFACTS.lock().unwrap();
-    let mut project = PROJECT.lock().unwrap();
 
     // perform the update (but don't mutate global yet)
-    let new_project = update_project(&data_artifacts, &project, &updated_artifacts, for_create)?;
+    let new_project = update_project(
+        &locked.artifacts,
+        &locked.project,
+        &updated_artifacts,
+        for_create,
+    )?;
     drop(updated_artifacts);
 
     let new_artifacts = utils::convert_to_data(&new_project);
@@ -164,8 +171,8 @@ fn do_cu_call(params: Params, for_create: bool) -> result::Result<serde_json::Va
     utils::dump_artifacts(&new_project)?;
 
     // store globals and return
-    *project = new_project;
-    *data_artifacts = new_artifacts;
+    locked.project = new_project;
+    locked.artifacts = new_artifacts;
     Ok(out)
 }
 

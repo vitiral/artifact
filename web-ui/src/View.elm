@@ -55,7 +55,7 @@ page model =
 -}
 getOption : Model -> Artifact -> ViewOption
 getOption model artifact =
-    if model.settings.readonly then
+    if model.flags.readonly then
         ReadChoice artifact
     else
         case artifact.edited of

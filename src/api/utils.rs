@@ -23,6 +23,14 @@ pub fn parse_error(desc: &str) -> RpcError {
     }
 }
 
+pub fn readonly_error() -> RpcError {
+    RpcError {
+        code: ErrorCode::MethodNotFound,
+        message: "method not available when readonly=true".to_string(),
+        data: None,
+    }
+}
+
 /// convert an artifact from it's data representation
 /// to it's internal artifact representation
 pub fn convert_artifact(

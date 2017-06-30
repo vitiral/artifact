@@ -138,7 +138,7 @@ textPiece : Model -> Artifact -> Html AppMsg
 textPiece model artifact =
     let
         ro =
-            model.settings.readonly
+            model.flags.readonly
 
         text_part =
             String.left 200 artifact.text

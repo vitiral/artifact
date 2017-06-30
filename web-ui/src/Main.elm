@@ -10,20 +10,14 @@ import Routing
 import Artifacts.Commands exposing (fetchAll, artifactsFromStrUnsafe)
 
 
-type alias Flags =
-    { addr : String
-    }
-
-
-initialModel : Navigation.Location -> String -> Route -> Model
-initialModel location addr route =
+initialModel : Navigation.Location -> Flags -> Route -> Model
+initialModel location flags route =
     { artifacts = artifactsFromStrUnsafe "[]"
     , names = Dict.empty
     , route = route
     , location = location
     , logs = []
-    , settings = initialSettings False
-    , addr = addr
+    , flags = flags
     , state = initialState
     , jsonId = 1
     , create = Nothing
@@ -34,7 +28,7 @@ init : Flags -> Navigation.Location -> ( Model, Cmd AppMsg )
 init flags location =
     let
         model =
-            initialModel location flags.addr <| Routing.router location
+            initialModel location flags <| Routing.router location
     in
         ( model, fetchAll model )
 

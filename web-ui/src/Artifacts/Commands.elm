@@ -15,7 +15,7 @@ import JsonRpc exposing (RpcError, formatJsonRpcError)
 -- CONSTANTS
 
 
-{-| example url = "<http://localhost:4000/json-rpc">
+{-| example url = "<http://localhost:5373/json-rpc">
 -}
 endpoint : String
 endpoint =
@@ -87,7 +87,7 @@ createJsonRequest model body decoder =
         , headers =
             [ Http.header "Content-Type" "application/json"
             ]
-        , url = model.addr ++ endpoint
+        , url = endpoint
         , body = body
         , expect = Http.expectJson decoder
         , timeout = Nothing

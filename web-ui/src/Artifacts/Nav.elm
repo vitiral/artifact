@@ -35,11 +35,20 @@ bar model elements =
 
 {-| nav bar for list view
 -}
-listBar : List (Html AppMsg)
-listBar =
-    [ div [ class "left p2" ] [ text "Artifacts" ]
-    , createBtn
-    ]
+listBar : Model -> List (Html AppMsg)
+listBar model =
+    let
+        create =
+            if model.flags.readonly then
+                []
+            else
+                [ createBtn ]
+    in
+        (List.concat
+            [ [ text "Artifacts" ]
+            , create
+            ]
+        )
 
 
 {-| nav bar for read-only artifact view

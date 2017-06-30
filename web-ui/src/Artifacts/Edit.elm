@@ -30,7 +30,7 @@ view : Model -> ViewOption -> Html AppMsg
 view model option =
     let
         nav =
-            if model.settings.readonly then
+            if model.flags.readonly then
                 Nav.bar model <| Nav.readBar
             else
                 Nav.bar model <| Nav.editBar model option

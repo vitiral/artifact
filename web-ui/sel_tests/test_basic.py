@@ -337,3 +337,5 @@ class TestStuff(unittest.TestCase):
             app.delete()
             app.ack_log(0, DELETE_LOG_FMT(name_raw.lower()), timeout=1)
             assert name_raw not in art.get_artifacts(PURPOSE_PATH)
+            app.assert_list_view(timeout=1)
+            app.assert_no_id(name)

@@ -12,6 +12,14 @@ import Utils exposing (isJust)
 -- TYPES
 
 
+{-| user given flags
+-}
+type alias Flags =
+    { readonly : Bool
+    , def_url : String
+    }
+
+
 type alias Model =
     { artifacts : Artifacts
     , names :
@@ -19,16 +27,10 @@ type alias Model =
     , route : Route
     , location : Navigation.Location
     , logs : List LogMsg
-    , settings : Settings
-    , addr : String
+    , flags : Flags
     , state : State
     , jsonId : Int
     , create : Maybe EditableArtifact
-    }
-
-
-type alias Settings =
-    { readonly : Bool
     }
 
 
@@ -50,14 +52,6 @@ type LogMsg
 
 
 -- INIT
-
-
-{-| settings from cmdline tool (injected into js)
--}
-initialSettings : Bool -> Settings
-initialSettings readonly =
-    { readonly = readonly
-    }
 
 
 initialState : State

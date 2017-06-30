@@ -138,8 +138,11 @@ handleReceived model artifactList =
         processed =
             List.map (processNew model) artifactList
 
+        -- get the artifacts, removing artifacts
+        -- that don't exist in the given ids
         artifacts =
-            artifactsFromList <| List.map (\p -> p.artifact) processed
+            List.map (\p -> p.artifact) processed
+                |> artifactsFromList
 
         names =
             nameIds artifacts
@@ -195,7 +198,7 @@ handleReceived model artifactList =
                                 "Artifact Deletion Successful: "
                                     ++ rawName
                                     |> LogOk
-                                    |> Log.log model
+                                    |> Log.log new_model
                         in
                             { logged | route = ArtifactsRoute }
 

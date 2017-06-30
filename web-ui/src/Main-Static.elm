@@ -13,13 +13,15 @@ import Routing
 import Artifacts.Commands exposing (fetchAll, artifactsFromStrUnsafe)
 
 
-type alias Flags =
-    { addr : String
+fakeFlags : Flags
+fakeFlags =
+    { readonly = True
+    , def_url = ""
     }
 
 
-initialModel : Navigation.Location -> String -> Route -> Model
-initialModel location addr route =
+initialModel : Navigation.Location -> Flags -> Route -> Model
+initialModel location flags route =
     -- slightly hacky, but this is how we inject the artifacts-json into
     -- the static webpage -- we just replace REPLACE_WITH_ARTIFACTS with
     -- the raw json string (with proper escapes)
@@ -32,8 +34,7 @@ initialModel location addr route =
         , route = route
         , location = location
         , logs = []
-        , settings = initialSettings True
-        , addr = addr
+        , flags = flags
         , state = initialState
         , jsonId = 1
         , create = Nothing
@@ -54,7 +55,7 @@ init location =
                 )
 
         model =
-            initialModel location "fake-addr" <| Routing.router location
+            initialModel location fakeFlags <| Routing.router location
     in
         ( model, Cmd.none )
 

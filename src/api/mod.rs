@@ -1,14 +1,16 @@
 use dev_prefix::*;
+
 use std::sync::Mutex;
 
-use nickel::{Request, Response, MiddlewareResult, Nickel, HttpRouter, MediaType};
+use nickel::{Request, Response, MiddlewareResult, Nickel, HttpRouter, MediaType,
+             StaticFilesHandler};
 use nickel::status::StatusCode;
+use serde_json;
 
-use nickel::StaticFilesHandler;
 use tar::Archive;
 use tempdir::TempDir;
 
-use types::Project;
+use types::{ServeCmd, Project};
 use export::ArtifactData;
 
 mod constants;
@@ -20,10 +22,22 @@ mod crud;
 mod tests;
 
 const WEB_FRONTEND_TAR: &'static [u8] = include_bytes!("data/web-ui.tar");
+const REPLACE_FLAGS: &str = "{/* REPLACE WITH FLAGS */}";
+
+pub struct LockedData {
+    cmd: ServeCmd,
+    artifacts: Vec<ArtifactData>,
+    project: Project,
+}
 
 lazy_static! {
-    static ref ARTIFACTS: Mutex<Vec<ArtifactData>> = Mutex::new(Vec::new());
-    static ref PROJECT: Mutex<Project> = Mutex::new(Project::default());
+    static ref LOCKED: Mutex<LockedData> = Mutex::new(
+        LockedData {
+            cmd: ServeCmd::default(),
+            artifacts: Vec::new(),
+            project: Project::default(),
+        }
+    );
 }
 
 fn setup_headers(res: &mut Response) {
@@ -84,7 +98,7 @@ fn handle_options<'a>(_: &mut Request, mut res: Response<'a>) -> MiddlewareResul
 /// host the frontend web-server, returning the tempdir where it the
 /// static files are being held. It is important that this tempdir
 /// always be owned, ortherwise the files will be deleted!
-fn host_frontend(server: &mut Nickel, addr: &str) -> TempDir {
+fn host_frontend(server: &mut Nickel, cmd: &ServeCmd) -> TempDir {
     // it is important that tmp_dir never goes out of scope
     // or the webapp will be deleted!
     let tmp_dir = TempDir::new("artifact-web-ui").expect("unable to create temporary directory");
@@ -108,33 +122,35 @@ fn host_frontend(server: &mut Nickel, addr: &str) -> TempDir {
     app_js.seek(SeekFrom::Start(0)).unwrap();
     app_js.set_len(0).unwrap(); // delete what is there
     // the elm app uses a certain address by default, replace it
+
+    assert!(text.contains(REPLACE_FLAGS));
     app_js
-        .write_all(text.replace("localhost:3733", addr).as_bytes())
+        .write_all(
+            text.replace(REPLACE_FLAGS, &serde_json::to_string(cmd).unwrap())
+                .as_bytes(),
+        )
         .unwrap();
     app_js.flush().unwrap();
 
     server.utilize(StaticFilesHandler::new(&dir));
-    println!("hosting web ui at {}", addr);
+    println!("hosting web ui at {}", cmd.addr);
     tmp_dir
 }
 
 /// start the json-rpc API server
 #[allow(unused_variables)] // need to hold ownership of tmp_dir
-pub fn start_api(project: Project, addr: &str, edit: bool) {
+pub fn start_api(project: Project, cmd: &ServeCmd) {
     // store artifacts and files into global mutex
 
     {
-        let artifacts = utils::convert_to_data(&project);
-        let mut locked = ARTIFACTS.lock().unwrap();
-        let global: &mut Vec<ArtifactData> = locked.deref_mut();
-        let compare_by = |a: &ArtifactData| a.name.replace(" ", "").to_ascii_uppercase();
-        global.sort_by(|a, b| compare_by(a).cmp(&compare_by(b)));
-        *global = artifacts;
-    }
-    {
-        let mut locked = PROJECT.lock().unwrap();
-        let global = locked.deref_mut();
-        *global = project;
+        let mut artifacts = utils::convert_to_data(&project);
+        let mut locked = LOCKED.lock().unwrap();
+        let lref = locked.deref_mut();
+        let compare_by = |a: &ArtifactData| a.name.to_ascii_uppercase();
+        artifacts.sort_by(|a, b| compare_by(a).cmp(&compare_by(b)));
+        lref.artifacts = artifacts;
+        lref.project = project;
+        lref.cmd = cmd.clone();
     }
 
     let endpoint = "/json-rpc";
@@ -146,7 +162,7 @@ pub fn start_api(project: Project, addr: &str, edit: bool) {
 
     // host the frontend files using a static file handler
     // and own the tmpdir for as long as needed
-    let tmp_dir = host_frontend(&mut server, addr);
+    let tmp_dir = host_frontend(&mut server, cmd);
 
-    server.listen(addr).expect("cannot connect to port");
+    server.listen(&cmd.addr).expect("cannot connect to port");
 }

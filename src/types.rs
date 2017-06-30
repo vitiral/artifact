@@ -294,3 +294,11 @@ impl Settings {
         }
     }
 }
+
+#[derive(Debug, Default, Clone, Serialize)]
+/// struct that is passed to the api server
+pub struct ServeCmd {
+    pub addr: String,
+    pub readonly: bool,
+    pub def_url: String,
+}

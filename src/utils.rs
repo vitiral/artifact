@@ -9,7 +9,7 @@ use dev_prefix::*;
 use types::*;
 
 lazy_static!{
-    static ref INCREMENTING_ID: AtomicUsize = AtomicUsize::new(0);
+    static ref INCREMENTING_ID: AtomicUsize = AtomicUsize::new(1);
 }
 
 /// used for artifact ids

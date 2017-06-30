@@ -65,7 +65,7 @@ def parse_args(args=None):
     parser = argparse.ArgumentParser()
     parser.add_argument(
         'address', nargs='?',
-        default="http://127.0.0.1:4000", help='address of artifact server')
+        default="http://127.0.0.1:5373", help='address of artifact server')
 
     parser.add_argument(
         '-i', '--interactive',
