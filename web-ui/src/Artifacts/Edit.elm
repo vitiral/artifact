@@ -1,14 +1,16 @@
 module Artifacts.Edit exposing (..)
 
+import Dict
 import Html exposing (..)
-import Html.Attributes exposing (class, style, value, href, readonly, rows, cols, id)
+import Html.Attributes exposing (..)
 import Html.Events exposing (onClick, onInput)
 import Regex
 import Markdown exposing (toHtml)
+import Utils exposing (..)
 import Models exposing (Model, getArtifact, memberArtifact, getCreateArtifact)
 import Styles exposing (warning)
 import Artifacts.Models exposing (..)
-import Messages exposing (AppMsg(..))
+import Messages exposing (createUrl, AppMsg(..))
 import Artifacts.Messages exposing (..)
 import Artifacts.View as View
 import Artifacts.Select as Select
@@ -380,3 +382,41 @@ replaceArtifactLinks model text =
                     "INTERNAL_ERROR"
     in
         Regex.replace Regex.All artifactLinkRegex replace text
+
+
+viewEditing : Model -> Html AppMsg
+viewEditing model =
+    let
+        creating : List (Html AppMsg)
+        creating =
+            case model.create of
+                Just c ->
+                    [ a
+                        [ class "btn bold"
+                        , id <| "CREATE_" ++ c.name
+                        , onClick <| ArtifactsMsg <| CreateArtifact
+                        , href <| "#" ++ createUrl
+                        ]
+                        [ text <| "Creating " ++ c.name ]
+                    ]
+
+                Nothing ->
+                    []
+
+        editing =
+            Dict.values model.artifacts
+                |> List.filter (\a -> isJust a.edited)
+                |> List.map (\a -> div [] [ View.seeArtifact model a ])
+
+        header =
+            h1
+                [ class "h1" ]
+                [ text "Artifacts you have not yet saved." ]
+    in
+        div [ id "editing_view" ]
+            (List.concat
+                [ [ header ]
+                , creating
+                , editing
+                ]
+            )

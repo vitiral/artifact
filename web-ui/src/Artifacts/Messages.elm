@@ -7,6 +7,7 @@ type Msg
     = ReceivedArtifacts (List Artifact)
     | ShowArtifacts
     | ShowArtifact String
+    | ShowEditing
     | CreateArtifact
     | ChangeColumns Columns
     | ChangeSearch Search

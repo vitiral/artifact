@@ -12,6 +12,11 @@ createUrl =
     "create"
 
 
+editingUrl : String
+editingUrl =
+    "unsaved"
+
+
 
 -- TYPES
 
@@ -20,6 +25,7 @@ type Route
     = ArtifactsRoute
     | ArtifactNameRoute String
     | ArtifactCreateRoute
+    | ArtifactEditingRoute
     | NotFoundRoute
 
 

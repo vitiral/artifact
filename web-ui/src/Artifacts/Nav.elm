@@ -4,6 +4,7 @@ module Artifacts.Nav exposing (..)
 -- and initiating commands to the api server. The Update module actually sends
 -- them, but the messages are only created here
 
+import Dict
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick)
@@ -23,7 +24,11 @@ bar model elements =
     div []
         [ div
             [ class "clearfix mb2 white bg-black p1" ]
-            elements
+            (List.concat
+                [ elements
+                , editingBtn model
+                ]
+            )
         , Log.view model
         ]
 
@@ -172,6 +177,74 @@ deleteBtn artifact =
         [ i [ class "fa fa-trash mr1" ] []
         , text "Delete"
         ]
+
+
+{-| a button for switching to the editing page
+-}
+editingBtn : Model -> List (Html AppMsg)
+editingBtn model =
+    let
+        unblock =
+            []
+
+        editing =
+            Dict.values model.artifacts
+                |> List.any (\a -> isJust a.edited)
+    in
+        if (isJust model.create) || editing then
+            if editing then
+                [ span []
+                    [ blockReload
+                    , button
+                        [ class "btn regular"
+                        , id "editing"
+                        , onClick <| ArtifactsMsg ShowEditing
+                        ]
+                        [ i [ class "fa fa-eye mr1" ] []
+                        , text "Unsaved"
+                        ]
+                    ]
+                ]
+            else
+                unblock
+        else
+            unblock
+
+
+{-| we don't want the user reloading or navigating away when they have
+edits outstanding
+-}
+blockReload : Html AppMsg
+blockReload =
+    let
+        js =
+            ("window.onbeforeunload = function(e) { "
+                ++ "dialogText = 'some artifacts are still unsaved.';"
+                ++ "e.returnValue = dialogText;"
+                ++ "return dialogText; }"
+            )
+    in
+        scriptRun js
+
+
+unBlockReload : Html AppMsg
+unBlockReload =
+    scriptRun "window.onbeforeunload = function(e) { e.returnValue = undefined; return undefined; }"
+
+
+script : List (Attribute msg) -> List (Html msg) -> Html msg
+script attrs children =
+    node "script" attrs children
+
+
+scriptSrc : String -> Html msg
+scriptSrc s =
+    script [ type_ "text/javascript", src s ] []
+
+
+scriptRun : String -> Html msg
+scriptRun s =
+    script [ type_ "text/javascript" ] [ text s ]
 
 
 

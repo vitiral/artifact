@@ -37,14 +37,6 @@ CREATE_LOG_FMT = "Artifact Creation Successful: {}".format
 DELETE_LOG_FMT = "Artifact Deletion Successful: {}".format
 
 
-def setup_phantom():
-    """setup phantom and return the bin handler and the driver."""
-    phantom = cmds.Phantom()
-    phantom.start()
-    driver = webdriver.PhantomJS(service_log_path=os.path.devnull)
-    return (phantom, driver)
-
-
 class TestStuff(unittest.TestCase):
     """TODO: this is basically a proving ground for how to write tests in
     selenium.
@@ -52,11 +44,15 @@ class TestStuff(unittest.TestCase):
     It is NOT well designed (yet).
 
     """
+
+    USE_FIREFOX = True
+
     @classmethod
     def setUpClass(cls):
-        cls.phantom, driver = setup_phantom()
-        # driver = webdriver.Firefox()
-        cls.app = webapp.App(driver)
+        """setup applications."""
+        if not cls.USE_FIREFOX:
+            cls.phantom = cmds.Phantom()
+            cls.phantom.start()
 
     @classmethod
     def tearDownClass(cls):
@@ -67,6 +63,19 @@ class TestStuff(unittest.TestCase):
         phantom = getattr(cls, 'phantom', None)
         if phantom:
             phantom.stop()
+
+    def setUp(self):
+        """get a new driver for each test."""
+        if self.USE_FIREFOX:
+            driver = webdriver.Firefox()
+        else:
+            driver = webdriver.PhantomJS(service_log_path=os.path.devnull)
+        self.app = webapp.App(driver)
+        return self.app
+
+    def tearDown(self):
+        """need to clear state."""
+        self.app.driver.close()
 
     def test_req(self):
         """navigate to REQ and check that it is valid."""
@@ -154,6 +163,9 @@ class TestStuff(unittest.TestCase):
             app.ack_log(0, UPDATE_LOG_FMT("SPC-layout"), timeout=1)
             time.sleep(0.5)
             app.driver.refresh()
+            if self.USE_FIREFOX:
+                # there is a firefox bug where the dialog box is cached or something...
+                app.accept_refresh(timeout=5)
             app.select_text(F.raw_text, timeout=2)
             assert app.get_value(name, F.raw_text, timeout=1) == expected
 
@@ -166,11 +178,16 @@ class TestStuff(unittest.TestCase):
             app.goto_artifact(name, timeout=2)
             assert app.get_value(name, F.raw_text, timeout=2) == expected
 
-            # restart the server and make sure it's still changed
-            assert url == art.restart(), "urls not equal"
-            time.sleep(0.5)
-            app.driver.get(url)  # refreshes app
-            app.goto_artifact(name, timeout=5)
+            if self.USE_FIREFOX:
+                # restart the server and make sure it's still changed
+                assert url == art.restart(), "urls not equal"
+                time.sleep(2)
+                app.driver.get(url)  # refreshes app
+            else:
+                # having some unknown issues with phantomjs for above code
+                app.goto_list(timeout=2)
+
+            app.goto_artifact(name, timeout=10)
             app.select_text(F.raw_text, timeout=2)
             assert app.get_value(name, F.raw_text, timeout=2) == expected
 

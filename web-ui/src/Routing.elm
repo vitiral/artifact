@@ -2,7 +2,7 @@ module Routing exposing (router, routerMsg)
 
 import Navigation
 import UrlParser as UP exposing ((</>))
-import Messages exposing (AppMsg(..), Route(..), createUrl)
+import Messages exposing (AppMsg(..), Route(..), createUrl, editingUrl)
 
 
 matchers : UP.Parser (Route -> a) a
@@ -10,10 +10,9 @@ matchers =
     UP.oneOf
         [ UP.map ArtifactsRoute UP.top
         , UP.map ArtifactNameRoute (UP.s "artifacts" </> UP.string)
-
-        -- TODO: rename ArtifactListRoute
         , UP.map ArtifactsRoute (UP.s "artifacts")
         , UP.map ArtifactCreateRoute (UP.s createUrl)
+        , UP.map ArtifactEditingRoute (UP.s editingUrl)
         ]
 
 

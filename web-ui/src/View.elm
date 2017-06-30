@@ -1,6 +1,6 @@
 module View exposing (..)
 
-import Html exposing (Html, div, text)
+import Html exposing (..)
 import Messages exposing (AppMsg(..), Route(..))
 import Models exposing (..)
 import Artifacts.Models exposing (..)
@@ -37,6 +37,9 @@ page model =
                     div []
                         [ text <| "invalid artifact name: " ++ error
                         ]
+
+        ArtifactEditingRoute ->
+            Artifacts.Edit.viewEditing model
 
         ArtifactCreateRoute ->
             getCreateArtifact model

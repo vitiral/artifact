@@ -1,8 +1,10 @@
 """This module defines the App class, which has helper methods for navigating
 around the application."""
+from __future__ import print_function
 
 import time
 
+from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.common import exceptions
@@ -48,6 +50,9 @@ class App(object):
 
     def __init__(self, driver):
         self.driver = driver
+        if isinstance(driver, webdriver.PhantomJS):
+            print("using phantomjs workaround for alerts")
+            driver.execute_script("window.confirm = function(){return true;}")
 
     def quit(self):
         """quit the app."""
@@ -117,6 +122,34 @@ class App(object):
         return true;
         ''' % (event, id_)
         assert self.driver.execute_script(js)
+
+    def accept_refresh(self, timeout=None):
+        """When given the alert to stay on the page, accept."""
+        self.wait_for_alert(timeout)
+        try:
+            self.driver.switch_to.alert.accept()
+        finally:
+            self.driver.switch_to.default_content()
+
+    def alert_exists(self):
+        """Return True if an alert box exists."""
+        try:
+            self.driver.switch_to.alert.text
+        except exceptions.NoAlertPresentException:
+            return False
+        else:
+            return True
+        finally:
+            self.driver.switch_to.default_content()
+
+    def wait_for_alert(self, timeout=None):
+        """wait for an alert to appear."""
+        if timeout is None:
+            return
+        start = time.time()
+        while not self.alert_exists():
+            assert time.time() - start < timeout, "timeout waiting for alert"
+            time.sleep(0.1)
 
     ################################################################################
     # Both List and Edit Views

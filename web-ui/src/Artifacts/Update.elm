@@ -6,6 +6,7 @@ import Models exposing (..)
 import Messages
     exposing
         ( createUrl
+        , editingUrl
         , AppMsg(AppError)
         , Route(..)
         )
@@ -29,6 +30,11 @@ update msg model =
             ( model
             , Navigation.newUrl <|
                 artifactNameUrl (indexNameUnchecked name)
+            )
+
+        ShowEditing ->
+            ( model
+            , Navigation.newUrl <| "#" ++ editingUrl
             )
 
         CreateArtifact ->
