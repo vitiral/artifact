@@ -38,14 +38,22 @@ DELETE_LOG_FMT = "Artifact Deletion Successful: {}".format
 
 
 class TestStuff(unittest.TestCase):
-    """TODO: this is basically a proving ground for how to write tests in
-    selenium.
+    """This is some completely direct tests to make sure basic functionality
+    works.
 
-    It is NOT well designed (yet).
+    This is NOT attempting to be either stress or comprehensive tests.
+    They are simple and explicit end-to-end tests to make sure basic
+    functionality works as intended
 
     """
 
-    USE_FIREFOX = True
+    # some additional tests that need to be added:
+    # - back button
+    # - read-only view has no edit/create/etc buttons
+    # - editing button appears/disappears
+    # - using the editing page
+
+    USE_FIREFOX = False
 
     @classmethod
     def setUpClass(cls):

@@ -88,6 +88,11 @@ editBar model option =
         [ listBtn ] ++ extra
 
 
+editingBar : Model -> List (Html AppMsg)
+editingBar model =
+    [ listBtn, createBtn, blockReload ]
+
+
 
 -- ACTIONS
 
@@ -123,11 +128,12 @@ createBtn =
 editBtn : ViewOption -> Html AppMsg
 editBtn option =
     let
-        ( t, attrs ) =
+        ( t, sym, attrs ) =
             case option of
                 ReadChoice artifact ->
                     -- editing has not yet started
                     ( "Edit"
+                    , "fa-pencil"
                     , [ id "edit"
                       , onClick <|
                             ArtifactsMsg <|
@@ -138,6 +144,7 @@ editBtn option =
 
                 EditChoice choice ->
                     ( "Cancel"
+                    , "fa-times"
                     , [ id "cancel_edit"
                       , onClick <| ArtifactsMsg <| CancelEditArtifact choice
                       ]
@@ -145,7 +152,7 @@ editBtn option =
     in
         button
             ([ class "btn regular" ] ++ attrs)
-            [ i [ class "fa fa-pencil mr1" ] []
+            [ i [ class <| "fa " ++ sym ++ " mr1" ] []
             , text t
             ]
 

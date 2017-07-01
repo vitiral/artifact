@@ -6,7 +6,6 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (onClick, onInput)
 import Regex
 import Markdown exposing (toHtml)
-import Utils exposing (..)
 import Models exposing (Model, getArtifact, memberArtifact, getCreateArtifact)
 import Styles exposing (warning)
 import Artifacts.Models exposing (..)
@@ -391,22 +390,41 @@ viewEditing model =
         creating =
             case model.create of
                 Just c ->
-                    [ a
-                        [ class "btn bold"
-                        , id <| "CREATE_" ++ c.name
-                        , onClick <| ArtifactsMsg <| CreateArtifact
-                        , href <| "#" ++ createUrl
+                    [ li []
+                        [ Nav.editBtn <| EditChoice <| CreateChoice c
+                        , a
+                            [ class "btn bold"
+                            , id <| "CREATE_" ++ c.name
+                            , onClick <| ArtifactsMsg <| CreateArtifact
+                            , href <| "#" ++ createUrl
+                            ]
+                            [ text <| "Creating " ++ c.name ]
                         ]
-                        [ text <| "Creating " ++ c.name ]
                     ]
 
                 Nothing ->
                     []
 
-        editing =
+        line artifact =
+            case artifact.edited of
+                Just e ->
+                    Just
+                        (li []
+                            [ Nav.editBtn <| EditChoice <| ChangeChoice artifact e
+                            , View.seeArtifact model artifact
+                            ]
+                        )
+
+                Nothing ->
+                    Nothing
+
+        lines =
             Dict.values model.artifacts
-                |> List.filter (\a -> isJust a.edited)
-                |> List.map (\a -> div [] [ View.seeArtifact model a ])
+                |> List.filterMap line
+
+        editing =
+            ul []
+                (creating ++ lines)
 
         header =
             h1
@@ -414,9 +432,7 @@ viewEditing model =
                 [ text "Artifacts you have not yet saved." ]
     in
         div [ id "editing_view" ]
-            (List.concat
-                [ [ header ]
-                , creating
-                , editing
-                ]
-            )
+            [ Nav.bar model <| Nav.editingBar model
+            , header
+            , editing
+            ]
