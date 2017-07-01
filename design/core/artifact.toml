@@ -20,12 +20,3 @@ and processed by the application. This includes:
 name is an attribute because it is used as the key for the Artifacts 
 type.
 '''
-
-[TST-artifact]
-text = '''
-The artifact type can be tested completely with simple unit tests:
- - artifact can load with empty (default) values
- - list of linked artifacts load and link correctly
- - list of linked artifacts where some are implemented have correct
-    completed/tested values
-'''

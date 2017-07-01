@@ -111,7 +111,6 @@ impl ProjectText {
     }
 
     /// dump text to origin
-    /// #SPC-save
     pub fn dump(&self) -> Result<()> {
         for (path, text) in &self.files {
             debug!("writing to {}", path.display());

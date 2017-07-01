@@ -15,87 +15,94 @@ Note:
 
 [SPC-rpc-artifacts]
 text = '''
-# ReadArtifacts
-params:
-- ids: list[int]: ids to get
-- names: list[string]: names to get
-- filterIds: list[int]: return all artifacts except for ones with
-    ids in this set
-- getAllIds: bool: if True, includes a list of all valid
-    ids in the response
-- NONE: if none of the above are given, all artifacts are returned
-    (but not all ids)
+## ReadProject
+Get the current project state
 
-result:
-- artifacts list[Artifact]: List containing requested artifacts
-- ids: list[int]: this contains all artifact ids if 
-    getAllIds==true, else null
+Note: this is NOT ReadArtifacts because there is more information that
+can change and it is important to update the web-app with the full
+information every time (and not let anything get out of sync).
+
+### params:
+
+No parameters (the entire project is always returned)
+
+### result:
+- artifacts `list[Artifact]`: List containing all artifacts
+- files: `list[String]`: list of all file paths. Note that some files
+  may be empty.
     
-error:
+### error:
+
+This command should not return any errors.
+
+Notes:
+All artifacts are guaranteed to have a unique id and their id will
+never change (until they are deleted). They also have a revision,
+which is incremented every time there is a user change.
+
+## UpdateArtifacts
+update (edit) existing artifacts
+
+### params:
+- artifacts: list[Artifact]: artifact objects with updated data.
+  The updated artifacts will be returned with their `revision` field
+  increased by one.
+
+### result:
+
+Same result as `ReadProject`. The fully updated project is
+returned on success to inform the webapp of the changes immediately.
+
+### error:
+
+message:
 - xIdsNotFound error if any ids don't exist
-- xNameNotFound error if any names don't exist
-
-Notes:
-`filterIds` is used to retrieve new artifacts every time an
-artifact is modified. It allows the frontend to only request
-the information it needs.
-
-All artifacts are guaranteed to have a unique id, but their
-id changes whenever they are modified.
-
-`getAllIds` is used for the frontend to validate that it has
-the correct artifacts.
-
-
-# UpdateArtifacts
-params:
-- artifacts: list[Artifact]: artifact objects with updated data
-
-result:
-- True on success
-
-error:
-- xIdsNotFound error if any ids don't exist (anymore)
-- xFilesNotFound error if an artifact contains a 
-    non-existant file
+- xFilesNotFound error if an artifact contains a non-registered file 
+  (files have to be created through a separate API call
 - xInvalidName for invalid artifact name
+- xNameExists error if any of the artifact names already exist
 - xInvalidPartof for invalid partof name
+- xMultipleErrors if multiple types of errors occured. See `data`.
 
-Notes:
-whenever an artifact is changed on the backend, it's id is bumped.
+data:
+The data contains a list of all error messages and additional data.
 
+## CreateArtifacts
+Create new artifacts.
 
-# CreateArtifacts
-params:
-- artifacts: list[Artifact]: new artifact objects that have their
-    id set to 0
+### params:
+- `artifacts list[Artifact]`: new artifact objects that have their
+  id set to 0
 
-result:
-- True on success
+### result:
 
-error:
-- xInvalidIds error if the id value != 0
-    on any Artifact
-- xNameExists error if any of the artifact
-    names already exist
-- xInvalidName for invalid artifact name
-- xInvalidPartof for invalid partof name
+Same result as `ReadProject`. The fully updated project is
+returned on success to inform the webapp of the changes immediately.
 
+### error:
+The errors are identical to `UpdateArtifacts` except for `xIdsNotFound`
+is replaced with `xInvalidId` if the id does not equal 0.
 
-# DeleteArtifacts
-params:
-- ids: list[int]: list of artifact ids to delete
+## DeleteArtifacts
+Delete artifacts, removing their id.
 
-result:
-- True on sucess
+### params
+- `ids list[int]`: list of artifact ids to delete
 
-error:
+### result
+Same result as `ReadProject`. The fully updated project is
+returned on success to inform the webapp of the changes immediately.
+
+### error
 - xIdsNotFound error if any ids don't exist
 '''
 
 [SPC-rpc-fs]
 text = '''
-filesystem related rpc
+filesystem related rpc.
+
+Note that existing files are obtained through `ReadProject` defined
+in [[SPC-rpc-artifacts]]
 
 # CreateFiles
 params:

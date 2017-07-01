@@ -43,7 +43,7 @@ fn test_toml_assumptions() {
 }
 
 #[test]
-// partof: #TST-load-simple
+// partof: #TST-project-simple
 fn test_load_repo() {
     // init_logger_test();
     info!("running test_load_repo");
@@ -163,6 +163,7 @@ fn remove_loc(project: &mut Project) {
 }
 
 #[test]
+/// #TST-project-process
 /// make sure that serializing/deserializing and then
 /// processing results in the same project
 fn test_process_project() {
@@ -219,6 +220,14 @@ fn test_process_project() {
 }
 
 #[test]
+/// #TST-project-link
+fn test_link() {
+    // TODO: I'm not actually sure what the difference between these are
+    // so I consolidated them into one test for now
+    test_basic_link();
+    test_link_completed_tested();
+}
+
 fn test_basic_link() {
     let mut artifacts = test_data::load_toml_simple(test_data::TOML_RST);
 
@@ -335,7 +344,6 @@ fn test_basic_link() {
     assert_eq!(req_parts_p1_a.tested, 0.);
 }
 
-#[test]
 /// extensive testing to make sure that link, completed and tested
 /// all work as expected
 fn test_link_completed_tested() {
@@ -492,7 +500,7 @@ fn test_link_completed_tested() {
 
 #[test]
 /// load a project as text and then convert
-/// #TST-save
+/// TST-project-save
 fn test_save_idempotent() {
     //init_logger_test();
     // load tsimple and process

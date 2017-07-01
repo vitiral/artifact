@@ -246,7 +246,7 @@ mod tests {
 
         let path = PathBuf::from("hi/there");
 
-        // #TST-load-invalid
+        // #TST-project-invalid
         assert!(load_toml(&path, test_data::TOML_BAD, &mut p).is_err());
         assert!(load_toml(&path, test_data::TOML_BAD_JSON, &mut p).is_err());
         assert!(load_toml(&path, test_data::TOML_BAD_ATTR1, &mut p).is_err());

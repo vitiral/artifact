@@ -35,7 +35,16 @@ to their correct value. This tool **will** be modeled after gofmt's args:
 
 ```
 
-The diffing functionality will be supported by the crate `difference`
+The command includes the spec for *how* artifacts should be formatted,
+and is essential for the operation of [[SPC-web]], since it is the same
+format that artifacts will be saved in when they are edited.
+
+Several items are essential for easy viewing of formatted artifacts and
+avoiding cluttered artifact files:
+- For the `partof` field, all calculated items (i.e. REQ-foo-bar is 
+  automatically a partof REQ-foo) are removed when storing in text
+- Long partof names should be split onto multiple lines
+- Any text block that contains newlines are formatted on multiple lines
 '''
 
 [SPC-cmd-init]

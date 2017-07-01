@@ -58,9 +58,20 @@ Failures in further steps will simply cause warnings and will display on the
 ui as missing links or None completion (etc)
 '''
 
-[TST-load]
+[TST-project]
+partof = "SPC-[artifact, load]"
+text = '''
+These tests represent the unit tests for saving and loading
+artifacts to/from files.
 
-[TST-load-invalid]
+These are intended to test, as completely as possible, that
+artifacts don't get loaded or processed into invalid states no
+matter how many times we handle them.
+
+These are essential for a broad range of services offered including
+formatting and saving artifacts in the web-ui.'''
+
+[TST-project-invalid]
 text = '''
 load the following and make sure it results in an error:
  1. trying to input a json-like table `{}`
@@ -71,7 +82,30 @@ load the following and make sure it results in an error:
  6. two files with same key
 '''
 
-[TST-load-simple]
+[TST-project-link]
+text = '''
+design documents linking (both automatically and explicitly) is one of the
+core features of artifact and is one that will be expected to "just work"
+and be ultra simple.
+
+Unit tests need to focus on multiple failure paths that could crop up
+around linking along with basic functionality testing and validate that the
+calculations are *exactly* as predicted by manual calculations.'''
+
+[TST-project-process]
+text = '''
+A huge amount of functionality requires that we can process a project
+that has been converted to its "data" form over and over and that
+processing it is completely idempotent. For instance, [[SPC-rpc-artifacts]]
+works by creating data artifacts from an existing project, editing those
+data artifacts and then re-processing the project to get the new value.
+
+It is critical that converting a project to data and reprocessing it
+is a completely idempotent operation.
+
+'''
+
+[TST-project-simple]
 text = '''
 Create a simple project that has a few ins and outs
  - has multi-level values
@@ -81,23 +115,4 @@ Create a simple project that has a few ins and outs
 
 Litter this with artifacts at each level, some of which are implemented in a fake src/ dir
 Validate that everything is as it should be
-'''
-
-[TST-load-valid]
-text = '''
-load the following and make sure values are present and correct:
- 1. [file folder[file]]
-
- 2. Unreachable should NOT get loaded:
-```
- /foo/foo.art
- /foo/bar/baz/unreachable.art
-```
-
- 3. All three files should be loaded:
-```
-/foo/foo.art
-/foo/bar/bar.art
-/foo/bar/baz/baz.art
-```
 '''

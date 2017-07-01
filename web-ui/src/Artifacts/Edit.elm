@@ -142,9 +142,12 @@ formColumnOne model option =
                         ]
                     ]
 
-                EditChoice _ ->
+                EditChoice choice ->
                     -- only display editable information
-                    [ Select.defined model option ] ++ partofEls
+                    [ Select.defined model option
+                    , doneFieldEdit model choice
+                    ]
+                        ++ partofEls
     in
         div [ class "col col-6" ] elements
 
@@ -372,7 +375,14 @@ replaceArtifactLinks model text =
                 Just m ->
                     case m of
                         Just m ->
-                            "[" ++ m ++ "](" ++ (fullArtifactUrl model m) ++ ")"
+                            if Dict.member (indexNameUnchecked m) model.names then
+                                "[" ++ m ++ "](" ++ (fullArtifactUrl model m) ++ ")"
+                            else
+                                ("<strike style=\"color:red\", "
+                                    ++ "title=\"artifact name not found\">[["
+                                    ++ m
+                                    ++ "]]</strike>"
+                                )
 
                         Nothing ->
                             "INTERNAL_ERROR"
@@ -381,6 +391,28 @@ replaceArtifactLinks model text =
                     "INTERNAL_ERROR"
     in
         Regex.replace Regex.All artifactLinkRegex replace text
+
+
+doneFieldEdit : Model -> EditOption -> Html AppMsg
+doneFieldEdit model option =
+    let
+        edited =
+            getEdited option
+
+        editMsg t =
+            setEdited option { edited | done = t }
+                |> EditArtifact
+                |> ArtifactsMsg
+    in
+        div []
+            [ span [ class "bold" ] [ text "define as done: " ]
+            , input
+                [ View.idAttr "done" <| EditChoice option
+                , onInput editMsg
+                , value edited.done
+                ]
+                []
+            ]
 
 
 viewEditing : Model -> Html AppMsg

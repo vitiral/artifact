@@ -91,9 +91,9 @@ the following characteristics:
 - easily link to source code (through the source documentation) to determine completeness
 - be revision controllable (text based)
 - have a unix-like command line interface for interacting with your design docs
-- have a web-ui to make managers happy
-- provide interop functionality like subcommand and data export for integration with
-    external tools and plugins
+- have a web-ui for viewing and editing rendered documents
+- provide interop functionality like subcommand and data export for integration 
+    with external tools and plugins
 - be scalable to any size of project
 
 This feature set will empower developers to track their own design docs and
@@ -103,9 +103,7 @@ guidance for contributors and teamates.
 
 [REQ-1-linking]
 text = '''
-linking should be in an easy to understand format.
-
-linking shall be possible:
+linking should be in an easy to understand format and possible:
 - between artifacts
 - with the location of implementation
 
@@ -114,26 +112,25 @@ It is recognized that there are two main concerns:
 - ease of reading links
 
 Ease of writing links is considered the most important, as reading
-links can be accomplished automatically through the cmdline/web ui interface.
+links can be accomplished automatically through the cmdline/web ui
+interface.
 
 For this reason, artifact uses the "partof" nomenclature for linking.
-This allows the user to think "what requirement does this fulfill"
-or "what requirement is this a risk for".
+This allows the user to think "what requirement does the design
+document I am currently writing fulfill".
 
-> by contrast "parts" would require you to go to a *different* artifact
-> in order to link the one you are working on.
-
-In addition, artifact shall infer links from the name of artifacts whenever possible.
-'''
+In addition, artifact shall infer links from the name of artifacts 
+whenever possible, such as artifacts with the same prefix or
+the same name of different types.'''
 
 [REQ-artifact]
 partof = "REQ-1"
 text = '''
 artifact **will** support 4 types of artifacts that can be tracked
-- REQ: software requirement
-- RSK: risks related to requirements
-- SPC: software design specificaion based on one or more requirements
-- TST: test design of a risk or specification
+- **REQ**: software requirement
+- **RSK**: risks related to requirements
+- **SPC**: software design specificaion based on one or more requirements
+- **TST**: test design of a risk or specification
 
 The valid links **will** look like this:
 ```
@@ -147,15 +144,15 @@ The valid links **will** look like this:
 In other words, you can design a spec (SPC) based on
 a requirement (REQ). A requirement can have a risk (RSK)
 associated with it. Tests can test to either a spec (SPC)
-or to a risk (RSK)
+or a risk (RSK)
 
-The artifacts **will** have simple orthoganl variables that accomplish
+The artifacts **will** have simple orthoganal variables that accomplish
 the purposes defined in [[REQ-1]].
 
 All artifacts **will** have the following attributes that the user can define:
 - name: the name specified by `[ART-name]`
-- text: description of the artifact
 - partof: a string containing artifact names which the artifact is a part of
+- text: description of the artifact
 
 This is kept *intentionally* minimal so as to reduce the API space for users
 to learn as well as external tools to process.
@@ -169,23 +166,27 @@ In order to accomplish this the name will be of the form:
 `ART-foo-bar-...` where `ART` is one of the types specified above
 and `foo-bar` is an arbitrary category.
 
-Each `-` in an artifact name shall be special -- it will denote categories and
-aid in easily linking artifacts to other artifacts, as defined in [[REQ-partof]]
+Each `"-"` in an artifact name shall be special. They are the primary
+separation variable for names and will denote categories and aid in easily
+linking artifacts to other artifacts, as defined in [[REQ-partof]]
 '''
 
 [REQ-cmd]
 partof = "REQ-1"
 text = '''
-The artifact cmdline interface will provide submodules to meet the requirements
-defined in REQ-2-ui such as:
+The artifact cmdline interface will be simple and intuitive for those
+who have used unix and git. It will contain a small subset of subcommands
+to make navigation easy.
 
- - init: initialize the current repository by creating `design/` and 
-    `.art/settings.toml` files
- - tutorial: begin an interactive tutorial for the user
- - ls: show artifacts and their fields
- - check: check the project for errors
- - fmt: format the *.toml files to be correct.
-'''
+- [[SPC-cmd-init]]: initialize the current repository by creating `design/` and 
+  `.art/settings.toml` files
+- [[SPC-cmd-tutorial]]: begin an interactive tutorial for the user
+- [[SPC-cmd-ls]]: filter and view artifacts
+- [[SPC-cmd-check]]: check the project for errors
+- [[SPC-cmd-fmt]]: format the `*.toml` files to be correct.
+- [[SPC-cmd-export]]: export artifacts json and static html
+- [[SPC-web]]: (`art serve` cmd) run an editable server for a full featured web 
+  interface'''
 
 [REQ-partof]
 partof = "REQ-[1-linking, artifact]"
@@ -243,19 +244,6 @@ For the Web UI the RPC shall have the following endpionts:
 - DeleteArtifacts
 - CreateFiles
 - CreateFolders
-'''
-
-[REQ-save]
-partof = "REQ-1"
-text = '''
-There shall be a method for formatting and saving a user's artifact files 
-according to a simple standard. This includes:
- - formatting the `partof` field to be sorted and bracketed
- - formatting all text fields to use the multiline text blocks
-
-This will be used by
- - REQ-cmd in an `fmt` command
- - REQ-rpc for the `UpdateArtifacts` and `CreateArtifacts` commands
 '''
 
 [REQ-security]
@@ -368,7 +356,7 @@ art fmt would have to be created by an error in the application itself
 
 [SPC-0-done]
 done = "by definition"
-partof = "REQ-0-[assertions, prefix, risks]"
+partof = "REQ-0-[assertions, license, prefix, risks]"
 text = '''
 This document itself meets the requirements of the definitions and process
 '''
