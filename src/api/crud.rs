@@ -3,7 +3,7 @@ use jsonrpc_core::{RpcMethodSync, Params, Error as RpcError, ErrorCode};
 use serde_json;
 
 use types::*;
-use export::{ArtifactData};
+use export::ArtifactData;
 use user;
 use api::constants;
 use api::utils;

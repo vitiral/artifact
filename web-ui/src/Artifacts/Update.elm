@@ -22,7 +22,7 @@ update msg model =
     case msg of
         ReceivedProject project ->
             let
-                (new_model, cmd) = 
+                ( new_model, cmd ) =
                     handleReceived model project.artifacts
             in
                 ( { new_model | files = project.files }, cmd )

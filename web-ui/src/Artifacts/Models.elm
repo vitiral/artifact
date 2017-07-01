@@ -27,15 +27,16 @@ artifactsUrl =
 
 -- TYPES
 
+
 type alias Project =
-    { artifacts: Artifacts
-    , files: Set.Set String
+    { artifacts : Artifacts
+    , files : Set.Set String
     }
 
 
 type alias ProjectData =
-    { artifacts: List Artifact
-    , files: Set.Set String
+    { artifacts : List Artifact
+    , files : Set.Set String
     }
 
 

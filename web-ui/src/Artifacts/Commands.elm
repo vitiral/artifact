@@ -269,7 +269,9 @@ projectResponseDecoder =
         (Decode.maybe (Decode.field "error" errorDecoder))
 
 
+
 -- DECODERS
+
 
 projectDecoder : Decode.Decoder ProjectData
 projectDecoder =
@@ -277,9 +279,11 @@ projectDecoder =
         |> required "artifacts" artifactsDecoder
         |> required "files" (Extra.set <| Decode.string)
 
+
 artifactsDecoder : Decode.Decoder (List Artifact)
 artifactsDecoder =
     Decode.list artifactDecoder
+
 
 artifactDecoder : Decode.Decoder Artifact
 artifactDecoder =

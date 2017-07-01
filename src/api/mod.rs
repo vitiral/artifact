@@ -14,7 +14,7 @@ use tar::Archive;
 use tempdir::TempDir;
 
 use types::{ServeCmd, Project};
-use export::{ProjectData};
+use export::ProjectData;
 use ctrlc;
 
 mod constants;

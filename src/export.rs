@@ -46,21 +46,19 @@ fn default_comp_tested() -> f32 {
 
 impl Project {
     pub fn to_data(&self) -> ProjectData {
-        let artifacts = self
-            .artifacts
+        let artifacts = self.artifacts
             .iter()
             .map(|(n, a)| a.to_data(&self.origin, n))
             .collect();
-        
-        let files: Vec<String> = self
-            .files
+
+        let files: Vec<String> = self.files
             .iter()
-            .map(|p| p
-                .strip_prefix(&self.origin)
-                .expect("origin invalid")
-                .to_string_lossy()
-                .to_string()
-            )
+            .map(|p| {
+                p.strip_prefix(&self.origin)
+                    .expect("origin invalid")
+                    .to_string_lossy()
+                    .to_string()
+            })
             .collect();
 
         ProjectData {

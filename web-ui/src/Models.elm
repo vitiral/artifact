@@ -22,7 +22,7 @@ type alias Flags =
 
 type alias Model =
     { artifacts : Artifacts
-    , files: Set.Set String
+    , files : Set.Set String
     , names :
         Dict.Dict NameKey ArtifactId
     , route : Route
