@@ -1,7 +1,7 @@
 use dev_prefix::*;
 
 use std::mem;
-use std::sync::{Mutex};
+use std::sync::Mutex;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::thread;
 
@@ -166,9 +166,8 @@ pub fn start_api(project: Project, cmd: &ServeCmd) {
 
     let running = Arc::new(AtomicBool::new(true));
     let r = running.clone();
-    ctrlc::set_handler(move || {
-        r.store(false, Ordering::SeqCst);
-    }).expect("Error setting Ctrl-C handler");
+    ctrlc::set_handler(move || { r.store(false, Ordering::SeqCst); })
+        .expect("Error setting Ctrl-C handler");
 
     // host the frontend files using a static file handler
     // and own the tmpdir for as long as needed
@@ -185,6 +184,6 @@ pub fn start_api(project: Project, cmd: &ServeCmd) {
 
     debug!("Got SIGINT, cleaning up");
     let locked = LOCKED.lock().unwrap();
-    mem::forget(locked);  // never unlock again
+    mem::forget(locked); // never unlock again
     debug!("All cleaned up, exiting");
 }

@@ -13,7 +13,7 @@ import toml
 from py_helpers import models
 
 URL_PAT = re.compile(r'Listening on (\S+)')
-WEB_FILES_PAT =re.compile(r'unpacking web-ui at: (\S+)')
+WEB_FILES_PAT = re.compile(r'unpacking web-ui at: (\S+)')
 
 TARGET_ART = os.environ['TARGET_BIN']
 
@@ -41,7 +41,7 @@ class Phantom(object):
     def stop(self):
         """stop the phantom server."""
         if self.cmd:
-            self.cmd.kill()
+            self.cmd.send_signal(signal.SIGTERM)
             self.cmd = None
 
         if self.stdout:

@@ -133,7 +133,7 @@ publish:
 	git branch | grep '* master'
 	git diff --no-ext-diff --quiet --exit-code
 	# TODO: switch to build when web-ui done
-	just git-verify lint build-static
+	just lint build-static
 	just lint test self-check
 	git commit -a -m "v{{version}} release"
 	@# push to cargo
