@@ -7,6 +7,7 @@ version = `sed -En 's/version = "([^"]+)"/\1/p' Cargo.toml | head -n1`
 target = "$PWD/target"
 export_bin = "export TARGET_BIN=" + target + "/debug/art" + " &&"
 repo_url = "https://github.com/vitiral/artifact"
+build_site_args = '--path-url "' + repo_url + '/blob/$(git rev-parse --verify HEAD)/{path}#L{line}"'
 
 
 # just get the version
@@ -146,10 +147,11 @@ publish:
 
 # build the static html
 build-site:
-	cargo run --features server -- -vv export html -o _gh-pages --path-url "{{repo_url}}/blob/$(git rev-parse --verify HEAD)/{path}#L{line}"
+	cargo run --features server -- -vv export html -o _gh-pages {{build_site_args}}
 
 # push the static html design docs to git-pages
-publish-site: build-site
+publish-site:
+	artd -vv export html -o _gh-pages {{build_site_args}}
 	(cd _gh-pages; git commit -am 'v{{version}}' && git push origin gh-pages)
 
 ##################################################
