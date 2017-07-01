@@ -10,6 +10,7 @@ import Html.Attributes exposing (value, class, href, title, id, selected)
 import Html.Events exposing (onClick, onInput)
 import Messages exposing (AppMsg(..), Route(..))
 import Models exposing (Model, getArtifact, memberArtifact)
+import Utils
 import Artifacts.Models exposing (..)
 import Artifacts.Messages exposing (Msg(..))
 
@@ -96,22 +97,34 @@ implemented model artifact =
 implementedBasic : Model -> Artifact -> Html m
 implementedBasic model artifact =
     let
-        ( s, t ) =
+        ( s, d ) =
             case ( artifact.code, artifact.done ) of
                 ( Just loc, Nothing ) ->
-                    ( [], loc.path ++ "[" ++ (toString loc.line) ++ "]" )
+                    let
+                        plain =
+                            loc.path ++ "[" ++ (toString loc.line) ++ "]"
+                    in
+                        if model.flags.path_url == "" then
+                            ( [], text plain )
+                        else
+                            let
+                                url =
+                                    Utils.strReplace "{path}" loc.path model.flags.path_url
+                                        |> Utils.strReplace "{line}" (toString loc.line)
+                            in
+                                ( [], a [ href url ] [ text plain ] )
 
                 ( Nothing, Just done ) ->
-                    ( [], done )
+                    ( [], text done )
 
                 ( Nothing, Nothing ) ->
-                    ( [ class "italic gray" ], "not directly implemented" )
+                    ( [ class "italic gray" ], text "not directly implemented" )
 
                 ( Just _, Just _ ) ->
                     -- TODO: send error message
-                    ( [ class "bold red" ], "ERROR: code+done both set" )
+                    ( [ class "bold red" ], text "ERROR: code+done both set" )
     in
-        span (s ++ [ getId "implemented" artifact Nothing ]) [ text t ]
+        span (s ++ [ getId "implemented" artifact Nothing ]) [ d ]
 
 
 

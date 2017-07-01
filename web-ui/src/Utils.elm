@@ -56,6 +56,12 @@ setIndexUnsafe index value list =
             ("index " ++ (toString index) ++ " out of bounds")
 
 
+strReplace : String -> String -> String -> String
+strReplace pat replace_with original =
+    String.split pat original
+        |> String.join replace_with
+
+
 {-| find the index of a member
 
 Crashes if the member doesn't exist or if there are more than one index

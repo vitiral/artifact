@@ -16,7 +16,7 @@ import Utils exposing (isJust)
 -}
 type alias Flags =
     { readonly : Bool
-    , def_url : String
+    , path_url : String
     }
 
 

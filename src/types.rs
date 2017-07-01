@@ -300,5 +300,5 @@ impl Settings {
 pub struct ServeCmd {
     pub addr: String,
     pub readonly: bool,
-    pub def_url: String,
+    pub path_url: String,
 }

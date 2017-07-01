@@ -8,15 +8,15 @@ use super::super::api;
 /// Partof:
 pub fn get_subcommand<'a, 'b>() -> App<'a, 'b> {
     SubCommand::with_name("serve")
-        .about("serve the web-ui and json-rpc backend")
-        .settings(&SUBCMD_SETTINGS)
-        .help(
-            "The server is hosted at ADDRESS, which can also be a port number for
-              localhost.\n
-              If address is a non-port, the server is readonly by default.\n
-              if address is a port number (localost) then the server is editable by default.\n
-              Either can be overridden explicitly through the --readonly or --editable flags",
+        .about(
+            "serve the web-ui and json-rpc backend\n
+               The server is hosted at ADDRESS, which can also be a port number for
+               localhost.\n
+               If address is a non-port, the server is readonly by default.\n
+               if address is a port number (localost) then the server is editable by default.\n
+               Either can be overridden explicitly through the --readonly or --editable flags",
         )
+        .settings(&SUBCMD_SETTINGS)
         .arg(
             Arg::with_name("address")
                 .value_name("ADDRESS")
@@ -42,8 +42,8 @@ pub fn get_subcommand<'a, 'b>() -> App<'a, 'b> {
                 ),
         )
         .arg(
-            Arg::with_name("definition_url")
-                .long("definition-url")
+            Arg::with_name("path_url")
+                .long("path-url")
                 .takes_value(true)
                 .help(
                     "Use the given format for creating links to artifact definitions.\n\n
@@ -83,7 +83,7 @@ pub fn get_cmd(matches: &ArgMatches) -> ServeCmd {
     ServeCmd {
         addr: addr,
         readonly: readonly,
-        def_url: matches.value_of("def_url").unwrap_or("").to_string(),
+        path_url: matches.value_of("path_url").unwrap_or("").to_string(),
     }
 }
 

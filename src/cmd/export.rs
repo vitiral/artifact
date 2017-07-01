@@ -7,7 +7,10 @@ use types::*;
 use cmd::types::*;
 use export;
 
-const WEB_STATIC_TAR: &'static [u8] = include_bytes!("data/web-ui-static.tar");
+const WEB_STATIC_TAR: &[u8] = include_bytes!("data/web-ui-static.tar");
+
+const REPLACE_PATH: &str = "REPLACE_WITH_PATH_URL";
+const REPLACE_ARTIFACTS: &str = "REPLACE_WITH_ARTIFACTS";
 
 pub fn get_subcommand<'a, 'b>() -> App<'a, 'b> {
     // #SPC-cmd-export
@@ -24,7 +27,27 @@ pub fn get_subcommand<'a, 'b>() -> App<'a, 'b> {
                 .value_name("PATH")
                 .help(
                     "The export output directory. If omitted, the current working directory \
-                  is used.",
+                     is used.",
+                ),
+        )
+        .arg(
+            Arg::with_name("path_url")
+                .long("path-url")
+                .takes_value(true)
+                .help(
+                    "Use the given format for creating links to artifact definitions when using \
+                    export html.\
+                    \nThis allows for easy viewing of the code where artifacts are implemented.\
+                    \nexample: $GITHUB_URL/blob/$(git rev-parse HEAD)/{path}#L{line}\
+                    \n- `$REPO_URL` is the url for your repo on github (i.e. https://github.com/\
+                    vitiral/artifact)\
+                    \n- `$(git rev-parse HEAD)` is a bash cmd which finds the current hash of your \
+                    repo\
+                    \n- `{path}` and `{line}` are special markers that artifact uses for creating \
+                    the link for each artifact.\
+                    \nThis results in links like:\
+                    \nhttps://github.com/vitiral/artifact/blob/\
+                    4688c950731b081387976bbaf3fb0dc5612d5cad/src/cmd/ls.rs#L28\n",
                 ),
         )
 }
@@ -38,6 +61,7 @@ pub enum ExportType {
 pub struct Cmd<'a> {
     ty: ExportType,
     output: Option<&'a Path>,
+    path_url: String,
 }
 
 pub fn get_cmd<'a>(matches: &'a ArgMatches) -> Result<Cmd<'a>> {
@@ -53,11 +77,13 @@ pub fn get_cmd<'a>(matches: &'a ArgMatches) -> Result<Cmd<'a>> {
     Ok(Cmd {
         ty: ty,
         output: dir,
+        path_url: matches.value_of("path_url").unwrap_or("").to_string(),
     })
 }
 
 pub fn run_cmd(cwd: &Path, project: &Project, cmd: &Cmd) -> Result<u8> {
     let output = cmd.output.unwrap_or(cwd);
+    debug!("running with cmd: {:?}", cmd);
     match cmd.ty {
         ExportType::Html => {
             // get the artifacts as json and replace with escaped chars
@@ -91,7 +117,11 @@ pub fn run_cmd(cwd: &Path, project: &Project, cmd: &Cmd) -> Result<u8> {
             index.seek(SeekFrom::Start(0)).unwrap();
             index.set_len(0).unwrap(); // delete what is there
             index
-                .write_all(text.replace("REPLACE_WITH_ARTIFACTS", &data).as_bytes())
+                .write_all(
+                    text.replace(REPLACE_ARTIFACTS, &data)
+                        .replace(REPLACE_PATH, &cmd.path_url)
+                        .as_bytes(),
+                )
                 .unwrap();
             index.flush().unwrap();
         }

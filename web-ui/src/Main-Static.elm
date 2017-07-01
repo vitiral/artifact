@@ -16,7 +16,7 @@ import Artifacts.Commands exposing (fetchAll, artifactsFromStrUnsafe)
 fakeFlags : Flags
 fakeFlags =
     { readonly = True
-    , def_url = ""
+    , path_url = "REPLACE_WITH_PATH_URL"
     }
 
 
