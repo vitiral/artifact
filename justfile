@@ -132,9 +132,9 @@ publish:
 	@# make sure code is clean on master
 	git branch | grep '* master'
 	git diff --no-ext-diff --quiet --exit-code
-	# TODO: switch to build when web-ui done
-	just lint build-static
-	just lint test self-check
+	@# test all and commit
+	just test-all
+	just build
 	git commit -a -m "v{{version}} release"
 	@# push to cargo
 	cargo publish --no-verify
