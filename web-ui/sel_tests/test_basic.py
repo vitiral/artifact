@@ -1,5 +1,5 @@
 """TODO: these tests need to be better designed."""
-from __future__ import print_function, absolute_import
+from __future__ import print_function, absolute_import, unicode_literals
 
 import os
 import time
@@ -277,6 +277,7 @@ class TestStuff(unittest.TestCase):
             app.start_edit(timeout=1)
             app.assert_edit_view(timeout=2)
 
+            # move it
             app.set_defined(name, PURPOSE_PATH)
             app.save_edit()
             app.ack_log(0, UPDATE_LOG_FMT(name_raw), timeout=1)
@@ -284,7 +285,14 @@ class TestStuff(unittest.TestCase):
             assert name_raw not in art.get_artifacts(ALONE_PATH)
             assert name_raw in art.get_artifacts(PURPOSE_PATH)
 
-            art.restart()
+            # move it back
+            app.start_edit(timeout=1)
+            app.set_defined(name, ALONE_PATH, timeout=2)
+            app.save_edit()
+            app.ack_log(0, UPDATE_LOG_FMT(name_raw), timeout=1)
+            assert app.get_value(name, F.def_at) == ALONE_PATH
+            assert name_raw in art.get_artifacts(ALONE_PATH)
+            assert name_raw not in art.get_artifacts(PURPOSE_PATH)
 
     def test_create(self):
         """Test editing a text field."""

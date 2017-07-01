@@ -3,7 +3,7 @@ use jsonrpc_core::{Params, Error as RpcError, ErrorCode};
 use serde_json;
 
 use types::*;
-use export::ArtifactData;
+use export::{ArtifactData};
 use user;
 use api::constants;
 
@@ -56,14 +56,6 @@ pub fn get_artifacts(params: Params) -> result::Result<Vec<ArtifactData>, RpcErr
         }
         _ => Err(invalid_params("params must have 'artifacts' key")),
     }
-}
-
-pub fn convert_to_data(project: &Project) -> Vec<ArtifactData> {
-    project
-        .artifacts
-        .iter()
-        .map(|(n, a)| a.to_data(&project.origin, n))
-        .collect()
 }
 
 pub fn from_data(

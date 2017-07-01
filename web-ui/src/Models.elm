@@ -22,6 +22,7 @@ type alias Flags =
 
 type alias Model =
     { artifacts : Artifacts
+    , files: Set.Set String
     , names :
         Dict.Dict NameKey ArtifactId
     , route : Route
@@ -112,21 +113,17 @@ getCreateArtifact model =
 
 {-| get all definition file paths
 -}
-getDefs : Model -> Maybe String -> List String
-getDefs model current =
+getFiles : Model -> Maybe String -> List String
+getFiles model current =
     let
-        tmp =
-            List.map (\a -> a.def) (Dict.values model.artifacts)
-                |> Set.fromList
-
-        tmp2 =
+        files =
             case current of
                 Just c ->
-                    Set.insert c tmp
+                    Set.insert c model.files
 
                 Nothing ->
-                    tmp
+                    model.files
     in
-        Set.remove "PARENT" tmp2
+        Set.remove "PARENT" files
             |> Set.toList
             |> List.sort

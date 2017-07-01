@@ -1,5 +1,6 @@
 module Main exposing (..)
 
+import Set
 import Dict
 import Navigation
 import Messages exposing (AppMsg(..), Route)
@@ -13,6 +14,7 @@ import Artifacts.Commands exposing (fetchAll, artifactsFromStrUnsafe)
 initialModel : Navigation.Location -> Flags -> Route -> Model
 initialModel location flags route =
     { artifacts = artifactsFromStrUnsafe "[]"
+    , files = Set.empty
     , names = Dict.empty
     , route = route
     , location = location

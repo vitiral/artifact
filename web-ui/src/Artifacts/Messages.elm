@@ -4,7 +4,7 @@ import Artifacts.Models exposing (..)
 
 
 type Msg
-    = ReceivedArtifacts (List Artifact)
+    = ReceivedProject ProjectData
     | ShowArtifacts
     | ShowArtifact String
     | ShowEditing

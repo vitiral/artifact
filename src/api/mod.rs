@@ -14,7 +14,7 @@ use tar::Archive;
 use tempdir::TempDir;
 
 use types::{ServeCmd, Project};
-use export::ArtifactData;
+use export::{ProjectData};
 use ctrlc;
 
 mod constants;
@@ -29,16 +29,16 @@ const WEB_FRONTEND_TAR: &'static [u8] = include_bytes!("data/web-ui.tar");
 const REPLACE_FLAGS: &str = "{/* REPLACE WITH FLAGS */}";
 
 pub struct LockedData {
-    cmd: ServeCmd,
-    artifacts: Vec<ArtifactData>,
-    project: Project,
+    pub cmd: ServeCmd,
+    pub project: Project,
+    pub project_data: ProjectData,
 }
 
 lazy_static! {
     static ref LOCKED: Mutex<LockedData> = Mutex::new(
         LockedData {
             cmd: ServeCmd::default(),
-            artifacts: Vec::new(),
+            project_data: ProjectData::default(),
             project: Project::default(),
         }
     );
@@ -147,12 +147,9 @@ pub fn start_api(project: Project, cmd: &ServeCmd) {
     // store artifacts and files into global mutex
 
     {
-        let mut artifacts = utils::convert_to_data(&project);
         let mut locked = LOCKED.lock().unwrap();
         let lref = locked.deref_mut();
-        let compare_by = |a: &ArtifactData| a.name.to_ascii_uppercase();
-        artifacts.sort_by(|a, b| compare_by(a).cmp(&compare_by(b)));
-        lref.artifacts = artifacts;
+        lref.project_data = project.to_data();
         lref.project = project;
         lref.cmd = cmd.clone();
     }

@@ -5,6 +5,7 @@ import Navigation
 
 --import Html exposing (program)
 
+import Set
 import Messages exposing (AppMsg(..), Route)
 import Models exposing (..)
 import View exposing (view)
@@ -30,6 +31,7 @@ initialModel location flags route =
             artifactsFromStrUnsafe "REPLACE_WITH_ARTIFACTS"
     in
         { artifacts = artifacts
+        , files = Set.empty
         , names = nameIds artifacts
         , route = route
         , location = location

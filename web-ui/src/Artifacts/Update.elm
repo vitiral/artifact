@@ -20,8 +20,12 @@ import Artifacts.Commands exposing (updateArtifacts, createArtifacts, deleteArti
 update : Msg -> Model -> ( Model, Cmd AppMsg )
 update msg model =
     case msg of
-        ReceivedArtifacts artifactList ->
-            handleReceived model artifactList
+        ReceivedProject project ->
+            let
+                (new_model, cmd) = 
+                    handleReceived model project.artifacts
+            in
+                ( { new_model | files = project.files }, cmd )
 
         ShowArtifacts ->
             ( model, Navigation.newUrl artifactsUrl )

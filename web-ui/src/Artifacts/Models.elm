@@ -27,6 +27,17 @@ artifactsUrl =
 
 -- TYPES
 
+type alias Project =
+    { artifacts: Artifacts
+    , files: Set.Set String
+    }
+
+
+type alias ProjectData =
+    { artifacts: List Artifact
+    , files: Set.Set String
+    }
+
 
 {-| representation of an Artifact object
 -}
@@ -98,8 +109,8 @@ type alias EditableArtifact =
     }
 
 
-type alias ArtifactsResponse =
-    { result : Maybe (List Artifact)
+type alias ProjectResponse =
+    { result : Maybe ProjectData
     , error : Maybe RpcError
     }
 

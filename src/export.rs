@@ -11,7 +11,7 @@ pub struct LocData {
     pub line: u64,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, Default, Clone, PartialEq)]
 pub struct ArtifactData {
     pub id: u64,
     pub revision: u64,
@@ -34,10 +34,41 @@ pub struct ArtifactData {
     pub tested: f32,
 }
 
+#[derive(Serialize, Debug, Default, Clone, PartialEq)]
+pub struct ProjectData {
+    pub artifacts: Vec<ArtifactData>,
+    pub files: Vec<String>,
+}
+
 fn default_comp_tested() -> f32 {
     -1.0_f32
 }
 
+impl Project {
+    pub fn to_data(&self) -> ProjectData {
+        let artifacts = self
+            .artifacts
+            .iter()
+            .map(|(n, a)| a.to_data(&self.origin, n))
+            .collect();
+        
+        let files: Vec<String> = self
+            .files
+            .iter()
+            .map(|p| p
+                .strip_prefix(&self.origin)
+                .expect("origin invalid")
+                .to_string_lossy()
+                .to_string()
+            )
+            .collect();
+
+        ProjectData {
+            artifacts: artifacts,
+            files: files,
+        }
+    }
+}
 
 impl Artifact {
     /// convert an `Artifact` to it's data form

@@ -1,6 +1,6 @@
 """This module defines the App class, which has helper methods for navigating
 around the application."""
-from __future__ import print_function
+from __future__ import print_function, unicode_literals
 
 import time
 

@@ -10,7 +10,7 @@ import Html.Events exposing (onClick, on, targetValue)
 import Json.Decode as Json
 import Styles exposing (warning)
 import Messages exposing (AppMsg(..), Route(..))
-import Models exposing (Model, getArtifact, memberArtifact, getDefs)
+import Models exposing (Model, getArtifact, memberArtifact, getFiles)
 import Utils exposing (..)
 import Artifacts.Models exposing (..)
 import Artifacts.Nav as Nav
@@ -339,7 +339,7 @@ editDefined model ed_option =
                                 ]
                                 [ text <| "  " ++ d ]
                         )
-                        (getDefs model <| Just edited.def)
+                        (getFiles model <| Just edited.def)
                     )
               ]
             , warn

@@ -4,6 +4,7 @@ module Artifacts.Nav exposing (..)
 -- and initiating commands to the api server. The Update module actually sends
 -- them, but the messages are only created here
 
+import Set
 import Dict
 import Html exposing (..)
 import Html.Attributes exposing (..)
@@ -347,7 +348,7 @@ checkPartof model name partof =
 
 checkDef : Model -> EditableArtifact -> Result String String
 checkDef model edited =
-    if List.member edited.def (getDefs model Nothing) then
+    if Set.member edited.def model.files then
         Ok edited.def
     else
         Err "invalid definition path"

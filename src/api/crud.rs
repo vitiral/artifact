@@ -3,7 +3,7 @@ use jsonrpc_core::{RpcMethodSync, Params, Error as RpcError, ErrorCode};
 use serde_json;
 
 use types::*;
-use export::ArtifactData;
+use export::{ArtifactData};
 use user;
 use api::constants;
 use api::utils;
@@ -32,7 +32,7 @@ impl RpcMethodSync for ReadArtifacts {
     fn call(&self, _: Params) -> result::Result<serde_json::Value, RpcError> {
         info!("ReadArtifacts");
         let locked = LOCKED.lock().unwrap();
-        Ok(serde_json::to_value(&locked.artifacts).expect("serde"))
+        Ok(serde_json::to_value(&locked.project_data).expect("serde"))
     }
 }
 
@@ -81,7 +81,7 @@ impl RpcMethodSync for DeleteArtifacts {
         // get all the data artifacts by id
         // TODO: this should probably be moved and used by all these methods
         let mut remaining: HashMap<u64, ArtifactData> = {
-            let mut data_artifacts = utils::convert_to_data(&locked.project);
+            let mut data_artifacts = locked.project_data.artifacts.clone();
             let mut out: HashMap<u64, ArtifactData> = HashMap::new();
             for dart in data_artifacts.drain(..) {
                 let id = dart.id;
@@ -128,15 +128,15 @@ impl RpcMethodSync for DeleteArtifacts {
 
         process_project(&mut new_project)?;
 
-        let new_artifacts = utils::convert_to_data(&new_project);
-        let out = serde_json::to_value(&new_artifacts).expect("serde");
+        let new_project_data = new_project.to_data();
+        let out = serde_json::to_value(&new_project_data).expect("serde");
 
         // save the new project to disk
         utils::dump_artifacts(&new_project)?;
 
         // store globals and return
         locked.project = new_project;
-        locked.artifacts = new_artifacts;
+        locked.project_data = new_project_data;
         Ok(out)
     }
 }
@@ -157,22 +157,22 @@ fn do_cu_call(params: Params, for_create: bool) -> result::Result<serde_json::Va
 
     // perform the update (but don't mutate global yet)
     let new_project = update_project(
-        &locked.artifacts,
+        &locked.project_data.artifacts,
         &locked.project,
         &updated_artifacts,
         for_create,
     )?;
     drop(updated_artifacts);
 
-    let new_artifacts = utils::convert_to_data(&new_project);
-    let out = serde_json::to_value(&new_artifacts).expect("serde");
+    let new_project_data = new_project.to_data();
+    let out = serde_json::to_value(&new_project_data).expect("serde");
 
     // save the new project to disk
     utils::dump_artifacts(&new_project)?;
 
     // store globals and return
     locked.project = new_project;
-    locked.artifacts = new_artifacts;
+    locked.project_data = new_project_data;
     Ok(out)
 }
 

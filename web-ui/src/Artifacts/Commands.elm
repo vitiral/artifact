@@ -3,6 +3,7 @@ module Artifacts.Commands exposing (..)
 import Dict
 import Http
 import Json.Decode as Decode
+import Json.Decode.Extra as Extra
 import Json.Encode as Encode
 import Json.Decode.Pipeline exposing (decode, required, optional, hardcoded)
 import Messages exposing (AppMsg(..))
@@ -35,9 +36,9 @@ fetchAll model =
             Http.jsonBody <| getArtifactsRequestEncoded model.jsonId
 
         request =
-            createJsonRequest model body artifactsResponseDecoder
+            createJsonRequest model body projectResponseDecoder
     in
-        Http.send gotArtifactsMsg request
+        Http.send gotProjectMsg request
 
 
 updateArtifacts : Model -> Dict.Dict ArtifactId EditableArtifact -> Cmd AppMsg
@@ -47,9 +48,9 @@ updateArtifacts model edited =
             Http.jsonBody <| updateArtifactsRequestEncoded model.jsonId edited
 
         request =
-            createJsonRequest model body artifactsResponseDecoder
+            createJsonRequest model body projectResponseDecoder
     in
-        Http.send gotArtifactsMsg request
+        Http.send gotProjectMsg request
 
 
 createArtifacts : Model -> List EditableArtifact -> Cmd AppMsg
@@ -59,9 +60,9 @@ createArtifacts model edited =
             Http.jsonBody <| createArtifactsRequestEncoded model.jsonId edited
 
         request =
-            createJsonRequest model body artifactsResponseDecoder
+            createJsonRequest model body projectResponseDecoder
     in
-        Http.send gotArtifactsMsg request
+        Http.send gotProjectMsg request
 
 
 deleteArtifacts : Model -> List Artifact -> Cmd AppMsg
@@ -71,9 +72,9 @@ deleteArtifacts model artifacts =
             Http.jsonBody <| deleteArtifactsRequestEncoded model.jsonId artifacts
 
         request =
-            createJsonRequest model body artifactsResponseDecoder
+            createJsonRequest model body projectResponseDecoder
     in
-        Http.send gotArtifactsMsg request
+        Http.send gotProjectMsg request
 
 
 
@@ -95,19 +96,18 @@ createJsonRequest model body decoder =
         }
 
 
-gotArtifactsMsg : Result Http.Error ArtifactsResponse -> AppMsg
-gotArtifactsMsg result =
+gotProjectMsg : Result Http.Error ProjectResponse -> AppMsg
+gotProjectMsg result =
     case result of
         Ok response ->
-            case response.result of
-                Just gotArtifacts ->
-                    ArtifactsMsg (ReceivedArtifacts gotArtifacts)
+            case response.error of
+                Just error ->
+                    AppError (formatJsonRpcError error)
 
-                -- TODO: break this out to a function
                 Nothing ->
-                    case response.error of
-                        Just error ->
-                            AppError (formatJsonRpcError error)
+                    case response.result of
+                        Just gotProject ->
+                            ArtifactsMsg (ReceivedProject gotProject)
 
                         Nothing ->
                             AppError "json response had no result or error"
@@ -262,21 +262,24 @@ errorDecoder =
 -- API Calls
 
 
-artifactsResponseDecoder : Decode.Decoder ArtifactsResponse
-artifactsResponseDecoder =
-    Decode.map2 ArtifactsResponse
-        (Decode.maybe (Decode.field "result" artifactsDecoder))
+projectResponseDecoder : Decode.Decoder ProjectResponse
+projectResponseDecoder =
+    Decode.map2 ProjectResponse
+        (Decode.maybe (Decode.field "result" projectDecoder))
         (Decode.maybe (Decode.field "error" errorDecoder))
 
 
+-- DECODERS
 
--- Generic Artifact
-
+projectDecoder : Decode.Decoder ProjectData
+projectDecoder =
+    decode ProjectData
+        |> required "artifacts" artifactsDecoder
+        |> required "files" (Extra.set <| Decode.string)
 
 artifactsDecoder : Decode.Decoder (List Artifact)
 artifactsDecoder =
     Decode.list artifactDecoder
-
 
 artifactDecoder : Decode.Decoder Artifact
 artifactDecoder =
