@@ -51,7 +51,10 @@ extern crate tar;
 extern crate nickel;
 #[cfg(feature = "server")]
 extern crate jsonrpc_core;
+#[cfg(feature = "server")]
 extern crate tempdir;
+#[cfg(feature = "server")]
+extern crate ctrlc;
 
 // # serialization
 #[macro_use]

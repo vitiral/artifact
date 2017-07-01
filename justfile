@@ -104,7 +104,7 @@ serve:
 
 serve-rust:
 	rm -rf /tmp/rust-serve && cp -r web-ui/sel_tests/ex_proj /tmp/rust-serve
-	cargo run --features server -- -v --work-tree /tmp/rust-serve serve
+	cargo run --features server -- -vv --work-tree /tmp/rust-serve serve
 
 
 ##################################################

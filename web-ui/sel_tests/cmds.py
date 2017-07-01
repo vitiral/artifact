@@ -7,11 +7,13 @@ import re
 import subprocess
 import tempfile
 import shutil
+import signal
 
 import toml
 from py_helpers import models
 
-URL_PAT = re.compile(r"Listening on (\S+)")
+URL_PAT = re.compile(r'Listening on (\S+)')
+WEB_FILES_PAT =re.compile(r'unpacking web-ui at: (\S+)')
 
 TARGET_ART = os.environ['TARGET_BIN']
 
@@ -61,6 +63,7 @@ class Artifact(object):
         self.tmp_proj = None
         self.stdout = None
         self.art = None
+        self.web_files = None
 
     def get_artifacts(self, path):
         """Return the artifacts located at ``path``."""
@@ -84,6 +87,7 @@ class Artifact(object):
         cmd = [
             TARGET_ART,
             "--work-tree", self.tmp_proj,
+            "-vv",
             "serve"
         ]
         self.art = subprocess.Popen(
@@ -97,20 +101,32 @@ class Artifact(object):
                 stdout.seek(0)
                 if self.art.poll() is not None:
                     raise Exception("art died: {}".format(stdout.read()))
-                match = URL_PAT.search(stdout.read())
+                stdout_str = stdout.read()
+                match = URL_PAT.search(stdout_str)
                 if match:
-                    return match.group(1)
+                    url = match.group(1)
+                    break
                 assert time.time() - start > 5, "timeout"
+
+        self.web_files = WEB_FILES_PAT.search(stdout_str).group(1)
+        return url
 
     def _stop(self):
         """stop the server but do not delete the tmp project."""
         if self.art:
-            self.art.kill()
+            self.art.send_signal(signal.SIGTERM)
             self.art = None
 
         if self.stdout:
             self.stdout.close()
             self.stdout = None
+
+        if self.web_files:
+            start = time.time()
+            while os.path.exists(self.web_files):
+                assert time.time() - start < 5, "web-ui files were not cleaned up"
+                time.sleep(0.2)
+            self.web_files = None
 
     def __enter__(self):
         self.tempdir = tempfile.mkdtemp()

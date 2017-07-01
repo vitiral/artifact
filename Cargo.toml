@@ -29,6 +29,10 @@ toml = "0.2"
 unicode-segmentation = "1.1.0"
 unicode-width = "0.1.4"
 
+[dependencies.ctrlc]
+version = "3.0"
+features = ["termination"]
+
 [dependencies.chrono]
 optional = true
 version = "0.3.1"

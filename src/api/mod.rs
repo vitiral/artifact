@@ -1,6 +1,9 @@
 use dev_prefix::*;
 
-use std::sync::Mutex;
+use std::mem;
+use std::sync::{Mutex};
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::thread;
 
 use nickel::{Request, Response, MiddlewareResult, Nickel, HttpRouter, MediaType,
              StaticFilesHandler};
@@ -12,6 +15,7 @@ use tempdir::TempDir;
 
 use types::{ServeCmd, Project};
 use export::ArtifactData;
+use ctrlc;
 
 mod constants;
 pub mod utils;
@@ -154,15 +158,33 @@ pub fn start_api(project: Project, cmd: &ServeCmd) {
     }
 
     let endpoint = "/json-rpc";
-    let mut server = Nickel::new();
+    let mut server = Box::new(Nickel::new());
 
     server.get(endpoint, handle_artifacts);
     server.put(endpoint, handle_artifacts);
     server.options(endpoint, handle_options);
 
+    let running = Arc::new(AtomicBool::new(true));
+    let r = running.clone();
+    ctrlc::set_handler(move || {
+        r.store(false, Ordering::SeqCst);
+    }).expect("Error setting Ctrl-C handler");
+
     // host the frontend files using a static file handler
     // and own the tmpdir for as long as needed
     let tmp_dir = host_frontend(&mut server, cmd);
 
-    server.listen(&cmd.addr).expect("cannot connect to port");
+    // everything in a thread has to be owned by the thread
+    let addr = cmd.addr.clone();
+    let th = thread::spawn(move || {
+        server.listen(&addr).expect("cannot connect to port");
+    });
+
+    println!("exit with ctrlc+C or SIGINT");
+    while running.load(Ordering::SeqCst) {}
+
+    debug!("Got SIGINT, cleaning up");
+    let locked = LOCKED.lock().unwrap();
+    mem::forget(locked);  // never unlock again
+    debug!("All cleaned up, exiting");
 }
