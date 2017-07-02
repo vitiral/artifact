@@ -71,10 +71,9 @@ impl FromStr for Name {
 impl Name {
     /// parse name from string and handle errors
     /// see: SPC-artifact-name.2
-
     /// see: SPC-artifact-partof-2
     pub fn parent(&self) -> Option<Name> {
-        if self.value.len() <= 1 {
+        if self.value.len() <= 2 {
             return None;
         }
         let mut value = self.value.clone();
@@ -86,9 +85,9 @@ impl Name {
         })
     }
 
-    /// return whether this artifact is the root type
+    /// return whether this is a root name (whether it has no parent)
     pub fn is_root(&self) -> bool {
-        self.value.len() == 1
+        self.value.len() == 2
     }
 
     pub fn parent_rc(&self) -> Option<NameRc> {
@@ -102,11 +101,7 @@ impl Name {
     /// a partof (because of it's name)
     /// see: SPC-artifact-partof-1
     pub fn named_partofs(&self) -> Vec<Name> {
-        if self.value.len() <= 1 {
-            return vec![];
-        }
-        let ty = self.ty;
-        match ty {
+        match self.ty {
             Type::TST => vec![self._get_named_partof("SPC")],
             Type::SPC => vec![self._get_named_partof("REQ")],
             Type::RSK | Type::REQ => vec![],
@@ -127,10 +122,6 @@ fn test_artname_parent() {
     assert_eq!(parent, Name::from_str("REQ-foo-bar").unwrap());
     let parent = parent.parent().unwrap();
     assert_eq!(parent, Name::from_str("REQ-foo").unwrap());
-    let parent = parent.parent().unwrap();
-    let req = Name::from_str("REQ-2").unwrap().parent().unwrap();
-    assert_eq!(parent, req);
-    assert!(parent.parent().is_none());
 }
 
 impl Default for Name {

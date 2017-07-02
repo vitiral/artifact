@@ -85,9 +85,9 @@ class TestStuff(unittest.TestCase):
         """need to clear state."""
         self.app.driver.close()
 
-    def test_req(self):
+    def test_req_layout(self):
         """navigate to REQ and check that it is valid."""
-        expected_parts = sorted(["REQ-purpose", "REQ-layout"])
+        expected_parts = sorted(["SPC-layout"])
         expected_partof = sorted([])
 
         app = self.app
@@ -95,7 +95,8 @@ class TestStuff(unittest.TestCase):
 
         with cmds.Artifact(EXAMPLE_PROJ) as url:
             app.driver.get(url)
-            name = "REQ"
+            name_raw = "REQ-layout"
+            name = name_raw.upper()
             app.assert_list_view(timeout=10)
             app.goto_artifact(name, timeout=5)
 
@@ -208,7 +209,7 @@ class TestStuff(unittest.TestCase):
         with art as url:
             app.driver.get(url)
             name = "SPC-LAYOUT"
-            expected_partof = sorted(["REQ-layout", "SPC", "SPC-alone"])
+            expected_partof = sorted(["REQ-layout", "SPC-alone"])
 
             app.assert_list_view(timeout=10)
             app.goto_artifact(name, timeout=5)
@@ -305,14 +306,14 @@ class TestStuff(unittest.TestCase):
             name_raw = "spc-created"
             name = name_raw.upper()
             expected = "I created this and it rocks\nwhoo!"
-            expected_partof = sorted(["REQ-purpose", "SPC"])
+            expected_partof = sorted(["REQ-purpose"])
 
             app.assert_list_view(timeout=10)
             app.goto_create()
             assert app.driver.current_url == url + "/#create"
 
             assert app.get_attr("save", "disabled", timeout=2) == 'true'
-            app.set_value(CREATE, F.name, name_raw, timeout=1)
+            app.set_value(CREATE, F.name, name_raw, timeout=2)
             app.set_value(CREATE, F.raw_text, expected)
             app.add_partof(CREATE, "REQ-purpose")
             app.set_defined(CREATE, PURPOSE_PATH)

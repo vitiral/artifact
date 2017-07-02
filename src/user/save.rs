@@ -58,7 +58,9 @@ impl ProjectText {
 
             let partof = {
                 let mut auto_partof = name.named_partofs();
-                auto_partof.push(name.parent().expect("no parent"));
+                if !name.is_root() {
+                    auto_partof.push(name.parent().expect("no parent"));
+                }
                 let auto_partof: HashSet<Name> = HashSet::from_iter(auto_partof.drain(0..));
                 let strs = artifact
                     .partof

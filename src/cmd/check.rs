@@ -213,28 +213,12 @@ fn display_hanging_artifacts<W: Write>(w: &mut W, cwd: &Path, project: &Project,
     let mut error: u64 = 0;
 
     // find hanging artifacts
-    fn partof_types(a: &Artifact, types: &HashSet<Type>) -> bool {
-        for p in &a.partof {
-            if types.contains(&p.ty) {
-                return true;
-            }
-        }
-        false
-    }
-    let rsk_spc_types = HashSet::from_iter(vec![Type::RSK, Type::SPC]);
-    let req_types = HashSet::from_iter(vec![Type::REQ]);
-
     let mut hanging: Vec<(NameRc, &Path)> = Vec::new();
     for (name, artifact) in &project.artifacts {
-        let ty = name.ty;
-        if (ty != Type::REQ) && !artifact.is_parent() && !name.is_root() &&
-            name.parent().unwrap().is_root() &&
-            match ty {
-                Type::TST => !partof_types(artifact, &rsk_spc_types),
-                Type::SPC | Type::RSK => !partof_types(artifact, &req_types),
-                _ => unreachable!(),
-            }
-        {
+        // hanging artifacts are defined as artifacts who are:
+        // - not a REQ (requirements are never hanging)
+        // - isn't a partof another artifact
+        if name.ty != Type::REQ && artifact.partof.is_empty() {
             hanging.push((name.clone(), &artifact.def));
         }
     }

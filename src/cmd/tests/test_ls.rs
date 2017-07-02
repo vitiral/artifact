@@ -84,29 +84,29 @@ partof = 'REQ-dne'
 ";
 
 
-const LS_SPC_DNE_NC: &'static [u8] = b"\nFound partof names that do not exist:\n    REQ-invalid-\
-parts [../../reqs/foo.toml]: {REQ-DNE}\n\nArtifacts partof contains at least one recursive \
-reference:\n    SPC-unresolvable              : [SPC-UNRESOLVABLE-1-1]\n    SPC-unresolvable-\
-1            : [SPC-UNRESOLVABLE]\n    SPC-unresolvable-1-1          : [SPC-UNRESOLVABLE-1]\n\n\
-Found implementation links in the code that do not exist:\n    ../../fake:\n    - [42] SPC-dne\n\n\
-Hanging artifacts found (top-level but not partof a higher type):\n    ../../reqs/foo.\
-toml           : SPC-unresolvable\n\n";
+const LS_SPC_DNE_NC: &'static [u8] = b"\nFound partof names that do not exist\
+:\n    REQ-invalid-parts \
+[../../reqs/foo.toml]: {REQ-DNE}\n\nArtifacts partof contains at least one \
+recursive reference:\n    SPC-unresolvable              : [SPC-UNRESOLVABLE-1-1]\
+\n    SPC-unresolvable-1            : [SPC-UNRESOLVABLE]\n    \
+SPC-unresolvable-1-1          : [SPC-UNRESOLVABLE-1]\n\nFound implementation \
+links in the code that do not exist:\n    ../../fake:\n    - [42] SPC-dne\n\nHan\
+ging artifacts found (top-level but not partof a higher type)\
+:\n    PARENT                        : TST-LINE\n\n";
 
 #[cfg(windows)]
 const LS_SPC_DNE: &'static [u8] = LS_SPC_DNE_NC;
 
 #[cfg(not(windows))]
-const LS_SPC_DNE: &'static [u8] =
-    b"\x1b[1;31m\nFound partof names that do not \
-exist:\n\x1b[0m\x1b[31m    REQ-invalid-parts [../../reqs/foo.toml]: {REQ-DNE}\
-\n\x1b[0m\x1b[1;31m\nArtifacts partof contains at least one recursive reference:\
-\n\x1b[0m    SPC-unresolvable              : [SPC-UNRESOLVABLE-1-1]\n    \
-SPC-unresolvable-1            : [SPC-UNRESOLVABLE]\n    \
-SPC-unresolvable-1-1          : [SPC-UNRESOLVABLE-1]\n\x1b[1;31m\nFound \
-implementation links in the code that do not exist:\n\x1b[0m\x1b[31m    \
-../../fake:\n\x1b[0m\x1b[31m    - [42]\x1b[0m SPC-dne\n\x1b[1;31m\n\
-Hanging artifacts found (top-level but not partof a higher type):\
-\n\x1b[0m    ../../reqs/foo.toml           : SPC-unresolvable\n\n";
+const LS_SPC_DNE: &'static [u8] = b"\x1b[1;31m\nFound partof names that do not exist\
+:\n\x1b[0m\x1b[31m    REQ-inva\
+lid-parts [../../reqs/foo.toml]: {REQ-DNE}\n\x1b[0m\x1b[1;31m\nArtifacts partof contains at least \
+one recursive reference:\n\x1b[0m    SPC-unresolvable              : [SPC-UNRESOLVABLE-1-1]\
+\n    SPC-unresolvable-1            : [SPC-UNRESOLVABLE]\n    SPC-unresolvable-1\
+-1          : [SPC-UNRESOLVABLE-1]\n\x1b[1;31m\nFound implementation links in the code that do not \
+exist:\n\x1b[0m\x1b[31m    ../../fake:\n\x1b[0m\x1b[31m    - [42]\x1b[0m SPC-dne\n\x1b[1;31m\n\
+Hanging artifacts found (top-level but not partof a higher type):\n\x1b[0m    \
+PARENT                        : TST-LINE\n\n";
 
 const LS_REQ_FOO_NC: &'static [u8] =
     b"|  | DONE TEST | NAME     | PARTS   \n|D-| 100%  50% | req-foo  | SPC-foo\n";
@@ -121,20 +121,17 @@ const LS_REQ_FOO: &'static [u8] = LS_REQ_FOO_NC;
 
 
 const LS_S_C_STAR_FOO_NC: &'static [u8] = b"|  | DONE TEST | NAME     | \
-PARTS                      | PARTOF     | IMPLEMENTED     | DEFINED              | TEXT\n|D-| \
-100%  50% | REQ-foo  | SPC-foo                    | REQ        |                 | ../../reqs/foo.\
-toml  | req for foo\n|--|  -1%  -1% | SPC      | SPC-foo, SPC-unresolvable  |            \
-|                 | PARENT               | AUTO\n";
+PARTS     | PARTOF     | IMPLEMENTED     | DEFINED              | TEXT\n|D-| \
+100%  50% | REQ-foo  | SPC-foo   |            |                 | ../../reqs/foo\
+.toml  | req for foo\n";
 
 #[cfg(not(windows))]
 const LS_S_C_STAR_FOO: &'static [u8] = b"\x1b[1m|  | DONE TEST | NAME      | \
-PARTS                      | PARTOF     | IMPLEMENTED     | DEFINED              | TEXT\n\x1b\
-[0m|\x1b[1;34mD\x1b[0m\x1b[1;33m-\x1b[0m| \x1b[1;34m100\x1b[0m%  \x1b[1;33m50\x1b[0m% | \x1b\
-[1;4;34mREQ-foo\x1b[0m   | \x1b[34mSPC-foo\x1b[0m                    | \x1b[33mREQ\x1b[0m        \
-| \x1b[32m\x1b[0m                | ../../reqs/foo.toml  | req for foo\n|\x1b[1;5;31m!\x1b[0m\x1b\
-[1;5;31m!\x1b[0m|  \x1b[1;5;31m-1\x1b[0m%  \x1b[1;5;31m-1\x1b[0m% | \x1b[1;4;31mSPC\x1b[0m       \
-| \x1b[34mSPC-foo\x1b[0m, \x1b[31mSPC-unresolvable\x1b[0m  |            | \x1b[32m\x1b\
-[0m                | PARENT               | AUTO\n";
+PARTS     | PARTOF     | IMPLEMENTED     | DEFINED              | TEXT\n\
+\x1b[0m|\x1b[1;34mD\x1b[0m\x1b[1;33m-\x1b[0m| \x1b[1;34m100\x1b[0m%  \
+\x1b[1;33m50\x1b[0m% | \x1b[1;4;34mREQ-foo\x1b[0m   | \x1b[34mSPC-foo\x1b[0m   \
+|            | \x1b[32m\x1b[0m                | ../../reqs/foo.toml  | req for \
+foo\n";
 
 #[cfg(windows)]
 const LS_S_C_STAR_FOO: &'static [u8] = LS_S_C_STAR_FOO_NC;
@@ -258,7 +255,7 @@ fn test_cmd_check() {
     // #TST-cmd-check
     w.clear();
     assert!(check::run_cmd(&mut w, &cwd, &project, &cmd).is_err());
-    //debug_bytes(&w, LS_SPC_DNE);
+    debug_bytes(&w, LS_SPC_DNE);
     assert_eq!(to_vec(LS_SPC_DNE), w);
 
     w.clear();
@@ -364,13 +361,13 @@ fn test_cmd_ls() {
     cmd.search_settings.use_regex = true;
     cmd.search_settings.parts = true;
     ls::run_cmd(&mut w, &cwd, &cmd, &project).unwrap();
-    //debug_bytes(&w, LS_S_C_STAR_FOO);
+    debug_bytes(&w, LS_S_C_STAR_FOO);
     assert_eq!(to_vec(LS_S_C_STAR_FOO), w);
 
     w.clear();
     cmd.fmt_settings.color = false;
     ls::run_cmd(&mut w, &cwd, &cmd, &project).unwrap();
-    //debug_bytes(&w, LS_S_C_STAR_FOO_NC);
+    debug_bytes(&w, LS_S_C_STAR_FOO_NC);
     assert_eq!(to_vec(LS_S_C_STAR_FOO_NC), w);
 
     // test filtering
@@ -389,6 +386,6 @@ fn test_cmd_ls() {
         perc: 100,
     };
     ls::run_cmd(&mut w, &cwd, &cmd, &project).unwrap();
-    //debug_bytes(&w, LS_FILTER);
+    debug_bytes(&w, LS_FILTER);
     assert_eq!(to_vec(LS_FILTER), w);
 }

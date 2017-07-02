@@ -15,6 +15,8 @@ main() {
             ;;
     esac
 
+    unset CARGO_INCREMENTAL
+    rustup default stable
     test -f Cargo.lock || cargo generate-lockfile
 
     # build the artifacts that matter to you
@@ -28,6 +30,9 @@ main() {
     cd $src
 
     rm -rf $stage
+
+    # switch back
+    rustup default $RUST_VERSION
 }
 
 main

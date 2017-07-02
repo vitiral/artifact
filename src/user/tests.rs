@@ -247,8 +247,13 @@ fn test_basic_link() {
     link::link_named_partofs(&mut artifacts);
 
     link::create_parents(&mut artifacts);
-    let req_name = Arc::new(NameRc::from_str("REQ-1").unwrap().parent().unwrap());
-    assert!(artifacts.contains_key(&req_name));
+    // it used to be possible to create these through `name.parent()`
+    let prev_root_req = Arc::new(Name {
+        raw: "REQ".to_string(),
+        value: vec!["REQ".to_string()],
+        ty: Type::REQ,
+    });
+    assert!(!artifacts.contains_key(&prev_root_req));
     assert!(artifacts.contains_key(&NameRc::from_str("REQ-parts").unwrap()));
     assert!(artifacts.contains_key(&NameRc::from_str("REQ-parts-p1").unwrap()));
     assert!(artifacts.contains_key(&NameRc::from_str("REQ-parts-p1-a").unwrap()));
@@ -260,7 +265,6 @@ fn test_basic_link() {
     assert_eq!(link::set_completed(&mut artifacts), 0);
     assert_eq!(link::set_tested(&mut artifacts), 0);
 
-    let req = artifacts.get(&req_name).unwrap();
     let req_parts = artifacts
         .get(&NameRc::from_str("REQ-parts").unwrap())
         .unwrap();
@@ -281,17 +285,7 @@ fn test_basic_link() {
         .unwrap();
 
     // test parts
-    assert_eq!(req.partof, HashSet::new());
-    assert_eq!(
-        req.parts,
-        HashSet::from_iter(
-            ["REQ-parts", "REQ-foo"]
-                .iter()
-                .map(|n| NameRc::from_str(n).unwrap()),
-        )
-    );
-
-    assert_eq!(req_parts.partof, Names::from_iter(vec![req_name.clone()]));
+    assert_eq!(req_parts.partof, Names::from_iter(vec![]));
     assert_eq!(
         req_parts.parts,
         HashSet::from_iter(
@@ -311,11 +305,7 @@ fn test_basic_link() {
     );
     assert_eq!(
         spc_foo.partof,
-        HashSet::from_iter(
-            ["REQ-foo", "SPC"]
-                .iter()
-                .map(|n| NameRc::from_str(n).unwrap()),
-        )
+        HashSet::from_iter(["REQ-foo"].iter().map(|n| NameRc::from_str(n).unwrap()))
     );
 
     assert_eq!(
@@ -389,8 +379,6 @@ fn test_link_completed_tested() {
     assert_eq!(link::set_completed(&mut artifacts), 0);
     assert_eq!(link::set_tested(&mut artifacts), 0);
 
-    let req_name = Arc::new(NameRc::from_str("REQ-1").unwrap().parent().unwrap());
-    let req = artifacts.get(&req_name).unwrap();
     artifacts
         .get(&NameRc::from_str("REQ-core").unwrap())
         .unwrap();
@@ -449,10 +437,6 @@ fn test_link_completed_tested() {
     // SPC-core-bob automatically has REQ-core-bob
     // SPC-core-bob automatically has SPC-core
     assert_eq!(
-        req.parts,
-        HashSet::from_iter(["REQ-core"].iter().map(|n| NameRc::from_str(n).unwrap()))
-    );
-    assert_eq!(
         spc_bob.partof,
         HashSet::from_iter(
             ["SPC-core", "REQ-core-bob"]
@@ -482,7 +466,6 @@ fn test_link_completed_tested() {
     assert_eq!(spc_bob_1.completed, 1.);
     assert_eq!(spc_bob.completed, bob_complete);
     assert_eq!(req_bob.completed, bob_complete);
-    assert_eq!(req.completed, (bob_complete + 0. + 0.) / 3.0);
 
     // assert tested
     assert_eq!(tst_bob_1_a.tested, 1.);
@@ -495,7 +478,6 @@ fn test_link_completed_tested() {
     let bob_tested = (0.5 + bob_1_tested) / 2.;
     assert_eq!(spc_bob.tested, bob_tested);
     assert_eq!(req_bob.tested, bob_tested);
-    assert_eq!(req.tested, (bob_tested + 0. + 0.) / 3.);
 }
 
 #[test]
