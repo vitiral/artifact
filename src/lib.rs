@@ -72,8 +72,6 @@ extern crate diesel;
 extern crate diesel_codegen;
 #[cfg(feature = "tracker")]
 extern crate dotenv;
-#[cfg(features = "tracker")]
-extern crate chrono;
 
 // crates for test
 #[cfg(test)]
