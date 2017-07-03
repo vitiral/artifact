@@ -1,3 +1,37 @@
 
 @import "ace-css/css/ace.css";
 @import "font-awesome/css/font-awesome.css";
+
+.select-tiny {
+  min-width: 0rem;
+  max-width: 0rem;
+  width: auto;
+}
+
+.select-tiny:focus {
+  font-family: inherit;
+  font-size: inherit;
+  width: auto;
+}
+
+textarea {
+  font-size: large;
+  font-family: monospace;
+  color: black;
+  background-color: WhiteSmoke;
+}
+
+code {
+  font-size: large;
+  font-family: monospace;
+  color: black;
+  background-color: WhiteSmoke;
+}
+
+blockquote {
+  font-size: inherit;
+  font-family: inherit;
+  font-style: inherit;
+  background-color: Ivory;
+  margin-left: 1em;
+}
