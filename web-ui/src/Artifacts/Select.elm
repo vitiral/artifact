@@ -294,9 +294,13 @@ defined model option =
         element =
             case option of
                 ReadChoice artifact ->
-                    span
-                        [ View.idAttr "def" option ]
-                        [ text artifact.def ]
+                    let
+                        url =
+                            strReplace "{path}" artifact.def model.flags.path_url
+                    in
+                        span
+                            [ View.idAttr "def" option ]
+                            [ a [ href url ] [ text artifact.def ] ]
 
                 EditChoice choice ->
                     editDefined model choice
