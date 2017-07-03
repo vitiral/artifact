@@ -2,6 +2,10 @@
 [REQ-purpose]
 text = '''
 The purpose of this project is to run an example project and test with selenium
+
+```
+here is some code
+```
 '''
 
 [REQ-layout]

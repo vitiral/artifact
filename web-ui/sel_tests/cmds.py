@@ -106,7 +106,7 @@ class Artifact(object):
                 if match:
                     url = match.group(1)
                     break
-                assert time.time() - start > 5, "timeout"
+                assert time.time() - start > 10, "timeout"
 
         self.web_files = WEB_FILES_PAT.search(stdout_str).group(1)
         return url

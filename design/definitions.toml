@@ -105,3 +105,6 @@ for the purposes of:
 - scale-out: single threaded code can easily be made highly concurrent
 - fun: rust is a fun language to write in.
 '''
+
+[TST-0]
+done = "by definition"

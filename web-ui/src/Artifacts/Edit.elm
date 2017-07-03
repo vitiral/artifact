@@ -318,10 +318,7 @@ displayRawText model option =
                         ( edited.text, [ onInput changedMsg ] )
 
         attrs =
-            [ class "h3"
-
-            -- class=h3 otherwise it is really tiny for some reason
-            , rows 35
+            [ rows 35
             , cols 80
             , readonly <| isRead option
             , View.idAttr "raw_text" option

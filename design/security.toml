@@ -25,7 +25,7 @@ compromized)
 [TST-security]
 text = '''
 TODO: the main method of testing security shall be making sure:
-- [[TST-security-cwd]]: you cannot edit files outside of the cwd
+- [[TST-security-bounds]]: you cannot edit files outside of the cwd
 - TODO: you cannot edit files outside of the `artifact_paths` folders
 - TODO: you cannot edit files over the web-ui without the correct
   credentials
