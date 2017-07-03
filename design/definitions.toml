@@ -25,21 +25,6 @@ licensed under the LGPLv3+, except for files which say otherwise in their
 header or folders containing a different LICENSE.txt. See LICENSE.txt for more
 information.
 
-## Name Prefix
-In this project, the following conventions shall apply for artifact names:
-- `SPC-0-*` denotes definitions and artifact process only. These will be
-  defined as completed, as they are simply documenting the process of
-  artifacts.
-- `REQ-1-*` denotes purpose REQs, which detail at the highest level why this
-  project exists
-
-Any artifact that is `1` will not be implemented in code (it will only be implemented
-by sub artifacts).
-
-The purpose of this prefix is to bring these artifacts to the top when they are listed,
-as well as make a simple and clear distinction between purpose documentation and 
-design/user requirements.
-
 ## Risks
 Risks are to be written with three sets of terms in mind:
 - likelyhood
@@ -83,11 +68,11 @@ Possible choices:
      enjoyable general purpose format.
  - html/xml/etc: aboslutely not. Needlessly complex.
 
-### Conclusion
-`artifact` **shall** use TOML for artifact writing.
+
+The choice is TOML for writing artifact files.
 
 The reasons are:
- - feautres covers all needs for artifact
+ - features covers all needs for artifact
  - easy to learn
  - easy to read
  - easy to write in
@@ -95,8 +80,8 @@ The reasons are:
      features or way to do the same thing)
 
 ## Programming Language
-artifact **will** be written entirely in the rust programming language
-for the purposes of:
+artifact's backend and cli app **will** be written entirely in the rust 
+programming language for the purposes of:
 - cross compilation: rust can be compiled on any platform
 - safety: it is impossible to segfault in rust
 - speed: rust is as fast as C++
@@ -104,7 +89,8 @@ for the purposes of:
     languages in existence, making it easier to refactor code
 - scale-out: single threaded code can easily be made highly concurrent
 - fun: rust is a fun language to write in.
-'''
+
+The web-ui will be written in elm for many of the same reasons.'''
 
 [TST-0]
 done = "by definition"

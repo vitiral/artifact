@@ -1,5 +1,14 @@
 module Main exposing (..)
 
+{-| The main application web-page.
+
+Main-Static.elm is almost identical and is necessary
+for generating static webpages.
+
+see: #SPC-web
+
+-}
+
 import Set
 import Dict
 import Navigation

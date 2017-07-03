@@ -8,9 +8,6 @@ import Artifacts.List
 import Artifacts.Edit
 
 
--- partof: #SPC-web-view
-
-
 view : Model -> Html AppMsg
 view model =
     div []

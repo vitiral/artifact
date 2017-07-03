@@ -55,11 +55,6 @@ pub fn validate(repo: &Path, project: &Project) -> Result<()> {
 }
 
 pub fn validate_settings(repo: &Path, settings: &Settings) -> Result<()> {
-    println!(
-        "repo={:?}, artifact_paths={:?}",
-        repo,
-        settings.artifact_paths
-    );
     if settings.artifact_paths.iter().any(|p| !p.starts_with(repo)) {
         //TODO improve message
         let msg = "artifact_paths invalid".to_string();

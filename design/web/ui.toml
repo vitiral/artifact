@@ -4,7 +4,7 @@ There were two possible options when considering user functionality.
 Because the "Local Server App" is more inline with artifact's requirements
 and workflow, it is the direction we are going.
 
-# Traditional Web Edit App
+## Traditional Web Edit App
 The traditional approach would be to create a credential-based multi-user 
 tool allowing a whole organiztion to edit the requirements in parallel 
 from a single instance. The tool would probably use a database backend
@@ -21,11 +21,11 @@ The workflow would be:
     - merge with the master branch and resolve conflicts
     - (probably) start the server
 
-## Advantages
+### Advantages
 The traditional web-ui is more familiar and may be what a team or
 organization is expecting
 
-## Disadvantages
+### Disadvantages
 Although it seems simpler at first (mostly because it is known), it is NOT
 simple to integrate it with the text-based nature of artifact that expects
 revision control be be completely handled by the user (an advantage of being
@@ -35,7 +35,7 @@ Artifact is intended to allow separate teams to work on their own subset of
 requirements and only merge with the larger org when they are done. This is
 almost impossible with a traditional web-server approach.
 
-# Local Server App
+## Local Server App
 The local server approach would be to make it ultra-simple to run
 the web-ui using the cmdline tool and all edits would be made directly to the
 local files. As a result, edits might be slow -- but since only small teams
@@ -47,7 +47,7 @@ be added).
 The general workflow will be:
 - developer creates a new branch in their revision control to edit
     requirements
-- developer starts server with `art server IP_ADDR`
+- developer starts server with `art server IP_ADDR -e`
 - developer and team make edits to the requirements via the web
 - changes are reflected directly in the text
 - developer makes commits (via cmdline) when needed
@@ -56,30 +56,32 @@ The general workflow will be:
     they normally use for reviewing code. 
 - When done, code gets merged in.
 
-## Advantages
+> For the open source workflow you would just do `art server` and edit
+> on `localhost`. This is intentionally looking at the "large organization"
+> use case because that carries the highest risk of mising requirements.
+
+### Advantages
 - more inline with artifact's workflow
 - simpler for any developer to run
 - easier to merge changes (changes reflected directly in text)
 
-## Disadvantages
+### Disadvantages
 - lower performance
 - might not work the way some newcomers expect
 - cannot support simultanious org-wide reqirements editing (must
   use revision control for organization wide editing)
-'''
 
-[SPC-web-view]
-text = '''
-The web interface **shall** be composed of three views:
- 1. **folder view** allowing viewing the folder-layout of the requirements
-      and drag/drop their location
- 2. **list view** read-only collapsable-detail list with a search bar, giving 
-      the user a more detailed overview of the requirements in a folder or in 
-      general
- 3. **edit view** for a single requirement, allowing the user to edit all 
-      aspects of the artifact that can be edited
+# Web UI
+The web interface shall be composed of these views:
+1. **list view** read-only collapsable-detail list with a search bar, giving 
+   the user a detailed overview of the design documents
+2. **edit view** for viewing a single requirement in full and making edits to it
+3. **create view** for creating a new artifact
+4. **unsaved view** for seeing artifacts that have not been saved
 
-In addition, there shall always be a refresh button and navigation header.
+All views shall also have:
+- a navigation bar for navigating to other views
+- a list of closeable logs, for displaying errors and succesful operations
 '''
 
 [TST-web]
@@ -93,7 +95,7 @@ as well as testing basic features of the web ui.
 '''
 
 [TST-web-basic]
-partof = "SPC-[rpc-artifacts, web-view]"
+partof = "SPC-[rpc-artifacts, web]"
 text = '''
 These are basic end to end tests that also help test the rpc
 backend since the browser directly uses it.

@@ -1,6 +1,17 @@
 [SPC-cmd]
+partof = "REQ-web"
 text = '''
 Specifications for the artifact cmdline interface
+
+- [[SPC-cmd-tutorial]]: begin an interactive tutorial for the user
+- [[SPC-cmd-init]]: initialize the current repository by creating `design/` and 
+  `.art/settings.toml` files
+- [[SPC-cmd-ls]]: filter and view artifacts
+- [[SPC-cmd-check]]: check the project for errors
+- [[SPC-cmd-fmt]]: format the `*.toml` files to be correct.
+- [[SPC-cmd-export]]: export artifacts json and static html
+- [[SPC-web]]: (`art serve` cmd) run an editable server for a full featured web 
+  interface
 '''
 
 [SPC-cmd-export]
@@ -81,6 +92,7 @@ Key points that should be hit during the tutorial are:
 - marking items as done
 - marking items as tested
 - overview of error messages and error formats
+- opening the web-ui and exporting html
 - final words
 '''
 

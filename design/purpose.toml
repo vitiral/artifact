@@ -63,7 +63,7 @@ the purposes defined in [[REQ-1]].
 
 All artifacts **will** have the following attributes that the user can define:
 - name: the name specified by `[ART-name]`
-- partof: a string containing artifact names which the artifact is a part of
+- partof: a string containing artifact names which the artifact is a part of. See [[REQ-partof]]
 - text: description of the artifact
 
 This is kept *intentionally* minimal so as to reduce the API space for users
@@ -88,17 +88,18 @@ partof = "REQ-1"
 text = '''
 The artifact cmdline interface will be simple and intuitive for those
 who have used unix and git. It will contain a small subset of subcommands
-to make navigation easy.
+that makes usability clean and easy for anyone's use case.
 
-- [[SPC-cmd-init]]: initialize the current repository by creating `design/` and 
-  `.art/settings.toml` files
-- [[SPC-cmd-tutorial]]: begin an interactive tutorial for the user
-- [[SPC-cmd-ls]]: filter and view artifacts
-- [[SPC-cmd-check]]: check the project for errors
-- [[SPC-cmd-fmt]]: format the `*.toml` files to be correct.
-- [[SPC-cmd-export]]: export artifacts json and static html
-- [[SPC-web]]: (`art serve` cmd) run an editable server for a full featured web 
-  interface'''
+It should have:
+- a builtin tutorial
+- initialization like `git init`
+- listing/filter/etc of artifacts in various forms and with color
+- formatting artifact files
+- exporting artifact data as html and json
+- interface to running [[REQ-web]]
+
+See [[SPC-cmd]].
+'''
 
 [REQ-partof]
 partof = "REQ-1"
@@ -166,19 +167,19 @@ will be ignored (they require explit links).
 [REQ-rpc]
 partof = "REQ-1"
 text = '''
-artifact **will** provide a JSON-RPC API server for other applications to report
-test execution data to it. 
+artifact's server shall provide a JSON-RPC API endpoint for interacting with loaded and processed artifacts.
 
 The API server will serve as the backend for both REQ-web and REQ-tracker
 
 For the Web UI the RPC shall have the following endpionts:
-- ReadArtifacts
+- ReadProject
 - UpdateArtifacts
 - CreateArtifacts
 - DeleteArtifacts
 - CreateFiles
 - CreateFolders
-'''
+
+These are defined in [[SPC-rpc]]'''
 
 [REQ-security]
 partof = "REQ-1"
@@ -225,12 +226,19 @@ data (if it exists). Test results should be easy to filter, graph
 '''
 
 [REQ-web]
+partof = "REQ-1"
 text = '''
-artifact **shall** provide a web-based frontend.
+artifact **shall** provide a web-based frontend for both reading and editing rendered views of artifacts.
 
-The web-ui will have web-specific features such as dynamic search, etc
-but will functionaly work the same way that the cmdline ui works:
-editing artifacts will involve editing files locally.
+The web-ui will have web-specific features such as:
+- dynamic search
+- automatic checking of variables (i.e. valid name, partof, etc)
+- automatic linking of names
+- rendering of `text` markdown
+
+Even with these features however, it will work almost identically to how
+the cmdline interface works: editing artifacts will involve editing files
+locally.
 
 The overall design is to make it easy for:
 - large teams to *view* artifacts

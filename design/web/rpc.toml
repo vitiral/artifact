@@ -1,17 +1,13 @@
 [SPC-rpc]
 text = '''
-The `artifacts` endpoint shall have the following API.
+The rpc server shall be hosted at `<url>/json-rpc` and shall adhere to the
+[JSON-RPC 2.0][1] specification.
 
-Note: 
-- The -32600 (Invalid Request) error will be returned
-    if the data types do not match for any request
-- All other errors are -32602 (Invalid params)
-- The `message` for Invalid Request errors is always "xParamError",
-    the `data` contains the details:
-```
-{"xErrorMsg1": [InvalidValues1], "xErrorMsg2": [InvalidValues2]"}
-```
-'''
+It has the following components:
+- [[SPC-rpc-artifacts]]: calls for create/read/update/delete artifacts
+- [[SPC-rpc-fs]]: calls for create/read/update/delete files and folders
+
+[1]: http://www.jsonrpc.org/specification'''
 
 [SPC-rpc-artifacts]
 text = '''

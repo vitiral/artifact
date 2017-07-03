@@ -208,7 +208,6 @@ fn test_serde() {
     };
 
     let serialized = serde_json::to_string(&artifact).unwrap();
-    println!("serialized = {}", serialized);
     let deserialized: ArtifactData = serde_json::from_str(&serialized).unwrap();
 
     assert_eq!(artifact, deserialized);

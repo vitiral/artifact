@@ -7,19 +7,24 @@ project.
 interface to glimpse large amounts of information.
 
 ## Arguments
-`art ls` with no commands given will simply print all artifacts with standard
-settings in a single line of information.
+`art ls` with no commands will simply print all artifacts with standard
+settings, each on a single line.
 
 The args are as follows:
- - SEARCH str: positional argument detailing which artifacts to display
-    By default, this will be interpreted as an ArtName group. However, if pattern
-    searching is selected, it will be interpreted as a rust regexp
- - display: flags that control what information will be displayed
- - pattern: flag which controls which fields will be searched when
-     regex pattern is selected
- - completed/tested: flags which control what percentage completed/tested to
-     display
-'''
+- SEARCH str: positional argument detailing which artifacts to display
+  By default, this will be interpreted as an Artifact Name and can therefore
+  only display one artifact. However, if pattern searching is selected, it 
+  will be interpreted as a rust regexp
+- display: flags that control what information will be displayed
+- pattern: searh SEARCH with a regex pattern. The flag specifies which fields
+  should be searched.
+- completed/tested: flags which control what percentage completed/tested to
+  display
+
+Additionaly, the following is defined:
+- [[SPC-cmd-ls-color]]: how the output is colorized
+- [[SPC-cmd-ls-display]]: display options (long, short, etc)
+- [[SPC-cmd-ls-pattern]]: more details on the pattern option.'''
 
 [SPC-cmd-ls-color]
 text = '''
