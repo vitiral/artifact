@@ -276,6 +276,7 @@ impl Artifact {
 }
 
 /// repo settings for loading artifacts
+/// #SPC-project-settings
 #[derive(Debug, Default, Clone, PartialEq)]
 pub struct Settings {
     pub artifact_paths: HashSet<PathBuf>,

@@ -1,8 +1,3 @@
-[SPC-cmd]
-text = '''
-Specifications for the artifact cmdline interface
-'''
-
 [SPC-cmd-ls]
 text = '''
 The `art ls` command shall be used to list information the artifacts in a
@@ -24,7 +19,6 @@ The args are as follows:
      regex pattern is selected
  - completed/tested: flags which control what percentage completed/tested to
      display
- - type: this allows exporting artifacts in machine readable formats like json
 '''
 
 [SPC-cmd-ls-color]
@@ -75,18 +69,6 @@ If a value follows p, it will specify the fields to filter in that map with
 REQ-ls-display (with the addition of `N` for name)
 
 So: `art ls -p "REQ-ui-cmdline.*" -NO` would filter by name and partof
-'''
-
-[SPC-cmd-ls-type]
-text = '''
-The `--type` flag will allow the user to specify a different type to output
-the artifacts in.
-
-The current options are:
-- list
-- json
-
-This allows other tools to build artifact.
 '''
 
 [TST-cmd-ls]

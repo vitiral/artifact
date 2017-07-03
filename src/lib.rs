@@ -52,8 +52,6 @@ extern crate nickel;
 #[cfg(feature = "server")]
 extern crate jsonrpc_core;
 #[cfg(feature = "server")]
-extern crate tempdir;
-#[cfg(feature = "server")]
 extern crate ctrlc;
 
 // # serialization
@@ -62,6 +60,7 @@ extern crate serde_derive;
 extern crate serde;
 extern crate serde_json;
 extern crate toml;
+
 
 // # tracker
 #[macro_use]
@@ -76,6 +75,8 @@ extern crate dotenv;
 // crates for test
 #[cfg(test)]
 extern crate fs_extra;
+// note: also used for server, so just always include
+extern crate tempdir;
 
 // "core" modules
 pub mod dev_prefix;

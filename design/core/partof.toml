@@ -32,10 +32,8 @@ The reasons for these rules are:
 - the parser is much easier to implement, and it is easier to see "under the hood"
     at what the parser is actually doing if it only uses simple recursion rather than
     having to go backwards in the parsing.
-'''
 
-[SPC-partof-load]
-text = '''
+## Loading partof
 The Artifact names **shall** be processed from plaintext and stored in a structure
 
 multi-name strings **shall** be parsed with a simple linear function pushes
@@ -48,12 +46,4 @@ onto a `String` datatype.
 
 It will **not** validate that the artifact names are correct -- that is the
 responsibility of `::from_str`.
-'''
-
-[TST-partof-load]
-text = '''
-parof loading can be tested completely with simple unit tests:
- - load simple lists
- - load complex lists
- - load varieties of invalid lists
 '''

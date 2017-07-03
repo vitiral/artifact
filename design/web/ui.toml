@@ -84,7 +84,20 @@ In addition, there shall always be a refresh button and navigation header.
 
 [TST-web]
 text = '''
-## E2E tests
+Testing the web functionality will involve both unit testing some of the elm
+code (although because of the nature of elm not much testing is necessary)
+as well as testing basic features of the web ui.
+
+- [[TST-web-basic]]: simple end to end tests designed to catch most issues
+  with the web-ui from a users point of view.
+'''
+
+[TST-web-basic]
+partof = "SPC-[rpc-artifacts, web-view]"
+text = '''
+These are basic end to end tests that also help test the rpc
+backend since the browser directly uses it.
+
 End-to-end tests will be written using the tool selenium. Artifact
 is a fairly simple tool, however the following use cases must be tested:
 - naviagation: make sure all references complete and navbar changes for
@@ -101,10 +114,5 @@ is a fairly simple tool, however the following use cases must be tested:
       verify again.
     - In first thread go to full url. In second thread, go to same url and change text.
       In first thread, try and change text. Expect error.
-
-## Unit Tests
-- test json input/output
-- test validation of
-    - names
-    - partof
+    - etc
 '''

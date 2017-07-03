@@ -52,7 +52,6 @@ pub fn collapse_names(mut names: Vec<String>) -> String {
 
 impl FromStr for Name {
     type Err = Error;
-    /// #SPC-partof-load
     fn from_str(s: &str) -> Result<Name> {
         let value = s.to_ascii_uppercase();
         if !NAME_VALID.is_match(&value) {
@@ -372,7 +371,7 @@ fn do_test_parse_collapse(user: &str, expected_collapsed: &[&str]) {
 }
 
 #[test]
-/// #TST-partof-load
+/// #TST-project-partof
 fn test_parse_names() {
     do_test_parse_collapse("hi, ho", &["hi", "ho"]);
     do_test_parse_collapse("hi-[he, ho]", &["hi-he", "hi-ho"]);

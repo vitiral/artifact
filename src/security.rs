@@ -75,35 +75,17 @@ mod tests {
     use test_data;
     use utils;
     use user;
-
-    // TODO: not sure if this is even needed anymore... will check again
-    // later
-    //#[test]
-    ///// make sure that artifacts which are loaded "out of bounds"
-    ///// don't make it past the security checker
-    ///// partof: #TST-security-gen
-    //fn test_bounds_checker() {
-    //    let design = test_data::TINVALID_BOUNDS.join("repo").join("design");
-    //    let repo = utils::find_repo(&design).unwrap();
-    //    match user::load_repo(&repo) {
-    //        Err(e) => {
-    //            match *e.kind() {
-    //                ErrorKind::Security(_) => { [> expected <] }
-    //                _ => panic!("unexpected error: {:?}", e.display()),
-    //            }
-    //        }
-    //        Ok(_) => panic!("fmt accidentally suceeded -- may need to reset with git"),
-    //    }
-    //    //let project = user::load_repo(&repo).unwrap();
-    //    //let req_bounds = NameRc::from_str("REQ-bounds").unwrap();
-    //    //assert!(project.artifacts.contains_key(&req_bounds));
-    //    //assert_eq!(project.artifacts[&req_bounds].path,
-    //    //           test_data::TINVALID_BOUNDS.join("out_bounds.toml"));
-    //    //assert!(validate(&repo, &project).is_err());
-    //}
+    use tempdir;
+    use fs_extra::dir;
 
     #[test]
-    fn test_security() {
+    /// partof: #TST-security-bounds
+    fn test_bounds() {
+        test_bounds_init();
+        test_bounds_edit();
+    }
+
+    fn test_bounds_init() {
         let design = test_data::TINVALID_BOUNDS.join("repo").join("design");
         let repo = utils::find_repo(&design).unwrap();
         match user::load_repo(&repo) {
@@ -115,5 +97,24 @@ mod tests {
             }
             Ok(_) => panic!("fmt accidentally suceeded -- may need to reset with git"),
         }
+    }
+
+    fn test_bounds_edit() {
+        let tmpdir = tempdir::TempDir::new("artifact").unwrap();
+        let writedir = tmpdir.path();
+        dir::copy(
+            &test_data::TSIMPLE_DIR.as_path(),
+            &writedir,
+            &dir::CopyOptions::new(),
+        ).unwrap();
+        let simple = writedir.join("simple");
+        let repo = utils::find_repo(&simple).unwrap();
+        let mut project = user::load_repo(&repo).unwrap();
+        let (name, mut art) = Artifact::from_str("[SPC-out_bounds]\n").unwrap();
+        art.def = writedir.to_path_buf();
+
+        project.artifacts.insert(name, art);
+
+        assert!(validate(&repo, &project).is_err());
     }
 }

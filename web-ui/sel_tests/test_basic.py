@@ -37,13 +37,15 @@ CREATE_LOG_FMT = "Artifact Creation Successful: {}".format
 DELETE_LOG_FMT = "Artifact Deletion Successful: {}".format
 
 
-class TestStuff(unittest.TestCase):
+class TestBasic(unittest.TestCase):
     """This is some completely direct tests to make sure basic functionality
     works.
 
     This is NOT attempting to be either stress or comprehensive tests.
     They are simple and explicit end-to-end tests to make sure basic
     functionality works as intended
+
+    See: #TST-web-basic
 
     """
 

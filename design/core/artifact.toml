@@ -19,4 +19,18 @@ and processed by the application. This includes:
 
 name is an attribute because it is used as the key for the Artifacts 
 type.
+
+## Completed and Tested
+The `completed` and `tested` fields are especially important for this application
+and are called out in [[REQ-1]]
+
+Artifact completeness is calculated as following:
+- If it is a SPC or TST and is implemented in source code through a link (i.e.
+  `#SPC-foo`) then it is 100% complete by definition.
+- If it has its `done` field set it is 100% complete by definition
+- For `TST` types, `self.tested == self.completed`
+- Otherwise:
+    - `completed` is calculated by averaging the value of `completed` of all
+      its `parts`
+    - `tested` is calculated by averaging the value of `tested` of all its parts
 '''

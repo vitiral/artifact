@@ -51,6 +51,8 @@ pub use user::settings::from_table as settings_from_table;
 ///
 /// This can be called on a project which has not yet
 /// had it's links completed.
+///
+/// #SPC-project-process
 pub fn process_project(project: &mut Project) -> Result<()> {
     let locs = locs::find_locs(&project.settings)?;
     project.dne_locs = locs::attach_locs(&mut project.artifacts, locs)?;
@@ -75,7 +77,8 @@ pub fn process_project_text(settings: Settings, project_text: &ProjectText) -> R
 }
 
 /// Load all items from the toml file in the repo
-/// #SPC-load
+///
+/// #SPC-project-load
 pub fn load_repo(repo: &Path) -> Result<Project> {
     let start = time::get_time();
     info!("loading path: {}", repo.display());

@@ -1,3 +1,8 @@
+[SPC-cmd]
+text = '''
+Specifications for the artifact cmdline interface
+'''
+
 [SPC-cmd-export]
 text = '''
 `art export` shall be able to export artifacts to various static file
@@ -78,6 +83,9 @@ Key points that should be hit during the tutorial are:
 - overview of error messages and error formats
 - final words
 '''
+
+[TST-cmd]
+text = "tests for the cmdline interface"
 
 [TST-cmd-fmt]
 partof = "RSK-security"

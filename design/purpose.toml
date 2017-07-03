@@ -1,82 +1,3 @@
-[REQ-0]
-text = "definitions and process for the artifact project"
-
-[REQ-0-assertions]
-text = '''
-Assertions **will** be used throughout the artifacts to mean:
-- shall: the statement must be implemented and it's
-    implementation verified.
-- will: statement of fact, not subject to verification.
-    i.e. "The X system will have timing as defined in ICD 1234"
-- should: goals, non-mandatory provisions. Statements using "should"
-    **should** be verified if possible, but verification is not mandatory if
-    not possible. Is a statement of intent.
-'''
-
-[REQ-0-license]
-text = '''
-All documentation for artifact including the Artifact Document Specification
-and these design documents are both released under the CC0 Creative Commons
-Public Domain License. You can read more about CC0 here:
-https://creativecommons.org/publicdomain/
-
-The artifact library and Web UI (located in `src/` and `web-ui/src`) are
-licensed under the LGPLv3+, except for files which say otherwise in their
-header or folders containing a different LICENSE.txt. See LICENSE.txt for more
-information.
-'''
-
-[REQ-0-prefix]
-text = '''
-In this project, the following conventions shall apply for artifact names:
-- `ART-0-*` denotes definitions and artifact process only. These will be
-  defined as completed, as they are simply documenting the process of
-  artifacts.
-- `ART-1-*` denotes purpose REQs, which detail at the highest level why this
-  project exists
-
-Any artifact that is `1` will not be implemented in code (it will only be implemented
-by sub artifacts).
-
-The purpose of this prefix is to bring these artifacts to the top when they are listed,
-as well as make a simple and clear distinction between purpose documentation and 
-design/user requirements.
-'''
-
-[REQ-0-risks]
-text = '''
-Risks are to be written with three sets of terms in mind:
-- likelyhood
-- impact
-- product placement
-
-likelyhood has three categores:
- 1. low
- 2. medium
- 3. high
-
-impact has five categories:
- 1. sand
- 2. pebble
- 3. rock
- 4. boulder
- 5. avalanche
-
-product placement has three categores:
- 1. cosmetic
- 3. necessary
- 5. critical
-
-The value of these three categoires will be multiplied to
-determine the weight to assign to the risk.
-
-> sand may seem small, but if you have enough sand in your
-> gears, you aren't going anywhere.
->
-> You definitely need to watch out for boulders and prevent
-> avalanches whenever possible
-'''
-
 [REQ-1]
 text = '''
 These are the developer design documents. For user documents and project information,
@@ -88,7 +9,8 @@ for developers.
 This may seem trivial, but it's not. A useful design doc tool must have *at least*
 the following characteristics:
 - allow simple linking of requirements -> specifications -> tests
-- easily link to source code (through the source documentation) to determine completeness
+- easily link to source code (through the source documentation) to determine
+  completeness
 - be revision controllable (text based)
 - have a unix-like command line interface for interacting with your design docs
 - have a web-ui for viewing and editing rendered documents
@@ -96,32 +18,22 @@ the following characteristics:
     with external tools and plugins
 - be scalable to any size of project
 
-This feature set will empower developers to track their own design docs and
-make it possible for them to use their design docs to provide documentation and 
+These features will empower developers to track their own design docs and make
+it possible for them to use their design docs to provide documentation and
 guidance for contributors and teamates.
+
+The application requirements are split into the following categories:
+- [[SPC-0]]: definitions and pre-design decisions for this project
+- [[REQ-artifact]]: details the types of artifact and valid links
+- [[REQ-partof]]: details how artifacts are linked by the user
+- [[REQ-security]]: security considerations and risks
+- [[REQ-cmd]]: details the cmdline interface including `ls`, `check` and `export`
+- [[REQ-rpc]]: details the json-rpc interface of the server
+- [[REQ-web]]: the web-ui editing interface
+- [[REQ-tracker]]: work in progress requirements tracker. May be removed from
+  this project (made into an independent project that consumes the artifact json-rpc
+  api)
 '''
-
-[REQ-1-linking]
-text = '''
-linking should be in an easy to understand format and possible:
-- between artifacts
-- with the location of implementation
-
-It is recognized that there are two main concerns:
-- ease of writing links
-- ease of reading links
-
-Ease of writing links is considered the most important, as reading
-links can be accomplished automatically through the cmdline/web ui
-interface.
-
-For this reason, artifact uses the "partof" nomenclature for linking.
-This allows the user to think "what requirement does the design
-document I am currently writing fulfill".
-
-In addition, artifact shall infer links from the name of artifacts 
-whenever possible, such as artifacts with the same prefix or
-the same name of different types.'''
 
 [REQ-artifact]
 partof = "REQ-1"
@@ -189,8 +101,29 @@ to make navigation easy.
   interface'''
 
 [REQ-partof]
-partof = "REQ-[1-linking, artifact]"
+partof = "REQ-1"
 text = '''
+linking should be in a format that is as easy to understand format as possible:
+- between artifacts
+- with the location of implementation
+
+It is recognized that there are two main concerns:
+- ease of writing links
+- ease of reading links
+
+Ease of writing links is considered the most important, as reading
+links can be accomplished automatically through the cmdline/web ui
+interface.
+
+For this reason, artifact uses the "partof" nomenclature for linking.
+This allows the user to think "what requirement does the design
+document I am currently writing fulfill".
+
+In addition, artifact shall infer links from the name of artifacts 
+whenever possible, such as artifacts with the same prefix or
+the same name of different types.
+
+## Partof
 There are three ways to specify that an artifact is partof another artifact:
  1. explicitly through the `partof` attribute
  2. through postfix-name (linkable types)
@@ -231,6 +164,7 @@ will be ignored (they require explit links).
 '''
 
 [REQ-rpc]
+partof = "REQ-1"
 text = '''
 artifact **will** provide a JSON-RPC API server for other applications to report
 test execution data to it. 
@@ -247,26 +181,16 @@ For the Web UI the RPC shall have the following endpionts:
 '''
 
 [REQ-security]
+partof = "REQ-1"
 text = '''
 With commands such as `art fmt` and the server being able
 to edit files on someone's local machine, the artifact application
-**shall** impose checks at all vulnerable places to ensure
+shall impose checks at all vulnerable places to ensure
 that edits will not be made to files that are outside
 the cwd-repo that the user is using.
-'''
 
-[REQ-settings]
-partof = "REQ-1"
-text = '''
-The definition of an artifact project shall be due to a file existing at
-`.art/settings.toml`. This setings file shall include configuration for
-various project-level features such as:
-
-- `artifact_paths`: where to find artifacts 
-- `code_paths`: where to find code which implements SPC and TST artifacts
-- `exclude_code_paths`: code paths to exclude
-- `sub_projects`: additional artifact projects to load. All sub-projects
-    must be subdirectories of the current project.
+In addition, post-1.0 releases shall require authentication to edit
+files through a web-server (1.0 release will be localhost only)
 '''
 
 [REQ-tracker]
@@ -353,56 +277,3 @@ with access to the ip address + port of artifact could access their files
 art fmt would have to be created by an error in the application itself
 (very possible, but less likely).
 '''
-
-[SPC-0-done]
-done = "by definition"
-partof = "REQ-0-[assertions, license, prefix, risks]"
-text = '''
-This document itself meets the requirements of the definitions and process
-'''
-
-[SPC-0-format]
-done = "by definition"
-partof = "REQ-0"
-text = '''
-Possible choices:
- - json: decent but too general for the purpose (nesting is unnecessary)
-     also, no way to line-comment making it almost useless for a tracking
-     tool. Also, not readable enough.
- - ini/toml: both are decent formats, prefer toml as it is a little bit
-     simpler
- - yaml: too complex for what is needed, not as readable as ini. Very
-     enjoyable general purpose format.
- - html/xml/etc: aboslutely not. Needlessly complex.
-
-# Conclusion
-`artifact` **shall** use TOML for artifact writing.
-
-The reasons are:
- - feautres covers all needs for artifact
- - easy to learn
- - easy to read
- - easy to write in
- - feature set well-limited to this application (not too many
-     features or way to do the same thing)
-'''
-
-[SPC-0-language]
-done = "by definition"
-partof = "REQ-0"
-text = '''
-artifact **will** be written entirely in the rust programming language
-for the purposes of:
-- cross compilation: rust can be compiled on any platform
-- safety: it is impossible to segfault in rust
-- speed: rust is as fast as C++
-- static checking: rust is one of the most powerful static type checking
-    languages in existence, making it easier to refactor code
-- scale-out: single threaded code can easily be made highly concurrent
-- fun: rust is a fun language to write in.
-'''
-
-[TST-0]
-done = "by definition"
-partof = "SPC-0-[done, format, language]"
-text = "no tests necessary on definitions and process"

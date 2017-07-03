@@ -22,7 +22,16 @@ filesystem could be compromized (only the design folders can be
 compromized)
 '''
 
-[TST-security-gen]
+[TST-security]
+text = '''
+TODO: the main method of testing security shall be making sure:
+- [[TST-security-cwd]]: you cannot edit files outside of the cwd
+- TODO: you cannot edit files outside of the `artifact_paths` folders
+- TODO: you cannot edit files over the web-ui without the correct
+  credentials
+'''
+
+[TST-security-bounds]
 partof = "RSK-security"
 text = '''
 There shall be two tests:
@@ -30,12 +39,4 @@ There shall be two tests:
     a subdirectory of that project.
 2. attempt (and fail) to edit files which are not part of 
     settings.artifact_paths
-'''
-
-[TST-security-pwd]
-text = '''
-an end-to-end test of the web-ui shall attempt to edit artifacts:
-- without supplying a password and fail
-- without supplying a valid password and fail
-- with supplying a valid password and suceed
 '''

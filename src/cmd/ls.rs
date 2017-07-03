@@ -431,7 +431,6 @@ pub fn run_cmd<W: Write>(mut w: &mut W, cwd: &Path, cmd: &Cmd, project: &Project
     }
 
     let mut displayed = Names::new();
-    // #SPC-cmd-ls-type
     match cmd.ty {
         OutType::List => {
             let mut tw = TabWriter::new(w);

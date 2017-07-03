@@ -75,11 +75,12 @@ test-sel-py TESTS="":
 # run the full test suite. This is required for all merges
 @test-all:
 	just lint
+	cargo test
 	just test
 	just build
 	test "$(uname)" = "Darwin" && echo "TODO: selenium timeout issue on mac" || just test-sel-py
 	just check-fmt
-	art check
+	artd check
 
 # run all formatters in "check" mode to make sure code has been formatted
 check-fmt:
@@ -87,7 +88,7 @@ check-fmt:
 	case "$(autopep8 $PYTHON_CHECK -r --diff)" in ("") true;; (*) false;; esac
 	case "$(docformatter $PYTHON_CHECK -r)" in ("") true;; (*) false;; esac
 	just web-ui/check-fmt
-	art fmt -d > /dev/null 2>&1
+	artd fmt -d > /dev/null 2>&1
 
 
 ##################################################
@@ -115,7 +116,7 @@ fmt:
 	just fmt-rust
 	just fmt-py
 	just web-ui/fmt
-	art fmt -w
+	artd fmt -w
 
 # run rust formatter
 fmt-rust:
