@@ -60,20 +60,18 @@ pub static TOML_DONE: &'static str = "
 done = 'foo'
 [TST-foo]
 done = 'foo'
-[REQ-bar]
-text = 'bar'
 [SPC-bar]
-[TST-bar]
+done = 'bar'
 ";
 
 // valid artifact file
 pub static TOML_RST: &'static str = "
 [REQ-foo]
-[SPC-foo]
-[TST-foo]
+[SPC-foo] # loc
+[TST-foo] # loc
 partof = 'SPC-dne'
 
-[SPC-bar]
+[SPC-bar]  # (1.0, 1.0)
 partof = 'REQ-[foo, bar-[1,2]]'
 text = 'bar'
 done = 'bar is done'
@@ -94,37 +92,39 @@ pub static TOML_RST2: &'static str = "
 pub static TOML_LINK: &'static str = "
 [REQ-core]
 
-# bob
 [REQ-core-bob]
 
-[SPC-core-bob]
+[SPC-core-bob]          # la (CALC)
 
-# bob 1 (done, partially tested)
-[SPC-core-bob-1]
-# loc
+[SPC-core-bob-1]        # la (1.0, 0.75)
 
-[TST-core-bob-1]
-[TST-core-bob-1-a]
-# loc
-[TST-core-bob-1-b]
-[TST-core-bob-1-b-1]
-[TST-core-bob-1-b-2]
-# loc
 
-# bob 2 (not done)
-[SPC-core-bob-2]
-[SPC-core-bob-2-a]
-[SPC-core-bob-2-b]
-# loc
+[SPC-core-bob-2]        # calc
+[SPC-core-bob-2-a]      #     (0.00, 1.00)
+[SPC-core-bob-2-b]      # la  (1.00, 0.00)
 
-[TST-core-bob-2-a] # tested but not implemented, possible in TDD
-# loc
-[TST-core-bob-2-b] # implemented but not tested
+[TST-core-bob]          # AVG TST-core-bob-[1,2]
 
-# joe and jane, only requirements
-[REQ-core-joe]
+[TST-core-bob-1]        # la  (calc, 0.75)
+[TST-core-bob-1-a]      # loc (1.00, 1.00)
+[TST-core-bob-1-b]      # avg (0.50, 0.50)
+[TST-core-bob-1-b-1]    # na  (0.00, 0.00)
+[TST-core-bob-1-b-2]    # loc (1.00, 1.00)
+
+[TST-core-bob-2]        # avg (0.50, 0.50)
+[TST-core-bob-2-a]      # loc (1.00, 1.00)
+[TST-core-bob-2-b]      # na  (0.00, 0.00)
+
 [REQ-core-jane]
+[REQ-core-joe]
 
+[REQ-done]
+done = \"test\"
+[SPC-done]
+done = \"test\"
+
+[SPC-done-1]
+[SPC-done-2]
 ";
 
 pub static TOML_OVERLAP: &'static str = "[REQ-foo]\n";

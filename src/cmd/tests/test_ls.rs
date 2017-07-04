@@ -285,7 +285,7 @@ fn test_cmd_ls() {
     cmd.fmt_settings.color = COLOR_IF_POSSIBLE;
     cmd.pattern = "req-foo".to_string();
     ls::run_cmd(&mut w, &cwd, &cmd, &project).unwrap();
-    //debug_bytes(&w, LS_REQ_FOO);
+    debug_bytes(&w, LS_REQ_FOO);
     assert_eq!(to_vec(LS_REQ_FOO), w);
 
     // do default list with color disabled

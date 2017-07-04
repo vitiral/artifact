@@ -31,7 +31,6 @@ pub fn do_links(artifacts: &mut Artifacts) -> Result<()> {
 
     link_parts(artifacts);
     set_completed(artifacts);
-    set_tested(artifacts);
     Ok(())
 }
 
@@ -200,124 +199,141 @@ pub fn link_parts(artifacts: &mut Artifacts) -> u64 {
 
 /// discover how complete and how tested all artifacts are (or are not!)
 pub fn set_completed(artifacts: &mut Artifacts) -> usize {
+    /// define a part struct for keeping tally
+    #[derive(Debug, Clone, Copy)]
+    struct Part {
+        tested: f32,
+        completed: f32,
+        count_spc_completed: bool,
+        count_spc_tested: bool,
+    }
+
     let mut names = Names::from_iter(artifacts.keys().cloned());
-    let mut known = Names::new();
-    let mut found = Names::new();
+    let mut known: HashMap<NameRc, Part> = HashMap::with_capacity(names.len());
+    let mut found = Names::with_capacity(names.len());
+
     while !names.is_empty() {
         for name in &names {
-            // 0 means didn't find anything, 1 means calculate, 2 means 100%, 3 means 0%
-            let mut got_it = 0;
-            // create scope to use artifacts and modify it later
-            {
-                let artifact = artifacts.get(name).unwrap();
-                // SPC and TST artifacts are done if loc is set
-                if artifact.done.is_done() {
-                    got_it = 2;
-                } else if artifact.parts.is_empty() {
-                    got_it = 3; // no parts and not done == 0% complete
-                } else if artifact.parts.iter().all(|n| known.contains(n)) {
-                    got_it = 1;
-                }
+            // if this name is calcu
+            let artifact = artifacts.get(name).unwrap();
+            if !artifact.parts.iter().all(|n| known.contains_key(n)) {
+                continue;
             }
-            // resolve artifact completeness
-            match got_it {
-                3 => artifacts.get_mut(name).unwrap().completed = 0.0,
-                2 => artifacts.get_mut(name).unwrap().completed = 1.0,
-                1 => {
-                    artifacts.get_mut(name).unwrap().completed = {
-                        let artifact = artifacts.get(name).unwrap();
-                        // get the completed values, ignoring TSTs that are part of SPCs
-                        let completed: Vec<f32> = if name.ty == Type::SPC {
-                            artifact
-                                .parts
-                                .iter()
-                                .filter(|n| n.ty != Type::TST)
-                                .map(|n| artifacts.get(n).unwrap().completed)
-                                .collect()
-                        } else {
-                            artifact
-                                .parts
-                                .iter()
-                                .map(|n| artifacts.get(n).unwrap().completed)
-                                .collect()
-                        };
-                        // now completed is just the sum of it's valid parts
-                        match completed.len() {
-                            0 => 0.0,
-                            _ => {
-                                completed.iter().fold(0.0, |sum, x| sum + x) /
-                                    completed.len() as f32
-                            }
+
+            // we know the artifact parts are are all completed, we just need
+            // to calculate
+            let mut parts: Vec<Part> = Vec::from_iter(
+                artifact
+                    .parts
+                    .iter()
+                    .map(|n| known.get(n).expect("previously validated"))
+                    .cloned(),
+            );
+
+            // Push the "done" field
+            match (&artifact.done, name.ty) {
+                (&Done::Code(_), Type::TST) => {
+                    // it is a completed test, but it does not count towards
+                    // "completed" for spcs
+                    // ... since we are currently processing a TST this information
+                    // might as well be useless though...
+                    parts.push(Part {
+                        tested: 1.0,
+                        completed: 1.0,
+                        count_spc_completed: false,
+                        count_spc_tested: true,
+                    });
+                }
+                (&Done::Code(_), Type::SPC) => {
+                    // it is a completed spec, but it does not count towards "tested"
+                    parts.push(Part {
+                        tested: 1.0,
+                        completed: 1.0,
+                        count_spc_completed: true,
+                        count_spc_tested: false,
+                    });
+                }
+                (&Done::Code(_), Type::REQ) => unreachable!("validation prevents"),
+                (&Done::Defined(_), _) => {
+                    // `done` field always counts for both tested and completed
+                    parts.push(Part {
+                        tested: 1.0,
+                        completed: 1.0,
+                        count_spc_completed: true,
+                        count_spc_tested: true,
+                    });
+                }
+                (&Done::NotDone, _) => {}
+            };
+
+            let mut num_completed = 0;
+            let mut sum_completed = 0.0;
+            let mut num_tested = 0;
+            let mut sum_tested = 0.0;
+
+            match name.ty {
+                // special calculation for the SPC type
+                Type::SPC => {
+                    for p in &parts {
+                        if p.count_spc_completed {
+                            num_completed += 1;
+                            sum_completed += p.completed;
+                        }
+                        if p.count_spc_tested {
+                            num_tested += 1;
+                            sum_tested += p.tested;
                         }
                     }
                 }
-                0 => {}
-                _ => unreachable!(),
-            }
-            if got_it != 0 {
-                // trace!("resolved {} at {}", name, artifacts.get(name).unwrap().completed);
-                found.insert(name.clone());
-                known.insert(name.clone());
-            }
-        }
-        if found.is_empty() {
-            break;
-        }
-        for name in found.drain() {
-            names.remove(&name);
-        }
-    }
-    names.len()
-}
-
-/// Find the amount each artifact is tested
-pub fn set_tested(artifacts: &mut Artifacts) -> usize {
-    let mut names = Names::from_iter(artifacts.keys().cloned());
-    let mut known = Names::new();
-    let mut found = Names::new();
-
-    // TST.tested === TST.completed by definition
-    for (name, artifact) in artifacts.iter_mut() {
-        if name.ty == Type::TST && artifact.completed >= 0.0 {
-            artifact.tested = artifact.completed;
-            names.remove(name);
-            known.insert(name.clone());
-        } else if artifact.parts.is_empty() {
-            artifact.tested = 0.0;
-            names.remove(name);
-            known.insert(name.clone());
-        }
-    }
-
-    // everythign else is just the sum of their parts
-    while !names.is_empty() {
-        for name in &names {
-            let mut got_it = false;
-            {
-                let artifact = artifacts.get(name).unwrap();
-                if artifact.parts.iter().all(|n| known.contains(n)) {
-                    got_it = true;
+                _ => {
+                    for p in &parts {
+                        num_completed += 1;
+                        sum_completed += p.completed;
+                        num_tested += 1;
+                        sum_tested += p.tested;
+                    }
                 }
             }
-            if got_it {
-                artifacts.get_mut(name).unwrap().tested = {
-                    let artifact = artifacts.get(name).unwrap();
-                    artifact
-                        .parts
-                        .iter()
-                        .map(|n| artifacts.get(n).unwrap().tested)
-                        .fold(0.0, |sum, x| sum + x) /
-                        artifact.parts.len() as f32
-                };
-                found.insert(name.clone());
-                known.insert(name.clone());
-            }
+            let completed = if num_completed == 0 {
+                0.0
+            } else {
+                sum_completed / num_completed as f32
+            };
+
+            let tested = if num_tested == 0 {
+                0.0
+            } else {
+                sum_tested / num_tested as f32
+            };
+
+            // TST never counts towards SPC completion
+            let count_spc_completed = match name.ty {
+                Type::TST => false,
+                _ => true,
+            };
+
+            let part = Part {
+                completed: completed,
+                tested: tested,
+                count_spc_tested: true,
+                count_spc_completed: count_spc_completed,
+            };
+
+            found.insert(name.clone());
+            known.insert(name.clone(), part);
         }
         if found.is_empty() {
             break;
         }
         for name in found.drain() {
             names.remove(&name);
+        }
+    }
+    for (name, mut artifact) in artifacts.iter_mut() {
+        // note: if it is not known then it was un-calcuable
+        if let Some(p) = known.get(name) {
+            artifact.completed = p.completed;
+            artifact.tested = p.tested;
         }
     }
     names.len()
@@ -356,6 +372,7 @@ mod tests {
     fn test_done() {
         let req_foo = NameRc::from_str("REQ-foo").unwrap();
         let spc_foo = NameRc::from_str("spc-foo").unwrap();
+        let spc_bar = NameRc::from_str("spc-bar").unwrap();
 
         let mut artifacts = test_data::load_toml_simple(test_data::TOML_DONE);
         assert_eq!(
@@ -366,6 +383,9 @@ mod tests {
         do_links(&mut artifacts).unwrap();
         assert_eq!(artifacts.get(&req_foo).unwrap().completed, 1.0);
         assert_eq!(artifacts.get(&req_foo).unwrap().tested, 1.0);
+
+        assert_eq!(artifacts.get(&spc_bar).unwrap().completed, 1.0);
+        assert_eq!(artifacts.get(&spc_bar).unwrap().tested, 1.0);
     }
 
     #[test]

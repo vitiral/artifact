@@ -263,7 +263,6 @@ fn test_basic_link() {
     link::validate_partof(&artifacts).unwrap();
     assert_eq!(link::link_parts(&mut artifacts), 3);
     assert_eq!(link::set_completed(&mut artifacts), 0);
-    assert_eq!(link::set_tested(&mut artifacts), 0);
 
     let req_parts = artifacts
         .get(&NameRc::from_str("REQ-parts").unwrap())
@@ -328,7 +327,7 @@ fn test_basic_link() {
     // test tested %
     assert_eq!(tst_foo.tested, 1.);
     assert_eq!(spc_foo.tested, 1.);
-    assert_eq!(req_foo.tested, 0.5);
+    assert_eq!(req_foo.tested, 1.);
     assert_eq!(req_parts.tested, 0.);
     assert_eq!(req_parts_p1.tested, 0.);
     assert_eq!(req_parts_p1_a.tested, 0.);
@@ -341,10 +340,11 @@ fn test_link_completed_tested() {
 
     let path = PathBuf::from("hi/there");
     for sname in &[
+        "SPC-core-bob",
         "SPC-core-bob-1",
+        "SPC-core-bob-2-b",
         "TST-core-bob-1-a",
         "TST-core-bob-1-b-2",
-        "SPC-core-bob-2-b",
         "TST-core-bob-2-a",
     ]
     {
@@ -377,9 +377,8 @@ fn test_link_completed_tested() {
 
     assert_eq!(link::link_parts(&mut artifacts), 0);
     assert_eq!(link::set_completed(&mut artifacts), 0);
-    assert_eq!(link::set_tested(&mut artifacts), 0);
 
-    artifacts
+    let req_core = artifacts
         .get(&NameRc::from_str("REQ-core").unwrap())
         .unwrap();
     let req_bob = artifacts
@@ -390,6 +389,9 @@ fn test_link_completed_tested() {
         .unwrap();
     let spc_bob = artifacts
         .get(&NameRc::from_str("SPC-core-bob").unwrap())
+        .unwrap();
+    let tst_bob = artifacts
+        .get(&NameRc::from_str("TST-core-bob").unwrap())
         .unwrap();
 
     // bob 1
@@ -405,7 +407,7 @@ fn test_link_completed_tested() {
     let tst_bob_1_b = artifacts
         .get(&NameRc::from_str("TST-core-bob-1-b").unwrap())
         .unwrap();
-    artifacts
+    let tst_bob_1_b_1 = artifacts
         .get(&NameRc::from_str("TST-core-bob-1-b-1").unwrap())
         .unwrap();
     let tst_bob_1_b_2 = artifacts
@@ -416,14 +418,32 @@ fn test_link_completed_tested() {
     let spc_bob_2 = artifacts
         .get(&NameRc::from_str("SPC-core-bob-2").unwrap())
         .unwrap();
-    artifacts
+    let spc_bob_2_a = artifacts
         .get(&NameRc::from_str("SPC-core-bob-2-a").unwrap())
         .unwrap();
-    artifacts
+    let spc_bob_2_b = artifacts
         .get(&Name::from_str("SPC-core-bob-2-b").unwrap())
         .unwrap();
 
-    assert_eq!(tst_bob_1_b_2.tested, 1.);
+    let tst_bob_2 = artifacts
+        .get(&Name::from_str("TST-core-bob-2").unwrap())
+        .unwrap();
+    let tst_bob_2_a = artifacts
+        .get(&Name::from_str("TST-core-bob-2-a").unwrap())
+        .unwrap();
+    let tst_bob_2_b = artifacts
+        .get(&Name::from_str("TST-core-bob-2-b").unwrap())
+        .unwrap();
+
+    // done
+    let req_done = artifacts.get(&Name::from_str("REQ-done").unwrap()).unwrap();
+    let spc_done = artifacts.get(&Name::from_str("SPC-done").unwrap()).unwrap();
+    let spc_done_1 = artifacts
+        .get(&Name::from_str("SPC-done-1").unwrap())
+        .unwrap();
+    let spc_done_2 = artifacts
+        .get(&Name::from_str("SPC-done-2").unwrap())
+        .unwrap();
 
     // jane and joe
     artifacts
@@ -461,23 +481,64 @@ fn test_link_completed_tested() {
         )
     );
 
-    // assert completed
-    let bob_complete = (1. + (1. + 0.) / 2.) / 2.;
-    assert_eq!(spc_bob_1.completed, 1.);
-    assert_eq!(spc_bob.completed, bob_complete);
-    assert_eq!(req_bob.completed, bob_complete);
+    // get (completed,tested) tuple
+    let ct = |a: &Artifact| (a.completed, a.tested);
+    fn avg(vals: &[(f32, f32)]) -> (f32, f32) {
+        let mut out = (0.0, 0.0);
+        for v in vals {
+            out.0 += v.0;
+            out.1 += v.1;
+        }
+        out.0 /= vals.len() as f32;
+        out.1 /= vals.len() as f32;
+        out
+    }
 
-    // assert tested
-    assert_eq!(tst_bob_1_a.tested, 1.);
-    assert_eq!(tst_bob_1_b_2.tested, 1.);
-    assert_eq!(tst_bob_1_b.tested, 0.5);
-    let bob_1_tested = (1. + 0.5) / 2.;
-    assert_eq!(tst_bob_1.tested, bob_1_tested);
-    assert_eq!(spc_bob_1.tested, bob_1_tested);
-    assert_eq!(spc_bob_2.tested, 0.5);
-    let bob_tested = (0.5 + bob_1_tested) / 2.;
-    assert_eq!(spc_bob.tested, bob_tested);
-    assert_eq!(req_bob.tested, bob_tested);
+    // see TOML_LINK for reference
+    let spc_bob_2_tested = (1.0 + 0.0 + 0.5) / 3.0;
+    let tst_bob_ct = avg(&[ct(&tst_bob_1), ct(&tst_bob_2)]);
+    let spc_bob_ct = (
+        avg(&[(1.0, 0.0), ct(&spc_bob_1), ct(&spc_bob_2)]).0,
+        (0.75 + spc_bob_2_tested + tst_bob_ct.1) / 3.0,
+    );
+
+    assert_eq!(ct(tst_bob_2), (0.5, 0.5));
+    assert_eq!(ct(tst_bob_2_a), (1., 1.));
+    assert_eq!(ct(tst_bob_2_b), (0., 0.));
+
+    assert_eq!(ct(tst_bob_1), (0.75, 0.75));
+    assert_eq!(ct(tst_bob_1_a), (1., 1.0));
+    assert_eq!(ct(tst_bob_1_b), (0.5, 0.5));
+    assert_eq!(ct(tst_bob_1_b_1), (0.0, 0.0));
+    assert_eq!(ct(tst_bob_1_b_2), (1.0, 1.0));
+
+    assert_eq!(ct(&tst_bob), tst_bob_ct);
+
+    assert_eq!(ct(&spc_bob_2_a), (0.0, 1.0));
+    assert_eq!(ct(&spc_bob_2_b), (1.0, 0.0));
+
+    assert_eq!(
+        spc_bob_2.completed,
+        avg(&[ct(&spc_bob_2_a), ct(&spc_bob_2_b)]).0
+    );
+    assert_eq!(spc_bob_2.tested, spc_bob_2_tested);
+
+    assert_eq!(ct(spc_bob_1), (1.0, 0.75));
+
+    assert_eq!(ct(&spc_bob), spc_bob_ct);
+    assert_eq!(ct(&req_bob), spc_bob_ct);
+
+    assert_eq!(ct(&req_core), avg(&[spc_bob_ct, (0.0, 0.0), (0.0, 0.0)]));
+
+    // Test "done" field
+    assert_eq!(req_done.done, Done::Defined("test".to_string()));
+    assert_eq!(spc_done.done, Done::Defined("test".to_string()));
+
+    assert_eq!(ct(&spc_done_1), (0.0, 0.0));
+    assert_eq!(ct(&spc_done_2), (0.0, 0.0));
+    let spc_done_ct = avg(&[(0.0, 0.0), (0.0, 0.0), (1.0, 1.0)]);
+    assert_eq!(ct(&spc_done), spc_done_ct);
+    assert_eq!(ct(&req_done), avg(&[spc_done_ct, (1.0, 1.0)]));
 }
 
 #[test]
