@@ -139,12 +139,9 @@ pub fn validate_partof(artifacts: &Artifacts) -> Result<()> {
             let p_type = partof.ty;
             match (&n_type, &p_type) {
                 (&Type::REQ, &Type::REQ) |
-                (&Type::RSK, &Type::RSK) |
-                (&Type::RSK, &Type::REQ) |
                 (&Type::SPC, &Type::SPC) |
                 (&Type::SPC, &Type::REQ) |
                 (&Type::TST, &Type::TST) |
-                (&Type::TST, &Type::RSK) |
                 (&Type::TST, &Type::SPC) => {}
                 (_, _) => {
                     error!(
@@ -338,13 +335,11 @@ mod tests {
             "\
             [REQ-one]
             [SPC-one]
-            [TST-one]
-            [RSK-one]\n",
+            [TST-one]\n",
         );
         let req_one = NameRc::from_str("REQ-one").unwrap();
         let spc_one = NameRc::from_str("SPC-one").unwrap();
         let tst_one = NameRc::from_str("TST-one").unwrap();
-        let rsk_one = NameRc::from_str("RSK-one").unwrap();
         link_named_partofs(&mut artifacts);
         assert_eq!(artifacts.get(&req_one).unwrap().partof, Names::new());
         assert_eq!(
@@ -355,7 +350,6 @@ mod tests {
             artifacts.get(&tst_one).unwrap().partof,
             Names::from_iter(vec![spc_one.clone()])
         );
-        assert_eq!(artifacts.get(&rsk_one).unwrap().partof, Names::new());
     }
 
     #[test]
@@ -381,21 +375,11 @@ mod tests {
 
         let artifacts = load_toml_simple("[REQ-foo]\npartof = 'SPC-bar'\n");
         assert!(validate_partof(&artifacts).is_err());
-        let artifacts = load_toml_simple("[REQ-foo]\npartof = 'RSK-bar'\n");
-        assert!(validate_partof(&artifacts).is_err());
         let artifacts = load_toml_simple("[REQ-foo]\npartof = 'TST-bar'\n");
-        assert!(validate_partof(&artifacts).is_err());
-
-        let artifacts = load_toml_simple("[RSK-foo]\npartof = 'TST-bar'\n");
-        assert!(validate_partof(&artifacts).is_err());
-        let artifacts = load_toml_simple("[RSK-foo]\npartof = 'SPC-bar'\n");
         assert!(validate_partof(&artifacts).is_err());
 
         let artifacts = load_toml_simple("[SPC-foo]\npartof = 'TST-bar'\n");
         assert!(validate_partof(&artifacts).is_err());
-        let artifacts = load_toml_simple("[SPC-foo]\npartof = 'RSK-bar'\n");
-        assert!(validate_partof(&artifacts).is_err());
-
         let artifacts = load_toml_simple("[TST-foo]\npartof = 'REQ-bar'\n");
         assert!(validate_partof(&artifacts).is_err());
     }

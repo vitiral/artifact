@@ -5,8 +5,7 @@ the project artifacts such as:
  - errors during loading
  - invalid artifacts in partof
  - extra "locations" provided in the code
- - "hanging" RSK or SPC artifacts which are not partof a REQ
- - "hanging" TST artifacts which are not partof a RSK or SPC
+ - "hanging" non-REQ artifacts that are not partof any other artifacts.
 
 Note: "check" was chosen over "status" because it does NOT mimick the `git status`
 command, which doesn't return errors (and isn't meant as a check). It is more
@@ -14,16 +13,6 @@ like a compile checker or linter -- in which "check" makes more sense.
 
 This command is intended to be used along with automated testing before PR, etc are
 merged into a stable branch.
-
-## Hanging Artifacts
-
-Hanging artifacts can be found by asking:
- - is the artfact NOT a REQ?
- - is the artifact's parent the root type? (RSK, SPC, TST)
- - is the artifact a TST?
-    - is the artifact NOT a `partof` either a RSK or a SPC?
- - OR is the artifact a RSK or a SPC?
-     - is the artifact NOT a `partof` a REQ?
 '''
 
 [TST-cmd-check]

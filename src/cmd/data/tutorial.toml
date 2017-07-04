@@ -41,7 +41,7 @@ text = '''
 Artifacts are defined by specifying their name like so: "[REQ-NAME]"
 
 Artifacts can be a requirement (REQ), design-specification (SPC)
-risk (RSK) or test (TST)
+or test (TST)
 
 This particular artifact is a requirement, therefore it begins with
 "REQ". After REQ there is a "-" and then the name of the requirement.
@@ -58,7 +58,7 @@ should be used for detailing "what you want your application to do" and
 design specifications (SPC) should be used for detailing "how your application
 will do it".
 
-There are also tests (TST) and risks (RSK) which we will learn about later.
+There are also tests (TST) which we will learn about later.
 '''
 
 [REQ-learn-partof]
@@ -92,9 +92,6 @@ REQ <-- REQ-LEARN <-- REQ-learn-partof <-- SPC-learn-partof
 
 > Note: only parents are created automatically. Auto-creating for similar-named
 >   artifacts would pollute your links
->
-> Note: RSK artifacts are never automatically linked by name (only their parents
->   are automatically created and linked)
 '''
 
 [SPC-learn-example]
@@ -116,7 +113,7 @@ text = '''
 There are only a few rules for defining artifacts:
  - case is ignored for all names
  - names cannot overlap, even in different files
- - all names must start with either REQ, RSK, SPC or TST
+ - all names must start with either REQ, SPC or TST
  - artifact names must follow SPC-learn-links (see bellow)
 '''
 
@@ -125,31 +122,17 @@ partof = "SPC-learn-partof"
 text = '''
 There are some rules for which artifacts can be a partof other artifacts:
 - all artifacts can be a partof their own group (i.e. SPC can be a partof SPC)
-- SPC and RSK can be a partof REQ
-- TST can be a partof SPC and RSK
+- SPC can be a partof REQ
+- TST can be a partof SPC
 - REQ can only be a partof itself
 
 Here is a helpful graph of valid relations:
 ```
   REQ <-- SPC <-- TST
-   ^               |
-   \---- RSK <-----/
 ```
 
-In other words, you can design a spec (SPC) based on a requirement (REQ). A
-requirement can also have a risk (RSK) associated with it. Tests can test to
-either a spec (SPC) or to a risk (RSK)
-'''
-
-[SPC-learn-rsk]
-text = '''
-the RSK type allows you to specify risks associated with your requirements
-(RSK can be partof REQ).
-
-Frequently (for larger projects especially) it is a good idea to do risk
-analysis on which areas defined by your requirements ation are most likely to 
-fail and which would be the most catastrophic. RSK artifacts allow you to 
-document these and design test cases based on them.
+In other words, you can design a spec (SPC) based on a requirement (REQ). 
+Tests (TST) can then test to the spec (SPC).
 '''
 
 [SPC-learn-tst]

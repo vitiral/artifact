@@ -15,7 +15,6 @@ For more information about artifact, see it's [homepage][1]
 An "artifact" is something with a name like "ART-name" where "ART" is
 one of:
 - `REQ`: a requirement
-- `RSK`: a risk
 - `SPC`: a design specification
 - `TST`: a test
 

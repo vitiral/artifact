@@ -254,12 +254,13 @@ mod tests {
         assert!(load_toml(&path, test_data::TOML_BAD_NAMES1, &mut p).is_err());
         assert!(load_toml(&path, test_data::TOML_BAD_NAMES2, &mut p).is_err());
 
-        // basic loading unit tests
+        // Basic loading unit tests. Note NO processing is done
+        // except attaching mocked locations
         let num = load_toml(&path, test_data::TOML_RST, &mut p).unwrap();
 
         let locs = HashMap::from_iter(vec![(Name::from_str("SPC-foo").unwrap(), Loc::fake())]);
         let dne_locs = locs::attach_locs(&mut p.artifacts, locs).unwrap();
-        assert_eq!(num, 8);
+        assert_eq!(num, 7);
         assert_eq!(dne_locs.len(), 0);
         assert!(
             p.artifacts
@@ -268,10 +269,6 @@ mod tests {
         assert!(
             p.artifacts
                 .contains_key(&Name::from_str("SPC-foo").unwrap())
-        );
-        assert!(
-            p.artifacts
-                .contains_key(&Name::from_str("RSK-foo").unwrap())
         );
         assert!(
             p.artifacts
@@ -286,22 +283,20 @@ mod tests {
         assert!(!p.artifacts
             .contains_key(&Name::from_str("REQ-baz").unwrap()));
         assert!(!p.artifacts
-            .contains_key(&Name::from_str("RSK-foo-2").unwrap()));
-        assert!(!p.artifacts
             .contains_key(&Name::from_str("TST-foo-2").unwrap()));
 
         {
             // test to make sure default attrs are correct
-            let rsk_foo = Name::from_str("RSK-foo").unwrap();
-            let art = p.artifacts.get(&rsk_foo).unwrap();
-            assert_eq!(rsk_foo.ty, Type::RSK);
+            let spc_foo = Name::from_str("SPC-foo").unwrap();
+            let art = p.artifacts.get(&spc_foo).unwrap();
+            assert_eq!(spc_foo.ty, Type::SPC);
             assert_eq!(art.def, path);
             assert_eq!(art.text, "");
-            let expected: Names = HashSet::new();
-            assert_eq!(art.partof, expected);
-            assert_eq!(art.done, Done::NotDone);
+            assert_eq!(art.partof, HashSet::new());
+            assert_eq!(art.done, Done::Code(Loc::fake()));
             assert_eq!(art.completed, -1.0);
             assert_eq!(art.tested, -1.0);
+            assert_eq!(art.done, Done::Code(Loc::fake()));
 
             // test non-defaults
             let spc_bar = Name::from_str("SPC-bar").unwrap();
@@ -320,24 +315,16 @@ mod tests {
             assert_eq!(art.completed, -1.0);
             assert_eq!(art.tested, -1.0);
 
-            let spc_foo = Name::from_str("SPC-foo").unwrap();
-            let art = p.artifacts.get(&spc_foo).unwrap();
-            let expected = Done::Code(Loc::fake());
-            assert_eq!(art.done, expected);
         }
 
         // must be loaded afterwards, uses already existing artifacts
         assert!(load_toml(&path, test_data::TOML_OVERLAP, &mut p).is_err());
 
         let num = load_toml(&path, test_data::TOML_RST2, &mut p).unwrap();
-        assert_eq!(num, 3);
+        assert_eq!(num, 2);
         assert!(
             p.artifacts
                 .contains_key(&Name::from_str("REQ-baz").unwrap())
-        );
-        assert!(
-            p.artifacts
-                .contains_key(&Name::from_str("RSK-foo-2").unwrap())
         );
         assert!(
             p.artifacts

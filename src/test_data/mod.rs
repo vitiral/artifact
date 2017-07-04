@@ -48,7 +48,6 @@ code_paths = ['{cwd}/src', '{repo}/src2']
 pub static TOML_GOOD: &'static str = "
 [REQ-foo]
 [SPC-foo]
-[RSK-foo]
 [TST-foo]
 [REQ-bar]
 text = 'bar'
@@ -59,7 +58,6 @@ pub static TOML_DONE: &'static str = "
 [REQ-foo]
 [SPC-foo]
 done = 'foo'
-[RSK-foo]
 [TST-foo]
 done = 'foo'
 [REQ-bar]
@@ -72,7 +70,6 @@ text = 'bar'
 pub static TOML_RST: &'static str = "
 [REQ-foo]
 [SPC-foo]
-[RSK-foo]
 [TST-foo]
 partof = 'SPC-dne'
 
@@ -90,7 +87,6 @@ partof = 'REQ-parts-p1'
 
 pub static TOML_RST2: &'static str = "
 [REQ-baz]
-[RSK-foo-2]
 [TST-foo-2]
 ";
 

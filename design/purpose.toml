@@ -40,23 +40,18 @@ partof = "REQ-1"
 text = '''
 artifact **will** support 4 types of artifacts that can be tracked
 - **REQ**: software requirement
-- **RSK**: risks related to requirements
 - **SPC**: software design specificaion based on one or more requirements
 - **TST**: test design of a risk or specification
 
 The valid links **will** look like this:
 ```
   REQ <-- SPC* <-- TST*
-   ^                |
-    \---- RSK <-----/
 
 * SPC and TST can be implemented in source code
 ```
 
-In other words, you can design a spec (SPC) based on
-a requirement (REQ). A requirement can have a risk (RSK)
-associated with it. Tests can test to either a spec (SPC)
-or a risk (RSK)
+In other words, you can design a spec (SPC) based on a requirement (REQ) and
+then test (TST) that spec.
 
 The artifacts **will** have simple orthoganal variables that accomplish
 the purposes defined in [[REQ-1]].
@@ -144,24 +139,24 @@ created as `REQ-FOO` and will be a `partof` `REQ-foo-bar`
 artifacts will be linked by their postfix if they are able. However, artifacts
 **will not** be created if they do not exist (like parents, see item 3)
 
-Also, RSK artifacts will not be auto-linked. This is to avoid confusion when you have
-RSK and SPC with the same postfix
-
 This stage happens after partof-1 but before partof-3. This is important because
 "parents" that are automatically created in stage 3 will not be automatically
 linked in this manner.
 
-**Example:**
+Example:**
 
 If you define:
-- `REQ-foo-bar`
-- `RSK-foo-bar`
-- `SPC-foo-bar`
-- `TST-foo-bar`
+```
+[REQ-foo-bar]
+[SPC-foo-bar]
+[TST-foo-bar]
+
+[SPC-baz]
+```
 
 Then `REQ-foo-bar` will automatically be a partof `SPC-foo-bar`,
-`SPC-foo-bar` will be a partof `TST-foo-bar`. The `RSK` artifacts 
-will be ignored (they require explit links).
+`SPC-foo-bar` will be a partof `TST-foo-bar`. `SPC-baz` will not
+be a partof anything since it doesn't share a prefix or a name.
 '''
 
 [REQ-rpc]
@@ -256,32 +251,4 @@ Requirements of web page:
  - editing shall utilize the same workflow as is used when editing text
  - there shall be an option to disable editing (read-only)
  - webpage shall be able to view test execution data
-'''
-
-[RSK-security]
-partof = "REQ-security"
-text = '''
-There is a *high chance* of a coding error which allows for editing
-outside of the repo directory, which would cause an *avalance risk*
-for security.
-
-In essence, it could compromise all files which artifact has access to.
-
-Lowest impact:
-- user loosing design data in .toml files (i.e. missing text field, etc)
-
-Highest impact:
-- user loosing data *outside of the artifact repo*
-- User's computer becomming compromised with malware installed by
-    a mallicious user through artifact
-
-There are two commands which this risk applies to:
-- `art fmt` which edits user files to format them
-- `art server` which allows online users to edit user files
-
-Clearly `art server` exposes the user to the greatest risk as anyone
-with access to the ip address + port of artifact could access their files
-(unless some kind of password authentication is provided), whereas
-art fmt would have to be created by an error in the application itself
-(very possible, but less likely).
 '''

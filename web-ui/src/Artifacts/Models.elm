@@ -11,7 +11,7 @@ import JsonRpc exposing (RpcError)
 
 artifactValidRaw : String
 artifactValidRaw =
-    "(REQ|SPC|RSK|TST)(-[A-Z0-9_-]*[A-Z0-9_])?"
+    "(REQ|SPC|TST)(-[A-Z0-9_-]*[A-Z0-9_])?"
 
 
 artifactValidPat : Regex.Regex
@@ -82,7 +82,6 @@ type alias ArtifactId =
 type Type
     = Req
     | Spc
-    | Rsk
     | Tst
 
 
@@ -216,9 +215,6 @@ getType name =
         "SPC" ->
             Just Spc
 
-        "RSK" ->
-            Just Rsk
-
         "TST" ->
             Just Tst
 
@@ -248,18 +244,8 @@ validPartof name partof =
             ( Spc, Spc ) ->
                 True
 
-            -- rsk only partof req or rsk
-            ( Rsk, Req ) ->
-                True
-
-            ( Rsk, Rsk ) ->
-                True
-
-            -- test only partof rsk, spc or tst
+            -- test only partof spc or tst
             ( Tst, Spc ) ->
-                True
-
-            ( Tst, Rsk ) ->
                 True
 
             ( Tst, Tst ) ->
@@ -291,9 +277,6 @@ autoPartof name partof =
         if partof_len == name_len - 1 && (List.take partof_len name_sp) == partof_sp then
             -- name is the prefix for `partof`
             True
-        else if name.ty == Rsk then
-            -- Other than the above, RSK can never be auto
-            False
         else if
             (validPartof name partof)
                 && ((List.drop 1 name_sp) == (List.drop 1 partof_sp))

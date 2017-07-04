@@ -29,15 +29,13 @@ description
 ## Artifact Types
 
 Instead of `ART` as defined in Document Type, the user must select from
-4 artifact types:
-- `REQ`: specifying a requirement. `REQ` can be `partof` only
-    `REQ`, `SPC` and `RSK`
-- `SPC`: specifying a design specification. `SPC` can
-    `partof` only `SPC` and `TST`
-- `RSK`: specifying a risk with a `REQ`. `RSK` can
-    `partof` only `RSK` and `TST`
-- `TST`: specifying a test of a `SPC` or `RSK`. `TST` can
-    `partof` only `TST`
+3 artifact types:
+- `REQ`: specifying a requirement. `REQ` can only have `REQ` in its
+  `partof` field.
+- `SPC`: specifying a design specification. `SPC` can only have
+  `REQ` or `SPC` in its `partof` field.
+- `TST`: specifying a test of a `SPC`. `TST` can only have
+  `SPC` or `TST` in its `partof` field.
 
 ## Automatic Creation
 

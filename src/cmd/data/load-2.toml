@@ -38,19 +38,11 @@ linked requirements, printing and returning an error
 if they are not met.
 '''
 
-[RSK-load]
-partof = "REQ-load"  # RSK links must be explicit
-text = '''
-A user could give invalid data. Input data must be checked
-for validity and an error must be raised if invalid.
-'''
-
 [TST-load]
-partof = "RSK-load"
 text = '''
 Plaintext tests related to loading the questions.
-> Note: this is automatically linked to SPC-load,
-> but RSK links must be explicit
+
+> Note: this is automatically linked to SPC-load
 '''
 
 [TST-load-unit]

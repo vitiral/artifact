@@ -7,7 +7,7 @@ pub const REPO_VAR: &'static str = "repo";
 /// #TODO: remove this
 pub const CWD_VAR: &'static str = "cwd";
 /// base definition of a valid name. Some pieces may ignore case.
-pub const NAME_VALID_STR: &'static str = "(?:REQ|SPC|RSK|TST)(?:-[A-Z0-9_-]*[A-Z0-9_])?";
+pub const NAME_VALID_STR: &'static str = "(?:REQ|SPC|TST)(?:-[A-Z0-9_-]*[A-Z0-9_])?";
 
 lazy_static!{
     // must start with artifact type, followed by "-", followed by at least 1 valid character
@@ -180,7 +180,6 @@ pub struct Name {
 pub enum Type {
     REQ,
     SPC,
-    RSK,
     TST,
 }
 
@@ -243,7 +242,7 @@ impl fmt::Display for Done {
 }
 
 /// The Artifact type. This encapsulates
-/// REQ, SPC, RSK, and TST artifacts and
+/// REQ, SPC, and TST artifacts and
 /// contains space to link them
 /// #SPC-artifact
 #[derive(Clone, Debug, PartialEq)]

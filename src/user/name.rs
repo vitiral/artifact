@@ -103,7 +103,7 @@ impl Name {
         match self.ty {
             Type::TST => vec![self._get_named_partof("SPC")],
             Type::SPC => vec![self._get_named_partof("REQ")],
-            Type::RSK | Type::REQ => vec![],
+            Type::REQ => vec![],
         }
     }
 
@@ -191,12 +191,11 @@ fn _get_type(value: &str, raw: &str) -> Result<Type> {
     match value {
         "REQ" => Ok(Type::REQ),
         "SPC" => Ok(Type::SPC),
-        "RSK" => Ok(Type::RSK),
         "TST" => Ok(Type::TST),
         _ => {
             Err(
                 ErrorKind::InvalidName(format!(
-                    "name must start with REQ-, RSK-, SPC- or TST-: \
+                    "name must start with REQ-, SPC- or TST-: \
                                                 {}",
                     raw
                 )).into(),
@@ -395,7 +394,6 @@ fn test_name() {
         "REQ-foo2",
         "REQ-foo-bar-2_3",
         "SPC-foo",
-        "RSK-foo",
         "TST-foo",
     ]
     {

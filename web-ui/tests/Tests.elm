@@ -105,8 +105,8 @@ testJson =
             , test "valid names 2" <|
                 \() ->
                     Expect.equalLists
-                        (namesValid [ "REQ-foo-bar-2_3", "SPC-foo", "RSK-foo", "TST-foo" ])
-                        ([ True, True, True, True ])
+                        (namesValid [ "REQ-foo-bar-2_3", "SPC-foo", "TST-foo" ])
+                        ([ True, True, True ])
             , test "invalid names 1" <|
                 \() ->
                     Expect.equalLists

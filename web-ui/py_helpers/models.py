@@ -92,7 +92,6 @@ class ArtifactToml(Model):
 class Type(aenum.Enum):
     """Artifact type."""
     req = "REQ"
-    rsk = "RSK"
     spc = "SPC"
     tst = "TST"
 

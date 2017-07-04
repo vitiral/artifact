@@ -30,10 +30,9 @@ can be linked to other artifacts and to source code.
 
 There are four types of artifact:
 - `REQ`: requirement, *why* your application exists
-- `RSK`: risk of a requirement, what you are concerned about
 - `SPC`: specification of a requirement or higher-level spec. *How* you will
   build your program
-- `TST`: details of what to test for a RSK or SPC
+- `TST`: details of what to test for a SPC
 
 ## Artifact Format
 ```
@@ -50,7 +49,6 @@ This is the description of the requirement
       REQ-nested-link"`
 - `SPC-name` is automatically partof `REQ-name` (if "name" is the same)
 - `TST-name` is automatically partof `SPC-name` (if "name" is the same)
-- `RSK` is not automatically linked to other types.
 - `SPC-name-foo` is automatically partof `SPC-name` (same prefix) and `SPC-name`
   will be created if it doesn't exist.
 
