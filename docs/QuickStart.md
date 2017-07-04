@@ -19,16 +19,24 @@ Start at the [Installation Guide](Installation.md) and install artifact on
 your system.
 
 Use an empty directory and run `art init`. Now put a requirement in
-`design/purpose.toml`:
+`design/purpose.toml` which will define the high level purpose of our "hello
+world" application.
+
+> Note: the `[[REQ-*]]` syntax is just sugar to make links in the web-ui
 ```
 [REQ-purpose]
 text = '''
-We need to be able to say hello to both the world and aliens
+We need to be able to say hello
+
+- [[REQ-world]]: say hello to the world
+- [[REQ-aliens]]: say hello to aliens
 '''
 ```
 
-This defines the high level purpose of our "hello world" application.
-We can then break this requirement down:
+Now we will detail the two "parts" of REQ-purpose. We use the `partof`
+attribute to link to `REQ-purpose`. `REQ-purpose` now has "parts" `REQ-world`
+and `REQ-aliens` and it's completion and test percentage will depend on them.
+
 ```
 [REQ-world]
 partof = "REQ-purpose"
@@ -43,11 +51,8 @@ there shall be a way to say hello to aliens, but that will be harder
 '''
 ```
 
-We used the `partof` attribute to link these to `REQ-purpose`. `REQ-purpose` now
-has "parts" `REQ-world` and `REQ-aliens` and it's completion and test percentage
-will depend on them.
-
-Now we will create a design specification for `REQ-world`:
+Now we will create a design specification for `REQ-world`. We do not have
+to use `partof` because the names are identical (only the type differs):
 ```
 [SPC-world]
 text = '''
@@ -55,16 +60,13 @@ The hello-world function shall print hello
 '''
 ```
 
-Here we did not have to use `partof` because these are linked automatically
-(they are of different types with the same name). We can also define a test:
+We can also define a test which is automatically a "partof" SPC-world:
 ```
 [TST-world]
 text = '''
 We will make a test later.
 '''
 ```
-Again, this is automatically a partof of `SPC-world`.
-
 Okay, we have designed the "world" part of our application. Now we should
 actually program it. We create a `src/` directory and add it to
 `.art/settings.toml`
@@ -77,7 +79,9 @@ code_paths = [
 ]
 ```
 
-We now create create our source code at `src/hello.py` and write:
+We now create create our source code at `src/hello.py`. The `#SPC-world` links
+this piece of code to SPC-world. The source code does not have to be in
+python, any utf-8 file with `#SPC-name` patterns in it can be used.
 ```
 def hello_world():
     """Say hello to the world
@@ -86,10 +90,6 @@ def hello_world():
     print("hello world!")
 ```
 
-The `#SPC-world` links this piece of code to `SPC-world`. The source code does
-not have to be in python, any utf-8 file with `#SPC-name` patterns in it can be
-used.
-
 Now run: `art ls`
 
 ![art ls](data/example-hello.png)
@@ -97,10 +97,16 @@ Now run: `art ls`
 This lists our artifact's so far We can see that `SPC-world` is 100% done but
 not tested.
 
-Now run: `art export html`
+Now run: `art serve` and open http://127.0.0.1:5373/#artifacts/req-purpose
 
-This exports our artifacts as html. Open `index.html` in the browser of your
-choice. It should look like this: https://vitiral.github.io/artifact-example/
+As you can see you can view and edit rendered html.
+
+`art export html` renders static html that can be hosted, such as
+https://vitiral.github.io/artifact-example/
+
+## Next
+For a quick overview of all features, check out the [Cheat
+Sheet](CheatSheet.md).
 
 For a more in depth tutorial, see the [Simple Quality][1] book.
 

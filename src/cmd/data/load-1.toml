@@ -1,55 +1,54 @@
-[REQ-duplicate]
-partof = "REQ-purpose-learning"
+[SPC-load]
+partof = "SPC-cmd"
 text = '''
-duplicates **shall not** be allowed, as they would be extremely confusing
-'''
-
-[SPC-question]
-text = '''
-The `Question` class **shall** be the primary datatype used for questions
-in the application. Quetions shall:
- - store the question and answer
- - provide a method `ask` to ask the user the question
-	and validate the answer
-'''
-
-[SPC-load-format]
-partof = "REQ-purpose-config"
-text = '''
+### CSV Format
 The format of the csv file **shall** be a csv file of the form:
 ```
 City, Capitol
 ```
+> Note: whitespace will be ignored
 
-Where whitespace is ignored
+### Design
+The load function will accept a path to the csv file and will
+deserialize and validate it using:
+- [[SPC-question]] for handling deserialization of each row.
+- [[SPC-validate]] to validate the data against other requirements.
 '''
 
-[SPC-load-validate]
-partof = "REQ-duplicate, SPC-load-format"
+[SPC-question]
+partof = "SPC-load"
 text = '''
-input questions **shall** be validated to meet the
-linked requirements, printing and returning an error
-if they are not met.
+The `Question` class shall be the primary datatype used for questions in the
+application. Quetions shall:
+- store the question and answer
+- provide a method `ask` to ask the user the question
+  and validate the answer
 '''
 
-[TST-load]
+[SPC-validate]
+partof = "REQ-learning, SPC-load"
 text = '''
-There **will** be plaintext tests related to loading the questions.
-
-> Note: this is automatically linked to SPC-load
+input questions **shall** be validated to:
+- guarantee against duplicates
+- guarantee that the data format is correct
 '''
 
-[TST-load-unit]
-partof = "SPC-load-validate"
+[TST-invalid]
+partof = "SPC-validate"
 text = '''
 At least the following unit tests **will** be implemented:
 - test invalid number of columns
 - test duplicate names
 '''
 
-[TST-load-csv]
-partof = "SPC-load-format"
+[TST-load]
+partof = "SPC-question"
 text = '''
-There **will** be tests that validate that a simple csv 
-file load works.
+Validating shall encompase:
+- all question objects exist and data is as expected
+
+The unit tests for load shall include:
+- loading a raw string and validating it
+- loading a valid csv file path and validating it
+- try to load a csv file with 3 columns, expect error
 '''

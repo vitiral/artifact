@@ -123,8 +123,7 @@ pub fn run_cmd(cwd: &Path, part: u8) -> Result<u8> {
     let TEST_LOAD_PY: PathBuf = TESTS_DIR.join(PathBuf::from("test_load.py"));
     let TEST_DATA_CSV: PathBuf = TESTS_DIR.join(PathBuf::from("example.csv"));
 
-    let PART_1_FILES: HashSet<PathBuf> =
-        HashSet::from_iter(vec![SETTINGS_TOML.clone(), TUTORIAL_TOML.clone()]);
+    let PART_1_FILES: HashSet<PathBuf> = HashSet::from_iter(vec![SETTINGS_TOML.clone()]);
 
     let PART_2_FILES: HashSet<PathBuf> = HashSet::from_iter(vec![
         SETTINGS_TOML.clone(),
@@ -183,14 +182,18 @@ pub fn run_cmd(cwd: &Path, part: u8) -> Result<u8> {
     remove_files_force(&ALL_FILES);
     create_dir(&RST_DIR);
     println!("## Tutorial Loaded!");
+    if !TUTORIAL_TOML.exists() {
+        try!(write_file(&TUTORIAL_TOML, D_TUTORIAL_TOML));
+    }
+    if !TUTORIAL_MD.exists() {
+        try!(write_file(&TUTORIAL_MD, D_TUTORIAL_MD));
+    }
     if part == 1 {
         // stage 1: example toml file with self-description
         println!("  Tutorial part 1: open tutorial.toml with a text editor");
         try!(write_file(&SETTINGS_TOML, D_SETTINGS_1_TOML));
-        try!(write_file(&TUTORIAL_TOML, D_TUTORIAL_TOML));
     } else {
         create_dir(&DESIGN_DIR);
-        try!(write_file(&TUTORIAL_MD, D_TUTORIAL_MD));
         try!(write_file(&CAPITOLS_CSV, D_CAPITOLS_CSV));
         try!(write_file(
             &FLASH_CARD_CHALLENGE_HTM,

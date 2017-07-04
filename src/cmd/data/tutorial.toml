@@ -5,8 +5,8 @@
 #
 #     art tutorial
 #
-# artifact is a command line, text based tool for requirements tracking.
-# It aims to be easy to use by anybody and especially productive
+# Artifact is a command line, text based tool for writing and tracking design
+# documents. It aims to be easy to use by anybody and especially productive
 # for developers
 #
 # Follow along with this file to get an idea of how you can
@@ -21,131 +21,155 @@
 # there won't be color). If you do, good. If you are having problems try going 
 # back to the installation tutorial at github.com/vitiral/artifact
 
-##################################################
-# Defining requirements
-
-# This is how you define a requirement
-[REQ-toml]
+[REQ-learn]
 text = '''
-artifact files like this one are written in the TOML format
-you can read more about it here: https://github.com/toml-lang/toml
-
-All artifact files must end in ".toml"
-
-Artifact names must be composed of the set "a-zA-Z_-" and spaces
-and case are ignored. The `.` character is not allowed.
-'''
-
-[REQ-learn-artifact]
-text = '''
-Artifacts are defined by specifying their name like so: "[REQ-NAME]"
-
 Artifacts can be a requirement (REQ), design-specification (SPC)
 or test (TST)
 
+Artifacts are defined by specifying their name like so: "[REQ-NAME]".
 This particular artifact is a requirement, therefore it begins with
 "REQ". After REQ there is a "-" and then the name of the requirement.
 
 Unlike many requirements tracking tools, artifact encourages the use
 of human-readable names. We will talk more about this later.
+
+Goto [[REQ-toml]] next.
 '''
 
-[SPC-learn-spc]
+[REQ-toml]
+partof = "REQ-learn"
+text = '''
+Artifact files like this one are written in the TOML format
+you can read more about it here: https://github.com/toml-lang/toml
+
+All artifact files must end in ".toml"
+
+Artifact names must be composed of the set "a-zA-Z_-", case is ignored.
+
+Go to [[SPC-learn]] next.
+'''
+
+
+[SPC-learn]
 partof = "REQ-toml"
 text = '''
-Anything starting with SPC is a design specification. Requirements (REQ)
+Anything starting with SPC is a design specification and is the only way
+that a requirement can be considered "completed". Requirements (REQ)
 should be used for detailing "what you want your application to do" and
 design specifications (SPC) should be used for detailing "how your application
 will do it".
 
 There are also tests (TST) which we will learn about later.
+
+Goto [[SPC-partof]] next.
 '''
 
-[REQ-learn-partof]
-text = "see the next artifact"
-
-[SPC-learn-partof]
+[SPC-partof]
+partof = "REQ-learn"
 text = '''
-artifact uses the names of artifacts to automatically link them and track 
-progress. This makes it easy for the user to intuitively link together 
+Artifact uses the names of artifacts to automatically link them and track
+progress. This makes it easy for the user to intuitively link together
 requirements with their specification and reduces boilerplate.
 
-REQ-learn-partof is automatically a "partof" this artifact because the names
-after the type are the same ("learn-partof")
-
-In addition, missing parents are automatically created and linked. So
-SPC-LEARN is also a partof this artifact, even though it is not even in this
-document. This makes it very easy to make trees of artifacts without needing to
-specify every branch.
+[[SPC-learn]] is automatically a "partof" [[REQ-learn]] because the names after
+the type are the same ("-learn")
 
 So far we have:
 ```
-
-            --- SPC-LEARN <--- SPC-learn-spc
-           /
-REQ <-- REQ-LEARN <-- REQ-learn-partof <-- SPC-learn-partof
-           ^                                  |
-           \-------- REQ-learn-artifact <-----/
-
-  * items in ALL CAPS were created automatically
+REQ-learn <------ SPC-learn
+    ^-- REQ-toml <---/
+    |
+    \---REQ-partof <-- SPC-partof
 ```
 
-> Note: only parents are created automatically. Auto-creating for similar-named
->   artifacts would pollute your links
+So not very interesting, as everything is only linked by name.
+See [[TST-partof]] next.
 '''
 
-[SPC-learn-example]
-text = "this is used in the next artifact"
+[SPC-example]
+text = "only used as an example for [[TST-partof]]"
 
-[TST-learn-partof]
-partof = "SPC-learn-[spc, example]"
+
+[TST-partof]
+partof = "SPC-[learn, example]"
 text = '''
+First of all, this is how you specify a TST.
+
+Also, notice the partof field:
+```
+partof = "SPC-[learn, example]"
+```
+
 The partof field is a string that uses a simple grouping syntax. This example
 does as you would expect, this artifact is a partof SPC-learn-spc and
 SPC-learn-example
 
-Note: it is also automatically a partof SPC-learn-partof and TST-LEARN because
-of the name
+> Note: it is ALSO a partof SPC-partof because of the name.
+
+See [[SPC-valid]] next.
 '''
 
-[SPC-learn-valid]
+[SPC-valid]
 text = '''
 There are only a few rules for defining artifacts:
  - case is ignored for all names
  - names cannot overlap, even in different files
  - all names must start with either REQ, SPC or TST
- - artifact names must follow SPC-learn-links (see bellow)
+ - artifact names must follow [[SPC-links]] (see this next)
 '''
 
-[SPC-learn-links]
-partof = "SPC-learn-partof"
+[SPC-links]
+partof = "SPC-partof"
 text = '''
 There are some rules for which artifacts can be a partof other artifacts:
-- all artifacts can be a partof their own group (i.e. SPC can be a partof SPC)
+- All artifacts can be a partof their own group (i.e. SPC can be a partof SPC,
+  REQ partof REQ, etc)
 - SPC can be a partof REQ
 - TST can be a partof SPC
-- REQ can only be a partof itself
 
 Here is a helpful graph of valid relations:
 ```
   REQ <-- SPC <-- TST
 ```
 
-In other words, you can design a spec (SPC) based on a requirement (REQ). 
+In other words, you can design a spec (SPC) based on a requirement (REQ).
 Tests (TST) can then test to the spec (SPC).
+
+See [[SPC-tst]] next.
 '''
 
-[SPC-learn-tst]
+[SPC-tst]
 text = '''
 TST is used to document test design and is the only way that an artifact can be
 considered "tested".
+
+Artifact makes it easy to track the "progress" of your application because
+`art ls` (and the web-ui) gives you easy to easy to read completion and
+tested percentages for all your artifacts based on which ones are implemented
+in source code (more on that later).
+
+See [[SPC-learn-ls]] next.
 '''
 
-[SPC-learn-ls]
+[SPC-cmd]
 text = '''
-The `ls` command is the most important command to learn in artifact, as it helps
-you manage the artifacts in your project, see how they are linked, and view how
-completed/tested they are.
+Artifact has only a few commands and all of them are useful for typical
+operation.
+
+For this part of the tutorial we are going to focus on the following:
+- [[SPC-cmd-ls]]: the `ls` (list) command allows you to view and filter your
+  aritfacts over the command line easily
+- [[SPC-cmd-serve]]: the `serve` command gives you a web-ui that you can use to
+  view, filter and edit your artifacts.
+
+Go to [[SPC-cmd-ls]] next.
+'''
+
+[SPC-cmd-ls]
+text = '''
+The `ls` command is one of the most important command to learn in artifact,
+as it helps you manage the artifacts in your project, see how they are linked,
+and view how completed/tested they are.
 
 Type:
     art ls SPC-learn-ls -l
@@ -155,12 +179,14 @@ This will show you this artifact, pretty printed on your terminal.
 Try:
     art ls learn -p
 
-This searches in the "Name" field for all artifacts that have "learn"
+This searches in the "name" field for all artifacts that have "learn"
 in their name.
 
 Let's say you wanted to find an artifact, and all you knew was that it mentioned
 files in it's text field. You could run:
 
+    art ls file -p text --text
+    # OR
     art ls file -p T -T
 
 This will search for the pattern "file" in the text field (`-p T`). It will also
@@ -173,12 +199,25 @@ but you want an expanded view:
 
 Now you see that SPC-learn-valid has not been tested or implemented and that it
 is partof SPC-LEARN. From there you could decide what to do.
+
+See [[SPC-cmd-serve]] next.
 '''
 
-##################################################
-# That is the end part 1 of the tutorial. Run the following
-# for part 2
-#     art tutorial 2
-#
-# To view on the web go to:
-# https://github.com/vitiral/artifact/blob/master/src/cmd/data/tutorial.md
+[SPC-cmd-serve]
+text = '''
+type `art serve` and goto the following link in your browser:
+
+http://127.0.0.1:5373/#artifacts/req-toml
+
+As you can see, this tutorial has been rendered via the web. You can explore,
+click the links and even edit artifacts in place (edits will change this file).
+
+## End of Part 1
+That is the end part 1 of the tutorial. Run the following for part 2:
+```
+art tutorial 2
+```
+
+To view on the web go to:
+https://github.com/vitiral/artifact/blob/master/src/cmd/data/tutorial.md
+'''

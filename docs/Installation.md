@@ -1,11 +1,13 @@
 This is the installation guide. For more information see the [[User Guide]]
 
+## Typical Installation
 artifact is compiled for linux, mac and windows. You can find releases on the
 **[github release page](https://github.com/vitiral/artifact/releases)**.
 
 For Linux and Mac, simply download and unpack the tarball with
-`tar -zxvf RELEASE.tar.gz`. Then put it somewhere in your
-[PATH](http://unix.stackexchange.com/questions/26047/how-to-correctly-add-a-path-to-path)
+`tar -zxvf RELEASE.tar.gz`. Then put it somewhere in your [PATH][10]
+
+[10]: http://unix.stackexchange.com/questions/26047/how-to-correctly-add-a-path-to-path
 
 ### Windows
 > Note: windows guide is incomplete. Need to add how to add it to your "PATH"
@@ -19,31 +21,27 @@ package on the Arch AUR by [@rubdos][4]:
 
 https://aur.archlinux.org/packages/artifact/
 
+## Building From Source
+Simply execute the following:
+```
+git clone https://github.com/vitiral/artifact
+cd artifact
+source env  # this will take a while
+cargo build --features server --release
+```
+
+Do a full suite of tests with:
+```
+just test-all
+```
+
 ## Installing with [cargo](https://github.com/rust-lang/cargo)
 
 Install rust with [rustup](https://github.com/rust-lang-nursery/rustup.rs) and
-type `cargo install artifact-app` (upgrade with `-f`)
+type `cargo install artifact-app`
 
-Note that as of version 0.6.7 this will not include the web server (but does have static
-html export). That will be fixed in a future release.
-
-## Installing the Server
-
-**Instead of using the server most will want to use [`art export html`][2]**
-
-The `server` command was removed in the run-up to the 1.0 release so that
-development on it could continue without worry of backwards compatibility.
-The server is currently only read-only, you are better off using
-[static html][2] in almost all cases.
-
-To install the server, you must clone the [server branch][3] and use Cargo to
-build it.
-
-```
-cargo build --release --features server
-```
-
-Then copy `target/release/art` somewhere onto your `PATH`
+Note this may never be feature complete and is not the recommended method of
+installation.
 
 [1]: https://github.com/vitiral/artifact
 [2]: https://github.com/vitiral/artifact/blob/master/docs/ExportingHtml.md

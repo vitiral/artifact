@@ -1,14 +1,13 @@
+#!/usr/bin/python2
 '''
 csv loading module
-
-see: REQ-load
 '''
-#!/usr/bin/python2
 import csv
 
 
 class Question(object):
     ''' represents a question and can be asked
+
     partof: #SPC-question
     '''
     def __init__(self, question, answer):
@@ -27,7 +26,7 @@ class Question(object):
 
 def validate_questions(questions):
     ''' given a list of questions, validate them according to spec
-    partof: #SPC-load-validate
+    partof: #SPC-val
     '''
     # check for duplicates
     all_qs = [q.question for q in questions]
@@ -42,9 +41,7 @@ def validate_questions(questions):
 
 
 def load_io(f):
-    ''' load questions from a file
-    partof: #SPC-load-format
-    '''
+    ''' load questions from a file '''
     reader = csv.reader(f)
     questions = []
     for row in reader:
@@ -60,7 +57,7 @@ def load_io(f):
 
 def load_path(path):
     ''' given a path, load a list of validated questions
-    partof: #SPC-load-pth
+    partof: #SPC-load
     '''
     with open(path, 'rb') as f:
         return load_io(f)

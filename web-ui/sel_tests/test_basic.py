@@ -315,7 +315,7 @@ class TestBasic(unittest.TestCase):
             assert app.driver.current_url == url + "/#create"
 
             assert app.get_attr("save", "disabled", timeout=2) == 'true'
-            app.set_value(CREATE, F.name, name_raw, timeout=2)
+            app.set_value(CREATE, F.name, name_raw, timeout=5)
             app.set_value(CREATE, F.raw_text, expected)
             app.add_partof(CREATE, "REQ-purpose")
             app.set_defined(CREATE, PURPOSE_PATH)

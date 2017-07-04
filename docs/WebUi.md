@@ -2,7 +2,7 @@
 
 For an example web ui, see [artifact's own design docs][2]
 
-The artifact Web UI is intended to be simple and intuiative, however
+The artifact Web UI is intended to be simple and intuitive, however
 it can be helpful to have some context.
 
 For more information about artifact, see it's [homepage][1]

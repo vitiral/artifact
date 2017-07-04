@@ -166,7 +166,7 @@ class App(object):
         start = time.time()
         while elem.get_attribute('value') != value:
             time.sleep(0.2)
-            assert time.time() - start < 2, "timeout"
+            assert time.time() - start < 3, "timeout"
 
     def get_items(self, name, field, edit=False, timeout=None):
         """Get the items of artifact in a field."""

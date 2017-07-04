@@ -8,8 +8,9 @@ script_dir = os.path.split(__file__)[0]
 
 
 class TestLoadIo(unittest.TestCase):
+    ''' partof: #TST-load '''
     def test_basic(self):
-        ''' partof: #TST-load-csv '''
+        """Load valid csv string."""
         text = '''\
         one,1
         two,2
@@ -23,7 +24,7 @@ class TestLoadIo(unittest.TestCase):
         self.assertEqual(result, expected)
 
     def test_csv(self):
-        ''' see: TST-load-csv '''
+        """Load a valid csv file."""
         path = os.path.join(script_dir, 'example.csv')
         result = load.load_path(path)
         expected = [
@@ -34,22 +35,8 @@ class TestLoadIo(unittest.TestCase):
         ]
         self.assertEqual(result, expected)
 
-    # Required unit tests
-    # partof: #TST-load-unit
-
     def test_invalid_columns(self):
-        '''
-        see: TST-load-unit
-
-        Note: it's nice to include that a unit test is part of a larger
-        test definition. From personal experience, it is not fun to
-        define every possible tiny test as a full artifact item -- it clutters
-        up your requirements documentation for no reason.
-
-        Even still, in code it is good to specify why a test is being
-        done, so just putting a "see: TST-load-unit" line can be helpful
-        to those reading your code.
-        '''
+        """Try to load csv that has more than 2 columns."""
         # extra ',' after 1
         text = '''\
         one,1,
@@ -59,8 +46,11 @@ class TestLoadIo(unittest.TestCase):
             load.load_io(StringIO(text))
 
     def test_duplicate(self):
-        ''' see: TST-load-unit '''
-        # extra ',' after 1
+        """expect failure when loading a csv file with duplicate names.
+
+        partof: #TST-invalid
+        """
+        # note: extra ',' after 1
         text = '''\
         one,1,
         two,2
@@ -70,7 +60,7 @@ class TestLoadIo(unittest.TestCase):
             load.load_io(StringIO(text))
 
     def test_valid_line_ending(self):
-        # the last line should be able to end with \n
+        r"""The last line should be able to end with '\n'."""
         text = '''\
         one,1
         two,2
