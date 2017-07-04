@@ -11,9 +11,6 @@ pub fn validate(repo: &Path, project: &Project) -> Result<()> {
     files.extend(project.files.iter());
     files.extend(project.repo_map.keys());
 
-    // PARENT_DEF is never written to, so ignore
-    files.remove(&*PARENT_DEF);
-
     for f in files {
         if !f.is_absolute() {
             let msg = format!("{} is not an absolute path", f.display());

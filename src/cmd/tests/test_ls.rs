@@ -65,6 +65,7 @@ text = 'tst for foo'
 [TST-foo_bar]
 partof = 'SPC-foo'
 text = 'tst for foo_bar'
+[TST-line]
 [TST-line-long]
 text = 'This line is very very very very long and it should probably get trimmed down.'
 [TST-line-multi]
@@ -79,6 +80,7 @@ partof = 'SPC-unresolvable-1-1'
 [SPC-unresolvable-1]
 [SPC-unresolvable-1-1]
 
+[REQ-invalid]
 [REQ-invalid-parts]
 partof = 'REQ-dne'
 ";
@@ -92,7 +94,7 @@ recursive reference:\n    SPC-unresolvable              : [SPC-UNRESOLVABLE-1-1]
 SPC-unresolvable-1-1          : [SPC-UNRESOLVABLE-1]\n\nFound implementation \
 links in the code that do not exist:\n    ../../fake:\n    - [42] SPC-dne\n\nHan\
 ging artifacts found (top-level but not partof a higher type)\
-:\n    PARENT                        : TST-LINE\n\n";
+:\n    ../../reqs/foo.toml           : TST-line\n\n";
 
 #[cfg(windows)]
 const LS_SPC_DNE: &'static [u8] = LS_SPC_DNE_NC;
@@ -105,8 +107,8 @@ one recursive reference:\n\x1b[0m    SPC-unresolvable              : [SPC-UNRESO
 \n    SPC-unresolvable-1            : [SPC-UNRESOLVABLE]\n    SPC-unresolvable-1\
 -1          : [SPC-UNRESOLVABLE-1]\n\x1b[1;31m\nFound implementation links in the code that do not \
 exist:\n\x1b[0m\x1b[31m    ../../fake:\n\x1b[0m\x1b[31m    - [42]\x1b[0m SPC-dne\n\x1b[1;31m\n\
-Hanging artifacts found (top-level but not partof a higher type):\n\x1b[0m    \
-PARENT                        : TST-LINE\n\n";
+Hanging artifacts found (top-level but not partof a higher type):\
+\n\x1b[0m    ../../reqs/foo.toml           : TST-line\n\n";
 
 const LS_REQ_FOO_NC: &'static [u8] =
     b"|  | DONE TEST | NAME     | PARTS   \n|D-| 100%  50% | req-foo  | SPC-foo\n";

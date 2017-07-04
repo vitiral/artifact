@@ -14,7 +14,6 @@ lazy_static!{
     // cannot end with "-"
     pub static ref NAME_VALID: Regex = Regex::new(
         &format!("^{}$", NAME_VALID_STR)).unwrap();
-    pub static ref PARENT_DEF: PathBuf = PathBuf::from("PARENT");
     pub static ref REPO_DIR: PathBuf = PathBuf::from(".art");
     pub static ref SETTINGS_PATH: PathBuf = REPO_DIR.join("settings.toml");
 }
@@ -67,7 +66,10 @@ error_chain! {
             description("invalid artifact")
             display("artifact {} is invalid: {}", name, desc)
         }
-
+        MissingParent(name: String, parent: String) {
+            description("missing parent artifact")
+            display("parent {} does not exist for {}", parent, name)
+        }
         // Processing errors
         InvalidTextVariables {
             description("couldn't resolve some text variables")
@@ -155,8 +157,7 @@ impl Default for Project {
             settings: Settings::default(),
             files: HashSet::default(),
             dne_locs: HashMap::default(),
-
-            origin: PARENT_DEF.to_path_buf(),
+            origin: PathBuf::default(),
             repo_map: HashMap::default(),
         }
     }
@@ -265,13 +266,6 @@ pub struct Artifact {
     pub completed: f32,
     /// tested ratio (calculated)
     pub tested: f32,
-}
-
-impl Artifact {
-    /// artifact was automatically created as a parent
-    pub fn is_parent(&self) -> bool {
-        self.def == PARENT_DEF.as_path()
-    }
 }
 
 /// repo settings for loading artifacts

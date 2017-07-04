@@ -32,7 +32,7 @@ pub enum PathDiff {
 impl Default for ProjectText {
     fn default() -> ProjectText {
         ProjectText {
-            origin: PARENT_DEF.to_path_buf(),
+            origin: PathBuf::from("INVALID-ORIGIN"),
             files: HashMap::default(),
         }
     }
@@ -47,9 +47,6 @@ impl ProjectText {
         // TODO: how to make the equivalent of a yielding function,
         // to not copy/paste the path filtering code.
         for (name, artifact) in &project.artifacts {
-            if artifact.def == PARENT_DEF.as_path() {
-                continue; // auto-create artifacts that are not actually written
-            }
             // insert artifact into a table
             if !files.contains_key(&artifact.def) {
                 files.insert(artifact.def.clone(), Table::new());

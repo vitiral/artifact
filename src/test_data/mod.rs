@@ -76,6 +76,8 @@ partof = 'REQ-[foo, bar-[1,2]]'
 text = 'bar'
 done = 'bar is done'
 
+[REQ-parts]
+[REQ-parts-p1]
 [REQ-parts-p1-a]
 [REQ-parts-p1-b]
 
@@ -91,6 +93,8 @@ pub static TOML_RST2: &'static str = "
 // tests specifically made for linking tests
 pub static TOML_LINK: &'static str = "
 [REQ-core]
+[SPC-core]
+[TST-core]
 
 [REQ-core-bob]
 

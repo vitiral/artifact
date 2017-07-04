@@ -93,15 +93,12 @@ impl Artifact {
 
         partof.sort();
         parts.sort();
-        let path = if self.is_parent() {
-            self.def.to_string_lossy().to_string()
-        } else {
-            self.def
-                .strip_prefix(origin)
-                .expect("origin invalid")
-                .to_string_lossy()
-                .to_string()
-        };
+        let path = self.def
+            .strip_prefix(origin)
+            .expect("origin invalid")
+            .to_string_lossy()
+            .to_string();
+
         ArtifactData {
             id: self.id,
             revision: self.revision,
@@ -147,17 +144,12 @@ impl Artifact {
             Done::NotDone
         };
 
-        let path = if Path::new(&data.def) == PARENT_DEF.as_path() {
-            PARENT_DEF.clone()
-        } else {
-            repo.join(&data.def)
-        };
         Ok((
             name,
             Artifact {
                 id: data.id,
                 revision: data.revision,
-                def: path,
+                def: repo.join(&data.def),
                 text: data.text.clone(),
                 partof: partof,
                 done: done,

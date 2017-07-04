@@ -124,6 +124,5 @@ getFiles model current =
                 Nothing ->
                     model.files
     in
-        Set.remove "PARENT" files
-            |> Set.toList
+        Set.toList files
             |> List.sort

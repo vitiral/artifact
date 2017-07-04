@@ -18,14 +18,12 @@
 
 use dev_prefix::*;
 use types::*;
-use utils::unique_id;
 
 pub fn do_links(artifacts: &mut Artifacts) -> Result<()> {
     validate_done(artifacts)?;
 
-    link_named_partofs(artifacts); // MUST come before parents are created
-    create_parents(artifacts);
-    link_parents(artifacts);
+    link_named_partofs(artifacts);
+    link_parents(artifacts)?;
 
     validate_partof(artifacts)?;
 
@@ -34,51 +32,22 @@ pub fn do_links(artifacts: &mut Artifacts) -> Result<()> {
     Ok(())
 }
 
-/// create parents for all artifacts that have no parents
-pub fn create_parents(artifacts: &mut Artifacts) {
-    let mut create_names: Names = HashSet::new();
-    for name in artifacts.keys() {
-        let mut name = name.clone();
-        loop {
-            name = match (&name).parent_rc() {
-                None => break,
-                Some(p) => p,
-            };
-            if artifacts.contains_key(&name) || create_names.contains(&name) {
-                // parent already exists, someone else will make sub-parents
-                // (or sub-parents are already made)
-                break;
-            } else {
-                create_names.insert(name.clone());
-            }
-        }
-    }
-
-    for name in create_names.drain() {
-        let art = Artifact {
-            id: unique_id(),
-            revision: 0,
-            def: PARENT_DEF.clone(),
-            text: "AUTO".to_string(),
-            partof: HashSet::new(),
-            parts: HashSet::new(),
-            done: Done::NotDone,
-            completed: -1.0,
-            tested: -1.0,
-        };
-        artifacts.insert(name, art);
-    }
-}
-
 /// traverse all artifacts and link them to their by-name parent
-pub fn link_parents(artifacts: &mut Artifacts) {
+pub fn link_parents(artifacts: &mut Artifacts) -> Result<()> {
+    let names = Names::from_iter(artifacts.keys().cloned());
     for (name, artifact) in artifacts.iter_mut() {
         let parent = match name.parent_rc() {
             Some(p) => p,
             None => continue,
         };
+        if !names.contains(&parent) {
+            return Err(
+                ErrorKind::MissingParent(name.raw.clone(), parent.raw.clone()).into(),
+            );
+        }
         artifact.partof.insert(parent);
     }
+    Ok(())
 }
 
 /// traverse all artifacts and link them to their by-name type

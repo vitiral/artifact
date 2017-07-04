@@ -260,7 +260,7 @@ mod tests {
 
         let locs = HashMap::from_iter(vec![(Name::from_str("SPC-foo").unwrap(), Loc::fake())]);
         let dne_locs = locs::attach_locs(&mut p.artifacts, locs).unwrap();
-        assert_eq!(num, 7);
+        assert_eq!(num, 9);
         assert_eq!(dne_locs.len(), 0);
         assert!(
             p.artifacts

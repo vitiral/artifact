@@ -147,15 +147,6 @@ fn test_load_repo() {
     // TODO: need to check that completeness makes sense: TST-core-load-loc-resolve
 }
 
-fn remove_parents(project: &mut Project) {
-    let names: Vec<_> = project.artifacts.keys().cloned().collect();
-    for n in &names {
-        if project.artifacts.get(n).unwrap().def == PARENT_DEF.as_path() {
-            project.artifacts.remove(n).unwrap();
-        }
-    }
-}
-
 fn remove_loc(project: &mut Project) {
     for (_, a) in &mut project.artifacts {
         a.done = Done::NotDone;
@@ -177,7 +168,6 @@ fn test_process_project() {
     // (with parents removed)
     {
         let mut new_p = p.clone();
-        remove_parents(&mut new_p);
         user::process_project(&mut new_p).unwrap();
         p.equal(&new_p).expect("no-change");
         p.equal(&original_p).expect("original")
@@ -185,7 +175,6 @@ fn test_process_project() {
     // location should be able to be re-processed
     {
         let mut new_p = p.clone();
-        remove_parents(&mut new_p);
         remove_loc(&mut new_p);
         user::process_project(&mut new_p).unwrap();
         p.equal(&new_p).unwrap();
@@ -210,7 +199,6 @@ fn test_process_project() {
             ..p.clone()
         };
 
-        remove_parents(&mut new_p);
         remove_loc(&mut new_p);
         user::process_project(&mut new_p).unwrap();
 
@@ -246,7 +234,6 @@ fn test_basic_link() {
     link::validate_done(&artifacts).unwrap();
     link::link_named_partofs(&mut artifacts);
 
-    link::create_parents(&mut artifacts);
     // it used to be possible to create these through `name.parent()`
     let prev_root_req = Arc::new(Name {
         raw: "REQ".to_string(),
@@ -259,7 +246,7 @@ fn test_basic_link() {
     assert!(artifacts.contains_key(&NameRc::from_str("REQ-parts-p1-a").unwrap()));
 
     // test linking
-    link::link_parents(&mut artifacts);
+    link::link_parents(&mut artifacts).unwrap();
     link::validate_partof(&artifacts).unwrap();
     assert_eq!(link::link_parts(&mut artifacts), 3);
     assert_eq!(link::set_completed(&mut artifacts), 0);
@@ -358,8 +345,7 @@ fn test_link_completed_tested() {
     }
 
     link::link_named_partofs(&mut artifacts);
-    link::create_parents(&mut artifacts);
-    link::link_parents(&mut artifacts);
+    link::link_parents(&mut artifacts).unwrap();
     link::validate_partof(&artifacts).unwrap();
 
     // just checking that this artifact is good throughout the process
@@ -380,6 +366,12 @@ fn test_link_completed_tested() {
 
     let req_core = artifacts
         .get(&NameRc::from_str("REQ-core").unwrap())
+        .unwrap();
+    let spc_core = artifacts
+        .get(&NameRc::from_str("spc-core").unwrap())
+        .unwrap();
+    let tst_core = artifacts
+        .get(&NameRc::from_str("tst-core").unwrap())
         .unwrap();
     let req_bob = artifacts
         .get(&NameRc::from_str("REQ-core-bob").unwrap())
@@ -502,6 +494,9 @@ fn test_link_completed_tested() {
         (0.75 + spc_bob_2_tested + tst_bob_ct.1) / 3.0,
     );
 
+    let tst_core_ct = ct(&tst_bob);
+    let spc_core_ct = ct(&spc_bob);
+
     assert_eq!(ct(tst_bob_2), (0.5, 0.5));
     assert_eq!(ct(tst_bob_2_a), (1., 1.));
     assert_eq!(ct(tst_bob_2_b), (0., 0.));
@@ -528,7 +523,12 @@ fn test_link_completed_tested() {
     assert_eq!(ct(&spc_bob), spc_bob_ct);
     assert_eq!(ct(&req_bob), spc_bob_ct);
 
-    assert_eq!(ct(&req_core), avg(&[spc_bob_ct, (0.0, 0.0), (0.0, 0.0)]));
+    assert_eq!(ct(&tst_core), tst_core_ct);
+    assert_eq!(ct(&spc_core), spc_core_ct);
+    assert_eq!(
+        ct(&req_core),
+        avg(&[spc_bob_ct, spc_core_ct, (0.0, 0.0), (0.0, 0.0)])
+    );
 
     // Test "done" field
     assert_eq!(req_done.done, Done::Defined("test".to_string()));
