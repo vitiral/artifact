@@ -161,7 +161,9 @@ class App(object):
     def set_value(self, name, field, value, timeout=None):
         """Set the value in an editable field and assert it gets set."""
         elem = self.find_id(field_id(name, field, edit=True), timeout)
+        time.sleep(0.1)
         elem.send_keys(Keys.LEFT_CONTROL, "a")
+        time.sleep(0.2)
         elem.send_keys(value)
         start = time.time()
         while elem.get_attribute('value') != value:

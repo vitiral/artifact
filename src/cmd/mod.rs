@@ -52,7 +52,7 @@ pub fn get_loglevel(matches: &ArgMatches) -> Option<(u8, bool)> {
     let verbosity = match matches.occurrences_of("verbose") {
         v @ 0...3 => v,
         _ => {
-            eprintln!("ERROR: verbosity cannot be higher than 3");
+            println!("ERROR: verbosity cannot be higher than 3"); // TODO: change to eprintln
             return None;
         }
     } as u8;

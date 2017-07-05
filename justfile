@@ -135,6 +135,7 @@ publish:
 	git diff --no-ext-diff --quiet --exit-code
 	@# test all and commit
 	just test-all
+	rustup run stable cargo test --features server
 	just build
 	git commit -a -m "v{{version}} release"
 	@# push to cargo

@@ -77,8 +77,8 @@ partof = "SPC-cmd"
 text = '''
 The questions **shall** be presented randomly.
 
-Questions that are missed **shall** be given a higher weight to being asked
-again, to help the user learn.
+Questions that are answered incorrectly **shall** be given a higher weight to
+being asked again, to help the user learn.
 '''
 
 [TST-cmd]
