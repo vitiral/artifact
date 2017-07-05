@@ -58,13 +58,6 @@ while also making development easier and more fun.
 Artifact is now (finally) feature complete for 1.0. The 0.8 release has been
 released and 1.0 is probably coming within a few weeks.
 
-#### Future Improvements
-- [#85][10]: Web Server requirements, including editing functionality
-- [#58][11]: Test Tracking Server/Database for tracking regression tests
-
-[10]: https://github.com/vitiral/artifact/issues/85
-[11]: https://github.com/vitiral/artifact/issues/58
-
 ## Contributors
 To set up a build environment and run tests, simply run:
 ```
