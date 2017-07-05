@@ -114,4 +114,5 @@ in `docs/logo` and was originally created by @packapotatoes
 
 The artifact source code (located in `src/` and `web-ui/src`) are licensed under
 the LGPLv3+, except for files which say otherwise in their header or folders
-containing a different LICENSE.txt. See LICENSE.txt for more information.
+containing a different `LICENSE` file. See [LICENSE.txt](License.txt) for more
+information.
