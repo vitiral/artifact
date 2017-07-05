@@ -9,20 +9,19 @@
 [2]: http://vitiral.github.io/artifact/#artifacts/REQ-1
 [3]: https://github.com/vitiral/artifact/wiki/Exporting-Html
 
-Artifact is a design doc tool made for developers. It allows anyone to
-easily write and link their design docs both to each other and to source code,
-making it easy to track how complete their project is.
-Documents are revision controllable, can be rendered as a static
-web page and have a full suite of command line tools for searching,
-formatting and displaying them.
+Artifact is a design doc tool made for developers. It allows anyone to easily
+write and link their design docs both to each other and to source code, making
+it easy to track how complete their project is. Documents are revision
+controllable, can be rendered as a static web page and have a full suite of
+command line tools for searching, formatting and displaying them.
 
-Writing detailed design documents is one of the core pillars of quality
-software development. Design documents are how you capture the requirements
-(purpose) of your project and link them to your specifications (how you will
-build it). They let you get your ideas on paper before writing code, and help
-you have fewer painful refactors. They create a reference for developers and
-curious users of how and why your project was developed a certain way, and make
-it easier to refactor your project when that becomes necessary.
+Writing detailed design documents is one of the core pillars of quality software
+development. Design documents are how you capture the requirements (purpose) of
+your project and link them to your specifications (how you will build it). They
+let you get your ideas on paper before writing code, and help you have fewer
+painful refactors. They create a reference for developers and curious users of
+how and why your project was developed a certain way, and make it easier to
+refactor your project when that becomes necessary.
 
 Even though design documents are critical to the quality of software, there
 are very few tools for writing them and integrating them into the larger context
@@ -56,11 +55,8 @@ while also making development easier and more fun.
 ![logo](docs/logo/logo.png)
 
 ### Pre-release notice
-Artifact is now feature complete for 1.0. The 0.6 release has been released and
-will have about a month long soak process while the tool is used by as many
-projects as possible. Further changes before 1.0 are not expected, but may
-still be necessary. After the soak, the plan is to cut the 1.0 release which
-will disallow backwards incompatible changes.
+Artifact is now (finally) feature complete for 1.0. The 0.8 release has been
+released and 1.0 is probably coming within a few weeks.
 
 #### Future Improvements
 - [#85][10]: Web Server requirements, including editing functionality
