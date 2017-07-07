@@ -4,6 +4,7 @@ use serde_json;
 
 use dev_prefix::*;
 use types::*;
+use cmd::check;
 
 #[derive(Serialize, Deserialize, Debug, Clone, Eq, PartialEq)]
 pub struct LocData {
@@ -38,6 +39,7 @@ pub struct ArtifactData {
 pub struct ProjectData {
     pub artifacts: Vec<ArtifactData>,
     pub files: Vec<String>,
+    pub checked: String,
 }
 
 fn default_comp_tested() -> f32 {
@@ -61,9 +63,15 @@ impl Project {
             })
             .collect();
 
+        let mut checked: Vec<u8> = Vec::new();
+        let cmd = check::Cmd { color: false };
+
+        check::display_check(&mut checked, &self.origin, self, &cmd);
+
         ProjectData {
             artifacts: artifacts,
             files: files,
+            checked: String::from_utf8(checked).expect("invalid-utf8 from checked"),
         }
     }
 }

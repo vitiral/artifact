@@ -35,14 +35,13 @@ partof model option =
                 ReadChoice artifact ->
                     let
                         poItem ( _, name ) =
-                            li
-                                [ class "underline" ]
+                            li []
                                 [ View.seeArtifactName model name option "partof" ]
 
-                        createPo =
+                        add =
                             []
                     in
-                        ( artifact.partof, createPo, poItem )
+                        ( artifact.partof, add, poItem )
 
                 EditChoice choice ->
                     let

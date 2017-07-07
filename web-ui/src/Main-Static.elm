@@ -32,6 +32,7 @@ initialModel location flags route =
     in
         { artifacts = artifacts
         , files = Set.empty
+        , checked = ""
         , names = nameIds artifacts
         , route = route
         , location = location

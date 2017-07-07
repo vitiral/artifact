@@ -24,8 +24,14 @@ update msg model =
             let
                 ( new_model, cmd ) =
                     handleReceived model project.artifacts
+
+                final_model =
+                    { new_model
+                        | files = project.files
+                        , checked = project.checked
+                    }
             in
-                ( { new_model | files = project.files }, cmd )
+                ( final_model, cmd )
 
         ShowArtifacts ->
             ( model, Navigation.newUrl artifactsUrl )

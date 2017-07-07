@@ -36,6 +36,8 @@ There are three types of artifact:
 - `TST`: details of what to test for a SPC
 
 ## Artifact Format
+Artifact uses toml files to specify the design documents (artifacts).
+The format looks like:
 ```
 [REQ-name]
 partof = REQ-other

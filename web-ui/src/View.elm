@@ -1,11 +1,14 @@
 module View exposing (..)
 
 import Html exposing (..)
+import Markdown exposing (toHtml)
 import Messages exposing (AppMsg(..), Route(..))
 import Models exposing (..)
 import Artifacts.Models exposing (..)
 import Artifacts.List
 import Artifacts.Edit
+import Artifacts.Nav as Nav
+import Help
 
 
 view : Model -> Html AppMsg
@@ -44,6 +47,17 @@ page model =
                 |> EditChoice
                 |> Artifacts.Edit.view model
 
+        CheckRoute ->
+            viewCheck model
+
+        HelpRoute route ->
+            case Help.getPage route of
+                Just h ->
+                    div [] [ Nav.bar model <| Nav.helpBar, Help.viewPage h ]
+
+                Nothing ->
+                    text <| "Help page " ++ route ++ " not found."
+
         NotFoundRoute ->
             notFoundView
 
@@ -67,4 +81,12 @@ notFoundView : Html a
 notFoundView =
     div []
         [ text "Artifact Name Not Found"
+        ]
+
+
+viewCheck : Model -> Html a
+viewCheck model =
+    div []
+        [ h1 [] [ text "Failed Checks" ]
+        , toHtml [] model.checked
         ]

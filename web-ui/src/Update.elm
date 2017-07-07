@@ -1,6 +1,7 @@
 module Update exposing (..)
 
-import Messages exposing (AppMsg(..), formatHttpError)
+import Navigation
+import Messages exposing (AppMsg(..), formatHttpError, helpUrl, helpRepr, checkUrl)
 import Models exposing (Model, LogMsg(..))
 import Log
 import Utils
@@ -23,13 +24,21 @@ update msg model =
         RouteChange route ->
             ( { model | route = route }, Cmd.none )
 
-        -- TODO: these should do some kind of command to clear the
-        -- error later
         HttpError err ->
             ( Log.log model <| LogErr <| formatHttpError err, Cmd.none )
 
         AppError err ->
             ( Log.log model <| LogErr <| "AppError: " ++ err, Cmd.none )
+
+        ShowHelp page ->
+            let
+                url =
+                    "#" ++ helpUrl ++ "/" ++ (helpRepr page)
+            in
+                ( model, Navigation.newUrl url )
+
+        ShowCheck ->
+            ( model, Navigation.newUrl <| "#" ++ checkUrl )
 
         Noop ->
             ( model, Cmd.none )

@@ -12,7 +12,7 @@ import Html.Events exposing (onClick)
 import Utils exposing (..)
 import Models exposing (..)
 import Log
-import Messages exposing (AppMsg(..))
+import Messages exposing (helpRepr, HelpPage(..), AppMsg(..))
 import Artifacts.Models exposing (..)
 import Artifacts.Messages exposing (..)
 
@@ -26,7 +26,9 @@ bar model elements =
         [ div
             [ class "clearfix mb2 white bg-black p1" ]
             (List.concat
-                [ elements
+                [ [ helpBtn HelpMain True ]
+                , checkBtn model
+                , elements
                 , editingBtn model
                 ]
             )
@@ -92,6 +94,11 @@ editBar model option =
 editingBar : Model -> List (Html AppMsg)
 editingBar model =
     [ listBtn, createBtn, blockReload ]
+
+
+helpBar : List (Html AppMsg)
+helpBar =
+    [ listBtn, createBtn ]
 
 
 
@@ -196,13 +203,30 @@ deleteBtn artifact =
         ]
 
 
+checkBtn : Model -> List (Html AppMsg)
+checkBtn model =
+    if model.checked == "" then
+        []
+    else
+        [ button
+            [ class "btn regular"
+            , id "check"
+            , title "some checks failed"
+            , onClick ShowCheck
+            ]
+            [ i [ class "fa fa-exclamation-circle mr1" ] []
+            , text "Checks"
+            ]
+        ]
+
+
 {-| a button for switching to the editing page
 -}
 editingBtn : Model -> List (Html AppMsg)
 editingBtn model =
     let
         unblock =
-            []
+            [ unBlockReload ]
 
         editing =
             Dict.values model.artifacts
@@ -246,7 +270,7 @@ blockReload =
 
 unBlockReload : Html AppMsg
 unBlockReload =
-    scriptRun "window.onbeforeunload = function(e) { e.returnValue = undefined; return undefined; }"
+    scriptRun "window.onbeforeunload = null"
 
 
 script : List (Attribute msg) -> List (Html msg) -> Html msg
@@ -352,3 +376,34 @@ checkDef model edited =
         Ok edited.def
     else
         Err "invalid definition path"
+
+
+{-| navigate to a help page
+-}
+helpBtn : HelpPage -> Bool -> Html AppMsg
+helpBtn page full =
+    let
+        ( repr, t ) =
+            case page of
+                HelpMain ->
+                    ( "help", "Help" )
+
+                _ ->
+                    ( helpRepr page, "help for " ++ (helpRepr page) )
+
+        elems =
+            if full then
+                [ i [ class "fa fa-info-circle mr1" ] []
+                , text <| t
+                ]
+            else
+                [ i [ class "fa fa-info-circle mr1" ] []
+                ]
+    in
+        button
+            [ class "btn regular"
+            , id <| "help_" ++ repr
+            , title <| t
+            , onClick <| ShowHelp page
+            ]
+            elems

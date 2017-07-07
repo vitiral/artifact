@@ -65,7 +65,7 @@ fn display_invalid_partof<W: Write>(w: &mut W, cwd: &Path, project: &Project, cm
             }
             write!(
                 msg,
-                "    {} [{}]: {:?}\n",
+                "- {} [{}]: {:?}\n",
                 name,
                 utils::relative_path(&artifact.def, cwd).display(),
                 invalid_partof
@@ -156,7 +156,7 @@ fn display_unresolvable<W: Write>(w: &mut W, project: &Project, cmd: &Cmd) -> u6
         unresolved_partof.sort_by(|a, b| a.0.cmp(&b.0));
         for (name, partof) in unresolved_partof.drain(0..) {
             let mut msg = String::new();
-            write!(msg, "    {:<30}: {:?}\n", name.to_string(), partof).unwrap();
+            write!(msg, "- {:<30}: {:?}\n", name.to_string(), partof).unwrap();
             write!(w, "{}", msg).unwrap();
         }
     }
@@ -191,14 +191,14 @@ fn display_invalid_locs<W: Write>(w: &mut W, cwd: &Path, project: &Project, cmd:
             let mut pathstr = String::new();
             write!(
                 pathstr,
-                "    {}:\n",
+                "- {}:\n",
                 utils::relative_path(&path, cwd).display()
             ).unwrap();
             paint_it(w, &pathstr, cmd);
             locs.sort_by(|a, b| a.1.line.cmp(&b.1.line));
             for (name, loc) in locs {
                 let mut loc_str = String::new();
-                write!(loc_str, "    - [{}]", loc.line).unwrap();
+                write!(loc_str, "  - [{}]", loc.line).unwrap();
                 paint_it(w, &loc_str, cmd);
                 write!(w, " {}\n", name).unwrap();
             }
@@ -231,7 +231,7 @@ fn display_hanging_artifacts<W: Write>(w: &mut W, cwd: &Path, project: &Project,
             let mut msg = String::new();
             write!(
                 msg,
-                "    {:<30}: {}\n",
+                "- {:<30}: {}\n",
                 utils::relative_path(p, cwd).display(),
                 h
             ).unwrap();
@@ -281,14 +281,14 @@ fn display_hanging_references<W: Write>(
             paint_it(
                 w,
                 &format!(
-                    "    {} ({}):\n",
+                    "- {} ({}):\n",
                     name,
                     utils::relative_path(&artifact.def, cwd).display()
                 ),
                 cmd,
             );
             for f in found {
-                write!(w, "    - {}", f).unwrap();
+                write!(w, "  - {}", f).unwrap();
             }
         }
     }
@@ -299,21 +299,24 @@ pub struct Cmd {
     pub color: bool,
 }
 
-/// #SPC-cmd-check
-#[allow(cyclomatic_complexity)] // TODO: break this up
-pub fn run_cmd<W: Write>(w: &mut W, cwd: &Path, project: &Project, cmd: &Cmd) -> Result<u8> {
-    let mut error: u64 = 0;
 
+pub fn display_check<W: Write>(w: &mut W, cwd: &Path, project: &Project, cmd: &Cmd) -> u64 {
+    let mut error: u64 = 0;
     error += display_invalid_partof(w, cwd, project, cmd);
     error += display_unresolvable(w, project, cmd);
     error += display_invalid_locs(w, cwd, project, cmd);
     error += display_hanging_artifacts(w, cwd, project, cmd);
     error += display_hanging_references(w, cwd, project, cmd);
+    error
+}
 
+/// #SPC-cmd-check
+pub fn run_cmd<W: Write>(w: &mut W, cwd: &Path, project: &Project, cmd: &Cmd) -> Result<u8> {
+    let error = display_check(w, cwd, project, cmd);
     if error == 0 {
         let mut msg = String::new();
         write!(msg, "art check: no errors found in {}\n", cwd.display()).unwrap();
-        if COLOR_IF_POSSIBLE {
+        if cmd.color {
             write!(w, "{}", Green.paint(msg)).unwrap();
         } else {
             write!(w, "{}", msg).unwrap();

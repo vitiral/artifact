@@ -121,7 +121,6 @@ implementedBasic model artifact =
                     ( [ class "italic gray" ], text "not directly implemented" )
 
                 ( Just _, Just _ ) ->
-                    -- TODO: send error message
                     ( [ class "bold red" ], text "ERROR: code+done both set" )
     in
         span (s ++ [ getId "implemented" artifact Nothing ]) [ d ]
@@ -137,8 +136,7 @@ parts model artifact =
         [ getId "parts" artifact Nothing ]
         (List.map
             (\p ->
-                li
-                    [ class "underline" ]
+                li []
                     [ seeArtifactName model p (ReadChoice artifact) "parts" ]
             )
             artifact.parts

@@ -17,6 +17,16 @@ editingUrl =
     "unsaved"
 
 
+helpUrl : String
+helpUrl =
+    "help"
+
+
+checkUrl : String
+checkUrl =
+    "check"
+
+
 
 -- TYPES
 
@@ -26,7 +36,36 @@ type Route
     | ArtifactNameRoute String
     | ArtifactCreateRoute
     | ArtifactEditingRoute
+    | CheckRoute
+    | HelpRoute String
     | NotFoundRoute
+
+
+type HelpPage
+    = HelpMain
+    | HelpName
+    | HelpParts
+    | HelpPartof
+    | HelpEdit
+
+
+helpRepr : HelpPage -> String
+helpRepr page =
+    case page of
+        HelpMain ->
+            ""
+
+        HelpName ->
+            "name"
+
+        HelpParts ->
+            "parts"
+
+        HelpPartof ->
+            "partof"
+
+        HelpEdit ->
+            "edit"
 
 
 type AppMsg
@@ -35,6 +74,8 @@ type AppMsg
     | RouteChange Route
     | HttpError Http.Error
     | AppError String
+    | ShowHelp HelpPage
+    | ShowCheck
     | Noop
 
 

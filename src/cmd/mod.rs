@@ -36,7 +36,7 @@ mod export;
 mod types;
 mod matches;
 mod ls;
-mod check;
+pub mod check;
 mod display;
 mod fmt;
 mod init;

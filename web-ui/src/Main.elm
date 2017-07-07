@@ -24,6 +24,7 @@ initialModel : Navigation.Location -> Flags -> Route -> Model
 initialModel location flags route =
     { artifacts = artifactsFromStrUnsafe "[]"
     , files = Set.empty
+    , checked = ""
     , names = Dict.empty
     , route = route
     , location = location

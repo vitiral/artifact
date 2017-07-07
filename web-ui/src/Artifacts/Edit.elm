@@ -159,7 +159,7 @@ formColumnTwo model option =
     div [ class "col col-6" ]
         [ h3 [] [ text "Text" ]
         , selectRenderedBtns model option
-        , displayText model option
+        , div [ class "border border-black" ] [ displayText model option ]
         ]
 
 
@@ -230,23 +230,34 @@ selectRenderedBtns model option =
         textView =
             model.state.textView
 
+        --( rendered_clr, raw_clr ) =
+        --    if isTextRendered model option then
+        --        ( "black", "gray" )
+        --    else
+        --        ( "gray", "black" )
         ( rendered_clr, raw_clr ) =
             if isTextRendered model option then
-                ( "black", "gray" )
+                ( "btn-primary", "" )
             else
-                ( "gray", "black" )
+                ( "", "btn-primary" )
+
+        cls =
+            "btn "
+
+        cls2 =
+            " border border-black"
     in
-        span []
+        div []
             [ button
                 -- rendered
-                [ class ("btn bold " ++ rendered_clr)
+                [ class (cls ++ rendered_clr ++ cls2)
                 , id <| (View.idPrefix option) ++ "select_rendered_text"
                 , onClick <| ArtifactsMsg <| ChangeTextViewState <| newView True
                 ]
                 [ text "rendered" ]
             , button
                 -- raw
-                [ class ("btn bold " ++ raw_clr)
+                [ class (cls ++ raw_clr ++ cls2)
                 , id <| (View.idPrefix option) ++ "select_raw_text"
                 , onClick <| ArtifactsMsg <| ChangeTextViewState <| newView False
                 ]

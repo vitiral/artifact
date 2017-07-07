@@ -86,29 +86,28 @@ partof = 'REQ-dne'
 ";
 
 
-const LS_SPC_DNE_NC: &'static [u8] = b"\nFound partof names that do not exist\
-:\n    REQ-invalid-parts \
-[../../reqs/foo.toml]: {REQ-DNE}\n\nArtifacts partof contains at least one \
-recursive reference:\n    SPC-unresolvable              : [SPC-UNRESOLVABLE-1-1]\
-\n    SPC-unresolvable-1            : [SPC-UNRESOLVABLE]\n    \
-SPC-unresolvable-1-1          : [SPC-UNRESOLVABLE-1]\n\nFound implementation \
-links in the code that do not exist:\n    ../../fake:\n    - [42] SPC-dne\n\nHan\
-ging artifacts found (top-level but not partof a higher type)\
-:\n    ../../reqs/foo.toml           : TST-line\n\n";
+const LS_SPC_DNE_NC: &'static [u8] = b"\nFound partof names that do not exist:\n\
+- REQ-invalid-parts [../../reqs/foo.toml]: {REQ-DNE}\n\nArtifacts partof contain\
+s at least one recursive reference:\n- SPC-unresolvable              : [SPC-UNRE\
+SOLVABLE-1-1]\n- SPC-unresolvable-1            : [SPC-UNRESOLVABLE]\n- SPC-unres\
+olvable-1-1          : [SPC-UNRESOLVABLE-1]\n\nFound implementation links in th\
+e code that do not exist:\n- ../../fake:\n  - [42] SPC-dne\n\nHanging artifact\
+s found (top-level but not partof a higher type):\n- ../../reqs/foo.tom\
+l           : TST-line\n\n";
 
 #[cfg(windows)]
 const LS_SPC_DNE: &'static [u8] = LS_SPC_DNE_NC;
 
 #[cfg(not(windows))]
-const LS_SPC_DNE: &'static [u8] = b"\x1b[1;31m\nFound partof names that do not exist\
-:\n\x1b[0m\x1b[31m    REQ-inva\
-lid-parts [../../reqs/foo.toml]: {REQ-DNE}\n\x1b[0m\x1b[1;31m\nArtifacts partof contains at least \
-one recursive reference:\n\x1b[0m    SPC-unresolvable              : [SPC-UNRESOLVABLE-1-1]\
-\n    SPC-unresolvable-1            : [SPC-UNRESOLVABLE]\n    SPC-unresolvable-1\
--1          : [SPC-UNRESOLVABLE-1]\n\x1b[1;31m\nFound implementation links in the code that do not \
-exist:\n\x1b[0m\x1b[31m    ../../fake:\n\x1b[0m\x1b[31m    - [42]\x1b[0m SPC-dne\n\x1b[1;31m\n\
-Hanging artifacts found (top-level but not partof a higher type):\
-\n\x1b[0m    ../../reqs/foo.toml           : TST-line\n\n";
+const LS_SPC_DNE: &'static [u8] = b"\x1b[1;31m\nFound partof names that do not e\
+xist:\n\x1b[0m\x1b[31m- REQ-invalid-parts [../../reqs/foo.toml]: {REQ-DNE}\n\
+\x1b[0m\x1b[1;31m\nArtifacts partof contains at least one recursive reference:\n\
+\x1b[0m- SPC-unresolvable              : [SPC-UNRESOLVABLE-1-1]\n- SPC-unresolva\
+ble-1            : [SPC-UNRESOLVABLE]\n- SPC-unresolvable-1-1          : [SPC-UN\
+RESOLVABLE-1]\n\x1b[1;31m\nFound implementation links in the code that do not ex\
+ist:\n\x1b[0m\x1b[31m- ../../fake:\n\x1b[0m\x1b[31m  - [42]\x1b[0m SPC-dne\n\
+\x1b[1;31m\nHanging artifacts found (top-level but not partof a higher type):\n\
+\x1b[0m- ../../reqs/foo.toml           : TST-line\n\n";
 
 const LS_REQ_FOO_NC: &'static [u8] =
     b"|  | DONE TEST | NAME     | PARTS   \n|D-| 100%  50% | req-foo  | SPC-foo\n";
