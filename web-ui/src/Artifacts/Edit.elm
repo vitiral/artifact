@@ -9,7 +9,7 @@ import Markdown exposing (toHtml)
 import Models exposing (Model, getArtifact, memberArtifact, getCreateArtifact)
 import Styles exposing (warning)
 import Artifacts.Models exposing (..)
-import Messages exposing (createUrl, AppMsg(..))
+import Messages exposing (createUrl, AppMsg(..), HelpPage(..))
 import Artifacts.Messages exposing (..)
 import Artifacts.View as View
 import Artifacts.Select as Select
@@ -34,26 +34,35 @@ view model option =
             else
                 Nav.bar model <| Nav.editBar model option
 
-        original =
+        editing_head =
+            h1 [ id "editing_head" ]
+                [ text "Editing"
+                , Nav.helpBtn HelpEdit False
+                ]
+
+        ( original, editing ) =
             case option of
                 ReadChoice choice ->
-                    []
+                    ( [], [] )
 
                 EditChoice choice ->
                     case choice of
                         ChangeChoice artifact _ ->
                             -- Header for original view
-                            [ h1 [ id "original_head" ] [ text "Previous:" ]
-                            , form model (ReadChoice artifact)
-                            ]
+                            ( [ h1 [ id "original_head" ] [ text "Previous:" ]
+                              , form model <| ReadChoice artifact
+                              ]
+                            , [ editing_head ]
+                            )
 
                         CreateChoice _ ->
-                            []
+                            ( [], [ editing_head ] )
     in
         div [ viewIdAttr option ] <|
             List.concat
                 [ [ nav ]
                 , revisionWarnings model option
+                , editing
                 , [ form model option ]
                 , original
                 ]
@@ -122,7 +131,10 @@ formColumnOne : Model -> ViewOption -> Html AppMsg
 formColumnOne model option =
     let
         partofEls =
-            [ h3 [] [ text "Partof" ]
+            [ h3 []
+                [ text "Partof"
+                , Nav.helpBtn HelpPartof False
+                ]
             , Select.partof model option
             ]
 
@@ -136,7 +148,10 @@ formColumnOne model option =
                     , div [ class "clearfix py1" ]
                         [ div [ class "col col-6" ] partofEls
                         , div [ class "col col-6" ]
-                            [ h3 [] [ text "Parts" ]
+                            [ h3 []
+                                [ text "Parts"
+                                , Nav.helpBtn HelpParts False
+                                ]
                             , View.parts model artifact
                             ]
                         ]
@@ -157,7 +172,10 @@ formColumnOne model option =
 formColumnTwo : Model -> ViewOption -> Html AppMsg
 formColumnTwo model option =
     div [ class "col col-6" ]
-        [ h3 [] [ text "Text" ]
+        [ h3 []
+            [ text "Text"
+            , Nav.helpBtn HelpText False
+            ]
         , selectRenderedBtns model option
         , div [ class "border border-black" ] [ displayText model option ]
         ]
@@ -175,7 +193,11 @@ nameElements model option =
     in
         case option of
             ReadChoice artifact ->
-                [ h1 [ name_id ] [ text artifact.name.raw ] ]
+                [ h1 [ name_id ]
+                    [ text artifact.name.raw
+                    , Nav.helpBtn HelpName False
+                    ]
+                ]
 
             EditChoice choice ->
                 let
@@ -196,13 +218,16 @@ nameElements model option =
                                 setEdited choice { edited | name = t }
 
                     input_el =
-                        input
-                            [ class "h1"
-                            , name_id
-                            , onInput editMsg
-                            , value edited.name
+                        div []
+                            [ input
+                                [ class "h1"
+                                , name_id
+                                , onInput editMsg
+                                , value edited.name
+                                ]
+                                []
+                            , Nav.helpBtn HelpName False
                             ]
-                            []
                 in
                     [ input_el ] ++ warn_els
 
@@ -401,6 +426,10 @@ replaceArtifactLinks model text =
         Regex.replace Regex.All artifactLinkRegex replace text
 
 
+
+-- TODO: don't let the user define as done artifacts that are implemented!
+
+
 doneFieldEdit : Model -> EditOption -> Html AppMsg
 doneFieldEdit model option =
     let
@@ -413,7 +442,10 @@ doneFieldEdit model option =
                 |> ArtifactsMsg
     in
         div []
-            [ span [ class "bold" ] [ text "define as done: " ]
+            [ span [ class "bold" ]
+                [ text "Define as done:"
+                , Nav.helpBtn HelpDone False
+                ]
             , input
                 [ View.idAttr "done" <| EditChoice option
                 , onInput editMsg
@@ -469,7 +501,9 @@ viewEditing model =
         header =
             h1
                 [ class "h1" ]
-                [ text "Artifacts you have not yet saved." ]
+                [ text "Artifacts you have not yet saved."
+                , Nav.helpBtn HelpEdit False
+                ]
     in
         div [ id "editing_view" ]
             [ Nav.bar model <| Nav.editingBar model

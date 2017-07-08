@@ -51,3 +51,13 @@ blockquote {
   -webkit-appearance: none;
   color: inherit;
 }
+
+.art-info {
+  cursor: pointer;
+  color: black;
+  font-size: .75rem;
+  vertical-align: top;
+  margin: 0;
+  padding-right: .5rem;
+  padding-left: .25rem;
+}

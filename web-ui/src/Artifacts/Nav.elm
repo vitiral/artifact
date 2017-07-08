@@ -48,8 +48,7 @@ listBar model =
                 [ createBtn ]
     in
         (List.concat
-            [ [ text "Artifacts" ]
-            , create
+            [ create
             ]
         )
 
@@ -114,7 +113,9 @@ listBtn =
         , id "list"
         , onClick <| ArtifactsMsg ShowArtifacts
         ]
-        [ text "List" ]
+        [ i [ class "fa fa-search mr1" ] []
+        , text "List"
+        ]
 
 
 {-| navigate to the create page
@@ -383,27 +384,33 @@ checkDef model edited =
 helpBtn : HelpPage -> Bool -> Html AppMsg
 helpBtn page full =
     let
-        ( repr, t ) =
+        ( url, repr, t ) =
             case page of
                 HelpMain ->
-                    ( "help", "Help" )
+                    ( "help/", "help", "Help" )
 
                 _ ->
-                    ( helpRepr page, "help for " ++ (helpRepr page) )
-
-        elems =
-            if full then
-                [ i [ class "fa fa-info-circle mr1" ] []
-                , text <| t
-                ]
-            else
-                [ i [ class "fa fa-info-circle mr1" ] []
-                ]
+                    let
+                        repr =
+                            helpRepr page
+                    in
+                        ( "help/" ++ repr, repr, "help for " ++ repr )
     in
-        button
-            [ class "btn regular"
-            , id <| "help_" ++ repr
-            , title <| t
-            , onClick <| ShowHelp page
-            ]
-            elems
+        if full then
+            button
+                [ class "btn regular"
+                , id <| "help_" ++ repr
+                , title <| t
+                , onClick <| ShowHelp page
+                ]
+                [ i [ class "fa fa-info-circle mr1" ] []
+                , text t
+                ]
+        else
+            a
+                [ id <| "help_" ++ repr
+                , title <| t
+                , onClick <| ShowHelp page
+                , href <| "#" ++ url
+                ]
+                [ i [ class "fa fa-info-circle art-info" ] [] ]

@@ -90,7 +90,7 @@ searchBar model =
             model.state.search
     in
         span []
-            [ span [ class "bold" ] [ text "Search: " ]
+            [ i [ class "fa fa-search ml1 mr1" ] []
             , searchAttrBtn "name" sch.name (\s -> { sch | name = s })
             , searchAttrBtn "parts" sch.parts (\s -> { sch | parts = s })
             , searchAttrBtn "partof" sch.partof (\s -> { sch | partof = s })

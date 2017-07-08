@@ -84,9 +84,10 @@ notFoundView =
         ]
 
 
-viewCheck : Model -> Html a
+viewCheck : Model -> Html AppMsg
 viewCheck model =
     div []
-        [ h1 [] [ text "Failed Checks" ]
+        [ Nav.bar model Nav.helpBar
+        , h1 [] [ text "Failed Checks" ]
         , toHtml [] model.checked
         ]

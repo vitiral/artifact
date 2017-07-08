@@ -46,6 +46,10 @@ type HelpPage
     | HelpName
     | HelpParts
     | HelpPartof
+    | HelpText
+    | HelpDefined
+    | HelpImplemented
+    | HelpDone
     | HelpEdit
 
 
@@ -63,6 +67,18 @@ helpRepr page =
 
         HelpPartof ->
             "partof"
+
+        HelpText ->
+            "text"
+
+        HelpDefined ->
+            "defined"
+
+        HelpImplemented ->
+            "implemented"
+
+        HelpDone ->
+            "done"
 
         HelpEdit ->
             "edit"

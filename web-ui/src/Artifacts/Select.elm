@@ -9,7 +9,7 @@ import Html.Attributes exposing (value, class, href, title, id, selected)
 import Html.Events exposing (onClick, on, targetValue)
 import Json.Decode as Json
 import Styles exposing (warning)
-import Messages exposing (AppMsg(..), Route(..))
+import Messages exposing (AppMsg(..), Route(..), HelpPage(..))
 import Models exposing (Model, getArtifact, memberArtifact, getFiles)
 import Utils exposing (..)
 import Artifacts.Models exposing (..)
@@ -305,7 +305,10 @@ defined model option =
                     editDefined model choice
     in
         div []
-            [ span [ class "bold" ] [ text "Defined at: " ]
+            [ span [ class "bold" ]
+                [ text "Defined at:"
+                , Nav.helpBtn HelpDefined False
+                ]
             , element
             ]
 

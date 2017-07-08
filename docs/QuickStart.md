@@ -105,8 +105,8 @@ As you can see you can view and edit rendered html.
 https://vitiral.github.io/artifact-example/
 
 ## Next
-For a quick overview of all features, check out the [Cheat
-Sheet](CheatSheet.md).
+For a quick overview of all features, check out the
+[Cheat Sheet](CheatSheet.md).
 
 For a more in depth tutorial, see the [Simple Quality][1] book.
 

@@ -8,18 +8,22 @@ import String
 import Html exposing (..)
 import Html.Attributes exposing (value, class, href, title, id, selected)
 import Html.Events exposing (onClick, onInput)
-import Messages exposing (AppMsg(..), Route(..))
+import Messages exposing (AppMsg(..), Route(..), HelpPage(..))
 import Models exposing (Model, getArtifact, memberArtifact)
 import Utils
 import Artifacts.Models exposing (..)
 import Artifacts.Messages exposing (Msg(..))
+import Artifacts.Nav as Nav
 
 
 completion : Artifact -> Html AppMsg
 completion artifact =
     div [ class "clearfix py1" ]
         [ div [ class "col col-6" ]
-            [ span [ class "bold" ] [ text "Implemented: " ]
+            [ span [ class "bold" ]
+                [ text "Completed:"
+                , Nav.helpBtn HelpParts False
+                ]
             , completedPerc artifact
             ]
         , div [ class "col col-6" ]
@@ -67,32 +71,37 @@ testedPerc artifact =
             [ text <| (String.left 3 (toString (artifact.tested * 100))) ++ "%" ]
 
 
-implemented : Model -> Artifact -> Html m
+implemented : Model -> Artifact -> Html AppMsg
 implemented model artifact =
     div []
         (case ( artifact.code, artifact.done ) of
             ( Just loc, Nothing ) ->
-                [ span [ class "bold" ] [ text "Implemented at: " ]
+                [ span [ class "bold" ] [ text "Implemented:" ]
+                , Nav.helpBtn HelpImplemented False
                 , implementedBasic model artifact
                 ]
 
             ( Nothing, Just done ) ->
-                [ span [ class "bold" ] [ text "Defined as done: " ]
+                [ span [ class "bold" ] [ text "Defined as done:" ]
+                , Nav.helpBtn HelpDone False
                 , implementedBasic model artifact
                 ]
 
             ( Nothing, Nothing ) ->
-                [ span [ class "bold" ] [ text "Implementation: " ]
+                [ span [ class "bold" ] [ text "Implemented:" ]
+                , Nav.helpBtn HelpImplemented False
                 , implementedBasic model artifact
                 ]
 
             ( Just _, Just _ ) ->
-                [ implementedBasic model artifact ]
+                -- error is displayed by implementedBasic
+                [ implementedBasic model artifact
+                , Nav.helpBtn HelpImplemented False
+                ]
         )
 
 
 {-| show implemented with some settings
--- TODO: enable editing
 -}
 implementedBasic : Model -> Artifact -> Html m
 implementedBasic model artifact =
