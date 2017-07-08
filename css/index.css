@@ -3,9 +3,9 @@
 @import "font-awesome/css/font-awesome.css";
 
 .select-tiny {
-  min-width: 0rem;
-  max-width: 0rem;
-  width: auto;
+  min-width: 1rem;
+  max-width: 1rem;
+  width: 1rem;
 }
 
 .select-tiny:focus {
@@ -34,4 +34,30 @@ blockquote {
   font-style: inherit;
   background-color: Ivory;
   margin-left: 1em;
+}
+
+.art-btn {
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: bold;
+  text-decoration: none;
+  cursor: pointer;
+  display: inline-block;
+  line-height: 1.125rem;
+  padding: .5rem 1rem;
+  margin: 0;
+  height: auto;
+  vertical-align: middle;
+  -webkit-appearance: none;
+  color: inherit;
+}
+
+.art-info {
+  cursor: pointer;
+  color: black;
+  font-size: .75rem;
+  vertical-align: top;
+  margin: 0;
+  padding-right: .5rem;
+  padding-left: .25rem;
 }
