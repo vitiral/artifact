@@ -117,6 +117,7 @@ pathinsert $NODE_BIN
 
 ################################################################################
 # Do final updates
+mkdir -p $RUST_BIN
 errcho "-- do final update of dependencies --"
 if [ ! -e $RUST_BIN/just ]; then
     errcho "- installing build tools"

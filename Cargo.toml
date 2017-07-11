@@ -1,6 +1,6 @@
 [package]
 name = "artifact-app"
-version = "0.8.2"
+version = "0.8.3"
 authors = ["Garrett Berg <vitiral@gmail.com>"]
 description = "Artifact is a design doc tool made for developers. It allows anyone to\neasily write and link their design docs both to each other and to source code,\nmaking it easy to track how complete their project is.\nDocuments are revision controllable, can be rendered as a static\nweb page and have a full suite of command line tools for searching,\nformatting and displaying them.\n"
 documentation = "http://vitiral.github.io/artifact/"

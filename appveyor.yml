@@ -52,6 +52,7 @@ test_script:
     )
 
 before_deploy:
+  - set RUSTFLAGS='-C target-feature=+crt-static'
   - cargo rustc --target %TARGET% --release --bin art --features server -- -C lto
   - ps: ci\before_deploy.ps1
 
