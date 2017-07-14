@@ -48,12 +48,12 @@ test_script:
       cargo test --target %TARGET% --features server &&
       cargo test --target %TARGET% --release --features server &&
       cargo run --target %TARGET% -- check --features server &&
-      cargo run --target %TARGET% --release -- check --features server
+      cargo run --target %TARGET% --release -- check --features server &&
+      cargo rustc --target %TARGET% --release --bin art --features server -- -C lto -C target-feature=+crt-static
     )
 
 before_deploy:
-  - set RUSTFLAGS='-C target-feature=+crt-static'
-  - cargo rustc --target %TARGET% --release --bin art --features server -- -C lto
+  - cargo rustc --target %TARGET% --release --bin art --features server -- -C lto -C target-feature=+crt-static
   - ps: ci\before_deploy.ps1
 
 deploy:
