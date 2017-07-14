@@ -5,7 +5,8 @@ environment:
   global:
   # This is the Rust channel that build jobs will use by default but can be
   # overridden on a case by case basis down below
-    RUST_VERSION: stable
+    #RUST_VERSION: stable
+    RUST_VERSION: nightly-2017-06-17
 
     CRATE_NAME: artifact-app
 
@@ -46,12 +47,12 @@ test_script:
       cargo build --target %TARGET% --features server &&
       cargo test --target %TARGET% --features server &&
       cargo run --target %TARGET% --features server -- check &&
-      cargo rustc --target %TARGET% --release --bin art --features server -- -C lto -C target-feature=+crt-static &&
+      cargo rustc --target %TARGET% --release --bin art --features server -- -Z unstable-options -C lto -C target-feature=+crt-static &&
       cargo test --target %TARGET% --features server --release
     )
 
 before_deploy:
-  - cargo rustc --target %TARGET% --release --bin art --features server -- -C lto -C target-feature=+crt-static
+  - cargo rustc --target %TARGET% --release --bin art --features server -- -Z unstable-options -C lto -C target-feature=+crt-static
   - ps: ci\before_deploy.ps1
 
 deploy:
