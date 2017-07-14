@@ -44,12 +44,10 @@ test_script:
   # we don't run the "test phase" when doing deploys
   - if [%APPVEYOR_REPO_TAG%]==[false] (
       cargo build --target %TARGET% --features server &&
-      cargo build --target %TARGET% --release --features server &&
       cargo test --target %TARGET% --features server &&
-      cargo test --target %TARGET% --release --features server &&
-      cargo run --target %TARGET% -- check --features server &&
-      cargo run --target %TARGET% --release -- check --features server &&
-      cargo rustc --target %TARGET% --release --bin art --features server -- -C lto -C target-feature=+crt-static
+      cargo run --target %TARGET% --features server -- check &&
+      cargo rustc --target %TARGET% --release --bin art --features server -- -C lto -C target-feature=+crt-static &&
+      cargo test --target %TARGET% --features server --release
     )
 
 before_deploy:
