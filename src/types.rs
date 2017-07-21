@@ -33,8 +33,8 @@ error_chain! {
         Fmt(::std::fmt::Error);
 
         // crates
-        TomlDecode(::toml::DecodeError);
         StrFmt(::strfmt::FmtError);
+        TomlError(::toml::de::Error);
     }
 
     errors {

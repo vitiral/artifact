@@ -28,7 +28,6 @@ mod link;
 mod locs;
 mod name;
 mod project;
-mod serialize;
 mod artifact;
 mod settings;
 
@@ -44,7 +43,9 @@ pub use user::artifact::{load_toml, load_text as load_project_text};
 #[cfg(test)]
 pub use user::link::do_links;
 #[cfg(test)]
-pub use user::settings::from_table as settings_from_table;
+pub use user::settings::{from_raw as settings_from_raw, from_text as settings_from_text};
+#[cfg(test)]
+pub use user::types::RawSettings;
 
 
 /// Process a raw project text file.

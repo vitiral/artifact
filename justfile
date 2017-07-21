@@ -8,6 +8,7 @@ target = "$PWD/target"
 export_bin = "export TARGET_BIN=" + target + "/debug/art" + " &&"
 repo_url = "https://github.com/vitiral/artifact"
 build_site_args = '--path-url "' + repo_url + '/blob/$(git rev-parse --verify HEAD)/{path}#L{line}"'
+pre = 'CARGO_INCREMENTAL=1'
 
 
 # just get the version
@@ -27,9 +28,10 @@ build-release:
 	just web-ui/build 
 	cargo build --features server --release
 
+
 # build only rust
 build-rust:
-	cargo build --features server
+	{{pre}} cargo build --features server
 
 # build with only static html (not server)
 build-static: 
@@ -46,7 +48,7 @@ test TESTS="":
 
 # test only the rust code
 test-rust TESTS="":
-	cargo test --lib --features server {{TESTS}}
+	{{pre}} cargo test --lib --features server {{TESTS}} -- --nocapture
 
 # run all lints
 lint:
@@ -56,7 +58,7 @@ lint:
 
 # lint rust code
 lint-rust:
-	cargo clippy --features server
+	{{pre}} cargo clippy --features server
 
 # lint python code
 lint-py:
@@ -75,7 +77,7 @@ test-sel-py TESTS="":
 # run the full test suite. This is required for all merges
 @test-all:
 	just lint
-	cargo test
+	{{pre}} cargo test
 	just test
 	just build
 	test "$(uname)" = "Darwin" && echo "TODO: selenium timeout issue on mac" || just test-sel-py
@@ -84,7 +86,7 @@ test-sel-py TESTS="":
 
 # run all formatters in "check" mode to make sure code has been formatted
 check-fmt:
-	cargo fmt -- --write-mode=diff > /dev/null 2>&1
+	{{pre}} cargo fmt -- --write-mode=diff > /dev/null 2>&1
 	case "$(autopep8 $PYTHON_CHECK -r --diff)" in ("") true;; (*) false;; esac
 	case "$(docformatter $PYTHON_CHECK -r)" in ("") true;; (*) false;; esac
 	just web-ui/check-fmt
@@ -97,7 +99,7 @@ check-fmt:
 # run the artifact binary with any args
 run ARGS="":
 	just web-ui/build
-	cargo run --features server -- -v {{ARGS}}
+	{{pre}} cargo run --features server -- -v {{ARGS}}
 
 serve:
 	just web-ui/build
@@ -105,7 +107,7 @@ serve:
 
 serve-rust:
 	rm -rf /tmp/rust-serve && cp -r web-ui/sel_tests/ex_proj /tmp/rust-serve
-	cargo run --features server -- -vv --work-tree /tmp/rust-serve serve
+	{{pre}} cargo run --features server -- -vv --work-tree /tmp/rust-serve serve
 
 
 ##################################################
@@ -120,7 +122,7 @@ fmt:
 
 # run rust formatter
 fmt-rust:
-	cargo fmt -- --write-mode overwrite  # don't generate *.bk files
+	{{pre}} cargo fmt -- --write-mode overwrite  # don't generate *.bk files
 	art fmt -w
 
 # run python formatters
@@ -135,11 +137,11 @@ publish:
 	git diff --no-ext-diff --quiet --exit-code
 	@# test all and commit
 	just test-all
-	rustup run stable cargo test --features server
+	{{pre}} rustup run stable cargo test --features server
 	just build
 	git commit -a -m "v{{version}} release"
 	@# push to cargo
-	cargo publish --no-verify
+	{{pre}} cargo publish --no-verify
 	@#push to git
 	git push origin master
 	git tag -a "v{{version}}" -m "v{{version}}"
@@ -149,7 +151,7 @@ publish:
 
 # build the static html
 build-site:
-	cargo run --features server -- -vv export html -o _gh-pages {{build_site_args}}
+	{{pre}} cargo run --features server -- -vv export html -o _gh-pages {{build_site_args}}
 
 # push the static html design docs to git-pages
 publish-site:

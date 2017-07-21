@@ -80,7 +80,6 @@ pathinsert $RUST_BIN
 
 # always make sure the default is up-to-date
 rustup default $RUST_VERSION || return $?
-export CARGO_INCREMENTAL=1
 
 ################################################################################
 # setup python virtualenv and packages

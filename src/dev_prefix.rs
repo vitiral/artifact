@@ -33,3 +33,4 @@ pub use std::sync::Arc;
 // crates
 pub use error_chain::ChainedError;
 pub use regex::{Regex, RegexBuilder};
+pub use serde::{Serialize, Deserialize};

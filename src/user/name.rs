@@ -53,21 +53,25 @@ pub fn collapse_names(mut names: Vec<String>) -> String {
 impl FromStr for Name {
     type Err = Error;
     fn from_str(s: &str) -> Result<Name> {
+        Name::from_string(s.to_string())
+    }
+}
+
+impl Name {
+    pub fn from_string(s: String) -> Result<Name> {
         let value = s.to_ascii_uppercase();
         if !NAME_VALID.is_match(&value) {
             return Err(ErrorKind::InvalidName(s.to_string()).into());
         }
         let value: Vec<String> = value.split('-').map(|s| s.to_string()).collect();
-        let ty = _get_type(&value[0], s)?;
+        let ty = _get_type(&value[0], &s)?;
         Ok(Name {
-            raw: s.to_string(),
+            raw: s,
             value: value,
             ty: ty,
         })
     }
-}
 
-impl Name {
     /// parse name from string and handle errors
     /// see: SPC-artifact-name.2
     /// see: SPC-artifact-partof-2

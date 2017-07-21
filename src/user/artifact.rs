@@ -1,13 +1,12 @@
 //! raw text loading
 
-use toml::{Value, Table, Decoder};
-use rustc_serialize::Decodable;
+use toml;
 
 use dev_prefix::*;
 use types::*;
 use user::types::*;
 use user::save::ProjectText;
-use utils::{parse_toml, unique_id};
+use utils::unique_id;
 
 // Public Methods
 
@@ -96,30 +95,22 @@ pub fn extend_text(project: &mut Project, project_text: &ProjectText) -> Result<
 /// Given text load the artifacts
 pub fn load_toml(path: &Path, text: &str, project: &mut Project) -> Result<u64> {
     // parse the text
-    let table = parse_toml(text)?;
+    let mut loaded: HashMap<String, UserArtifact> = toml::from_str(text)?;
     let mut num_loaded: u64 = 0;
     project.files.insert(path.to_path_buf());
 
-    for (name, value) in &table {
-        let aname = Name::from_str(name)?;
-        // get the artifact table
-        let art_tbl: &Table = match *value {
-            Value::Table(ref t) => t,
-            _ => {
-                let msg = format!("All top-level values must be a table: {}", name);
-                return Err(ErrorKind::Load(msg).into());
-            }
-        };
+    for (name, user_artifact) in loaded.drain() {
+        let aname = Name::from_string(name)?;
         // check for overlap
         if let Some(overlap) = project.artifacts.get(&aname) {
             let msg = format!(
                 "Overlapping key found <{}> other key at: {}",
-                name,
+                aname.raw,
                 overlap.def.display()
             );
             return Err(ErrorKind::Load(msg).into());
         }
-        let artifact = from_table(&aname, path, art_tbl)?;
+        let artifact = from_user_artifact(&aname, path, user_artifact)?;
         project.artifacts.insert(Arc::new(aname), artifact);
         num_loaded += 1;
     }
@@ -133,23 +124,15 @@ impl Artifact {
     #[allow(should_implement_trait)]
     /// from_str is mosty used to make testing and one-off development easier
     pub fn from_str(toml: &str) -> Result<(NameRc, Artifact)> {
-        let table = try!(parse_toml(toml));
-        if table.len() != 1 {
+        let mut loaded: HashMap<String, UserArtifact> = toml::from_str(toml)?;
+        if loaded.len() != 1 {
             return Err(
                 ErrorKind::Load("must contain a single table".to_string()).into(),
             );
         }
-        let (name, value) = table.iter().next().unwrap();
-        let name = try!(Name::from_str(name));
-        let value = match *value {
-            Value::Table(ref t) => t,
-            _ => {
-                return Err(
-                    ErrorKind::Load("must contain a single table".to_string()).into(),
-                )
-            }
-        };
-        let artifact = try!(from_table(&name, &Path::new("from_str"), value));
+        let (name, user_artifact) = loaded.drain().next().unwrap();
+        let name = Name::from_string(name)?;
+        let artifact = from_user_artifact(&name, &Path::new("from_str"), user_artifact)?;
         Ok((Arc::new(name), artifact))
     }
 }
@@ -157,24 +140,8 @@ impl Artifact {
 // Private
 
 /// Create an artifact object from a toml Table
-fn from_table(name: &Name, path: &Path, tbl: &Table) -> Result<Artifact> {
-    let value = Value::Table(tbl.clone());
-    let mut decoder = Decoder::new(value);
-    let raw = match UserArtifact::decode(&mut decoder) {
-        Ok(v) => v,
-        Err(e) => {
-            return Err(
-                ErrorKind::InvalidArtifact(name.to_string(), e.to_string()).into(),
-            )
-        }
-    };
-    if let Some(invalid) = decoder.toml {
-        return Err(
-            ErrorKind::InvalidArtifact(name.to_string(), format!("invalid attrs: {}", invalid))
-                .into(),
-        );
-    }
-    let done = match raw.done {
+fn from_user_artifact(name: &Name, path: &Path, user_artifact: UserArtifact) -> Result<Artifact> {
+    let done = match user_artifact.done {
         Some(s) => {
             if s == "" {
                 return Err(
@@ -193,8 +160,8 @@ fn from_table(name: &Name, path: &Path, tbl: &Table) -> Result<Artifact> {
         id: unique_id(),
         revision: 0,
         def: path.to_path_buf(),
-        text: raw.text.unwrap_or_default(),
-        partof: Names::from_str(&raw.partof.unwrap_or_default())?,
+        text: user_artifact.text.unwrap_or_default(),
+        partof: Names::from_str(&user_artifact.partof.unwrap_or_default())?,
         done: done,
         // calculated vars
         parts: HashSet::new(),
@@ -205,40 +172,9 @@ fn from_table(name: &Name, path: &Path, tbl: &Table) -> Result<Artifact> {
 
 #[cfg(test)]
 mod tests {
-    use toml::Parser;
-
-
     use super::*;
     use user::locs;
     use test_data;
-
-    #[test]
-    /// this is just a sanity-check/playground for how to implement
-    /// loading using toml decoder
-    fn test_load_raw_impl() {
-        let text = r#"
-        [REQ-one]
-        partof = "REQ-1"
-        text = '''
-        I am text
-        '''
-        "#;
-        let file_table = Parser::new(text).parse().unwrap();
-        let mut artifacts: HashMap<String, UserArtifact> = HashMap::new();
-        for (name, value) in file_table.iter() {
-            let mut decoder = Decoder::new(value.clone());
-            let raw = UserArtifact::decode(&mut decoder).unwrap();
-            artifacts.insert(name.clone(), raw);
-        }
-        assert_eq!(
-            artifacts.get("REQ-one").unwrap().text,
-            Some("        I am text\n        ".to_string())
-        );
-        assert_eq!(
-            artifacts.get("REQ-one").unwrap().partof,
-            Some("REQ-1".to_string())
-        );
-    }
 
     #[test]
     fn test_load_toml() {

@@ -1,13 +1,12 @@
 //! loading settings
 
-use toml::{Value, Table, Decoder};
-use rustc_serialize::Decodable;
+use toml;
 
 use dev_prefix::*;
 use types::*;
 use user::types::*;
 use user::utils;
-use utils::{parse_toml, canonicalize};
+use utils::canonicalize;
 
 // Public Methods
 
@@ -23,32 +22,21 @@ pub fn load_settings(repo: &Path) -> Result<Settings> {
         .chain_err(|| {
             format!("error reading settings: {}", settings_path.display())
         })?;
-
-    let tbl = parse_toml(&text)
-        .chain_err(|| {
-            format!("error parsing settings: {}", settings_path.display())
-        })?;
-    let (_, mut settings) = from_table(&tbl)?;
-
-    resolve_settings_paths(repo, &mut settings)?;
-
-    Ok(settings)
+    from_text(repo, &text)
 }
 
 
 // Public For Tests
 
+pub fn from_text(repo: &Path, text: &str) -> Result<Settings> {
+    let raw: RawSettings = toml::from_str(text)?;
+    let mut settings = from_raw(&raw)?;
+    resolve_settings_paths(repo, &mut settings)?;
+    Ok(settings)
+}
+
 /// Load a settings object from a TOML Table
-pub fn from_table(tbl: &Table) -> Result<(RawSettings, Settings)> {
-    let value = Value::Table(tbl.clone());
-    let mut decoder = Decoder::new(value);
-    let raw = RawSettings::decode(&mut decoder)
-        .chain_err(|| "invalid settings")?;
-
-    if let Some(invalid) = decoder.toml {
-        return Err(ErrorKind::InvalidSettings(format!("{:?}", invalid)).into());
-    }
-
+pub fn from_raw(raw: &RawSettings) -> Result<Settings> {
     fn to_paths(paths: &Option<Vec<String>>) -> HashSet<PathBuf> {
         match *paths {
             Some(ref p) => {
@@ -66,7 +54,7 @@ pub fn from_table(tbl: &Table) -> Result<(RawSettings, Settings)> {
         exclude_code_paths: to_paths(&raw.exclude_code_paths),
     };
 
-    Ok((raw, settings))
+    Ok(settings)
 }
 
 // Private Methods
@@ -150,12 +138,11 @@ mod tests {
     use dev_prefix::*;
     use super::*;
     use test_data;
-    use utils;
 
     #[test]
     fn test_settings() {
-        let tbl = utils::parse_toml(test_data::TOML_SETTINGS).unwrap();
-        let (_, set) = from_table(&tbl).unwrap();
+        let raw: RawSettings = toml::from_str(test_data::TOML_SETTINGS).unwrap();
+        let set = from_raw(&raw).unwrap();
         assert!(
             set.artifact_paths ==
                 HashSet::from_iter(vec![
@@ -175,8 +162,6 @@ mod tests {
         artifact_paths = ['hi']
         paths = ['invalid']
         "#;
-        let tbl = utils::parse_toml(toml_invalid).unwrap();
-
-        assert!(from_table(&tbl).is_err());
+        assert!(toml::from_str::<RawSettings>(toml_invalid).is_err());
     }
 }

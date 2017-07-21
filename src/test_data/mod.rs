@@ -1,7 +1,7 @@
 #![allow(dead_code, unused_imports, unused_variables)]
 
 use std::sync;
-use toml::{Parser, Value, Table};
+use toml;
 
 use dev_prefix::*;
 use types::*;
@@ -25,17 +25,6 @@ pub fn load_toml_simple(text: &str) -> Artifacts {
     let path = PathBuf::from("test");
     user::load_toml(&path, text, &mut project).unwrap();
     project.artifacts
-}
-
-pub fn parse_text(t: &str) -> Table {
-    Parser::new(t).parse().unwrap()
-}
-
-pub fn get_table<'a>(tbl: &'a Table, attr: &str) -> &'a Table {
-    match tbl.get(attr).unwrap() {
-        &Value::Table(ref t) => t,
-        _ => unreachable!(),
-    }
 }
 
 pub static TOML_SETTINGS: &'static str = "

@@ -1,15 +1,15 @@
 //! loadrs
 //! loading of raw artifacts from files and text
 
-use toml::{encode, Table};
+use toml;
 use difference::Changeset;
+use std::collections::BTreeMap;
 
 use dev_prefix::*;
 use types::*;
 use user::types::*;
 
 use user::name;
-use user::serialize;
 
 // Public Struct
 
@@ -41,7 +41,7 @@ impl Default for ProjectText {
 impl ProjectText {
     /// convert a `Project` -> `ProjectText`
     pub fn from_project(project: &Project) -> Result<ProjectText> {
-        let mut files = HashMap::new();
+        let mut files: HashMap<PathBuf, BTreeMap<String, UserArtifact>> = HashMap::new();
 
         // we just go through each item, growing `files` as necessary
         // TODO: how to make the equivalent of a yielding function,
@@ -49,7 +49,7 @@ impl ProjectText {
         for (name, artifact) in &project.artifacts {
             // insert artifact into a table
             if !files.contains_key(&artifact.def) {
-                files.insert(artifact.def.clone(), Table::new());
+                files.insert(artifact.def.clone(), BTreeMap::new());
             }
             let tbl = files.get_mut(&artifact.def).unwrap();
 
@@ -85,14 +85,16 @@ impl ProjectText {
                     None
                 },
             };
-            tbl.insert(name.raw.clone(), encode(&raw));
+            tbl.insert(name.raw.clone(), raw);
         }
-
 
         // convert Values to text
         let mut text: HashMap<PathBuf, String> = HashMap::new();
         for (p, v) in files.drain() {
-            text.insert(p, serialize::pretty_toml(&v)?);
+            let mut s = String::new();
+            v.serialize(&mut toml::Serializer::pretty(&mut s))
+                .expect("serialize");
+            text.insert(p, s);
         }
 
         // files that exist but have no data need to also be

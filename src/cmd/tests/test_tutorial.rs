@@ -1,13 +1,13 @@
 //! #TST-cmd-tutorial
 
 use tempdir;
+use toml;
 
 use dev_prefix::*;
 use types::*;
 use user;
 use cmd::tutorial as tut;
 use cmd::init;
-use test_data;
 
 
 #[test]
@@ -51,8 +51,7 @@ fn test_cmd_data_valid() {
 
     for (i, toml) in settings_files.iter().enumerate() {
         let text = str::from_utf8(toml).unwrap();
-        let tbl = test_data::parse_text(text);
-        user::settings_from_table(&tbl).expect(&format!(
+        toml::from_str::<user::RawSettings>(text).expect(&format!(
             "could not load tutorial settings at index: {}",
             i
         ));

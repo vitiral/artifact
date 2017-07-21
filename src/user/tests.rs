@@ -1,7 +1,5 @@
 //! tests for user module
 
-use toml::Value;
-
 use dev_prefix::*;
 use types::*;
 
@@ -20,26 +18,9 @@ fn test_toml_assumptions() {
     // Since this is made impossible by the toml format itself, we can assume that such artifacts
     // don't exist when we create them automatically by parsing the text.
     let toml = "\
-    [test]
-    key = 'value'
-
-    [test.1]
-    key = 'value.1'
+    [REQ-test.1]
     ";
-
-    let tbl = test_data::parse_text(toml);
-    let test = test_data::get_table(&tbl, "test");
-    let value = match test.get("key").unwrap() {
-        &Value::String(ref s) => s,
-        _ => unreachable!(),
-    };
-    assert_eq!(value, "value");
-    let test_1 = test_data::get_table(&test, "1");
-    let value = match test_1.get("key").unwrap() {
-        &Value::String(ref s) => s,
-        _ => unreachable!(),
-    };
-    assert_eq!(value, "value.1");
+    assert!(Artifact::from_str(toml).is_err())
 }
 
 #[test]
@@ -553,6 +534,11 @@ fn test_save_idempotent() {
     let settings = settings::load_settings(simple.as_path()).unwrap();
     artifact::load_text(&mut original_text, &simple.join("design"), &mut loaded_dirs).unwrap();
     let original = user::process_project_text(settings.clone(), &original_text).unwrap();
+    assert!(
+        original
+            .artifacts
+            .contains_key(&NameRc::from_str("REQ-lvl").unwrap())
+    );
 
     // serialize tsimple like it would be saved
     // and convert back

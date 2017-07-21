@@ -19,15 +19,17 @@
 //! This module encapsulates the loading and saving of artifacts
 
 /// User options for an `Artifact`
-#[derive(Debug, Clone, PartialEq, RustcEncodable, RustcDecodable)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct UserArtifact {
+    pub done: Option<String>,
     pub partof: Option<String>,
     pub text: Option<String>,
-    pub done: Option<String>,
 }
 
 /// User options for Settings
-#[derive(Debug, Clone, PartialEq, RustcEncodable, RustcDecodable)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct RawSettings {
     pub artifact_paths: Option<Vec<String>>,
     pub exclude_artifact_paths: Option<Vec<String>>,
