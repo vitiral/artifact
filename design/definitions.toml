@@ -1,6 +1,6 @@
 [SPC-0]
-done = "by definition"
-partof = "REQ-1"
+done = 'by definition'
+partof = 'REQ-1'
 text = '''
 Definitions and process for the artifact project
 
@@ -93,4 +93,4 @@ programming language for the purposes of:
 The web-ui will be written in elm for many of the same reasons.'''
 
 [TST-0]
-done = "by definition"
+done = 'by definition'

@@ -36,7 +36,7 @@ The application requirements are split into the following categories:
 '''
 
 [REQ-artifact]
-partof = "REQ-1"
+partof = 'REQ-1'
 text = '''
 artifact **will** support 4 types of artifacts that can be tracked
 - **REQ**: software requirement
@@ -79,7 +79,7 @@ linking artifacts to other artifacts, as defined in [[REQ-partof]]
 '''
 
 [REQ-cmd]
-partof = "REQ-1"
+partof = 'REQ-1'
 text = '''
 The artifact cmdline interface will be simple and intuitive for those
 who have used unix and git. It will contain a small subset of subcommands
@@ -97,7 +97,7 @@ See [[SPC-cmd]].
 '''
 
 [REQ-partof]
-partof = "REQ-1"
+partof = 'REQ-1'
 text = '''
 linking should be in a format that is as easy to understand format as possible:
 - between artifacts
@@ -160,7 +160,7 @@ be a partof anything since it doesn't share a prefix or a name.
 '''
 
 [REQ-rpc]
-partof = "REQ-1"
+partof = 'REQ-1'
 text = '''
 artifact's server shall provide a JSON-RPC API endpoint for interacting with loaded and processed artifacts.
 
@@ -177,7 +177,7 @@ For the Web UI the RPC shall have the following endpionts:
 These are defined in [[SPC-rpc]]'''
 
 [REQ-security]
-partof = "REQ-1"
+partof = 'REQ-1'
 text = '''
 With commands such as `art fmt` and the server being able
 to edit files on someone's local machine, the artifact application
@@ -221,7 +221,7 @@ data (if it exists). Test results should be easy to filter, graph
 '''
 
 [REQ-web]
-partof = "REQ-1"
+partof = 'REQ-1'
 text = '''
 artifact **shall** provide a web-based frontend for both reading and editing rendered views of artifacts.
 

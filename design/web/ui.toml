@@ -95,7 +95,10 @@ as well as testing basic features of the web ui.
 '''
 
 [TST-web-basic]
-partof = "SPC-[rpc-artifacts, web]"
+partof = [
+    'SPC-rpc-artifacts',
+    'SPC-web',
+]
 text = '''
 These are basic end to end tests that also help test the rpc
 backend since the browser directly uses it.

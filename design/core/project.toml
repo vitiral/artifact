@@ -1,5 +1,5 @@
 [SPC-project]
-partof = "REQ-artifact"
+partof = 'REQ-artifact'
 text = '''
 The "Project" data type shall encompase the users entire set of
 artifact files and settings and the process for loading them.
@@ -60,7 +60,7 @@ ui as missing links or None completion (etc)
 '''
 
 [SPC-project-process]
-partof = "SPC-partof"
+partof = 'SPC-partof'
 text = '''
 Once a project has been loaded (see [[SPC-project-load]]) it has to
 be processed. Namely:
@@ -117,7 +117,7 @@ using them using urls).
 '''
 
 [TST-project]
-partof = "SPC-artifact"
+partof = 'SPC-artifact'
 text = '''
 These tests represent the unit tests for saving and loading
 artifacts to/from files.
@@ -131,7 +131,7 @@ formatting and saving artifacts in the web-ui.
 '''
 
 [TST-project-invalid]
-partof = "SPC-project-load"
+partof = 'SPC-project-load'
 text = '''
 load the following and make sure it results in an error:
  1. trying to input a json-like table `{}`
@@ -143,7 +143,10 @@ load the following and make sure it results in an error:
 '''
 
 [TST-project-link]
-partof = "SPC-[partof, project-load]"
+partof = [
+    'SPC-partof',
+    'SPC-project-load',
+]
 text = '''
 design documents linking (both automatically and explicitly) is one of the
 core features of artifact and is one that will be expected to "just work"
@@ -155,7 +158,7 @@ calculations are *exactly* as predicted by manual calculations.
 '''
 
 [TST-project-partof]
-partof = "SPC-partof"
+partof = 'SPC-partof'
 text = '''
 The partof format and loading can be tested completely with simple unit tests:
  - load simple lists
@@ -176,7 +179,10 @@ is a completely idempotent operation.
 '''
 
 [TST-project-simple]
-partof = "SPC-project-[load, settings]"
+partof = [
+    'SPC-project-load',
+    'SPC-project-settings',
+]
 text = '''
 Create a simple project that has a few ins and outs
  - has multi-level values

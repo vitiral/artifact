@@ -120,9 +120,56 @@ done = \"test\"
 [SPC-done-2]
 ";
 
+pub static TOML_UNFMT: &'static str = r#"
+[REQ-foo]
+partof = "REQ-single"
+
+[REQ-bar]
+partof = "REQ-[foo, bar]"
+
+[REQ-baz]
+partof = [
+    "REQ-foo",
+    "REQ-bar",
+]
+
+[REQ-faz]
+partof = ["REQ-foo", "REQ-bar-[1,2]"]
+
+[SPC-zed]
+partof = "REQ-bar, SPC-foo-[1,2]"
+"#;
+
+pub static TOML_FMT: &'static str = r#"[REQ-bar]
+partof = 'REQ-foo'
+
+[REQ-baz]
+partof = [
+    'REQ-bar',
+    'REQ-foo',
+]
+
+[REQ-faz]
+partof = [
+    'REQ-bar-1',
+    'REQ-bar-2',
+    'REQ-foo',
+]
+
+[REQ-foo]
+partof = 'REQ-single'
+
+[SPC-zed]
+partof = [
+    'REQ-bar',
+    'SPC-foo-1',
+    'SPC-foo-2',
+]
+"#;
+
+
+
 pub static TOML_OVERLAP: &'static str = "[REQ-foo]\n";
-pub static TOML_BAD: &'static str = "[REQ-bad]\npartof = ['REQ-foo']";
-pub static TOML_BAD2: &'static str = "[REQ-bad]\npartof = 'REQ-foo'";
 pub static TOML_BAD_ATTR1: &'static str = "[REQ-foo]\npart='invalid'\n";
 pub static TOML_BAD_ATTR2: &'static str = "[REQ-bad]\npartof = ['REQ-foo', 2, 'hi']";
 pub static TOML_BAD_JSON: &'static str = "{\"REQ-foo\": {\"partof\": [\"hi\"]}}";

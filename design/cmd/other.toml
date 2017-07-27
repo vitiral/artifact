@@ -1,5 +1,5 @@
 [SPC-cmd]
-partof = "REQ-web"
+partof = 'REQ-web'
 text = '''
 Specifications for the artifact cmdline interface
 
@@ -97,7 +97,7 @@ Key points that should be hit during the tutorial are:
 '''
 
 [TST-cmd]
-text = "tests for the cmdline interface"
+text = 'tests for the cmdline interface'
 
 [TST-cmd-fmt]
 text = '''

@@ -22,32 +22,6 @@ use std::cmp::Ordering;
 use dev_prefix::*;
 use types::*;
 
-// Public Methods
-
-/// take a list of names and collapse them into a single
-/// string with format `REQ-foo-[bar, baz-boo], SPC-foo`
-pub fn collapse_names(mut names: Vec<String>) -> String {
-    names.sort();
-    let names: Vec<Vec<String>> = names
-        .iter()
-        .map(|n| n.split('-').map(|s| s.to_string()).collect())
-        .collect();
-    let mut piece = NamePiece {
-        raw: names,
-        prefix: String::new(),
-        pieces: None,
-    };
-    piece.process();
-
-    let mut collapsed = String::new();
-    let is_last = match piece.pieces {
-        None => true,
-        Some(ref pieces) => pieces.len() > 1,
-    };
-    piece.collapse(&mut collapsed, is_last);
-    collapsed
-}
-
 // Public Trait Methods
 
 impl FromStr for Name {
@@ -270,115 +244,18 @@ where
     )
 }
 
-// Private: Collapsing Names
-
-struct NamePiece {
-    raw: Vec<Vec<String>>,
-    prefix: String,
-    pieces: Option<Vec<NamePiece>>,
-}
-
-impl NamePiece {
-    /// note: raw must be sorted
-    fn from(prefix: String, raw: Vec<Vec<String>>) -> NamePiece {
-        NamePiece {
-            raw: raw,
-            prefix: prefix,
-            pieces: None,
-        }
-    }
-
-    /// recursively process the NamePiece until all pieces are just their prefix
-    /// this works because:
-    /// - we know raw is sorted, so we know all single item prefixes will appear
-    ///     one after the other
-    /// - from there we just need to go down the tree until all of the lowest
-    ///     level pieces have only a prefix
-    fn process(&mut self) {
-        let mut prefix = "".to_string();
-        let mut pieces: Vec<NamePiece> = vec![];
-        for part in &self.raw {
-            if part.len() == 1 {
-                // it is already it's own piece
-                pieces.push(NamePiece::from(part[0].clone(), vec![]));
-                prefix = "".to_string();
-            } else if part[0] == prefix {
-                // found (at least) two parts with the same prefix
-                // store the part in raw without it's prefix
-                let i = pieces.len() - 1; // wow, you can't do this inline...
-                pieces[i].raw.push(part.split_first().unwrap().1.to_vec())
-            } else {
-                // we found a new prefix, create a new piece to store it
-                prefix = part[0].clone();
-                let raw = part.iter().skip(1).cloned().collect();
-                let piece = NamePiece::from(prefix.clone(), vec![raw]);
-                pieces.push(piece);
-            }
-        }
-        // we don't need the raw data anymore, it's all been copied somewhere else
-        if !self.raw.is_empty() {
-            self.raw = vec![];
-        }
-        if !pieces.is_empty() {
-            for p in &mut pieces {
-                p.process();
-            }
-            self.pieces = Some(pieces);
-        }
-    }
-
-    /// once we have processed all the name pieces, we can collapse them
-    /// into a single string
-    fn collapse(&self, w: &mut String, is_last: bool) {
-        if self.prefix.is_empty() {
-            // this is the "head" Piece, it has no filler
-            // just write out the pieces
-            if let Some(ref pieces) = self.pieces {
-                let last_i = pieces.len() - 1;
-                for (i, piece) in pieces.iter().enumerate() {
-                    piece.collapse(w, last_i == i);
-                }
-            }
-            return;
-        }
-        w.write_str(&self.prefix).unwrap();
-        if let Some(ref pieces) = self.pieces {
-            // there are some names after you, more to write
-            let last_i = pieces.len() - 1;
-            if last_i == 0 {
-                // if you only have one piece, then you are foo-bar-baz-etc
-                w.write_str("-").unwrap();
-            } else {
-                // else you are foo-[bar, bar-baz-etc] (unless you are the beginning)
-                w.write_str("-[").unwrap();
-            }
-            for (i, piece) in pieces.iter().enumerate() {
-                piece.collapse(w, last_i == i);
-            }
-            if last_i != 0 {
-                w.write_str("]").unwrap();
-            }
-        }
-        if !is_last {
-            w.write_str(", ").unwrap();
-        }
-    }
-}
-
-
 #[cfg(test)]
-fn do_test_parse_collapse(user: &str, expected_collapsed: &[&str]) {
+fn do_test_parse(user: &str, expected_collapsed: &[&str]) {
     let parsed = parse_names(&mut user.chars(), false).unwrap();
     assert_eq!(parsed, expected_collapsed);
-    assert_eq!(user, collapse_names(parsed));
 }
 
 #[test]
 /// #TST-project-partof
 fn test_parse_names() {
-    do_test_parse_collapse("hi, ho", &["hi", "ho"]);
-    do_test_parse_collapse("hi-[he, ho]", &["hi-he", "hi-ho"]);
-    do_test_parse_collapse(
+    do_test_parse("hi, ho", &["hi", "ho"]);
+    do_test_parse("hi-[he, ho]", &["hi-he", "hi-ho"]);
+    do_test_parse(
         "he-[ha-[ha, he], hi, ho], hi-[he, ho]",
         &["he-ha-ha", "he-ha-he", "he-hi", "he-ho", "hi-he", "hi-ho"],
     );

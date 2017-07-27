@@ -77,7 +77,11 @@ So: `art ls -p "REQ-ui-cmdline.*" -NO` would filter by name and partof
 '''
 
 [TST-cmd-ls]
-partof = "SPC-cmd-ls-[color, display, pattern]"
+partof = [
+    'SPC-cmd-ls-color',
+    'SPC-cmd-ls-display',
+    'SPC-cmd-ls-pattern',
+]
 text = '''
 Tests for ls are relatively straightforward and mostly involve:
 - having an example project

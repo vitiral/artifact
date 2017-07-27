@@ -588,3 +588,17 @@ fn test_exclude() {
             .contains_key(&NameRc::from_str("SPC-excluded").unwrap())
     );
 }
+
+#[test]
+fn test_fmt_basic() {
+    let mut text = ProjectText::default();
+    text.files.insert(
+        PathBuf::new(),
+        test_data::TOML_UNFMT.to_string(),
+    );
+    let project = user::process_project_text(Settings::default(), &text).unwrap();
+    let new_text = ProjectText::from_project(&project).unwrap();
+    let fmted = new_text.files.get(&PathBuf::new()).unwrap();
+    println!("Result:\n{}\n\nExpected:\n{}", fmted, test_data::TOML_FMT);
+    assert_eq!(fmted, test_data::TOML_FMT);
+}

@@ -1,6 +1,6 @@
 [package]
 name = "artifact-app"
-version = "0.8.5"
+version = "0.9.0"
 authors = ["Garrett Berg <vitiral@gmail.com>"]
 description = "Artifact is a design doc tool made for developers. It allows anyone to\neasily write and link their design docs both to each other and to source code,\nmaking it easy to track how complete their project is.\nDocuments are revision controllable, can be rendered as a static\nweb page and have a full suite of command line tools for searching,\nformatting and displaying them.\n"
 documentation = "http://vitiral.github.io/artifact/"
@@ -24,8 +24,12 @@ strfmt = "0.1"
 tar = "0.4"
 tempdir = "0.3"
 time = "0.1"
+toml = "0.4.4"
 unicode-segmentation = "1.1.0"
 unicode-width = "0.1.4"
+
+#[dependencies.toml]
+#path = "/home/garrett/projects/ruststuff/toml-rs"
 
 [dependencies.ctrlc]
 version = "3.0"
@@ -66,10 +70,6 @@ version = "0.10"
 default-features = false
 features = ["ansi_formatting"]
 version = "1.0.3"
-
-[dependencies.toml]
-git = "https://github.com/vitiral/toml-rs"
-branch = "empty-fails"
 
 [dev-dependencies]
 fs_extra = "1.0.0"

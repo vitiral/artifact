@@ -9,8 +9,6 @@ use dev_prefix::*;
 use types::*;
 use user::types::*;
 
-use user::name;
-
 // Public Struct
 
 /// struct for representing a project as just a collection of
@@ -59,7 +57,7 @@ impl ProjectText {
                     auto_partof.push(name.parent().expect("no parent"));
                 }
                 let auto_partof: HashSet<Name> = HashSet::from_iter(auto_partof.drain(0..));
-                let strs = artifact
+                let mut strs = artifact
                     .partof
                     .iter()
                     .filter(|p| !auto_partof.contains(p))
@@ -67,8 +65,12 @@ impl ProjectText {
                     .collect::<Vec<_>>();
                 if strs.is_empty() {
                     None
+                } else if strs.len() == 1 {
+                    let s = strs.drain(0..).next().unwrap();
+                    Some(UserPartof::Single(s))
                 } else {
-                    Some(name::collapse_names(strs))
+                    strs.sort();
+                    Some(UserPartof::Multi(strs))
                 }
             };
 

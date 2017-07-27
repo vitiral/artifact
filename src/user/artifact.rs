@@ -156,12 +156,35 @@ fn from_user_artifact(name: &Name, path: &Path, user_artifact: UserArtifact) -> 
         None => Done::NotDone,
     };
 
+    fn get_partof(raw: &str) -> Result<Names> {
+        Names::from_str(raw)
+    }
+
+    let mut partof = if let Some(all_parts) = user_artifact.partof {
+        match all_parts {
+            UserPartof::Single(part) => get_partof(&part)?,
+            UserPartof::Multi(parts) => {
+                let mut out = HashSet::new();
+                for part in parts {
+                    let mut p = get_partof(&part)?;
+                    out.extend(p.drain());
+                }
+                out
+            }
+        }
+    } else {
+        HashSet::new()
+    };
+
+    // Being a partof itself is a no-op
+    partof.remove(name);
+
     Ok(Artifact {
         id: unique_id(),
         revision: 0,
         def: path.to_path_buf(),
         text: user_artifact.text.unwrap_or_default(),
-        partof: Names::from_str(&user_artifact.partof.unwrap_or_default())?,
+        partof: partof,
         done: done,
         // calculated vars
         parts: HashSet::new(),
@@ -183,7 +206,6 @@ mod tests {
         let path = PathBuf::from("hi/there");
 
         // #TST-project-invalid
-        assert!(load_toml(&path, test_data::TOML_BAD, &mut p).is_err());
         assert!(load_toml(&path, test_data::TOML_BAD_JSON, &mut p).is_err());
         assert!(load_toml(&path, test_data::TOML_BAD_ATTR1, &mut p).is_err());
         assert!(load_toml(&path, test_data::TOML_BAD_ATTR2, &mut p).is_err());

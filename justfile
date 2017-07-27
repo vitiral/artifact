@@ -123,7 +123,6 @@ fmt:
 # run rust formatter
 fmt-rust:
 	{{pre}} cargo fmt -- --write-mode overwrite  # don't generate *.bk files
-	art fmt -w
 
 # run python formatters
 fmt-py:
