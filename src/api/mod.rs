@@ -1,5 +1,6 @@
 use dev_prefix::*;
 
+use std::time::Duration;
 use std::mem;
 use std::sync::Mutex;
 use std::sync::atomic::{AtomicBool, Ordering};
@@ -177,7 +178,9 @@ pub fn start_api(project: Project, cmd: &ServeCmd) {
     });
 
     println!("exit with ctrlc+C or SIGINT");
-    while running.load(Ordering::SeqCst) {}
+    while running.load(Ordering::SeqCst) {
+        thread::sleep(Duration::new(0, 10 * 1e6 as u32));
+    }
 
     debug!("Got SIGINT, cleaning up");
     let locked = LOCKED.lock().unwrap();
