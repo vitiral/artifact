@@ -17,6 +17,14 @@ import Artifacts.Models exposing (..)
 import Artifacts.Commands exposing (updateArtifacts, createArtifacts, deleteArtifacts)
 
 
+mismatchedUuidMsg : String
+mismatchedUuidMsg =
+    ("Mismatched server uuid: the server has been restarted."
+        ++ " Copy all unsaved data and reload this tab."
+        ++ " ALL UNSAVED DATA WILL BE LOST!"
+    )
+
+
 update : Msg -> Model -> ( Model, Cmd AppMsg )
 update msg model =
     case msg of
@@ -29,9 +37,18 @@ update msg model =
                     { new_model
                         | files = project.files
                         , checked = project.checked
+                        , uuid = project.uuid
                     }
             in
-                ( final_model, cmd )
+                if model.uuid == "" || model.uuid == final_model.uuid then
+                    ( final_model, cmd )
+                else
+                    -- the uuid changed, ignore everything and log an error
+                    let
+                        err_model =
+                            Log.log model <| LogErr mismatchedUuidMsg
+                    in
+                        ( err_model, Cmd.none )
 
         ShowArtifacts ->
             ( model, Navigation.newUrl artifactsUrl )

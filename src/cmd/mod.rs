@@ -87,7 +87,7 @@ where
         Err(e) => {
             match e.kind {
                 ClEk::HelpDisplayed | ClEk::VersionDisplayed => {
-                    print!("{}", e);
+                    eprintln!("{}", e);
                     return Ok(0);
                 }
                 _ => return Err(ErrorKind::CmdError(e.to_string()).into()),

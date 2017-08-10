@@ -71,6 +71,10 @@ default-features = false
 features = ["ansi_formatting"]
 version = "1.0.3"
 
+[dependencies.uuid]
+version = "0.5.1"
+features = ["v4", "serde"]
+
 [dev-dependencies]
 fs_extra = "1.0.0"
 

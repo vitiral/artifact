@@ -25,6 +25,7 @@ initialModel location flags route =
     { artifacts = artifactsFromStrUnsafe "[]"
     , files = Set.empty
     , checked = ""
+    , uuid = ""
     , names = Dict.empty
     , route = route
     , location = location

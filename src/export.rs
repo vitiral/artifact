@@ -1,10 +1,12 @@
 //! Methods for exporting artifact to other data types (like json)
 
 use serde_json;
+use uuid::Uuid;
 
 use dev_prefix::*;
 use types::*;
 use cmd::check;
+use utils::UUID;
 
 #[derive(Serialize, Deserialize, Debug, Clone, Eq, PartialEq)]
 pub struct LocData {
@@ -40,6 +42,7 @@ pub struct ProjectData {
     pub artifacts: Vec<ArtifactData>,
     pub files: Vec<String>,
     pub checked: String,
+    pub uuid: Uuid,
 }
 
 fn default_comp_tested() -> f32 {
@@ -72,6 +75,7 @@ impl Project {
             artifacts: artifacts,
             files: files,
             checked: String::from_utf8(checked).expect("invalid-utf8 from checked"),
+            uuid: *UUID,
         }
     }
 }

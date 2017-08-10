@@ -2,6 +2,7 @@ use std::sync::atomic::{AtomicUsize, Ordering as AtomicOrdering};
 use std::io;
 
 use itertools::{Itertools, EitherOrBoth as EoB};
+use uuid::Uuid;
 
 
 use dev_prefix::*;
@@ -9,6 +10,7 @@ use types::*;
 
 lazy_static!{
     static ref INCREMENTING_ID: AtomicUsize = AtomicUsize::new(1);
+    pub static ref UUID: Uuid = Uuid::new_v4();
 }
 
 /// used for artifact ids

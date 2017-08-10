@@ -38,6 +38,7 @@ type alias ProjectData =
     { artifacts : List Artifact
     , files : Set.Set String
     , checked : String
+    , uuid : String
     }
 
 

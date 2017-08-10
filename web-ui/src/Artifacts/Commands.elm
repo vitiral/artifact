@@ -279,6 +279,7 @@ projectDecoder =
         |> required "artifacts" artifactsDecoder
         |> required "files" (Extra.set <| Decode.string)
         |> required "checked" Decode.string
+        |> required "uuid" Decode.string
 
 
 artifactsDecoder : Decode.Decoder (List Artifact)

@@ -24,6 +24,7 @@ type alias Model =
     { artifacts : Artifacts
     , files : Set.Set String
     , checked : String
+    , uuid : String
     , names :
         Dict.Dict NameKey ArtifactId
     , route : Route
