@@ -23,6 +23,7 @@ use super::tutorial;
 use super::ls;
 use super::check;
 use super::fmt as fmtcmd;
+use super::update;
 
 pub fn get_matches<'a, I, T>(args: I) -> ClapResult<ArgMatches<'a>>
 where
@@ -64,7 +65,8 @@ where
         .subcommand(ls::get_subcommand())
         .subcommand(check::get_subcommand())
         .subcommand(fmtcmd::get_subcommand())
-        .subcommand(export::get_subcommand());
+        .subcommand(export::get_subcommand())
+        .subcommand(update::get_subcommand());
 
     let app = add_serve_cmd(app);
     app.get_matches_from_safe(args)

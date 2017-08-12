@@ -44,6 +44,8 @@ extern crate clap;
 extern crate ansi_term;
 extern crate tabwriter;
 extern crate tar;
+#[macro_use]
+extern crate self_update;
 
 // # server crates
 #[cfg(feature = "server")]

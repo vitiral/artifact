@@ -8,7 +8,15 @@ main() {
     fi
 
     export RUST_BACKTRACE=1
-    just test-all
+    just lint
+    cargo test
+    just test
+    just build-release
+    export TARGET_BIN="$PWD/target/release/art"
+    test "$(uname)" = "Darwin" && echo "TODO: selenium timeout issue on mac" || \
+        py.test web-ui/sel_tests
+    just check-fmt
+    art check
     just run -- check
 }
 

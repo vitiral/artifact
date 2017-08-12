@@ -41,6 +41,7 @@ mod display;
 mod fmt;
 mod init;
 mod tutorial;
+mod update;
 
 #[cfg(feature = "server")]
 mod server;
@@ -100,6 +101,13 @@ where
         Some((v, q)) => logging::init_logger(q, v, true).unwrap(),
         None => panic!("could not find loglevel"),
     };
+
+    // if we are updating, just do that and exit
+    if let Some(up) = matches.subcommand_matches("update") {
+        info!("Calling the update command");
+        let cmd = update::get_cmd(up);
+        return Ok(update::run_cmd(&cmd).expect("update failed"));
+    }
 
     let cwd = env::current_dir().unwrap();
     let work_tree = match matches.value_of("work-tree") {

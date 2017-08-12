@@ -79,8 +79,7 @@ test-sel-py TESTS="":
 	just lint
 	{{pre}} cargo test
 	just test
-	just build
-	test "$(uname)" = "Darwin" && echo "TODO: selenium timeout issue on mac" || just test-sel-py
+	just test-sel
 	just check-fmt
 	artd check
 
@@ -138,12 +137,12 @@ publish:
 	just test-all
 	{{pre}} rustup run stable cargo test --features server
 	just build
-	git commit -a -m "v{{version}} release"
+	git commit -a -m "relase {{version}}"
 	@# push to cargo
 	{{pre}} cargo publish --no-verify
 	@#push to git
 	git push origin master
-	git tag -a "v{{version}}" -m "v{{version}}"
+	git tag -a "{{version}}" -m "{{version}}"
 	git push origin --tags
 	@#update docs
 	just publish-site

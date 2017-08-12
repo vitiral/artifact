@@ -79,7 +79,7 @@ cache:
 branches:
   only:
     # Release tags
-    - /^v\d+\.\d+\.\d+.*$/
+    - /^\d+\.\d+\.\d+.*$/
     - master
 
 notifications:
