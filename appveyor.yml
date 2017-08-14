@@ -44,14 +44,15 @@ install:
 test_script:
   # we don't run the "test phase" when doing deploys
   - if [%APPVEYOR_REPO_TAG%]==[false] (
-      cargo rustc --target %TARGET% --release --bin art --features server -- -Z unstable-options -C lto -C target-feature=+crt-static &&
+      cargo rustc --target %TARGET% --release --bin art --features server -- -C lto &&
       cargo test --target %TARGET% --features server &&
       cargo run --target %TARGET% --features server -- check &&
       cargo test --target %TARGET% --features server --release
     )
 
 before_deploy:
-  - cargo rustc --target %TARGET% --release --bin art --features server -- -Z unstable-options -C lto -C target-feature=+crt-static
+  # - cargo rustc --target %TARGET% --release --bin art --features server -- -Z unstable-options -C lto -C target-feature=+crt-static
+  - cargo rustc --target %TARGET% --release --bin art --features server -- -C lto
   - ps: ci\before_deploy.ps1
 
 deploy:
