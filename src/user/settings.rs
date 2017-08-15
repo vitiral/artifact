@@ -130,6 +130,30 @@ fn resolve_settings_paths(repo: &Path, settings: &mut Settings) -> Result<()> {
         &vars,
         &settings_path,
     )?;
+    let artifact_intersection: Vec<_> = settings
+        .artifact_paths
+        .intersection(&settings.exclude_artifact_paths)
+        .collect();
+    if !artifact_intersection.is_empty() {
+        let msg =
+            format!(
+            "some items in artifact_paths are also in exclude_artifact_paths: {:?}",
+            artifact_intersection,
+        );
+        return Err(ErrorKind::InvalidSettings(msg).into());
+    }
+    let code_intersection: Vec<_> = settings
+        .code_paths
+        .intersection(&settings.exclude_code_paths)
+        .collect();
+    if !code_intersection.is_empty() {
+        let msg =
+            format!(
+            "some items in code_paths are also in exclude_code_paths: {:?}",
+            code_intersection,
+        );
+        return Err(ErrorKind::InvalidSettings(msg).into());
+    }
     Ok(())
 }
 
