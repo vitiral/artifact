@@ -63,7 +63,7 @@ pub fn get_cmd(matches: &ArgMatches) -> Result<Cmd> {
 
 
 /// format the toml files (or just print diffs)
-/// partof: #SPC-cmd-fmt
+/// partof: #SPC-cmd-fm
 pub fn run_cmd(w: &mut Write, repo: &Path, project: &Project, cmd: &Cmd) -> Result<u8> {
     let ptext = ProjectText::from_project(project)?;
     let indent = if *cmd == Cmd::Diff {
