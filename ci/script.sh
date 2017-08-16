@@ -13,8 +13,8 @@ main() {
     just test
     just build-release
     export TARGET_BIN="$PWD/target/release/art"
-    test "$(uname)" = "Darwin" && echo "TODO: selenium timeout issue on mac" || \
-        py.test web-ui/sel_tests
+    # test "$(uname)" = "Darwin" && echo "TODO: selenium timeout issue on mac" || \
+    #     py.test web-ui/sel_tests
     just check-fmt
     art check
     just run -- check
