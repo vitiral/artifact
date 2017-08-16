@@ -1,3 +1,5 @@
+[![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/LOWiF3P6zSw/0.jpg)](https://www.youtube.com/watch?v=LOWiF3P6zSw)
+
 - **[Quick Start Guide](docs/QuickStart.md)**
 - **[Cheat Sheet](docs/CheatSheet.md)**
 - **[FAQ](docs/FAQ.md)**
