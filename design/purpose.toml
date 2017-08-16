@@ -1,4 +1,5 @@
 [REQ-1]
+partof = 'REQ-cmd'
 text = '''
 These are the developer design documents. For user documents and project information,
 see: https://github.com/vitiral/artifact
@@ -29,13 +30,13 @@ The application requirements are split into the following categories:
 - [[REQ-security]]: security considerations and risks
 - [[REQ-cmd]]: details the cmdline interface including `ls`, `check` and `export`
 - [[REQ-rpc]]: details the json-rpc interface of the server
-- [[REQ-web]]: the web-ui editing interface
-- [[REQ-tracker]]: work in progress requirements tracker. May be removed from
+- [[REQ-we]]: the web-ui editing interface
+- [[REQ-trcker]]: work in progress requirements tracker. May be removed from
   this project (made into an independent project that consumes the artifact json-rpc
   api)
 '''
 
-[REQ-artifact]
+[REQ-artifct]
 partof = 'REQ-1'
 text = '''
 artifact **will** support 4 types of artifacts that can be tracked
