@@ -16,7 +16,7 @@ This can be broken into several parts:
 '''
 
 [REQ-learning]
-partof = "REQ-purpose"
+partof = 'REQ-purpose'
 text = '''
 The flash program should do things in a way that is most condusive to learning
 the desired subject. This includes:
@@ -30,7 +30,7 @@ duplicates **shall not** be allowed, as they would be extremely confusing
 '''
 
 [REQ-cmd]
-partof = "REQ-purpose"
+partof = 'REQ-purpose'
 text = '''
 The minimum viable product shall be a command line utility that is given the
 path to one or more question files as arguments and has options which
@@ -73,7 +73,7 @@ Further information:
 '''
 
 [SPC-random]
-partof = "SPC-cmd"
+partof = 'SPC-cmd'
 text = '''
 The questions **shall** be presented randomly.
 

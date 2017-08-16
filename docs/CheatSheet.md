@@ -15,6 +15,7 @@ An example repository you can play around with is here:
 [2]: https://www.gitbook.com/read/book/vitiral/simple-quality/
 
 ## Useful commands
+- **start the interactive tutorial**: `art tutorial`
 - **get help**: `art [subcommand] -h`
 - **initialize repo**: `art init`
 - **list/filter artifacts**: `art ls`
@@ -22,14 +23,15 @@ An example repository you can play around with is here:
 - **format artifacts:** `art fmt`
 - **export a [static webpage][10]** `art export html --path-url $GITHUB_URL/blob/$(git rev-parse HEAD)/{path}#L{line}`
 - **open an editable web-ui**: `art serve`
+    - Has interactive help pages. Look for the `i` info symbols.
 
 [10]: https://vitiral.github.io/artifact-example/#artifacts/req-1
 
 ## Artifact Types
-Artifact tracks "artifacts", which are objects which have a name, some text and
-can be linked to other artifacts and to source code.
+Artifact tracks "artifacts", which are design documentation objects which have 
+a name, some text and can be linked to other artifacts and to source code.
 
-There are three types of artifact:
+There are three types of artifacts:
 - `REQ`: requirement, *why* your application exists
 - `SPC`: specification of a requirement or higher-level spec. *How* you will
   build your program
@@ -40,9 +42,13 @@ Artifact uses toml files to specify the design documents (artifacts).
 The format looks like:
 ```
 [REQ-name]
-partof = REQ-other
+partof = 'REQ-other'
 text = '''
-This is the description of the requirement
+This is the description of the requirement.
+
+You can do soft-links to other artifacts:
+- [[REQ-something]]: The web-ui will have a link to REQ-something
+  and `art check` will make sure it exists.
 '''
 done = '''
 If given, this will FORCE the artifact to be done.
@@ -52,14 +58,18 @@ Typically it is recommended to link to souce instead
 ```
 
 - name looks like: `[REQ-name]`
-- link them like: `partof = "REQ-[name, other, nested-[more, link]]"`
-    - note: same as `partof = "REQ-name, REQ-other, REQ-nested-more,
-      REQ-nested-link"`
+- link them like: `partof = ['REQ-name', 'REQ-other']`
+    - shortcut exists for power users `partof = 'REQ-[name, other]'`. This
+      can also be used as list items. `art fmt` will always convert it to the 
+      long version. 
 - `SPC-name` is automatically partof `REQ-name` (because "name" is the same)
 - `TST-name` is automatically partof `SPC-name` (because "name" is the same)
 - `SPC-name-foo` is automatically partof `SPC-name` (same prefix)
-- `done` is an arbitrary string that marks any artifact as 100% completed and
-  tested.
+- `text` is a string that gets rendered as markdown (`.md`) via the web-ui.
+  You should use it to define the artifact's purpose. 
+- `done` is an arbitrary string that adds a 100% completed and tested sub-part
+  (if it has no other sub-parts it will be 100% completed and tested). The
+  artifact cannot be implemented in code if `done` is set.
 
 ## Settings
 After `art init` settings are in: `.art/settings.toml`
@@ -79,7 +89,8 @@ or directory will mark the artifact `SPC-name` as done.
 Example:
 ```
 // Documentation about the create_name function
-// #SPC-name
+//
+// Implements #SPC-name
 fn create_name(raw: &str) -> String {
     return process_name(raw);
 }

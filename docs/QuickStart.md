@@ -39,13 +39,13 @@ and `REQ-aliens` and it's completion and test percentage will depend on them.
 
 ```
 [REQ-world]
-partof = "REQ-purpose"
+partof = 'REQ-purpose'
 text = '''
 there shall be way to say hello to the world. All of it.
 '''
 
 [REQ-aliens]
-partof = "REQ-purpose"
+partof = 'REQ-purpose'
 text = '''
 there shall be a way to say hello to aliens, but that will be harder
 '''

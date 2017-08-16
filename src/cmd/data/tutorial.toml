@@ -37,7 +37,7 @@ Goto [[REQ-toml]] next.
 '''
 
 [REQ-toml]
-partof = "REQ-learn"
+partof = 'REQ-learn'
 text = '''
 Artifact files like this one are written in the TOML format
 you can read more about it here: https://github.com/toml-lang/toml
@@ -51,7 +51,7 @@ Go to [[SPC-learn]] next.
 
 
 [SPC-learn]
-partof = "REQ-toml"
+partof = 'REQ-toml'
 text = '''
 Anything starting with SPC is a design specification and is the only way
 that a requirement can be considered "completed". Requirements (REQ)
@@ -65,7 +65,7 @@ Goto [[SPC-partof]] next.
 '''
 
 [SPC-partof]
-partof = "REQ-learn"
+partof = 'REQ-learn'
 text = '''
 Artifact uses the names of artifacts to automatically link them and track
 progress. This makes it easy for the user to intuitively link together
@@ -91,20 +91,15 @@ text = "only used as an example for [[TST-partof]]"
 
 
 [TST-partof]
-partof = "SPC-[learn, example]"
+partof = [
+    'SPC-learn',
+    'SPC-example',
+]
 text = '''
 First of all, this is how you specify a TST.
 
-Also, notice the partof field:
-```
-partof = "SPC-[learn, example]"
-```
-
-The partof field is a string that uses a simple grouping syntax. This example
-does as you would expect, this artifact is a partof SPC-learn-spc and
-SPC-learn-example
-
-> Note: it is ALSO a partof SPC-partof because of the name.
+Also, notice the `partof` field is a list to specify more than
+one artifact.
 
 See [[SPC-valid]] next.
 '''
@@ -119,7 +114,7 @@ There are only a few rules for defining artifacts:
 '''
 
 [SPC-links]
-partof = "SPC-partof"
+partof = 'SPC-partof'
 text = '''
 There are some rules for which artifacts can be a partof other artifacts:
 - All artifacts can be a partof their own group (i.e. SPC can be a partof SPC,
