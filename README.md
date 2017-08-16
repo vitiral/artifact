@@ -9,11 +9,12 @@
 [2]: http://vitiral.github.io/artifact/#artifacts/REQ-1
 [3]: https://github.com/vitiral/artifact/wiki/Exporting-Html
 
-Artifact is a design doc tool made for developers. It allows anyone to easily
-write and link their design docs both to each other and to source code, making
-it easy to track how complete their project is. Documents are revision
-controllable, can be rendered as a static web page and have a full suite of
-command line tools for searching, formatting and displaying them.
+Artifact is the simple, linkable and trackable design documentation tool for
+everybody. It allows anyone to easily write and link their design docs both to
+each other and to source code, making it easy to track how complete their
+project is. Documents are revision controllable, can be rendered as a static
+web page and have a full suite of command line tools for searching, formatting
+and displaying them.
 
 Writing detailed design documents is one of the core pillars of quality software
 development. Design documents are how you capture the requirements (purpose) of
