@@ -18,7 +18,7 @@ export RUST_VERSION="nightly-2017-08-31"
 
 export NPM_PACKAGES="\
 elm@0.18.0 \
-webpack@2.6.1 \
+webpack@3.5.5 \
 elm-format@0.6.1-alpha \
 phantomjs@2.1.7 \
 "
@@ -29,7 +29,7 @@ web-ui/py_helpers \
 scripts/interact.py \
 "
 
-export NODE_VERSION="v8.1.2"
+export NODE_VERSION="v8.4.0"
 
 if [ -z $TRAVIS_BUILD_DIR ]; then
     # if non-travis, create in target directory and override PATH
