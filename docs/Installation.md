@@ -10,10 +10,19 @@ For Linux and Mac, simply download and unpack the tarball with
 [10]: http://unix.stackexchange.com/questions/26047/how-to-correctly-add-a-path-to-path
 
 ### Windows
-> Note: windows guide is incomplete. Need to add how to add it to your "PATH"
 
-For Windows, simply download the zip file (\*windows-gnu.zip for windows10),
-unzip it and run `./artifact.exe` via git-bash.
+The recommended method of installation for windows is to use the **scoop**
+package manager.
+
+First, [install scoop](http://scoop.sh/) from a powershell terminal:
+```
+iex (new-object net.webclient).downloadstring('https://get.scoop.sh')
+```
+
+Then install artifact:
+```
+scoop install artifact
+```
 
 ### Arch Linux
 In addition to the installation methods above, Artifact is maintained as a
