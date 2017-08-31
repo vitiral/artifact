@@ -1,6 +1,8 @@
 # Based on the "trust" template v0.1.1
 # https://github.com/japaric/trust/tree/v0.1.1
 
+image: Visual Studio 2015
+
 environment:
   global:
   # This is the Rust channel that build jobs will use by default but can be
@@ -44,6 +46,7 @@ install:
 test_script:
   # we don't run the "test phase" when doing deploys
   - if [%APPVEYOR_REPO_TAG%]==[false] (
+      cargo rustc --target %TARGET% --release --bin art --features server -- -Z unstable-options -C lto -C target-feature=+crt-static &&
       cargo rustc --target %TARGET% --release --bin art --features server -- -C lto &&
       cargo test --target %TARGET% --features server &&
       cargo run --target %TARGET% --features server -- check &&
@@ -51,8 +54,8 @@ test_script:
     )
 
 before_deploy:
-  # - cargo rustc --target %TARGET% --release --bin art --features server -- -Z unstable-options -C lto -C target-feature=+crt-static
-  - cargo rustc --target %TARGET% --release --bin art --features server -- -C lto
+  - cargo rustc --target %TARGET% --release --bin art --features server -- -Z unstable-options -C lto -C target-feature=+crt-static
+  # - cargo rustc --target %TARGET% --release --bin art --features server -- -C lto
   - ps: ci\before_deploy.ps1
 
 deploy:
