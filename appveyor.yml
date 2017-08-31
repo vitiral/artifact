@@ -5,8 +5,8 @@ environment:
   global:
   # This is the Rust channel that build jobs will use by default but can be
   # overridden on a case by case basis down below
-    #RUST_VERSION: stable
-    RUST_VERSION: nightly-2017-06-17
+    RUST_VERSION: stable
+    #RUST_VERSION: nightly-2017-08-31
 
     CRATE_NAME: artifact-app
 
@@ -18,8 +18,11 @@ environment:
     - TARGET: x86_64-pc-windows-gnu
 
     # MSVC
-    - TARGET: i686-pc-windows-msvc
-    - TARGET: x86_64-pc-windows-msvc
+    # These are NOT statically linked and I can't seem to get
+    # them to be. Also the gcc builds seem to work just fine for
+    # Windows10. So disabling these.
+    # - TARGET: i686-pc-windows-msvc
+    # - TARGET: x86_64-pc-windows-msvc
 
     ## Testing other channels
     #- TARGET: x86_64-pc-windows-gnu
@@ -51,6 +54,7 @@ test_script:
     )
 
 before_deploy:
+  # theoretically this is how you link statically... doesn't work anymore
   # - cargo rustc --target %TARGET% --release --bin art --features server -- -Z unstable-options -C lto -C target-feature=+crt-static
   - cargo rustc --target %TARGET% --release --bin art --features server -- -C lto
   - ps: ci\before_deploy.ps1
