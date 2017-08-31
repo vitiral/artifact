@@ -69,7 +69,8 @@ pub fn get_cmd<'a>(matches: &'a ArgMatches) -> Result<Cmd<'a>> {
         .value_of("type")
         .unwrap_or("")
         .to_ascii_lowercase()
-        .as_str() {
+        .as_str()
+    {
         "html" => ExportType::Html,
         t => return Err(ErrorKind::CmdError(format!("unknown type: {}", t)).into()),
     };

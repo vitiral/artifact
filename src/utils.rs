@@ -1,7 +1,7 @@
 use std::sync::atomic::{AtomicUsize, Ordering as AtomicOrdering};
 use std::io;
 
-use itertools::{Itertools, EitherOrBoth as EoB};
+use itertools::{EitherOrBoth as EoB, Itertools};
 use uuid::Uuid;
 
 
@@ -28,8 +28,8 @@ pub fn relative_path(path: &Path, relative_to_dir: &Path) -> PathBuf {
     for zipped in path.components().zip_longest(relative_to_dir.components()) {
         if still_alike {
             still_alike = match zipped {
-                EoB::Both(a, b) => a == b,  // consume idential part of path
-                EoB::Left(_) => false,  // relative_to_dir is root of path
+                EoB::Both(a, b) => a == b, // consume idential part of path
+                EoB::Left(_) => false,     // relative_to_dir is root of path
                 _ => unreachable!("paths have no identical root"),
             }
         }
@@ -158,7 +158,6 @@ pub fn canonicalize(path: &Path) -> io::Result<PathBuf> {
     new_path.extend(path_iter);
 
     Ok(new_path)
-
 }
 
 #[cfg(not(windows))]

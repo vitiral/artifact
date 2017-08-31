@@ -10,6 +10,6 @@ pub const X_NAMES_OVERLAP: &'static str = "xNamesOverlap";
 pub const X_FILES_NOT_FOUND: &'static str = "xFilesNotFound";
 // const X_PROCESS_ERROR: &'static str = "xProcessError";
 pub const X_MULTIPLE_ERRORS: &'static str = "xMultipleErrors";
-pub const X_CODE: i64 = -32000;
+pub const X_CODE: i64 = -32_000;
 
 pub const SERVER_ERROR: ErrorCode = ErrorCode::ServerError(X_CODE);

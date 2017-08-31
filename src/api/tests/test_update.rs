@@ -39,10 +39,10 @@ fn test_split() {
             utils::split_artifacts(&p, &data_artifacts, &new_artifacts, false).unwrap();
 
         assert_eq!(save_artifacts.len(), 1);
-        let new_data = save_artifacts.get(&req_purpose).unwrap().to_data(
-            &p.origin,
-            &req_purpose,
-        );
+        let new_data = save_artifacts
+            .get(&req_purpose)
+            .unwrap()
+            .to_data(&p.origin, &req_purpose);
         assert_eq!(new_data.text, changed_data.text);
         assert_eq!(unchanged_artifacts.len(), starting_len - 1);
     }
@@ -57,10 +57,10 @@ fn test_split() {
         let new_artifacts = vec![changed_data.clone()];
         let (_, save_artifacts) =
             utils::split_artifacts(&p, &data_artifacts, &new_artifacts, false).unwrap();
-        let new_data = save_artifacts.get(&req_purpose).unwrap().to_data(
-            &p.origin,
-            &req_purpose,
-        );
+        let new_data = save_artifacts
+            .get(&req_purpose)
+            .unwrap()
+            .to_data(&p.origin, &req_purpose);
         assert_eq!(
             Path::new(&new_data.def),
             Path::new(&new_path)
@@ -87,7 +87,6 @@ fn test_split() {
         let new_artifacts = vec![changed_data.clone()];
         assert!(utils::split_artifacts(&p, &data_artifacts, &new_artifacts, false).is_err());
         changed_data.id = original;
-
     }
 
     // having invalid name NOT ok
@@ -97,7 +96,6 @@ fn test_split() {
         let new_artifacts = vec![changed_data.clone()];
         assert!(utils::split_artifacts(&p, &data_artifacts, &new_artifacts, false).is_err());
         changed_data.name = original;
-
     }
 }
 
@@ -144,5 +142,4 @@ fn test_update() {
         assert!(crud::update_project(&data_artifacts, &p, &new_artifacts, false).is_err());
         changed_data.def = original;
     }
-
 }

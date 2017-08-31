@@ -75,7 +75,7 @@ pub const D_TUTORIAL_MD: &'static [u8] = include_bytes!("data/tutorial.md");
 pub const D_CAPITOLS_CSV: &'static [u8] = include_bytes!("data/capitols.csv");
 pub const D_FLASH_CARD_CHALLENGE_HTM: &'static [u8] = include_bytes!(
     "data/flash-card-challenge.\
-                                                                      htm"
+     htm"
 );
 pub const D_PURPOSE_TOML: &'static [u8] = include_bytes!("data/purpose.toml");
 
@@ -169,8 +169,8 @@ pub fn run_cmd(cwd: &Path, part: u8) -> Result<u8> {
         {
             println!(
                 "ERROR: can only start the artifact tutorial in an empty directory. \
-                      To make an empty directory and change-dir to it, run:\n    \
-                      mkdir ~/tryrst; cd ~/tryrst"
+                 To make an empty directory and change-dir to it, run:\n    \
+                 mkdir ~/tryrst; cd ~/tryrst"
             );
             return Ok(0);
         }
@@ -225,14 +225,14 @@ pub fn run_cmd(cwd: &Path, part: u8) -> Result<u8> {
                 if part == 4 {
                     println!(
                         "  Tutorial part 4: open tutorial.md with a text editor and see \
-                              part 4"
+                         part 4"
                     );
                     try!(write_file(&LOAD_PY, D_LOAD_1_PY));
                 } else {
                     // stage 5: handling errors
                     println!(
                         "  Tutorial part 5: open tutorial.md with a text editor and see \
-                              part 5"
+                         part 5"
                     );
                     try!(write_file(&LOAD_TOML, D_LOAD_2_TOML));
                     try!(write_file(&LOAD_PY, D_LOAD_2_PY));

@@ -176,10 +176,10 @@ fn display_invalid_locs<W: Write>(w: &mut W, cwd: &Path, project: &Project, cmd:
             if !invalid_locs.contains_key(&loc.path) {
                 invalid_locs.insert(loc.path.clone(), Vec::new());
             }
-            invalid_locs.get_mut(&loc.path).unwrap().push((
-                name.clone(),
-                loc.clone(),
-            ));
+            invalid_locs
+                .get_mut(&loc.path)
+                .unwrap()
+                .push((name.clone(), loc.clone()));
         }
         let header = "\nFound implementation links in the code that do not exist:\n";
         paint_it_bold(w, header, cmd);

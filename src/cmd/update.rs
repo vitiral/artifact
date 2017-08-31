@@ -39,7 +39,9 @@ pub struct Cmd {
 
 /// get all the information from the user input
 pub fn get_cmd(matches: &ArgMatches) -> Cmd {
-    Cmd { version: matches.value_of("version").map(|s| s.to_string()) }
+    Cmd {
+        version: matches.value_of("version").map(|s| s.to_string()),
+    }
 }
 
 pub fn run_cmd(cmd: &Cmd) -> ::std::result::Result<u8, Box<::std::error::Error>> {

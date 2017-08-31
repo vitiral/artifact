@@ -72,7 +72,8 @@ pub fn validate_done(artifacts: &Artifacts) -> Result<()> {
             _ => {}
         }
         match artifact.done {
-            Done::NotDone => {} // correct!
+            Done::NotDone => {}
+            // correct!
             Done::Code(ref l) => {
                 error!(
                     "{} was declared implemented in code at {}. {}",
@@ -242,26 +243,22 @@ pub fn set_completed(artifacts: &mut Artifacts) -> usize {
 
             match name.ty {
                 // special calculation for the SPC type
-                Type::SPC => {
-                    for p in &parts {
-                        if p.count_spc_completed {
-                            num_completed += 1;
-                            sum_completed += p.completed;
-                        }
-                        if p.count_spc_tested {
-                            num_tested += 1;
-                            sum_tested += p.tested;
-                        }
-                    }
-                }
-                _ => {
-                    for p in &parts {
+                Type::SPC => for p in &parts {
+                    if p.count_spc_completed {
                         num_completed += 1;
                         sum_completed += p.completed;
+                    }
+                    if p.count_spc_tested {
                         num_tested += 1;
                         sum_tested += p.tested;
                     }
-                }
+                },
+                _ => for p in &parts {
+                    num_completed += 1;
+                    sum_completed += p.completed;
+                    num_tested += 1;
+                    sum_tested += p.tested;
+                },
             }
             let completed = if num_completed == 0 {
                 0.0
@@ -298,7 +295,7 @@ pub fn set_completed(artifacts: &mut Artifacts) -> usize {
             names.remove(&name);
         }
     }
-    for (name, mut artifact) in artifacts.iter_mut() {
+    for (name, artifact) in artifacts.iter_mut() {
         // note: if it is not known then it was un-calcuable
         if let Some(p) = known.get(name) {
             artifact.completed = p.completed;

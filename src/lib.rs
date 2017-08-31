@@ -22,63 +22,58 @@
 #![recursion_limit = "1024"]
 
 // # general crates
+
 #[macro_use]
 extern crate error_chain;
+extern crate fern;
+extern crate itertools;
 #[macro_use]
 extern crate lazy_static;
 #[macro_use]
 extern crate log;
-extern crate fern;
-extern crate itertools;
 
 // # core crates
+
+extern crate difference;
 extern crate regex;
 extern crate strfmt;
 extern crate time;
-extern crate difference;
 extern crate unicode_segmentation;
 extern crate unicode_width;
 
 // # cmdline crates
-extern crate clap;
+
 extern crate ansi_term;
-extern crate tabwriter;
-extern crate tar;
+extern crate clap;
 #[macro_use]
 extern crate self_update;
+extern crate tabwriter;
+extern crate tar;
 
 // # server crates
+
 #[cfg(feature = "server")]
-extern crate nickel;
+extern crate ctrlc;
 #[cfg(feature = "server")]
 extern crate jsonrpc_core;
 #[cfg(feature = "server")]
-extern crate ctrlc;
+extern crate nickel;
+#[cfg(any(feature = "server", test))]
+extern crate tempdir;
 
 // # serialization
+
+extern crate serde;
 #[macro_use]
 extern crate serde_derive;
-extern crate serde;
 extern crate serde_json;
 extern crate toml;
 extern crate uuid;
 
-
-// # tracker
-#[macro_use]
-#[cfg(feature = "tracker")]
-extern crate diesel;
-#[macro_use]
-#[cfg(feature = "tracker")]
-extern crate diesel_codegen;
-#[cfg(feature = "tracker")]
-extern crate dotenv;
-
 // crates for test
+
 #[cfg(test)]
 extern crate fs_extra;
-// note: also used for server, so just always include
-extern crate tempdir;
 
 // "core" modules
 pub mod dev_prefix;
@@ -97,7 +92,5 @@ pub mod cmd;
 pub mod test_data;
 #[cfg(feature = "server")]
 pub mod api;
-#[cfg(feature = "tracker")]
-pub mod tracker;
 
 pub use types::*;

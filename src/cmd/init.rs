@@ -31,25 +31,21 @@ pub fn get_subcommand<'a, 'b>() -> App<'a, 'b> {
 }
 
 pub fn run_cmd(path: &Path) -> Result<u8> {
-    let mut read_dir = fs::read_dir(path)
-        .chain_err(|| format!("dir: {}", path.display()))?;
+    let mut read_dir = fs::read_dir(path).chain_err(|| format!("dir: {}", path.display()))?;
     let exists = read_dir.any(|e| match e {
         Err(_) => false,
-        Ok(e) => {
-            if !e.file_type().unwrap().is_dir() {
-                false
-            } else {
-                let p = e.path();
-                let fname = p.file_name().unwrap().to_str().unwrap();
-                fname == ".art"
-            }
-        }
+        Ok(e) => if !e.file_type().unwrap().is_dir() {
+            false
+        } else {
+            let p = e.path();
+            let fname = p.file_name().unwrap().to_str().unwrap();
+            fname == ".art"
+        },
     });
     let repo = path.join(".art");
     let design = path.join("design");
     if !exists {
-        fs::create_dir(&repo)
-            .chain_err(|| format!("create dir: {}", repo.display()))?;
+        fs::create_dir(&repo).chain_err(|| format!("create dir: {}", repo.display()))?;
         let _ = fs::create_dir(&design);
 
         // create settings

@@ -7,7 +7,7 @@ pub fn init_logger(
     quiet: bool,
     verbosity: u8,
     stderr: bool,
-) -> result::Result<(), fern::InitError> {
+) -> result::Result<(), log::SetLoggerError> {
     let level = if quiet {
         log::LogLevelFilter::Off
     } else {
@@ -20,21 +20,18 @@ pub fn init_logger(
         }
     };
     let output = if stderr {
-        fern::OutputConfig::stderr()
+        fern::Output::stderr("\n")
     } else {
-        fern::OutputConfig::stdout()
+        fern::Output::stdout("\n")
     };
 
-    let logger_config = fern::DispatchConfig {
-        format: Box::new(|msg: &str,
-         level: &log::LogLevel,
-         _location: &log::LogLocation| {
-            format!("{}: {}", level, msg)
-        }),
-        output: vec![output],
-        level: level,
-    };
-    fern::init_global_logger(logger_config, log::LogLevelFilter::Trace)
+    fern::Dispatch::new()
+        .format(|out, msg, record| {
+            out.finish(format_args!("{}: {}", record.level(), msg))
+        })
+        .level(level)
+        .chain(output)
+        .apply()
 }
 
 #[cfg(test)]

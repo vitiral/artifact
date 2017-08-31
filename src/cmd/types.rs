@@ -20,12 +20,12 @@ pub use std::process::exit;
 
 // crates
 pub use ansi_term::Style;
-pub use ansi_term::Colour::{Red, Blue, Green, Yellow};
-pub use clap::{Arg, App, SubCommand, ArgMatches, AppSettings as AS, Result as ClapResult};
+pub use ansi_term::Colour::{Blue, Green, Red, Yellow};
+pub use clap::{App, AppSettings as AS, Arg, ArgMatches, Result as ClapResult, SubCommand};
 
 // module types
 pub use ui;
-pub use ui::{FmtSettings, FmtArtifact, PercentSearch, SearchSettings};
+pub use ui::{FmtArtifact, FmtSettings, PercentSearch, SearchSettings};
 
 #[cfg(not(windows))]
 pub const SUBCMD_SETTINGS: [AS; 3] = [AS::DeriveDisplayOrder, AS::ColorAuto, AS::ColoredHelp];

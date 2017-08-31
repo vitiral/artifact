@@ -34,7 +34,7 @@ where
         .version(env!("CARGO_PKG_VERSION"))
         .about(
             "The requirements tracking tool made for developers. \
-                Call `art tutorial` for a tutorial",
+             Call `art tutorial` for a tutorial",
         )
         .author("https://github.com/vitiral/artifact")
         .settings(&APP_SETTINGS)

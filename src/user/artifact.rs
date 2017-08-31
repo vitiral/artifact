@@ -66,8 +66,8 @@ pub fn load_text(
             continue;
         }
         let mut text = String::new();
-        let mut fp = fs::File::open(&fpath)
-            .chain_err(|| format!("error opening: {}", fpath.display()))?;
+        let mut fp =
+            fs::File::open(&fpath).chain_err(|| format!("error opening: {}", fpath.display()))?;
         fp.read_to_string(&mut text)
             .chain_err(|| format!("Error loading path {}", fpath.display()))?;
         ptext.files.insert(fpath.to_path_buf(), text);
@@ -272,7 +272,6 @@ mod tests {
             assert_eq!(art.done, expected);
             assert_eq!(art.completed, -1.0);
             assert_eq!(art.tested, -1.0);
-
         }
 
         // must be loaded afterwards, uses already existing artifacts

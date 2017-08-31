@@ -1,71 +1,71 @@
 [package]
-name = "artifact-app"
-version = "0.9.2"
 authors = ["Garrett Berg <vitiral@gmail.com>"]
-description = "Artifact is a design doc tool made for developers. It allows anyone to\neasily write and link their design docs both to each other and to source code,\nmaking it easy to track how complete their project is.\nDocuments are revision controllable, can be rendered as a static\nweb page and have a full suite of command line tools for searching,\nformatting and displaying them.\n"
+description = """
+Artifact is a design doc tool made for developers. It allows anyone to
+easily write and link their design docs both to each other and to source code,
+making it easy to track how complete their project is.
+Documents are revision controllable, can be rendered as a static
+web page and have a full suite of command line tools for searching,
+formatting and displaying them.
+"""
 documentation = "http://vitiral.github.io/artifact/"
-keywords = ["cmdline", "tool", "requirements", "documentation", "testing"]
+keywords = [
+    "cmdline",
+    "tool",
+    "requirements",
+    "documentation",
+    "testing",
+]
 license = "LGPL-3.0+"
+name = "artifact-app"
 readme = "README.md"
 repository = "https://github.com/vitiral/artifact"
+version = "0.9.2"
 
 [dependencies]
-ansi_term = "0.7"
-difference = "1.0"
-fern = "0.3.5"
-itertools = "0.5"
-lazy_static = "0.1.*"
-log = "0.3.6"
-regex = "0.2.1"
-serde = "1.0"
-serde_derive = "1.0"
-serde_json = "1.0"
-strfmt = "0.1"
-tar = "0.4"
-tempdir = "0.3"
-time = "0.1"
-toml = "0.4.4"
-unicode-segmentation = "1.1.0"
+ansi_term = "0.9.0"
+difference = "1.0.0"
+fern = "0.4.2"
+itertools = "0.6.2"
+lazy_static = "0.2.8"
+log = "0.3.8"
+regex = "0.2.2"
+self_update = "0.4.0"
+serde = "1.0.*"
+serde_derive = "1.*"
+serde_json = "1.*"
+strfmt = "0.1.5"
+tar = "0.4.13"
+tempdir = "0.3.5"
+time = "0.1.*"
+toml = "0.4.5"
+unicode-segmentation = "1.2.0"
 unicode-width = "0.1.4"
-self_update = "0.4"
-
-#[dependencies.toml]
-#path = "/home/garrett/projects/ruststuff/toml-rs"
-
-[dependencies.ctrlc]
-version = "3.0"
-features = ["termination"]
 
 [dependencies.clap]
 default-features = false
-features = ["suggestions", "color", "wrap_help"]
-version = "2"
+features = [
+    "suggestions",
+    "color",
+    "wrap_help",
+]
+version = "2.26.0"
 
-[dependencies.diesel]
-features = ["postgres"]
-optional = true
-version = "0.11.0"
-
-[dependencies.diesel_codegen]
-features = ["postgres"]
-optional = true
-version = "0.11.0"
-
-[dependencies.dotenv]
-optional = true
-version = "0.8.0"
+[dependencies.ctrlc]
+features = ["termination"]
+version = "3.0.2"
 
 [dependencies.error-chain]
 default-features = true
-version = "0.9.0"
+version = "0.10.0"
 
 [dependencies.jsonrpc-core]
 optional = true
-version = "7.0.0"
+version = "7.1.0"
 
 [dependencies.nickel]
 optional = true
-version = "0.10"
+version = "0.10.0"
 
 [dependencies.tabwriter]
 default-features = false
@@ -73,18 +73,20 @@ features = ["ansi_formatting"]
 version = "1.0.3"
 
 [dependencies.uuid]
+features = [
+    "v4",
+    "serde",
+]
 version = "0.5.1"
-features = ["v4", "serde"]
 
 [dev-dependencies]
 fs_extra = "1.0.0"
 
 [features]
 default = []
-server = ["nickel", "jsonrpc-core"]
-tracker = ["diesel", "diesel_codegen", "dotenv"]
-
-[profile]
-
+server = [
+    "nickel",
+    "jsonrpc-core",
+]
 [profile.dev]
 codegen-units = 3

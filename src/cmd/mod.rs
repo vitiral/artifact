@@ -85,15 +85,13 @@ where
 {
     let matches = match matches::get_matches(args) {
         Ok(m) => m,
-        Err(e) => {
-            match e.kind {
-                ClEk::HelpDisplayed | ClEk::VersionDisplayed => {
-                    eprintln!("{}", e);
-                    return Ok(0);
-                }
-                _ => return Err(ErrorKind::CmdError(e.to_string()).into()),
+        Err(e) => match e.kind {
+            ClEk::HelpDisplayed | ClEk::VersionDisplayed => {
+                eprintln!("{}", e);
+                return Ok(0);
             }
-        }
+            _ => return Err(ErrorKind::CmdError(e.to_string()).into()),
+        },
     };
 
     // initialze the logger
@@ -160,7 +158,9 @@ where
         ls::run_cmd(w, &work_tree, &cmd, &project)
     } else if matches.subcommand_matches("check").is_some() {
         info!("Calling the check command");
-        let cmd = check::Cmd { color: types::COLOR_IF_POSSIBLE };
+        let cmd = check::Cmd {
+            color: types::COLOR_IF_POSSIBLE,
+        };
         check::run_cmd(w, &work_tree, &project, &cmd)
     } else if let Some(mat) = matches.subcommand_matches("fmt") {
         info!("Calling the fmt command");
@@ -171,15 +171,12 @@ where
         let c = export::get_cmd(mat)?;
         export::run_cmd(&cwd, &project, &c)
     } else if match run_server(&project, &matches) {
-               Ok(r) => return Ok(r),
-               Err(err) => {
-                   match *err.kind() {
-                       ErrorKind::NothingDone => false,
-                       _ => return Err(err),
-                   }
-               }
-           }
-    {
+        Ok(r) => return Ok(r),
+        Err(err) => match *err.kind() {
+            ErrorKind::NothingDone => false,
+            _ => return Err(err),
+        },
+    } {
         unreachable!();
     } else {
         write!(

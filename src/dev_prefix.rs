@@ -3,7 +3,7 @@
 
 // stdlib traits
 pub use std::ascii::AsciiExt; // to_ascii_uppercase(), etc
-pub use std::io::{Read, Write, Seek, SeekFrom};
+pub use std::io::{Read, Seek, SeekFrom, Write};
 pub use std::fmt::{Debug, Write as FmtWrite};
 pub use std::iter::FromIterator;
 pub use std::clone::Clone;
@@ -33,4 +33,4 @@ pub use std::sync::Arc;
 // crates
 pub use error_chain::ChainedError;
 pub use regex::{Regex, RegexBuilder};
-pub use serde::{Serialize, Deserialize};
+pub use serde::{Deserialize, Serialize};

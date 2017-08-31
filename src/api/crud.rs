@@ -1,5 +1,5 @@
 use dev_prefix::*;
-use jsonrpc_core::{RpcMethodSync, Params, Error as RpcError, ErrorCode};
+use jsonrpc_core::{Error as RpcError, ErrorCode, Params, RpcMethodSync};
 use serde_json;
 
 use types::*;
@@ -64,17 +64,13 @@ impl RpcMethodSync for DeleteArtifacts {
 
         // get the ids to delete
         let delete_ids = match params {
-            Params::Map(mut dict) => {
-                match dict.remove("ids") {
-                    Some(value) => {
-                        match serde_json::from_value::<HashSet<u64>>(value) {
-                            Ok(i) => Ok(i),
-                            Err(e) => Err(utils::parse_error(&format!("{}", e))),
-                        }
-                    }
-                    None => Err(utils::invalid_params("missing 'ids' param")),
-                }
-            }
+            Params::Map(mut dict) => match dict.remove("ids") {
+                Some(value) => match serde_json::from_value::<HashSet<u64>>(value) {
+                    Ok(i) => Ok(i),
+                    Err(e) => Err(utils::parse_error(&format!("{}", e))),
+                },
+                None => Err(utils::invalid_params("missing 'ids' param")),
+            },
             _ => Err(utils::invalid_params("missing 'ids' key")),
         }?;
 
@@ -182,7 +178,6 @@ pub(in api) fn update_project(
     new_artifacts: &[ArtifactData],
     for_create: bool,
 ) -> result::Result<Project, RpcError> {
-
     let (unchanged_artifacts, mut save_artifacts) =
         utils::split_artifacts(project, data_artifacts, new_artifacts, for_create)?;
 

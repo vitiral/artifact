@@ -137,8 +137,7 @@ foo\n";
 #[cfg(windows)]
 const LS_S_C_STAR_FOO: &'static [u8] = LS_S_C_STAR_FOO_NC;
 
-const LS_T_LONG_NC: &'static [u8] =
-    b"|  | DONE TEST | NAME           | TEXT\n|--|   0%   0% | \
+const LS_T_LONG_NC: &'static [u8] = b"|  | DONE TEST | NAME           | TEXT\n|--|   0%   0% | \
 TST-line-long  | This line is very very very very long and it sh...\n";
 
 #[cfg(not(windows))]
@@ -163,8 +162,7 @@ This text has multiple lines.\n";
 #[cfg(windows)]
 const LS_T_MULTI: &'static [u8] = LS_T_MULTI_NC;
 
-const LS_L_MULTI_NC: &'static [u8] =
-    b"|--|   0%   0% | TST-line-multi\n * text:\nThis text has \
+const LS_L_MULTI_NC: &'static [u8] = b"|--|   0%   0% | TST-line-multi\n * text:\nThis text has \
 multiple lines.\nThis is the second one.\nYou shouldn't see these later lines!\n\n";
 
 #[cfg(not(windows))]
@@ -194,7 +192,6 @@ fn repr_bytes(bytes: &[u8]) {
             b'\r' => print!("\\r"),
             32...126 => print!("{}", *b as char), // visible ASCII
             _ => print!(r"\x{:0>2x}", b),
-
         }
     }
 }
@@ -248,7 +245,9 @@ fn get_project() -> Project {
 
 #[test]
 fn test_cmd_check() {
-    let mut cmd = check::Cmd { color: COLOR_IF_POSSIBLE };
+    let mut cmd = check::Cmd {
+        color: COLOR_IF_POSSIBLE,
+    };
     let mut w: Vec<u8> = Vec::new();
     let cwd = PathBuf::from("src/foo");
     let project = get_project();

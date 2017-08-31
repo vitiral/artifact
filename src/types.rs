@@ -1,3 +1,5 @@
+#![allow(unused_doc_comment)]
+
 use dev_prefix::*;
 
 pub const VERSION: &'static str = env!("CARGO_PKG_VERSION");

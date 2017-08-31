@@ -60,7 +60,6 @@ fn test_init() {
         fs::remove_dir_all(&dir.join("design")).unwrap();
         init::run_cmd(&dir).unwrap();
         assert!(!purpose.exists());
-
     }));
     drop(dir);
     result.unwrap();

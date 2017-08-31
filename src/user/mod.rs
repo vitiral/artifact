@@ -35,11 +35,11 @@ mod settings;
 mod tests;
 
 // export for other modules to use
-pub use user::save::{ProjectText, PathDiff};
+pub use user::save::{PathDiff, ProjectText};
 
 // Exposed for testing only
 #[cfg(test)]
-pub use user::artifact::{load_toml, load_text as load_project_text};
+pub use user::artifact::{load_text as load_project_text, load_toml};
 #[cfg(test)]
 pub use user::link::do_links;
 #[cfg(test)]

@@ -14,14 +14,12 @@ use utils::canonicalize;
 pub fn load_settings(repo: &Path) -> Result<Settings> {
     let settings_path = repo.join(SETTINGS_PATH.as_path());
     let mut text = String::new();
-    let mut f = fs::File::open(&settings_path)
-        .chain_err(|| {
-            format!("error opening settings: {}", settings_path.display())
-        })?;
-    f.read_to_string(&mut text)
-        .chain_err(|| {
-            format!("error reading settings: {}", settings_path.display())
-        })?;
+    let mut f = fs::File::open(&settings_path).chain_err(|| {
+        format!("error opening settings: {}", settings_path.display())
+    })?;
+    f.read_to_string(&mut text).chain_err(|| {
+        format!("error reading settings: {}", settings_path.display())
+    })?;
     from_text(repo, &text)
 }
 
@@ -39,11 +37,9 @@ pub fn from_text(repo: &Path, text: &str) -> Result<Settings> {
 pub fn from_raw(raw: &RawSettings) -> Result<Settings> {
     fn to_paths(paths: &Option<Vec<String>>) -> HashSet<PathBuf> {
         match *paths {
-            Some(ref p) => {
-                p.iter()
-                    .map(|p| PathBuf::from(utils::convert_path_str(p)))
-                    .collect()
-            }
+            Some(ref p) => p.iter()
+                .map(|p| PathBuf::from(utils::convert_path_str(p)))
+                .collect(),
             None => HashSet::new(),
         }
     }
@@ -82,21 +78,18 @@ fn resolve_settings_paths(repo: &Path, settings: &mut Settings) -> Result<()> {
         // push resolved exclude_artifact_paths
         let mut out = HashSet::new();
         for p in paths {
-            let p = utils::do_strfmt(utils::get_path_str(p)?, vars, settings_path)
-                .chain_err(|| {
-                    format!("replacing variables failed at {}: {}", name, p.display())
-                })?;
+            let p = utils::do_strfmt(utils::get_path_str(p)?, vars, settings_path).chain_err(|| {
+                format!("replacing variables failed at {}: {}", name, p.display())
+            })?;
             // if an exclude path doesn't exist that's fine
             let p = match canonicalize(Path::new(&p)) {
                 Ok(p) => p,
-                Err(err) => {
-                    if ignore_errors {
-                        debug!("could not find {} path: {}", name, p);
-                        continue;
-                    } else {
-                        return Err(err).chain_err(|| format!("could not find {}: {}", name, p));
-                    }
-                }
+                Err(err) => if ignore_errors {
+                    debug!("could not find {} path: {}", name, p);
+                    continue;
+                } else {
+                    return Err(err).chain_err(|| format!("could not find {}: {}", name, p));
+                },
             };
             out.insert(p);
         }
@@ -135,8 +128,7 @@ fn resolve_settings_paths(repo: &Path, settings: &mut Settings) -> Result<()> {
         .intersection(&settings.exclude_artifact_paths)
         .collect();
     if !artifact_intersection.is_empty() {
-        let msg =
-            format!(
+        let msg = format!(
             "some items in artifact_paths are also in exclude_artifact_paths: {:?}",
             artifact_intersection,
         );
@@ -147,8 +139,7 @@ fn resolve_settings_paths(repo: &Path, settings: &mut Settings) -> Result<()> {
         .intersection(&settings.exclude_code_paths)
         .collect();
     if !code_intersection.is_empty() {
-        let msg =
-            format!(
+        let msg = format!(
             "some items in code_paths are also in exclude_code_paths: {:?}",
             code_intersection,
         );

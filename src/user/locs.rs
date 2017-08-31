@@ -63,7 +63,7 @@ fn find_locs_text(path: &Path, text: &str, locs: &mut HashMap<Name, Loc>) -> Res
             if let Some(first) = locs.insert(name, loc) {
                 warn!(
                     "locations found twice. first: {}({}), \
-                      second: {}({})",
+                     second: {}({})",
                     first.path.display(),
                     first.line,
                     path.display(),
@@ -84,15 +84,13 @@ fn find_locs_text(path: &Path, text: &str, locs: &mut HashMap<Name, Loc>) -> Res
 fn find_locs_file(path: &Path, locs: &mut HashMap<Name, Loc>) -> Result<()> {
     debug!("resolving locs at: {:?}", path);
     let mut text = String::new();
-    let mut f = fs::File::open(path)
-        .chain_err(|| format!("opening file: {}", path.display()))?;
+    let mut f = fs::File::open(path).chain_err(|| format!("opening file: {}", path.display()))?;
     if let Err(e) = f.read_to_string(&mut text) {
         if e.kind() == io::ErrorKind::InvalidData {
             warn!("non-utf8 file: {}", path.display());
             return Ok(());
         } else {
-            Err(e)
-                .chain_err(|| format!("reading file: {}", path.display()))?;
+            Err(e).chain_err(|| format!("reading file: {}", path.display()))?;
         }
     }
     find_locs_text(path, &text, locs)
@@ -105,8 +103,7 @@ fn find_locs_dir(
     locs: &mut HashMap<Name, Loc>,
 ) -> Result<()> {
     loaded.insert(path.to_path_buf());
-    let read_dir = fs::read_dir(path)
-        .chain_err(|| format!("loading dir {}", path.display()))?;
+    let read_dir = fs::read_dir(path).chain_err(|| format!("loading dir {}", path.display()))?;
     let mut dirs_to_load: Vec<PathBuf> = Vec::new(); // TODO: use references
     for entry in read_dir.filter_map(|e| e.ok()) {
         let fpath = entry.path();
@@ -117,11 +114,9 @@ fn find_locs_dir(
         // TODO: make general instead
         match fpath.extension() {
             None => {}
-            Some(ext) => {
-                if ext == "toml" {
-                    continue;
-                }
-            }
+            Some(ext) => if ext == "toml" {
+                continue;
+            },
         }
         let ftype = entry
             .file_type()

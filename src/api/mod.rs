@@ -6,7 +6,7 @@ use std::sync::Mutex;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::thread;
 
-use nickel::{Request, Response, MiddlewareResult, Nickel, HttpRouter, MediaType,
+use nickel::{HttpRouter, MediaType, MiddlewareResult, Nickel, Request, Response,
              StaticFilesHandler};
 use nickel::status::StatusCode;
 use serde_json;
@@ -14,7 +14,7 @@ use serde_json;
 use tar::Archive;
 use tempdir::TempDir;
 
-use types::{ServeCmd, Project};
+use types::{Project, ServeCmd};
 use export::ProjectData;
 use ctrlc;
 

@@ -55,7 +55,6 @@ pub fn get_subcommand<'a, 'b>() -> App<'a, 'b> {
                       are implemented.",
                 ),
         )
-
 }
 
 

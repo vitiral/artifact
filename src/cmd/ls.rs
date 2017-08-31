@@ -82,7 +82,7 @@ pub fn get_subcommand<'a, 'b>() -> App<'a, 'b> {
                 .long("completed")
                 .help(
                     "Filter by completeness (e.g. '<45'), < and > are inclusive. \
-                   < is a shortcut for 0%, and > is a shortcut for 100%",
+                     < is a shortcut for 0%, and > is a shortcut for 100%",
                 )
                 .takes_value(true),
         )
@@ -156,7 +156,7 @@ pub fn _get_percent(s: &str) -> result::Result<(Option<bool>, Option<i8>), Strin
         _ => {
             return Err(
                 "percent must be of the form: [SIGN]NUM where NUM is between 0 and 100 and \
-                        SIGN is an optional < or >"
+                 SIGN is an optional < or >"
                     .to_string(),
             )
         }
@@ -172,46 +172,42 @@ pub fn _get_percent(s: &str) -> result::Result<(Option<bool>, Option<i8>), Strin
         return Ok((lt, None));
     }
     match s.parse::<i8>() {
-        Ok(v) => {
-            if v <= 100 && v >= -100 {
-                Ok((lt, Some(v)))
-            } else {
-                Err("NUM must be between -100 and 100".to_string())
-            }
-        }
+        Ok(v) => if v <= 100 && v >= -100 {
+            Ok((lt, Some(v)))
+        } else {
+            Err("NUM must be between -100 and 100".to_string())
+        },
         Err(e) => Err(e.to_string()),
     }
 }
 
 fn get_percent(s: &str) -> result::Result<PercentSearch, String> {
     Ok(match _get_percent(s) {
-        Ok((lt, perc)) => {
-            if lt.is_none() && perc.is_none() {
+        Ok((lt, perc)) => if lt.is_none() && perc.is_none() {
+            PercentSearch {
+                lt: false,
+                perc: 100,
+            }
+        } else if perc.is_none() {
+            if lt.unwrap() {
+                PercentSearch { lt: true, perc: 0 }
+            } else {
                 PercentSearch {
                     lt: false,
                     perc: 100,
                 }
-            } else if perc.is_none() {
-                if lt.unwrap() {
-                    PercentSearch { lt: true, perc: 0 }
-                } else {
-                    PercentSearch {
-                        lt: false,
-                        perc: 100,
-                    }
-                }
-            } else {
-                let lt = match lt {
-                    None => false,
-                    Some(l) => l,
-                };
-                let perc = match perc {
-                    None => 100,
-                    Some(p) => p,
-                };
-                PercentSearch { lt: lt, perc: perc }
             }
-        }
+        } else {
+            let lt = match lt {
+                None => false,
+                Some(l) => l,
+            };
+            let perc = match perc {
+                None => 100,
+                Some(p) => p,
+            };
+            PercentSearch { lt: lt, perc: perc }
+        },
         Err(e) => return Err(e),
     })
 }
@@ -269,7 +265,6 @@ fn test_get_percent() {
     assert!(get_percent(">101").is_err());
     assert!(get_percent("a").is_err());
     assert!(get_percent("<a").is_err());
-
 }
 
 #[cfg(not(windows))]
@@ -316,8 +311,7 @@ pub fn get_cmd(matches: &ArgMatches) -> Result<Cmd> {
         fmt_set.loc_path = !fmt_set.loc_path;
         fmt_set.text = !fmt_set.text;
     } else if fmt_set.long &&
-               !(fmt_set.def || fmt_set.parts || fmt_set.partof || fmt_set.loc_path ||
-                     fmt_set.text)
+        !(fmt_set.def || fmt_set.parts || fmt_set.partof || fmt_set.loc_path || fmt_set.text)
     {
         // if long is specified but no other display attributes are specified
         fmt_set.def = true;
@@ -363,7 +357,7 @@ pub fn get_cmd(matches: &ArgMatches) -> Result<Cmd> {
 
 #[allow(trivial_regex)]
 /// perform the ls command given the inputs
-pub fn run_cmd<W: Write>(mut w: &mut W, cwd: &Path, cmd: &Cmd, project: &Project) -> Result<u8> {
+pub fn run_cmd<W: Write>(w: &mut W, cwd: &Path, cmd: &Cmd, project: &Project) -> Result<u8> {
     let mut dne: Vec<NameRc> = Vec::new();
     let artifacts = &project.artifacts;
     let mut fmt_set = cmd.fmt_settings.clone();
@@ -446,8 +440,7 @@ pub fn run_cmd<W: Write>(mut w: &mut W, cwd: &Path, cmd: &Cmd, project: &Project
         }
         OutType::Json => {
             w.write_all(
-                export::project_artifacts_to_json(project, Some(&names))
-                    .as_bytes(),
+                export::project_artifacts_to_json(project, Some(&names)).as_bytes(),
             )?;
         }
     }

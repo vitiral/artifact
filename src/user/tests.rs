@@ -314,8 +314,7 @@ fn test_link_completed_tested() {
         "TST-core-bob-1-a",
         "TST-core-bob-1-b-2",
         "TST-core-bob-2-a",
-    ]
-    {
+    ] {
         let art = artifacts
             .get_mut(&NameRc::from_str(sname).unwrap())
             .unwrap();
@@ -592,10 +591,8 @@ fn test_exclude() {
 #[test]
 fn test_fmt_basic() {
     let mut text = ProjectText::default();
-    text.files.insert(
-        PathBuf::new(),
-        test_data::TOML_UNFMT.to_string(),
-    );
+    text.files
+        .insert(PathBuf::new(), test_data::TOML_UNFMT.to_string());
     let project = user::process_project_text(Settings::default(), &text).unwrap();
     let new_text = ProjectText::from_project(&project).unwrap();
     let fmted = new_text.files.get(&PathBuf::new()).unwrap();

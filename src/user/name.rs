@@ -170,15 +170,13 @@ fn _get_type(value: &str, raw: &str) -> Result<Type> {
         "REQ" => Ok(Type::REQ),
         "SPC" => Ok(Type::SPC),
         "TST" => Ok(Type::TST),
-        _ => {
-            Err(
-                ErrorKind::InvalidName(format!(
-                    "name must start with REQ-, SPC- or TST-: \
-                                                {}",
-                    raw
-                )).into(),
-            )
-        }
+        _ => Err(
+            ErrorKind::InvalidName(format!(
+                "name must start with REQ-, SPC- or TST-: \
+                 {}",
+                raw
+            )).into(),
+        ),
     }
 }
 
@@ -208,7 +206,8 @@ where
             }
         };
         match c {
-            ' ' | '\n' | '\r' => {} // ignore whitespace
+            ' ' | '\n' | '\r' => {}
+            // ignore whitespace
             '[' => {
                 if current == "" {
                     // SPC-names.2: more validation
@@ -276,8 +275,7 @@ fn test_name() {
         "REQ-foo-bar-2_3",
         "SPC-foo",
         "TST-foo",
-    ]
-    {
+    ] {
         assert!(Name::from_str(name).is_ok());
     }
     for name in vec!["REQ-foo*", "REQ-foo\n", "REQ-foo-"] {

@@ -25,16 +25,11 @@ pub struct ArtifactData {
 
     // // TODO: until I serde gets up to speed, the web-api will
     // // have to send these values even though they are ignored
-    #[serde(default)]
-    pub parts: Vec<String>,
-    #[serde(default)]
-    pub code: Option<LocData>,
-    #[serde(default)]
-    pub done: Option<String>,
-    #[serde(default = "default_comp_tested")]
-    pub completed: f32,
-    #[serde(default = "default_comp_tested")]
-    pub tested: f32,
+    #[serde(default)] pub parts: Vec<String>,
+    #[serde(default)] pub code: Option<LocData>,
+    #[serde(default)] pub done: Option<String>,
+    #[serde(default = "default_comp_tested")] pub completed: f32,
+    #[serde(default = "default_comp_tested")] pub tested: f32,
 }
 
 #[derive(Serialize, Debug, Default, Clone, PartialEq)]
@@ -84,19 +79,17 @@ impl Artifact {
     /// convert an `Artifact` to it's data form
     pub fn to_data(&self, origin: &Path, name: &NameRc) -> ArtifactData {
         let (code, done) = match self.done {
-            Done::Code(ref l) => {
-                (
-                    Some(LocData {
-                        path: l.path
-                            .strip_prefix(origin)
-                            .expect("origin invalid")
-                            .to_string_lossy()
-                            .to_string(),
-                        line: l.line as u64,
-                    }),
-                    None,
-                )
-            }
+            Done::Code(ref l) => (
+                Some(LocData {
+                    path: l.path
+                        .strip_prefix(origin)
+                        .expect("origin invalid")
+                        .to_string_lossy()
+                        .to_string(),
+                    line: l.line as u64,
+                }),
+                None,
+            ),
             Done::Defined(ref s) => (None, Some(s.clone())),
             Done::NotDone => (None, None),
         };

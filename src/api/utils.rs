@@ -1,5 +1,5 @@
 use dev_prefix::*;
-use jsonrpc_core::{Params, Error as RpcError, ErrorCode};
+use jsonrpc_core::{Error as RpcError, ErrorCode, Params};
 use serde_json;
 
 use types::*;
@@ -43,17 +43,13 @@ pub fn convert_artifact(
 /// pull out the artifacts from the params
 pub fn get_artifacts(params: Params) -> result::Result<Vec<ArtifactData>, RpcError> {
     match params {
-        Params::Map(mut dict) => {
-            match dict.remove("artifacts") {
-                Some(value) => {
-                    match serde_json::from_value::<Vec<ArtifactData>>(value) {
-                        Ok(a) => Ok(a),
-                        Err(e) => Err(parse_error(&format!("{}", e))),
-                    }
-                }
-                None => Err(invalid_params("missing 'artifacts' param")),
-            }
-        }
+        Params::Map(mut dict) => match dict.remove("artifacts") {
+            Some(value) => match serde_json::from_value::<Vec<ArtifactData>>(value) {
+                Ok(a) => Ok(a),
+                Err(e) => Err(parse_error(&format!("{}", e))),
+            },
+            None => Err(invalid_params("missing 'artifacts' param")),
+        },
         _ => Err(invalid_params("params must have 'artifacts' key")),
     }
 }
