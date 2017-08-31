@@ -1,6 +1,8 @@
 # Based on the "trust" template v0.1.1
 # https://github.com/japaric/trust/tree/v0.1.1
 
+image: Visual Studio 2017
+
 environment:
   global:
   # This is the Rust channel that build jobs will use by default but can be
