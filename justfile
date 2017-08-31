@@ -9,6 +9,7 @@ export_bin = "export TARGET_BIN=" + target + "/debug/art" + " &&"
 repo_url = "https://github.com/vitiral/artifact"
 build_site_args = '--path-url "' + repo_url + '/blob/$(git rev-parse --verify HEAD)/{path}#L{line}"'
 pre = 'CARGO_INCREMENTAL=1'
+art = 'target/debug/art'
 
 
 # just get the version
@@ -20,12 +21,12 @@ echo-version:
 
 # do the standard build, including the full server and static web-ui
 build:
-	just web-ui/build 
+	just web-ui/build
 	just build-rust
 
 # build in release mode
 build-release:
-	just web-ui/build 
+	just web-ui/build
 	cargo build --features server --release
 
 
@@ -34,7 +35,7 @@ build-rust:
 	{{pre}} cargo build --features server
 
 # build with only static html (not server)
-build-static: 
+build-static:
 	just web-ui/build-static
 	just build
 
@@ -64,9 +65,9 @@ lint-rust:
 lint-py:
 	@echo "pylint $PYTHON_CHECK"
 	@pylint $PYTHON_CHECK
-	
+
 # build and run selenium tests
-test-sel TESTS="": 
+test-sel TESTS="":
 	just build
 	just test-sel-py -- {{TESTS}}
 
@@ -81,7 +82,7 @@ test-sel-py TESTS="":
 	just test
 	just test-sel
 	just check-fmt
-	artd check
+	{{art}} check
 
 # run all formatters in "check" mode to make sure code has been formatted
 check-fmt:
@@ -89,8 +90,7 @@ check-fmt:
 	case "$(autopep8 $PYTHON_CHECK -r --diff)" in ("") true;; (*) false;; esac
 	case "$(docformatter $PYTHON_CHECK -r)" in ("") true;; (*) false;; esac
 	just web-ui/check-fmt
-	artd fmt -d > /dev/null 2>&1
-
+	{{art}} fmt -d > /dev/null 2>&1
 
 ##################################################
 # running commands
@@ -117,7 +117,7 @@ fmt:
 	just fmt-rust
 	just fmt-py
 	just web-ui/fmt
-	artd fmt -w
+	{{art}} fmt -w
 
 # run rust formatter
 fmt-rust:
@@ -129,7 +129,7 @@ fmt-py:
     docformatter $PYTHON_CHECK -r --in-place
 
 # publish to github and crates.io
-publish: 
+publish:
 	@# make sure code is clean on master
 	git branch | grep '* master'
 	git diff --no-ext-diff --quiet --exit-code
@@ -153,7 +153,7 @@ build-site:
 
 # push the static html design docs to git-pages
 publish-site:
-	artd -vv export html -o _gh-pages {{build_site_args}}
+	{{art}} -vv export html -o _gh-pages {{build_site_args}}
 	(cd _gh-pages; git commit -am 'v{{version}}' && git push origin gh-pages)
 
 ##################################################
