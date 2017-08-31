@@ -79,6 +79,11 @@ pathinsert $RUST_BIN
 # always make sure the default is up-to-date
 rustup default $RUST_VERSION || return $?
 
+if [ -z "$CI_BUILD_FAST" ]; then
+    echo "CI_BUILD_FAST is set, only rust is installed."
+    exit 0
+fi
+
 ################################################################################
 # setup python virtualenv and packages
 errcho "-- setting up python --"

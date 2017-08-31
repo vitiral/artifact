@@ -43,10 +43,10 @@ matrix:
 before_install: set -e
 
 install:
+  - test "$TRAVIS_OS_NAME" = "osx" && export CI_BUILD_FAST=1 || echo "doing full build"
   - source $PWD/env
   - just update
   - sh ci/install.sh
-  #- source ~/.cargo/env || true
 
 script:
   - bash ci/script.sh

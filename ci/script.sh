@@ -7,6 +7,12 @@ main() {
         return
     fi
 
+    if [ -z "$CI_BUILD_FAST" ]; then
+        echo "Only doing fast build and test"
+        cargo test --features server
+        return 0
+    fi
+
     export RUST_BACKTRACE=1
     just lint
     cargo test
