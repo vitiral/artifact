@@ -10,6 +10,18 @@ For Linux and Mac, simply download and unpack the tarball with
 [10]: http://unix.stackexchange.com/questions/26047/how-to-correctly-add-a-path-to-path
 
 ### Windows
+
+#### Scoop
+The recommended method of installation for windows is to use the scoop package manager.
+
+First, [install scoop](http://scoop.sh/).
+
+Then, install artifact:
+
+```
+scoop install artifact
+```
+
 > Note: windows guide is incomplete. Need to add how to add it to your "PATH"
 
 For Windows, simply download the zip file (\*windows-gnu.zip for windows10),
