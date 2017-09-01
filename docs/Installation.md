@@ -12,20 +12,15 @@ For Linux and Mac, simply download and unpack the tarball with
 ### Windows
 
 #### Scoop
-The recommended method of installation for windows is to use [scoop](https://github.com/lukesampson/scoop).
-First, install scoop by opening up a powershell terminal and running:
+The recommended method of installation for windows is to use the scoop package manager.
 
-```
-iex (new-object net.webclient).downloadstring('https://get.scoop.sh')
-```
+First, [install scoop](http://scoop.sh/).
 
-then to install artifact:
+Then, install artifact:
 
 ```
 scoop install artifact
 ```
-
-#### Alternative Windows method
 
 > Note: windows guide is incomplete. Need to add how to add it to your "PATH"
 
