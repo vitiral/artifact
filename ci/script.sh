@@ -7,7 +7,7 @@ main() {
         return
     fi
 
-    if [ -z "$CI_BUILD_FAST" ]; then
+    if [ "$CI_BUILD" = "fast" ]; then
         echo "Only doing fast build and test"
         cargo test --features server
         return 0
@@ -22,7 +22,7 @@ main() {
     # test "$(uname)" = "Darwin" && echo "TODO: selenium timeout issue on mac" || \
     #     py.test web-ui/sel_tests
     just check-fmt
-    art check
+    eval "$TARGET_BIN check"
     just run -- check
 }
 

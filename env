@@ -52,7 +52,7 @@ errcho() {
 
 if [ ! -d ".git" ] || [ ! -d "web-ui" ]; then
     errcho "Must be run in repository root."
-    exit 1
+    return 1
 fi
 
 pathinsert() {
@@ -79,9 +79,9 @@ pathinsert $RUST_BIN
 # always make sure the default is up-to-date
 rustup default $RUST_VERSION || return $?
 
-if [ -z "$CI_BUILD_FAST" ]; then
-    echo "CI_BUILD_FAST is set, only rust is installed."
-    exit 0
+if [ "$CI_BUILD" = "fast" ]; then
+    echo "CI_BUILD=fast, only rust is installed in env."
+    return 0
 fi
 
 ################################################################################
@@ -126,10 +126,15 @@ if [ ! -e $RUST_BIN/just ]; then
     # install required packages. They can be updated with `just update`
     cargo install cargo-update || return $?
     cargo install just || return $?
-    just update || return $?
 fi
 
 pathinsert $NODE_DIR/node_modules/.bin
+
+if [ "$CI_BUILD" = "full" ]; then
+    just update || return $?
+    echo "CI_BUILD=full, finished setting up env"
+    return 0
+fi
 
 if [ ! -e $RUST_BIN/art ]; then
     errcho "- building release+debug artifact as art+artd"
