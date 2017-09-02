@@ -81,7 +81,7 @@ test-sel-py TESTS="":
 	just test
 	just test-sel
 	just check-fmt
-	artd check
+	art check
 
 # run all formatters in "check" mode to make sure code has been formatted
 check-fmt:
@@ -89,8 +89,7 @@ check-fmt:
 	case "$(autopep8 $PYTHON_CHECK -r --diff)" in ("") true;; (*) false;; esac
 	case "$(docformatter $PYTHON_CHECK -r)" in ("") true;; (*) false;; esac
 	just web-ui/check-fmt
-	artd fmt -d > /dev/null 2>&1
-
+	art fmt -d > /dev/null 2>&1
 
 ##################################################
 # running commands
@@ -117,7 +116,7 @@ fmt:
 	just fmt-rust
 	just fmt-py
 	just web-ui/fmt
-	artd fmt -w
+	art fmt -w
 
 # run rust formatter
 fmt-rust:
@@ -153,7 +152,7 @@ build-site:
 
 # push the static html design docs to git-pages
 publish-site:
-	artd -vv export html -o _gh-pages {{build_site_args}}
+	art -vv export html -o _gh-pages {{build_site_args}}
 	(cd _gh-pages; git commit -am 'v{{version}}' && git push origin gh-pages)
 
 ##################################################
