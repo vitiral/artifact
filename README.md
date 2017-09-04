@@ -1,5 +1,6 @@
-[![Introducing Artifact Video](docs/data/artifact-thumb.png)](https://www.youtube.com/watch?v=LOWiF3P6zSw)
+[![Introducing Artifact Video](docs/data/artifact-thumb.png)](https://www.youtube.com/watch?v=kMzxKVkKLlE)
 
+- **[Installation Guide](docs/Installation.md)**
 - **[Quick Start Guide](docs/QuickStart.md)**
 - **[Cheat Sheet](docs/CheatSheet.md)**
 - **[FAQ](docs/FAQ.md)**
@@ -63,7 +64,8 @@ released and 1.0 is probably coming within a few weeks.
 
 ## Contributors
 To set up a build environment and run tests, simply run:
-```
+
+```bash
 git clone git@github.com:vitiral/artifact.git && cd artifact
 source env  # installs environment to `target/env`
 just test-all

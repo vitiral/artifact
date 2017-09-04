@@ -1,13 +1,16 @@
-This is the installation guide. For more information see the [[User Guide]]
+This is the installation guide. For more information see the
+[project home page][1]
 
 ## Typical Installation
 artifact is compiled for linux, mac and windows. You can find releases on the
 **[github release page](https://github.com/vitiral/artifact/releases)**.
 
 For Linux and Mac, simply download and unpack the tarball with
-`tar -zxvf RELEASE.tar.gz`. Then put it somewhere in your [PATH][10]
+`tar -zxvf <release_name>.tar.gz`. Then put it somewhere in your [PATH][10]
 
 [10]: http://unix.stackexchange.com/questions/26047/how-to-correctly-add-a-path-to-path
+
+You can then update to the newest version with `art update`
 
 ### Windows
 
@@ -32,7 +35,7 @@ https://aur.archlinux.org/packages/artifact/
 
 ## Building From Source
 Simply execute the following:
-```
+```bash
 git clone https://github.com/vitiral/artifact
 cd artifact
 source env  # this will take a while
@@ -40,7 +43,7 @@ cargo build --features server --release
 ```
 
 Do a full suite of tests with:
-```
+```bash
 just test-all
 ```
 
