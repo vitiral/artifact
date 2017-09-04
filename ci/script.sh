@@ -7,6 +7,12 @@ main() {
         return
     fi
 
+    if [ "$CI_BUILD" = "fast" ]; then
+        echo "Only doing fast build and test"
+        cargo test --features server
+        return 0
+    fi
+
     export RUST_BACKTRACE=1
     just lint
     cargo test
@@ -16,7 +22,7 @@ main() {
     # test "$(uname)" = "Darwin" && echo "TODO: selenium timeout issue on mac" || \
     #     py.test web-ui/sel_tests
     just check-fmt
-    art check
+    eval "$TARGET_BIN check"
     just run -- check
 }
 
