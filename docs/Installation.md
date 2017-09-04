@@ -50,7 +50,7 @@ just test-all
 ## Installing with [cargo](https://github.com/rust-lang/cargo)
 
 Install rust with [rustup](https://github.com/rust-lang-nursery/rustup.rs) and
-type `cargo install artifact-app`
+type `cargo install artifact-app --features server`
 
 Note this may never be feature complete and is not the recommended method of
 installation.
