@@ -139,6 +139,9 @@ publish:
 	just build
 	git commit -a -m "relase {{version}}"
 	@# push to cargo
+	just publish-finish
+
+publish-finish:
 	{{pre}} cargo publish --no-verify
 	@#push to git
 	git push origin master
