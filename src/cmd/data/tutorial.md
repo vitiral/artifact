@@ -96,10 +96,7 @@ name, you can see that three purpose requirements appear.
 
 > ### Exercise 3:
 > Play around with the `art ls` command a little more to get used to it,
-> we will be using it a lot. Get help with:
-> ```
-    art ls -h
-```
+> we will be using it a lot. Get help with `art ls -h`
 
 Once you are done, continue onto stage 3.
 
