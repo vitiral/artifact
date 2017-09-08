@@ -12,3 +12,8 @@ In order to make a github page for your site that hosts your design documents:
 
 That's it! You should be able to navigate to
 `http://<username>.github.io/<repo-name>/` to view your page!
+
+## Add Code Links
+Once you have a basic page up, it is good to have your source code
+implementations be linked from your design docs. For this, you should use the
+`--path-url` flag. Read the documentation on that command with `art export --help`

@@ -35,19 +35,20 @@ pub fn get_subcommand<'a, 'b>() -> App<'a, 'b> {
                 .long("path-url")
                 .takes_value(true)
                 .help(
-                    "Use the given format for creating links to artifact definitions when using \
-                    export html.\
-                    \nThis allows for easy viewing of the code where artifacts are implemented.\
-                    \nexample: $GITHUB_URL/blob/$(git rev-parse HEAD)/{path}#L{line}\
-                    \n- `$REPO_URL` is the url for your repo on github (i.e. https://github.com/\
-                    vitiral/artifact)\
-                    \n- `$(git rev-parse HEAD)` is a bash cmd which finds the current hash of your \
-                    repo\
-                    \n- `{path}` and `{line}` are special markers that artifact uses for creating \
-                    the link for each artifact.\
-                    \nThis results in links like:\
-                    \nhttps://github.com/vitiral/artifact/blob/\
-                    4688c950731b081387976bbaf3fb0dc5612d5cad/src/cmd/ls.rs#L28\n",
+                    "\nUse the given format for creating links to artifact definitions when using \
+                     `export html`.\
+                     \nThis allows for easy viewing of the code where artifacts are implemented.\
+                     \nExample:\n    $GITHUB_URL/blob/$(git rev-parse HEAD)/{path}#L{line}\
+                     \n\n- `$REPO_URL` is the url for your repo on github\
+                     \n  (i.e. https://github.com/vitiral/artifact)\
+                     \n- `$(git rev-parse HEAD)` is a bash cmd which finds\
+                     \n  the current hash of your repo\
+                     \n- `{path}` and `{line}` are special markers that\
+                     \n  artifact uses for creating the link for each artifact.\
+                     \n\nThis results in links like the following being automatically placed in \
+                     your \"code location\" fields:\
+                     \nhttps://github.com/vitiral/artifact/blob/\
+                     4688c950731b081387976bbaf3fb0dc5612d5cad/src/cmd/ls.rs#L28\n",
                 ),
         )
 }
