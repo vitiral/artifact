@@ -301,7 +301,6 @@ isRead option =
 
 {-| gets the edited variable of the artifact
 or creates the default one
-
 -}
 getEditable : Artifact -> EditableArtifact
 getEditable artifact =

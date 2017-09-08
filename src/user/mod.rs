@@ -82,7 +82,7 @@ pub fn process_project_text(settings: Settings, project_text: &ProjectText) -> R
 /// #SPC-project-load
 pub fn load_repo(repo: &Path) -> Result<Project> {
     let start = time::get_time();
-    info!("loading path: {}", repo.display());
+    info!("Loading path: {}", repo.display());
 
     let settings = settings::load_settings(repo)?;
     security::validate_settings(repo, &settings)?;

@@ -26,7 +26,7 @@ impl FromStr for SearchSettings {
                 text: true,
                 ..SearchSettings::default()
             };
-            debug!("using default search pattern: {:?}", set);
+            debug!("Using default search pattern: {:?}", set);
             return Ok(set);
         }
 
@@ -36,7 +36,7 @@ impl FromStr for SearchSettings {
             _ => s.chars().map(|c| c.to_string()).collect(),
         };
 
-        debug!("got search pattern: {:?}", pattern);
+        debug!("Got search pattern: {:?}", pattern);
         let invalid: HashSet<String> = pattern.difference(&VALID_SEARCH_FIELDS).cloned().collect();
         if !invalid.is_empty() {
             return Err(

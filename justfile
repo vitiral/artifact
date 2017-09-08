@@ -73,7 +73,7 @@ test-sel TESTS="":
 
 # run selenium tests
 test-sel-py TESTS="":
-	{{export_bin}} py.test web-ui/sel_tests/{{TESTS}} -sx
+	{{export_bin}} py.test web-ui/sel_tests/{{TESTS}} -s
 
 # run the full test suite. This is required for all merges
 @test-all:

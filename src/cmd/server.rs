@@ -9,7 +9,7 @@ use super::super::api;
 pub fn get_subcommand<'a, 'b>() -> App<'a, 'b> {
     SubCommand::with_name("serve")
         .about(
-            "serve the web-ui and json-rpc backend\n
+            "Serve the web-ui and json-rpc backend\n
                The server is hosted at ADDRESS, which can also be a port number for
                localhost.\n
                If address is a non-port, the server is readonly by default.\n
@@ -20,26 +20,21 @@ pub fn get_subcommand<'a, 'b>() -> App<'a, 'b> {
         .arg(
             Arg::with_name("address")
                 .value_name("ADDRESS")
-                .help("full address OR localhost-port to host the server at."),
+                .help("Port (localhost) or address to host the server at"),
         )
         .arg(
             Arg::with_name("readonly")
                 .short("r")
                 .long("readonly")
-                .help("host the server as readonly"),
+                .help("Host the server as readonly"),
         )
         .arg(
-            Arg::with_name("editable")
-                .short("e")
-                .long("editable")
-                .takes_value(true)
-                .value_name("ADDRESS")
-                .help(
-                    "DANGEROUS: host the server as editable. This is dangerous when
+            Arg::with_name("editable").short("e").long("editable").help(
+                "DANGEROUS: host the server as editable. This is dangerous when
                       not hosting on localhost as ANYONE with access will be able to
-                      at least edit your design documents. WE MAKE NO GUARANTEES ABOUT
+                      at least edit your design documents. NO GUARANTEES ARE MADE ABOUT
                       THE SECURITY OF THIS FEATURE.",
-                ),
+            ),
         )
         .arg(
             Arg::with_name("path_url")

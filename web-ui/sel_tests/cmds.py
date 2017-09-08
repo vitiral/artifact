@@ -13,7 +13,7 @@ import toml
 from py_helpers import models
 
 URL_PAT = re.compile(r'Listening on (\S+)')
-WEB_FILES_PAT = re.compile(r'unpacking web-ui at: (\S+)')
+WEB_FILES_PAT = re.compile(r'Unpacking web-ui at: (\S+)')
 
 TARGET_ART = os.environ['TARGET_BIN']
 
@@ -94,27 +94,37 @@ class Artifact(object):
             cmd, bufsize=1, stdout=self.stdout, stderr=self.stdout)
         print("ran cmd: ", cmd)
 
-        with open(self.stdout.name, "rb") as stdout:
-            start = time.time()
-            while True:
-                time.sleep(0.2)
-                stdout.seek(0)
-                if self.art.poll() is not None:
-                    raise Exception("art died: {}".format(stdout.read()))
-                stdout_str = stdout.read()
-                match = URL_PAT.search(stdout_str)
-                if match:
-                    url = match.group(1)
-                    break
-                assert time.time() - start > 10, "timeout"
+        try:
+            with open(self.stdout.name, "rb") as stdout:
+                start = time.time()
+                while True:
+                    time.sleep(0.2)
+                    stdout.seek(0)
+                    if self.art.poll() is not None:
+                        raise Exception("art died: {}".format(stdout.read()))
+                    stdout_str = stdout.read()
+                    match = URL_PAT.search(stdout_str)
+                    if match:
+                        url = match.group(1)
+                        break
+                    assert time.time() - start < 10, (
+                        "timeout. Current stdout:\n{}".format(stdout_str))
 
-        self.web_files = WEB_FILES_PAT.search(stdout_str).group(1)
-        return url
+            mat = WEB_FILES_PAT.search(stdout_str)
+            assert mat, "match failed. Current stdout:\n{}".format(stdout_str)
+            self.web_files = mat.group(1)
+            return url
+        except Exception:
+            self._stop()
+            raise
 
     def _stop(self):
         """stop the server but do not delete the tmp project."""
         if self.art:
-            self.art.send_signal(signal.SIGTERM)
+            try:
+                self.art.send_signal(signal.SIGTERM)
+            except OSError as e:
+                assert e.errno == 3  # pid not found
             self.art = None
 
         if self.stdout:

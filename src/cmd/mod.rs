@@ -143,7 +143,7 @@ where
             return Err(ErrorKind::CmdError(msg.to_string()).into());
         }
     };
-    debug!("using repo dir {:?}", repo);
+    debug!("Using repo dir {:?}", repo);
 
     let project = user::load_repo(&repo)?;
 

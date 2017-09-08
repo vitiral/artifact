@@ -30,7 +30,7 @@ pub fn relative_path(path: &Path, relative_to_dir: &Path) -> PathBuf {
             still_alike = match zipped {
                 EoB::Both(a, b) => a == b, // consume idential part of path
                 EoB::Left(_) => false,     // relative_to_dir is root of path
-                _ => unreachable!("paths have no identical root"),
+                _ => unreachable!("Paths have no identical root"),
             }
         }
         if !still_alike {

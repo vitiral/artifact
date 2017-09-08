@@ -94,34 +94,31 @@ pub fn get_subcommand<'a, 'b>() -> App<'a, 'b> {
                 .takes_value(true),
         )
         .arg(Arg::with_name("all").short("A").long("all").help(
-            "\"all\" fields. If set, additional flags will *deactivate* fields",
+            "\"all\" fields. If set, additional field flags will *deactivate* fields",
         ))
         .arg(
             Arg::with_name("def")
                 .short("D")
                 .long("def")
-                .help("\"def\" field: file the artifact is defined"),
+                .help("\"def\" field: file where the arfiact is defined"),
         )
         .arg(
             Arg::with_name("parts")
                 .short("P")
                 .long("parts")
-                .help("\"parts\" field: artifacts that specify this one"),
+                .help("\"parts\" field: children of the artifact"),
         )
         .arg(
             Arg::with_name("partof")
                 .short("O")
                 .long("partof")
-                .help("\"partof\" field: artifacts that this artifact specifies"),
+                .help("\"partof\" field: parents of the artifact"),
         )
-        .arg(
-            Arg::with_name("loc")
-                .short("L")
-                .long("loc")
-                .help("\"location\" field: code implementation file and line"),
-        )
+        .arg(Arg::with_name("loc").short("L").long("loc").help(
+            "\"location\" field: code location where this artifact is implemented",
+        ))
         .arg(Arg::with_name("text").short("T").long("text").help(
-            "Display \"text\" field: use -l to display full text, otherwise just first line.",
+            "\"text\" field: use -l to display full text, otherwise just first line.",
         ))
         .arg(
             Arg::with_name("plain")
@@ -340,7 +337,7 @@ pub fn get_cmd(matches: &ArgMatches) -> Result<Cmd> {
         "list" => OutType::List,
         "json" => OutType::Json,
         t => {
-            let msg = format!("invalid type: {}", t);
+            let msg = format!("Invalid type: {}", t);
             return Err(ErrorKind::CmdError(msg).into());
         }
     };
@@ -419,7 +416,7 @@ pub fn run_cmd<W: Write>(w: &mut W, cwd: &Path, cmd: &Cmd, project: &Project) ->
             })
             .collect()
     };
-    debug!("artifact names selected: {:?}", names);
+    debug!("Artifact names selected: {:?}", names);
     if fmt_set.is_empty() {
         fmt_set.parts = true;
     }
@@ -445,10 +442,7 @@ pub fn run_cmd<W: Write>(w: &mut W, cwd: &Path, cmd: &Cmd, project: &Project) ->
         }
     }
     if !dne.is_empty() {
-        return Err(
-            ErrorKind::NameNotFound(format!("{:?}", dne))
-                .into(),
-        );
+        return Err(ErrorKind::NameNotFound(format!("{:?}", dne)).into());
     }
     Ok(0)
 }

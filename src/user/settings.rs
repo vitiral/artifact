@@ -15,10 +15,10 @@ pub fn load_settings(repo: &Path) -> Result<Settings> {
     let settings_path = repo.join(SETTINGS_PATH.as_path());
     let mut text = String::new();
     let mut f = fs::File::open(&settings_path).chain_err(|| {
-        format!("error opening settings: {}", settings_path.display())
+        format!("Error opening settings: {}", settings_path.display())
     })?;
     f.read_to_string(&mut text).chain_err(|| {
-        format!("error reading settings: {}", settings_path.display())
+        format!("Error reading settings: {}", settings_path.display())
     })?;
     from_text(repo, &text)
 }
@@ -79,16 +79,16 @@ fn resolve_settings_paths(repo: &Path, settings: &mut Settings) -> Result<()> {
         let mut out = HashSet::new();
         for p in paths {
             let p = utils::do_strfmt(utils::get_path_str(p)?, vars, settings_path).chain_err(|| {
-                format!("replacing variables failed at {}: {}", name, p.display())
+                format!("Replacing variables failed at {}: {}", name, p.display())
             })?;
             // if an exclude path doesn't exist that's fine
             let p = match canonicalize(Path::new(&p)) {
                 Ok(p) => p,
                 Err(err) => if ignore_errors {
-                    debug!("could not find {} path: {}", name, p);
+                    debug!("Could not find {} path: {}", name, p);
                     continue;
                 } else {
-                    return Err(err).chain_err(|| format!("could not find {}: {}", name, p));
+                    return Err(err).chain_err(|| format!("Could not find {}: {}", name, p));
                 },
             };
             out.insert(p);
@@ -129,7 +129,7 @@ fn resolve_settings_paths(repo: &Path, settings: &mut Settings) -> Result<()> {
         .collect();
     if !artifact_intersection.is_empty() {
         let msg = format!(
-            "some items in artifact_paths are also in exclude_artifact_paths: {:?}",
+            "Some items in artifact_paths are also in exclude_artifact_paths: {:?}",
             artifact_intersection,
         );
         return Err(ErrorKind::InvalidSettings(msg).into());
@@ -140,7 +140,7 @@ fn resolve_settings_paths(repo: &Path, settings: &mut Settings) -> Result<()> {
         .collect();
     if !code_intersection.is_empty() {
         let msg = format!(
-            "some items in code_paths are also in exclude_code_paths: {:?}",
+            "Some items in code_paths are also in exclude_code_paths: {:?}",
             code_intersection,
         );
         return Err(ErrorKind::InvalidSettings(msg).into());

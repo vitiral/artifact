@@ -49,14 +49,14 @@ pub fn get_cmd(matches: &ArgMatches) -> result::Result<u8, String> {
 /// remove files with logging, ignore errors
 fn remove_files_force(files: &HashSet<PathBuf>) {
     for p in files.iter() {
-        trace!("removing file: {}", p.display());
+        trace!("Removing file: {}", p.display());
         let _ = fs::remove_file(p);
     }
 }
 
 /// write to a file with logging
 fn write_file(path: &PathBuf, data: &[u8]) -> io::Result<()> {
-    trace!("creating file: {}", path.display());
+    trace!("Creating file: {}", path.display());
     let mut f = try!(fs::File::create(path.as_path()));
     try!(f.write_all(data));
     Ok(())
@@ -64,7 +64,7 @@ fn write_file(path: &PathBuf, data: &[u8]) -> io::Result<()> {
 
 /// create a directory with logging, ignore any errors
 fn create_dir(path: &PathBuf) {
-    trace!("creating dir: {}", path.display());
+    trace!("Creating dir: {}", path.display());
     let _ = fs::create_dir(path);
 }
 
@@ -157,13 +157,13 @@ pub fn run_cmd(cwd: &Path, part: u8) -> Result<u8> {
         }
         Err(_) => false,
     };
-    debug!("running with cwd: {}", cwd.display());
+    debug!("Running with cwd: {}", cwd.display());
     if !already_tutorial {
-        debug!("cwd is not a tutorial");
+        debug!("Cwd is not a tutorial");
         // make sure the directory is empty -- we don't want to
         // delete anything we shouldn't
         if fs::read_dir(&cwd)
-            .chain_err(|| format!("could not read dir: {}", cwd.display()))?
+            .chain_err(|| format!("Could not read dir: {}", cwd.display()))?
             .next()
             .is_some()
         {
@@ -175,9 +175,9 @@ pub fn run_cmd(cwd: &Path, part: u8) -> Result<u8> {
             return Ok(0);
         }
     } else {
-        debug!("cwd is already a tutorial")
+        debug!("Cwd is already a tutorial")
     }
-    debug!("running tutorial at part: {}", part);
+    debug!("Running tutorial at part: {}", part);
 
     remove_files_force(&ALL_FILES);
     create_dir(&RST_DIR);

@@ -116,7 +116,7 @@ impl ProjectText {
     /// dump text to origin
     pub fn dump(&self) -> Result<()> {
         for (path, text) in &self.files {
-            debug!("writing to {}", path.display());
+            debug!("Writing to {}", path.display());
             // create the directory
             if let Err(err) = fs::create_dir_all(path.parent().expect("path not file")) {
                 match err.kind() {
@@ -135,7 +135,7 @@ impl ProjectText {
     pub fn diff(&self) -> Result<HashMap<PathBuf, PathDiff>> {
         let mut out: HashMap<PathBuf, PathDiff> = HashMap::new();
         for (path, text) in &self.files {
-            debug!("diffing: {}", path.display());
+            debug!("Diffing: {}", path.display());
             let mut f = match fs::File::open(path) {
                 Ok(f) => f,
                 Err(_) => {

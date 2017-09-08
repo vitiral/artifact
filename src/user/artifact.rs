@@ -26,14 +26,14 @@ pub fn load_text(
     let mut dirs_to_load: Vec<PathBuf> = Vec::new();
     let ptype = load_path
         .metadata()
-        .chain_err(|| format!("cannot get type: {}", load_path.display()))?
+        .chain_err(|| format!("Cannot get type: {}", load_path.display()))?
         .file_type();
     if ptype.is_dir() {
         // just read text from all .toml files in the directory
         // and record which directories need to be loaded
         // TODO: replace with walk_dir
         let dir_entries = fs::read_dir(load_path)
-            .chain_err(|| format!("could not get dir: {}", load_path.display()))?;
+            .chain_err(|| format!("Could not get dir: {}", load_path.display()))?;
         for entry in dir_entries.filter_map(|e| e.ok()) {
             let fpath = entry.path();
             if loaded_paths.contains(&fpath) {
@@ -42,7 +42,7 @@ pub fn load_text(
             loaded_paths.insert(fpath.to_path_buf());
             let ftype = entry
                 .file_type()
-                .chain_err(|| format!("error reading type: {}", fpath.display()))?;
+                .chain_err(|| format!("Error reading type: {}", fpath.display()))?;
             if ftype.is_dir() {
                 dirs_to_load.push(fpath.clone());
             } else if ftype.is_file() {
@@ -52,7 +52,7 @@ pub fn load_text(
     } else if ptype.is_file() {
         files_to_load.push(load_path.to_path_buf());
     } else {
-        let msg = format!("invalid path: {}", load_path.display());
+        let msg = format!("Invalid path: {}", load_path.display());
         return Err(ErrorKind::PathNotFound(msg).into());
     }
 
@@ -67,7 +67,7 @@ pub fn load_text(
         }
         let mut text = String::new();
         let mut fp =
-            fs::File::open(&fpath).chain_err(|| format!("error opening: {}", fpath.display()))?;
+            fs::File::open(&fpath).chain_err(|| format!("Error opening: {}", fpath.display()))?;
         fp.read_to_string(&mut text)
             .chain_err(|| format!("Error loading path {}", fpath.display()))?;
         ptext.files.insert(fpath.to_path_buf(), text);
@@ -127,7 +127,7 @@ impl Artifact {
         let mut loaded: HashMap<String, UserArtifact> = toml::from_str(toml)?;
         if loaded.len() != 1 {
             return Err(
-                ErrorKind::Load("must contain a single table".to_string()).into(),
+                ErrorKind::Load("Must contain a single table".to_string()).into(),
             );
         }
         let (name, user_artifact) = loaded.drain().next().unwrap();
@@ -147,7 +147,7 @@ fn from_user_artifact(name: &Name, path: &Path, user_artifact: UserArtifact) -> 
                 return Err(
                     ErrorKind::InvalidAttr(
                         name.to_string(),
-                        "done cannot be an empty string.".to_string(),
+                        "`done` cannot be an empty string.".to_string(),
                     ).into(),
                 );
             }

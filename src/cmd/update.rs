@@ -27,7 +27,7 @@ pub fn get_subcommand<'a, 'b>() -> App<'a, 'b> {
             Arg::with_name("version")
                 .value_name("VERSION")
                 .use_delimiter(false)
-                .help("Version to update to. Default is latest."),
+                .help("Version to update to. Default=latest version"),
         )
 }
 

@@ -45,7 +45,7 @@ pub fn run_cmd(path: &Path) -> Result<u8> {
     let repo = path.join(".art");
     let design = path.join("design");
     if !exists {
-        fs::create_dir(&repo).chain_err(|| format!("create dir: {}", repo.display()))?;
+        fs::create_dir(&repo).chain_err(|| format!("Failed to create dir: {}", repo.display()))?;
         let _ = fs::create_dir(&design);
 
         // create settings
@@ -56,21 +56,24 @@ pub fn run_cmd(path: &Path) -> Result<u8> {
                 .create_new(true)
                 .write(true)
                 .open(&settings)
-                .chain_err(|| format!("create file: {}", settings.display()))?
+                .chain_err(|| format!("Failed to create file: {}", settings.display()))?
                 .write_all(SETTINGS_TOML.as_ref())
                 .unwrap();
-            println!("art initialized at {}", settings.display());
+            println!("Artifact project initialized at {}", settings.display());
             if let Ok(mut f) = fs::OpenOptions::new()
                 .create_new(true)
                 .write(true)
                 .open(&purpose)
             {
                 f.write_all(PURPOSE_TOML.as_ref()).unwrap();
-                println!("art created initial design.toml at {}", design.display())
+                println!(
+                    "Artifact created initial design.toml at {}",
+                    design.display()
+                )
             }
         }
     } else {
-        println!("artifact already initialized at {}", repo.display());
+        println!("Artifact already initialized at {}", repo.display());
     }
     Ok(0)
 }

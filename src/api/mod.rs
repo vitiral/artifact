@@ -108,10 +108,10 @@ fn host_frontend(server: &mut Nickel, cmd: &ServeCmd) -> TempDir {
     // or the webapp will be deleted!
     let tmp_dir = TempDir::new("artifact-web-ui").expect("unable to create temporary directory");
     let dir = tmp_dir.path().to_path_buf(); // we have to clone this because *borrow*
-    info!("unpacking web-ui at: {}", dir.display());
+    info!("Unpacking web-ui at: {}", dir.display());
 
     let mut archive = Archive::new(WEB_FRONTEND_TAR);
-    archive.unpack(&dir).expect("unable to unpack web frontend");
+    archive.unpack(&dir).expect("Unable to unpack web frontend");
 
     // replace the default ip address with the real one
     let app_js_path = dir.join("app.js");
@@ -138,7 +138,7 @@ fn host_frontend(server: &mut Nickel, cmd: &ServeCmd) -> TempDir {
     app_js.flush().unwrap();
 
     server.utilize(StaticFilesHandler::new(&dir));
-    println!("hosting web ui at {}", cmd.addr);
+    println!("Hosting web ui at {}", cmd.addr);
     tmp_dir
 }
 

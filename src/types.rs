@@ -53,28 +53,28 @@ error_chain! {
             description("Must contain a single table")
         }
         InvalidName(desc: String) {
-            description("invalid artifact name")
-            display("invalid artifact name: \"{}\"", desc)
+            description("Invalid artifact name")
+            display("Invalid artifact name: \"{}\"", desc)
         }
         InvalidAttr(name: String, attr: String) {
-            description("artifact has invalid attribute")
+            description("Artifact has invalid attribute")
             display("Artifact {} has invalid attribute: {}", name, attr)
         }
         InvalidSettings(desc: String) {
-            description("invalid settings")
-            display("invalid settings: {}", desc)
+            description("Invalid settings")
+            display("Invalid settings: {}", desc)
         }
         InvalidArtifact(name: String, desc: String) {
-            description("invalid artifact")
-            display("artifact {} is invalid: {}", name, desc)
+            description("Invalid artifact")
+            display("Artifact {} is invalid: {}", name, desc)
         }
         MissingParent(name: String, parent: String) {
-            description("missing parent artifact")
-            display("parent {} does not exist for {}", parent, name)
+            description("Missing parent artifact")
+            display("Parent {} does not exist for {}", parent, name)
         }
         // Processing errors
         InvalidTextVariables {
-            description("couldn't resolve some text variables")
+            description("Couldn't resolve some text variables")
         }
         InvalidPartof {
             description("Some artifacts have invalid partof attributes")
@@ -83,46 +83,46 @@ error_chain! {
             description("Some artifacts have invalid partof attributes")
         }
         NameNotFound(desc: String) {
-            description("searched for names were not found")
-            display("the following artifacts do not exists: {}", desc)
+            description("Searched for names were not found")
+            display("The following artifacts do not exists: {}", desc)
         }
         LocNotFound {
-            description("errors while finding implementation locations")
+            description("Errors while finding implementation locations")
         }
         DoneTwice(desc: String) {
-            description("the artifact is done and implemented in code")
-            display("referenced in code and `done` is set: {}", desc)
+            description("The artifact is done and implemented in code")
+            display("Referenced in code and `done` is set: {}", desc)
         }
         InvalidUnicode(path: String) {
-            description("we do not yet support non-unicode paths")
-            display("invalid unicode in path: {}", path)
+            description("We do not yet support non-unicode paths")
+            display("Invalid unicode in path: {}", path)
         }
 
         // Cmd errors
         CmdError(desc: String) {
-            description("error while running a command")
+            description("Error while running a command")
             display("{}", desc)
         }
 
         // Misc errors
         PathNotFound(desc: String) {
-            description("invalid path")
+            description("Invalid path")
             display("Path does not exist: {}", desc)
         }
         NotEqual(desc: String) {
-            description("values not equal")
+            description("Values not equal")
             display("{}", desc)
         }
         Security(desc: String) {
-            description("security vulnerability detected")
-            display("security vulnerability: {}", desc)
+            description("Security vulnerability detected")
+            display("Security vulnerability: {}", desc)
         }
         Internal(desc: String) {
-            description("internal error")
-            display("internal error: {}", desc)
+            description("Internal error")
+            display("Internal error: {}", desc)
         }
         NothingDone {
-            description("internal control flow")
+            description("Internal control flow")
         }
     }
 }

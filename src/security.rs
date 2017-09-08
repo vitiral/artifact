@@ -54,7 +54,7 @@ pub fn validate(repo: &Path, project: &Project) -> Result<()> {
 pub fn validate_settings(repo: &Path, settings: &Settings) -> Result<()> {
     if settings.artifact_paths.iter().any(|p| !p.starts_with(repo)) {
         //TODO improve message
-        let msg = "artifact_paths invalid".to_string();
+        let msg = "`artifact_paths` invalid".to_string();
         Err(ErrorKind::Security(msg).into())
     } else {
         Ok(())
@@ -84,10 +84,12 @@ mod tests {
             Err(e) => {
                 match *e.kind() {
                     ErrorKind::Security(_) => { /* expected */ }
-                    _ => panic!("unexpected error: {:?}", e.display()),
+                    _ => panic!("Unexpected error: {:?}", e.display()),
                 }
             }
-            Ok(_) => panic!("fmt accidentally suceeded -- may need to reset with git"),
+            Ok(_) => panic!(
+                "CRITICAL: Fmt suceeded when it should not have -- may need to reset with git"
+            ),
         }
     }
 
