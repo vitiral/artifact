@@ -59,7 +59,7 @@ artifacts contain *links to the source code*. Seeing a `#SPC-foo` comment in
 source tells a developer which specification the code implements, and it is
 easy to navigate the code repository by just browsing the design documents.
 
-Furthermore, if the name of an artifact changes, `art check` will tell you
+Furthermore, if the name of a design doc changes, `art check` will tell you
 where your dangling references are. Never again will you have to be scared
 of refactoring your design documents, it is as easy as refactoring your
 code.
@@ -71,9 +71,54 @@ introduction.
 
 [![Build Status](https://travis-ci.org/vitiral/artifact.svg?branch=master)](https://travis-ci.org/vitiral/artifact)
 
-### Pre-release notice
-Artifact is now (finally) feature complete for 1.0. The 0.8 release has been
-released and 1.0 is probably coming within a few weeks.
+## Stability
+Artifact is 1.0 software with a strong commitment to backwards compatibility.
+The 1.0 release is the "open source" release -- artifact is definitely ready
+for open source projects.
+
+The 2.0 release will focus on stabilizing the library for external tooling.
+This will position artifact for integration with industry tools such as JIRA
+and external regression test tracking software.
+
+The following are stable APIs that should always remain backwards compatible:
+- Artifact `.toml` files. Features may be *added*, but should not be removed.
+  This includes:
+  - Artifact types: `REQ`, `SPC`, `TST`.
+  - Artifact fields: `partof`, `text`, `done`.
+  - Text format: markdown by default with `[[ART-name]]` links.
+- Artifact relationships: explicit partof, auto linking by name, etc.
+- Artifact completeness calculated from its relationships.
+- Source code links: `#ART-name` anywhere in the source code marks
+  the artifact as done.
+- `.art/settings.toml` file
+- The command line interface, including:
+  - The name of the commands (`tutorial`, `init`, `ls`, `check`, `fmt`, etc).
+  - Existing flags for each command.
+  - The functional checks that are completed (i.e. dangling artifact names)
+  - `art serve` default port of 5373 on localhost
+
+The following should remain relatively stable but may have minor tweaks
+before 2.0:
+- The output of commands, including:
+  - The format of the output. I.e. you should not rely on `art ls` having
+    a specific output format.
+  - The logging messages.
+  - The format of artifacts as performed by `art fmt`.
+- The json format returned by `art ls --json` and through the json-rpc
+  server from `art serve`
+- Anything not mentioned in the first section. If you are unsure, please
+  open a ticket.
+
+The following are expected to change a lot before 2.0:
+- The web ui. Hopefully the changes will be an almost uniform improvement.
+- The `art serve` http interface including its API methods and data format
+- The code and expected functions/types/etc of the library itself should be
+  considered highly unstable. Future work will involve breaking it into smaller
+  crates that are more stable.
+
+Artifact will continue to be released using a continuous-release cycle
+with extensive unit and integration tests. If you find a bug please
+open a ticket. Contributors are always welcome, especially for new tests.
 
 ## Contributors
 To set up a build environment and run tests, simply run:
