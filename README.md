@@ -1,4 +1,4 @@
-[![Introducing Artifact Video](docs/data/artifact-thumb.png)](https://www.youtube.com/watch?v=kMzxKVkKLlE)
+[![Introducing Artifact Video](docs/data/artifact-thumb.png)][4]
 
 - **[Installation Guide](docs/Installation.md)**
 - **[Quick Start Guide](docs/QuickStart.md)**
@@ -11,13 +11,18 @@
 [1]: https://vitiral.gitbooks.io/simple-quality/content/
 [2]: http://vitiral.github.io/artifact/#artifacts/REQ-1
 [3]: https://github.com/vitiral/artifact/wiki/Exporting-Html
+[4]: https://www.youtube.com/watch?v=kMzxKVkKLlE
+
+## Artifact: design documentation for everybody
+
+<img width="300" alt="portfolio_view" src="https://github.com/vitiral/artifact/blob/master/docs/logo/logo.png?raw=true">
 
 Artifact is the simple, linkable and trackable design documentation tool for
-everybody. It allows anyone to easily write and link their design docs both to
-each other and to source code, making it easy to track how complete their
-project is. Documents are revision controllable, can be rendered as a static
-web page and have a full suite of command line tools for searching, formatting
-and displaying them.
+everybody. It allows anyone to write and link their design docs both to each
+other and to source code, making it easy to track how complete their project
+is. Documents are revision controllable, can be rendered as a static web page
+and have a full suite of command line tools for searching, displaying, checking
+and formatting them.
 
 Writing detailed design documents is one of the core pillars of quality software
 development. Design documents are how you capture the requirements (purpose) of
@@ -49,14 +54,22 @@ code comments more self documenting.
 Finally, artifact exports a beautiful rendered view of the design documents
 for hosting on sites like github and viewing in a web browswer ([example][2]).
 This completes the self documenting nature and allows anyone, even
-non-developers, to view the design documents of their project.
+non-developers, to view the design documents of their project. Rendered
+artifacts contain *links to the source code*. Seeing a `#SPC-foo` comment in
+source tells a developer which specification the code implements, and it is
+easy to navigate the code repository by just browsing the design documents.
+
+Furthermore, if the name of an artifact changes, `art check` will tell you
+where your dangling references are. Never again will you have to be scared
+of refactoring your design documents, it is as easy as refactoring your
+code.
 
 In this way, artifact aims to unify all of the other quality best practices
-while also making development easier and more fun.
+while also making development easier and more fun.  Check out the brief
+[commercial video][4] and the [Quick Start Guide](docs/QuickStart.md) for an
+introduction.
 
 [![Build Status](https://travis-ci.org/vitiral/artifact.svg?branch=master)](https://travis-ci.org/vitiral/artifact)
-
-![logo](docs/logo/logo.png)
 
 ### Pre-release notice
 Artifact is now (finally) feature complete for 1.0. The 0.8 release has been
@@ -115,7 +128,8 @@ The CC0 license applies to:
 The artifact logo (named Tula) is licensed under Creative Commons
 Attribution-ShareAlike (`CC BY-SA`) and can be used by the artifact project for
 any purpose without needing additional attribution. The artifact logo is located
-in `docs/logo` and was originally created by @packapotatoes
+in `docs/logo` and was originally created by
+[packapotatoes](https://github.com/packapotatoes).
 
 The artifact source code (located in `src/` and `web-ui/src`) are licensed under
 the LGPLv3+, except for files which say otherwise in their header or folders
