@@ -7,13 +7,15 @@
 - **[Simple Quality][1]**: short free book which is the full user guide
   for artifact and teaches quality best practices.
 - **[Design Documents][2]**: also see how [you can do this][3]
+- **[Support This Project on Patreon][5]**
 
 [1]: https://vitiral.gitbooks.io/simple-quality/content/
 [2]: http://vitiral.github.io/artifact/#artifacts/REQ-1
 [3]: https://github.com/vitiral/artifact/wiki/Exporting-Html
 [4]: https://www.youtube.com/watch?v=kMzxKVkKLlE
+[5]: https://www.patreon.com/user?u=7618979
 
-## Artifact: design documentation for everybody
+# Artifact: design documentation for everybody
 
 <img width="300" alt="portfolio_view" src="https://github.com/vitiral/artifact/blob/master/docs/logo/logo.png?raw=true">
 
@@ -73,12 +75,14 @@ introduction.
 
 ## Stability
 Artifact is 1.0 software with a strong commitment to backwards compatibility.
-The 1.0 release is the "open source" release -- artifact is definitely ready
-for open source projects.
+The 1.0 release is the "open source" release. Artifact is ready for projects of
+any size to use it as their defacto design documentation tool, but the external
+tooling may still be lacking for enterprise customers.
 
 The 2.0 release will focus on stabilizing the library for external tooling.
 This will position artifact for integration with industry tools such as JIRA
-and external regression test tracking software.
+and external regression test tracking software. I am currently seeking
+enterprise support, please consider [supporting this project on patreon][5].
 
 The following are stable APIs that should always remain backwards compatible:
 - Artifact `.toml` files. Features may be *added*, but should not be removed.
@@ -102,8 +106,8 @@ before 2.0:
 - The output of commands, including:
   - The format of the output. I.e. you should not rely on `art ls` having
     a specific output format.
-  - The logging messages.
   - The format of artifacts as performed by `art fmt`.
+  - Messages printed directly to terminal.
 - The json format returned by `art ls --json` and through the json-rpc
   server from `art serve`
 - Anything not mentioned in the first section. If you are unsure, please
@@ -111,14 +115,17 @@ before 2.0:
 
 The following are expected to change a lot before 2.0:
 - The web ui. Hopefully the changes will be an almost uniform improvement.
-- The `art serve` http interface including its API methods and data format
+- The `art serve` http interface including its API methods and data format.
 - The code and expected functions/types/etc of the library itself should be
   considered highly unstable. Future work will involve breaking it into smaller
   crates that are more stable.
+- Logging messages evoked with `art -v`.
+- Lots of other things that I can't think of. If you are unsure or concerned,
+  open a ticket.
 
 Artifact will continue to be released using a continuous-release cycle
 with extensive unit and integration tests. If you find a bug please
-open a ticket. Contributors are always welcome, especially for new tests.
+open a ticket.
 
 ## Contributors
 To set up a build environment and run tests, simply run:
