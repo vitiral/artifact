@@ -54,6 +54,7 @@ impl Default for PercentSearch {
     }
 }
 
+
 #[derive(Debug, Default, PartialEq, Eq)]
 pub struct SearchSettings {
     pub use_regex: bool,

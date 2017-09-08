@@ -442,7 +442,11 @@ pub fn run_cmd<W: Write>(w: &mut W, cwd: &Path, cmd: &Cmd, project: &Project) ->
         }
     }
     if !dne.is_empty() {
-        return Err(ErrorKind::NameNotFound(format!("{:?}", dne)).into());
+        let mut msg = format!("{:?}", dne);
+        if !cmd.search_settings.use_regex {
+            msg.push_str("\nHelp: consider using the -p / --pattern flag");
+        }
+        return Err(ErrorKind::NameNotFound(msg).into());
     }
     Ok(0)
 }
