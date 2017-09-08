@@ -7,24 +7,26 @@
 - **[Simple Quality][1]**: short free book which is the full user guide
   for artifact and teaches quality best practices.
 - **[Design Documents][2]**: also see how [you can do this][3]
-- **[Support This Project on Patreon][5]**
+- **[Issue Tracker][6]**
 
 [1]: https://vitiral.gitbooks.io/simple-quality/content/
 [2]: http://vitiral.github.io/artifact/#artifacts/REQ-1
 [3]: https://github.com/vitiral/artifact/wiki/Exporting-Html
 [4]: https://www.youtube.com/watch?v=kMzxKVkKLlE
 [5]: https://www.patreon.com/user?u=7618979
+[6]: http://github.com/vitiral/artifact/issues
+[7]: https://hackaday.io/project/27132-artifact
 
 # Artifact: design documentation for everybody
 
 <img width="300" alt="portfolio_view" src="https://github.com/vitiral/artifact/blob/master/docs/logo/logo.png?raw=true">
 
 Artifact is the simple, linkable and trackable design documentation tool for
-everybody. It allows anyone to write and link their design docs both to each
-other and to source code, making it easy to track how complete their project
-is. Documents are revision controllable, can be rendered as a static web page
-and have a full suite of command line tools for searching, displaying, checking
-and formatting them.
+everybody. It allows anyone to write and link their design documents both to
+each other and to source code, making it easy to track how complete their
+project is. Documents are revision controllable, can be edited in the browser
+and have a full suite of command line tools for searching, displaying,
+checking, exporting and formatting them.
 
 Writing detailed design documents is one of the core pillars of quality software
 development. Design documents are how you capture the requirements (purpose) of
@@ -46,34 +48,45 @@ using regular code review tools and use all the normal text processing tools
 (vim, grep, sed, etc) to view, edit and refactor them. Artifact also provides
 some command line tools of its own.
 
-Secondly, design documents can be linked to their implementation in source-code
-through a language agnostic syntax, simultaniously tracking the project
-completion. Once linked, anyone reading the documentation can see what
-specification a method is supposed to implement. They can then easily search
-for that specification to get an idea of the larger context, making the source
-code comments more self documenting.
+Secondly, design documents can be linked to source-code through a language
+agnostic syntax (`#ART-name` anywhere in a comment). Once linked, anyone
+reading the linked source code can easily look up the relevant design
+documents. In the same way, anyone looking at the Web UI can see exactly where
+a specification or test is implemented in code. Furthermore, if the name of a
+design doc changes, `art check` will tell you where your dangling references
+are. Never again will you have to be scared of refactoring your design
+documents because your references in code will be out of date.
 
 Finally, artifact exports a beautiful rendered view of the design documents
-for hosting on sites like github and viewing in a web browswer ([example][2]).
-This completes the self documenting nature and allows anyone, even
-non-developers, to view the design documents of their project. Rendered
-artifacts contain *links to the source code*. Seeing a `#SPC-foo` comment in
-source tells a developer which specification the code implements, and it is
-easy to navigate the code repository by just browsing the design documents.
-
-Furthermore, if the name of a design doc changes, `art check` will tell you
-where your dangling references are. Never again will you have to be scared
-of refactoring your design documents, it is as easy as refactoring your
-code.
+onto sites like github-sites ([example][2]) along with editing in the browser
+when run locally (`art serve`). This completes the self documenting nature and
+allows anyone, even non-developers, to view and edit the design documents of
+their project.
 
 In this way, artifact aims to unify all of the other quality best practices
-while also making development easier and more fun.  Check out the brief
-[commercial video][4] and the [Quick Start Guide](docs/QuickStart.md) for an
-introduction.
+while also making development easier and more fun.
 
-[![Build Status](https://travis-ci.org/vitiral/artifact.svg?branch=master)](https://travis-ci.org/vitiral/artifact)
+**Jump into artifact with the the [youtube commercial][4] and the
+[Quick Start Guide](docs/QuickStart.md).**
+
+## Support The Project
+You can support the project by :star: staring it on github and
+:green_heart: sharing it with your friends, coworkers and social media. You
+can also support it directly [on patreon][5], vote for it in the
+[2017 Hackaday Prize][7] and by leaving direct [feedback](docs/Feedback.md).
+
+All funds collected through any link above  will **only** go towards hiring
+student developers as interns to work on open source features within artifact.
+**No money from these sources will go to myself (Garrett Berg) or to the
+development of proprietary software.**
+
+By supporting artifact, you are supporting open source tools for quality
+software development and also internship oportunities for students passionate
+about open source. Thank you!
 
 ## Stability
+[![Build Status](https://travis-ci.org/vitiral/artifact.svg?branch=master)](https://travis-ci.org/vitiral/artifact)
+
 Artifact is 1.0 software with a strong commitment to backwards compatibility.
 The 1.0 release is the "open source" release. Artifact is ready for projects of
 any size to use it as their defacto design documentation tool, but the external
@@ -104,17 +117,17 @@ The following are stable APIs that should always remain backwards compatible:
 The following should remain relatively stable but may have minor tweaks
 before 2.0:
 - The output of commands, including:
-  - The format of the output. I.e. you should not rely on `art ls` having
-    a specific output format.
+  - The format of the output messages. I.e. you should not rely on `art ls`
+    having a specific output format.
   - The format of artifacts as performed by `art fmt`.
-  - Messages printed directly to terminal.
 - The json format returned by `art ls --json` and through the json-rpc
-  server from `art serve`
+  server from `art serve`.
 - Anything not mentioned in the first section. If you are unsure, please
   open a ticket.
 
 The following are expected to change a lot before 2.0:
-- The web ui. Hopefully the changes will be an almost uniform improvement.
+- The web ui. Hopefully the changes will be an almost uniform improvement for
+  everybody.
 - The `art serve` http interface including its API methods and data format.
 - The code and expected functions/types/etc of the library itself should be
   considered highly unstable. Future work will involve breaking it into smaller
@@ -124,10 +137,13 @@ The following are expected to change a lot before 2.0:
   open a ticket.
 
 Artifact will continue to be released using a continuous-release cycle
-with extensive unit and integration tests. If you find a bug please
-open a ticket.
+with extensive unit and integration tests. There will also be a beta release
+channel for new and experimental features. If you find a bug please [open a
+ticket][6].
 
 ## Contributors
+**[Chat on gitter](https://gitter.im/artifact-app/Lobby)**
+
 To set up a build environment and run tests, simply run:
 
 ```bash
