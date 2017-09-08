@@ -1,12 +1,17 @@
-[![Introducing Artifact Video](docs/data/artifact-thumb.png)][4]
+# Artifact: design documentation for everybody
+
+<img width="300" align="right" alt="artifact logo" src="https://github.com/vitiral/artifact/blob/master/docs/logo/logo.png?raw=true">
+
+<a href="https://www.youtube.com/watch?v=kMzxKVkKLlE">
+  <img width="300" align="right" alt="Introducing Artifact" src="docs/data/artifact-thumb.png">
+</a> 
 
 - **[Installation Guide](docs/Installation.md)**
 - **[Quick Start Guide](docs/QuickStart.md)**
 - **[Cheat Sheet](docs/CheatSheet.md)**
 - **[FAQ](docs/FAQ.md)**
-- **[Simple Quality][1]**: short free book which is the full user guide
-  for artifact and teaches quality best practices.
-- **[Design Documents][2]**: also see how [you can do this][3]
+- **[Simple Quality Book][1]**
+- **[Rendered Design Documents][2]**
 - **[Issue Tracker][6]**
 
 [1]: https://vitiral.gitbooks.io/simple-quality/content/
@@ -17,16 +22,15 @@
 [6]: http://github.com/vitiral/artifact/issues
 [7]: https://hackaday.io/project/27132-artifact
 
-# Artifact: design documentation for everybody
-
-<img width="300" alt="portfolio_view" src="https://github.com/vitiral/artifact/blob/master/docs/logo/logo.png?raw=true">
-
 Artifact is the simple, linkable and trackable design documentation tool for
 everybody. It allows anyone to write and link their design documents both to
 each other and to source code, making it easy to track how complete their
 project is. Documents are revision controllable, can be edited in the browser
 and have a full suite of command line tools for searching, displaying,
 checking, exporting and formatting them.
+
+<img align="right" src="docs/data/attribution/b0rk-design-documents.jpg-large"
+alt="@bork https://twitter.com/b0rk/status/833419052194357248">
 
 Writing detailed design documents is one of the core pillars of quality software
 development. Design documents are how you capture the requirements (purpose) of
