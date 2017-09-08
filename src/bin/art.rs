@@ -29,17 +29,17 @@ fn main() {
             let stderr = &mut io::stderr();
             let errmsg = "Error writing to stderr";
 
-            writeln!(stderr, "Encountered Error:\n").expect(errmsg);
+            eprintln!("Encountered Error:\n");
 
             let mut was_caused = false;
             for e in e.iter().skip(1) {
                 was_caused = true;
-                writeln!(stderr, "## caused by: {}", e).expect(errmsg);
+                eprintln!("## caused by: {}", e).expect(errmsg);
             }
             if was_caused {
-                println!("Error was:")
+                eprintln!("Error was:")
             }
-            println!("{}", e);
+            eprintln!("{}", e);
             1
         }
         Ok(rc) => rc,

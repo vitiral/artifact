@@ -148,7 +148,7 @@ publish-finish:
 	git tag -a "{{version}}" -m "{{version}}"
 	git push origin --tags
 	@#update docs
-	just publish-site
+	just publish-site || echo "no changes to site"
 
 # build the static html
 build-site:
