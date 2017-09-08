@@ -446,7 +446,7 @@ pub fn run_cmd<W: Write>(w: &mut W, cwd: &Path, cmd: &Cmd, project: &Project) ->
     }
     if !dne.is_empty() {
         return Err(
-            ErrorKind::NameNotFound(format!("The following artifacts do not exist: {:?}", dne))
+            ErrorKind::NameNotFound(format!("{:?}", dne))
                 .into(),
         );
     }

@@ -25,16 +25,12 @@ use artifact_app::cmd;
 fn main() {
     let rc = match cmd::cmd(&mut io::stdout(), env::args()) {
         Err(e) => {
-            use std::io::Write;
-            let stderr = &mut io::stderr();
-            let errmsg = "Error writing to stderr";
-
             eprintln!("Encountered Error:\n");
 
             let mut was_caused = false;
             for e in e.iter().skip(1) {
                 was_caused = true;
-                eprintln!("## caused by: {}", e).expect(errmsg);
+                eprintln!("## caused by: {}", e);
             }
             if was_caused {
                 eprintln!("Error was:")
