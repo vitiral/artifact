@@ -138,15 +138,14 @@ where
 
     // If completions is selected, generate them for the shell.
     if let Some(t) = matches.subcommand_matches("completions") {
-        let shell = t
-            .value_of("SHELL")
+        let shell = t.value_of("SHELL")
             .expect("clap parsed arguments incorrectly!");
         info!("Generating completions for shell: {}", shell);
         let shell = match shell {
             "bash" => Shell::Bash,
             "fish" => Shell::Fish,
             "zsh" => Shell::Zsh,
-            _ => panic!("clap parsed arguments incorrectly!")
+            _ => panic!("clap parsed arguments incorrectly!"),
         };
         matches::art_app().gen_completions_to("art", shell, w);
         return Ok(0);

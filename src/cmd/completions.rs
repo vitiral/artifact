@@ -21,8 +21,10 @@ pub fn get_subcommand<'a, 'b>() -> App<'a, 'b> {
     SubCommand::with_name("completions")
         .settings(&SUBCMD_SETTINGS)
         .about("Generates completion scripts for your shell")
-        .arg(Arg::with_name("SHELL")
-             .required(true)
-             .possible_values(&["bash", "fish", "zsh"])
-             .help("The shell to generate the script for"))
+        .arg(
+            Arg::with_name("SHELL")
+                .required(true)
+                .possible_values(&["bash", "fish", "zsh"])
+                .help("The shell to generate the script for"),
+        )
 }
