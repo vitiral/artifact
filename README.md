@@ -1,10 +1,12 @@
 # Artifact: design documentation for everybody
 
-<img width="300" align="right" alt="artifact logo" src="https://github.com/vitiral/artifact/blob/master/docs/logo/logo.png?raw=true">
+<img width="250" align="right" alt="artifact logo"
+ src="https://github.com/vitiral/artifact/blob/master/docs/logo/logo.png?raw=true">
 
 <a href="https://www.youtube.com/watch?v=kMzxKVkKLlE">
-  <img width="300" align="right" alt="Introducing Artifact" src="docs/data/artifact-thumb.png">
-</a> 
+  <img width="250" align="right" alt="Introducing Artifact"
+   src="docs/data/artifact-thumb.png">
+</a>
 
 - **[Installation Guide](docs/Installation.md)**
 - **[Quick Start Guide](docs/QuickStart.md)**
@@ -14,23 +16,18 @@
 - **[Rendered Design Documents][2]**
 - **[Issue Tracker][6]**
 
-[1]: https://vitiral.gitbooks.io/simple-quality/content/
-[2]: http://vitiral.github.io/artifact/#artifacts/REQ-1
-[3]: https://github.com/vitiral/artifact/wiki/Exporting-Html
-[4]: https://www.youtube.com/watch?v=kMzxKVkKLlE
-[5]: https://www.patreon.com/user?u=7618979
-[6]: http://github.com/vitiral/artifact/issues
-[7]: https://hackaday.io/project/27132-artifact
-
 Artifact is the simple, linkable and trackable design documentation tool for
 everybody. It allows anyone to write and link their design documents both to
-each other and to source code, making it easy to track how complete their
+each other and to source code, making it easy to know how complete their
 project is. Documents are revision controllable, can be edited in the browser
 and have a full suite of command line tools for searching, displaying,
 checking, exporting and formatting them.
 
-<img align="right" src="docs/data/attribution/b0rk-design-documents.jpg-large"
-alt="@bork https://twitter.com/b0rk/status/833419052194357248">
+<a href="https://twitter.com/b0rk/status/833419052194357248">
+  <img align="right" src="docs/data/attribution/b0rk-design-documents.jpg-large"
+    alt="b0rk scenes from writing design docs"
+  >
+</a>
 
 Writing detailed design documents is one of the core pillars of quality software
 development. Design documents are how you capture the requirements (purpose) of
@@ -53,22 +50,23 @@ using regular code review tools and use all the normal text processing tools
 some command line tools of its own.
 
 Secondly, design documents can be linked to source-code through a language
-agnostic syntax (`#ART-name` anywhere in a comment). Once linked, anyone
-reading the linked source code can easily look up the relevant design
-documents. In the same way, anyone looking at the Web UI can see exactly where
-a specification or test is implemented in code. Furthermore, if the name of a
-design doc changes, `art check` will tell you where your dangling references
-are. Never again will you have to be scared of refactoring your design
-documents because your references in code will be out of date.
+agnostic syntax (`#ART-name` anywhere in the source code). Once linked, anyone
+reading the comment can easily look up the relevant design documents. In the
+same way, anyone looking at the Web UI can see exactly where a specification or
+test is implemented in code. Furthermore, if the name of a design doc changes,
+`art check` will tell you where your dangling references are. Never again will
+you have to be scared of refactoring your design documents because your
+references in code will be out of date.
 
-Finally, artifact exports a beautiful rendered view of the design documents
-onto sites like github-sites ([example][2]) along with editing in the browser
-when run locally (`art serve`). This completes the self documenting nature and
-allows anyone, even non-developers, to view and edit the design documents of
-their project.
+Finally, artifact exports a beautiful rendered view of your design documents
+onto sites like github-sites ([example][2]) and you can edit in your browser
+using `art serve`. This completes the self documenting nature and allows
+anyone (even non-developers!) to view and edit the design documents of their
+project.
 
-In this way, artifact aims to unify all of the other quality best practices
-while also making development easier and more fun.
+In this way, artifact aims to unify other quality best practices while also
+make writing design documents more fun and useful in your day to day
+development efforts.
 
 **Jump into artifact with the the [youtube commercial][4] and the
 [Quick Start Guide](docs/QuickStart.md).**
@@ -89,8 +87,6 @@ software development and also internship oportunities for students passionate
 about open source. Thank you!
 
 ## Stability
-[![Build Status](https://travis-ci.org/vitiral/artifact.svg?branch=master)](https://travis-ci.org/vitiral/artifact)
-
 Artifact is 1.0 software with a strong commitment to backwards compatibility.
 The 1.0 release is the "open source" release. Artifact is ready for projects of
 any size to use it as their defacto design documentation tool, but the external
@@ -140,32 +136,11 @@ The following are expected to change a lot before 2.0:
 - Lots of other things that I can't think of. If you are unsure or concerned,
   open a ticket.
 
-Artifact will continue to be released using a continuous-release cycle
-with extensive unit and integration tests. There will also be a beta release
-channel for new and experimental features. If you find a bug please [open a
-ticket][6].
+Artifact will continue to use a continuous-release cycle with extensive unit
+and integration tests. There will also be a beta release channel for new and
+experimental features. If you find a bug please [open a ticket][6].
 
-## Contributors
-**[Chat on gitter](https://gitter.im/artifact-app/Lobby)**
-
-To set up a build environment and run tests, simply run:
-
-```bash
-git clone git@github.com:vitiral/artifact.git && cd artifact
-source env  # installs environment to `target/env`
-just test-all
-```
-
-Note: `source env` will take a while as it (locally) installs
-build/test/lint/fmt toolchains for rust, node.js and python from scratch. It
-does not touch ANYTHING in your global environment.
-
-A quick source code overview:
-- `justfile` contains build/test/etc scripts
-- design documents are in `design/`
-- rust source code is in `src/`
-- elm source code (html frontend) is in `web-ui/src/`
-- selenium (end-to-end web) tests are in `web-ui/sel_tests/`
+[![Build Status](https://travis-ci.org/vitiral/artifact.svg?branch=master)](https://travis-ci.org/vitiral/artifact)
 
 ## Licensing
 
@@ -207,3 +182,11 @@ The artifact source code (located in `src/` and `web-ui/src`) are licensed under
 the LGPLv3+, except for files which say otherwise in their header or folders
 containing a different `LICENSE` file. See [LICENSE.txt](LICENSE.txt) for more
 information.
+
+[1]: https://vitiral.gitbooks.io/simple-quality/content/
+[2]: http://vitiral.github.io/artifact/#artifacts/REQ-1
+[3]: https://github.com/vitiral/artifact/wiki/Exporting-Html
+[4]: https://www.youtube.com/watch?v=kMzxKVkKLlE
+[5]: https://www.patreon.com/user?u=7618979
+[6]: http://github.com/vitiral/artifact/issues
+[7]: https://hackaday.io/project/27132-artifact
