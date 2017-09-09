@@ -24,12 +24,9 @@ use super::ls;
 use super::check;
 use super::fmt as fmtcmd;
 use super::update;
+use super::completions;
 
-pub fn get_matches<'a, I, T>(args: I) -> ClapResult<ArgMatches<'a>>
-where
-    I: IntoIterator<Item = T>,
-    T: Into<OsString> + clone::Clone,
-{
+pub fn art_app<'a, 'b>() -> App<'a, 'b> {
     let app = App::new("artifact")
         .version(env!("CARGO_PKG_VERSION"))
         .about(
@@ -66,9 +63,18 @@ where
         .subcommand(check::get_subcommand())
         .subcommand(fmtcmd::get_subcommand())
         .subcommand(export::get_subcommand())
-        .subcommand(update::get_subcommand());
+        .subcommand(update::get_subcommand())
+        .subcommand(completions::get_subcommand());
 
-    let app = add_serve_cmd(app);
+    add_serve_cmd(app)
+}
+
+pub fn get_matches<'a, I, T>(args: I) -> ClapResult<ArgMatches<'a>>
+where
+    I: IntoIterator<Item = T>,
+    T: Into<OsString> + clone::Clone,
+{
+    let app = art_app();
     app.get_matches_from_safe(args)
 }
 

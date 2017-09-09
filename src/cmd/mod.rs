@@ -29,7 +29,7 @@ use user;
 use utils;
 use security;
 
-use clap::{ArgMatches, ErrorKind as ClEk};
+use clap::{ArgMatches, ErrorKind as ClEk, Shell};
 use ansi_term::Colour::Green;
 
 mod export;
@@ -42,6 +42,7 @@ mod fmt;
 mod init;
 mod tutorial;
 mod update;
+mod completions;
 
 #[cfg(feature = "server")]
 mod server;
@@ -132,6 +133,22 @@ where
         info!("Calling the tutorial command");
         let c = tutorial::get_cmd(t)?;
         tutorial::run_cmd(&work_tree, c).unwrap();
+        return Ok(0);
+    }
+
+    // If completions is selected, generate them for the shell.
+    if let Some(t) = matches.subcommand_matches("completions") {
+        let shell = t
+            .value_of("SHELL")
+            .expect("clap parsed arguments incorrectly!");
+        info!("Generating completions for shell: {}", shell);
+        let shell = match shell {
+            "bash" => Shell::Bash,
+            "fish" => Shell::Fish,
+            "zsh" => Shell::Zsh,
+            _ => panic!("clap parsed arguments incorrectly!")
+        };
+        matches::art_app().gen_completions_to("art", shell, w);
         return Ok(0);
     }
 
