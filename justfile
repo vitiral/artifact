@@ -10,6 +10,7 @@ repo_url = "https://github.com/vitiral/artifact"
 build_site_args = '--path-url "' + repo_url + '/blob/$(git rev-parse --verify HEAD)/{path}#L{line}"'
 pre = 'CARGO_INCREMENTAL=1'
 art = 'target/debug/art'
+beta = "--features beta"
 
 
 # just get the version
@@ -20,46 +21,44 @@ echo-version:
 # build commands
 
 # do the standard build, including the full server and static web-ui
-build:
+build FEATURES="":
 	just web-ui/build
-	just build-rust
+	just build-rust -- "{{FEATURES}}"
 
 # build in release mode
-build-release:
+build-release FEATURES="":
 	just web-ui/build
-	cargo build --features server --release
-
+	cargo build {{FEATURES}} --release
 
 # build only rust
-build-rust:
-	{{pre}} cargo build --features server
+build-rust FEATURES="":
+	{{pre}} cargo build {{FEATURES}}
 
 # build with only static html (not server)
-build-static:
+build-static FEATURES="":
 	just web-ui/build-static
-	just build
-
+	just build -- "{{FEATURES}}"
 
 ##################################################
 # unit testing/linting commands
 
 # run all unit tests
-test TESTS="":
-	@just test-rust -- {{TESTS}}
+test FEATURES="" TESTS="":
+	@just test-rust -- "{{FEATURES}}" "{{TESTS}}"
 
 # test only the rust code
-test-rust TESTS="":
-	{{pre}} cargo test --lib --features server {{TESTS}} -- --nocapture
+test-rust FEATURES="" TESTS="":
+	{{pre}} cargo test --lib {{FEATURES}} {{TESTS}} -- --nocapture
 
 # run all lints
-lint:
-	just lint-rust
+lint FEATURES="":
+	just lint-rust -- "{{FEATURES}}"
 	just lint-py
 	just web-ui/lint
 
 # lint rust code
-lint-rust:
-	{{pre}} cargo clippy --features server
+lint-rust FEATURES="":
+	{{pre}} cargo clippy {{FEATURES}}
 
 # lint python code
 lint-py:
@@ -67,22 +66,27 @@ lint-py:
 	@pylint $PYTHON_CHECK
 
 # build and run selenium tests
-test-sel TESTS="":
-	just build
-	just test-sel-py -- {{TESTS}}
+test-sel FEATURES="" TESTS="":
+	just build -- "{{FEATURES}}"
+	just test-sel-py -- "{{TESTS}}"
 
 # run selenium tests
 test-sel-py TESTS="":
 	{{export_bin}} py.test web-ui/sel_tests/{{TESTS}} -s
 
-# run the full test suite. This is required for all merges
-@test-all:
+
+# run the full test suite. both beta and non-beta are requied for merge
+@test-all FEATURES="":
 	just lint
 	{{pre}} cargo test
 	just test
 	just test-sel
 	just check-fmt
 	{{art}} check
+	echo "not yet implemented"
+
+@test-all-beta:
+	just test-all -- "{{beta}}"
 
 # run all formatters in "check" mode to make sure code has been formatted
 check-fmt:
@@ -96,9 +100,9 @@ check-fmt:
 # running commands
 
 # run the artifact binary with any args
-run ARGS="":
+run FEATURES="" ARGS="":
 	just web-ui/build
-	{{pre}} cargo run --features server -- -v {{ARGS}}
+	{{pre}} cargo run {{FEATURES}} -- -v {{ARGS}}
 
 serve:
 	just web-ui/build
@@ -106,7 +110,7 @@ serve:
 
 serve-rust:
 	rm -rf /tmp/rust-serve && cp -r web-ui/sel_tests/ex_proj /tmp/rust-serve
-	{{pre}} cargo run --features server -- -vv --work-tree /tmp/rust-serve serve
+	{{pre}} cargo run -- -vv --work-tree /tmp/rust-serve serve
 
 
 ##################################################
@@ -135,7 +139,7 @@ publish:
 	git diff --no-ext-diff --quiet --exit-code
 	@# test all and commit
 	just test-all
-	{{pre}} rustup run stable cargo test --features server
+	{{pre}} rustup run stable cargo test
 	just build
 	git commit -a -m "relase {{version}}"
 	@# push to cargo
@@ -152,7 +156,7 @@ publish-finish:
 
 # build the static html
 build-site:
-	{{pre}} cargo run --features server -- -vv export html -o _gh-pages {{build_site_args}}
+	{{pre}} cargo run -- -vv export html -o _gh-pages {{build_site_args}}
 
 # push the static html design docs to git-pages
 publish-site:

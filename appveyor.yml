@@ -47,16 +47,16 @@ install:
 test_script:
   # we don't run the "test phase" when doing deploys
   - if [%APPVEYOR_REPO_TAG%]==[false] (
-      cargo rustc --target %TARGET% --release --bin art --features server -- -C lto &&
-      cargo test --target %TARGET% --features server &&
-      cargo run --target %TARGET% --features server -- check &&
-      cargo test --target %TARGET% --features server --release
+      cargo rustc --target %TARGET% --release --bin art -- -C lto &&
+      cargo test --target %TARGET% &&
+      cargo run --target %TARGET% -- check &&
+      cargo test --target %TARGET% --release
     )
 
 before_deploy:
   # theoretically this is how you link statically... doesn't work anymore
-  # - cargo rustc --target %TARGET% --release --bin art --features server -- -Z unstable-options -C lto -C target-feature=+crt-static
-  - cargo rustc --target %TARGET% --release --bin art --features server -- -C lto
+  # - cargo rustc --target %TARGET% --release --bin art -- -Z unstable-options -C lto -C target-feature=+crt-static
+  - cargo rustc --target %TARGET% --release --bin art -- -C lto
   - ps: ci\before_deploy.ps1
 
 deploy:

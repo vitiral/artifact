@@ -43,7 +43,6 @@ mod init;
 mod tutorial;
 mod update;
 
-#[cfg(feature = "server")]
 mod server;
 
 #[cfg(test)]
@@ -61,7 +60,6 @@ pub fn get_loglevel(matches: &ArgMatches) -> Option<(u8, bool)> {
     Some((verbosity, quiet))
 }
 
-#[cfg(feature = "server")]
 fn run_server(project: &Project, matches: &ArgMatches) -> Result<u8> {
     if let Some(mat) = matches.subcommand_matches("serve") {
         let addr = server::get_cmd(mat);
@@ -70,11 +68,6 @@ fn run_server(project: &Project, matches: &ArgMatches) -> Result<u8> {
     } else {
         Err(ErrorKind::NothingDone.into())
     }
-}
-
-#[cfg(not(feature = "server"))]
-fn run_server(_: &Project, _: &ArgMatches) -> Result<u8> {
-    Err(ErrorKind::NothingDone.into())
 }
 
 pub fn cmd<W, I, T>(w: &mut W, args: I) -> Result<u8>
