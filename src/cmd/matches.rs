@@ -24,7 +24,7 @@ use super::ls;
 use super::check;
 use super::fmt as fmtcmd;
 use super::update;
-use super::tools;
+use super::plugin;
 
 pub fn art_app<'a, 'b>() -> App<'a, 'b> {
     let app = App::new("artifact")
@@ -64,7 +64,7 @@ pub fn art_app<'a, 'b>() -> App<'a, 'b> {
         .subcommand(fmtcmd::get_subcommand())
         .subcommand(export::get_subcommand())
         .subcommand(update::get_subcommand())
-        .subcommand(tools::get_subcommand());
+        .subcommand(plugin::get_subcommand());
 
     add_serve_cmd(app)
 }

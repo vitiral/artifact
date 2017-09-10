@@ -23,27 +23,22 @@ use cmd::types::*;
 use cmd::matches::art_app;
 
 pub fn get_subcommand<'a, 'b>() -> App<'a, 'b> {
-    SubCommand::with_name("tools")
+    SubCommand::with_name("plugin")
         .settings(&SUBCMD_SETTINGS)
         .about(
-            "Command for integrating with external tooling, like generating shell completions",
+            "Command for integrating with external plugins, currently only \
+             supports generating shell completions",
         )
         .arg(
-            Arg::with_name("value")
+            Arg::with_name("name")
                 .required(true)
                 .possible_values(&[
                     "bash-completions",
                     "fish-completions",
                     "zsh-completions",
-                    "psh-completions",
+                    "ps-completions",
                 ])
-                .help(
-                    "Options:\n\
-                     - bash-completions: Generates bash completions\n\
-                     - fish-completions: Generages fish completions\n\
-                     - zsh-completions: Generates zsh completions\n\
-                     - ps-completions: Generages PowerShell completions\n",
-                ),
+                .help("Plugin name"),
         )
         .arg(
             Arg::with_name("output")
@@ -51,44 +46,44 @@ pub fn get_subcommand<'a, 'b>() -> App<'a, 'b> {
                 .short("o")
                 .value_name("PATH")
                 .help(
-                    "Path of file to place the output of the tools command \
+                    "Path of file to place the output of the plugin command \
                      defaults to standard output otherwise.",
                 ),
         )
 }
 
 #[derive(Debug)]
-enum Tool {
+enum Plugin {
     Comp(Shell),
 }
 
 #[derive(Debug)]
 pub struct Cmd<'a> {
-    tool: Tool,
+    plugin: Plugin,
     output: Option<&'a Path>,
 }
 
 pub fn get_cmd<'a>(matches: &'a ArgMatches) -> Result<Cmd<'a>> {
-    let tool = match matches
-        .value_of("value")
+    let plugin = match matches
+        .value_of("name")
         .expect("clap error in argument parsing!")
     {
-        "bash-completions" => Tool::Comp(Shell::Bash),
-        "fish-completions" => Tool::Comp(Shell::Fish),
-        "zsh-completions" => Tool::Comp(Shell::Zsh),
-        "ps-completions" => Tool::Comp(Shell::PowerShell),
-        _ => panic!("clap error in argumen parsing!"),
+        "bash-completions" => Plugin::Comp(Shell::Bash),
+        "fish-completions" => Plugin::Comp(Shell::Fish),
+        "zsh-completions" => Plugin::Comp(Shell::Zsh),
+        "ps-completions" => Plugin::Comp(Shell::PowerShell),
+        _ => panic!("clap error in argument parsing!"),
     };
     let out = matches.value_of("output").map(|p| Path::new(p).as_ref());
     Ok(Cmd {
-        tool: tool,
+        plugin: plugin,
         output: out,
     })
 }
 
 pub fn run_cmd<W: io::Write>(cmd: &Cmd, w: W) -> Result<u8> {
-    match cmd.tool {
-        Tool::Comp(_) => if let Some(path) = cmd.output {
+    match cmd.plugin {
+        Plugin::Comp(_) => if let Some(path) = cmd.output {
             let md = fs::metadata(path);
             if md.ok().map_or(false, |md| md.is_dir()) {
                 run_cmd_completions(cmd, w, true)
@@ -112,8 +107,8 @@ fn run_cmd_completions<W: io::Write>(cmd: &Cmd, mut w: W, is_dir: bool) -> Resul
     // If use_gen_to is true then we use gen_completions_to as our output
     // function, otherwise we use gen_completions. This is only relevant
     // for completion generating options.
-    match cmd.tool {
-        Tool::Comp(shell) => {
+    match cmd.plugin {
+        Plugin::Comp(shell) => {
             let (sh, name) = match shell {
                 Shell::Bash => ("bash", "art.bash-completion"),
                 Shell::Fish => ("fish", "art.fish"),

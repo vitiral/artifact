@@ -42,7 +42,7 @@ mod fmt;
 mod init;
 mod tutorial;
 mod update;
-mod tools;
+mod plugin;
 
 #[cfg(feature = "server")]
 mod server;
@@ -137,10 +137,10 @@ where
     }
 
     // If tools is selected, run it;
-    if let Some(mat) = matches.subcommand_matches("tools") {
-        info!("Calling tools command");
-        let c = tools::get_cmd(mat)?;
-        return tools::run_cmd(&c, w);
+    if let Some(mat) = matches.subcommand_matches("plugin") {
+        info!("Calling plugin command");
+        let c = plugin::get_cmd(mat)?;
+        return plugin::run_cmd(&c, w);
     }
 
     // load the artifacts
