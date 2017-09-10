@@ -39,7 +39,7 @@ Simply execute the following:
 git clone https://github.com/vitiral/artifact
 cd artifact
 source env  # this will take a while
-cargo build --features server --release
+cargo build --release
 ```
 
 Do a full suite of tests with:
@@ -50,7 +50,7 @@ just test-all
 ## Installing with [cargo](https://github.com/rust-lang/cargo)
 
 Install rust with [rustup](https://github.com/rust-lang-nursery/rustup.rs) and
-type `cargo install artifact-app --features server`
+type `cargo install artifact-app`
 
 Note this may never be feature complete and is not the recommended method of
 installation.

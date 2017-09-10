@@ -52,13 +52,9 @@ extern crate tar;
 
 // # server crates
 
-#[cfg(feature = "server")]
 extern crate ctrlc;
-#[cfg(feature = "server")]
 extern crate jsonrpc_core;
-#[cfg(feature = "server")]
 extern crate nickel;
-#[cfg(any(feature = "server", test))]
 extern crate tempdir;
 
 // # serialization
@@ -90,7 +86,6 @@ pub mod cmd;
 
 #[cfg(test)]
 pub mod test_data;
-#[cfg(feature = "server")]
 pub mod api;
 
 pub use types::*;

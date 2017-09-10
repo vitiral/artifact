@@ -20,7 +20,7 @@ main() {
     test -f Cargo.lock || cargo generate-lockfile
 
     # build the artifacts that matter to you
-    cross rustc --bin art --target $TARGET --release --features server -- -C lto
+    cross rustc --bin art --target $TARGET --release -- -C lto
 
     # package the right artifacts
     cp target/$TARGET/release/art $stage/

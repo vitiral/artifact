@@ -141,8 +141,8 @@ fi
 if [ ! -e $RUST_BIN/art ]; then
     errcho "- building release+debug artifact as art+artd"
     # build artifact in release mode and debug mode and link both
-    cargo build --release --features server || return $?
-    cargo build --features server || return $?
+    cargo build --release || return $?
+    cargo build || return $?
     ln -s $PWD/target/release/art $RUST_BIN/art || return $?
     ln -s $PWD/target/debug/art $RUST_BIN/artd || return $?
 fi

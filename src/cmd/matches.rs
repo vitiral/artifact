@@ -66,20 +66,21 @@ where
         .subcommand(check::get_subcommand())
         .subcommand(fmtcmd::get_subcommand())
         .subcommand(export::get_subcommand())
-        .subcommand(update::get_subcommand());
+        .subcommand(update::get_subcommand())
+        .subcommand(::cmd::server::get_subcommand());
 
-    let app = add_serve_cmd(app);
+    let app = add_beta_cmds(app);
     app.get_matches_from_safe(args)
 }
 
-
-#[cfg(feature = "server")]
-pub fn add_serve_cmd<'a, 'b>(app: App<'a, 'b>) -> App<'a, 'b> {
-    use cmd::server;
-    app.subcommand(server::get_subcommand())
+#[cfg(feature = "beta")]
+/// add any beta cmdline features here
+pub fn add_beta_cmds<'a, 'b>(app: App<'a, 'b>) -> App<'a, 'b> {
+    app
 }
 
-#[cfg(not(feature = "server"))]
-pub fn add_serve_cmd<'a, 'b>(app: App<'a, 'b>) -> App<'a, 'b> {
+#[cfg(not(feature = "beta"))]
+/// add any beta cmdline features in the `[#cfg(feature = "beta")]` function
+pub fn add_beta_cmds<'a, 'b>(app: App<'a, 'b>) -> App<'a, 'b> {
     app
 }

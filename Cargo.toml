@@ -60,11 +60,9 @@ default-features = true
 version = "0.10.0"
 
 [dependencies.jsonrpc-core]
-optional = true
 version = "7.1.0"
 
 [dependencies.nickel]
-optional = true
 version = "0.10.0"
 
 [dependencies.tabwriter]
@@ -84,9 +82,7 @@ fs_extra = "1.0.0"
 
 [features]
 default = []
-server = [
-    "nickel",
-    "jsonrpc-core",
-]
+beta = []
+
 [profile.dev]
 codegen-units = 3
