@@ -42,6 +42,7 @@ mod fmt;
 mod init;
 mod tutorial;
 mod update;
+mod tools;
 
 #[cfg(feature = "server")]
 mod server;
@@ -133,6 +134,13 @@ where
         let c = tutorial::get_cmd(t)?;
         tutorial::run_cmd(&work_tree, c).unwrap();
         return Ok(0);
+    }
+
+    // If tools is selected, run it;
+    if let Some(mat) = matches.subcommand_matches("tools") {
+        info!("Calling tools command");
+        let c = tools::get_cmd(mat)?;
+        return tools::run_cmd(&c, w);
     }
 
     // load the artifacts
