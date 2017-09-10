@@ -9,21 +9,22 @@ main() {
 
     if [ "$CI_BUILD" = "fast" ]; then
         echo "Only doing fast build and test"
-        cargo test --features server
+        cargo test
         return 0
     fi
 
     export RUST_BACKTRACE=1
     just lint
+    just lint -- "--features beta"
     cargo test
-    just test
-    just build-release
-    export TARGET_BIN="$PWD/target/release/art"
+    cargo test --features beta
+    # same command that is used in release
+    cross rustc --bin art --target $TARGET --release -- -C lto
+    export TARGET_BIN="target/$TARGET/release/art"
     # test "$(uname)" = "Darwin" && echo "TODO: selenium timeout issue on mac" || \
     #     py.test web-ui/sel_tests
     just check-fmt
-    eval "$TARGET_BIN check"
-    just run -- check
+    # eval "$TARGET_BIN check"
 }
 
 # we don't run the "test phase" when doing deploys
