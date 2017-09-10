@@ -20,7 +20,7 @@ main() {
     cargo test --features beta
     # same command that is used in release
     cross rustc --bin art --target $TARGET --release -- -C lto
-    export TARGET_BIN="$PWD/target/release/art"
+    export TARGET_BIN="target/$TARGET/release/art"
     # test "$(uname)" = "Darwin" && echo "TODO: selenium timeout issue on mac" || \
     #     py.test web-ui/sel_tests
     just check-fmt

@@ -60,14 +60,16 @@ pub fn get_loglevel(matches: &ArgMatches) -> Option<(u8, bool)> {
     Some((verbosity, quiet))
 }
 
-fn run_server(project: &Project, matches: &ArgMatches) -> Result<u8> {
-    if let Some(mat) = matches.subcommand_matches("serve") {
-        let addr = server::get_cmd(mat);
-        server::run_cmd(project.clone(), &addr);
-        Ok(0)
-    } else {
-        Err(ErrorKind::NothingDone.into())
-    }
+#[cfg(feature = "beta")]
+/// run beta commands here
+fn run_beta(project: &Project, matches: &ArgMatches) -> Result<u8> {
+    Err(ErrorKind::NothingDone.into())
+}
+
+#[cfg(not(feature = "beta"))]
+/// run beta commands in the `[#cfg(feature = "beta")]` function
+fn run_beta(_: &Project, _: &ArgMatches) -> Result<u8> {
+    Err(ErrorKind::NothingDone.into())
 }
 
 pub fn cmd<W, I, T>(w: &mut W, args: I) -> Result<u8>
@@ -163,7 +165,11 @@ where
         info!("Calling the export command");
         let c = export::get_cmd(mat)?;
         export::run_cmd(&cwd, &project, &c)
-    } else if match run_server(&project, &matches) {
+    } else if let Some(mat) = matches.subcommand_matches("serve") {
+        let addr = server::get_cmd(mat);
+        server::run_cmd(project.clone(), &addr);
+        Ok(0)
+    } else if match run_beta(&project, &matches) {
         Ok(r) => return Ok(r),
         Err(err) => match *err.kind() {
             ErrorKind::NothingDone => false,
