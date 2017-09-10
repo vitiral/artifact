@@ -24,6 +24,8 @@ use super::ls;
 use super::check;
 use super::fmt as fmtcmd;
 use super::update;
+use super::server;
+#[cfg(feature = "beta")]
 use super::plugin;
 
 pub fn art_app<'a, 'b>() -> App<'a, 'b> {
@@ -64,9 +66,9 @@ pub fn art_app<'a, 'b>() -> App<'a, 'b> {
         .subcommand(fmtcmd::get_subcommand())
         .subcommand(export::get_subcommand())
         .subcommand(update::get_subcommand())
-        .subcommand(plugin::get_subcommand());
+        .subcommand(server::get_subcommand());
 
-    app
+    add_beta_cmds(app)
 }
 
 pub fn get_matches<'a, I, T>(args: I) -> ClapResult<ArgMatches<'a>>
@@ -74,20 +76,18 @@ where
     I: IntoIterator<Item = T>,
     T: Into<OsString> + clone::Clone,
 {
-    let app = art_app().subcommand(::cmd::server::get_subcommand());
-
-    let app = add_beta_cmds(app);
+    let app = art_app();
     app.get_matches_from_safe(args)
 }
 
 #[cfg(feature = "beta")]
 /// add any beta cmdline features here
-pub fn add_beta_cmds<'a, 'b>(app: App<'a, 'b>) -> App<'a, 'b> {
-    app
+fn add_beta_cmds<'a, 'b>(app: App<'a, 'b>) -> App<'a, 'b> {
+    app.subcommand(plugin::get_subcommand())
 }
 
 #[cfg(not(feature = "beta"))]
 /// add any beta cmdline features in the `[#cfg(feature = "beta")]` function
-pub fn add_beta_cmds<'a, 'b>(app: App<'a, 'b>) -> App<'a, 'b> {
+fn add_beta_cmds<'a, 'b>(app: App<'a, 'b>) -> App<'a, 'b> {
     app
 }

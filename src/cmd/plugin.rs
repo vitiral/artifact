@@ -47,7 +47,7 @@ pub fn get_subcommand<'a, 'b>() -> App<'a, 'b> {
                 .value_name("PATH")
                 .help(
                     "Path of file to place the output of the plugin command \
-                     defaults to standard output otherwise.",
+                     (defaults to standard output)",
                 ),
         )
 }
