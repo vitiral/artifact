@@ -146,7 +146,7 @@ where
 
     // If plugin is selected, run it.
     // NB: plugin is a BETA command
-    if let Some(_) = matches.subcommand_matches("plugin") {
+    if matches.subcommand_matches("plugin").is_some() {
         return run_beta(None, &matches, w);
     }
 

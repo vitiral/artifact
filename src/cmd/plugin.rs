@@ -22,6 +22,11 @@ use types::*;
 use cmd::types::*;
 use cmd::matches::art_app;
 
+const BASH_COMPLETIONS: &str = "bash-completions";
+const FISH_COMPLETIONS: &str = "fish-completions";
+const ZSH_COMPLETIONS: &str = "zsh-completions";
+const PS_COMPLETIONS: &str = "ps-completions";
+
 pub fn get_subcommand<'a, 'b>() -> App<'a, 'b> {
     SubCommand::with_name("plugin")
         .settings(&SUBCMD_SETTINGS)
@@ -33,10 +38,10 @@ pub fn get_subcommand<'a, 'b>() -> App<'a, 'b> {
             Arg::with_name("name")
                 .required(true)
                 .possible_values(&[
-                    "bash-completions",
-                    "fish-completions",
-                    "zsh-completions",
-                    "ps-completions",
+                    BASH_COMPLETIONS,
+                    FISH_COMPLETIONS,
+                    ZSH_COMPLETIONS,
+                    PS_COMPLETIONS,
                 ])
                 .help("Plugin name"),
         )
@@ -68,10 +73,10 @@ pub fn get_cmd<'a>(matches: &'a ArgMatches) -> Result<Cmd<'a>> {
         .value_of("name")
         .expect("clap error in argument parsing!")
     {
-        "bash-completions" => Plugin::Comp(Shell::Bash),
-        "fish-completions" => Plugin::Comp(Shell::Fish),
-        "zsh-completions" => Plugin::Comp(Shell::Zsh),
-        "ps-completions" => Plugin::Comp(Shell::PowerShell),
+        BASH_COMPLETIONS => Plugin::Comp(Shell::Bash),
+        FISH_COMPLETIONS => Plugin::Comp(Shell::Fish),
+        ZSH_COMPLETIONS => Plugin::Comp(Shell::Zsh),
+        PS_COMPLETIONS => Plugin::Comp(Shell::PowerShell),
         _ => panic!("clap error in argument parsing!"),
     };
     let out = matches.value_of("output").map(|p| Path::new(p).as_ref());
@@ -119,7 +124,9 @@ fn run_cmd_completions<W: io::Write>(cmd: &Cmd, mut w: W, is_dir: bool) -> Resul
                 info!(
                     "Generating {} completions to {}",
                     sh,
-                    cmd.output.unwrap_or("standard output".as_ref()).display(),
+                    cmd.output
+                        .unwrap_or_else(|| "standard output".as_ref())
+                        .display(),
                 );
                 art_app().gen_completions_to("art", shell, &mut w)
             } else {
