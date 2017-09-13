@@ -24,12 +24,11 @@ use super::ls;
 use super::check;
 use super::fmt as fmtcmd;
 use super::update;
+use super::server;
+#[cfg(feature = "beta")]
+use super::plugin;
 
-pub fn get_matches<'a, I, T>(args: I) -> ClapResult<ArgMatches<'a>>
-where
-    I: IntoIterator<Item = T>,
-    T: Into<OsString> + clone::Clone,
-{
+pub fn art_app<'a, 'b>() -> App<'a, 'b> {
     let app = App::new("artifact")
         .version(env!("CARGO_PKG_VERSION"))
         .about(
@@ -67,20 +66,28 @@ where
         .subcommand(fmtcmd::get_subcommand())
         .subcommand(export::get_subcommand())
         .subcommand(update::get_subcommand())
-        .subcommand(::cmd::server::get_subcommand());
+        .subcommand(server::get_subcommand());
 
-    let app = add_beta_cmds(app);
+    add_beta_cmds(app)
+}
+
+pub fn get_matches<'a, I, T>(args: I) -> ClapResult<ArgMatches<'a>>
+where
+    I: IntoIterator<Item = T>,
+    T: Into<OsString> + clone::Clone,
+{
+    let app = art_app();
     app.get_matches_from_safe(args)
 }
 
 #[cfg(feature = "beta")]
 /// add any beta cmdline features here
-pub fn add_beta_cmds<'a, 'b>(app: App<'a, 'b>) -> App<'a, 'b> {
-    app
+fn add_beta_cmds<'a, 'b>(app: App<'a, 'b>) -> App<'a, 'b> {
+    app.subcommand(plugin::get_subcommand())
 }
 
 #[cfg(not(feature = "beta"))]
 /// add any beta cmdline features in the `[#cfg(feature = "beta")]` function
-pub fn add_beta_cmds<'a, 'b>(app: App<'a, 'b>) -> App<'a, 'b> {
+fn add_beta_cmds<'a, 'b>(app: App<'a, 'b>) -> App<'a, 'b> {
     app
 }

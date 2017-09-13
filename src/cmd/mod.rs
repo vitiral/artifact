@@ -42,6 +42,8 @@ mod fmt;
 mod init;
 mod tutorial;
 mod update;
+#[cfg(feature = "beta")]
+mod plugin;
 
 mod server;
 
@@ -63,13 +65,25 @@ pub fn get_loglevel(matches: &ArgMatches) -> (u8, bool) {
 
 #[cfg(feature = "beta")]
 /// run beta commands here
-fn run_beta(project: &Project, matches: &ArgMatches) -> Result<u8> {
-    Err(ErrorKind::NothingDone.into())
+fn run_beta<W>(_project: Option<&Project>, matches: &ArgMatches, w: &mut W) -> Result<u8>
+where
+    W: io::Write,
+{
+    if let Some(mat) = matches.subcommand_matches("plugin") {
+        info!("Calling plugin command");
+        let c = plugin::get_cmd(mat)?;
+        plugin::run_cmd(&c, w)
+    } else {
+        Err(ErrorKind::NothingDone.into())
+    }
 }
 
 #[cfg(not(feature = "beta"))]
 /// run beta commands in the `[#cfg(feature = "beta")]` function
-fn run_beta(_: &Project, _: &ArgMatches) -> Result<u8> {
+fn run_beta<W>(_: Option<&Project>, _: &ArgMatches, _: &mut W) -> Result<u8>
+where
+    W: io::Write,
+{
     Err(ErrorKind::NothingDone.into())
 }
 
@@ -129,6 +143,12 @@ where
         return Ok(0);
     }
 
+    // If plugin is selected, run it.
+    // NB: plugin is a BETA command
+    if matches.subcommand_matches("plugin").is_some() {
+        return run_beta(None, &matches, w);
+    }
+
     // load the artifacts
     let repo = match utils::find_repo(&work_tree) {
         Ok(r) => r,
@@ -168,7 +188,7 @@ where
         let addr = server::get_cmd(mat);
         server::run_cmd(project.clone(), &addr);
         Ok(0)
-    } else if match run_beta(&project, &matches) {
+    } else if match run_beta(Some(&project), &matches, w) {
         Ok(r) => return Ok(r),
         Err(err) => match *err.kind() {
             ErrorKind::NothingDone => false,
