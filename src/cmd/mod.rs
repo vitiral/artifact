@@ -48,16 +48,17 @@ mod server;
 #[cfg(test)]
 mod tests;
 
-pub fn get_loglevel(matches: &ArgMatches) -> Option<(u8, bool)> {
+pub fn get_loglevel(matches: &ArgMatches) -> (u8, bool) {
     let verbosity = match matches.occurrences_of("verbose") {
         v @ 0...3 => v,
         _ => {
-            eprintln!("ERROR: verbosity cannot be higher than 3");
-            return None;
+            // v > 3
+            eprintln!("WARN: verbosity cannot be higher than 3, defaulting to 3");
+            3
         }
     } as u8;
     let quiet = matches.is_present("quiet");
-    Some((verbosity, quiet))
+    (verbosity, quiet)
 }
 
 #[cfg(feature = "beta")]
@@ -90,10 +91,8 @@ where
     };
 
     // initialze the logger
-    match get_loglevel(&matches) {
-        Some((v, q)) => logging::init_logger(q, v, true).unwrap(),
-        None => panic!("could not find loglevel"),
-    };
+    let (v, q) = get_loglevel(&matches);
+    logging::init_logger(q, v, true).unwrap();
 
     // if we are updating, just do that and exit
     if let Some(up) = matches.subcommand_matches("update") {
