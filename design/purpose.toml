@@ -26,6 +26,7 @@ The application requirements are split into the following categories:
 - [[SPC-0]]: definitions and pre-design decisions for this project
 - [[REQ-artifact]]: details the types of artifact and valid links
 - [[REQ-partof]]: details how artifacts are linked by the user
+- [[REQ-completion]]: artifact will track completeness
 - [[REQ-security]]: security considerations and risks
 - [[REQ-cmd]]: details the cmdline interface including `ls`, `check` and `export`
 - [[REQ-rpc]]: details the json-rpc interface of the server
@@ -125,23 +126,15 @@ There are three ways to specify that an artifact is partof another artifact:
  2. through postfix-name (linkable types)
  3. through prefix-name (parents)
 
-
 ## prefix name (parents)
-parents of an artifact will be automatically created if they do not exist and then
-linked as partof their children.
+Parents of an artifact will be automatically linked as partof their children.
 
 **Example**:
 
-`REQ-foo-bar` has "child" `REQ-foo`. If `REQ-foo` doesn't exist, it will be
-created as `REQ-FOO` and will be a `partof` `REQ-foo-bar`
+`REQ-foo-bar` has "parent" `REQ-foo`, which must exist.
 
 ## post-fix name (linkable types)
-artifacts will be linked by their postfix if they are able. However, artifacts
-**will not** be created if they do not exist (like parents, see item 3)
-
-This stage happens after partof-1 but before partof-3. This is important because
-"parents" that are automatically created in stage 3 will not be automatically
-linked in this manner.
+Artifacts will be linked by their postfix if they are able.
 
 Example:**
 
@@ -151,12 +144,32 @@ If you define:
 [SPC-foo-bar]
 [TST-foo-bar]
 
-[SPC-baz]
+[SPC-bar]
 ```
 
 Then `REQ-foo-bar` will automatically be a partof `SPC-foo-bar`,
-`SPC-foo-bar` will be a partof `TST-foo-bar`. `SPC-baz` will not
-be a partof anything since it doesn't share a prefix or a name.
+`SPC-foo-bar` will be a partof `TST-foo-bar`. `SPC-bar` will not
+be a partof anything since it doesn't share a prefix.
+'''
+
+[REQ-completion]
+text = '''
+Artifact will track how *complete* and *tested* an item is based on:
+- The artifact's type: TST behaves differently than REQ and SPC
+- Whether it is implemented in code (i.e. `#ART-name` is somewhere in code) or
+  implemented using the `done` field.
+- The completion/tested status of its parts/children.
+
+## Simple calculation
+Artifact completed% and tested% is calculated as following:
+- Artifacts implemented in code or `done` *without* children are 100% complete.
+- `TST` artifacts have `tested == completed`
+- Artifacts with children are as complete as the average of their children.
+  I.e. if they have `done`/code-link it is ignored (although the link still
+  gives a valuable reference)
+
+This simplicity is intended to make it extremely easy to reason about
+why an artifact has its particular status.
 '''
 
 [REQ-rpc]
@@ -252,3 +265,4 @@ Requirements of web page:
  - there shall be an option to disable editing (read-only)
  - webpage shall be able to view test execution data
 '''
+
