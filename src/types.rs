@@ -10,6 +10,7 @@ pub const REPO_VAR: &'static str = "repo";
 pub const CWD_VAR: &'static str = "cwd";
 /// base definition of a valid name. Some pieces may ignore case.
 pub const NAME_VALID_STR: &'static str = "(?:REQ|SPC|TST)(?:-[A-Z0-9_-]*[A-Z0-9_])?";
+pub const SUBPART_VALID_STR: &'static str = "(?:[A-Z0-9_-]*[A-Z0-9_])?";
 
 lazy_static!{
     // must start with artifact type, followed by "-", followed by at least 1 valid character
@@ -212,7 +213,7 @@ impl fmt::Display for Loc {
 /// multiple locations
 #[derive(Debug, Clone, PartialEq)]
 pub struct Locs {
-    /// Whether the root node linked in code
+    /// Whether the root node is linked in code
     /// i.e #ART-foo
     pub root: Option<loc>,
 
@@ -299,6 +300,8 @@ pub struct Artifact {
     pub partof: Names,
     /// parts is inverse of partof (calculated)
     pub parts: Names,
+    /// sublinks that are defined only in code (for reference)
+    pub sublinks: HashSet<String>,
     /// `done` attribute, allows user to "define as done"
     pub done: Done,
     /// completed ratio (calculated)

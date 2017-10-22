@@ -3,7 +3,8 @@ use types::*;
 
 lazy_static!{
     pub static ref ART_LOC: Regex = Regex::new(
-        &format!(r"(?i)(?:#({}))|(\n)", NAME_VALID_STR)).unwrap();
+        &format!(r"(?i)(?:#({})(?:\.({}))|(\n)", NAME_VALID_STR, SUBART_VALID_STR))
+            .unwrap();
 }
 
 // Public Methods
@@ -49,18 +50,33 @@ pub fn attach_locs(
 
 // Private Methods
 
-fn find_locs_text(path: &Path, text: &str, locs: &mut HashMap<Name, Loc>) -> Result<()> {
+fn find_locs_text(path: &Path, text: &str, locs: &mut HashMap<Name, Loc>,
+                  sublocs: &mut HashMap<(Name, String), Loc>) -> Result<()> {
     let mut line = 1;
     for cap in ART_LOC.captures_iter(text) {
-        //debug_assert_eq!(cap.len(), 2);
         if let Some(m) = cap.get(1) {
-            debug_assert!(cap.get(2).is_none());
+            debug_assert!(cap.get(3).is_none());
             let name = Name::from_str(m.as_str()).expect("regex validated");
             let loc = Loc {
                 path: path.to_path_buf(),
                 line: line,
             };
-            if let Some(first) = locs.insert(name, loc) {
+            if let Some(sub) = cap.get(2) {
+                // It is a sub-location
+                if let Some(first) = sublocs.insert(
+                        (name, sub.to_ascii_uppercase()),
+                        loc) {
+                    warn!(
+                        "sublocations found twice. first: {}({}), \
+                         second: {}({})",
+                        first.0.path.display(),
+                        first.0.line,
+                        path.display(),
+                        line
+                    );
+                }
+            }
+            else if let Some(first) = locs.insert(name, loc) {
                 warn!(
                     "locations found twice. first: {}({}), \
                      second: {}({})",
@@ -71,7 +87,7 @@ fn find_locs_text(path: &Path, text: &str, locs: &mut HashMap<Name, Loc>) -> Res
                 );
             }
         } else {
-            debug_assert!(cap.get(2).is_some());
+            debug_assert!(cap.get(3).is_some());
             line += 1;
         }
     }
