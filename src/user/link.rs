@@ -184,14 +184,12 @@ pub fn set_completed(artifacts: &mut Artifacts) -> usize {
 
     while !names.is_empty() {
         for name in &names {
-            // if this name is calcu
             let artifact = artifacts.get(name).unwrap();
             if !artifact.parts.iter().all(|n| known.contains_key(n)) {
+                // Skip (for now) if we don't have enough information yet
                 continue;
             }
 
-            // we know the artifact parts are are all completed, we just need
-            // to calculate
             let mut parts: Vec<Part> = Vec::from_iter(
                 artifact
                     .parts
@@ -202,28 +200,30 @@ pub fn set_completed(artifacts: &mut Artifacts) -> usize {
 
             // Push the "done" field
             match (&artifact.done, name.ty) {
-                (&Done::Code(_), Type::TST) => {
-                    // it is a completed test, but it does not count towards
+                (&Done::Code(loc), Type::TST) => {
+                    // It is a completed test, but it does not count towards
                     // "completed" for spcs
                     // ... since we are currently processing a TST this information
                     // might as well be useless though...
+                    let ratio = loc.ratio_complete();
                     parts.push(Part {
-                        tested: 1.0,
-                        completed: 1.0,
+                        tested: ratio,
+                        completed: ratio,
                         count_spc_completed: false,
                         count_spc_tested: true,
                     });
                 }
-                (&Done::Code(_), Type::SPC) => {
-                    // it is a completed spec, but it does not count towards "tested"
+                (&Done::Code(loc), Type::SPC) => {
+                    // It is a completed spec, but it does not count towards "tested"
+                    let ratio = loc.ratio_complete();
                     parts.push(Part {
-                        tested: 1.0,
-                        completed: 1.0,
+                        tested: ratio,
+                        completed: ratio,
                         count_spc_completed: true,
                         count_spc_tested: false,
                     });
                 }
-                (&Done::Code(_), Type::REQ) => unreachable!("validation prevents"),
+                (&Done::Code(_), Type::REQ) => unreachable!("pre-validation prevents"),
                 (&Done::Defined(_), _) => {
                     // `done` field always counts for both tested and completed
                     parts.push(Part {

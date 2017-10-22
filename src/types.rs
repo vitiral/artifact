@@ -209,6 +209,56 @@ impl fmt::Display for Loc {
     }
 }
 
+/// multiple locations
+#[derive(Debug, Clone, PartialEq)]
+pub struct Locs {
+    /// Whether the root node linked in code
+    /// i.e #ART-foo
+    pub root: Option<loc>,
+
+    /// The sub parts that are linked in code
+    /// i.e #ART-foo.subpart
+    pub subparts: HashSet<Loc>,
+
+    /// The total number of subparts
+    pub num_subparts: usize,
+}
+
+impl Locs {
+    /// Give the ratio of these locations are complete
+    pub fn ratio_complete(&self) -> f32 {
+        let total = 1 + self.num_subparts;
+        let linked = if self.root.is_none() {
+            0
+        else {
+            1
+        } + self.subparts.len();
+
+        linked as f32 / total
+    }
+}
+
+#[cfg(test)]
+impl Locs {
+    pub fn fake() -> Loc {
+        Locs {
+            root: Loc::fake(),
+            subparts: Vec::new(),
+            num_subparts: 0,
+        }
+    }
+}
+
+impl fmt::Display for Locs {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self.root)?;
+        if !self.subparts.is_empty() {
+            write!(f, "\{subparts={}/{}\}", self.subparts.len(), self.num_subparts)?;
+        }
+    }
+}
+
+
 /// Determines if the artifact is "done by definition"
 ///
 /// It is done by definition if:
@@ -217,21 +267,11 @@ impl fmt::Display for Loc {
 #[derive(Debug, Clone, PartialEq)]
 pub enum Done {
     /// Artifact is implemented in code
-    Code(Loc),
+    Code(Locs),
     /// artifact has it's `done` field defined
     Defined(String),
     /// artifact is NOT "done by definition"
     NotDone,
-}
-
-impl Done {
-    /// return true if Done == Code || Defined
-    pub fn is_done(&self) -> bool {
-        match *self {
-            Done::Code(_) | Done::Defined(_) => true,
-            Done::NotDone => false,
-        }
-    }
 }
 
 impl fmt::Display for Done {
