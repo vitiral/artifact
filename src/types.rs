@@ -218,21 +218,17 @@ pub struct Locs {
 
     /// The sub parts that are linked in code
     /// i.e #ART-foo.subpart
-    pub subparts: HashSet<Loc>,
-
-    /// The total number of subparts
-    pub num_subparts: usize,
+    pub subparts: HashMap<String, Option<Loc>>,
 }
 
 impl Locs {
     /// Give the ratio of these locations are complete
     pub fn ratio_complete(&self) -> f32 {
-        let total = 1 + self.num_subparts;
-        let linked = if self.root.is_none() {
-            0
-        else {
-            1
-        } + self.subparts.len();
+        let total = 1 + self.subparts.len();
+        let mut linked: usize = self.subparts.iter()
+            .map(|(k, v)| if v.is_some() { 1 } else { 0 })
+            .sum();
+        linked += if self.root.is_some() { 1 } else { 0 };
 
         linked as f32 / total
     }
@@ -251,9 +247,10 @@ impl Locs {
 
 impl fmt::Display for Locs {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.root)?;
-        if !self.subparts.is_empty() {
-            write!(f, "\{subparts={}/{}\}", self.subparts.len(), self.num_subparts)?;
+        // TODO: need better handling of this
+        match root {
+            Some(r) => write!(f, "{}", self.root),
+            None => write!(f, "! only subparts are linked !"),
         }
     }
 }
