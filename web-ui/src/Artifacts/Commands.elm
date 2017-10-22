@@ -295,9 +295,10 @@ artifactDecoder =
         |> required "name" nameDecoder
         |> required "def" Decode.string
         |> required "text" Decode.string
+        |> required "subnames" (Decode.list Decode.string)
         |> required "partof" (Decode.list nameDecoder)
         |> required "parts" (Decode.list nameDecoder)
-        |> required "code" (Decode.nullable locDecoder)
+        |> required "code" (Decode.nullable fullLocsDecoder)
         |> required "done" (Decode.nullable Decode.string)
         |> required "completed" Decode.float
         |> required "tested" Decode.float
@@ -320,6 +321,13 @@ nameDecoderValue name =
 
         Err err ->
             Decode.fail err
+
+
+fullLocsDecoder : Decode.Decoder FullLocs
+fullLocsDecoder =
+    decode FullLocs
+        |> required "root" (Decode.nullable locDecoder)
+        |> required "error" (Decode.dict locDecoder)
 
 
 locDecoder : Decode.Decoder Loc

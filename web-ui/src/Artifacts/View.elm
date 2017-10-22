@@ -109,19 +109,12 @@ implementedBasic model artifact =
         ( s, d ) =
             case ( artifact.code, artifact.done ) of
                 ( Just loc, Nothing ) ->
-                    let
-                        plain =
-                            loc.path ++ "[" ++ (toString loc.line) ++ "]"
-                    in
-                        if model.flags.path_url == "" then
-                            ( [], text plain )
-                        else
-                            let
-                                url =
-                                    Utils.strReplace "{path}" loc.path model.flags.path_url
-                                        |> Utils.strReplace "{line}" (toString loc.line)
-                            in
-                                ( [], a [ href url ] [ text plain ] )
+                    case loc.root of
+                        Just root ->
+                            ( [], implementedCodeRoot model root )
+
+                        Nothing ->
+                            ( [], text "sublocations are implemented, see text" )
 
                 ( Nothing, Just done ) ->
                     ( [], text done )
@@ -133,6 +126,23 @@ implementedBasic model artifact =
                     ( [ class "bold red" ], text "ERROR: code+done both set" )
     in
         span (s ++ [ getId "implemented" artifact Nothing ]) [ d ]
+
+
+implementedCodeRoot : Model -> Loc -> Html m
+implementedCodeRoot model root =
+    let
+        plain =
+            root.path ++ "[" ++ (toString root.line) ++ "]"
+    in
+        if model.flags.path_url == "" then
+            text plain
+        else
+            let
+                url =
+                    Utils.strReplace "{path}" root.path model.flags.path_url
+                        |> Utils.strReplace "{line}" (toString root.line)
+            in
+                a [ href url ] [ text plain ]
 
 
 

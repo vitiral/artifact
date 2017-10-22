@@ -9,6 +9,12 @@ use cmd::check;
 use utils::UUID;
 
 #[derive(Serialize, Deserialize, Debug, Clone, Eq, PartialEq)]
+pub struct FullLocsData {
+    root: Option<LocData>,
+    sublocs: HashMap<String, LocData>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, Eq, PartialEq)]
 pub struct LocData {
     pub path: String,
     pub line: u64,
@@ -23,10 +29,9 @@ pub struct ArtifactData {
     pub text: String,
     pub partof: Vec<String>,
 
-    // // TODO: until I serde gets up to speed, the web-api will
-    // // have to send these values even though they are ignored
+    #[serde(default)] pub subnames: Vec<String>,
     #[serde(default)] pub parts: Vec<String>,
-    #[serde(default)] pub code: Option<LocData>,
+    #[serde(default)] pub code: Option<FullLocsData>,
     #[serde(default)] pub done: Option<String>,
     #[serde(default = "default_comp_tested")] pub completed: f32,
     #[serde(default = "default_comp_tested")] pub tested: f32,
@@ -79,17 +84,35 @@ impl Artifact {
     /// convert an `Artifact` to it's data form
     pub fn to_data(&self, origin: &Path, name: &NameRc) -> ArtifactData {
         let (code, done) = match self.done {
-            Done::Code(ref l) => (
-                Some(LocData {
-                    path: l.path
-                        .strip_prefix(origin)
-                        .expect("origin invalid")
-                        .to_string_lossy()
-                        .to_string(),
-                    line: l.line as u64,
-                }),
-                None,
-            ),
+            Done::Code(ref l) => {
+                let root = match l.root {
+                    Some(ref r) => Some(LocData {
+                        path: r.path
+                            .strip_prefix(origin)
+                            .expect("origin invalid")
+                            .to_string_lossy()
+                            .to_string(),
+                        line: r.line as u64,
+                    }),
+                    None => None,
+                };
+                let sublocs = HashMap::from_iter(l.sublocs.iter().map(|(n, l)| {
+                    let loc = LocData {
+                        path: l.path
+                            .strip_prefix(origin)
+                            .expect("origin invalid")
+                            .to_string_lossy()
+                            .to_string(),
+                        line: l.line as u64,
+                    };
+                    (n.to_string(), loc)
+                }));
+                let full_loc = FullLocsData {
+                    root: root,
+                    sublocs: sublocs,
+                };
+                (Some(full_loc), None)
+            }
             Done::Defined(ref s) => (None, Some(s.clone())),
             Done::NotDone => (None, None),
         };
@@ -103,6 +126,8 @@ impl Artifact {
             .expect("origin invalid")
             .to_string_lossy()
             .to_string();
+        let mut subnames: Vec<_> = self.subnames.iter().map(|n| n.to_string()).collect();
+        subnames.sort();
 
         ArtifactData {
             id: self.id,
@@ -110,6 +135,7 @@ impl Artifact {
             name: name.raw.clone(),
             def: path,
             text: self.text.clone(),
+            subnames: subnames,
             partof: partof,
             parts: parts,
             code: code,
@@ -141,9 +167,25 @@ impl Artifact {
             }
             Done::Defined(d.clone())
         } else if let Some(ref c) = data.code {
-            Done::Code(Loc {
-                path: repo.join(&c.path),
-                line: c.line as usize,
+            let root = match c.root {
+                Some(ref r) => Some(Loc {
+                    path: repo.join(&r.path),
+                    line: r.line as usize,
+                }),
+                None => None,
+            };
+            let mut sublocs = HashMap::new();
+            for (n, l) in &c.sublocs {
+                let subname = SubName::from_str(n)?;
+                let loc = Loc {
+                    path: repo.join(&l.path),
+                    line: l.line as usize,
+                };
+                sublocs.insert(subname, loc);
+            }
+            Done::Code(FullLocs {
+                root: root,
+                sublocs: sublocs,
             })
         } else {
             Done::NotDone
@@ -156,6 +198,7 @@ impl Artifact {
                 revision: data.revision,
                 def: repo.join(&data.def),
                 text: data.text.clone(),
+                subnames: HashSet::new(),
                 partof: partof,
                 done: done,
                 parts: HashSet::new(),
@@ -193,12 +236,16 @@ fn test_serde() {
         name: "name".to_string(),
         def: "path".to_string(),
         text: "text".to_string(),
+        subnames: Vec::new(),
         partof: Vec::from_iter(vec!["partof-1".to_string()]),
         parts: Vec::from_iter(vec!["part-1".to_string()]),
         done: None,
-        code: Some(LocData {
-            path: "path".to_string(),
-            line: 10,
+        code: Some(FullLocsData {
+            root: Some(LocData {
+                path: "path".to_string(),
+                line: 10,
+            }),
+            sublocs: HashMap::new(),
         }),
         completed: 0.,
         tested: 0.,

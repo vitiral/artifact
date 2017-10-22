@@ -8,6 +8,12 @@ use user::types::*;
 use user::save::ProjectText;
 use utils::unique_id;
 
+lazy_static!{
+    pub static ref SUBNAME_RE: Regex = Regex::new(
+        &format!(r"(?i)\[\[\.([{}]+)\]\]", NAME_VALID_CHARS!())).unwrap();
+}
+
+
 // Public Methods
 
 // TODO: making this parallel should be easy and dramatically improve performance:
@@ -78,6 +84,18 @@ pub fn load_text(
     Ok(())
 }
 
+
+fn parse_subnames(name: NameRc, text: &str) -> HashSet<SubName> {
+    let mut out: HashSet<SubName> = HashSet::new();
+    for cap in SUBNAME_RE.captures_iter(text) {
+        // note: repeats are ignored (and are okay)
+        out.insert(SubName::from_parts(
+            name.clone(),
+            cap.get(1).unwrap().as_str().into(),
+        ));
+    }
+    out
+}
 
 /// method to convert `ProjectText` -> `Project`
 /// Project may be extended by more than one `ProjectText`
@@ -179,11 +197,15 @@ fn from_user_artifact(name: &Name, path: &Path, user_artifact: UserArtifact) -> 
     // Being a partof itself is a no-op
     partof.remove(name);
 
+    let text = user_artifact.text.unwrap_or_default();
+    let subnames = parse_subnames(Arc::new(name.clone()), &text);
+
     Ok(Artifact {
         id: unique_id(),
         revision: 0,
         def: path.to_path_buf(),
-        text: user_artifact.text.unwrap_or_default(),
+        text: text,
+        subnames: subnames,
         partof: partof,
         done: done,
         // calculated vars
@@ -216,10 +238,13 @@ mod tests {
         // except attaching mocked locations
         let num = load_toml(&path, test_data::TOML_RST, &mut p).unwrap();
 
+        // FIXME: do something better for sublocs
         let locs = HashMap::from_iter(vec![(Name::from_str("SPC-foo").unwrap(), Loc::fake())]);
-        let dne_locs = locs::attach_locs(&mut p.artifacts, locs).unwrap();
+        let sublocs = HashMap::new();
+        let (dne_locs, dne_sublocs) = locs::attach_locs(&mut p.artifacts, locs, sublocs).unwrap();
         assert_eq!(num, 9);
         assert_eq!(dne_locs.len(), 0);
+        assert_eq!(dne_sublocs.len(), 0);
         assert!(
             p.artifacts
                 .contains_key(&Name::from_str("REQ-foo").unwrap())
@@ -251,10 +276,10 @@ mod tests {
             assert_eq!(art.def, path);
             assert_eq!(art.text, "");
             assert_eq!(art.partof, HashSet::new());
-            assert_eq!(art.done, Done::Code(Loc::fake()));
+            assert_eq!(art.done, Done::Code(FullLocs::fake()));
             assert_eq!(art.completed, -1.0);
             assert_eq!(art.tested, -1.0);
-            assert_eq!(art.done, Done::Code(Loc::fake()));
+            assert_eq!(art.done, Done::Code(FullLocs::fake()));
 
             // test non-defaults
             let spc_bar = Name::from_str("SPC-bar").unwrap();
@@ -287,6 +312,18 @@ mod tests {
             p.artifacts
                 .contains_key(&Name::from_str("TST-foo-2").unwrap())
         );
+    }
+
+    #[test]
+    fn test_parse_subnames() {
+        let name = Arc::new(Name::from_str("REQ-fake").unwrap());
+        let text = r#"
+        This is some text. Subname: [[.hello]]
+        [[.goodbye]]
+        "#;
+        let subnames = parse_subnames(name.clone(), text);
+        assert!(subnames.contains(&SubName::from_parts(name.clone(), "hello".into())));
+        assert!(subnames.contains(&SubName::from_parts(name.clone(), "goodbye".into())));
     }
 
 }

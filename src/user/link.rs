@@ -64,7 +64,6 @@ pub fn validate_done(artifacts: &Artifacts) -> Result<()> {
         }
         match artifact.done {
             Done::NotDone => {}
-            // correct!
             Done::Code(ref l) => {
                 error!(
                     "{} was declared implemented in code at {}. {}",
@@ -225,11 +224,11 @@ fn parts_average(ty: Type, parts: &[&Part]) -> Part {
 /// Get the calculated value of the artifact based on its `done` field
 fn calc_done_field(ty: Type, artifact: &Artifact) -> Option<Part> {
     let (is_done, ratio) = match artifact.done {
-        Done::Code(_) => {
+        Done::Code(ref locs) => {
             if let Type::REQ = ty {
                 panic!("REQ cannot have code links.");
             }
-            (false, 1.0)
+            (false, locs.ratio_complete(artifact.subnames.len()))
         }
         Done::Defined(_) => (true, 1.0),
         Done::NotDone => {
@@ -242,7 +241,7 @@ fn calc_done_field(ty: Type, artifact: &Artifact) -> Option<Part> {
     };
 
     let (aff_comp, aff_tst) = if is_done {
-        // #..link_done
+        // #SPC-data-completion.link_done
         (true, true)
     } else {
         match ty {
@@ -272,7 +271,7 @@ fn part_final(ty: Type, part: &mut Part) {
 
 /// Discover how complete and how tested all artifacts are (or are not!)
 ///
-/// @SPC-completion
+/// TODO: @SPC-data-completion
 pub fn set_completed(artifacts: &mut Artifacts) -> usize {
     let mut names = Names::from_iter(artifacts.keys().cloned());
     let mut known: HashMap<NameRc, Part> = HashMap::with_capacity(names.len());

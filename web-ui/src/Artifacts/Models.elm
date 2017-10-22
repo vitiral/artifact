@@ -50,13 +50,20 @@ type alias Artifact =
     , name : Name
     , def : String
     , text : String
+    , subnames : List String
     , partof : List Name
     , parts : List Name
-    , code : Maybe Loc
+    , code : Maybe FullLocs
     , done : Maybe String
     , completed : Float
     , tested : Float
     , edited : Maybe EditableArtifact
+    }
+
+
+type alias FullLocs =
+    { root : Maybe Loc
+    , sublocs : Dict.Dict String Loc
     }
 
 

@@ -83,7 +83,6 @@ test-sel-py TESTS="":
 	just test-sel
 	just check-fmt
 	{{art}} check
-	echo "not yet implemented"
 
 @test-all-beta:
 	just test-all -- "{{beta}}"
