@@ -20,6 +20,7 @@ mod locs;
 mod name;
 mod project;
 mod artifact;
+mod subname;
 mod settings;
 
 #[cfg(test)]
@@ -46,8 +47,8 @@ pub use user::types::RawSettings;
 ///
 /// #SPC-project-process
 pub fn process_project(project: &mut Project) -> Result<()> {
-    let locs = locs::find_locs(&project.settings)?;
-    project.dne_locs = locs::attach_locs(&mut project.artifacts, locs)?;
+    let (locs, sublocs) = locs::find_locs(&project.settings)?;
+    project.dne_locs = locs::attach_locs(&mut project.artifacts, locs, sublocs)?;
     link::do_links(&mut project.artifacts)?;
     Ok(())
 }

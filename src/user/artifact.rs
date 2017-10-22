@@ -216,8 +216,10 @@ mod tests {
         // except attaching mocked locations
         let num = load_toml(&path, test_data::TOML_RST, &mut p).unwrap();
 
+        // FIXME: do something better for sublocs
         let locs = HashMap::from_iter(vec![(Name::from_str("SPC-foo").unwrap(), Loc::fake())]);
-        let dne_locs = locs::attach_locs(&mut p.artifacts, locs).unwrap();
+        let sublocs = HashMap::new();
+        let dne_locs = locs::attach_locs(&mut p.artifacts, locs, sublocs).unwrap();
         assert_eq!(num, 9);
         assert_eq!(dne_locs.len(), 0);
         assert!(

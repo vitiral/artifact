@@ -64,6 +64,7 @@ extern crate fs_extra;
 
 // "core" modules
 pub mod dev_prefix;
+#[macro_use]
 pub mod types;
 pub mod user;
 pub mod logging;

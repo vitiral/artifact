@@ -8,8 +8,19 @@ pub const REPO_VAR: &'static str = "repo";
 /// variable which can be used in settings paths to mean the dir of the settings file.
 /// #TODO: remove this
 pub const CWD_VAR: &'static str = "cwd";
+
+macro_rules! NAME_VALID_CHARS {
+    () => { "A-Z0-9_" };
+}
+
 /// base definition of a valid name. Some pieces may ignore case.
-pub const NAME_VALID_STR: &'static str = "(?:REQ|SPC|TST)(?:-[A-Z0-9_-]*[A-Z0-9_])?";
+pub const NAME_VALID_STR: &'static str = concat!(
+    "(?:REQ|SPC|TST)(?:-[",
+    NAME_VALID_CHARS!(),
+    "-]*[",
+    NAME_VALID_CHARS!(),
+    "])?"
+);
 
 lazy_static!{
     // must start with artifact type, followed by "-", followed by at least 1 valid character
@@ -178,6 +189,18 @@ pub struct Name {
     pub ty: Type,
 }
 
+/// Like a "name" but with a sub piece, used only for linking to code.
+///
+/// i.e. `ART-name.sub`
+#[derive(Clone)]
+pub struct SubName {
+    pub name: Name,
+    /// user definition of "sub"
+    pub raw: String,
+    /// standardized version of "sub"
+    pub value: String,
+}
+
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
 /// type of an `Artifact`
 pub enum Type {
@@ -209,6 +232,41 @@ impl fmt::Display for Loc {
     }
 }
 
+/// multiple locations
+#[derive(Debug, Clone, PartialEq)]
+pub struct Locs {
+    /// Whether the root node is linked in code
+    /// i.e `#ART-foo`
+    pub root: Option<Loc>,
+
+    /// The sub locations that are linked in code
+    /// i.e `#ART-foo.subloc`
+    pub sublocs: HashMap<String, Option<Loc>>,
+}
+
+impl Locs {
+    /// Give the ratio of these locations are complete
+    pub fn ratio_complete(&self) -> f32 {
+        let total = 1 + self.sublocs.len();
+        let mut linked: usize = self.sublocs
+            .values()
+            .map(|v| if v.is_some() { 1 } else { 0 })
+            .sum();
+        linked += if self.root.is_some() { 1 } else { 0 };
+        linked as f32 / total as f32
+    }
+}
+
+#[cfg(test)]
+impl Locs {
+    pub fn fake() -> Locs {
+        Locs {
+            root: Some(Loc::fake()),
+            sublocs: HashMap::new(),
+        }
+    }
+}
+
 /// Determines if the artifact is "done by definition"
 ///
 /// It is done by definition if:
@@ -222,16 +280,6 @@ pub enum Done {
     Defined(String),
     /// artifact is NOT "done by definition"
     NotDone,
-}
-
-impl Done {
-    /// return true if Done == Code || Defined
-    pub fn is_done(&self) -> bool {
-        match *self {
-            Done::Code(_) | Done::Defined(_) => true,
-            Done::NotDone => false,
-        }
-    }
 }
 
 impl fmt::Display for Done {
