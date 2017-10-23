@@ -14,7 +14,7 @@ the following characteristics:
 - be revision controllable (text based)
 - have a unix-like command line interface for interacting with your design docs
 - have a web-ui for viewing and editing rendered documents
-- provide interop functionality like subcommand and data export for integration 
+- provide interop functionality like subcommand and data export for integration
     with external tools and plugins
 - be scalable to any size of project
 
@@ -26,6 +26,7 @@ The application requirements are split into the following categories:
 - [[SPC-0]]: definitions and pre-design decisions for this project
 - [[REQ-artifact]]: details the types of artifact and valid links
 - [[REQ-partof]]: details how artifacts are linked by the user
+- [[REQ-completion]]: artifact will track completeness
 - [[REQ-security]]: security considerations and risks
 - [[REQ-cmd]]: details the cmdline interface including `ls`, `check` and `export`
 - [[REQ-rpc]]: details the json-rpc interface of the server
@@ -115,7 +116,7 @@ For this reason, artifact uses the "partof" nomenclature for linking.
 This allows the user to think "what requirement does the design
 document I am currently writing fulfill".
 
-In addition, artifact shall infer links from the name of artifacts 
+In addition, artifact shall infer links from the name of artifacts
 whenever possible, such as artifacts with the same prefix or
 the same name of different types.
 
@@ -125,23 +126,15 @@ There are three ways to specify that an artifact is partof another artifact:
  2. through postfix-name (linkable types)
  3. through prefix-name (parents)
 
-
 ## prefix name (parents)
-parents of an artifact will be automatically created if they do not exist and then
-linked as partof their children.
+Parents of an artifact will be automatically linked as partof their children.
 
 **Example**:
 
-`REQ-foo-bar` has "child" `REQ-foo`. If `REQ-foo` doesn't exist, it will be
-created as `REQ-FOO` and will be a `partof` `REQ-foo-bar`
+`REQ-foo-bar` has "parent" `REQ-foo`, which must exist.
 
 ## post-fix name (linkable types)
-artifacts will be linked by their postfix if they are able. However, artifacts
-**will not** be created if they do not exist (like parents, see item 3)
-
-This stage happens after partof-1 but before partof-3. This is important because
-"parents" that are automatically created in stage 3 will not be automatically
-linked in this manner.
+Artifacts will be linked by their postfix if they are able.
 
 Example:**
 
@@ -151,12 +144,32 @@ If you define:
 [SPC-foo-bar]
 [TST-foo-bar]
 
-[SPC-baz]
+[SPC-bar]
 ```
 
 Then `REQ-foo-bar` will automatically be a partof `SPC-foo-bar`,
-`SPC-foo-bar` will be a partof `TST-foo-bar`. `SPC-baz` will not
-be a partof anything since it doesn't share a prefix or a name.
+`SPC-foo-bar` will be a partof `TST-foo-bar`. `SPC-bar` will not
+be a partof anything since it doesn't share a prefix.
+'''
+
+[REQ-completion]
+text = '''
+Artifact will track how *complete* and *tested* an item is based on:
+- The artifact's type:
+    - TST is always as tested as it is completed.
+- The completion status of it's children:
+    - TST children affect tested% but do not impact completed%
+    - SPC children affect completed% but do not impact tested%
+    - REQ children affect both completed% and tested%
+- Whether it is implemented in code (i.e. `#ART-name` is somewhere in code) or
+  implemented using the `done` field.
+- The completion/tested status of its parts/children.
+
+In particular
+- The `done` field and code links will only be used to calculate completeness
+  if the artifact has no children.
+- TST artifacts shall only add to the tested% (not completed%) of artifacts
+  they are a partof.
 '''
 
 [REQ-rpc]
@@ -203,7 +216,7 @@ The data that needs to be stored by the test tracking tool is:
  - test name (i.e. MyTest2)
  - design artifacts it tests (i.e. [TST-foo-bar, TST-baz-boo])
  - timestamp of test
- - version that was tested 
+ - version that was tested
     (i.e. 3.2.3.4 commit=154642d49b393e49d9de987685335e9c5a8b2aa7)
  - url/path to view test results and data externally
  - extra binary data
@@ -252,3 +265,4 @@ Requirements of web page:
  - there shall be an option to disable editing (read-only)
  - webpage shall be able to view test execution data
 '''
+

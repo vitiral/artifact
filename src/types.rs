@@ -10,6 +10,7 @@ pub const REPO_VAR: &'static str = "repo";
 pub const CWD_VAR: &'static str = "cwd";
 /// base definition of a valid name. Some pieces may ignore case.
 pub const NAME_VALID_STR: &'static str = "(?:REQ|SPC|TST)(?:-[A-Z0-9_-]*[A-Z0-9_])?";
+pub const SUBPART_VALID_STR: &'static str = "(?:[A-Z0-9_-]*[A-Z0-9_])?";
 
 lazy_static!{
     // must start with artifact type, followed by "-", followed by at least 1 valid character
@@ -209,6 +210,42 @@ impl fmt::Display for Loc {
     }
 }
 
+/// multiple locations
+#[derive(Debug, Clone, PartialEq)]
+pub struct Locs {
+    /// Whether the root node is linked in code
+    /// i.e #ART-foo
+    pub root: Option<Loc>,
+
+    /// The sub parts that are linked in code
+    /// i.e #ART-foo.subpart
+    pub subparts: HashMap<String, Option<Loc>>,
+}
+
+impl Locs {
+    /// Give the ratio of these locations are complete
+    pub fn ratio_complete(&self) -> f32 {
+        let total = 1 + self.subparts.len();
+        let mut linked: usize = self.subparts
+            .values()
+            .map(|v| if v.is_some() { 1 } else { 0 })
+            .sum();
+        linked += if self.root.is_some() { 1 } else { 0 };
+
+        linked as f32 / total as f32
+    }
+}
+
+#[cfg(test)]
+impl Locs {
+    pub fn fake() -> Locs {
+        Locs {
+            root: Some(Loc::fake()),
+            subparts: HashMap::new(),
+        }
+    }
+}
+
 /// Determines if the artifact is "done by definition"
 ///
 /// It is done by definition if:
@@ -222,16 +259,6 @@ pub enum Done {
     Defined(String),
     /// artifact is NOT "done by definition"
     NotDone,
-}
-
-impl Done {
-    /// return true if Done == Code || Defined
-    pub fn is_done(&self) -> bool {
-        match *self {
-            Done::Code(_) | Done::Defined(_) => true,
-            Done::NotDone => false,
-        }
-    }
 }
 
 impl fmt::Display for Done {
@@ -262,6 +289,8 @@ pub struct Artifact {
     pub partof: Names,
     /// parts is inverse of partof (calculated)
     pub parts: Names,
+    // TODO: /// sublinks that are defined only in code (for reference)
+    // TODO: pub sublinks: HashSet<String>,
     /// `done` attribute, allows user to "define as done"
     pub done: Done,
     /// completed ratio (calculated)
