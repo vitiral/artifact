@@ -7,6 +7,42 @@
 // the opposite.
 
 digraph G {
+    // REQ-completion
+    {
+        {R_start [label="\
+REQ artifact completion.";
+        shape=box]}
+
+        {R_children_both [label="\
++average of tested% & completed%
+of children"]}
+        {R_children_tst [label="\
++average of tested% of children"]}
+
+        {R_nt [label="type?"]}
+
+        R_start -> R_nt;
+
+        R_nt -> {R_req [label="REQ"]}
+        R_nt -> {R_spc [label="SPC"]};
+        R_nt -> {R_tst [label="TST"]};
+
+        {R_spc_code_exists [label="code/done exists?"; shape=diamond]}
+        {R_tst_code_exists [label="code/done exists?"; shape=diamond]}
+        {R_spc_code [label="+completed%: Code links/done"]}
+        {R_tst_code [label="+tested%: Code links/done"]}
+
+        R_req -> R_children_both;
+        R_spc -> R_spc_code_exists;
+            R_spc_code_exists -> R_spc_code [label="yes"];
+                R_spc_code -> R_children_both;
+            R_spc_code_exists -> R_children_both [label="no"];
+        R_tst -> R_tst_code_exists;
+            R_tst_code_exists -> R_tst_code [label="yes"];
+                R_tst_code -> R_children_tst;
+            R_tst_code_exists -> R_children_tst [label="no"];
+    }
+
     // TODO: I want this cluster to be horizontal
     {
         // whole operation
