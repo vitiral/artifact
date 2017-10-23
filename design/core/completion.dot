@@ -1,16 +1,20 @@
 digraph G {
     // whether to use a link or not
     {
-        {L_use [label="use"]}
+        // starting values
+        {L_start [label="use links for %?"]}
+
+        // ending values
+        {L_use [label="affects %"; shape=box]}
         {L_nouse [label="no effect"; shape=box]}
+        {L_nt_invalid [label="invalid"; shape=box]}
+
         {L_links [label="has links"]}
         {L_nolinks [label="no links"]}
 
-        {L_start [label="use links for %?"]}
         {L_nt [label="node type?"; shape=triangle]}
         {L_nt_req [label="REQ"]}
         {L_nt_other [label="other"]}
-        {L_nt_invalid [label="invalid"; shape=box]}
 
         L_start -> L_nt;
         L_nt -> L_nt_req -> L_nt_invalid;
@@ -19,7 +23,6 @@ digraph G {
             L_nt_other -> L_nolinks;
 
         // node type is other, find calulation
-        {L_use [label="affects %"; shape=box]}
 
         // has links
         L_links -> L_use [label="calc %"];
@@ -30,17 +33,31 @@ digraph G {
             L_nl_b -> L_use
     }
 
-    //{nt [label="node type?"; shape=triangle;]}
+    // what to use a child for
+    {
+        // starting values
+        {C_start [label="Use child what type of %?"]}
 
-    //child -> nt;
-    //    nt -> REQ;
-    //    nt -> SPC;
-    //    nt -> TST;
+        // ending values
+        {C_completed [label="completed $"; shape=box]}
+        {C_tested [label="tested $"; shape=box]}
 
-    //REQ -> completed;
-    //REQ -> tested;
+        // different depending on the type of child
+        {C_req [label="REQ"]}
+        {C_spc [label="SPC"]}
+        {C_tst [label="TST"]}
 
-    //SPC -> completed;
+        {C_nt [label="child type?"; shape=triangle;]}
+        C_start -> C_nt;
+            C_nt -> C_req;
+            C_nt -> C_spc;
+            C_nt -> C_tst;
 
-    //TST -> tested;
+        C_req -> C_completed;
+        C_req -> C_tested;
+
+        C_spc -> C_completed;
+
+        C_tst -> C_tested;
+    }
 }
