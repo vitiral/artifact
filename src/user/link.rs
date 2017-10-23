@@ -167,6 +167,7 @@ pub fn link_parts(artifacts: &mut Artifacts) -> u64 {
 }
 
 #[derive(Debug, Clone, Copy)]
+/// define a part struct for keeping tally
 struct Part {
     tested: f32,
     completed: f32,
@@ -176,15 +177,14 @@ struct Part {
 
 
 /// Calculate the compltion of an artifact with no children.
-fn calc_leaf_part(artifact: &Artifact) -> Part {
-    debug_assert(artifact.parts.is_empty());
+fn calc_leaf_part(name: &Name, artifact: &Artifact) -> Part {
+    debug_assert!(artifact.parts.is_empty());
     match (&artifact.done, name.ty) {
-        (&Done::Code(loc), Type::TST) => {
-            // It is a completed test, but it does not count towards
-            // "completed" for spcs
-            // ... since we are currently processing a TST this information
-            // might as well be useless though...
-            let ratio = loc.ratio_complete();
+        (&Done::Code(_), Type::TST) => {
+            // TST types do not count towards completion of
+            // other types.
+            // let ratio = loc.ratio_complete();
+            let ratio = 1.0;
             Part {
                 tested: ratio,
                 completed: ratio,
@@ -192,9 +192,10 @@ fn calc_leaf_part(artifact: &Artifact) -> Part {
                 count_spc_tested: true,
             }
         }
-        (&Done::Code(loc), Type::SPC) => {
+        (&Done::Code(_), Type::SPC) => {
             // It is a completed spec, but it does not count towards "tested"
-            let ratio = loc.ratio_complete();
+            // let ratio = loc.ratio_complete();
+            let ratio = 1.0;
             Part {
                 tested: ratio,
                 completed: ratio,
@@ -212,21 +213,17 @@ fn calc_leaf_part(artifact: &Artifact) -> Part {
                 count_spc_tested: true,
             }
         }
-        (&Done::NotDone, _) => {
-            Part {
-                tested: 0.0,
-                completed: 0.0,
-                count_spc_completed: true,
-                count_spc_tested: true,
-            }
-        }
-    };
-
+        (&Done::NotDone, _) => Part {
+            tested: 0.0,
+            completed: 0.0,
+            count_spc_completed: true,
+            count_spc_tested: true,
+        },
+    }
 }
 
 /// discover how complete and how tested all artifacts are (or are not!)
 pub fn set_completed(artifacts: &mut Artifacts) -> usize {
-    /// define a part struct for keeping tally
     let mut names = Names::from_iter(artifacts.keys().cloned());
     let mut known: HashMap<NameRc, Part> = HashMap::with_capacity(names.len());
     let mut found = Names::with_capacity(names.len());
@@ -236,44 +233,43 @@ pub fn set_completed(artifacts: &mut Artifacts) -> usize {
             let artifact = artifacts.get(name).unwrap();
             if artifact.parts.is_empty() {
                 found.insert(name.clone());
-                known.insert(name.clone(), calc_leaf_part(artifact));
-                continue
+                known.insert(name.clone(), calc_leaf_part(name, artifact));
+                continue;
             } else if !artifact.parts.iter().all(|n| known.contains_key(n)) {
                 // Skip (for now) if we don't have enough information yet
                 continue;
             }
-
-            let mut parts: Vec<Part> = Vec::from_iter(
-                artifact
-                    .parts
-                    .iter()
-                    .map(|n| known.get(n).expect("previously validated"))
-                    .cloned(),
-            );
 
             let mut num_completed = 0;
             let mut sum_completed = 0.0;
             let mut num_tested = 0;
             let mut sum_tested = 0.0;
 
-            match name.ty {
-                // special calculation for the SPC type
-                Type::SPC => for p in &parts {
-                    if p.count_spc_completed {
+            {
+                let parts = artifact
+                    .parts
+                    .iter()
+                    .map(|n| known.get(n).expect("previously validated"));
+
+                match name.ty {
+                    // special calculation for the SPC type
+                    Type::SPC => for p in parts {
+                        if p.count_spc_completed {
+                            num_completed += 1;
+                            sum_completed += p.completed;
+                        }
+                        if p.count_spc_tested {
+                            num_tested += 1;
+                            sum_tested += p.tested;
+                        }
+                    },
+                    _ => for p in parts {
                         num_completed += 1;
                         sum_completed += p.completed;
-                    }
-                    if p.count_spc_tested {
                         num_tested += 1;
                         sum_tested += p.tested;
-                    }
-                },
-                _ => for p in &parts {
-                    num_completed += 1;
-                    sum_completed += p.completed;
-                    num_tested += 1;
-                    sum_tested += p.tested;
-                },
+                    },
+                }
             }
             let completed = if num_completed == 0 {
                 0.0

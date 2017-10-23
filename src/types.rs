@@ -215,7 +215,7 @@ impl fmt::Display for Loc {
 pub struct Locs {
     /// Whether the root node is linked in code
     /// i.e #ART-foo
-    pub root: Option<loc>,
+    pub root: Option<Loc>,
 
     /// The sub parts that are linked in code
     /// i.e #ART-foo.subpart
@@ -226,12 +226,13 @@ impl Locs {
     /// Give the ratio of these locations are complete
     pub fn ratio_complete(&self) -> f32 {
         let total = 1 + self.subparts.len();
-        let mut linked: usize = self.subparts.iter()
-            .map(|(k, v)| if v.is_some() { 1 } else { 0 })
+        let mut linked: usize = self.subparts
+            .values()
+            .map(|v| if v.is_some() { 1 } else { 0 })
             .sum();
         linked += if self.root.is_some() { 1 } else { 0 };
 
-        linked as f32 / total
+        linked as f32 / total as f32
     }
 }
 
@@ -245,17 +246,6 @@ impl Locs {
         }
     }
 }
-
-impl fmt::Display for Locs {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        // TODO: need better handling of this
-        match root {
-            Some(r) => write!(f, "{}", self.root),
-            None => write!(f, "! only subparts are linked !"),
-        }
-    }
-}
-
 
 /// Determines if the artifact is "done by definition"
 ///
@@ -300,8 +290,8 @@ pub struct Artifact {
     pub partof: Names,
     /// parts is inverse of partof (calculated)
     pub parts: Names,
-    /// sublinks that are defined only in code (for reference)
-    pub sublinks: HashSet<String>,
+    // TODO: /// sublinks that are defined only in code (for reference)
+    // TODO: pub sublinks: HashSet<String>,
     /// `done` attribute, allows user to "define as done"
     pub done: Done,
     /// completed ratio (calculated)
