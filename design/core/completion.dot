@@ -98,12 +98,8 @@ Each child is an additional \"part\". What % does it impact?";
 
 
         C_req -> C_both;
+        C_spc -> C_both;
         C_tst -> C_tested;
-
-        C_spc -> {C_pt [label="parent type?"; URL="[[@.spc_spc]]"; shape=triangle]}
-
-        C_pt -> C_completed [label="TST"];
-        C_pt -> C_both [label="SPC"];
 
     }
 

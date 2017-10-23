@@ -174,11 +174,7 @@ struct Part {
 
     completed: f32,
     tested: f32,
-
-    /// The type of the child. If None it is code/defined part
-    ty: Option<Type>,
 }
-
 
 /// Calculate the average of the artifact's 'parts'
 fn parts_average(ty: Type, parts: &Vec<&Part>) -> Part {
@@ -199,18 +195,11 @@ fn parts_average(ty: Type, parts: &Vec<&Part>) -> Part {
         },
         _ => {
             for p in parts.iter() {
-                let mut aff_tst = p.affects_tested;
-
-                if let (Type::SPC, Some(Type::SPC)) = (ty, p.ty) {
-                    // #..spc_spc: When SPC is a child of SPC, it affects tst %
-                    aff_tst = true;
-                }
-
                 if p.affects_completed {
                     num_completed += 1;
                     sum_completed += p.completed;
                 }
-                if aff_tst {
+                if p.affects_tested {
                     num_tested += 1;
                     sum_tested += p.tested;
                 }
@@ -241,7 +230,6 @@ fn parts_average(ty: Type, parts: &Vec<&Part>) -> Part {
         tested: tested,
         affects_completed: aff_spc,
         affects_tested: aff_tst,
-        ty: Some(ty),
     }
 }
 
@@ -281,8 +269,17 @@ fn calc_done_field(ty: Type, artifact: &Artifact) -> Option<Part> {
         tested: done,
         affects_completed: aff_comp,
         affects_tested: aff_tst,
-        ty: None,
     })
+}
+
+/// @..final
+fn part_final(ty: Type, part: &mut Part) {
+    // All artifacts affect tested
+    part.affects_tested = true;
+
+    if let Type::TST = ty {
+        part.completed = part.tested;
+    }
 }
 
 /// Discover how complete and how tested all artifacts are (or are not!)
@@ -302,14 +299,6 @@ pub fn set_completed(artifacts: &mut Artifacts) -> usize {
             }
             let done_part = calc_done_field(name.ty, artifact);
 
-            if artifact.parts.is_empty() {
-                let mut part = done_part.expect("no children");
-                part.ty = Some(name.ty);
-                found.insert(name.clone());
-                known.insert(name.clone(), part);
-                continue;
-            }
-
             let mut part = {
                 let mut parts: Vec<_> = artifact
                     .parts
@@ -324,11 +313,7 @@ pub fn set_completed(artifacts: &mut Artifacts) -> usize {
                 parts_average(name.ty, &parts)
             };
 
-            // @..final
-            if let Type::TST = name.ty {
-                part.completed = part.tested;
-            }
-
+            part_final(name.ty, &mut part);
             found.insert(name.clone());
             known.insert(name.clone(), part);
         }
