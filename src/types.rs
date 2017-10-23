@@ -265,7 +265,7 @@ impl fmt::Display for Locs {
 #[derive(Debug, Clone, PartialEq)]
 pub enum Done {
     /// Artifact is implemented in code
-    Code(Locs),
+    Code(Loc),
     /// artifact has it's `done` field defined
     Defined(String),
     /// artifact is NOT "done by definition"

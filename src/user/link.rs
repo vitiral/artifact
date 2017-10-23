@@ -166,18 +166,67 @@ pub fn link_parts(artifacts: &mut Artifacts) -> u64 {
     warnings
 }
 
+#[derive(Debug, Clone, Copy)]
+struct Part {
+    tested: f32,
+    completed: f32,
+    count_spc_completed: bool,
+    count_spc_tested: bool,
+}
+
+
+/// Calculate the compltion of an artifact with no children.
+fn calc_leaf_part(artifact: &Artifact) -> Part {
+    debug_assert(artifact.parts.is_empty());
+    match (&artifact.done, name.ty) {
+        (&Done::Code(loc), Type::TST) => {
+            // It is a completed test, but it does not count towards
+            // "completed" for spcs
+            // ... since we are currently processing a TST this information
+            // might as well be useless though...
+            let ratio = loc.ratio_complete();
+            Part {
+                tested: ratio,
+                completed: ratio,
+                count_spc_completed: false,
+                count_spc_tested: true,
+            }
+        }
+        (&Done::Code(loc), Type::SPC) => {
+            // It is a completed spec, but it does not count towards "tested"
+            let ratio = loc.ratio_complete();
+            Part {
+                tested: ratio,
+                completed: ratio,
+                count_spc_completed: true,
+                count_spc_tested: false,
+            }
+        }
+        (&Done::Code(_), Type::REQ) => unreachable!("pre-validation prevents"),
+        (&Done::Defined(_), _) => {
+            // `done` field always counts for both tested and completed
+            Part {
+                tested: 1.0,
+                completed: 1.0,
+                count_spc_completed: true,
+                count_spc_tested: true,
+            }
+        }
+        (&Done::NotDone, _) => {
+            Part {
+                tested: 0.0,
+                completed: 0.0,
+                count_spc_completed: true,
+                count_spc_tested: true,
+            }
+        }
+    };
+
+}
 
 /// discover how complete and how tested all artifacts are (or are not!)
 pub fn set_completed(artifacts: &mut Artifacts) -> usize {
     /// define a part struct for keeping tally
-    #[derive(Debug, Clone, Copy)]
-    struct Part {
-        tested: f32,
-        completed: f32,
-        count_spc_completed: bool,
-        count_spc_tested: bool,
-    }
-
     let mut names = Names::from_iter(artifacts.keys().cloned());
     let mut known: HashMap<NameRc, Part> = HashMap::with_capacity(names.len());
     let mut found = Names::with_capacity(names.len());
@@ -185,7 +234,11 @@ pub fn set_completed(artifacts: &mut Artifacts) -> usize {
     while !names.is_empty() {
         for name in &names {
             let artifact = artifacts.get(name).unwrap();
-            if !artifact.parts.iter().all(|n| known.contains_key(n)) {
+            if artifact.parts.is_empty() {
+                found.insert(name.clone());
+                known.insert(name.clone(), calc_leaf_part(artifact));
+                continue
+            } else if !artifact.parts.iter().all(|n| known.contains_key(n)) {
                 // Skip (for now) if we don't have enough information yet
                 continue;
             }
@@ -197,44 +250,6 @@ pub fn set_completed(artifacts: &mut Artifacts) -> usize {
                     .map(|n| known.get(n).expect("previously validated"))
                     .cloned(),
             );
-
-            // Push the "done" field
-            match (&artifact.done, name.ty) {
-                (&Done::Code(loc), Type::TST) => {
-                    // It is a completed test, but it does not count towards
-                    // "completed" for spcs
-                    // ... since we are currently processing a TST this information
-                    // might as well be useless though...
-                    let ratio = loc.ratio_complete();
-                    parts.push(Part {
-                        tested: ratio,
-                        completed: ratio,
-                        count_spc_completed: false,
-                        count_spc_tested: true,
-                    });
-                }
-                (&Done::Code(loc), Type::SPC) => {
-                    // It is a completed spec, but it does not count towards "tested"
-                    let ratio = loc.ratio_complete();
-                    parts.push(Part {
-                        tested: ratio,
-                        completed: ratio,
-                        count_spc_completed: true,
-                        count_spc_tested: false,
-                    });
-                }
-                (&Done::Code(_), Type::REQ) => unreachable!("pre-validation prevents"),
-                (&Done::Defined(_), _) => {
-                    // `done` field always counts for both tested and completed
-                    parts.push(Part {
-                        tested: 1.0,
-                        completed: 1.0,
-                        count_spc_completed: true,
-                        count_spc_tested: true,
-                    });
-                }
-                (&Done::NotDone, _) => {}
-            };
 
             let mut num_completed = 0;
             let mut sum_completed = 0.0;
