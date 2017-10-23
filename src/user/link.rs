@@ -177,8 +177,8 @@ struct Part {
 }
 
 
-/// Calculate the average of the parts based on their requirements
-fn parts_average(ty: Type, parts: &mut Iterator<Part>) -> Part {
+/// Calculate the average of the artifact's 'parts'
+fn parts_average(ty: Type, parts: &Vec<&Part>) -> Part {
     let mut num_completed = 0;
     let mut sum_completed = 0.0;
     let mut num_tested = 0;
@@ -187,7 +187,7 @@ fn parts_average(ty: Type, parts: &mut Iterator<Part>) -> Part {
     match ty {
         Type::REQ => {
             // It is just the sum of it's parts no matter what
-            for p in parts {
+            for p in parts.iter() {
                 num_completed += 1;
                 sum_completed += p.completed;
                 num_tested += 1;
@@ -195,7 +195,7 @@ fn parts_average(ty: Type, parts: &mut Iterator<Part>) -> Part {
             }
         },
         _ => {
-            for p in parts {
+            for p in parts.iter() {
                 if p.affects_completed {
                     num_completed += 1;
                     sum_completed += p.completed;
@@ -235,26 +235,26 @@ fn parts_average(ty: Type, parts: &mut Iterator<Part>) -> Part {
     }
 }
 
-/// Get the calculated value of the artifact based on it's Done field
-fn done_part(ty: Type, artifact: &Artifact) -> Some<Part> {
-    let (force_aff_tst, done = match artifact.done {
-        Code(loc) => {
+/// Get the calculated value of the artifact based on its `done` field
+fn calc_done_field(ty: Type, artifact: &Artifact) -> Option<Part> {
+    let (force_aff_tst, done) = match artifact.done {
+        Done::Code(_) => {
             if let Type::REQ = ty {
                 panic!("REQ cannot have code links.");
             }
             (false, 1.0)
         },
-        Defined(_) => {
+        Done::Defined(_) => {
             (true, 1.0)
         },
-        NotDone => {
+        Done::NotDone => {
             if !artifact.parts.is_empty() {
                 // @completion.link_nouse
                 return None;
             }
             (false, 0.0)
         }
-    }
+    };
 
     let (aff_comp, mut aff_tst) = match ty {
         Type::REQ => (true, true),
@@ -269,12 +269,12 @@ fn done_part(ty: Type, artifact: &Artifact) -> Some<Part> {
     Some(Part {
         completed: done,
         tested: done,
-        affects_completed: aff_comp
+        affects_completed: aff_comp,
         affects_tested: aff_tst,
     })
 }
 
-/// discover how complete and how tested all artifacts are (or are not!)
+/// Discover how complete and how tested all artifacts are (or are not!)
 ///
 /// #SPC-completion
 pub fn set_completed(artifacts: &mut Artifacts) -> usize {
@@ -285,15 +285,31 @@ pub fn set_completed(artifacts: &mut Artifacts) -> usize {
     while !names.is_empty() {
         for name in &names {
             let artifact = artifacts.get(name).unwrap();
-            if artifact.parts.is_empty() {
+            if !artifact.parts.iter().all(|n| known.contains_key(n)) {
+                // not all children are yet known
+                continue;
+            }
+            let done_part = calc_done_field(name.ty, artifact);
 
+            if artifact.parts.is_empty() {
+                found.insert(name.clone());
+                known.insert(name.clone(), done_part.expect("no children"));
                 continue;
             }
 
-            // let parts = artifact
-            //     .parts
-            //     .iter()
-            //     .map(|n| known.get(n).expect("previously validated"));
+            let part = {
+                let mut parts: Vec<_> = artifact
+                    .parts
+                    .iter()
+                    .map(|n| known.get(n).expect("previously validated"))
+                    .collect();
+
+                if let Some(ref d) = done_part {
+                    parts.push(d);
+                }
+
+                parts_average(name.ty, &parts)
+            };
 
             found.insert(name.clone());
             known.insert(name.clone(), part);
@@ -306,6 +322,7 @@ pub fn set_completed(artifacts: &mut Artifacts) -> usize {
             names.remove(&name);
         }
     }
+
     for (name, artifact) in artifacts.iter_mut() {
         // note: if it is not known if some were uncalculatable
         if let Some(p) = known.get(name) {
