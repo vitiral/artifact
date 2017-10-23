@@ -171,6 +171,7 @@ pub fn link_parts(artifacts: &mut Artifacts) -> u64 {
 struct Part {
     tested: f32,
     completed: f32,
+    // @SPC-completion.tst: TST never counts towards SPC completion
     count_spc_completed: bool,
     count_spc_tested: bool,
 }
@@ -223,6 +224,8 @@ fn calc_leaf_part(name: &Name, artifact: &Artifact) -> Part {
 }
 
 /// discover how complete and how tested all artifacts are (or are not!)
+///
+/// #SPC-completion
 pub fn set_completed(artifacts: &mut Artifacts) -> usize {
     let mut names = Names::from_iter(artifacts.keys().cloned());
     let mut known: HashMap<NameRc, Part> = HashMap::with_capacity(names.len());
@@ -232,6 +235,7 @@ pub fn set_completed(artifacts: &mut Artifacts) -> usize {
         for name in &names {
             let artifact = artifacts.get(name).unwrap();
             if artifact.parts.is_empty() {
+                /// @SPC-completion.leaf
                 found.insert(name.clone());
                 known.insert(name.clone(), calc_leaf_part(name, artifact));
                 continue;
@@ -283,7 +287,6 @@ pub fn set_completed(artifacts: &mut Artifacts) -> usize {
                 sum_tested / num_tested as f32
             };
 
-            // TST never counts towards SPC completion
             let count_spc_completed = match name.ty {
                 Type::TST => false,
                 _ => true,

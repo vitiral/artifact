@@ -14,7 +14,7 @@ the following characteristics:
 - be revision controllable (text based)
 - have a unix-like command line interface for interacting with your design docs
 - have a web-ui for viewing and editing rendered documents
-- provide interop functionality like subcommand and data export for integration 
+- provide interop functionality like subcommand and data export for integration
     with external tools and plugins
 - be scalable to any size of project
 
@@ -116,7 +116,7 @@ For this reason, artifact uses the "partof" nomenclature for linking.
 This allows the user to think "what requirement does the design
 document I am currently writing fulfill".
 
-In addition, artifact shall infer links from the name of artifacts 
+In addition, artifact shall infer links from the name of artifacts
 whenever possible, such as artifacts with the same prefix or
 the same name of different types.
 
@@ -155,21 +155,21 @@ be a partof anything since it doesn't share a prefix.
 [REQ-completion]
 text = '''
 Artifact will track how *complete* and *tested* an item is based on:
-- The artifact's type: TST behaves differently than REQ and SPC
+- The artifact's type:
+    - TST is always as tested as it is completed.
+- The completion status of it's children:
+    - TST children affect tested% but do not impact completed%
+    - SPC children affect completed% but do not impact tested%
+    - REQ children affect both completed% and tested%
 - Whether it is implemented in code (i.e. `#ART-name` is somewhere in code) or
   implemented using the `done` field.
 - The completion/tested status of its parts/children.
 
-## Simple calculation
-Artifact completed% and tested% is calculated as following:
-- Artifacts implemented in code or `done` *without* children are 100% complete.
-- `TST` artifacts have `tested == completed`
-- Artifacts with children are as complete as the average of their children.
-  I.e. if they have `done`/code-link it is ignored (although the link still
-  gives a valuable reference)
-
-This simplicity is intended to make it extremely easy to reason about
-why an artifact has its particular status.
+In particular
+- The `done` field and code links will only be used to calculate completeness
+  if the artifact has no children.
+- TST artifacts shall only add to the tested% (not completed%) of artifacts
+  they are a partof.
 '''
 
 [REQ-rpc]
@@ -216,7 +216,7 @@ The data that needs to be stored by the test tracking tool is:
  - test name (i.e. MyTest2)
  - design artifacts it tests (i.e. [TST-foo-bar, TST-baz-boo])
  - timestamp of test
- - version that was tested 
+ - version that was tested
     (i.e. 3.2.3.4 commit=154642d49b393e49d9de987685335e9c5a8b2aa7)
  - url/path to view test results and data externally
  - extra binary data

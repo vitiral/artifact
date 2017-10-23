@@ -47,3 +47,15 @@ onto a `String` datatype.
 It will **not** validate that the artifact names are correct -- that is the
 responsibility of `::from_str`.
 '''
+
+[SPC-completion]
+text = '''
+## Simple calculation
+Artifact completed% and tested% is calculated as following:
+- [[.leaf]]: Artifacts implemented in code or `done` *without* children are as complete
+  as their listed code references.
+- [[.tst]]: `TST` artifacts have `tested == completed`
+- [[.parent]]: Artifacts with children are as complete as the average of their children.
+  - exception: TST artifacts only add to the tested% of SPC and REQ artifacts
+    (not completed%).
+'''

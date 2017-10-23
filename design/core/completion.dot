@@ -1,0 +1,46 @@
+digraph G {
+    // whether to use a link or not
+    {
+        {L_use [label="use"]}
+        {L_nouse [label="no effect"; shape=box]}
+        {L_links [label="has links"]}
+        {L_nolinks [label="no links"]}
+
+        {L_start [label="use links for %?"]}
+        {L_nt [label="node type?"; shape=triangle]}
+        {L_nt_req [label="REQ"]}
+        {L_nt_other [label="other"]}
+        {L_nt_invalid [label="invalid"; shape=box]}
+
+        L_start -> L_nt;
+        L_nt -> L_nt_req -> L_nt_invalid;
+        L_nt -> L_nt_other;
+            L_nt_other -> L_links;
+            L_nt_other -> L_nolinks;
+
+        // node type is other, find calulation
+        {L_use [label="affects %"; shape=box]}
+
+        // has links
+        L_links -> L_use [label="calc %"];
+
+        // no links
+        L_nolinks -> {L_nl_a [label="parts"]} -> L_nouse;
+        L_nolinks -> {L_nl_b [label="no parts"]} [label="0%"];
+            L_nl_b -> L_use
+    }
+
+    //{nt [label="node type?"; shape=triangle;]}
+
+    //child -> nt;
+    //    nt -> REQ;
+    //    nt -> SPC;
+    //    nt -> TST;
+
+    //REQ -> completed;
+    //REQ -> tested;
+
+    //SPC -> completed;
+
+    //TST -> tested;
+}

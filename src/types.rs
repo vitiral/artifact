@@ -238,11 +238,10 @@ impl Locs {
 
 #[cfg(test)]
 impl Locs {
-    pub fn fake() -> Loc {
+    pub fn fake() -> Locs {
         Locs {
-            root: Loc::fake(),
-            subparts: Vec::new(),
-            num_subparts: 0,
+            root: Some(Loc::fake()),
+            subparts: HashMap::new(),
         }
     }
 }
