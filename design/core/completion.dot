@@ -7,7 +7,18 @@ Calculate completed% and tested%
 for a node who's children are known";
         shape=box]}
 
-        G_start -> L_start -> C_start -> F_start;
+        G_start -> T_start;
+    }
+
+    {
+        {T_start [label="type?"]}
+        {T_req [label="All % are the average of children + done"; shape=box]}
+        {T_other [label="We must calculate it"]}
+
+        T_start -> T_req [label="REQ"];
+        T_start -> T_other [label="SPC|TST"];
+
+        T_other -> L_start -> C_start -> F_start;
     }
 
 
@@ -15,41 +26,43 @@ for a node who's children are known";
     {
         // starting values
         {L_start [label="\
-Calculate code links effects. Each link acts as one \"part\""
+Calculate effects of code-links / done. All links act as one \"part\""
         shape=box]}
 
         // ending values
         {L_completed [label="completed %"; shape=box]}
         {L_tested [label="tested %"; shape=box]}
-        {L_nouse [label="no effect"; shape=box]}
-        {L_nt_invalid [label="invalid"; shape=box]}
+        {L_nouse [label="no effect"; URL="[[@.link_nouse]]"; shape=box]}
 
         // other
-        {L_links [label="has links"]}
-        {L_nolinks [label="no links"]}
+        {L_links [label="has links / done"]}
+        {L_nolinks [label="no links / done"]}
 
-        {L_nt [label="type?"; shape=triangle]}
-        {L_nt_other [label="other"]}
-
-        L_start -> L_nt;
-        L_nt -> L_nt_invalid [label="REQ"];
-        L_nt -> L_nt_other [label="SPC | TST"];
-            L_nt_other -> L_links;
-            L_nt_other -> L_nolinks;
+        L_start -> L_links;
+        L_start -> L_nolinks;
 
         // node type is other, find calulation
         // has links
-        L_links -> L_nt2 [label="calc %"];
+        L_links -> L_nt [label="calc %"];
 
         // no links
         L_nolinks -> {L_nl_a [label="parts"]} -> L_nouse;
         L_nolinks -> {L_nl_b [label="no parts"]} [label="0%"];
-            L_nl_b -> L_nt2
+            L_nl_b -> L_nt
 
-        {L_nt2 [label="type?"; shape=diamond]}
+        {L_nt [label="type?"; shape=diamond]}
 
-        L_nt2 -> L_completed [label="SPC"]
-        L_nt2 -> L_tested [label="TST"]
+        L_nt -> {L_req [label="REQ"]}
+        L_nt -> {L_spc [label="SPC"]}
+        L_nt -> {L_tst [label="TST"]}
+
+        L_req -> L_completed
+        L_req -> L_tested
+
+        L_spc -> L_completed
+        L_spc -> {L_spc_done [label="if 'done='"; shape=diamond]} -> L_tested;
+
+        L_tst -> L_tested;
     }
 
     // what to use a child for

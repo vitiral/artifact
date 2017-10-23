@@ -169,58 +169,109 @@ pub fn link_parts(artifacts: &mut Artifacts) -> u64 {
 #[derive(Debug, Clone, Copy)]
 /// define a part struct for keeping tally
 struct Part {
-    tested: f32,
+    affects_completed: bool,
+    affects_tested: bool,
+
     completed: f32,
-    // @SPC-completion.tst: TST never counts towards SPC completion
-    count_spc_completed: bool,
-    count_spc_tested: bool,
+    tested: f32,
 }
 
 
-/// Calculate the compltion of an artifact with no children.
-fn calc_leaf_part(name: &Name, artifact: &Artifact) -> Part {
-    debug_assert!(artifact.parts.is_empty());
-    match (&artifact.done, name.ty) {
-        (&Done::Code(_), Type::TST) => {
-            // TST types do not count towards completion of
-            // other types.
-            // let ratio = loc.ratio_complete();
-            let ratio = 1.0;
-            Part {
-                tested: ratio,
-                completed: ratio,
-                count_spc_completed: false,
-                count_spc_tested: true,
+/// Calculate the average of the parts based on their requirements
+fn parts_average(ty: Type, parts: &mut Iterator<Part>) -> Part {
+    let mut num_completed = 0;
+    let mut sum_completed = 0.0;
+    let mut num_tested = 0;
+    let mut sum_tested = 0.0;
+
+    match ty {
+        Type::REQ => {
+            // It is just the sum of it's parts no matter what
+            for p in parts {
+                num_completed += 1;
+                sum_completed += p.completed;
+                num_tested += 1;
+                sum_tested += p.tested;
             }
-        }
-        (&Done::Code(_), Type::SPC) => {
-            // It is a completed spec, but it does not count towards "tested"
-            // let ratio = loc.ratio_complete();
-            let ratio = 1.0;
-            Part {
-                tested: ratio,
-                completed: ratio,
-                count_spc_completed: true,
-                count_spc_tested: false,
-            }
-        }
-        (&Done::Code(_), Type::REQ) => unreachable!("pre-validation prevents"),
-        (&Done::Defined(_), _) => {
-            // `done` field always counts for both tested and completed
-            Part {
-                tested: 1.0,
-                completed: 1.0,
-                count_spc_completed: true,
-                count_spc_tested: true,
-            }
-        }
-        (&Done::NotDone, _) => Part {
-            tested: 0.0,
-            completed: 0.0,
-            count_spc_completed: true,
-            count_spc_tested: true,
         },
+        _ => {
+            for p in parts {
+                if p.affects_completed {
+                    num_completed += 1;
+                    sum_completed += p.completed;
+                }
+                if p.affects_tested {
+                    num_tested += 1;
+                    sum_tested += p.tested;
+                }
+            }
+
+        }
     }
+
+    let (aff_spc, aff_tst) = match ty {
+        Type::REQ => (true, true),
+        Type::SPC => (true, false),
+        Type::TST => (false, true),
+    };
+
+    let completed = if num_completed == 0 {
+        0.0
+    } else {
+        sum_completed / num_completed as f32
+    };
+
+    let tested = if num_tested == 0 {
+        0.0
+    } else {
+        sum_tested / num_tested as f32
+    };
+
+    Part {
+        completed: completed,
+        tested: tested,
+        affects_completed: aff_spc,
+        affects_tested: aff_tst,
+    }
+}
+
+/// Get the calculated value of the artifact based on it's Done field
+fn done_part(ty: Type, artifact: &Artifact) -> Some<Part> {
+    let (force_aff_tst, done = match artifact.done {
+        Code(loc) => {
+            if let Type::REQ = ty {
+                panic!("REQ cannot have code links.");
+            }
+            (false, 1.0)
+        },
+        Defined(_) => {
+            (true, 1.0)
+        },
+        NotDone => {
+            if !artifact.parts.is_empty() {
+                // @completion.link_nouse
+                return None;
+            }
+            (false, 0.0)
+        }
+    }
+
+    let (aff_comp, mut aff_tst) = match ty {
+        Type::REQ => (true, true),
+        Type::SPC => (true, false),
+        Type::TST => (false, true),
+    };
+
+    if force_aff_tst {
+        aff_tst = true;
+    }
+
+    Some(Part {
+        completed: done,
+        tested: done,
+        affects_completed: aff_comp
+        affects_tested: aff_tst,
+    })
 }
 
 /// discover how complete and how tested all artifacts are (or are not!)
@@ -235,74 +286,20 @@ pub fn set_completed(artifacts: &mut Artifacts) -> usize {
         for name in &names {
             let artifact = artifacts.get(name).unwrap();
             if artifact.parts.is_empty() {
-                /// @SPC-completion.leaf
-                found.insert(name.clone());
-                known.insert(name.clone(), calc_leaf_part(name, artifact));
-                continue;
-            } else if !artifact.parts.iter().all(|n| known.contains_key(n)) {
-                // Skip (for now) if we don't have enough information yet
+
                 continue;
             }
 
-            let mut num_completed = 0;
-            let mut sum_completed = 0.0;
-            let mut num_tested = 0;
-            let mut sum_tested = 0.0;
-
-            {
-                let parts = artifact
-                    .parts
-                    .iter()
-                    .map(|n| known.get(n).expect("previously validated"));
-
-                match name.ty {
-                    // special calculation for the SPC type
-                    Type::SPC => for p in parts {
-                        if p.count_spc_completed {
-                            num_completed += 1;
-                            sum_completed += p.completed;
-                        }
-                        if p.count_spc_tested {
-                            num_tested += 1;
-                            sum_tested += p.tested;
-                        }
-                    },
-                    _ => for p in parts {
-                        num_completed += 1;
-                        sum_completed += p.completed;
-                        num_tested += 1;
-                        sum_tested += p.tested;
-                    },
-                }
-            }
-            let completed = if num_completed == 0 {
-                0.0
-            } else {
-                sum_completed / num_completed as f32
-            };
-
-            let tested = if num_tested == 0 {
-                0.0
-            } else {
-                sum_tested / num_tested as f32
-            };
-
-            let count_spc_completed = match name.ty {
-                Type::TST => false,
-                _ => true,
-            };
-
-            let part = Part {
-                completed: completed,
-                tested: tested,
-                count_spc_tested: true,
-                count_spc_completed: count_spc_completed,
-            };
+            // let parts = artifact
+            //     .parts
+            //     .iter()
+            //     .map(|n| known.get(n).expect("previously validated"));
 
             found.insert(name.clone());
             known.insert(name.clone(), part);
         }
         if found.is_empty() {
+            // No progress has been made, so we are done
             break;
         }
         for name in found.drain() {
@@ -310,7 +307,7 @@ pub fn set_completed(artifacts: &mut Artifacts) -> usize {
         }
     }
     for (name, artifact) in artifacts.iter_mut() {
-        // note: if it is not known then it was un-calcuable
+        // note: if it is not known if some were uncalculatable
         if let Some(p) = known.get(name) {
             artifact.completed = p.completed;
             artifact.tested = p.tested;
