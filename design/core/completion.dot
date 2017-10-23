@@ -1,46 +1,67 @@
 digraph G {
+    // TODO: I want this cluster to be horizontal
+    {
+        // whole operation
+        {G_start [label="\
+Calculate completed% and tested%
+for a node who's children are known";
+        shape=box]}
+
+        G_start -> L_start -> C_start -> F_start;
+    }
+
+
     // whether to use a link or not
     {
         // starting values
-        {L_start [label="use links for %?"]}
+        {L_start [label="\
+Calculate code links effects. Each link acts as one \"part\""
+        shape=box]}
 
         // ending values
-        {L_use [label="affects %"; shape=box]}
+        {L_completed [label="completed %"; shape=box]}
+        {L_tested [label="tested %"; shape=box]}
         {L_nouse [label="no effect"; shape=box]}
         {L_nt_invalid [label="invalid"; shape=box]}
 
+        // other
         {L_links [label="has links"]}
         {L_nolinks [label="no links"]}
 
-        {L_nt [label="node type?"; shape=triangle]}
-        {L_nt_req [label="REQ"]}
+        {L_nt [label="type?"; shape=triangle]}
         {L_nt_other [label="other"]}
 
         L_start -> L_nt;
-        L_nt -> L_nt_req -> L_nt_invalid;
-        L_nt -> L_nt_other;
+        L_nt -> L_nt_invalid [label="REQ"];
+        L_nt -> L_nt_other [label="SPC | TST"];
             L_nt_other -> L_links;
             L_nt_other -> L_nolinks;
 
         // node type is other, find calulation
-
         // has links
-        L_links -> L_use [label="calc %"];
+        L_links -> L_nt2 [label="calc %"];
 
         // no links
         L_nolinks -> {L_nl_a [label="parts"]} -> L_nouse;
         L_nolinks -> {L_nl_b [label="no parts"]} [label="0%"];
-            L_nl_b -> L_use
+            L_nl_b -> L_nt2
+
+        {L_nt2 [label="type?"; shape=diamond]}
+
+        L_nt2 -> L_completed [label="SPC"]
+        L_nt2 -> L_tested [label="TST"]
     }
 
     // what to use a child for
     {
         // starting values
-        {C_start [label="Use child what type of %?"]}
+        {C_start [label="\
+Each child is an additional \"part\". What % does it impact?";
+        shape=box]}
 
         // ending values
-        {C_completed [label="completed $"; shape=box]}
-        {C_tested [label="tested $"; shape=box]}
+        {C_completed [label="completed %"; shape=box]}
+        {C_tested [label="tested %"; shape=box]}
 
         // different depending on the type of child
         {C_req [label="REQ"]}
@@ -60,4 +81,22 @@ digraph G {
 
         C_tst -> C_tested;
     }
+
+    // final setting / cleanup
+    {
+        // starting values
+        {F_start [label="Final cleanup"; shape=box]}
+
+        // ending values
+        {F_equate [label="set completed% = tested%"; shape=box]}
+        {F_nochange [label="no cleanup"]}
+
+        {F_nt [label="type?"; shape=diamond]}
+
+        F_start -> F_nt
+        F_nt -> F_equate [label="TST"];
+        F_nt -> F_nochange [label="REQ | SPC"];
+    }
+
+
 }
