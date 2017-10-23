@@ -38,6 +38,7 @@ Calculate effects of code-links / done. All links act as one \"part\""
         shape=box]}
 
         // ending values
+        {L_both [label="both %"; shape=box]}
         {L_completed [label="completed %"; shape=box]}
         {L_tested [label="tested %"; shape=box]}
         {L_nouse [label="no effect"; URL="[[@.link_nouse]]"; shape=box]}
@@ -63,13 +64,11 @@ Calculate effects of code-links / done. All links act as one \"part\""
         L_nt -> {L_req [label="REQ"]}
         L_nt -> {L_spc [label="SPC"]}
         L_nt -> {L_tst [label="TST"]}
+        L_nt -> {L_done [label="'done='"; URL="[[@.link_done]]"]};
 
-        L_req -> L_completed
-        L_req -> L_tested
-
+        L_req -> L_both
+        L_done -> L_both
         L_spc -> L_completed
-        L_spc -> {L_spc_done [label="if 'done='"; shape=diamond]} -> L_tested;
-
         L_tst -> L_tested;
     }
 
