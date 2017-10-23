@@ -516,6 +516,7 @@ fn test_link_completed_tested() {
 
     assert_eq!(ct(&spc_done_1), (0.0, 0.0));
     assert_eq!(ct(&spc_done_2), (0.0, 0.0));
+
     let spc_done_ct = avg(&[(0.0, 0.0), (0.0, 0.0), (1.0, 1.0)]);
     assert_eq!(ct(&spc_done), spc_done_ct);
     assert_eq!(ct(&req_done), avg(&[spc_done_ct, (1.0, 1.0)]));

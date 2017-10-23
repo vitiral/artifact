@@ -1,3 +1,11 @@
+// I realized in the middle of graphing this that I had been
+// approaching it wrong.
+//
+// I had been setting TST.tested == TST.completed
+// The logic was much more clean when I just said
+// that TST only affects the TST of items and did
+// the opposite.
+
 digraph G {
     // TODO: I want this cluster to be horizontal
     {
@@ -75,24 +83,28 @@ Each child is an additional \"part\". What % does it impact?";
         // ending values
         {C_completed [label="completed %"; shape=box]}
         {C_tested [label="tested %"; shape=box]}
+        {C_both [label="both %"; shape=box]}
 
         // different depending on the type of child
         {C_req [label="REQ"]}
         {C_spc [label="SPC"]}
         {C_tst [label="TST"]}
 
-        {C_nt [label="child type?"; shape=triangle;]}
+        {C_nt [label="child type?"; shape=triangle]}
         C_start -> C_nt;
             C_nt -> C_req;
             C_nt -> C_spc;
             C_nt -> C_tst;
 
-        C_req -> C_completed;
-        C_req -> C_tested;
 
-        C_spc -> C_completed;
-
+        C_req -> C_both;
         C_tst -> C_tested;
+
+        C_spc -> {C_pt [label="parent type?"; URL="[[@.spc_spc]]"; shape=triangle]}
+
+        C_pt -> C_completed [label="TST"];
+        C_pt -> C_both [label="SPC"];
+
     }
 
     // final setting / cleanup
