@@ -235,35 +235,32 @@ fn parts_average(ty: Type, parts: &Vec<&Part>) -> Part {
 
 /// Get the calculated value of the artifact based on its `done` field
 fn calc_done_field(ty: Type, artifact: &Artifact) -> Option<Part> {
-    let ratio = match artifact.done {
+    let (is_done, ratio) = match artifact.done {
         Done::Code(_) => {
             if let Type::REQ = ty {
                 panic!("REQ cannot have code links.");
             }
-            1.0
+            (false, 1.0)
         },
-        Done::Defined(_) => {
-            // #..link_done
-            return Some(Part {
-                completed: 1.0,
-                tested: 1.0,
-                affects_completed: true,
-                affects_tested: true,
-            });
-        },
+        Done::Defined(_) => (true, 1.0),
         Done::NotDone => {
             if !artifact.parts.is_empty() {
                 // @completion.link_nouse
                 return None;
             }
-            0.0
+            (false, 0.0)
         }
     };
 
-    let (aff_comp, aff_tst) = match ty {
-        Type::REQ => (true, true),
-        Type::SPC => (true, false),
-        Type::TST => (false, true),
+    let (aff_comp, aff_tst) = if is_done {
+        // #..link_done
+        (true, true)
+    } else {
+        match ty {
+            Type::REQ => (true, true),
+            Type::SPC => (true, false),
+            Type::TST => (false, true),
+        }
     };
 
     Some(Part {
