@@ -21,7 +21,7 @@ Start at the [Installation Guide](Installation.md) and install artifact on
 your system, or just follow along by looking at the images and the
 [static site][2].
 
-### Initialze Your Project
+### Initialize Your Project
 Use an empty directory and run `art init`. Now put a requirement in
 `design/purpose.toml` which will define the high level purpose of our "hello
 world" application.
