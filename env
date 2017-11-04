@@ -136,6 +136,8 @@ if [ "$CI_BUILD" = "full" ]; then
     just update || return $?
     echo "CI_BUILD=full, finished setting up env"
     return 0
+elif [ "$CI_BUILD" = "" ]; then
+    just update || return $?
 fi
 
 if [ ! -e $RUST_BIN/art ]; then
