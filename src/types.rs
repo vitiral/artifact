@@ -232,20 +232,20 @@ impl fmt::Display for Loc {
     }
 }
 
-/// multiple locations
+/// All (code) implementation locations for a SINGLE artifact.
 #[derive(Debug, Clone, PartialEq)]
-pub struct Locs {
+pub struct FullLocs {
     /// Whether the root node is linked in code
     /// i.e `#ART-foo`
     pub root: Option<Loc>,
 
     /// The sub locations that are linked in code
     /// i.e `#ART-foo.subloc`
-    pub sublocs: HashMap<String, Option<Loc>>,
+    pub sublocs: HashMap<SubName, Option<Loc>>,
 }
 
-impl Locs {
-    /// Give the ratio of these locations are complete
+impl FullLocs {
+    /// Give the ratio that these locations are complete
     pub fn ratio_complete(&self) -> f32 {
         let total = 1 + self.sublocs.len();
         let mut linked: usize = self.sublocs
@@ -258,9 +258,19 @@ impl Locs {
 }
 
 #[cfg(test)]
-impl Locs {
-    pub fn fake() -> Locs {
-        Locs {
+impl FullLocs {
+    /// Should only be used when values will be added
+    /// later
+    pub fn empty() -> FullLocs {
+        FullLocs {
+            root: None,
+            sublocs: HashMap::new(),
+        }
+    }
+
+    /// For testing
+    pub fn fake() -> FullLocs {
+        FullLocs {
             root: Some(Loc::fake()),
             sublocs: HashMap::new(),
         }
@@ -275,7 +285,7 @@ impl Locs {
 #[derive(Debug, Clone, PartialEq)]
 pub enum Done {
     /// Artifact is implemented in code
-    Code(Loc),
+    Code(FullLocs),
     /// artifact has it's `done` field defined
     Defined(String),
     /// artifact is NOT "done by definition"

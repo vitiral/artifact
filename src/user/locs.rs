@@ -37,9 +37,26 @@ pub fn attach_locs(
     mut locs: HashMap<Name, Loc>,
     mut sublocs: HashMap<SubName, Loc>,
 ) -> Result<HashMap<Name, Loc>> {
-    // FIXME: this is where we fix Done to use Locs instead of Loc
-    let mut dne: HashMap<Name, Loc> = HashMap::new();
+    // Merge the locs and sublocs into the FullLocs object
+    let mut full_locs: HashMap<Name, FullLocs> = HashMap::new();
     for (lname, loc) in locs.drain() {
+        if !full_locs.contains_key(&lname) {
+            full_locs.insert(lname.clone(), FullLocs::empty());
+        }
+        let full = full_locs.get_mut(&lname).unwrap();
+        full.root = Some(loc);
+    }
+
+    for (lname, loc) in sublocs.drain() {
+        if !full_locs.contains_key(&lname.name) {
+            full_locs.insert(lname.name.clone(), FullLocs::empty());
+        }
+        let full = full_locs.get_mut(&lname.name).unwrap();
+        full.sublocs.insert(lname, loc);
+    }
+
+    let mut dne: HashMap<Name, FullLocs> = HashMap::new();
+    for (lname, loc) in full_locs.drain() {
         let artifact = match artifacts.get_mut(&lname) {
             Some(a) => a,
             None => {
