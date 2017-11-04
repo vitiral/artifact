@@ -16,7 +16,7 @@ keywords = [
     "documentation",
     "testing",
 ]
-license = "LGPL-3.0+"
+license = "MIT OR Apache-2.0"
 name = "artifact-app"
 readme = "README.md"
 repository = "https://github.com/vitiral/artifact"
