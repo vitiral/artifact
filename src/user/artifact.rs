@@ -253,10 +253,10 @@ mod tests {
             assert_eq!(art.def, path);
             assert_eq!(art.text, "");
             assert_eq!(art.partof, HashSet::new());
-            assert_eq!(art.done, Done::Code(Loc::fake()));
+            assert_eq!(art.done, Done::Code(FullLocs::fake()));
             assert_eq!(art.completed, -1.0);
             assert_eq!(art.tested, -1.0);
-            assert_eq!(art.done, Done::Code(Loc::fake()));
+            assert_eq!(art.done, Done::Code(FullLocs::fake()));
 
             // test non-defaults
             let spc_bar = Name::from_str("SPC-bar").unwrap();

@@ -255,10 +255,7 @@ impl FullLocs {
         linked += if self.root.is_some() { 1 } else { 0 };
         linked as f32 / total as f32
     }
-}
 
-#[cfg(test)]
-impl FullLocs {
     /// Should only be used when values will be added
     /// later
     pub fn empty() -> FullLocs {
@@ -269,6 +266,7 @@ impl FullLocs {
     }
 
     /// For testing
+    #[cfg(test)]
     pub fn fake() -> FullLocs {
         FullLocs {
             root: Some(Loc::fake()),
@@ -276,6 +274,20 @@ impl FullLocs {
         }
     }
 }
+
+impl fmt::Display for FullLocs {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        if let Some(root) = self.root {
+            write!(f, "{}[{}]", self.path.display(), self.line)?;
+        } else {
+            write!(f, "[no root]")?;
+        }
+        if !self.sublocs.is_empty() {
+            write!(f, "(+{} sublocs)", self.sublocs.len())?;
+        }
+    }
+}
+
 
 /// Determines if the artifact is "done by definition"
 ///
