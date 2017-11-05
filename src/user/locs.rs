@@ -36,40 +36,54 @@ pub fn attach_locs(
     artifacts: &mut Artifacts,
     mut locs: HashMap<Name, Loc>,
     mut sublocs: HashMap<SubName, Loc>,
-) -> Result<HashMap<Name, Loc>> {
+) -> Result<(HashMap<Name, Loc>, HashMap<SubName, Loc>)> {
     // Merge the locs and sublocs into the FullLocs object
-    let mut full_locs: HashMap<Name, FullLocs> = HashMap::new();
+    let mut full_locs: HashMap<NameRc, FullLocs> = HashMap::new();
+    let mut dne: HashMap<Name, Loc> = HashMap::new();
+    let mut dne_sublocs: HashMap<SubName, Loc> = HashMap::new();
+
     for (lname, loc) in locs.drain() {
+        if !artifacts.contains_key(&lname) {
+            dne.insert(lname, loc);
+            continue;
+        }
         if !full_locs.contains_key(&lname) {
-            full_locs.insert(lname.clone(), FullLocs::empty());
+            full_locs.insert(Arc::new(lname.clone()), FullLocs::empty());
         }
         let full = full_locs.get_mut(&lname).unwrap();
         full.root = Some(loc);
     }
 
     for (lname, loc) in sublocs.drain() {
+        match artifacts.get(&lname.name) {
+            Some(a) => {
+                if !a.subnames.contains(&lname) {
+                    // the parent exists but the subname does not
+                    dne_sublocs.insert(lname, loc);
+                    continue;
+                }
+            }
+            None => {
+                // not even the parent name exists!
+                dne_sublocs.insert(lname, loc);
+                continue;
+            }
+        }
         if !full_locs.contains_key(&lname.name) {
-            full_locs.insert(lname.name.clone(), FullLocs::empty());
+            full_locs.insert(Arc::new(lname.name.clone()), FullLocs::empty());
         }
         let full = full_locs.get_mut(&lname.name).unwrap();
         full.sublocs.insert(lname, loc);
     }
 
-    let mut dne: HashMap<Name, FullLocs> = HashMap::new();
     for (lname, loc) in full_locs.drain() {
-        let artifact = match artifacts.get_mut(&lname) {
-            Some(a) => a,
-            None => {
-                dne.insert(lname, loc);
-                continue;
-            }
-        };
+        let artifact = artifacts.get_mut(&lname).expect("checked above");
         if let Done::Defined(_) = artifact.done {
             return Err(ErrorKind::DoneTwice(lname.to_string()).into());
         }
         artifact.done = Done::Code(loc);
     }
-    Ok(dne)
+    Ok((dne, dne_sublocs))
 }
 
 // Private Methods
@@ -113,7 +127,7 @@ fn find_locs_text(
 
             if let Some(m) = cap.get(ART_LOC_SUB_POS) {
                 let sub = m.as_str().split_at(1).1.to_string(); // strip the leading '.'
-                let sub = SubName::from_parts(name, sub);
+                let sub = SubName::from_parts(Arc::new(name), sub);
                 insert_loc(sublocs, &sub, &loc);
             } else {
                 insert_loc(locs, &name, &loc);
@@ -255,11 +269,14 @@ mod tests {
 
         // Assert subparts
         let spc_who_sub = sublocs
-            .get(&SubName::from_parts(spc_who_name.clone(), "subpart".into()))
+            .get(&SubName::from_parts(
+                Arc::new(spc_who_name.clone()),
+                "subpart".into(),
+            ))
             .unwrap();
         let spc_error_sub = sublocs
             .get(&SubName::from_parts(
-                spc_error_name.clone(),
+                Arc::new(spc_error_name.clone()),
                 // note: case doesn't matter
                 "other_subpart".into(),
             ))

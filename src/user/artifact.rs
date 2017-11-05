@@ -89,7 +89,10 @@ fn parse_subnames(name: NameRc, text: &str) -> HashSet<SubName> {
     let mut out: HashSet<SubName> = HashSet::new();
     for cap in SUBNAME_RE.captures_iter(text) {
         // note: repeats are ignored (and are okay)
-        out.insert(SubName::from_parts(name.clone(), cap.get(1).unwrap().into()));
+        out.insert(SubName::from_parts(
+            name.clone(),
+            cap.get(1).unwrap().as_str().into(),
+        ));
     }
     out
 }
@@ -194,11 +197,15 @@ fn from_user_artifact(name: &Name, path: &Path, user_artifact: UserArtifact) -> 
     // Being a partof itself is a no-op
     partof.remove(name);
 
+    let text = user_artifact.text.unwrap_or_default();
+    let subnames = parse_subnames(Arc::new(name.clone()), &text);
+
     Ok(Artifact {
         id: unique_id(),
         revision: 0,
         def: path.to_path_buf(),
-        text: user_artifact.text.unwrap_or_default(),
+        text: text,
+        subnames: subnames,
         partof: partof,
         done: done,
         // calculated vars
@@ -234,9 +241,10 @@ mod tests {
         // FIXME: do something better for sublocs
         let locs = HashMap::from_iter(vec![(Name::from_str("SPC-foo").unwrap(), Loc::fake())]);
         let sublocs = HashMap::new();
-        let dne_locs = locs::attach_locs(&mut p.artifacts, locs, sublocs).unwrap();
+        let (dne_locs, dne_sublocs) = locs::attach_locs(&mut p.artifacts, locs, sublocs).unwrap();
         assert_eq!(num, 9);
         assert_eq!(dne_locs.len(), 0);
+        assert_eq!(dne_sublocs.len(), 0);
         assert!(
             p.artifacts
                 .contains_key(&Name::from_str("REQ-foo").unwrap())

@@ -157,6 +157,7 @@ pub struct Project {
     pub settings: Settings,
     pub files: HashSet<PathBuf>,
     pub dne_locs: HashMap<Name, Loc>,
+    pub dne_sublocs: HashMap<SubName, Loc>,
 
     // preserved locations where each piece is from
     pub origin: PathBuf,
@@ -170,6 +171,7 @@ impl Default for Project {
             settings: Settings::default(),
             files: HashSet::default(),
             dne_locs: HashMap::default(),
+            dne_sublocs: HashMap::default(),
             origin: PathBuf::default(),
             repo_map: HashMap::default(),
         }
@@ -241,17 +243,14 @@ pub struct FullLocs {
 
     /// The sub locations that are linked in code
     /// i.e `#ART-foo.subloc`
-    pub sublocs: HashMap<SubName, Option<Loc>>,
+    pub sublocs: HashMap<SubName, Loc>,
 }
 
 impl FullLocs {
     /// Give the ratio that these locations are complete
-    pub fn ratio_complete(&self) -> f32 {
+    pub fn ratio_complete(&self, total: usize) -> f32 {
         let total = 1 + self.sublocs.len();
-        let mut linked: usize = self.sublocs
-            .values()
-            .map(|v| if v.is_some() { 1 } else { 0 })
-            .sum();
+        let mut linked: usize = self.sublocs.len();
         linked += if self.root.is_some() { 1 } else { 0 };
         linked as f32 / total as f32
     }
@@ -278,13 +277,14 @@ impl FullLocs {
 impl fmt::Display for FullLocs {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         if let Some(root) = self.root {
-            write!(f, "{}[{}]", self.path.display(), self.line)?;
+            write!(f, "{}[{}]", root.path.display(), root.line)?;
         } else {
             write!(f, "[no root]")?;
         }
         if !self.sublocs.is_empty() {
             write!(f, "(+{} sublocs)", self.sublocs.len())?;
         }
+        Ok(())
     }
 }
 
@@ -338,6 +338,9 @@ pub struct Artifact {
     pub completed: f32,
     /// tested ratio (calculated)
     pub tested: f32,
+
+    /// subnames found in `text`
+    pub subnames: HashSet<SubName>,
 }
 
 /// repo settings for loading artifacts

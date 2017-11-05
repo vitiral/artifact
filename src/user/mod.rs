@@ -48,7 +48,9 @@ pub use user::types::RawSettings;
 /// #SPC-project-process
 pub fn process_project(project: &mut Project) -> Result<()> {
     let (locs, sublocs) = locs::find_locs(&project.settings)?;
-    project.dne_locs = locs::attach_locs(&mut project.artifacts, locs, sublocs)?;
+    let dne = locs::attach_locs(&mut project.artifacts, locs, sublocs)?;
+    project.dne_locs = dne.0;
+    project.dne_sublocs = dne.1;
     link::do_links(&mut project.artifacts)?;
     Ok(())
 }

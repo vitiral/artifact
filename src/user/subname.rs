@@ -14,7 +14,7 @@ use dev_prefix::*;
 use types::*;
 
 impl SubName {
-    pub fn from_parts(name: Name, sub: String) -> SubName {
+    pub fn from_parts(name: NameRc, sub: String) -> SubName {
         SubName {
             name: name,
             value: sub.to_ascii_uppercase(),
