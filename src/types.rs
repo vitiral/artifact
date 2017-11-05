@@ -279,7 +279,6 @@ impl FullLocs {
 
     /// Give the ratio that these locations are complete
     pub fn ratio_complete(&self, total: usize) -> f32 {
-        let total = 1 + self.sublocs.len();
         let mut linked: usize = self.sublocs.len();
         linked += if self.root.is_some() { 1 } else { 0 };
         linked as f32 / total as f32
