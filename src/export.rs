@@ -28,6 +28,7 @@ pub struct ArtifactData {
     pub def: String,
     pub text: String,
     pub partof: Vec<String>,
+    pub subnames: Vec<String>,
 
     // // TODO: until I serde gets up to speed, the web-api will
     // // have to send these values even though they are ignored
@@ -127,6 +128,8 @@ impl Artifact {
             .expect("origin invalid")
             .to_string_lossy()
             .to_string();
+        let mut subnames: Vec<_> = self.subnames.iter().map(|n| n.to_string()).collect();
+        subnames.sort();
 
         ArtifactData {
             id: self.id,
@@ -134,6 +137,7 @@ impl Artifact {
             name: name.raw.clone(),
             def: path,
             text: self.text.clone(),
+            subnames: subnames,
             partof: partof,
             parts: parts,
             code: code,
@@ -239,12 +243,16 @@ fn test_serde() {
         name: "name".to_string(),
         def: "path".to_string(),
         text: "text".to_string(),
+        subnames: Vec::new(),
         partof: Vec::from_iter(vec!["partof-1".to_string()]),
         parts: Vec::from_iter(vec!["part-1".to_string()]),
         done: None,
-        code: Some(LocData {
-            path: "path".to_string(),
-            line: 10,
+        code: Some(FullLocsData {
+            root: Some(LocData {
+                path: "path".to_string(),
+                line: 10,
+            }),
+            sublocs: HashMap::new(),
         }),
         completed: 0.,
         tested: 0.,

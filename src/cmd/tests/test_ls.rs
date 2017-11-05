@@ -227,10 +227,10 @@ fn get_project() -> Project {
     for (n, a) in artifacts.iter_mut() {
         a.def = reqs_path.clone();
         if n.as_ref() == &Name::from_str("spc-foo").unwrap() {
-            a.done = Done::Code(Loc::fake());
+            a.done = Done::Code(FullLocs::fake());
         }
         if n.as_ref() == &Name::from_str("tst-foo").unwrap() {
-            a.done = Done::Code(Loc::fake());
+            a.done = Done::Code(FullLocs::fake());
         }
     }
     user::do_links(&mut artifacts).unwrap();
