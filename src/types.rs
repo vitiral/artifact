@@ -8,8 +8,19 @@ pub const REPO_VAR: &'static str = "repo";
 /// variable which can be used in settings paths to mean the dir of the settings file.
 /// #TODO: remove this
 pub const CWD_VAR: &'static str = "cwd";
+
+macro_rules! NAME_VALID_CHARS {
+    () => { "A-Z0-9_" };
+}
+
 /// base definition of a valid name. Some pieces may ignore case.
-pub const NAME_VALID_STR: &'static str = "(?:REQ|SPC|TST)(?:-[A-Z0-9_-]*[A-Z0-9_])?";
+pub const NAME_VALID_STR: &'static str = concat!(
+    "(?:REQ|SPC|TST)(?:-[",
+    NAME_VALID_CHARS!(),
+    "-]*[",
+    NAME_VALID_CHARS!(),
+    "])?"
+);
 
 lazy_static!{
     // must start with artifact type, followed by "-", followed by at least 1 valid character
@@ -55,6 +66,10 @@ error_chain! {
         InvalidName(desc: String) {
             description("Invalid artifact name")
             display("Invalid artifact name: \"{}\"", desc)
+        }
+        InvalidSubName(desc: String) {
+            description("Invalid artifact subname")
+            display("Invalid artifact sub name: \"{}\"", desc)
         }
         InvalidAttr(name: String, attr: String) {
             description("Artifact has invalid attribute")
@@ -146,6 +161,7 @@ pub struct Project {
     pub settings: Settings,
     pub files: HashSet<PathBuf>,
     pub dne_locs: HashMap<Name, Loc>,
+    pub dne_sublocs: HashMap<SubName, Loc>,
 
     // preserved locations where each piece is from
     pub origin: PathBuf,
@@ -159,6 +175,7 @@ impl Default for Project {
             settings: Settings::default(),
             files: HashSet::default(),
             dne_locs: HashMap::default(),
+            dne_sublocs: HashMap::default(),
             origin: PathBuf::default(),
             repo_map: HashMap::default(),
         }
@@ -176,6 +193,18 @@ pub struct Name {
     pub value: Vec<String>,
     /// the inferred type of the artifact
     pub ty: Type,
+}
+
+/// Like a "name" but with a sub piece, used only for linking to code.
+///
+/// i.e. `ART-name.sub`
+#[derive(Clone)]
+pub struct SubName {
+    pub name: NameRc,
+    /// user definition of "sub"
+    pub raw: String,
+    /// standardized version of "sub"
+    pub value: String,
 }
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
@@ -209,6 +238,68 @@ impl fmt::Display for Loc {
     }
 }
 
+/// All (code) implementation locations for a SINGLE artifact.
+#[derive(Debug, Clone, PartialEq)]
+pub struct FullLocs {
+    /// Whether the root node is linked in code
+    /// i.e `#ART-foo`
+    pub root: Option<Loc>,
+
+    /// The sub locations that are linked in code
+    /// i.e `#ART-foo.subloc`
+    pub sublocs: HashMap<SubName, Loc>,
+}
+
+impl FullLocs {
+    /// Should only be used when values will be added
+    /// later
+    pub fn empty() -> FullLocs {
+        FullLocs {
+            root: None,
+            sublocs: HashMap::new(),
+        }
+    }
+
+    /// For testing
+    #[cfg(test)]
+    pub fn from_root(root: Loc) -> FullLocs {
+        let mut out = FullLocs::empty();
+        out.root = Some(root);
+        out
+    }
+
+    /// For testing
+    #[cfg(test)]
+    pub fn fake() -> FullLocs {
+        FullLocs {
+            root: Some(Loc::fake()),
+            sublocs: HashMap::new(),
+        }
+    }
+
+    /// Give the ratio that these locations are complete
+    pub fn ratio_complete(&self, total: usize) -> f32 {
+        let mut linked: usize = self.sublocs.len();
+        linked += if self.root.is_some() { 1 } else { 0 };
+        linked as f32 / total as f32
+    }
+}
+
+impl fmt::Display for FullLocs {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        if let Some(ref root) = self.root {
+            write!(f, "{}[{}]", root.path.display(), root.line)?;
+        } else {
+            write!(f, "[no root]")?;
+        }
+        if !self.sublocs.is_empty() {
+            write!(f, "(+{} sublocs)", self.sublocs.len())?;
+        }
+        Ok(())
+    }
+}
+
+
 /// Determines if the artifact is "done by definition"
 ///
 /// It is done by definition if:
@@ -217,21 +308,11 @@ impl fmt::Display for Loc {
 #[derive(Debug, Clone, PartialEq)]
 pub enum Done {
     /// Artifact is implemented in code
-    Code(Loc),
+    Code(FullLocs),
     /// artifact has it's `done` field defined
     Defined(String),
     /// artifact is NOT "done by definition"
     NotDone,
-}
-
-impl Done {
-    /// return true if Done == Code || Defined
-    pub fn is_done(&self) -> bool {
-        match *self {
-            Done::Code(_) | Done::Defined(_) => true,
-            Done::NotDone => false,
-        }
-    }
 }
 
 impl fmt::Display for Done {
@@ -268,6 +349,9 @@ pub struct Artifact {
     pub completed: f32,
     /// tested ratio (calculated)
     pub tested: f32,
+
+    /// subnames found in `text`
+    pub subnames: HashSet<SubName>,
 }
 
 /// repo settings for loading artifacts

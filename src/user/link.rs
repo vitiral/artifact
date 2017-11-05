@@ -272,7 +272,7 @@ fn part_final(ty: Type, part: &mut Part) {
 
 /// Discover how complete and how tested all artifacts are (or are not!)
 ///
-/// @SPC-completion
+/// TODO: @SPC-completion
 pub fn set_completed(artifacts: &mut Artifacts) -> usize {
     let mut names = Names::from_iter(artifacts.keys().cloned());
     let mut known: HashMap<NameRc, Part> = HashMap::with_capacity(names.len());
