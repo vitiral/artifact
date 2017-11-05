@@ -28,10 +28,8 @@ pub struct ArtifactData {
     pub def: String,
     pub text: String,
     pub partof: Vec<String>,
-    pub subnames: Vec<String>,
 
-    // // TODO: until I serde gets up to speed, the web-api will
-    // // have to send these values even though they are ignored
+    #[serde(default)] pub subnames: Vec<String>,
     #[serde(default)] pub parts: Vec<String>,
     #[serde(default)] pub code: Option<FullLocsData>,
     #[serde(default)] pub done: Option<String>,
@@ -193,11 +191,6 @@ impl Artifact {
             Done::NotDone
         };
 
-        let mut subnames = HashSet::new();
-        for n in &data.subnames {
-            subnames.insert(SubName::from_str(n)?);
-        }
-
         Ok((
             name,
             Artifact {
@@ -205,7 +198,7 @@ impl Artifact {
                 revision: data.revision,
                 def: repo.join(&data.def),
                 text: data.text.clone(),
-                subnames: subnames,
+                subnames: HashSet::new(),
                 partof: partof,
                 done: done,
                 parts: HashSet::new(),
