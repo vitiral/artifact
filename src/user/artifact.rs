@@ -316,14 +316,14 @@ mod tests {
 
     #[test]
     fn test_parse_subnames() {
-        let name = NameRc::fake();
+        let name = Arc::new(Name::from_str("REQ-fake").unwrap());
         let text = r#"
         This is some text. Subname: [[.hello]]
         [[.goodbye]]
         "#;
         let subnames = parse_subnames(name.clone(), text);
-        assert!(subnames.contains(SubName::from_parts(name.clone(), "hello".into())));
-        assert!(subnames.contains(SubName::from_parts(name.clone(), "goodbye".into())));
+        assert!(subnames.contains(&SubName::from_parts(name.clone(), "hello".into())));
+        assert!(subnames.contains(&SubName::from_parts(name.clone(), "goodbye".into())));
     }
 
 }

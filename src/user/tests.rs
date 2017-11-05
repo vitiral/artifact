@@ -115,11 +115,13 @@ fn test_load_repo() {
         _ => panic!(),
     };
 
-    assert_eq!(loc_lvl1.path, src_dir.join(PathBuf::from("lvl_1.rs")));
-
     debug!("checking loc");
-    assert_eq!(loc_lvl1.line, 3);
-    assert_eq!(loc_loc.line, 4);
+    assert_eq!(
+        loc_lvl1.root.unwrap().path,
+        src_dir.join(PathBuf::from("lvl_1.rs"))
+    );
+    assert_eq!(loc_lvl1.root.unwrap().line, 3);
+    assert_eq!(loc_loc.root.unwrap().line, 4);
 
     assert!(p.dne_locs.contains_key(&Name::from_str("SPC-dne").unwrap()));
     assert!(p.dne_locs.contains_key(&Name::from_str("TST-dne").unwrap()));
@@ -206,10 +208,10 @@ fn test_basic_link() {
         let art = artifacts
             .get_mut(&NameRc::from_str(sname).unwrap())
             .unwrap();
-        art.done = Done::Code(Loc {
+        art.done = Done::Code(FullLocs::from_root(Loc {
             path: path.clone(),
             line: 1,
-        });
+        }));
     }
 
     link::validate_done(&artifacts).unwrap();
@@ -318,10 +320,10 @@ fn test_link_completed_tested() {
         let art = artifacts
             .get_mut(&NameRc::from_str(sname).unwrap())
             .unwrap();
-        art.done = Done::Code(Loc {
+        art.done = Done::Code(FullLocs::from_root(Loc {
             path: path.clone(),
             line: 1,
-        });
+        }));
     }
 
     link::link_named_partofs(&mut artifacts);

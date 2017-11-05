@@ -23,9 +23,29 @@ impl SubName {
     }
 }
 
+impl FromStr for SubName {
+    type Err = Error;
+    fn from_str(s: &str) -> Result<SubName> {
+        let split: Vec<_> = s.split('.').collect();
+        if split.len() != 2 {
+            bail!(ErrorKind::InvalidSubName(s.into()));
+        }
+        let name = Name::from_str(split[0])?;
+
+        // FIXME: the second part should also be errorchecked
+        Ok(SubName::from_parts(Arc::new(name), split[1].to_string()))
+    }
+}
+
+impl fmt::Display for SubName {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}.{}", self.name, self.raw)
+    }
+}
+
 impl fmt::Debug for SubName {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}.{}", self.name, self.value)
+        write!(f, "{:?}.{}", self.name, self.value)
     }
 }
 

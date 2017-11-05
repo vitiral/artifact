@@ -70,7 +70,7 @@ pub fn attach_locs(
             }
         }
         if !full_locs.contains_key(&lname.name) {
-            full_locs.insert(Arc::new(lname.name.clone()), FullLocs::empty());
+            full_locs.insert(lname.name.clone(), FullLocs::empty());
         }
         let full = full_locs.get_mut(&lname.name).unwrap();
         full.sublocs.insert(lname, loc);

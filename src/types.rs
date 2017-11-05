@@ -67,6 +67,10 @@ error_chain! {
             description("Invalid artifact name")
             display("Invalid artifact name: \"{}\"", desc)
         }
+        InvalidSubName(desc: String) {
+            description("Invalid artifact subname")
+            display("Invalid artifact sub name: \"{}\"", desc)
+        }
         InvalidAttr(name: String, attr: String) {
             description("Artifact has invalid attribute")
             display("Artifact {} has invalid attribute: {}", name, attr)
@@ -196,7 +200,7 @@ pub struct Name {
 /// i.e. `ART-name.sub`
 #[derive(Clone)]
 pub struct SubName {
-    pub name: Name,
+    pub name: NameRc,
     /// user definition of "sub"
     pub raw: String,
     /// standardized version of "sub"
@@ -247,14 +251,6 @@ pub struct FullLocs {
 }
 
 impl FullLocs {
-    /// Give the ratio that these locations are complete
-    pub fn ratio_complete(&self, total: usize) -> f32 {
-        let total = 1 + self.sublocs.len();
-        let mut linked: usize = self.sublocs.len();
-        linked += if self.root.is_some() { 1 } else { 0 };
-        linked as f32 / total as f32
-    }
-
     /// Should only be used when values will be added
     /// later
     pub fn empty() -> FullLocs {
@@ -266,11 +262,27 @@ impl FullLocs {
 
     /// For testing
     #[cfg(test)]
+    pub fn from_root(root: Loc) -> FullLocs {
+        let mut out = FullLocs::empty();
+        out.root = Some(root);
+        out
+    }
+
+    /// For testing
+    #[cfg(test)]
     pub fn fake() -> FullLocs {
         FullLocs {
             root: Some(Loc::fake()),
             sublocs: HashMap::new(),
         }
+    }
+
+    /// Give the ratio that these locations are complete
+    pub fn ratio_complete(&self, total: usize) -> f32 {
+        let total = 1 + self.sublocs.len();
+        let mut linked: usize = self.sublocs.len();
+        linked += if self.root.is_some() { 1 } else { 0 };
+        linked as f32 / total as f32
     }
 }
 
