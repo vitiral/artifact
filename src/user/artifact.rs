@@ -8,6 +8,12 @@ use user::types::*;
 use user::save::ProjectText;
 use utils::unique_id;
 
+lazy_static!{
+    pub static ref SUBNAME_RE: Regex = Regex::new(
+        &format!(r"(?i)\[\[\.([{}]+)\]\]", NAME_VALID_CHARS!())).unwrap();
+}
+
+
 // Public Methods
 
 // TODO: making this parallel should be easy and dramatically improve performance:
@@ -78,6 +84,15 @@ pub fn load_text(
     Ok(())
 }
 
+
+fn parse_subnames(name: NameRc, text: &str) -> HashSet<SubName> {
+    let mut out: HashSet<SubName> = HashSet::new();
+    for cap in SUBNAME_RE.captures_iter(text) {
+        // note: repeats are ignored (and are okay)
+        out.insert(SubName::from_parts(name.clone(), cap.get(1).unwrap().into()));
+    }
+    out
+}
 
 /// method to convert `ProjectText` -> `Project`
 /// Project may be extended by more than one `ProjectText`
@@ -289,6 +304,18 @@ mod tests {
             p.artifacts
                 .contains_key(&Name::from_str("TST-foo-2").unwrap())
         );
+    }
+
+    #[test]
+    fn test_parse_subnames() {
+        let name = NameRc::fake();
+        let text = r#"
+        This is some text. Subname: [[.hello]]
+        [[.goodbye]]
+        "#;
+        let subnames = parse_subnames(name.clone(), text);
+        assert!(subnames.contains(SubName::from_parts(name.clone(), "hello".into())));
+        assert!(subnames.contains(SubName::from_parts(name.clone(), "goodbye".into())));
     }
 
 }
