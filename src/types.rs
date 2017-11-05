@@ -288,7 +288,7 @@ impl FullLocs {
 
 impl fmt::Display for FullLocs {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        if let Some(root) = self.root {
+        if let Some(ref root) = self.root {
             write!(f, "{}[{}]", root.path.display(), root.line)?;
         } else {
             write!(f, "[no root]")?;

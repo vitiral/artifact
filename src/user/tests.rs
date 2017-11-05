@@ -117,11 +117,11 @@ fn test_load_repo() {
 
     debug!("checking loc");
     assert_eq!(
-        loc_lvl1.root.unwrap().path,
+        loc_lvl1.root.as_ref().unwrap().path,
         src_dir.join(PathBuf::from("lvl_1.rs"))
     );
-    assert_eq!(loc_lvl1.root.unwrap().line, 3);
-    assert_eq!(loc_loc.root.unwrap().line, 4);
+    assert_eq!(loc_lvl1.root.as_ref().unwrap().line, 3);
+    assert_eq!(loc_loc.root.as_ref().unwrap().line, 4);
 
     assert!(p.dne_locs.contains_key(&Name::from_str("SPC-dne").unwrap()));
     assert!(p.dne_locs.contains_key(&Name::from_str("TST-dne").unwrap()));

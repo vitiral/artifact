@@ -88,7 +88,7 @@ impl Artifact {
         let (code, done) = match self.done {
             Done::Code(ref l) => {
                 let root = match l.root {
-                    Some(r) => Some(LocData {
+                    Some(ref r) => Some(LocData {
                         path: r.path
                             .strip_prefix(origin)
                             .expect("origin invalid")
@@ -170,7 +170,7 @@ impl Artifact {
             Done::Defined(d.clone())
         } else if let Some(ref c) = data.code {
             let root = match c.root {
-                Some(r) => Some(Loc {
+                Some(ref r) => Some(Loc {
                     path: repo.join(&r.path),
                     line: r.line as usize,
                 }),
