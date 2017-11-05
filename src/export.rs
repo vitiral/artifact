@@ -172,16 +172,27 @@ impl Artifact {
                 }),
                 None => None,
             };
-            let sublocs = HashMap::from_iter(c.sublocs.iter().map(|(n, l)| {
-                let subname = SubName::from_str(n);
+            let mut sublocs = HashMap::new();
+            for (n, l) in &c.sublocs {
+                let subname = SubName::from_str(n)?;
                 let loc = Loc {
                     path: repo.join(&l.path),
                     line: l.line as usize,
                 };
-            }));
+                sublocs.insert(subname, loc);
+            }
+            Done::Code(FullLocs {
+                root: root,
+                sublocs: sublocs,
+            })
         } else {
             Done::NotDone
         };
+
+        let mut subnames = HashSet::new();
+        for n in &data.subnames {
+            subnames.insert(SubName::from_str(n)?);
+        }
 
         Ok((
             name,
@@ -190,6 +201,7 @@ impl Artifact {
                 revision: data.revision,
                 def: repo.join(&data.def),
                 text: data.text.clone(),
+                subnames: subnames,
                 partof: partof,
                 done: done,
                 parts: HashSet::new(),
