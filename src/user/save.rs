@@ -8,6 +8,7 @@ use std::collections::BTreeMap;
 use dev_prefix::*;
 use types::*;
 use user::types::*;
+use user::markdown;
 
 // Public Struct
 
@@ -93,9 +94,20 @@ impl ProjectText {
         // convert Values to text
         let mut text: HashMap<PathBuf, String> = HashMap::new();
         for (p, v) in files.drain() {
-            let mut s = String::new();
-            v.serialize(&mut toml::Serializer::pretty(&mut s))
-                .expect("serialize");
+            let s = match p.extension()
+                .expect(&format!("no extension: {:?}", p))
+                .to_str()
+                .expect("extension not utf8")
+            {
+                "toml" => {
+                    let mut s = String::new();
+                    v.serialize(&mut toml::Serializer::pretty(&mut s))
+                        .expect("serialize");
+                    s
+                }
+                "md" => markdown::to_markdown(&v)?,
+                ext => panic!("internal error: unkown extension {}", ext),
+            };
             text.insert(p, s);
         }
 

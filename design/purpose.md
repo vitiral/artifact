@@ -1,5 +1,4 @@
-[REQ-1]
-text = '''
+# REQ-1
 These are the developer design documents. For user documents and project information,
 see: https://github.com/vitiral/artifact
 
@@ -34,11 +33,10 @@ The application requirements are split into the following categories:
 - [[REQ-tracker]]: work in progress requirements tracker. May be removed from
   this project (made into an independent project that consumes the artifact json-rpc
   api)
-'''
 
-[REQ-artifact]
-partof = 'REQ-1'
-text = '''
+# REQ-artifact
+partof: REQ-1
+###
 artifact **will** support 4 types of artifacts that can be tracked
 - **REQ**: software requirement
 - **SPC**: software design specificaion based on one or more requirements
@@ -66,7 +64,6 @@ This is kept *intentionally* minimal so as to reduce the API space for users
 to learn as well as external tools to process.
 
 ## Artifact Name
-
 The artifact name should be in a human readable format which allows for simple
 categorization of different features.
 
@@ -77,11 +74,10 @@ and `foo-bar` is an arbitrary category.
 Each `"-"` in an artifact name shall be special. They are the primary
 separation variable for names and will denote categories and aid in easily
 linking artifacts to other artifacts, as defined in [[REQ-partof]]
-'''
 
-[REQ-cmd]
-partof = 'REQ-1'
-text = '''
+# REQ-cmd
+partof: REQ-1
+###
 The artifact cmdline interface will be simple and intuitive for those
 who have used unix and git. It will contain a small subset of subcommands
 that makes usability clean and easy for anyone's use case.
@@ -95,10 +91,8 @@ It should have:
 - interface to running [[REQ-web]]
 
 See [[SPC-cmd]].
-'''
 
-[REQ-completion]
-text = '''
+# REQ-completion
 Artifact will track how *complete* and *tested* an item is based on:
 - The artifact's type:
     - TST is always as tested as it is completed.
@@ -115,11 +109,10 @@ In particular
   if the artifact has no children.
 - TST artifacts shall only add to the tested% (not completed%) of artifacts
   they are a partof.
-'''
 
-[REQ-partof]
-partof = 'REQ-1'
-text = '''
+# REQ-partof
+partof: REQ-1
+###
 linking should be in a format that is as easy to understand format as possible:
 - between artifacts
 - with the location of implementation
@@ -156,9 +149,7 @@ Parents of an artifact will be automatically linked as partof their children.
 ## post-fix name (linkable types)
 Artifacts will be linked by their postfix if they are able.
 
-Example:**
-
-If you define:
+Example: If you define
 ```
 [REQ-foo-bar]
 [SPC-foo-bar]
@@ -170,11 +161,10 @@ If you define:
 Then `REQ-foo-bar` will automatically be a partof `SPC-foo-bar`,
 `SPC-foo-bar` will be a partof `TST-foo-bar`. `SPC-bar` will not
 be a partof anything since it doesn't share a prefix.
-'''
 
-[REQ-rpc]
-partof = 'REQ-1'
-text = '''
+# REQ-rpc
+partof: REQ-1
+###
 artifact's server shall provide a JSON-RPC API endpoint for interacting with loaded and processed artifacts.
 
 The API server will serve as the backend for both REQ-web and REQ-tracker
@@ -187,11 +177,11 @@ For the Web UI the RPC shall have the following endpionts:
 - CreateFiles
 - CreateFolders
 
-These are defined in [[SPC-rpc]]'''
+These are defined in [[SPC-rpc]]
 
-[REQ-security]
-partof = 'REQ-1'
-text = '''
+# REQ-security
+partof: REQ-1
+###
 With commands such as `art fmt` and the server being able
 to edit files on someone's local machine, the artifact application
 shall impose checks at all vulnerable places to ensure
@@ -200,10 +190,8 @@ the cwd-repo that the user is using.
 
 In addition, post-1.0 releases shall require authentication to edit
 files through a web-server (1.0 release will be localhost only)
-'''
 
-[REQ-tracker]
-text = '''
+# REQ-tracker
 artifact shall have test tracking functionality that will enable projects
 and orginizations to track continuously running integration tests.
 
@@ -229,13 +217,12 @@ endpoint (the same one that hosts and supports the web-ui).
 
 In addition, a section of the web-ui shall be dedicated to viewing
 test results, and test artifacts shall include links to their test
-data (if it exists). Test results should be easy to filter, graph
-, compare and generate reports for in the UI.
-'''
+data (if it exists). Test results should be easy to filter, graph,
+compare and generate reports for in the UI.
 
-[REQ-web]
-partof = 'REQ-1'
-text = '''
+# REQ-web
+partof: REQ-1
+###
 artifact **shall** provide a web-based frontend for both reading and editing rendered views of artifacts.
 
 The web-ui will have web-specific features such as:
@@ -264,4 +251,3 @@ Requirements of web page:
  - editing shall utilize the same workflow as is used when editing text
  - there shall be an option to disable editing (read-only)
  - webpage shall be able to view test execution data
-'''

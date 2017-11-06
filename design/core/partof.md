@@ -1,5 +1,4 @@
-[SPC-partof]
-text = '''
+# SPC-partof
 The partof attribute shall follow the following spec for specifying multiple artifacts
 - `[]` will denote a set of artifacts related to the prevoius characters
 - `,` will denote separate artifact groups
@@ -46,4 +45,3 @@ onto a `String` datatype.
 
 It will **not** validate that the artifact names are correct -- that is the
 responsibility of `::from_str`.
-'''

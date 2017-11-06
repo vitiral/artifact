@@ -1,6 +1,6 @@
-[SPC-project]
-partof = 'REQ-artifact'
-text = '''
+# SPC-project
+partof: REQ-artifact
+###
 The "Project" data type shall encompase the users entire set of
 artifact files and settings and the process for loading them.
 
@@ -10,10 +10,8 @@ It includes:
 
 ## Artifact
 The artifact type is defined by [[SPC-artifact]]
-'''
 
-[SPC-project-load]
-text = '''
+# SPC-project-load
 The project loading procedure will follow the following process:
   1. load settings
   2. follow paths to artifact directories
@@ -57,11 +55,10 @@ Critical failure shall occur if:
 
 Failures in further steps will simply cause warnings and will display on the
 ui as missing links or None completion (etc)
-'''
 
-[SPC-project-process]
-partof = 'SPC-partof'
-text = '''
+# SPC-project-process
+partof: SPC-partof
+###
 Once a project has been loaded (see [[SPC-project-load]]) it has to
 be processed. Namely:
 
@@ -87,10 +84,8 @@ Processes B (in series):
 
 ## Stage 2:
  1. set completed and tested
-'''
 
-[SPC-project-settings]
-text = '''
+# SPC-project-settings
 Project settings shall be definable in a single file located at
 {repo}/.art/settings.toml
 
@@ -114,11 +109,10 @@ since having all design docs in one place for a large project seems correct,
 and in areas where the project can be split they should just have their
 own self-contained design documents (which can be referenced by projects
 using them using urls).
-'''
 
-[TST-project]
-partof = 'SPC-artifact'
-text = '''
+# TST-project
+partof: SPC-artifact
+###
 These tests represent the unit tests for saving and loading
 artifacts to/from files.
 
@@ -128,11 +122,10 @@ matter how many times we handle them.
 
 These are essential for a broad range of services offered including
 formatting and saving artifacts in the web-ui.
-'''
 
-[TST-project-invalid]
-partof = 'SPC-project-load'
-text = '''
+# TST-project-invalid
+partof: SPC-project-load
+###
 load the following and make sure it results in an error:
  1. trying to input a json-like table `{}`
  2. trying to have multiple types in an array `[1, "hello", 3]`
@@ -140,14 +133,12 @@ load the following and make sure it results in an error:
  4. name collisions at the base level
  5. `[file]` with an invalid attribute
  6. two files with same key
-'''
 
-[TST-project-link]
-partof = [
-    'SPC-partof',
-    'SPC-project-load',
-]
-text = '''
+# TST-project-link
+partof:
+- SPC-partof
+- SPC-project-load
+###
 design documents linking (both automatically and explicitly) is one of the
 core features of artifact and is one that will be expected to "just work"
 and be ultra simple.
@@ -155,19 +146,16 @@ and be ultra simple.
 Unit tests need to focus on multiple failure paths that could crop up
 around linking along with basic functionality testing and validate that the
 calculations are *exactly* as predicted by manual calculations.
-'''
 
-[TST-project-partof]
-partof = 'SPC-partof'
-text = '''
+# TST-project-partof
+partof: SPC-partof
+###
 The partof format and loading can be tested completely with simple unit tests:
  - load simple lists
  - load complex lists
  - load varieties of invalid lists
-'''
 
-[TST-project-process]
-text = '''
+# TST-project-process
 A huge amount of functionality requires that we can process a project
 that has been converted to its "data" form over and over and that
 processing it is completely idempotent. For instance, [[SPC-rpc-artifacts]]
@@ -176,14 +164,12 @@ data artifacts and then re-processing the project to get the new value.
 
 It is critical that converting a project to data and reprocessing it
 is a completely idempotent operation.
-'''
 
-[TST-project-simple]
-partof = [
-    'SPC-project-load',
-    'SPC-project-settings',
-]
-text = '''
+# TST-project-simple
+partof:
+- SPC-project-load
+- SPC-project-settings
+###
 Create a simple project that has a few ins and outs
  - has multi-level values
  - has folder that is unreachable unless you set an extra path (which is set)
@@ -192,4 +178,3 @@ Create a simple project that has a few ins and outs
 
 Litter this with artifacts at each level, some of which are implemented in a fake src/ dir
 Validate that everything is as it should be
-'''

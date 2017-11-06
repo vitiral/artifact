@@ -43,11 +43,22 @@ pub fn from_raw(raw: &RawSettings) -> Result<Settings> {
             None => HashSet::new(),
         }
     }
+    let file_type = match raw.file_type.as_ref() {
+        None => FileType::Toml,
+        Some(s) => match s.as_str() {
+            "toml" => FileType::Toml,
+            "markdown" => FileType::Markdown,
+            _ => bail!(ErrorKind::InvalidSettings(
+                format!("unknown file_type: {}", s)
+            )),
+        },
+    };
     let settings = Settings {
         artifact_paths: to_paths(&raw.artifact_paths),
         exclude_artifact_paths: to_paths(&raw.exclude_artifact_paths),
         code_paths: to_paths(&raw.code_paths),
         exclude_code_paths: to_paths(&raw.exclude_code_paths),
+        file_type: file_type,
     };
 
     Ok(settings)

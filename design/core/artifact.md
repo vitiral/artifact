@@ -1,5 +1,4 @@
-[SPC-artifact]
-text = '''
+# SPC-artifact
 High level specification for the Artifact type including:
 - struct definition
 - loading
@@ -19,4 +18,3 @@ and processed by the application. This includes:
 
 name is an attribute because it is used as the key for the Artifacts 
 type.
-'''

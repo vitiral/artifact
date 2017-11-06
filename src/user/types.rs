@@ -33,6 +33,7 @@ pub struct RawSettings {
     pub exclude_artifact_paths: Option<Vec<String>>,
     pub code_paths: Option<Vec<String>>,
     pub exclude_code_paths: Option<Vec<String>>,
+    pub file_type: Option<String>,
 }
 
 #[test]

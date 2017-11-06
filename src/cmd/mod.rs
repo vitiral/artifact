@@ -170,7 +170,9 @@ where
     } else if let Some(mat) = matches.subcommand_matches("fmt") {
         info!("Calling the fmt command");
         let c = fmt::get_cmd(mat)?;
-        fmt::run_cmd(w, &repo, &project, &c)
+        println!("## running fmt");
+        fmt::run_cmd(w, &repo, &project, &c).unwrap();
+        Ok(0)
     } else if let Some(mat) = matches.subcommand_matches("export") {
         info!("Calling the export command");
         let c = export::get_cmd(mat)?;

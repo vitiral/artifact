@@ -110,7 +110,11 @@ gotProjectMsg result =
                             ArtifactsMsg (ReceivedProject gotProject)
 
                         Nothing ->
-                            AppError "json response had no result or error"
+                            let
+                                _ =
+                                    Debug.log "RESPONSE:" response
+                            in
+                                AppError "json response had no result or error"
 
         Err err ->
             HttpError err
@@ -327,7 +331,7 @@ fullLocsDecoder : Decode.Decoder FullLocs
 fullLocsDecoder =
     decode FullLocs
         |> required "root" (Decode.nullable locDecoder)
-        |> required "error" (Decode.dict locDecoder)
+        |> required "sublocs" (Decode.dict locDecoder)
 
 
 locDecoder : Decode.Decoder Loc

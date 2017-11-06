@@ -1,5 +1,4 @@
-[SPC-rpc]
-text = '''
+# SPC-rpc
 The rpc server shall be hosted at `<url>/json-rpc` and shall adhere to the
 [JSON-RPC 2.0][1] specification.
 
@@ -7,10 +6,9 @@ It has the following components:
 - [[SPC-rpc-artifacts]]: calls for create/read/update/delete artifacts
 - [[SPC-rpc-fs]]: calls for create/read/update/delete files and folders
 
-[1]: http://www.jsonrpc.org/specification'''
+[1]: http://www.jsonrpc.org/specification
 
-[SPC-rpc-artifacts]
-text = '''
+# SPC-rpc-artifacts
 ## ReadProject
 Get the current project state
 
@@ -91,10 +89,8 @@ returned on success to inform the webapp of the changes immediately.
 
 ### error
 - xIdsNotFound error if any ids don't exist
-'''
 
-[SPC-rpc-fs]
-text = '''
+# SPC-rpc-fs
 filesystem related rpc.
 
 Note that existing files are obtained through `ReadProject` defined
@@ -124,4 +120,3 @@ error:
 # TODO:
 - DeleteFiles
 - DeleteFolders
-'''

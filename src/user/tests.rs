@@ -203,7 +203,7 @@ fn test_basic_link() {
     let mut artifacts = test_data::load_toml_simple(test_data::TOML_RST);
 
     // note: SPC-bar is done via attribute
-    let path = PathBuf::from("hi/there");
+    let path = PathBuf::from("hi/there.toml");
     for sname in &["SPC-foo", "TST-foo"] {
         let art = artifacts
             .get_mut(&NameRc::from_str(sname).unwrap())
@@ -308,7 +308,7 @@ fn test_basic_link() {
 fn test_link_completed_tested() {
     let mut artifacts = test_data::load_toml_simple(&test_data::TOML_LINK);
 
-    let path = PathBuf::from("hi/there");
+    let path = PathBuf::from("hi/there.toml");
     for sname in &[
         "SPC-core-bob",
         "SPC-core-bob-1",
@@ -534,7 +534,7 @@ fn test_save_idempotent() {
     let mut original_text = ProjectText::default();
     let mut loaded_dirs = HashSet::new();
     let settings = settings::load_settings(simple.as_path()).unwrap();
-    artifact::load_text(&mut original_text, &simple.join("design"), &mut loaded_dirs).unwrap();
+    artifact::load_file_path(&mut original_text, &simple.join("design"), &mut loaded_dirs).unwrap();
     let original = user::process_project_text(settings.clone(), &original_text).unwrap();
     assert!(
         original
@@ -594,11 +594,13 @@ fn test_exclude() {
 #[test]
 fn test_fmt_basic() {
     let mut text = ProjectText::default();
-    text.files
-        .insert(PathBuf::new(), test_data::TOML_UNFMT.to_string());
+    text.files.insert(
+        PathBuf::from("test.toml"),
+        test_data::TOML_UNFMT.to_string(),
+    );
     let project = user::process_project_text(Settings::default(), &text).unwrap();
     let new_text = ProjectText::from_project(&project).unwrap();
-    let fmted = new_text.files.get(&PathBuf::new()).unwrap();
+    let fmted = new_text.files.get(&PathBuf::from("test.toml")).unwrap();
     println!("Result:\n{}\n\nExpected:\n{}", fmted, test_data::TOML_FMT);
     assert_eq!(fmted, test_data::TOML_FMT);
 }

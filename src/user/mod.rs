@@ -22,6 +22,7 @@ mod project;
 mod artifact;
 mod subname;
 mod settings;
+mod markdown;
 
 #[cfg(test)]
 mod tests;
@@ -31,7 +32,7 @@ pub use user::save::{PathDiff, ProjectText};
 
 // Exposed for testing only
 #[cfg(test)]
-pub use user::artifact::{load_text as load_project_text, load_toml};
+pub use user::artifact::{load_file_path, load_text};
 #[cfg(test)]
 pub use user::link::do_links;
 #[cfg(test)]
@@ -91,7 +92,7 @@ pub fn load_repo(repo: &Path) -> Result<Project> {
             continue;
         }
         loaded_paths.insert(path.to_path_buf());
-        artifact::load_text(&mut project_text, path.as_path(), &mut loaded_paths)?;
+        artifact::load_file_path(&mut project_text, path.as_path(), &mut loaded_paths)?;
     }
 
     let mut project = Project::default();

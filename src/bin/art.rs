@@ -14,22 +14,24 @@ use std::process;
 use artifact_app::cmd;
 
 fn main() {
-    let rc = match cmd::cmd(&mut io::stdout(), env::args()) {
-        Err(e) => {
-            eprintln!("Encountered Error:\n");
+    cmd::cmd(&mut io::stdout(), env::args()).unwrap();
+    process::exit(i32::from(0))
+    // let rc = match cmd::cmd(&mut io::stdout(), env::args()) {
+    //     Err(e) => {
+    //         eprintln!("Encountered Error:\n");
 
-            let mut was_caused = false;
-            for e in e.iter().skip(1) {
-                was_caused = true;
-                eprintln!("## caused by: {}", e);
-            }
-            if was_caused {
-                eprintln!("Error was:")
-            }
-            eprintln!("{}", e);
-            1
-        }
-        Ok(rc) => rc,
-    };
-    process::exit(i32::from(rc))
+    //         let mut was_caused = false;
+    //         for e in e.iter().skip(1) {
+    //             was_caused = true;
+    //             eprintln!("## caused by: {}", e);
+    //         }
+    //         if was_caused {
+    //             eprintln!("Error was:")
+    //         }
+    //         eprintln!("{}", e);
+    //         1
+    //     }
+    //     Ok(rc) => rc,
+    // };
+    // process::exit(i32::from(rc))
 }

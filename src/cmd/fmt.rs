@@ -56,7 +56,25 @@ pub fn get_cmd(matches: &ArgMatches) -> Result<Cmd> {
 /// format the toml files (or just print diffs)
 /// partof: #SPC-cmd-fmt
 pub fn run_cmd(w: &mut Write, repo: &Path, project: &Project, cmd: &Cmd) -> Result<u8> {
-    let ptext = ProjectText::from_project(project)?;
+    let is_beta = FileType::Toml == project.settings.file_type;
+    let ext = match project.settings.file_type {
+        FileType::Toml => "toml",
+        FileType::Markdown => "md",
+    };
+    let ptext = {
+        let mut project = project.clone();
+        for artifact in project.artifacts.values_mut() {
+            artifact.def.set_extension(ext);
+        }
+        let mut files = HashSet::new();
+        for path in &project.files {
+            let mut path = path.clone();
+            path.set_extension(ext);
+            files.insert(path);
+        }
+        project.files = files;
+        ProjectText::from_project(&project)?
+    };
     let indent = if *cmd == Cmd::Diff {
         // str.repeat would be great....
         (0..50).map(|_| "#").collect::<String>() + "\n# "
@@ -68,9 +86,11 @@ pub fn run_cmd(w: &mut Write, repo: &Path, project: &Project, cmd: &Cmd) -> Resu
     let fmt_project = user::process_project_text(project.settings.clone(), &ptext).chain_err(|| {
         "internal fmt error: could not process project text.".to_string()
     })?;
-    project.equal(&fmt_project).chain_err(|| {
-        "internal fmt error: formatted project has different data.".to_string()
-    })?;
+    if !is_beta {
+        project.equal(&fmt_project).chain_err(|| {
+            "internal fmt error: formatted project has different data.".to_string()
+        })?;
+    }
     security::validate(repo, project)?;
     match *cmd {
         Cmd::List | Cmd::Diff => {
@@ -109,6 +129,9 @@ pub fn run_cmd(w: &mut Write, repo: &Path, project: &Project, cmd: &Cmd) -> Resu
         Cmd::Write => {
             // dump the ptext and then make sure nothing changed...
             ptext.dump()?;
+            if is_beta {
+                return Ok(0);
+            }
             let new_project = match user::load_repo(&project.origin) {
                 Ok(p) => p,
                 Err(err) => {

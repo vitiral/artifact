@@ -14,3 +14,4 @@ exclude_code_paths = [
     "{repo}/web-ui/tests/elm-stuff",
     "{repo}/web-ui/sel_tests/ex_proj",
 ]
+file_type = "markdown"

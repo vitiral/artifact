@@ -1,6 +1,6 @@
-[SPC-cmd]
-partof = 'REQ-web'
-text = '''
+# SPC-cmd
+partof: REQ-web
+###
 Specifications for the artifact cmdline interface
 
 - [[SPC-cmd-tutorial]]: begin an interactive tutorial for the user
@@ -12,10 +12,8 @@ Specifications for the artifact cmdline interface
 - [[SPC-cmd-export]]: export artifacts json and static html
 - [[SPC-web]]: (`art serve` cmd) run an editable server for a full featured web 
   interface
-'''
 
-[SPC-cmd-export]
-text = '''
+# SPC-cmd-export
 `art export` shall be able to export artifacts to various static file
 formats. This will allow a user to display their artifacts in a pretty
 format on services like github.
@@ -29,10 +27,8 @@ Supported types **shall** be:
 Flags:
 - `-o` specifies the a different output directory frm the cwd to export
   the files
-'''
 
-[SPC-cmd-fmt]
-text = '''
+# SPC-cmd-fmt
 `art fmt` will be the command that is run to format all files in a project
 to their correct value. This tool **will** be modeled after gofmt's args:
 
@@ -61,18 +57,14 @@ avoiding cluttered artifact files:
   automatically a partof REQ-foo) are removed when storing in text
 - Long partof names should be split onto multiple lines
 - Any text block that contains newlines are formatted on multiple lines
-'''
 
-[SPC-cmd-init]
-text = '''
+# SPC-cmd-init
 `art init` is the primary first command that will be run by the user when they
 want to create a artifact project. It will initialize a `.art` folder in the cwd
 (giving an error if the cwd is already initialized) and will give the user basic
 instructions on how to create requirements and where to get more information.
-'''
 
-[SPC-cmd-tutorial]
-text = '''
+# SPC-cmd-tutorial
 There **shall** be a tutorial that helps the user learn about artifact.
 
 The tutorial should be interactive and guide the user first through the basics of artifact
@@ -94,13 +86,11 @@ Key points that should be hit during the tutorial are:
 - overview of error messages and error formats
 - opening the web-ui and exporting html
 - final words
-'''
 
-[TST-cmd]
-text = 'tests for the cmdline interface'
+# TST-cmd
+tests for the cmdline interface
 
-[TST-cmd-fmt]
-text = '''
+# TST-cmd-fmt
 There shall be extensive testing around the fmt cmd to cover multiple
 points of risk:
 
@@ -109,17 +99,12 @@ points of risk:
     If data was lost, it will tell the user
 - the command will be frequently used on the requirements for artifact,
     which should help detect failures of the tool
-'''
 
-[TST-cmd-init]
-text = '''
+# TST-cmd-init
 There shall be a unit test to test basic commands:
 - init: just validate that it fails when already initialized and correctly 
     initializes otherwise
-'''
 
-[TST-cmd-tutorial]
-text = '''
+# TST-cmd-tutorial
 - validate that all lines in the tutorial are 80 characters or less.
 - validate you can do a run-through
-'''

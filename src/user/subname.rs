@@ -68,7 +68,7 @@ impl Ord for SubName {
     fn cmp(&self, other: &Self) -> Ordering {
         match self.name.cmp(&other.name) {
             Ordering::Equal => self.value.cmp(&other.value),
-            c @ _ => c,
+            c => c,
         }
     }
 }

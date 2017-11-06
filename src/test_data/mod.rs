@@ -22,8 +22,8 @@ lazy_static!{
 
 pub fn load_toml_simple(text: &str) -> Artifacts {
     let mut project = Project::default();
-    let path = PathBuf::from("test");
-    user::load_toml(&path, text, &mut project).unwrap();
+    let path = PathBuf::from("test.toml");
+    user::load_text(&path, text, &mut project).unwrap();
     project.artifacts
 }
 

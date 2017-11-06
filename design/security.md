@@ -1,5 +1,4 @@
-[SPC-security]
-text = '''
+# SPC-security
 # General security features
 
 In order to prevent mallicious or accidental user data corruption for
@@ -46,22 +45,17 @@ with access to the ip address + port of artifact could access their files
 (unless some kind of password authentication is provided), whereas
 art fmt would have to be created by an error in the application itself
 (very possible, but less likely).
-'''
 
-[TST-security]
-text = '''
+# TST-security
 TODO: the main method of testing security shall be making sure:
 - [[TST-security-bounds]]: you cannot edit files outside of the cwd
 - TODO: you cannot edit files outside of the `artifact_paths` folders
 - TODO: you cannot edit files over the web-ui without the correct
   credentials
-'''
 
-[TST-security-bounds]
-text = '''
+# TST-security-bounds
 There shall be two tests:
 1. attempt (and fail) to load a project that has an artifact_path which is not 
     a subdirectory of that project.
 2. attempt (and fail) to edit files which are not part of 
     settings.artifact_paths
-'''

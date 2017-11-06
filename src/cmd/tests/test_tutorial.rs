@@ -39,11 +39,11 @@ fn test_cmd_data_valid() {
         init::SETTINGS_TOML,
     ];
 
-    let p = Path::new("foo");
+    let p = Path::new("foo.toml");
     for (i, toml) in toml_files.iter().enumerate() {
         let mut project = Project::default();
         let text = str::from_utf8(toml).unwrap();
-        user::load_toml(&p, text, &mut project)
+        user::load_text(&p, text, &mut project)
             .expect(&format!("could not load tutorial toml at index: {}", i));
     }
 

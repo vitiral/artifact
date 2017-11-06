@@ -1,7 +1,8 @@
-[SPC-0]
-done = 'by definition'
-partof = 'REQ-1'
-text = '''
+# SPC-0
+done: by definition
+
+partof: REQ-1
+###
 Definitions and process for the artifact project
 
 ## Assertions
@@ -90,7 +91,8 @@ programming language for the purposes of:
 - scale-out: single threaded code can easily be made highly concurrent
 - fun: rust is a fun language to write in.
 
-The web-ui will be written in elm for many of the same reasons.'''
+The web-ui will be written in elm for many of the same reasons.
 
-[TST-0]
-done = 'by definition'
+# TST-0
+done: by definition
+###

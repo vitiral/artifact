@@ -1,5 +1,4 @@
-[SPC-cmd-ls]
-text = '''
+# SPC-cmd-ls
 The `art ls` command shall be used to list information the artifacts in a
 project.
 
@@ -24,10 +23,9 @@ The args are as follows:
 Additionaly, the following is defined:
 - [[SPC-cmd-ls-color]]: how the output is colorized
 - [[SPC-cmd-ls-display]]: display options (long, short, etc)
-- [[SPC-cmd-ls-pattern]]: more details on the pattern option.'''
+- [[SPC-cmd-ls-pattern]]: more details on the pattern option.
 
-[SPC-cmd-ls-color]
-text = '''
+# SPC-cmd-ls-color
 In order to make viewing of information via cmdline easier,
 artifact **shall** colorize it's output to make it clear which items
 are done or not done or in error.
@@ -50,10 +48,8 @@ Add these together and you get the following:
 - 3-4: name is blue
 - 1-2: name is yellow
 - 0: name is red
-'''
 
-[SPC-cmd-ls-display]
-text = '''
+# SPC-cmd-ls-display
 The following flags are used to specify what to display:
 - a/A: display all these flags for all artifacts
 - D: display the path to where the artifact is defined
@@ -63,10 +59,8 @@ The following flags are used to specify what to display:
   will display up to 50 chars of the first line of the text, truncating it
   with ... if necessary.
 - L: display the loc path (implementation path)
-'''
 
-[SPC-cmd-ls-pattern]
-text = '''
+# SPC-cmd-ls-pattern
 the `-p` flag will signify that the SEARCH argument should be interpreted as
 a regexp pattern instead of as artifact names
 
@@ -74,18 +68,15 @@ If a value follows p, it will specify the fields to filter in that map with
 REQ-ls-display (with the addition of `N` for name)
 
 So: `art ls -p "REQ-ui-cmdline.*" -NO` would filter by name and partof
-'''
 
-[TST-cmd-ls]
-partof = [
-    'SPC-cmd-ls-color',
-    'SPC-cmd-ls-display',
-    'SPC-cmd-ls-pattern',
-]
-text = '''
+# TST-cmd-ls
+partof:
+- SPC-cmd-ls-color
+- SPC-cmd-ls-display
+- SPC-cmd-ls-pattern
+###
 Tests for ls are relatively straightforward and mostly involve:
 - having an example project
 - running the ls command with various different parameters
 - validating the output looks as expected
 - checking that long and multi-line text is split up as it should be
-'''

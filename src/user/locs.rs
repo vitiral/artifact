@@ -31,6 +31,7 @@ pub fn find_locs(settings: &Settings) -> Result<(HashMap<Name, Loc>, HashMap<Sub
     Ok((locs, sublocs))
 }
 
+#[allow(map_entry)]
 /// attach the locations to the artifacts, returning locations that were not used.
 pub fn attach_locs(
     artifacts: &mut Artifacts,

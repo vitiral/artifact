@@ -29,7 +29,7 @@ fn test_fmt() {
     let mut original_text = user::ProjectText::default();
     let mut _throw = HashSet::new();
 
-    user::load_project_text(&mut original_text, &design, &mut _throw).unwrap();
+    user::load_file_path(&mut original_text, &design, &mut _throw).unwrap();
 
     // basically try/finally for rust -- need to make sure we don't change
     // the actual data
@@ -59,7 +59,7 @@ fn test_fmt() {
     original_text.dump().unwrap();
     let mut new_text = user::ProjectText::default();
     _throw.clear();
-    user::load_project_text(&mut new_text, &design, &mut _throw).unwrap();
+    user::load_file_path(&mut new_text, &design, &mut _throw).unwrap();
     assert_eq!(original_text, new_text);
     result.unwrap();
 }

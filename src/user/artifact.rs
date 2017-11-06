@@ -6,6 +6,7 @@ use dev_prefix::*;
 use types::*;
 use user::types::*;
 use user::save::ProjectText;
+use user::markdown;
 use utils::unique_id;
 
 lazy_static!{
@@ -23,7 +24,7 @@ lazy_static!{
 // - resolving all settings at the end
 /// recursively load the directory into text files, making sure
 /// not to load files that have already been loaded
-pub fn load_text(
+pub fn load_file_path(
     ptext: &mut ProjectText,
     load_path: &Path,
     loaded_paths: &mut HashSet<PathBuf>,
@@ -67,8 +68,8 @@ pub fn load_text(
             None => continue,
             Some(ext) => ext,
         };
-        if ext != "toml" {
-            // only load toml files
+        if !(ext == "toml" || ext == "md") {
+            // only load toml/md files
             continue;
         }
         let mut text = String::new();
@@ -79,7 +80,7 @@ pub fn load_text(
         ptext.files.insert(fpath.to_path_buf(), text);
     }
     for dir in dirs_to_load {
-        load_text(ptext, dir.as_path(), loaded_paths)?;
+        load_file_path(ptext, dir.as_path(), loaded_paths)?;
     }
     Ok(())
 }
@@ -102,7 +103,7 @@ fn parse_subnames(name: NameRc, text: &str) -> HashSet<SubName> {
 pub fn extend_text(project: &mut Project, project_text: &ProjectText) -> Result<u64> {
     let mut count = 0;
     for (path, text) in &project_text.files {
-        count += load_toml(path, text, project)?;
+        count += load_text(path, text, project)?;
     }
     Ok(count)
 }
@@ -111,14 +112,22 @@ pub fn extend_text(project: &mut Project, project_text: &ProjectText) -> Result<
 // Public For Tests
 
 /// Given text load the artifacts
-pub fn load_toml(path: &Path, text: &str, project: &mut Project) -> Result<u64> {
+pub fn load_text(path: &Path, text: &str, project: &mut Project) -> Result<u64> {
     // parse the text
-    let mut loaded: HashMap<String, UserArtifact> = toml::from_str(text)?;
+    let loaded: ::std::collections::BTreeMap<String, UserArtifact> = match path.extension()
+        .expect(&format!("no extension: {:?}", path))
+        .to_str()
+        .expect("extension not utf8")
+    {
+        "toml" => toml::from_str(text)?,
+        "md" => markdown::from_markdown(text)?,
+        ext => panic!("internal error: unkown extension {}", ext),
+    };
     let mut num_loaded: u64 = 0;
     project.files.insert(path.to_path_buf());
 
-    for (name, user_artifact) in loaded.drain() {
-        let aname = Name::from_string(name)?;
+    for (name, user_artifact) in &loaded {
+        let aname = Name::from_str(name)?;
         // check for overlap
         if let Some(overlap) = project.artifacts.get(&aname) {
             let msg = format!(
@@ -128,7 +137,7 @@ pub fn load_toml(path: &Path, text: &str, project: &mut Project) -> Result<u64> 
             );
             return Err(ErrorKind::Load(msg).into());
         }
-        let artifact = from_user_artifact(&aname, path, user_artifact)?;
+        let artifact = from_user_artifact(&aname, path, user_artifact.clone())?;
         project.artifacts.insert(Arc::new(aname), artifact);
         num_loaded += 1;
     }
@@ -225,18 +234,18 @@ mod tests {
     fn test_load_toml() {
         let mut p = Project::default();
 
-        let path = PathBuf::from("hi/there");
+        let path = PathBuf::from("hi/there.toml");
 
         // #TST-project-invalid
-        assert!(load_toml(&path, test_data::TOML_BAD_JSON, &mut p).is_err());
-        assert!(load_toml(&path, test_data::TOML_BAD_ATTR1, &mut p).is_err());
-        assert!(load_toml(&path, test_data::TOML_BAD_ATTR2, &mut p).is_err());
-        assert!(load_toml(&path, test_data::TOML_BAD_NAMES1, &mut p).is_err());
-        assert!(load_toml(&path, test_data::TOML_BAD_NAMES2, &mut p).is_err());
+        assert!(load_text(&path, test_data::TOML_BAD_JSON, &mut p).is_err());
+        assert!(load_text(&path, test_data::TOML_BAD_ATTR1, &mut p).is_err());
+        assert!(load_text(&path, test_data::TOML_BAD_ATTR2, &mut p).is_err());
+        assert!(load_text(&path, test_data::TOML_BAD_NAMES1, &mut p).is_err());
+        assert!(load_text(&path, test_data::TOML_BAD_NAMES2, &mut p).is_err());
 
         // Basic loading unit tests. Note NO processing is done
         // except attaching mocked locations
-        let num = load_toml(&path, test_data::TOML_RST, &mut p).unwrap();
+        let num = load_text(&path, test_data::TOML_RST, &mut p).unwrap();
 
         // FIXME: do something better for sublocs
         let locs = HashMap::from_iter(vec![(Name::from_str("SPC-foo").unwrap(), Loc::fake())]);
@@ -300,9 +309,9 @@ mod tests {
         }
 
         // must be loaded afterwards, uses already existing artifacts
-        assert!(load_toml(&path, test_data::TOML_OVERLAP, &mut p).is_err());
+        assert!(load_text(&path, test_data::TOML_OVERLAP, &mut p).is_err());
 
-        let num = load_toml(&path, test_data::TOML_RST2, &mut p).unwrap();
+        let num = load_text(&path, test_data::TOML_RST2, &mut p).unwrap();
         assert_eq!(num, 2);
         assert!(
             p.artifacts

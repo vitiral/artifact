@@ -48,6 +48,7 @@ error_chain! {
         // crates
         StrFmt(::strfmt::FmtError);
         TomlError(::toml::de::Error);
+        YamlError(::serde_yaml::Error);
     }
 
     errors {
@@ -354,6 +355,19 @@ pub struct Artifact {
     pub subnames: HashSet<SubName>,
 }
 
+#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
+pub enum FileType {
+    #[serde(rename = "toml")] Toml,
+    #[serde(rename = "markdown")] Markdown,
+}
+
+/// Must be `Toml` default for backwards compatibility
+impl Default for FileType {
+    fn default() -> FileType {
+        FileType::Toml
+    }
+}
+
 /// repo settings for loading artifacts
 /// #SPC-project-settings
 #[derive(Debug, Default, Clone, PartialEq)]
@@ -362,6 +376,7 @@ pub struct Settings {
     pub exclude_artifact_paths: HashSet<PathBuf>,
     pub code_paths: HashSet<PathBuf>,
     pub exclude_code_paths: HashSet<PathBuf>,
+    pub file_type: FileType,
 }
 
 impl Settings {
@@ -371,6 +386,7 @@ impl Settings {
             exclude_artifact_paths: HashSet::new(),
             code_paths: HashSet::new(),
             exclude_code_paths: HashSet::new(),
+            file_type: FileType::Toml,
         }
     }
 }

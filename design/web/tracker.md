@@ -1,10 +1,7 @@
-[SPC-tracker]
-text = '''
+# SPC-tracker
 TODO: The tracker specification will be defined by the tracker team
-'''
 
-[SPC-tracker-schema]
-text = '''
+# SPC-tracker-schema
 The data that needs to be stored by the test tracking tool is:
  - test name (i.e. MyTest2)
  - artifacts it tests (i.e. TST-foo-bar)
@@ -60,5 +57,3 @@ artifacts | artifact-name-id[]          | artifact name-ids tested
      data | u8[]                        | additional raw data (i.e. error report)
 
 ```
-
-'''

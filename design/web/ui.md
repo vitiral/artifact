@@ -1,5 +1,4 @@
-[SPC-web]
-text = '''
+# SPC-web
 There were two possible options when considering user functionality.
 Because the "Local Server App" is more inline with artifact's requirements
 and workflow, it is the direction we are going.
@@ -82,24 +81,20 @@ The web interface shall be composed of these views:
 All views shall also have:
 - a navigation bar for navigating to other views
 - a list of closeable logs, for displaying errors and succesful operations
-'''
 
-[TST-web]
-text = '''
+# TST-web
 Testing the web functionality will involve both unit testing some of the elm
 code (although because of the nature of elm not much testing is necessary)
 as well as testing basic features of the web ui.
 
 - [[TST-web-basic]]: simple end to end tests designed to catch most issues
   with the web-ui from a users point of view.
-'''
 
-[TST-web-basic]
-partof = [
-    'SPC-rpc-artifacts',
-    'SPC-web',
-]
-text = '''
+# TST-web-basic
+partof:
+- SPC-rpc-artifacts
+- SPC-web
+###
 These are basic end to end tests that also help test the rpc
 backend since the browser directly uses it.
 
@@ -120,4 +115,3 @@ is a fairly simple tool, however the following use cases must be tested:
     - In first thread go to full url. In second thread, go to same url and change text.
       In first thread, try and change text. Expect error.
     - etc
-'''

@@ -1,5 +1,5 @@
 # REQ-data
-- partof: REQ-1
+partof: REQ-1
 ###
 This defines the "data" module, a self contained programming API
 for deserializing, processing and reserializing artifacts from
