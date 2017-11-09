@@ -2,6 +2,8 @@ module Messages exposing (..)
 
 import Http
 import Artifacts.Messages
+import Artifacts.Models
+import Artifacts.Models exposing (ArtifactId)
 
 
 -- CONSTANTS
@@ -92,6 +94,8 @@ type AppMsg
     | AppError String
     | ShowHelp HelpPage
     | ShowCheck
+    | RenderArtifacts (List (ArtifactId, String))
+    | ArtifactsRendered (List (ArtifactId, String))
     | Noop
 
 

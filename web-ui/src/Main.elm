@@ -18,6 +18,7 @@ import View exposing (view)
 import Update exposing (update)
 import Routing
 import Artifacts.Commands exposing (fetchAll, artifactsFromStrUnsafe)
+import Ports
 
 
 initialModel : Navigation.Location -> Flags -> Route -> Model
@@ -48,9 +49,7 @@ init flags location =
 
 subscriptions : Model -> Sub AppMsg
 subscriptions model =
-    Sub.none
-
-
+    Ports.artifactsRendered ArtifactsRendered
 
 -- MAIN
 

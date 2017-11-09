@@ -299,6 +299,7 @@ artifactDecoder =
         |> required "name" nameDecoder
         |> required "def" Decode.string
         |> required "text" Decode.string
+        |> hardcoded {- renderedText -} "<i>Please wait while text is rendered</i>"
         |> required "subnames" (Decode.list Decode.string)
         |> required "partof" (Decode.list nameDecoder)
         |> required "parts" (Decode.list nameDecoder)
@@ -306,7 +307,7 @@ artifactDecoder =
         |> required "done" (Decode.nullable Decode.string)
         |> required "completed" Decode.float
         |> required "tested" Decode.float
-        |> hardcoded Nothing
+        |> hardcoded {- edited -} Nothing
 
 
 nameDecoder : Decode.Decoder Name

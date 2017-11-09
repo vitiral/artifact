@@ -4,7 +4,6 @@ import Dict
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick, onInput)
-import Regex
 import Markdown exposing (toHtml)
 import Models exposing (Model, getArtifact, memberArtifact, getCreateArtifact)
 import Styles exposing (warning)
@@ -14,13 +13,6 @@ import Artifacts.Messages exposing (..)
 import Artifacts.View as View
 import Artifacts.Select as Select
 import Artifacts.Nav as Nav
-
-
-{-| regex to search for and replace [[ART-name]]
--}
-artifactLinkRegex : Regex.Regex
-artifactLinkRegex =
-    Regex.caseInsensitive <| Regex.regex <| "\\[\\[(" ++ artifactValidRaw ++ ")\\]\\]"
 
 
 {-| the entire view
@@ -317,16 +309,15 @@ displayText model option =
 displayRenderedText : Model -> ViewOption -> Html AppMsg
 displayRenderedText model option =
     let
-        rawText =
+        -- FIXME: need to add a rendered field to edited
+        rendered =
             case option of
                 ReadChoice a ->
-                    a.text
+                    a.renderedText
 
                 EditChoice c ->
                     (getEdited c).text
 
-        rendered =
-            replaceArtifactLinks model rawText
     in
         toHtml [ View.idAttr "rendered_text" option ] rendered
 
@@ -363,67 +354,6 @@ displayRawText model option =
         textarea (attrs ++ editedAttrs) [ text rawText ]
 
 
-
--- HELPERS
-
-
-{-| get the full url to a single artifact
--}
-fullArtifactUrl : Model -> String -> String
-fullArtifactUrl model indexName =
-    let
-        addrName =
-            String.toLower (indexNameUnchecked indexName)
-
-        -- super hacky way to get the origin: might fail for files
-        -- I tried location.origin... doesn't work for some reason.
-        -- neither does location.host + location.pathname
-        origin =
-            case List.head (String.split "#" model.location.href) of
-                Just o ->
-                    removeSlashEnd o
-
-                Nothing ->
-                    "ERROR-origin-no-head"
-    in
-        origin ++ "/" ++ artifactsUrl ++ "/" ++ addrName
-
-
-removeSlashEnd : String -> String
-removeSlashEnd path =
-    if String.endsWith "/" path then
-        removeSlashEnd (String.dropRight 1 path)
-    else
-        path
-
-
-{-| replace [[ART-name]] with [ART-name](link)
--}
-replaceArtifactLinks : Model -> String -> String
-replaceArtifactLinks model text =
-    let
-        replace : Regex.Match -> String
-        replace match =
-            case List.head match.submatches of
-                Just m ->
-                    case m of
-                        Just m ->
-                            if Dict.member (indexNameUnchecked m) model.names then
-                                "[" ++ m ++ "](" ++ (fullArtifactUrl model m) ++ ")"
-                            else
-                                ("<strike style=\"color:red\", "
-                                    ++ "title=\"artifact name not found\">[["
-                                    ++ m
-                                    ++ "]]</strike>"
-                                )
-
-                        Nothing ->
-                            "INTERNAL_ERROR"
-
-                Nothing ->
-                    "INTERNAL_ERROR"
-    in
-        Regex.replace Regex.All artifactLinkRegex replace text
 
 
 

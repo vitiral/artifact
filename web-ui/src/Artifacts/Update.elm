@@ -1,13 +1,14 @@
 module Artifacts.Update exposing (..)
 
 import Dict
+import Ports
 import Navigation
 import Models exposing (..)
 import Messages
     exposing
         ( createUrl
         , editingUrl
-        , AppMsg(AppError)
+        , AppMsg(AppError, RenderArtifacts)
         , Route(..)
         )
 import Utils exposing (assertOr)
@@ -15,6 +16,7 @@ import Log
 import Artifacts.Messages exposing (Msg(..))
 import Artifacts.Models exposing (..)
 import Artifacts.Commands exposing (updateArtifacts, createArtifacts, deleteArtifacts)
+import Artifacts.TextLinks exposing (replaceArtifactLinks)
 
 
 mismatchedUuidMsg : String
@@ -30,9 +32,10 @@ update msg model =
     case msg of
         ReceivedProject project ->
             let
-                ( new_model, cmd ) =
+                ( new_model, cmds ) =
                     handleReceived model project.artifacts
 
+                -- add final attributes
                 final_model =
                     { new_model
                         | files = project.files
@@ -41,7 +44,7 @@ update msg model =
                     }
             in
                 if model.uuid == "" || model.uuid == final_model.uuid then
-                    ( final_model, cmd )
+                    ( final_model, Cmd.batch cmds )
                 else
                     -- the uuid changed, ignore everything and log an error
                     let
@@ -159,7 +162,7 @@ setEdited artifacts art edited =
 
 {-| we need to make sure we keep any edited data that has not been applied
 -}
-handleReceived : Model -> List Artifact -> ( Model, Cmd AppMsg )
+handleReceived : Model -> List Artifact -> ( Model, List (Cmd AppMsg) )
 handleReceived model artifactList =
     let
         processed =
@@ -187,15 +190,15 @@ handleReceived model artifactList =
         _ =
             assertOr ((List.length routes) <= 1) 0 "impossible routes"
 
-        ( route, cmd ) =
+        ( route, cmds ) =
             case List.head routes of
                 Just r ->
                     ( ArtifactNameRoute r
-                    , Navigation.newUrl <| artifactNameUrl r
+                    , [Navigation.newUrl <| artifactNameUrl r]
                     )
 
                 Nothing ->
-                    ( model.route, Cmd.none )
+                    ( model.route, [] )
 
         create =
             if clear_create then
@@ -231,8 +234,14 @@ handleReceived model artifactList =
 
                 _ ->
                     new_model
+
+        -- FIXME: fix formatting
+        render_cmd = Ports.renderArtifacts
+            <| List.map (\(id, a) -> (id, replaceArtifactLinks model a.text)) (Dict.toList artifacts)
+
+        final_cmds = List.append cmds [render_cmd]
     in
-        ( final_model, cmd )
+        ( final_model, final_cmds)
 
 
 {-| get the edited, keeping in mind that changes may have been applied

@@ -6,10 +6,16 @@ The purpose of this project is to run an example project and test with selenium
 ```
 here is some code
 ```
+
+Parts:
+- [[REQ-layout]]
 '''
 
 [REQ-layout]
+partof = 'REQ-purpose'
 text = '''
+See: [[SPC-layout]]
+
 This project will have a couple requirements and some linking so that we
 can investigate with selenium
 '''
@@ -19,3 +25,13 @@ text = "This is literally just a partof REQ-layout"
 
 [TST-layout]
 text = "ditto"
+
+[SPC-graphviz]
+text = '''
+This should render as a graph:
+```dot
+digraph G {
+    start -> end
+}
+```
+'''
