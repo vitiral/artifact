@@ -28,7 +28,7 @@ page model =
                 Ok name ->
                     case getArtifact name model of
                         Just artifact ->
-                            Artifacts.Edit.view model <| getOption model artifact
+                            Artifacts.Edit.view model <| getEditViewOption model artifact
 
                         Nothing ->
                             notFoundView
@@ -60,21 +60,6 @@ page model =
 
         NotFoundRoute ->
             notFoundView
-
-
-{-| get the viewing option for an existing artifact
--}
-getOption : Model -> Artifact -> ViewOption
-getOption model artifact =
-    if model.flags.readonly then
-        ReadChoice artifact
-    else
-        case artifact.edited of
-            Just e ->
-                EditChoice <| ChangeChoice artifact e
-
-            Nothing ->
-                ReadChoice <| artifact
 
 
 notFoundView : Html a

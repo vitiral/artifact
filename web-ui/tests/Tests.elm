@@ -14,6 +14,7 @@ import Artifacts.Models
         , initNameUnsafe
         , Type(..)
         , autoPartof
+        , getEditable
         )
 import Artifacts.Commands
     exposing
@@ -31,9 +32,10 @@ artifact =
     , name = { value = "REQ-NAME", raw = "req-name", ty = Req }
     , def = "path"
     , text = "text"
+    , subnames = []
     , partof = [ { value = "REQ-PARTOF-1", raw = "req-partof-1", ty = Req } ]
     , parts = [ { value = "REQ-PART-1", raw = "req-part-1", ty = Req } ]
-    , code = Just { path = "path", line = 10 }
+    , code = Just { root = Just { path = "path", line = 10 }, sublocs = Dict.empty }
     , done = Nothing
     , completed = 0.0
     , tested = 0.0
@@ -53,9 +55,13 @@ artifactsJson =
     , "name":"req-name"
     , "def":"path"
     , "text": "text"
+    , "subnames": []
     , "partof": ["req-partof-1"]
     , "parts": ["req-part-1"]
-    , "code": { "path": "path", "line": 10 }
+    , "code":
+        { "root": { "path": "path", "line": 10 }
+        , "sublocs": {}
+        }
     , "done": null
     , "completed": 0.0
     , "tested": 0.0
@@ -87,7 +93,14 @@ testJson =
                     Expect.equal (3 + 7) 10
             , test "encode artifact" <|
                 \() ->
-                    Expect.equal (Encode.encode 0 (artifactEncoded artifact)) expectedEncoded
+                    let
+                        encoded =
+                            artifactEncoded ( artifact.id, getEditable artifact )
+
+                        result =
+                            Encode.encode 0 encoded
+                    in
+                        Expect.equal result expectedEncoded
             , test "decode artifact" <|
                 \() ->
                     let

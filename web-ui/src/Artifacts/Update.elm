@@ -1,14 +1,13 @@
 module Artifacts.Update exposing (..)
 
 import Dict
-import Ports
 import Navigation
 import Models exposing (..)
 import Messages
     exposing
         ( createUrl
         , editingUrl
-        , AppMsg(AppError, RenderArtifacts)
+        , AppMsg(AppError)
         , Route(..)
         )
 import Utils exposing (assertOr)
@@ -16,7 +15,6 @@ import Log
 import Artifacts.Messages exposing (Msg(..))
 import Artifacts.Models exposing (..)
 import Artifacts.Commands exposing (updateArtifacts, createArtifacts, deleteArtifacts)
-import Artifacts.TextLinks exposing (replaceArtifactLinks)
 
 
 mismatchedUuidMsg : String
@@ -194,7 +192,7 @@ handleReceived model artifactList =
             case List.head routes of
                 Just r ->
                     ( ArtifactNameRoute r
-                    , [Navigation.newUrl <| artifactNameUrl r]
+                    , [ Navigation.newUrl <| artifactNameUrl r ]
                     )
 
                 Nothing ->
@@ -234,14 +232,8 @@ handleReceived model artifactList =
 
                 _ ->
                     new_model
-
-        -- FIXME: fix formatting
-        render_cmd = Ports.renderArtifacts
-            <| List.map (\(id, a) -> (id, replaceArtifactLinks model a.text)) (Dict.toList artifacts)
-
-        final_cmds = List.append cmds [render_cmd]
     in
-        ( final_model, final_cmds)
+        ( final_model, cmds )
 
 
 {-| get the edited, keeping in mind that changes may have been applied

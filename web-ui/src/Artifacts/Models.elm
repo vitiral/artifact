@@ -50,7 +50,6 @@ type alias Artifact =
     , name : Name
     , def : String
     , text : String
-    , renderedText: String
     , subnames : List String
     , partof : List Name
     , parts : List Name

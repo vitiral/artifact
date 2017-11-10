@@ -35,6 +35,7 @@ initialModel location flags route =
     , state = initialState
     , jsonId = 1
     , create = Nothing
+    , renderedText = Nothing
     }
 
 
@@ -49,7 +50,9 @@ init flags location =
 
 subscriptions : Model -> Sub AppMsg
 subscriptions model =
-    Ports.artifactsRendered ArtifactsRendered
+    Ports.textRendered TextRendered
+
+
 
 -- MAIN
 

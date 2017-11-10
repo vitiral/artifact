@@ -72,17 +72,17 @@ test-sel FEATURES="" TESTS="":
 
 # run selenium tests
 test-sel-py TESTS="":
-	{{export_bin}} py.test web-ui/sel_tests/{{TESTS}} -s
+	{{export_bin}} py.test web-ui/sel_tests/{{TESTS}} -svvv
 
 
 # run the full test suite. both beta and non-beta are requied for merge
 @test-all FEATURES="":
 	just lint
 	{{pre}} cargo test
-	just test
-	just test-sel
 	just check-fmt
 	{{art}} check
+	just test
+	just test-sel
 
 @test-all-beta:
 	just test-all -- "{{beta}}"

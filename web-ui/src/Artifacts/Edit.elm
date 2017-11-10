@@ -309,15 +309,13 @@ displayText model option =
 displayRenderedText : Model -> ViewOption -> Html AppMsg
 displayRenderedText model option =
     let
-        -- FIXME: need to add a rendered field to edited
         rendered =
-            case option of
-                ReadChoice a ->
-                    a.renderedText
+            case model.renderedText of
+                Just r ->
+                    r
 
-                EditChoice c ->
-                    (getEdited c).text
-
+                Nothing ->
+                    "*Text is currently being rendered*"
     in
         toHtml [ View.idAttr "rendered_text" option ] rendered
 
@@ -352,8 +350,6 @@ displayRawText model option =
             ]
     in
         textarea (attrs ++ editedAttrs) [ text rawText ]
-
-
 
 
 

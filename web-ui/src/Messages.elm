@@ -94,8 +94,8 @@ type AppMsg
     | AppError String
     | ShowHelp HelpPage
     | ShowCheck
-    | RenderArtifacts (List (ArtifactId, String))
-    | ArtifactsRendered (List (ArtifactId, String))
+    | RenderText String
+    | TextRendered String
     | Noop
 
 

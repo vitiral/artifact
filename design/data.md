@@ -25,7 +25,7 @@ the data module with the goals of:
 The control flow and high level architecture for deserializing and processing
 artifact data are as follows:
 
-```dot.svg
+```dot
 digraph G {
     {start [label="paths to parse"]}
 
@@ -136,6 +136,27 @@ There are the following subparts, which are also linked in the graph above:
 In addition:
 - [[SPC-data-lint]]: specified lints
 - [[SPC-data-ser]]: serialization specification
+
+# SPC-data-auto_partof
+TODO
+
+# SPC-data-cache
+TODO
+
+# SPC-data-completeness
+TODO
+
+# SPC-data-lint
+TODO
+
+# SPC-data-parallel
+TODO
+
+# SPC-data-ser
+TODO
+
+# SPC-data-src
+TODO
 
 # TST-data
 Testing the data deserialization and processing, as well as reserialization is a major

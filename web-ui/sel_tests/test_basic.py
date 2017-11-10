@@ -55,7 +55,7 @@ class TestBasic(unittest.TestCase):
     # - editing button appears/disappears
     # - using the editing page
 
-    USE_FIREFOX = False
+    USE_FIREFOX = True
 
     @classmethod
     def setUpClass(cls):
@@ -174,9 +174,9 @@ class TestBasic(unittest.TestCase):
             app.ack_log(0, UPDATE_LOG_FMT("SPC-layout"), timeout=1)
             time.sleep(0.5)
             app.driver.refresh()
-            if self.USE_FIREFOX:
-                # there is a firefox bug where the dialog box is cached or something...
-                app.accept_refresh(timeout=5)
+            # if self.USE_FIREFOX:
+            #     # there is a firefox bug where the dialog box is cached or something...
+            #     app.accept_refresh(timeout=5)
             app.select_text(F.raw_text, timeout=2)
             assert app.get_value(name, F.raw_text, timeout=1) == expected
 

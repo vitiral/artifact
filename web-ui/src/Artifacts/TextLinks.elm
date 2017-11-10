@@ -2,18 +2,9 @@ module Artifacts.TextLinks exposing (..)
 
 import Regex
 import Dict
-import Html exposing (..)
-import Html.Attributes exposing (..)
-import Html.Events exposing (onClick, onInput)
-import Markdown exposing (toHtml)
 import Models exposing (Model, getArtifact, memberArtifact, getCreateArtifact)
-import Styles exposing (warning)
 import Artifacts.Models exposing (..)
-import Messages exposing (createUrl, AppMsg(..), HelpPage(..))
-import Artifacts.Messages exposing (..)
-import Artifacts.View as View
-import Artifacts.Select as Select
-import Artifacts.Nav as Nav
+
 
 {-| regex to search for and replace [[ART-name]]
 -}
@@ -49,7 +40,6 @@ replaceArtifactLinks model text =
                     "INTERNAL_ERROR"
     in
         Regex.replace Regex.All artifactLinkRegex replace text
-
 
 
 {-| get the full url to a single artifact

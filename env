@@ -20,8 +20,9 @@ export PKG_CONFIG_ALLOW_CROSS=1
 
 export NPM_PACKAGES="\
 elm@0.18.0 \
-webpack@3.5.5 \
+elm-test@0.17.3
 elm-format@0.6.1-alpha \
+webpack@3.5.5 \
 phantomjs@2.1.7 \
 "
 

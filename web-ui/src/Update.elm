@@ -1,21 +1,24 @@
 module Update exposing (..)
 
-import Dict
 import Navigation
 import Log
-
 import Utils
 import Artifacts.Update
-import Artifacts.Models exposing (ArtifactId, Artifact)
+import Artifacts.TextLinks exposing (replaceArtifactLinks)
 import Messages exposing (AppMsg(..), formatHttpError, helpUrl, helpRepr, checkUrl)
-import Models exposing (Model, LogMsg(..))
+import Models exposing (Model, LogMsg(..), getViewingText)
+import Ports
 
 
 update : AppMsg -> Model -> ( Model, Cmd AppMsg )
 update msg model =
     case msg of
         ArtifactsMsg subMsg ->
-            Artifacts.Update.update subMsg model
+            let
+                ( new_model, new_cmd ) =
+                    Artifacts.Update.update subMsg model
+            in
+                requestRerender new_model [ new_cmd ]
 
         AckLogMsg index ->
             let
@@ -25,7 +28,11 @@ update msg model =
                 ( { model | logs = logs }, Cmd.none )
 
         RouteChange route ->
-            ( { model | route = route }, Cmd.none )
+            let
+                new_model =
+                    { model | route = route }
+            in
+                requestRerender new_model []
 
         HttpError err ->
             ( Log.log model <| LogErr <| formatHttpError err, Cmd.none )
@@ -43,30 +50,37 @@ update msg model =
         ShowCheck ->
             ( model, Navigation.newUrl <| "#" ++ checkUrl )
 
-        RenderArtifacts a ->
+        RenderText text ->
             let
-                _ = Debug.log "INVALID request to render artifacts" a
+                _ =
+                    Debug.log "INVALID request to render artifacts" text
             in
-                (model, Cmd.none)
+                ( model, Cmd.none )
 
-        ArtifactsRendered rendered ->
-            let
-                _ = Debug.log "SUCCESS artifacts rendered:" rendered
-
-                renderedDict = Dict.fromList rendered
-
-                -- update artifacts with the new rendered text
-                updateRendered : ArtifactId -> Artifact -> Artifact
-                updateRendered id artifact =
-                    case Dict.get id renderedDict of
-                        Nothing ->
-                            artifact
-                        Just r ->
-                            { artifact | renderedText = r }
-
-                artifacts = Dict.map updateRendered model.artifacts
-            in
-                ({ model | artifacts = artifacts }, Cmd.none)
+        TextRendered rendered ->
+            ( { model | renderedText = Just rendered }, Cmd.none )
 
         Noop ->
             ( model, Cmd.none )
+
+
+requestRerender : Model -> List (Cmd AppMsg) -> ( Model, Cmd AppMsg )
+requestRerender model cmds =
+    let
+        -- Make a call to get the text rendered AND invalidate
+        -- the existing rendered text
+        final_model =
+            { model | renderedText = Nothing }
+
+        renderCmds =
+            case getViewingText model of
+                Just text ->
+                    [ Ports.renderText <| replaceArtifactLinks model text ]
+
+                Nothing ->
+                    []
+
+        final_cmds =
+            List.append renderCmds cmds
+    in
+        ( final_model, Cmd.batch final_cmds )
