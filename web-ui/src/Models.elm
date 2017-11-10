@@ -20,6 +20,12 @@ type alias Flags =
     }
 
 
+type alias RenderedText =
+    { text : String
+    , part : String
+    }
+
+
 type alias Model =
     { artifacts : Artifacts
     , files : Set.Set String
@@ -34,10 +40,7 @@ type alias Model =
     , state : State
     , jsonId : Int
     , create : Maybe EditableArtifact
-
-    -- TODO: there should probably be a revision-id
-    -- that has to be preserved to accept renderedText
-    , renderedText : Maybe String
+    , rendered : Maybe RenderedText
     }
 
 
@@ -82,18 +85,19 @@ nameIds artifacts =
         Dict.fromList pairs
 
 
-getArtifact : NameKey -> Model -> Maybe Artifact
-getArtifact name model =
-    let
-        id =
-            Dict.get name model.names
-    in
-        case id of
-            Just id ->
-                Dict.get id model.artifacts
+getArtifact : String -> Model -> Maybe Artifact
+getArtifact rawName model =
+    case indexName rawName of
+        Ok name ->
+            case Dict.get name model.names of
+                Just id ->
+                    Dict.get id model.artifacts
 
-            Nothing ->
-                Nothing
+                Nothing ->
+                    Nothing
+
+        Err _ ->
+            Nothing
 
 
 memberArtifact : NameKey -> Model -> Bool
@@ -101,6 +105,8 @@ memberArtifact name model =
     isJust (getArtifact name model)
 
 
+{-| Get the artifact that is being "created"
+-}
 getCreateArtifact : Model -> EditableArtifact
 getCreateArtifact model =
     case model.create of
@@ -194,43 +200,3 @@ getViewingArtifact model =
 
         NotFoundRoute ->
             ViewingNothing
-
-
-{-| Helper function to get the text of the artifact that is
-currently being viewed.
--}
-getViewingText : Model -> Maybe String
-getViewingText model =
-    case getViewingArtifact model of
-        ViewingExist id ->
-            case Dict.get id model.artifacts of
-                Nothing ->
-                    Nothing
-
-                Just art ->
-                    case getEditViewOption model art of
-                        ReadChoice art ->
-                            Just art.text
-
-                        EditChoice option ->
-                            case option of
-                                ChangeChoice _ editable ->
-                                    Just editable.text
-
-                                CreateChoice editable ->
-                                    -- TODO: I think this is impossible
-                                    Just editable.text
-
-        ViewingCreate ->
-            case model.create of
-                Just editable ->
-                    Just editable.text
-
-                Nothing ->
-                    Nothing
-
-        ViewingError _ ->
-            Nothing
-
-        ViewingNothing ->
-            Nothing

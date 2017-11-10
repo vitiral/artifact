@@ -10,8 +10,11 @@ use user::markdown;
 use utils::unique_id;
 
 lazy_static!{
+    // note: the `(?:\w+:)?` is an uncaptured group to allow
+    // for special rendering in the form
+    // [[dot:.subname]]
     pub static ref SUBNAME_RE: Regex = Regex::new(
-        &format!(r"(?i)\[\[\.([{}]+)\]\]", NAME_VALID_CHARS!())).unwrap();
+        &format!(r"(?i)\[\[(?:\w+:)?\.([{}]+)\]\]", NAME_VALID_CHARS!())).unwrap();
 }
 
 

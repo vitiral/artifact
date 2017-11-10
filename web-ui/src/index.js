@@ -16,7 +16,7 @@ var DOT_RAW = "```dot\\s*\\n([\\s\\S]*?\\n)```";
 var DOT_RE = new RegExp(DOT_RAW, 'im')
 
 // Do final rendering of artifacts using javascript libraries
-app.ports.renderText.subscribe(function(text) {
+app.ports.renderText.subscribe(function(unrendered) {
     var replace_dot = function(match, dot) {
         try {
             var rendered = graphviz(dot);
@@ -30,10 +30,19 @@ app.ports.renderText.subscribe(function(text) {
             return "<p><!--" + rendered.slice(start, rendered.length);
         }
         catch (e) {
-            return "```\nGRAPHVIZ RENDERING ERROR:\n" + e.message + "```";
+            var error = [
+                "```\nGRAPHVIZ RENDERING ERROR:",
+                e.message,
+                "\nINPUT DOT CODE:",
+                dot,
+                "```"
+            ];
+            return error.join("\n");
         }
     }
-    let rendered = text.replace(DOT_RE, replace_dot);
 
-    app.ports.textRendered.send(rendered)
+    var text = unrendered[0].replace(DOT_RE, replace_dot);
+    var part = unrendered[1].replace(DOT_RE, replace_dot);
+
+    app.ports.textRendered.send([text, part])
 });

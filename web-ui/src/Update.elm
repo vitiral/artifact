@@ -1,12 +1,16 @@
 module Update exposing (..)
 
+import Dict
 import Navigation
 import Log
 import Utils
+import Artifacts.Models exposing (ViewOption(..), EditOption(..))
 import Artifacts.Update
 import Artifacts.TextLinks exposing (replaceArtifactLinks)
+import Artifacts.PartGraph exposing (renderPart)
 import Messages exposing (AppMsg(..), formatHttpError, helpUrl, helpRepr, checkUrl)
-import Models exposing (Model, LogMsg(..), getViewingText)
+import Models exposing (
+    Model, RenderedText, LogMsg(..), getViewingArtifact, ViewingArtifact(..), getEditViewOption)
 import Ports
 
 
@@ -57,8 +61,12 @@ update msg model =
             in
                 ( model, Cmd.none )
 
-        TextRendered rendered ->
-            ( { model | renderedText = Just rendered }, Cmd.none )
+        TextRendered (text, part) ->
+            let
+                rendered : RenderedText
+                rendered = { text = text , part = part }
+            in
+                ( { model | rendered = Just rendered }, Cmd.none )
 
         Noop ->
             ( model, Cmd.none )
@@ -70,12 +78,15 @@ requestRerender model cmds =
         -- Make a call to get the text rendered AND invalidate
         -- the existing rendered text
         final_model =
-            { model | renderedText = Nothing }
+            { model | rendered = Nothing }
 
         renderCmds =
-            case getViewingText model of
-                Just text ->
-                    [ Ports.renderText <| replaceArtifactLinks model text ]
+            case getViewingUnrendered model of
+                Just unr ->
+                    let
+                        text = replaceArtifactLinks model unr.text
+                    in
+                        [ Ports.renderText (text, unr.part) ]
 
                 Nothing ->
                     []
@@ -84,3 +95,56 @@ requestRerender model cmds =
             List.append renderCmds cmds
     in
         ( final_model, Cmd.batch final_cmds )
+
+
+{-| Helper function to get the unrendered text of the artifact that is
+currently being viewed.
+-}
+getViewingUnrendered : Model -> Maybe {text: String, part: String}
+getViewingUnrendered model =
+    -- Note: Cannot render `part` in editable since we don't know its `parts`
+    case getViewingArtifact model of
+        ViewingExist id ->
+            case Dict.get id model.artifacts of
+                Nothing ->
+                    Nothing
+
+                Just art ->
+                    case getEditViewOption model art of
+                        ReadChoice art ->
+                            Just
+                                { text = art.text
+                                , part = renderPart model art
+                                }
+
+                        EditChoice option ->
+                            case option of
+                                ChangeChoice _ editable ->
+                                    Just
+                                        { text = editable.text
+                                        , part = ""
+                                        }
+
+                                CreateChoice editable ->
+                                    -- TODO: I think this is impossible
+                                    Just
+                                        { text = editable.text
+                                        , part = ""
+                                        }
+
+        ViewingCreate ->
+            case model.create of
+                Just editable ->
+                    Just
+                        { text = editable.text
+                        , part = ""
+                        }
+
+                Nothing ->
+                    Nothing
+
+        ViewingError _ ->
+            Nothing
+
+        ViewingNothing ->
+            Nothing

@@ -27,100 +27,49 @@ artifact data are as follows:
 
 ```dot
 digraph G {
-    {start [label="paths to parse"]}
+    node [shape=box];
 
-    // Links path
-    start -> par_deser -> {
-        deser_src [
-            label="Deserialize source links\n->Map<Name, CodeLocs>";
-            href="[[@SPC-data-src]]";
-            shape=box;
-        ]
-    };
 
-    // Artifacts path
-    start -> par_art -> {
-        deser_art [
-            label="Deserialize artifacts\n->Map<Name, RawArtifact>";
-            href="[[@.raw]]";
-            shape=box;
-        ]
-    };
+    [[dot:SPC-data-src]];
+    [[dot:SPC-data-auto_partof]];
+    [[dot:SPC-data-join]];
+    [[dot:SPC-data-completeness]];
 
-    deser_art -> {
-        deser_names [
-            label="Deserialize names into objects";
-            href="[[@.names]]";
-            shape=box;
-        ]
-    };
 
-    deser_names -> par_lint_links -> {
-        lint_links [
-            label="Lint broken text links";
-            href="[[@SPC-data-lint-links]]";
-            shape=box;
-        ]
-    };
 
-    deser_names -> {
-        auto_partof [
-            label="Determine auto-partofs";
-            href="[[@SPC-data-auto_partof]]";
-            shape=box;
-        ]
-    };
-
-    // join main and branch
-    {
-        join_main [
-            label="join main links";
-            href="[[@SPC-data-parallel]]";
-            shape=box;
-        ]
-    };
-    deser_src -> join_main;
-    deser_art -> join_main;
-
-    // after main join
-    join_main -> par_lint_subnames -> {
-        lint_subnames [
-            label="lint subnames";
-            href="[[@SPC-data-lint-subnames]]";
-            shape=box;
-        ]
-    };
-
-    join_main -> par_lint_src_links -> {
-        lint_src_links [
-            label="lint src links";
-            href="[[@SPC-data-lint-src]]";
-            shape=box;
-        ]
-    };
-
-    join_main -> par_compl -> {
-        compl [
-            label="Determine completeness";
-            href="[[@SPC-data-completeness]]";
-            shape=box;
-        ]
+    subgraph cluster_start {
+        {start [label="paths to parse"; shape=oval ]}
+     }
+    subgraph cluster_src {
+        label="parse src code links";
+        start -> "SPC-DATA-SRC";
+    }
+    subgraph cluster_artifacts {
+        label="parse artifacts";
+        start -> "[[dot:.raw]]";
+        "[[dot:.raw]]" -> "[[dot:.names]]";
+        "[[dot:.names]]" -> "SPC-DATA-AUTO_PARTOF";
     }
 
-    compl -> {
-        combine [
-            label="Combine to create Artifacts";
-            href="[[@.combine]]";
-            shape=box;
-        ]
-    };
+    subgraph cluster_join {
+        label="final steps"
+        // join main and branch
+        "SPC-DATA-SRC" -> "SPC-DATA-JOIN";
+        "SPC-DATA-AUTO_PARTOF" -> "SPC-DATA-JOIN";
+        "SPC-DATA-JOIN" -> "SPC-DATA-COMPLETENESS"
+        "SPC-DATA-COMPLETENESS" -> "[[dot:.combine]]" -> done;
+    }
 
-    compl -> done
+    label="lints";
+    // after main join
+    "SPC-DATA-JOIN" -> [[dot:SPC-data-lint-subnames]];
+    "[[dot:.names]]" -> [[dot:SPC-data-lint-text]];
+    "SPC-DATA-JOIN" -> [[dot:SPC-data-lint-src]];
 }
 ```
 
 The following are major design choices:
-- [[SPC-data-parallel]]: the general parallization architecture.
+- [[SPC-data-join]]: the general parallization architecture.
 - [[SPC-data-cache]]: the "global" caching architecture.
 - [[TST-data]]: the overall testing architecture
 
@@ -146,10 +95,19 @@ TODO
 # SPC-data-completeness
 TODO
 
+# SPC-data-join
+TODO
+
 # SPC-data-lint
 TODO
 
-# SPC-data-parallel
+# SPC-data-lint-subnames
+TODO
+
+# SPC-data-lint-text
+TODO
+
+# SPC-data-lint-src
 TODO
 
 # SPC-data-ser

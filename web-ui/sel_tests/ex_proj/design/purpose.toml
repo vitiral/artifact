@@ -26,14 +26,21 @@ text = "This is literally just a partof REQ-layout"
 text = "ditto"
 
 [SPC-graphviz]
+partof = "REQ-[purpose,layout], SPC-layout"
 text = '''
 This should render as a graph:
 ```dot
 digraph G {
-    start -> a;
-    a -> b -> c -> d;
-    a -> e -> d;
-    d -> end;
+    [[dot:REQ-layout]];
+
+    "REQ-LAYOUT" -> foo
+    a -> foo
+    foo -> b -> c
 }
 ```
+'''
+
+[TST-graphviz]
+text = '''
+This doesn't do much
 '''

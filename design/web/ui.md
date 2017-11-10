@@ -82,6 +82,30 @@ All views shall also have:
 - a navigation bar for navigating to other views
 - a list of closeable logs, for displaying errors and succesful operations
 
+# SPC-web-position
+
+Experiment with how it looks:
+
+```dot
+digraph G {
+    graph [rankdir=LR; fontsize=12; margin=0.001];
+    node [shape=octagon; fontsize=12; margin=0.001];
+    {"SPC-web-position" [
+        label=<<b>SPC-web-position</b>>
+        href="http://127.0.0.1:5373/#artifacts/spc-web-position";
+        fontcolor="orange";
+        shape=doubleoctagon; penwidth=1.5
+    ]}
+
+    "REQ-foo" -> "SPC-web-position";
+    "REQ-bar" -> "SPC-web-position";
+
+    "SPC-web-position" -> "SPC-baz";
+    "SPC-web-position" -> "SPC-faz";
+
+}
+```
+
 # TST-web
 Testing the web functionality will involve both unit testing some of the elm
 code (although because of the nature of elm not much testing is necessary)

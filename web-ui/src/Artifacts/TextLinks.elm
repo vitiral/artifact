@@ -1,16 +1,17 @@
 module Artifacts.TextLinks exposing (..)
 
 import Regex
-import Dict
 import Models exposing (Model, getArtifact, memberArtifact, getCreateArtifact)
 import Artifacts.Models exposing (..)
+import Utils
+import Artifacts.PartGraph exposing (nameNodeSettings)
 
 
 {-| regex to search for and replace [[ART-name]]
 -}
 artifactLinkRegex : Regex.Regex
 artifactLinkRegex =
-    Regex.caseInsensitive <| Regex.regex <| "\\[\\[(" ++ artifactValidRaw ++ ")\\]\\]"
+    Regex.caseInsensitive <| Regex.regex <| "\\[\\[(\\w+:)?(" ++ artifactValidRaw ++ ")\\]\\]"
 
 
 {-| replace [[ART-name]] with [ART-name](link)
@@ -20,24 +21,27 @@ replaceArtifactLinks model text =
     let
         replace : Regex.Match -> String
         replace match =
-            case List.head match.submatches of
-                Just m ->
-                    case m of
-                        Just m ->
-                            if Dict.member (indexNameUnchecked m) model.names then
-                                "[" ++ m ++ "](" ++ (fullArtifactUrl model m) ++ ")"
-                            else
-                                ("<strike style=\"color:red\", "
-                                    ++ "title=\"artifact name not found\">[["
-                                    ++ m
-                                    ++ "]]</strike>"
-                                )
+            let
+                name = Utils.getIndexUnsafe 1 match.submatches
+                    |> Utils.unwrap "match artifact name"
+            in
+                case Utils.getIndexUnsafe 0 match.submatches of
+                    Just "dot:" ->
+                        nameNodeSettings model name
 
-                        Nothing ->
-                            "INTERNAL_ERROR"
+                    Just unknown ->
+                        "[[ARTIFACT ERROR - format type \"" ++ unknown ++ "\" is unknown]]"
 
-                Nothing ->
-                    "INTERNAL_ERROR"
+                    Nothing ->
+                        if memberArtifact name model then
+                            "[" ++ name ++ "](" ++ (fullArtifactUrl model name) ++ ")"
+                        else
+                            ("<strike style=\"color:red\", "
+                                ++ "title=\"artifact name not found\">[["
+                                ++ name
+                                ++ "]]</strike>"
+                            )
+
     in
         Regex.replace Regex.All artifactLinkRegex replace text
 

@@ -4,32 +4,181 @@ module Artifacts.View exposing (..)
    Generic view methods that can be used in multiple places (List, Edit, etc)
 -}
 
+import Dict
 import String
 import Html exposing (..)
-import Html.Attributes exposing (value, class, href, title, id, selected)
+import Html.Attributes exposing (..)
 import Html.Events exposing (onClick, onInput)
-import Messages exposing (AppMsg(..), Route(..), HelpPage(..))
-import Models exposing (Model, getArtifact, memberArtifact)
+import Markdown exposing (toHtml)
+import Models exposing (Model, getArtifact, memberArtifact, getCreateArtifact)
+import Messages exposing (createUrl, AppMsg(..), HelpPage(..), Route(..))
 import Utils
 import Artifacts.Models exposing (..)
-import Artifacts.Messages exposing (Msg(..))
 import Artifacts.Nav as Nav
+import Artifacts.Messages exposing(Msg(ShowArtifact, CreateArtifact))
 
 
+{-| Display a list of all artifacts that are currently being edited.
+-}
+viewEditing : Model -> Html AppMsg
+viewEditing model =
+    let
+        creating : List (Html AppMsg)
+        creating =
+            case model.create of
+                Just c ->
+                    [ li []
+                        [ Nav.editBtn <| EditChoice <| CreateChoice c
+                        , a
+                            [ class "btn bold"
+                            , id <| "CREATE_" ++ c.name
+                            , onClick <| ArtifactsMsg <| CreateArtifact
+                            , href <| "#" ++ createUrl
+                            ]
+                            [ text <| "Creating " ++ c.name ]
+                        ]
+                    ]
+
+                Nothing ->
+                    []
+
+        line artifact =
+            case artifact.edited of
+                Just e ->
+                    Just
+                        (li []
+                            [ Nav.editBtn <| EditChoice <| ChangeChoice artifact e
+                            , seeArtifact model artifact
+                            ]
+                        )
+
+                Nothing ->
+                    Nothing
+
+        lines =
+            Dict.values model.artifacts
+                |> List.filterMap line
+
+        editing =
+            ul []
+                (creating ++ lines)
+
+        header =
+            h1
+                [ class "h1" ]
+                [ text "Artifacts you have not yet saved."
+                , Nav.helpBtn HelpEdit False
+                ]
+    in
+        div [ id "editing_view" ]
+            [ Nav.bar model <| Nav.editingBar model
+            , header
+            , editing
+            ]
+
+
+displayRenderedText : Model -> ViewOption -> Html AppMsg
+displayRenderedText model option =
+    let
+        text =
+            case model.rendered of
+                Just r ->
+                    r.text
+
+                Nothing ->
+                    "*Text is currently being rendered*"
+    in
+        toHtml [ idAttr "rendered_text" option ] text
+
+
+displayRenderedFamily : Model -> ViewOption -> Html AppMsg
+displayRenderedFamily model option =
+    let
+        part =
+            case model.rendered of
+                Just r ->
+                    r.part
+
+                Nothing ->
+                    "*part is currently being rendered*"
+    in
+        toHtml [ idAttr "rendered_part" option ] part
+
+
+viewIdAttr : ViewOption -> Attribute m
+viewIdAttr option =
+    id <|
+        case option of
+            ReadChoice _ ->
+                "read_view"
+
+            EditChoice choice ->
+                case choice of
+                    ChangeChoice _ _ ->
+                        "edit_view"
+
+                    CreateChoice _ ->
+                        "create_view"
+
+
+{-| display a warning if the artifact changed from under the user
+-}
+revisionWarnings : Model -> ViewOption -> List (Html AppMsg)
+revisionWarnings model option =
+    case option of
+        ReadChoice _ ->
+            []
+
+        EditChoice choice ->
+            case choice of
+                ChangeChoice artifact edited ->
+                    if artifact.revision == edited.revision then
+                        []
+                    else
+                        [ h1
+                            [ class "h1 red"
+                            , id "warn_edit_change"
+                            ]
+                            [ text <|
+                                "!! This artifact has been changed"
+                                    ++ " by another user since editing"
+                                    ++ " started !!"
+                            ]
+                        ]
+
+                CreateChoice _ ->
+                    []
+
+
+viewCompletedPerc : Artifact -> List (Html AppMsg)
+viewCompletedPerc artifact =
+    [ span [ class "bold" ]
+        [ text "Completed:"
+        , Nav.helpBtn HelpParts False
+        ]
+    , completedPerc artifact
+    ]
+
+
+viewTestedPerc : Artifact -> List (Html AppMsg)
+viewTestedPerc artifact =
+    [ span [ class "bold" ] [ text "Tested: " ]
+    , testedPerc artifact
+    ]
+
+
+oliveColor : String
+oliveColor = "#3da03d"
+
+
+
+{-| FIXME: delete this
+-}
 completion : Artifact -> Html AppMsg
 completion artifact =
     div [ class "clearfix py1" ]
-        [ div [ class "col col-6" ]
-            [ span [ class "bold" ]
-                [ text "Completed:"
-                , Nav.helpBtn HelpParts False
-                ]
-            , completedPerc artifact
-            ]
-        , div [ class "col col-6" ]
-            [ span [ class "bold" ] [ text "Tested: " ]
-            , testedPerc artifact
-            ]
+        [ div [ class "col col-6" ] (viewCompletedPerc artifact)
+        , div [ class "col col-6" ] (viewTestedPerc artifact)
         ]
 
 
@@ -41,7 +190,7 @@ completedPerc artifact =
 
         color =
             if score >= 3 then
-                "olive"
+                oliveColor
             else if score >= 2 then
                 "blue"
             else if score >= 1 then
@@ -61,7 +210,7 @@ testedPerc artifact =
 
         color =
             if score >= 2 then
-                "olive"
+                oliveColor
             else if score >= 1 then
                 "orange"
             else
@@ -148,7 +297,6 @@ implementedCodeRoot model root =
 
 -- for the full Edit view
 
-
 parts : Model -> Artifact -> Html AppMsg
 parts model artifact =
     ul
@@ -211,7 +359,7 @@ artifactColor artifact =
             (testedScore artifact) + (completedScore artifact)
     in
         if score >= 5 then
-            "olive"
+            oliveColor
         else if score >= 3 then
             "blue"
         else if score >= 1 then

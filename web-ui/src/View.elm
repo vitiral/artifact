@@ -7,6 +7,8 @@ import Models exposing (..)
 import Artifacts.Models exposing (..)
 import Artifacts.List
 import Artifacts.Edit
+import Artifacts.View
+import Artifacts.ViewRendered
 import Artifacts.Nav as Nav
 import Help
 
@@ -28,7 +30,12 @@ page model =
                 Ok name ->
                     case getArtifact name model of
                         Just artifact ->
-                            Artifacts.Edit.view model <| getEditViewOption model artifact
+                            case getEditViewOption model artifact of
+                                ReadChoice choice ->
+                                    Artifacts.ViewRendered.view model choice
+
+                                EditChoice choice ->
+                                    Artifacts.Edit.view model choice
 
                         Nothing ->
                             notFoundView
@@ -39,13 +46,13 @@ page model =
                         ]
 
         ArtifactEditingRoute ->
-            Artifacts.Edit.viewEditing model
+            Artifacts.View.viewEditing model
 
         ArtifactCreateRoute ->
-            getCreateArtifact model
-                |> CreateChoice
-                |> EditChoice
-                |> Artifacts.Edit.view model
+            let
+                choice = CreateChoice (getCreateArtifact model)
+            in
+                Artifacts.Edit.view model choice
 
         CheckRoute ->
             viewCheck model

@@ -62,6 +62,15 @@ strReplace pat replace_with original =
         |> String.join replace_with
 
 
+unwrap : String -> Maybe a -> a
+unwrap msg maybe =
+    case maybe of
+        Just v ->
+            v
+
+        Nothing ->
+            Debug.crash ("Unwrap crashed: " ++ msg)
+
 {-| find the index of a member
 
 Crashes if the member doesn't exist or if there are more than one index
@@ -88,6 +97,27 @@ memberIndexUnsafe value list =
 
                 Nothing ->
                     Debug.crash "member doesn't exist"
+
+
+{-| Get the index of an array. Will panic if index doesn't exist.
+This is horribly slow but elm is terrible at this stuff.
+-}
+getIndexUnsafe : Int -> List a -> a
+getIndexUnsafe index list =
+    let
+        end =
+            List.drop index list
+
+        value =
+            case List.head end of
+                Just v ->
+                    v
+
+                Nothing ->
+                    Debug.crash ("index " ++ (toString index) ++ " out of bounds")
+
+    in
+        value
 
 
 {-| remove the value at index and return it and the

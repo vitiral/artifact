@@ -42,7 +42,7 @@ initialModel location flags route =
         , state = initialState
         , jsonId = 1
         , create = Nothing
-        , renderedText = Nothing
+        , rendered = Nothing
         }
 
 
