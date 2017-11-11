@@ -92,8 +92,8 @@ type AppMsg
     | AppError String
     | ShowHelp HelpPage
     | ShowCheck
-    | RenderText (String, String)
-    | TextRendered (String, String)
+    | RenderText ( String, String )
+    | TextRendered ( String, String )
     | Noop
 
 

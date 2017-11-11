@@ -82,7 +82,8 @@ test-sel-py TESTS="":
 	just check-fmt
 	{{art}} check
 	just test
-	just test-sel
+# FIXME: renable selenium tests
+# 	just test-sel
 
 @test-all-beta:
 	just test-all -- "{{beta}}"

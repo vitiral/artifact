@@ -15,7 +15,7 @@ import Messages exposing (createUrl, AppMsg(..), HelpPage(..), Route(..))
 import Utils
 import Artifacts.Models exposing (..)
 import Artifacts.Nav as Nav
-import Artifacts.Messages exposing(Msg(ShowArtifact, CreateArtifact))
+import Artifacts.Messages exposing (Msg(ShowArtifact, CreateArtifact))
 
 
 {-| Display a list of all artifacts that are currently being edited.
@@ -171,8 +171,8 @@ viewTestedPerc artifact =
 
 
 oliveColor : String
-oliveColor = "#3da03d"
-
+oliveColor =
+    "#3da03d"
 
 
 {-| FIXME: delete this
@@ -299,6 +299,7 @@ implementedCodeRoot model root =
 
 
 -- for the full Edit view
+
 
 parts : Model -> Artifact -> Html AppMsg
 parts model artifact =

@@ -101,13 +101,13 @@ TODO
 # SPC-data-lint
 TODO
 
+# SPC-data-lint-src
+TODO
+
 # SPC-data-lint-subnames
 TODO
 
 # SPC-data-lint-text
-TODO
-
-# SPC-data-lint-src
 TODO
 
 # SPC-data-ser

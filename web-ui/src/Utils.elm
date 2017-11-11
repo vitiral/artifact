@@ -71,6 +71,7 @@ unwrap msg maybe =
         Nothing ->
             Debug.crash ("Unwrap crashed: " ++ msg)
 
+
 {-| find the index of a member
 
 Crashes if the member doesn't exist or if there are more than one index
@@ -115,7 +116,6 @@ getIndexUnsafe index list =
 
                 Nothing ->
                     Debug.crash ("index " ++ (toString index) ++ " out of bounds")
-
     in
         value
 

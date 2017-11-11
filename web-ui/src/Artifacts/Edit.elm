@@ -16,7 +16,8 @@ import Artifacts.Select as Select
 view : Model -> EditOption -> Html AppMsg
 view model choice =
     let
-        option = EditChoice choice
+        option =
+            EditChoice choice
 
         nav =
             Nav.bar model <| Nav.editBar model option
@@ -27,26 +28,30 @@ view model choice =
                 , text "Editing"
                 ]
 
-        head = div [class "h1"] <|
-            [headName] ++ (editName model choice)
+        head =
+            div [ class "h1" ] <|
+                [ headName ]
+                    ++ (editName model choice)
 
-        done = div [] <| doneFieldEdit model choice
+        done =
+            div [] <| doneFieldEdit model choice
 
-        textEl = displayText model choice
+        textEl =
+            displayText model choice
 
-        define = div [ class "clearfix py1" ]
-            [ div [ class "col col-4" ] [ Select.defined model option, done ]
-            , div [ class "col col-4" ] [ Select.partof model option ]
-            ]
+        define =
+            div [ class "clearfix py1" ]
+                [ div [ class "col col-4" ] [ Select.defined model option, done ]
+                , div [ class "col col-4" ] [ Select.partof model option ]
+                ]
 
         elems =
             [ [ nav ]
             , View.revisionWarnings model option
             , [ head ]
-            , [define]
+            , [ define ]
             , textEl
             ]
-
     in
         div [ View.viewIdAttr option ] (List.concat elems)
 
@@ -57,14 +62,17 @@ and it's rendered counterpart on the right.
 displayText : Model -> EditOption -> List (Html AppMsg)
 displayText model choice =
     let
-        edit = displayEditableText model choice
+        edit =
+            displayEditableText model choice
 
-        rendered = View.displayRenderedText model (EditChoice choice)
+        rendered =
+            View.displayRenderedText model (EditChoice choice)
 
-        out = div [ class "clearfix border" ]
-            [ div [ class "col border" ] edit
-            , div [ class "col border" ] [ rendered ]
-            ]
+        out =
+            div [ class "clearfix border" ]
+                [ div [ class "col border" ] edit
+                , div [ class "col border" ] [ rendered ]
+                ]
     in
         [ out ]
 

@@ -22,8 +22,9 @@ replaceArtifactLinks model text =
         replace : Regex.Match -> String
         replace match =
             let
-                name = Utils.getIndexUnsafe 1 match.submatches
-                    |> Utils.unwrap "match artifact name"
+                name =
+                    Utils.getIndexUnsafe 1 match.submatches
+                        |> Utils.unwrap "match artifact name"
             in
                 case Utils.getIndexUnsafe 0 match.submatches of
                     Just "dot:" ->
@@ -41,7 +42,6 @@ replaceArtifactLinks model text =
                                 ++ name
                                 ++ "]]</strike>"
                             )
-
     in
         Regex.replace Regex.All artifactLinkRegex replace text
 

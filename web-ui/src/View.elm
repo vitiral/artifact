@@ -50,7 +50,8 @@ page model =
 
         ArtifactCreateRoute ->
             let
-                choice = CreateChoice (getCreateArtifact model)
+                choice =
+                    CreateChoice (getCreateArtifact model)
             in
                 Artifacts.Edit.view model choice
 

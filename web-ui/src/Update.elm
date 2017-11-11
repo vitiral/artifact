@@ -9,8 +9,15 @@ import Artifacts.Update
 import Artifacts.TextLinks exposing (replaceArtifactLinks)
 import Artifacts.PartGraph exposing (renderPart)
 import Messages exposing (AppMsg(..), formatHttpError, helpUrl, helpRepr, checkUrl)
-import Models exposing (
-    Model, RenderedText, LogMsg(..), getViewingArtifact, ViewingArtifact(..), getEditViewOption)
+import Models
+    exposing
+        ( Model
+        , RenderedText
+        , LogMsg(..)
+        , getViewingArtifact
+        , ViewingArtifact(..)
+        , getEditViewOption
+        )
 import Ports
 
 
@@ -61,10 +68,11 @@ update msg model =
             in
                 ( model, Cmd.none )
 
-        TextRendered (text, part) ->
+        TextRendered ( text, part ) ->
             let
                 rendered : RenderedText
-                rendered = { text = text , part = part }
+                rendered =
+                    { text = text, part = part }
             in
                 ( { model | rendered = Just rendered }, Cmd.none )
 
@@ -84,9 +92,10 @@ requestRerender model cmds =
             case getViewingUnrendered model of
                 Just unr ->
                     let
-                        text = replaceArtifactLinks model unr.text
+                        text =
+                            replaceArtifactLinks model unr.text
                     in
-                        [ Ports.renderText (text, unr.part) ]
+                        [ Ports.renderText ( text, unr.part ) ]
 
                 Nothing ->
                     []
@@ -100,7 +109,7 @@ requestRerender model cmds =
 {-| Helper function to get the unrendered text of the artifact that is
 currently being viewed.
 -}
-getViewingUnrendered : Model -> Maybe {text: String, part: String}
+getViewingUnrendered : Model -> Maybe { text : String, part : String }
 getViewingUnrendered model =
     -- Note: Cannot render `part` in editable since we don't know its `parts`
     case getViewingArtifact model of

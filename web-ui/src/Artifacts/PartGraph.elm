@@ -4,30 +4,37 @@ import Models exposing (Model, getArtifact)
 import Artifacts.View exposing (..)
 import Artifacts.Models exposing (..)
 
+
 -- DOT builders
+
 
 renderPart : Model -> Artifact -> String
 renderPart model artifact =
     let
-        getRaw = (\n -> n.raw)
+        getRaw =
+            (\n -> n.raw)
 
-        parts = List.map getRaw artifact.parts
+        parts =
+            List.map getRaw artifact.parts
 
-        partof = List.map getRaw artifact.partof
+        partof =
+            List.map getRaw artifact.partof
 
-        settings = List.concat
-            [ [ nodeSettings model artifact True ]
-            , List.map (\n -> nameNodeSettings model n) parts
-            , List.map (\n -> nameNodeSettings model n) partof
-            ]
+        settings =
+            List.concat
+                [ [ nodeSettings model artifact True ]
+                , List.map (\n -> nameNodeSettings model n) parts
+                , List.map (\n -> nameNodeSettings model n) partof
+                ]
 
-        connections = List.concat
-            [ List.map (\pof -> connectNames pof artifact.name.value) partof
-            , List.map (\pt -> connectNames artifact.name.value pt) parts
-            ]
+        connections =
+            List.concat
+                [ List.map (\pof -> connectNames pof artifact.name.value) partof
+                , List.map (\pt -> connectNames artifact.name.value pt) parts
+                ]
 
-        lines = List.concat [settings, connections]
-
+        lines =
+            List.concat [ settings, connections ]
     in
         wrapDot (String.join "\n" lines)
 
@@ -45,9 +52,12 @@ wrapDot dot =
 
 connectNames : String -> String -> String
 connectNames from to =
-    ("\"" ++ (indexNameUnchecked from)
-    ++ "\" -> \""
-    ++ (indexNameUnchecked to) ++ "\"")
+    ("\""
+        ++ (indexNameUnchecked from)
+        ++ "\" -> \""
+        ++ (indexNameUnchecked to)
+        ++ "\""
+    )
 
 
 {-| Given a name always get it's node's settings.
@@ -67,7 +77,8 @@ nameNodeSettings model rawName =
 dneNodeSettings : String -> String
 dneNodeSettings name =
     let
-        indexName = indexNameUnchecked name
+        indexName =
+            indexNameUnchecked name
     in
         String.join " "
             [ "{\"" ++ indexName ++ "\" ["
@@ -84,11 +95,11 @@ dneNodeSettings name =
 nodeSettings : Model -> Artifact -> Bool -> String
 nodeSettings model artifact is_focus =
     let
-        attrs = if is_focus then
-            "penwidth=1.5; style=filled; fillcolor=cyan;"
-        else
-            ""
-
+        attrs =
+            if is_focus then
+                "penwidth=1.5; style=filled; fillcolor=cyan;"
+            else
+                ""
     in
         String.join " "
             [ "{\"" ++ artifact.name.value ++ "\" ["

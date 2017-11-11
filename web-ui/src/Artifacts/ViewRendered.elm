@@ -16,11 +16,11 @@ import Artifacts.View as View
 view : Model -> Artifact -> Html AppMsg
 view model artifact =
     let
-        option = ReadChoice artifact
+        option =
+            ReadChoice artifact
 
         nav =
             Nav.bar model <| Nav.editBar model option
-
     in
         div [ View.viewIdAttr option ] <|
             List.concat
@@ -32,10 +32,12 @@ view model artifact =
                 , [ View.displayRenderedText model option ]
                 ]
 
+
 nameHeader : Artifact -> List (Html AppMsg)
 nameHeader artifact =
     let
-        name_id = View.idAttr "name" <| ReadChoice artifact
+        name_id =
+            View.idAttr "name" <| ReadChoice artifact
     in
         [ h1 [ name_id ]
             [ Nav.helpBtn HelpName False
@@ -47,14 +49,16 @@ nameHeader artifact =
 artifactInfo : Model -> Artifact -> List (Html AppMsg)
 artifactInfo model artifact =
     let
-        col1 = div [ class "col col-2" ]
-            [ div [] <| View.viewCompletedPerc artifact
-            , div [] <| View.viewTestedPerc artifact
-            ]
+        col1 =
+            div [ class "col col-2" ]
+                [ div [] <| View.viewCompletedPerc artifact
+                , div [] <| View.viewTestedPerc artifact
+                ]
 
-        col2 = div [ class "col col-10" ]
-            [ Select.defined model <| ReadChoice artifact
-            , View.implemented model artifact
-            ]
+        col2 =
+            div [ class "col col-10" ]
+                [ Select.defined model <| ReadChoice artifact
+                , View.implemented model artifact
+                ]
     in
         [ div [ class "clearfix py1" ] [ col1, col2 ] ]

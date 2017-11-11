@@ -1,13 +1,14 @@
 port module Ports exposing (..)
 
+{-| Render the (text, part)
+-}
+
 -- GRAPHVIZ PORTS
 
 
-{-| Render the (text, part)
--}
-port renderText : (String, String) -> Cmd msg
+port renderText : ( String, String ) -> Cmd msg
 
 
 {-| Receive the rendered (text, part)
 -}
-port textRendered : ((String, String) -> msg) -> Sub msg
+port textRendered : (( String, String ) -> msg) -> Sub msg

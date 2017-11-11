@@ -241,8 +241,8 @@ fn display_hanging_references<W: Write>(
 ) -> u64 {
     let mut error: u64 = 0;
 
-    let regexp = Regex::new(&format!(r"(?i)\[\[(?:\w+:)?({})\]\]", NAME_VALID_STR))
-        .expect("tested regexp");
+    let regexp =
+        Regex::new(&format!(r"(?i)\[\[(?:\w+:)?({})\]\]", NAME_VALID_STR)).expect("tested regexp");
     let mut hanging: HashMap<NameRc, Vec<Name>> = HashMap::new();
 
     for (name, artifact) in &project.artifacts {
