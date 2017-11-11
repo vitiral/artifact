@@ -23,11 +23,11 @@ view model choice =
 
         headName =
             span [ id "editing_head" ]
-                [ text "Editing"
-                , Nav.helpBtn HelpEdit False
+                [ Nav.helpBtn HelpEdit False
+                , text "Editing"
                 ]
 
-        head = div [class "h1"] <| 
+        head = div [class "h1"] <|
             [headName] ++ (editName model choice)
 
         done = div [] <| doneFieldEdit model choice
@@ -89,14 +89,14 @@ editName model choice =
                     setEdited choice { edited | name = t }
 
         input_el =
-            [ input
+            [ Nav.helpBtn HelpName False
+            , input
                 [ class "h1"
                 , View.idAttr "name" (EditChoice choice)
                 , onInput editMsg
                 , value edited.name
                 ]
                 []
-            , Nav.helpBtn HelpName False
             ]
     in
         List.append input_el warn_els
@@ -140,8 +140,8 @@ doneFieldEdit model choice =
                 |> ArtifactsMsg
     in
         [ span [ class "bold" ]
-            [ text "Define as done:"
-            , Nav.helpBtn HelpDone False
+            [ Nav.helpBtn HelpDone False
+            , text "Define as done:"
             ]
         , input
             [ View.idAttr "done" <| EditChoice choice

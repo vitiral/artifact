@@ -66,8 +66,8 @@ viewEditing model =
         header =
             h1
                 [ class "h1" ]
-                [ text "Artifacts you have not yet saved."
-                , Nav.helpBtn HelpEdit False
+                [ Nav.helpBtn HelpEdit False
+                , text "Artifacts you have not yet saved."
                 ]
     in
         div [ id "editing_view" ]
@@ -153,8 +153,8 @@ revisionWarnings model option =
 viewCompletedPerc : Artifact -> List (Html AppMsg)
 viewCompletedPerc artifact =
     [ span [ class "bold" ]
-        [ text "Completed:"
-        , Nav.helpBtn HelpParts False
+        [ Nav.helpBtn HelpParts False
+        , text "Completed:"
         ]
     , completedPerc artifact
     ]
@@ -162,7 +162,10 @@ viewCompletedPerc artifact =
 
 viewTestedPerc : Artifact -> List (Html AppMsg)
 viewTestedPerc artifact =
-    [ span [ class "bold" ] [ text "Tested: " ]
+    [ span [ class "bold" ]
+        [ Nav.helpBtn HelpParts False
+        , text "Tested:"
+        ]
     , testedPerc artifact
     ]
 
@@ -225,27 +228,27 @@ implemented model artifact =
     div []
         (case ( artifact.code, artifact.done ) of
             ( Just loc, Nothing ) ->
-                [ span [ class "bold" ] [ text "Implemented:" ]
-                , Nav.helpBtn HelpImplemented False
+                [ Nav.helpBtn HelpImplemented False
+                , span [ class "bold" ] [ text "Implemented:" ]
                 , implementedBasic model artifact
                 ]
 
             ( Nothing, Just done ) ->
-                [ span [ class "bold" ] [ text "Defined as done:" ]
-                , Nav.helpBtn HelpDone False
+                [ Nav.helpBtn HelpDone False
+                , span [ class "bold" ] [ text "Defined as done:" ]
                 , implementedBasic model artifact
                 ]
 
             ( Nothing, Nothing ) ->
-                [ span [ class "bold" ] [ text "Implemented:" ]
-                , Nav.helpBtn HelpImplemented False
+                [ Nav.helpBtn HelpImplemented False
+                , span [ class "bold" ] [ text "Implemented:" ]
                 , implementedBasic model artifact
                 ]
 
             ( Just _, Just _ ) ->
                 -- error is displayed by implementedBasic
-                [ implementedBasic model artifact
-                , Nav.helpBtn HelpImplemented False
+                [ Nav.helpBtn HelpImplemented False
+                , implementedBasic model artifact
                 ]
         )
 

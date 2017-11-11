@@ -235,14 +235,39 @@ textDesc =
 The "text" field is used for describing the purpose of the artifact. The user
 writes in the [markdown][1] format, which the web-ui renders.
 
-There is one additional syntax element added, you can use double-brackets
-around a valid artifact name to specify a soft link to other artifacts, for
-example `[[REQ-example]]`. These links are NOT used to compute %
-completion/test, but are automatically checked for validity. If they don't
-exist they will be ~~strikethrough~~ and red, and will show up in the
+## Inserting Artifact References
+You can use double-brackets around a valid artifact name to specify a soft link
+to other artifacts, for example `[[REQ-example]]`. These links are NOT used to
+compute %completion/test, but are automatically checked for validity. If they
+don't exist they will be ~~strikethrough~~ and red, and will show up in the
 **Checks** tab.
 
+Here are the different forms of this link:
+- `[[REQ-example]]`: replaces the element with markdown syntax
+  `[REQ-example](/#artifacts/REQ-example)`
+- `[[dot:REQ-example]]`: replaces the artifact with a node for graphviz
+   (the same as the "artifact family" graph).
+
 [1]: https://gitbookio.gitbooks.io/markdown/content/
+
+## Graphviz Graphs
+You can write code blocks for rendering
+[graphviz dot graphs](https://www2.graphviz.org/). The code block syntax is
+
+    ```dot
+    digraph G {
+        // Declare node formatting into the graph, you can do this or use it
+        // directly. I like to declare if I use it multiple times and
+        // otherwise use directly.
+        [[dot:REQ-example]];
+
+        // The node-id of declared nodes will be the name in all caps
+        start -> "REQ-EXAMPLE";
+        "REQ-EXAMPLE" -> [[dot:REQ-bar]];
+        "REQ-EXAMPLE" -> [[dot:REQ-foo]];
+    }
+    ```
+
 """
 
 
@@ -346,4 +371,12 @@ the **Save** button. To cancel changes the press the **Cancel** button.
 An artifact can be deleted using the **Delete** button on its edit page.
 
 You can also create a new artifact using the **Create** button.
+
+## Editable Attributes
+- [text](/#help/text): this is the main ui for editing. You can reference
+  other artifacts, define "code subparts" and draw graphviz graphs.
+- [partof](/#help/partof): this is how you link artifacts to other artifacts.
+- [done](/#help/done): allows you to define an artifact as done
+- [defined](/#help/defined): this is the path where the artifact is actually
+  stored as text.
 """

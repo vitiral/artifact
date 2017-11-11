@@ -306,8 +306,8 @@ defined model option =
     in
         div []
             [ span [ class "bold" ]
-                [ text "Defined at:"
-                , Nav.helpBtn HelpDefined False
+                [ Nav.helpBtn HelpDefined False
+                , text "Defined at:"
                 ]
             , element
             ]

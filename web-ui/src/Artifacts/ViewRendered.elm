@@ -38,8 +38,8 @@ nameHeader artifact =
         name_id = View.idAttr "name" <| ReadChoice artifact
     in
         [ h1 [ name_id ]
-            [ text artifact.name.raw
-            , Nav.helpBtn HelpName False
+            [ Nav.helpBtn HelpName False
+            , text artifact.name.raw
             ]
         ]
 
