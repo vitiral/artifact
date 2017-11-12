@@ -170,10 +170,33 @@ viewTestedPerc artifact =
     ]
 
 
+colorAttr : String -> Attribute msg
+colorAttr color =
+    style [("color", color)]
+
 oliveColor : String
 oliveColor =
     "#3da03d"
 
+
+blueColor : String
+blueColor =
+    "#0074D9"
+
+
+orangeColor : String
+orangeColor =
+    "#FF851B"
+
+
+redColor : String
+redColor =
+    "#FF4136"
+
+
+purpleColor : String
+purpleColor =
+    "#B10DC9"
 
 {-| FIXME: delete this
 -}
@@ -195,13 +218,13 @@ completedPerc artifact =
             if score >= 3 then
                 oliveColor
             else if score >= 2 then
-                "blue"
+                blueColor
             else if score >= 1 then
-                "orange"
+                orangeColor
             else
-                "red"
+                redColor
     in
-        span [ class ("bold " ++ color) ]
+        span [ class "bold", colorAttr color ]
             [ text <| (String.left 3 (toString (artifact.completed * 100))) ++ "%" ]
 
 
@@ -215,11 +238,11 @@ testedPerc artifact =
             if score >= 2 then
                 oliveColor
             else if score >= 1 then
-                "orange"
+                orangeColor
             else
-                "red"
+                redColor
     in
-        span [ class ("bold " ++ color) ]
+        span [ class "bold", colorAttr color ]
             [ text <| (String.left 3 (toString (artifact.tested * 100))) ++ "%" ]
 
 
@@ -365,11 +388,11 @@ artifactColor artifact =
         if score >= 5 then
             oliveColor
         else if score >= 3 then
-            "blue"
+            blueColor
         else if score >= 1 then
-            "orange"
+            orangeColor
         else
-            "red"
+            redColor
 
 
 {-| colors: olive, blue, orange, red
@@ -377,7 +400,8 @@ artifactColor artifact =
 seeArtifact : Model -> Artifact -> Html AppMsg
 seeArtifact model artifact =
     a
-        [ class ("btn bold " ++ (artifactColor artifact))
+        [ class "btn bold"
+        , colorAttr <| artifactColor artifact
         , id artifact.name.value
         , onClick (ArtifactsMsg <| ShowArtifact <| artifact.name.value)
         , href (artifactNameUrl artifact.name.value)
@@ -399,11 +423,12 @@ seeArtifactName model name option attr =
                     artifactColor a
 
                 Nothing ->
-                    "purple"
+                    purpleColor
     in
         if memberArtifact name.value model then
             a
-                [ class ("btn bold " ++ color)
+                [ class "btn bold"
+                , colorAttr color
                 , id <| (idFmt attr option) ++ "_" ++ name.value
                 , href url
                 , onClick <| ArtifactsMsg <| ShowArtifact name.value
