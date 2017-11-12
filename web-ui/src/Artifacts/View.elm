@@ -172,7 +172,8 @@ viewTestedPerc artifact =
 
 colorAttr : String -> Attribute msg
 colorAttr color =
-    style [("color", color)]
+    style [ ( "color", color ) ]
+
 
 oliveColor : String
 oliveColor =
@@ -197,6 +198,7 @@ redColor =
 purpleColor : String
 purpleColor =
     "#B10DC9"
+
 
 {-| FIXME: delete this
 -}
