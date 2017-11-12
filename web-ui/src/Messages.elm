@@ -1,6 +1,7 @@
 module Messages exposing (..)
 
 import Http
+import Debounce
 import Artifacts.Messages
 
 
@@ -92,9 +93,15 @@ type AppMsg
     | AppError String
     | ShowHelp HelpPage
     | ShowCheck
-    | RenderText ( String, String )
-    | TextRendered ( String, String )
     | Noop
+      -- Request a render to happen in a debounced way
+    | RequestRender Debounce.Msg
+      -- Perform the render (calls out to JS through port)
+    | RenderText ( String, String )
+      -- Render is complete, store it to the model
+    | TextRendered ( String, String )
+      -- Unlock to allow the next render to happen (after a delay)
+    | UnlockRender
 
 
 formatHttpError : Http.Error -> String

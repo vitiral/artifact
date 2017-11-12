@@ -6,6 +6,7 @@ import Navigation
 import Messages exposing (Route(..))
 import Artifacts.Models exposing (..)
 import Utils exposing (isJust)
+import Debounce
 
 
 -- CONSTANTS
@@ -41,6 +42,7 @@ type alias Model =
     , jsonId : Int
     , create : Maybe EditableArtifact
     , rendered : Maybe RenderedText
+    , debounceRender : Debounce.Debounce ()
     }
 
 

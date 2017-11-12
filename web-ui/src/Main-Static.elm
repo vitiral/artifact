@@ -12,6 +12,8 @@ import View exposing (view)
 import Update exposing (update)
 import Routing
 import Artifacts.Commands exposing (fetchAll, artifactsFromStrUnsafe)
+import Debounce
+import Ports
 
 
 fakeFlags : Flags
@@ -43,6 +45,7 @@ initialModel location flags route =
         , jsonId = 1
         , create = Nothing
         , rendered = Nothing
+        , debounceRender = Debounce.init
         }
 
 
@@ -67,7 +70,7 @@ init location =
 
 subscriptions : Model -> Sub AppMsg
 subscriptions model =
-    Sub.none
+    Ports.textRendered TextRendered
 
 
 

@@ -80,29 +80,29 @@ viewEditing model =
 displayRenderedText : Model -> ViewOption -> Html AppMsg
 displayRenderedText model option =
     let
-        text =
-            case model.rendered of
-                Just r ->
-                    r.text
-
-                Nothing ->
-                    "*Text is currently being rendered*"
+        thisId =
+            idAttr "rendered_text" option
     in
-        toHtml [ idAttr "rendered_text" option ] text
+        case model.rendered of
+            Just r ->
+                toHtml [ thisId ] r.text
+
+            Nothing ->
+                div [ thisId ] []
 
 
 displayRenderedFamily : Model -> ViewOption -> Html AppMsg
 displayRenderedFamily model option =
     let
-        part =
-            case model.rendered of
-                Just r ->
-                    r.part
-
-                Nothing ->
-                    "*part is currently being rendered*"
+        thisId =
+            idAttr "rendered_part" option
     in
-        toHtml [ idAttr "rendered_part" option ] part
+        case model.rendered of
+            Just r ->
+                toHtml [ thisId ] r.part
+
+            Nothing ->
+                div [ thisId ] []
 
 
 viewIdAttr : ViewOption -> Attribute m

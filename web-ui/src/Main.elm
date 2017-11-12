@@ -19,6 +19,7 @@ import Update exposing (update)
 import Routing
 import Artifacts.Commands exposing (fetchAll, artifactsFromStrUnsafe)
 import Ports
+import Debounce
 
 
 initialModel : Navigation.Location -> Flags -> Route -> Model
@@ -36,6 +37,7 @@ initialModel location flags route =
     , jsonId = 1
     , create = Nothing
     , rendered = Nothing
+    , debounceRender = Debounce.init
     }
 
 

@@ -19,6 +19,9 @@ import Models
         , getEditViewOption
         )
 import Ports
+import Delay
+import Debounce
+import Time
 
 
 update : AppMsg -> Model -> ( Model, Cmd AppMsg )
@@ -61,6 +64,29 @@ update msg model =
         ShowCheck ->
             ( model, Navigation.newUrl <| "#" ++ checkUrl )
 
+        -- debounced render request
+        RequestRender db_msg ->
+            case getViewingUnrendered model of
+                Nothing ->
+                    ( model, Cmd.none )
+
+                Just unr ->
+                    let
+                        text =
+                            replaceArtifactLinks model unr.text
+
+                        render =
+                            (\_ -> Ports.renderText ( text, unr.part ))
+
+                        ( debounce, cmd ) =
+                            Debounce.update
+                                debounceConfig
+                                (Debounce.takeLast render)
+                                db_msg
+                                model.debounceRender
+                    in
+                        ( { model | debounceRender = debounce }, cmd )
+
         RenderText text ->
             let
                 _ =
@@ -74,36 +100,39 @@ update msg model =
                 rendered =
                     { text = text, part = part }
             in
-                ( { model | rendered = Just rendered }, Cmd.none )
+                ( { model | rendered = Just rendered }
+                , Delay.after 250 Time.millisecond UnlockRender
+                )
+
+        UnlockRender ->
+            ( model, Debounce.unlock debounceConfig )
 
         Noop ->
             ( model, Cmd.none )
 
 
+debounceConfig : Debounce.Config AppMsg
+debounceConfig =
+    -- Unfortunately this waits for 100 seconds after the FIRST request.
+    -- I think I want to wait 100 seconds after I currently unlock, which
+    -- probably requires a completely new message/setting
+    { strategy = Debounce.manual
+    , transform = RequestRender
+    }
+
+
 requestRerender : Model -> List (Cmd AppMsg) -> ( Model, Cmd AppMsg )
 requestRerender model cmds =
     let
-        -- Make a call to get the text rendered AND invalidate
-        -- the existing rendered text
-        final_model =
-            { model | rendered = Nothing }
-
-        renderCmds =
-            case getViewingUnrendered model of
-                Just unr ->
-                    let
-                        text =
-                            replaceArtifactLinks model unr.text
-                    in
-                        [ Ports.renderText ( text, unr.part ) ]
-
-                Nothing ->
-                    []
-
-        final_cmds =
-            List.append renderCmds cmds
+        ( debounce, cmd ) =
+            Debounce.push debounceConfig () model.debounceRender
     in
-        ( final_model, Cmd.batch final_cmds )
+        ( { model
+            | rendered = Nothing
+            , debounceRender = debounce
+          }
+        , Cmd.batch <| [ cmd ] ++ cmds
+        )
 
 
 {-| Helper function to get the unrendered text of the artifact that is
