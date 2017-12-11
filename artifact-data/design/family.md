@@ -82,40 +82,46 @@ See [[REQ-data-family]] for how these are related.
 # SPC-data-family
 The method of determining family is fairly straightforward
 
-[[.parent]]
 ```dot
 digraph G {
-    start -> { "if" [label="if elem-len > 1"; shape=diamond] };
+    "[[dot:.get_parent]]" -> { "if" [label="if elem-len > 1"; shape=diamond] };
     "if" -> "return None" [label = "no"];
     "if" -> {"clone raw string" [
         shape=box;
     ]} -> {"pop last element and create new Name" [
         shape=box;
     ]} -> "return new name";
-}
-```
 
-[[.auto_partof]]
-```dot
-digraph G {
-    start -> { if_req [label="type is REQ"; shape=diamond] };
+    "[[dot:.get_auto_partof]]" -> { if_req [label="type is REQ"; shape=diamond] };
     if_req -> "return None" [label="yes"];
     if_req -> {"get higher-order type" [
         shape=box;
     ]} -> {"clone raw name" [
         shape=box;
-    ]} -> {"swap raw name for higher-order type" [
+    ]} -> {"swap type with higher-order one" [
         shape=box;
     ]} -> "return new Name";
 }
 ```
 
 # TST-data-family
+partof: TST-data-fuzz
+###
 Very low level, so no interop testing.
 
-- [[.sanity_parent]]: basic checks that `Name::parent()` works as expected.
-- [[.sanity_auto_partof]]: basic checks that `Name::auto_partof()` works as expected.
+### Sanity Tests
+- [[.parent]]: basic checks that `Name::parent()` works as expected.
+- [[.auto_partof]]: basic checks that `Name::auto_partof()` works as expected.
+- [[.collapse]]: sanity test for collapsing names.
+- [[.collapse_invalid]]: sanity test invalid collapsing strings.
+
+### Fuzz Tests
 - [[.fuzz_parent]]: use the fuzzed name to determine the parent in a different
   way than the code and validate that they are identical
 - [[.fuzz_auto_partof]]: use the fuzzed name to determine the auto_partof
   in a different way than the code and validate that they are identical
+- [[.fuzz_auto_partof]]: use the fuzzed name to determine the auto_partof
+  in a different way than the code and validate that they are identical
+- [[.fuzz_collapse]]: fuzz that the names can be expaneded and 
+  collapsed.
+- [[.fuzz_serde]]: fuzz that names can be serialized/deserialized.

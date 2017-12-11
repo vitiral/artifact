@@ -14,7 +14,7 @@
  * You should have received a copy of the Lesser GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-//! TST-data-family
+//! #TST-data-family
 //! These are tests and helpers for testing family relations,
 //! such as parts/partof.
 
@@ -353,7 +353,7 @@ impl NamePiece {
 // -- TESTS
 
 #[test]
-/// #TST-data-family.sanity_parent
+/// #TST-data-family.parent
 fn sanity_parent() {
     fn parent(name: &Name) -> StrResult<Name> {
         match name.parent() {
@@ -378,7 +378,7 @@ fn sanity_parent() {
 }
 
 #[test]
-/// #TST-data-family.sanity_auto_partof
+/// #TST-data-family.auto_partof
 fn sanity_auto_partof() {
     fn auto_partof(name: &Name) -> StrResult<Name> {
         match name.auto_partof() {
@@ -400,6 +400,48 @@ fn sanity_auto_partof() {
             (name!("TST-23kjskljef32"), Some(name!("SPC-23kjskljef32"))),
         ],
     );
+}
+
+
+#[test]
+/// #TST-data-family.collapse
+fn sanity_collapse_name() {
+    let values = &[
+        ("REQ-foo", None, hashset!["REQ-foo"]),
+        ("REQ-[bar, foo]", None, hashset!["REQ-foo", "REQ-bar"]),
+        (
+            "REQ-[zay, bar-[baz, bom], foo]",
+            Some("REQ-[bar-[baz, bom], foo, zay]"),
+            hashset!["REQ-foo", "REQ-bar-baz", "REQ-bar-bom", "REQ-zay"],
+        ),
+        (
+            "SPC-[foo, foo-bob, bar], REQ-baz, SPC-foo-baz",
+            Some("REQ-baz, SPC-[bar, foo, foo-[baz, bob]]"),
+            hashset![
+                "REQ-baz",
+                "SPC-bar",
+                "SPC-foo",
+                "SPC-foo-baz",
+                "SPC-foo-bob",
+            ],
+        ),
+    ];
+    assert_collapsed_valid(values);
+}
+
+#[test]
+/// #TST-data-family.collapse_invalid
+fn sanity_collapse_name_invalid() {
+    let values = &[
+        "REQ",                       // invalid name
+        "REQ-foo-[bar-, baz]",       // extra `-`
+        "REQ-[foo, [bar]]",          // `[` can't appear by itself
+        "SPC-foo[bar",               // no closing brace
+        "SPC-foo]",                  // no opening brace
+        "SPC-[foo]]",                // no opening brace
+        "SPC-foo-[bar, [baz, bom]]", // brackets not after `-`
+    ];
+    assert_collapsed_invalid(values);
 }
 
 proptest! {
@@ -441,53 +483,11 @@ proptest! {
         assert_eq!(expected_raw, result.raw);
         assert_eq!(expected, result);
     }
-}
 
-
-#[test]
-fn sanity_collapse_name() {
-    let values = &[
-        ("REQ-foo", None, hashset!["REQ-foo"]),
-        ("REQ-[bar, foo]", None, hashset!["REQ-foo", "REQ-bar"]),
-        (
-            "REQ-[zay, bar-[baz, bom], foo]",
-            Some("REQ-[bar-[baz, bom], foo, zay]"),
-            hashset!["REQ-foo", "REQ-bar-baz", "REQ-bar-bom", "REQ-zay"],
-        ),
-        (
-            "SPC-[foo, foo-bob, bar], REQ-baz, SPC-foo-baz",
-            Some("REQ-baz, SPC-[bar, foo, foo-[baz, bob]]"),
-            hashset![
-                "REQ-baz",
-                "SPC-bar",
-                "SPC-foo",
-                "SPC-foo-baz",
-                "SPC-foo-bob",
-            ],
-        ),
-    ];
-    assert_collapsed_valid(values);
-}
-
-#[test]
-fn sanity_collapse_name_invalid() {
-    let values = &[
-        "REQ",                       // invalid name
-        "REQ-foo-[bar-, baz]",       // extra `-`
-        "REQ-[foo, [bar]]",          // `[` can't appear by itself
-        "SPC-foo[bar",               // no closing brace
-        "SPC-foo]",                  // no opening brace
-        "SPC-[foo]]",                // no opening brace
-        "SPC-foo-[bar, [baz, bom]]", // brackets not after `-`
-    ];
-    assert_collapsed_invalid(values);
-}
-
-proptest! {
     #[cfg(not(feature = "cache"))]
     #[test]
-    /// fuzz that the roundtrip is successfull
-    fn fuzz_collapse_roundtrip(ref names in arb_names(25)) {
+    /// #TST-data-family.fuzz_collapse
+    fn fuzz_collapse_name_roundtrip(ref names in arb_names(25)) {
         let collapsed = collapse_names(names);
         let expanded = expand_names(&collapsed).expect("failed expanding names");
         assert_eq!(*names, Names::from(expanded))
@@ -495,6 +495,7 @@ proptest! {
 
     #[test]
     #[cfg(not(feature = "cache"))]
+    /// #TST-data-family.fuzz_serde
     /// This actually creates expected json by first sorting the names
     fn fuzz_names_serde(ref names in arb_names(25)) {
         // construct expected json by sorting and formatting

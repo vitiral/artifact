@@ -183,7 +183,9 @@ spc: f32
 ```
 
 # TST-data-raw
-partof: SPC-data-raw-markdown
+partof:
+- SPC-data-raw-markdown
+- TST-data-fuzz
 ###
 Testing the deserialization shall require a small testing harness. The goal is that
 function from this harness be reused for writing even higher level tests.

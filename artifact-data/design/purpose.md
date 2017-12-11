@@ -29,6 +29,7 @@ artifact data are defined below. The types are defined in [[SPC-data-structs]].
 
 ```dot
 digraph G {
+    splines=ortho;
     node [shape=box];
 
     subgraph cluster_start {
@@ -40,10 +41,9 @@ digraph G {
     }
     subgraph cluster_artifacts {
         label="parse artifacts";
-        start -> [[dot:SPC-data-load]]
-            -> [[dot:SPC-data-name]]
+        start -> [[dot:SPC-data-raw]]
             -> [[dot:SPC-data-family]];
-        "SPC-DATA-NAME" -> [[dot:SPC-data-lint-text]];
+        "SPC-DATA-RAW" -> [[dot:SPC-data-lint-text]];
     }
 
 
@@ -54,7 +54,7 @@ digraph G {
     "SPC-DATA-SRC" -> "SPC-DATA-JOIN";
     "SPC-DATA-FAMILY" -> "SPC-DATA-JOIN"
         -> [[dot:SPC-data-completeness]]
-        -> "[[dot:.combine]]" -> done;
+        -> "[[dot:.combine]]" -> {done [shape=oval]};
 
     "SPC-DATA-JOIN" -> [[dot:SPC-data-lint-subnames]];
     "SPC-DATA-JOIN" -> [[dot:SPC-data-lint-src]];
@@ -70,7 +70,7 @@ The following are major design choices:
 There are the following subparts, which are also linked in the graph above:
 - [[SPC-data-src]]: "deserialize" the source code and extract the links to
   artifacts
-- [[SPC-data-load]]: deserialize the artifact files into "raw" data.
+- [[SPC-data-raw]]: deserialize the artifact files into "raw" data.
 - [[SPC-data-name]]: deserialize the artifact names into objects.
 - [[SPC-data-family]]: Determine the family of the artifats.
 - [[SPC-data-completeness]]: Calculate implemented% and tested%.
@@ -229,15 +229,31 @@ There shall be a "interop test harness" constructed for doing interop testing.
 The basic design is:
 - *Each test is a full project* (folder with a `.art` folder, source files and
   design documents).
-- Each test contains assertions at `path/to/test/art-assertions.toml`
-- The assertions file contains:
-    - artifact_paths: a list of all paths that should have been loaded for
-      artifacts.
-    - source_paths: a list of all paths that should have been loaded for
-      source code.
-    - failing-lints: dict of failing lints by each lint's subgroup.
-    - artifacts: list of "artifact objects", where each object can be
-      represented as fully as is desired (every attribute of ArtifactData can
-      be represented)
+- Each test contains assertions at `path/to/test/assert.yaml`
+- The assertions file structure is:
+  - visited_artifact_paths:
+    - contains: list of visited paths
+    - not_contains: list of unvisited paths
+    - length: optional total length
+  - visited_source_paths:
+    - contains: list of visited paths
+    - not_contains: list of unvisited paths
+    - length: optional total length
+  - lints:
+    - contains: list of lints that should exist
+    - not_contains: list of lints that should not exist
+    - length: optional total length
+    - Notes:
+      Each lint has the fields specified by the struct, with "NONE" being reserved
+      for specifying that the value should ACTUALLY be `None` (rather than
+      just not specified)
+  - artifacts:
+    - contains: list of artifacts which should exist and the expected value of
+      their fields.
+    - not_contains: list of artifact names which should not exist.
+    - length: optional total length
+    - Notes:
+      Similar to lints, attributes which are not specified are not asserted but
+      NONE is special.
 - The test harness then loads the project and assertions file and asserts all
   of the assertions.

@@ -18,6 +18,8 @@ Internally the name is an tomically reference counted pointer (`Arc`), meaning
 that cloning it is extremely cheap.
 
 # TST-data-name
+partof: TST-data-fuzz
+###
 The `Name` type is fairly low level with no dependencies, so interop testing
 is not necessary.
 
