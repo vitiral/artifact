@@ -20,7 +20,7 @@
 //! functions for other libraries to use to make testing artifact
 //! easier.
 
-mod dev_prelude;
+pub mod dev_prelude;
 mod name;
 mod family;
 mod raw;

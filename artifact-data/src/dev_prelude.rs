@@ -28,6 +28,14 @@ pub fn string_trim_right(s: &mut String) {
     s.truncate(end);
 }
 
+/// A simple implementation of "touch"
+pub fn touch<P: AsRef<Path>>(path: P) -> ::std::io::Result<()> {
+    match OpenOptions::new().create(true).write(true).open(path.as_ref()) {
+        Ok(_) => Ok(()),
+        Err(e) => Err(e),
+    }
+}
+
 #[test]
 fn sanity_trim_right() {
     let mut result = "  hello    ".into();

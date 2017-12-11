@@ -26,13 +26,13 @@ pub struct PathAbs(Arc<PathBuf>);
 
 impl PathAbs {
     #[cfg(feature = "cache")]
-    pub fn new(path: &OsStr) -> io::Result<PathAbs> {
+    pub fn new<P: AsRef<Path>>(path: P) -> io::Result<PathAbs> {
         ::cache::PATH_CACHE.lock().unwrap().get(path)
     }
 
     #[cfg(not(feature = "cache"))]
-    pub fn new(path: &OsStr) -> io::Result<PathAbs> {
-        return PathAbs(Arc::new(Path::new(path).canonicalize()?));
+    pub fn new<P: AsRef<Path>>(path: P) -> io::Result<PathAbs> {
+        Ok(PathAbs(Arc::new(path.as_ref().canonicalize()?)))
     }
 }
 
@@ -55,13 +55,63 @@ impl ::cache::PathCache {
     /// Get the path from the cache, inserting it if it doesn't exist
     ///
     /// This is the only way that paths are ever referenced.
-    fn get(&mut self, raw: &OsStr) -> io::Result<PathAbs> {
-        if let Some(p) = self.paths.get(raw) {
+    fn get<P: AsRef<Path>>(&mut self, raw: P) -> io::Result<PathAbs> {
+        let os_str = raw.as_ref().as_os_str();
+        if let Some(p) = self.paths.get(os_str) {
             return Ok(p.clone());
         }
 
-        let path = PathAbs(Arc::new(Path::new(raw).canonicalize()?));
-        self.paths.insert(raw.to_os_string(), path.clone());
+        let path = PathAbs(Arc::new(raw.as_ref().canonicalize()?));
+        self.paths.insert(os_str.to_os_string(), path.clone());
         Ok(path)
+    }
+}
+
+
+#[cfg(test)]
+mod test {
+    use std::fs;
+    use tempdir;
+
+    use super::*;
+    use test::dev_prelude::*;
+
+    #[test]
+    fn sanity_path_abs() {
+        // make the directory inside of target
+        let tmp = tempdir::TempDir::new_in("target", "path-abs-").unwrap();
+
+        // paths that we will create
+        let dir1 = tmp.path().join("dir1");
+        let d1_f1 = dir1.join("f1");
+        let d1_f2 = dir1.join("f2");
+        let dir2 = tmp.path().join("dir2");
+        let d2_f1 = dir2.join("f1");
+
+        // paths that we do not create
+        let dne1 = tmp.path().join("dne1");
+        let dne2 = dir1.join("dne2");
+        let dne3 = dir2.join("dne3");
+
+        for p in &[&dir1, &dir2] {
+            fs::create_dir(p).unwrap()
+        }
+
+        for f in &[&d1_f1, &d1_f2, &d2_f1] {
+            touch(f).unwrap();
+        }
+
+        // find the just created paths (3 times for testing cache)
+        let mut paths: Vec<PathAbs> = Vec::new();
+        for _ in 0..3 {
+            for p in &[&dir1, &dir2, &d1_f1, &d1_f2, &d2_f1] {
+                paths.push(PathAbs::new(p).unwrap())
+            }
+        }
+
+        // paths that do not exist are errors
+        for p in &[&dne1, &dne2, &dne3] {
+            PathAbs::new(p).unwrap_err();
+        }
     }
 }

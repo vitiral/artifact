@@ -72,6 +72,9 @@ extern crate rand;
 extern crate regex_generate;
 
 #[cfg(test)]
+extern crate tempdir;
+
+#[cfg(test)]
 pub mod test;
 
 
