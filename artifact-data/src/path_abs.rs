@@ -15,13 +15,20 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 
-use dev_prelude::*;
+/// Functions for handling paths in an "absolute" manner.
 
 use std::io;
 use std::fmt;
-use std::ffi::OsStr;
+use std::ffi::{OsStr, OsString};
+use walkdir::WalkDir;
 
-#[derive(Clone)]
+use dev_prelude::*;
+use lint;
+
+
+// ------------------------------
+// -- EXPORTED TYPES / METHODS
+#[derive(Clone, Eq, Hash, PartialEq, PartialOrd, Ord)]
 pub struct PathAbs(Arc<PathBuf>);
 
 impl PathAbs {
@@ -35,6 +42,70 @@ impl PathAbs {
         Ok(PathAbs(Arc::new(path.as_ref().canonicalize()?)))
     }
 }
+
+pub struct FoundPaths {
+    files: Vec<PathAbs>,
+    dirs: Vec<PathAbs>,
+}
+
+impl FoundPaths {
+    pub fn new() -> FoundPaths {
+        FoundPaths {
+            files: Vec::new(),
+            dirs: Vec::new(),
+        }
+    }
+}
+
+/// Walk the path returning the found files and directories.
+///
+/// `filter` is a closure to filter file (not dir) names. Return `false` to exclude
+/// the file from `files`.
+///
+/// It is expected that the caller will add the visited directories
+/// to the `visited` parameter for the next call to avoid duplicated
+/// effort.
+pub fn find_paths<F, P>(
+    path: P,
+    filter: F,
+    visited: &HashSet<PathAbs>)
+    -> ::std::io::Result<FoundPaths>
+    where P: AsRef<Path>,
+          F: Fn(&PathAbs) -> bool
+{
+    let mut found = FoundPaths::new();
+    let mut it = WalkDir::new(path).into_iter();
+    loop {
+        let entry = match it.next() {
+            None => break,
+            Some(e) => e?,
+        };
+
+        let abs = PathAbs::new(entry.path())?;
+        let filetype = entry.file_type();
+
+        if visited.contains(&abs) {
+            if filetype.is_dir() {
+                it.skip_current_dir();
+            }
+            continue;
+        }
+
+        if filetype.is_dir() {
+            found.dirs.push(abs);
+        } else {
+            debug_assert!(filetype.is_file());
+            if !filter(&abs) {
+                continue;
+            }
+            found.files.push(abs);
+        }
+    }
+    Ok(found)
+}
+
+// ------------------------------
+// -- IMPLEMENTATION DETAILS
 
 impl fmt::Debug for PathAbs {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -67,6 +138,8 @@ impl ::cache::PathCache {
     }
 }
 
+// ------------------------------
+// -- TESTS
 
 #[cfg(test)]
 mod test {
@@ -76,12 +149,21 @@ mod test {
     use super::*;
     use test::dev_prelude::*;
 
+    impl FoundPaths {
+        /// Used for testing comparisons
+        pub fn sort(&mut self) {
+            self.files.sort();
+            self.dirs.sort();
+        }
+    }
+
     #[test]
     fn sanity_path_abs() {
         // make the directory inside of target
         let tmp = tempdir::TempDir::new_in("target", "path-abs-").unwrap();
 
         // paths that we will create
+        let f1 = tmp.path().join("f1");
         let dir1 = tmp.path().join("dir1");
         let d1_f1 = dir1.join("f1");
         let d1_f2 = dir1.join("f2");
@@ -93,25 +175,61 @@ mod test {
         let dne2 = dir1.join("dne2");
         let dne3 = dir2.join("dne3");
 
-        for p in &[&dir1, &dir2] {
+        let dirs_raw = &[&dir1, &dir2];
+        let files_raw = &[&f1, &d1_f1, &d1_f2, &d2_f1];
+
+        for p in dirs_raw.iter() {
             fs::create_dir(p).unwrap()
         }
 
-        for f in &[&d1_f1, &d1_f2, &d2_f1] {
+        for f in files_raw.iter() {
             touch(f).unwrap();
         }
 
-        // find the just created paths (3 times for testing cache)
-        let mut paths: Vec<PathAbs> = Vec::new();
-        for _ in 0..3 {
-            for p in &[&dir1, &dir2, &d1_f1, &d1_f2, &d2_f1] {
-                paths.push(PathAbs::new(p).unwrap())
-            }
+        let mut dirs: Vec<_> = dirs_raw.iter()
+            .map(|p| PathAbs::new(p).unwrap())
+            .collect();
+        let mut files: Vec<_> = files_raw.iter()
+            .map(|p| PathAbs::new(p).unwrap())
+            .collect();
+        dirs.sort();
+        files.sort();
+
+        let f1_abs = PathAbs::new(&f1).unwrap();
+        let d1_f2_abs = PathAbs::new(&d1_f2).unwrap();
+        let tmp_abs = PathAbs::new(tmp.path()).unwrap();
+
+        let mut expected_dirs = dirs.clone();
+        expected_dirs.push(tmp_abs.clone());
+        expected_dirs.sort();
+
+        // make sure loading works as expected
+        {
+            let mut found = find_paths(tmp.path(), |p| true, &HashSet::new()).unwrap();
+            found.sort();
+            assert_eq!(found.files, files);
+            assert_eq!(found.dirs, expected_dirs);
         }
 
-        // paths that do not exist are errors
-        for p in &[&dne1, &dne2, &dne3] {
-            PathAbs::new(p).unwrap_err();
+        // visiting no directories because they are already visited
+        {
+            let visited = HashSet::from_iter(dirs.iter().map(|p| p.clone()));
+            let found = find_paths(tmp.path(), |p| true, &visited).unwrap();
+            assert_eq!(found.files, &[f1_abs.clone()]);
+            assert_eq!(found.dirs, &[tmp_abs.clone()]);
+        }
+
+        // filtering out files named f1
+        {
+            let filter_names = hashset!{OsString::from("f1")};
+            let filter = |p: &PathAbs| {
+                // if it is contained return False (i.e. do not let it exist)
+                !filter_names.contains(p.file_name().unwrap())
+            };
+            let mut found = find_paths(tmp.path(), filter, &HashSet::new()).unwrap();
+            found.sort();
+            assert_eq!(found.files, &[d1_f2_abs.clone()]);
+            assert_eq!(found.dirs, expected_dirs);
         }
     }
 }
