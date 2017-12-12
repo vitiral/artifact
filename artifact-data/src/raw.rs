@@ -63,6 +63,7 @@ impl Serialize for TextRaw {
     where
         S: Serializer,
     {
+        // TODO: error check for invalid markdown lines
         let trimmed = self.0.trim_right();
         if trimmed.contains('\n') {
             // TODO: the performance could be improved a lot here
@@ -80,6 +81,7 @@ impl<'de> Deserialize<'de> for TextRaw {
     where
         D: Deserializer<'de>,
     {
+        // TODO: error check for invalid markdown lines
         let mut s = String::deserialize(deserializer)?;
         string_trim_right(&mut s);
         if s.contains('\n') {
