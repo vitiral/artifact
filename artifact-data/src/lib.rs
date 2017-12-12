@@ -57,6 +57,7 @@ mod path_abs;
 mod raw;
 #[macro_use]
 mod raw_names;
+mod settings;
 
 #[cfg(test)]
 #[macro_use]
