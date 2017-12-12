@@ -22,7 +22,7 @@ use rand::Rng;
 use serde_json;
 use name::{Name, Type};
 use family::Names;
-use raw::{from_markdown, to_markdown, ArtifactRaw, NAME_LINE_RE, ATTRS_END_RE};
+use raw::{from_markdown, to_markdown, TextRaw, ArtifactRaw, NAME_LINE_RE, ATTRS_END_RE};
 use raw_names::NamesRaw;
 use regex_generate;
 use test::dev_prelude::*;
@@ -34,26 +34,25 @@ use test::family::{arb_topologically_sorted_names, rand_select_partof};
 /// Sanitize randomly generated text in-place.
 ///
 /// This is used mostly in case `\n# ART-name\n` is randomly inserted
-pub fn sanitize_rand_text(lines: &[String]) -> Option<String> {
+pub fn sanitize_rand_text_raw(lines: &[String]) -> Option<TextRaw> {
     let mut text: String = lines
         .iter()
         .filter(|l| !(NAME_LINE_RE.is_match(l) || ATTRS_END_RE.is_match(l)))
         .join("\n");
 
-    {
-        let trunc = text.trim_right().len();
-        text.truncate(trunc)
-    }
-
+    string_trim_right(&mut text);
     if text.is_empty() {
         None
     } else {
-        Some(text)
+        if text.contains('\n') {
+            text.push('\n');
+        }
+        Some(TextRaw(text))
     }
 }
 
 /// Generate random text with (TODO) links to artifacts in it.
-pub fn random_text<R: Rng+Clone>(rng: &mut R, name: &Name) -> Option<String> {
+pub fn random_text_raw<R: Rng+Clone>(rng: &mut R, name: &Name) -> Option<TextRaw> {
     let mut text = String::new();
     let num_lines = rng.gen_range(0, 50);
     let lines = {
@@ -82,7 +81,7 @@ pub fn random_text<R: Rng+Clone>(rng: &mut R, name: &Name) -> Option<String> {
         lines
     };
     // TODO: randomly insert references to other artifacts
-    sanitize_rand_text(&lines)
+    sanitize_rand_text_raw(&lines)
 }
 
 /// This returns a random set of artifacts for testing
@@ -112,7 +111,7 @@ pub fn arb_random_raw_artifacts(size: usize)
                             Some(NamesRaw::from(HashSet::from_iter(p.iter().cloned())))
                         }
                     };
-                    let text = random_text(&mut rng, n);
+                    let text = random_text_raw(&mut rng, n);
                     let artraw = ArtifactRaw {
                         done: done,
                         partof: partof,
@@ -201,12 +200,12 @@ partof:
         name!("REQ-foo") => ArtifactRaw {
             done: None,
             partof: None,
-            text: Some("\nreq-foo text".into()),
+            text: Some(TextRaw("\nreq-foo text\n".into())),
         },
         name!("REQ-bar") => ArtifactRaw {
             done: None,
             partof: Some(names_raw!("SPC-baz")),
-            text: Some("REQ-bar text".into()),
+            text: Some(TextRaw("REQ-bar text".into())),
         },
         name!("REQ-empty") => ArtifactRaw::empty(),
         name!("req-weird") => ArtifactRaw {
@@ -224,7 +223,7 @@ partof:
         };
 
         // throw in a check that the roundtrip works
-        let new_raw = serde_roundtrip(from_markdown_str, ::raw::to_markdown, &out).unwrap();
+        let new_raw = serde_roundtrip("markdown", from_markdown_str, ::raw::to_markdown, &out).unwrap();
         println!("### Original Raw:\n{}<END>", raw);
         println!("### New Raw:\n{}<END>", new_raw);
         Ok(out)
@@ -242,8 +241,8 @@ proptest! {
     #[ignore] // TODO: very slow
     #[cfg(not(feature = "cache"))]
     fn fuzz_raw_artifacts_serde(ref artifacts in arb_random_raw_artifacts(20)) {
-        serde_roundtrip(from_markdown_str, ::raw::to_markdown, &artifacts).expect("md");
-        serde_roundtrip(arts_from_toml_str, to_toml_string, &artifacts).expect("toml");
-        serde_roundtrip(arts_from_json_str, to_json_string, &artifacts).expect("json");
+        serde_roundtrip("markdown", from_markdown_str, ::raw::to_markdown, &artifacts).expect("md");
+        serde_roundtrip("toml", arts_from_toml_str, to_toml_string, &artifacts).expect("toml");
+        serde_roundtrip("json", arts_from_json_str, to_json_string, &artifacts).expect("json");
     }
 }

@@ -231,14 +231,7 @@ The basic design is:
   design documents).
 - Each test contains assertions at `path/to/test/assert.yaml`
 - The assertions file structure is:
-  - visited_artifact_paths:
-    - contains: list of visited paths
-    - not_contains: list of unvisited paths
-    - length: optional total length
-  - visited_source_paths:
-    - contains: list of visited paths
-    - not_contains: list of unvisited paths
-    - length: optional total length
+  - error: regular expression of the expected error (invalidates other assertions)
   - lints:
     - contains: list of lints that should exist
     - not_contains: list of lints that should not exist
@@ -247,6 +240,14 @@ The basic design is:
       Each lint has the fields specified by the struct, with "NONE" being reserved
       for specifying that the value should ACTUALLY be `None` (rather than
       just not specified)
+  - visited_artifact_paths:
+    - contains: list of visited paths
+    - not_contains: list of unvisited paths
+    - length: optional total length
+  - visited_source_paths:
+    - contains: list of visited paths
+    - not_contains: list of unvisited paths
+    - length: optional total length
   - artifacts:
     - contains: list of artifacts which should exist and the expected value of
       their fields.

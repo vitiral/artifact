@@ -19,6 +19,7 @@
 use dev_prelude::*;
 
 use std::result;
+use std::fmt;
 use regex::Regex;
 use serde::{self, Deserialize, Deserializer, Serialize, Serializer};
 use serde_yaml;
@@ -37,7 +38,55 @@ pub enum LoadError {
 pub struct ArtifactRaw {
     pub done: Option<String>,
     pub partof: Option<NamesRaw>,
-    pub text: Option<String>,
+    pub text: Option<TextRaw>,
+}
+
+#[derive(Clone, Eq, Hash, PartialEq, PartialOrd, Ord)]
+pub struct TextRaw(pub(crate) String);
+
+impl fmt::Debug for TextRaw {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{:?}", self.0)
+    }
+}
+
+impl Deref for TextRaw {
+    type Target = String;
+
+    fn deref(&self) -> &String {
+        &self.0
+    }
+}
+
+impl Serialize for TextRaw {
+    fn serialize<S>(&self, serializer: S) -> result::Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        let trimmed = self.0.trim_right();
+        if trimmed.contains('\n') {
+            // TODO: the performance could be improved a lot here
+            let mut out = trimmed.to_string();
+            out.push('\n');
+            serializer.serialize_str(&out)
+        } else {
+            serializer.serialize_str(trimmed)
+        }
+    }
+}
+
+impl<'de> Deserialize<'de> for TextRaw {
+    fn deserialize<D>(deserializer: D) -> result::Result<TextRaw, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let mut s = String::deserialize(deserializer)?;
+        string_trim_right(&mut s);
+        if s.contains('\n') {
+            s.push('\n');
+        }
+        Ok(TextRaw(s))
+    }
 }
 
 // ------------------------------
@@ -126,7 +175,10 @@ fn insert_from_parts(
         if t.is_empty() {
             None
         } else {
-            Some(t)
+            if t.contains('\n') {
+                t.push('\n');
+            }
+            Some(TextRaw(t))
         }
     };
 

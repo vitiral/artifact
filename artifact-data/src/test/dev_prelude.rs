@@ -84,7 +84,7 @@ pub fn from_markdown_str(s: &str) -> StrResult<BTreeMap<Name, ::raw::ArtifactRaw
 /// Do a serialization/deserialization roundtrip assertion.
 ///
 /// Return the resulting serialized string.
-pub fn serde_roundtrip<T, De, Ser>(de: De, ser: Ser, value: &T) -> StrResult<String>
+pub fn serde_roundtrip<T, De, Ser>(name: &str, de: De, ser: Ser, value: &T) -> StrResult<String>
     where T: Debug+PartialEq,
           De: Fn(&str) -> StrResult<T>,
           Ser: Fn(&T) -> String
@@ -96,10 +96,12 @@ pub fn serde_roundtrip<T, De, Ser>(de: De, ser: Ser, value: &T) -> StrResult<Str
     };
 
     if result != *value {
-        return Err(format!(
-            "roundtrip failed:\n{}",
+        println!(
+            "{:#<30}\n## roundtrip failed in {}:\n{}",
+            "#", name,
             Comparison::new(&result, value)
-        ));
+        );
+        return Err("roundtrip failed".to_string());
     }
     Ok(raw)
 }
