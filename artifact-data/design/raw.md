@@ -1,13 +1,3 @@
-# REQ-data-attrs
-The following attributes must be definable by the user:
-- `name`: the artifact name must be given in the form `ART-name`.
-- `done`: if any string is given, the artifact is "defined as done", meaning it
-  is 100% complete for both implementation and test.
-- `partof`: a list (or compressed syntax) of artifact names which this artifact
-  is a "partof". Valid and automatic links are defined in [[REQ-data-family]].
-- `text`: the description of the artifact which can contain "soft links" to
-  other artifacts as well as to code implementations.
-
 # SPC-data-raw
 Loading data shall be performed in a parallel fashion, where walking, reading
 and deserializing shall all happen simultaniously.

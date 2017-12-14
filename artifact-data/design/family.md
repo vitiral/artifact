@@ -15,12 +15,12 @@ digraph G {
 
     subgraph cluster_relationship {
         label=<<b>auto family</b>>;
-        "REQ-root" 
-            -> {"REQ-root-child" [color=blue]} 
+        "REQ-root"
+            -> {"REQ-root-child" [color=blue]}
             [label="is parent of"; color=blue; fontcolor=blue];
         "REQ-root" -> "SPC-root" [label="is auto-partof"];
-        "SPC-root" 
-            -> {"SPC-root-child" [color=blue]} 
+        "SPC-root"
+            -> {"SPC-root-child" [color=blue]}
             [label="is parent of"; color=blue; fontcolor=blue];
         "SPC-root" -> "TST-root" [label="is auto-partof"];
     }
@@ -36,7 +36,7 @@ The first graph shows what relationships are "allowed". It specifies that:
 
 In essense:
 - You can always create "subtypes", i.e. a more specific requirement
-- You can create a specification that is "partof" a requirement. This makes 
+- You can create a specification that is "partof" a requirement. This makes
   sense as you want to define your specifications based on your requirements.
 - You can create a test that is "partof" a specification OR a requirement.
   For example, white box testing will be based on a specification whereas
@@ -61,6 +61,18 @@ A node can always be partof another node of the same type. In addition, the foll
 ```
 
 # REQ-data-type
+
+The following attributes must be definable by the user:
+- `name`: the artifact name must be given in the form `ART-name`, where `ART`
+  is used to determine the type (see below).
+- `done`: if any string is given, the artifact is "defined as done", meaning it
+  is 100% complete for both implementation and test.
+- `partof`: a list (or compressed syntax) of artifact names which this artifact
+  is a "partof". Valid and automatic links are defined in [[REQ-data-family]].
+- `text`: the description of the artifact which can contain "soft links" to
+  other artifacts as well as to code implementations.
+
+## Artifact Type
 The type of an artifact is simply its prefix, which must be one of:
 - `REQ`: requirement
 - `SPC`: design specification
@@ -71,7 +83,7 @@ The order of precedence is:
 - `SPC` is "higher order" than `TST`
 
 ```dot
-digraph G { 
+digraph G {
     graph [rankdir=LR; splines=ortho]
     REQ -> SPC -> TST
 }
@@ -80,7 +92,8 @@ digraph G {
 See [[REQ-data-family]] for how these are related.
 
 # SPC-data-family
-The method of determining family is fairly straightforward
+The method of determining family is fairly straightforward, as is
+detailed in the graph below:
 
 ```dot
 digraph G {
@@ -122,6 +135,6 @@ Very low level, so no interop testing.
   in a different way than the code and validate that they are identical
 - [[.fuzz_auto_partof]]: use the fuzzed name to determine the auto_partof
   in a different way than the code and validate that they are identical
-- [[.fuzz_collapse]]: fuzz that the names can be expaneded and 
+- [[.fuzz_collapse]]: fuzz that the names can be expaneded and
   collapsed.
 - [[.fuzz_serde]]: fuzz that names can be serialized/deserialized.

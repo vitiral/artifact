@@ -19,8 +19,7 @@ the data module with the goals of:
 - self contained: this module should not depend on any other artifact modules
 
 This requirement is split into the following
-- [[REQ-data-attrs]]: the user definable attributes for artifacts
-- [[REQ-data-type]]: the valid types of artifacts
+- [[REQ-data-type]]: the valid types of artifacts and the attrs in an artifact.
 - [[REQ-data-family]]: the valid relationships between artifacts
 
 # SPC-data
@@ -36,34 +35,40 @@ digraph G {
         {start [label="paths to parse"; shape=oval ]}
      }
     subgraph cluster_src {
-        label="parse src code links";
+        label=<<b>parse src code links</b>>;
         start -> [[dot:SPC-data-src]];
     }
     subgraph cluster_artifacts {
-        label="parse artifacts";
+        label=<<b>parse artifacts</b>>;
         start -> [[dot:SPC-data-raw]]
             -> [[dot:SPC-data-family]];
         "SPC-DATA-RAW" -> [[dot:SPC-data-lint-text]];
     }
 
 
-    label="final steps"
-    [[dot:SPC-data-join]];
+    subgraph cluster_join {
+        label=<<b>join and process</b>>;
+        {join [label="join data"]};
+        [[dot:SPC-data-completeness]];
+        "[[dot:.combine]]";
+    }
 
     // join main and branch
-    "SPC-DATA-SRC" -> "SPC-DATA-JOIN";
-    "SPC-DATA-FAMILY" -> "SPC-DATA-JOIN"
-        -> [[dot:SPC-data-completeness]]
+    "SPC-DATA-SRC" -> join;
+    "SPC-DATA-FAMILY" -> join
+        -> "SPC-DATA-COMPLETENESS"
         -> "[[dot:.combine]]" -> {done [shape=oval]};
 
-    "SPC-DATA-JOIN" -> [[dot:SPC-data-lint-subnames]];
-    "SPC-DATA-JOIN" -> [[dot:SPC-data-lint-src]];
 
+    join -> {"final lints" [shape=oval]} -> {
+        [[dot:SPC-data-lint-subnames]]
+        [[dot:SPC-data-lint-src]]
+    }
 }
 ```
 
 The following are major design choices:
-- [[SPC-data-join]]: the general parallization architecture.
+- **join-data**: combine the data from the indenpendent (parallizable) streams.
 - [[SPC-data-cache]]: the "global" caching architecture.
 - [[TST-data]]: the overall testing architecture
 
@@ -80,9 +85,6 @@ In addition:
 - [[SPC-data-lint]]: specified lints
 
 # SPC-data-completeness
-TODO
-
-# SPC-data-join
 TODO
 
 # SPC-data-lint
@@ -139,10 +141,12 @@ TODO
 TODO
 
 # SPC-data-lint-text
-TODO
+> This is *not* for linting references in text. That is done at a later step.
 
-# SPC-data-ser
-TODO
+There are a couple of invalid items in text that need to be linted.
+
+- `^#\sART-name$`: in the markdown format these get interpreted as individual artifacts.
+- `^###$`: in the markdown format these get interepreted as "end of data" lines.
 
 # SPC-data-src
 ## Loading source code (implementation) links
