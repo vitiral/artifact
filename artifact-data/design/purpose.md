@@ -60,10 +60,7 @@ digraph G {
         -> "[[dot:.combine]]" -> {done [shape=oval]};
 
 
-    join -> {"final lints" [shape=oval]} -> {
-        [[dot:SPC-data-lint-subnames]]
-        [[dot:SPC-data-lint-src]]
-    }
+    join -> [[dot:SPC-data-lint-src]]
 }
 ```
 
@@ -135,10 +132,12 @@ grouped by their categories+files. Each lint should be printed on their own
 line.
 
 # SPC-data-lint-src
-TODO
+This is pretty basic: it is a warning to have dangling references in your
+source code.
 
-# SPC-data-lint-subnames
-TODO
+The names and subnames obtained from the source code must be checked against
+the defined names+subnames. If a reference exists in source that is not defined
+it is a warning.
 
 # SPC-data-lint-text
 > This is *not* for linting references in text. That is done at a later step.

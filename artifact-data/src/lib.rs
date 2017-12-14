@@ -52,6 +52,7 @@ mod name;
 mod expand_names;
 #[macro_use]
 mod family;
+mod implemented;
 mod lint;
 mod path_abs;
 mod raw;

@@ -52,13 +52,13 @@ digraph G {
 <TABLE ALIGN="left" BORDER="0" CELLBORDER="1" CELLSPACING="0">
   <TR><TD PORT="self" BGCOLOR="gray"><b>Impl</b></TD><TD><i>enum</i></TD></TR>
   <TR><TD>Done              </TD><TD PORT="done">String                 </TD></TR>
-  <TR><TD>Code              </TD><TD PORT="code">CodeImpl               </TD></TR>
+  <TR><TD>Code              </TD><TD PORT="code">ImplCode               </TD></TR>
   <TR><TD>NotImpl           </TD><TD PORT="not" >                       </TD></TR>
 </TABLE>>];
 
-    CodeImpl [label=<
+    ImplCode [label=<
 <TABLE ALIGN="left" BORDER="0" CELLBORDER="1" CELLSPACING="0">
-  <TR><TD PORT="self" BGCOLOR="gray"><b>CodeImpl</b></TD><TD><i>struct</i></TD></TR>
+  <TR><TD PORT="self" BGCOLOR="gray"><b>ImplCode</b></TD><TD><i>struct</i></TD></TR>
   <TR><TD>primary           </TD><TD PORT="prim">Option[CodeLoc]        </TD></TR>
   <TR><TD>secondary         </TD><TD PORT="sec" >Map[SubName, CodeLoc]  </TD></TR>
 </TABLE>>];
@@ -91,16 +91,16 @@ digraph G {
     Artifact:comp   -> Completed;
     Name:ty         -> Type [constraint=false];
 
-    { rank = same {Impl, CodeImpl, CodeLoc, PathAbs}}
+    { rank = same {Impl, ImplCode, CodeLoc, PathAbs}}
     Artifact:impl   -> Impl;
-    Impl:code       -> CodeImpl;
-    CodeImpl:prim   -> CodeLoc;
-    CodeImpl:sec    -> CodeLoc;
+    Impl:code       -> ImplCode;
+    ImplCode:prim   -> CodeLoc;
+    ImplCode:sec    -> CodeLoc;
     CodeLoc:file    -> PathAbs;
     Artifact:file   -> PathAbs;
 
     Artifact:sub    -> SubName
-    CodeImpl:sec    -> SubName;
+    ImplCode:sec    -> SubName;
 }
 ```
 
