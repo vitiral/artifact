@@ -41,7 +41,6 @@ struct PartofMulti {
     partof: Vec<String>,
 }
 
-
 #[derive(Debug, Clone, Serialize, Deserialize)]
 struct PartofNames {
     partof: NamesRaw,
@@ -104,7 +103,6 @@ fn names_raw_from_strs(s: &Vec<String>) -> NamesRaw {
     }
     NamesRaw::from(out)
 }
-
 
 #[test]
 fn sanity_serde_names_raw_single_json() {

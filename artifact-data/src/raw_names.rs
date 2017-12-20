@@ -34,21 +34,13 @@ macro_rules! names_raw {
     );
 }
 
-/// Collection of NamesRaw.
+/// Collection of `NamesRaw`.
 ///
 /// This mostly exists to provide custom
 /// serialization/deserializtion for a better text user interface.
-#[derive(Clone, Eq, PartialEq)]
+#[derive(Clone, Default, Eq, PartialEq)]
 pub struct NamesRaw {
-    inner: HashSet<Name>,
-}
-
-impl NamesRaw {
-    pub fn new() -> NamesRaw {
-        NamesRaw {
-            inner: HashSet::new(),
-        }
-    }
+    pub(crate) inner: HashSet<Name>,
 }
 
 impl fmt::Debug for NamesRaw {
@@ -81,7 +73,7 @@ impl FromStr for NamesRaw {
     type Err = Error;
     /// Parse a collapsed set of names to create them
     fn from_str(collapsed: &str) -> Result<NamesRaw> {
-        let inner = ::expand_names::expand_names(&collapsed)?;
+        let inner = ::expand_names::expand_names(collapsed)?;
         Ok(NamesRaw { inner: inner })
     }
 }
@@ -134,10 +126,8 @@ impl<'de> Visitor<'de> for NamesRawVisitor {
     where
         A: SeqAccess<'de>,
     {
-        let mut out = NamesRaw::new();
-        // TODO: open a serde bug. If the turbofish isn't given for yaml, this gives errors like:
-        //
-        //      partof[0]: invalid type: string "REQ-foo", expected a borrowed string at ...
+        let mut out = NamesRaw::default();
+        // Note: `::<String>` is necessary
         while let Some(s) = seq.next_element::<String>()? {
             let mut elem = NamesRaw::from_str(&s).map_err(serde::de::Error::custom)?;
             out.extend(elem.drain());

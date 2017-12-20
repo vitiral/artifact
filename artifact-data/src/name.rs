@@ -19,7 +19,6 @@
 //! This is the name module, the module for representing artifact names
 //! and their global cache.
 
-
 use std::cmp::Ordering;
 use std::hash::{Hash, Hasher};
 use std::fmt;
@@ -110,7 +109,7 @@ macro_rules! NAME_VALID_CHARS {
 }
 
 /// base definition of a valid name. Some pieces may ignore case.
-pub const NAME_VALID_STR: &'static str = concat!(
+pub const NAME_VALID_STR: &str = concat!(
     r"(?:REQ|SPC|TST)-(?:[",
     NAME_VALID_CHARS!(),
     r"]+-)*(?:[",
@@ -127,7 +126,6 @@ lazy_static!{
     static ref VALID_SUB_NAME_RE: Regex = Regex::new(
         &format!(r"(?i)^\.[{}]+$", NAME_VALID_CHARS!())).unwrap();
 }
-
 
 // NAME METHODS
 
@@ -165,7 +163,6 @@ impl Deref for Name {
     }
 }
 
-
 impl FromStr for Name {
     type Err = Error;
     #[cfg(feature = "cache")]
@@ -190,7 +187,6 @@ impl FromStr for Name {
     }
 }
 
-
 // INTERNAL NAME METHODS
 
 impl InternalName {
@@ -207,13 +203,12 @@ impl InternalName {
     }
 }
 
-
 impl FromStr for InternalName {
     type Err = Error;
 
     /// Use `Name::from_str` instead. This should only be used in this module.
     fn from_str(raw: &str) -> Result<InternalName> {
-        if !NAME_VALID_RE.is_match(&raw) {
+        if !NAME_VALID_RE.is_match(raw) {
             let msg = format!("Name is invalid: {}", raw);
             return Err(NameError::InvalidName { msg: msg }.into());
         }
@@ -257,7 +252,7 @@ impl Ord for InternalName {
 
 impl PartialOrd for InternalName {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        Some(self.cmp(&other))
+        Some(self.cmp(other))
     }
 }
 
@@ -272,6 +267,11 @@ impl SubName {
             key: raw.to_ascii_uppercase(),
         }
     }
+
+    /// Get the raw str representation
+    pub fn as_str(&self) -> &str {
+        &self.raw
+    }
 }
 
 impl FromStr for SubName {
@@ -281,7 +281,7 @@ impl FromStr for SubName {
     fn from_str(raw: &str) -> Result<SubName> {
         if !VALID_SUB_NAME_RE.is_match(raw) {
             Err(NameError::InvalidSubName {
-                msg: format!("{} is not a valid subname", raw)
+                msg: format!("{} is not a valid subname", raw),
             }.into())
         } else {
             Ok(SubName::new_unchecked(raw))
@@ -317,7 +317,7 @@ impl Ord for SubName {
 
 impl PartialOrd for SubName {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        Some(self.cmp(&other))
+        Some(self.cmp(other))
     }
 }
 

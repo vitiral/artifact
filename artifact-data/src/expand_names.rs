@@ -56,11 +56,9 @@ where
             Some(c) => c,
             None => {
                 if in_brackets {
-                    return Err(
-                        NameError::InvalidCollapsed {
-                            msg: "brackets are not closed".into(),
-                        }.into(),
-                    );
+                    return Err(NameError::InvalidCollapsed {
+                        msg: "brackets are not closed".into(),
+                    }.into());
                 }
                 break;
             }
@@ -99,11 +97,9 @@ where
         }
     }
     strout.write_str(&current).unwrap();
-    Ok(
-        strout
-            .split(',')
-            .filter(|s| s != &"")
-            .map(|s| s.to_string())
-            .collect(),
-    )
+    Ok(strout
+        .split(',')
+        .filter(|s| s != &"")
+        .map(|s| s.to_string())
+        .collect())
 }

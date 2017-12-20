@@ -21,15 +21,15 @@
 use serde_json;
 
 use test::dev_prelude::*;
-use name::{self, Name, Type, SubName};
+use name::{self, Name, SubName, Type};
 
 // HELPERS and TRAITS
 
 // this purposely doesn't use the definition from `name.rs`
-const GEN_NAME_RE: &str = r#"(?ix)
+const GEN_NAME_RE: &str = r#"(?x)
 (REQ|SPC|TST)-              # the type followed by `-`
-([a-z0-9_]{1,20}-){0,8}     # an optional number of `elem-` elements
-[a-z0-9_]{1,20}             # required final element
+([a-zA-Z0-9_]{1,7}-){0,3}     # an optional number of `elem-` elements
+[a-zA-Z0-9_]{1,7}             # required final element
 "#;
 
 // lazy_static!{
@@ -37,12 +37,10 @@ const GEN_NAME_RE: &str = r#"(?ix)
 //         Arc::new(prop::string::string_regex(GEN_NAME_RE).unwrap());
 // }
 
-
 #[inline(always)]
 pub fn arb_name_string() -> BoxedStrategy<String> {
     GEN_NAME_RE.prop_map(|s| s.to_string()).boxed()
 }
-
 
 #[inline(always)]
 pub fn arb_name() -> BoxedStrategy<Name> {
@@ -138,21 +136,31 @@ fn sanity_names_invalid() {
 fn sanity_subnames() {
     let subnames: &[(String, Option<SubName>)] = &[
         // Valid
-        (".foo".into(), Some(SubName { raw: ".foo".into(), key: ".FOO".into() })),
-        (".foo_bar".into(), Some(SubName { raw: ".foo_bar".into(), key: ".FOO_BAR".into() })),
+        (
+            ".foo".into(),
+            Some(SubName {
+                raw: ".foo".into(),
+                key: ".FOO".into(),
+            }),
+        ),
+        (
+            ".foo_bar".into(),
+            Some(SubName {
+                raw: ".foo_bar".into(),
+                key: ".FOO_BAR".into(),
+            }),
+        ),
         (".BAR".into(), Some(subname!(".bar"))), // only keys matter
         (".bar".into(), Some(subname!(".bAr"))), // only keys matter
-
         // Invalid
-        ("foo".into(), None),              // no period
-        (".foo-bar".into(), None),              // `-` not allowed
-        ("REQ-foo".into(), None),               // full artifact not allowed
-        ("REQ-foo.foo-bar".into(), None),       // full+subname not allowed
+        ("foo".into(), None),             // no period
+        (".foo-bar".into(), None),        // `-` not allowed
+        ("REQ-foo".into(), None),         // full artifact not allowed
+        ("REQ-foo.foo-bar".into(), None), // full+subname not allowed
     ];
 
     fn subname_valid(s: &String) -> StrResult<SubName> {
-        SubName::from_str(s)
-            .map_err(|e| e.to_string())
+        SubName::from_str(s).map_err(|e| e.to_string())
     }
 
     assert_generic(subname_valid, subnames);

@@ -43,7 +43,7 @@ pub fn arb_names(size: usize) -> BoxedStrategy<Names> {
 /// Split names up into their types.
 ///
 /// Returns vectors of (REQ, SPC, TST) names grouped by sorted-family
-fn split_names(names: NamesRaw) -> (Vec<Vec<Name>>, Vec<Vec<Name>>, Vec<Vec<Name>>) {
+fn split_names(names: &NamesRaw) -> (Vec<Vec<Name>>, Vec<Vec<Name>>, Vec<Vec<Name>>) {
     let mut req = HashSet::new();
     let mut spc = HashSet::new();
     let mut tst = HashSet::new();
@@ -75,7 +75,7 @@ fn group_family(names: HashSet<Name>) -> Vec<Vec<Name>> {
         // I need to scan for THAT match, etc etc until there are no more
         // matches... probably needs to be recursive.
         for other in remaining.iter() {
-            if matches!(name.parent(), Some(other)) || matches!(other.parent(), Some(name)) {
+            if matches!(name.parent(), Some(_)) || matches!(other.parent(), Some(_)) {
                 fam.push(other.clone());
             }
         }
@@ -103,11 +103,11 @@ fn flatten_families<R: Rng>(rng: &mut R, mut families: Vec<Vec<Name>>) -> Vec<Na
             // always select the "highest parent" remaining
             let parent = fam.pop().unwrap();
             out.insert(last_parent_index, parent);
-            let last_parent_index = rng.gen_range(
+            last_parent_index = rng.gen_range(
                 // insert after the last parent
                 last_parent_index + 1,
                 // up to the full length
-                out.len() + 1
+                out.len() + 1,
             );
         }
     }
@@ -122,12 +122,12 @@ fn flatten_families<R: Rng>(rng: &mut R, mut families: Vec<Vec<Name>>) -> Vec<Na
 /// This takes into account that:
 /// - children of parents **must** be to the "left" of their parents
 /// - REQ must be to the left of SPC which must be to the left of TST
-pub fn arb_topologically_sorted_names(size: usize) -> BoxedStrategy<Vec<Name>> {
+pub fn arb_topologically_sorted_names(size: usize) -> BoxedStrategy<(NamesRaw, Vec<Name>)> {
     arb_names_raw(size)
         // randomize the order
         .prop_perturb(|names, mut rng| {
             // split up names into types/families
-            let (mut req, mut spc, mut tst) = split_names(names);
+            let (mut req, mut spc, mut tst) = split_names(&names);
             rng.shuffle(&mut req);
             rng.shuffle(&mut spc);
             rng.shuffle(&mut tst);
@@ -139,7 +139,7 @@ pub fn arb_topologically_sorted_names(size: usize) -> BoxedStrategy<Vec<Name>> {
 
             req.extend(spc.drain(0..));
             req.extend(tst.drain(0..));
-            req
+            (names, req)
         })
         // congrats, we now have a valid topologically sorted graph of names
         // we can select names to select from to create the partof elements
@@ -150,7 +150,7 @@ pub fn arb_topologically_sorted_names(size: usize) -> BoxedStrategy<Vec<Name>> {
 ///
 /// To be valid, this assumes that `names` is topographically sorted.
 pub fn rand_select_partof<R: Rng>(rng: &mut R, index: usize, names: &[Name]) -> Vec<Name> {
-    let amount = rng.gen_range(0, index+1);
+    let amount = rng.gen_range(0, index + 1);
     rand::sample(rng, &names[0..index], amount)
         .iter()
         .map(|n| (*n).clone())
@@ -182,8 +182,7 @@ fn assert_collapsed_valid(values: &[(&str, Option<&str>, HashSet<&str>)]) {
                     difference.sort();
                     return Some(format!(
                         "### {} DIFFERENT FROM EXPECTED: {:?}",
-                        raw,
-                        difference,
+                        raw, difference,
                     ));
                 }
                 let result_collapse = collapse_names(&result);
@@ -194,8 +193,7 @@ fn assert_collapsed_valid(values: &[(&str, Option<&str>, HashSet<&str>)]) {
                 if expect_col != result_collapse {
                     return Some(format!(
                         "### Collapsed differ: {} != {}",
-                        result_collapse,
-                        raw
+                        result_collapse, raw
                     ));
                 }
                 None
@@ -226,7 +224,6 @@ fn assert_collapsed_invalid(raw: &[&str]) {
     }
 }
 
-
 /// take a list of names and collapse them into a single
 /// string with format `REQ-foo-[bar, baz-boo], SPC-foo`
 pub fn collapse_names(names: &HashSet<Name>) -> String {
@@ -254,7 +251,6 @@ pub fn collapse_names(names: &HashSet<Name>) -> String {
     piece.collapse(&mut collapsed, is_last);
     collapsed
 }
-
 
 struct NamePiece {
     raw: Vec<Vec<String>>,
@@ -401,7 +397,6 @@ fn sanity_auto_partof() {
         ],
     );
 }
-
 
 #[test]
 /// #TST-data-family.collapse

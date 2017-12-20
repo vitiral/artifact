@@ -18,6 +18,7 @@
 //! and deserializing raw artifact and processing them into
 //! a full project.
 
+#![allow(dead_code)]
 #![allow(unused_imports)]
 
 extern crate failure;
@@ -25,11 +26,11 @@ extern crate failure;
 extern crate itertools;
 #[macro_use]
 extern crate matches;
-extern crate std_prelude;
 extern crate regex;
 extern crate serde;
 extern crate serde_json;
 extern crate serde_yaml;
+extern crate std_prelude;
 extern crate toml;
 extern crate walkdir;
 
@@ -78,8 +79,10 @@ extern crate regex_generate;
 extern crate tempdir;
 
 #[cfg(test)]
-pub mod test;
+extern crate unicode_segmentation;
 
+#[cfg(test)]
+pub mod test;
 
 pub use name::{InternalName, Name, NameError, Type, NAME_VALID_STR};
 pub use raw::ArtifactRaw;

@@ -32,6 +32,7 @@ proptest = "0.3.2"
 rand = "0.3.18"
 regex_generate = "0.2.0"
 tempdir = "0.3.5"
+unicode-segmentation = "1.2.0"
 
 [features]
 cache = []

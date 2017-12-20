@@ -18,10 +18,19 @@ pub use dev_prelude::*;
 pub use proptest::prelude::*;
 pub use pretty_assertions::Comparison;
 pub use itertools::Itertools;
-use name::Name;
-use serde::{Serialize, Deserialize};
+pub use rand::Rng;
+use regex_generate;
+use unicode_segmentation::UnicodeSegmentation;
+
+use name::{Name, SubName};
+use serde::{Deserialize, Serialize};
 
 pub type StrResult<T> = result::Result<T, String>;
+
+/// Pattern for generating a random string
+pub const RNG_LINE_PAT: &str = r#"(?x)
+    [-.\ \\/\(\)\[\]!@\#$%^&*A-Za-z0-9]{1,32}
+"#;
 
 // TODO: Given list of `(input, expected)`, assert `method(input) == expected
 pub fn assert_generic<F, I, E>(method: F, values: &[(I, Option<E>)])
@@ -59,8 +68,7 @@ where
 }
 
 pub fn from_toml_str<'a, T: Deserialize<'a>>(s: &'a str) -> StrResult<T> {
-    ::toml::from_str(s)
-        .map_err(|e| e.to_string())
+    ::toml::from_str(s).map_err(|e| e.to_string())
 }
 
 pub fn to_toml_string<T: Serialize>(value: &T) -> String {
@@ -68,8 +76,7 @@ pub fn to_toml_string<T: Serialize>(value: &T) -> String {
 }
 
 pub fn from_json_str<'a, T: Deserialize<'a>>(s: &'a str) -> StrResult<T> {
-    ::serde_json::from_str(s)
-        .map_err(|e| e.to_string())
+    ::serde_json::from_str(s).map_err(|e| e.to_string())
 }
 
 pub fn to_json_string<T: Serialize>(value: &T) -> String {
@@ -77,17 +84,17 @@ pub fn to_json_string<T: Serialize>(value: &T) -> String {
 }
 
 pub fn from_markdown_str(s: &str) -> StrResult<BTreeMap<Name, ::raw::ArtifactRaw>> {
-    ::raw::from_markdown(s.as_bytes())
-        .map_err(|e| e.to_string())
+    ::raw::from_markdown(s.as_bytes()).map_err(|e| e.to_string())
 }
 
 /// Do a serialization/deserialization roundtrip assertion.
 ///
 /// Return the resulting serialized string.
 pub fn serde_roundtrip<T, De, Ser>(name: &str, de: De, ser: Ser, value: &T) -> StrResult<String>
-    where T: Debug+PartialEq,
-          De: Fn(&str) -> StrResult<T>,
-          Ser: Fn(&T) -> String
+where
+    T: Debug + PartialEq,
+    De: Fn(&str) -> StrResult<T>,
+    Ser: Fn(&T) -> String,
 {
     let raw = ser(value);
     let result = match de(&raw) {
@@ -98,10 +105,61 @@ pub fn serde_roundtrip<T, De, Ser>(name: &str, de: De, ser: Ser, value: &T) -> S
     if result != *value {
         println!(
             "{:#<30}\n## roundtrip failed in {}:\n{}",
-            "#", name,
+            "#",
+            name,
             Comparison::new(&result, value)
         );
         return Err("roundtrip failed".to_string());
     }
     Ok(raw)
+}
+
+// RANDOM GENERATION
+
+/// Generate random lines of text, where each line is separated into unicode 'words'
+pub fn random_lines<R: Rng + Clone>(rng: &mut R) -> Vec<Vec<String>> {
+    let num_lines = rng.gen_range(0, 10);
+    let mut r = rng.clone();
+    let mut textgen = regex_generate::Generator::parse(RNG_LINE_PAT, rng).unwrap();
+    let mut out: Vec<Vec<String>> = Vec::new();
+    let mut buffer = Vec::with_capacity(100);
+    for _ in 0..num_lines {
+        if r.next_f32() < 0.2 {
+            // 20% chance of blank line
+            out.push(vec!["".to_string()]);
+            continue;
+        }
+        buffer.clear();
+        textgen.generate(&mut buffer).unwrap();
+        let line: Vec<String> = str::from_utf8(&buffer)
+            .unwrap()
+            .unicode_words()
+            .map(|s| s.to_string())
+            .collect();
+        out.push(line)
+    }
+    out
+}
+
+/// Insert a word ing into a random place in lines
+pub fn insert_word<R: Clone + Rng>(rng: &mut R, lines: &mut Vec<Vec<String>>, word: String) {
+    // We need a line to edit
+    if lines.is_empty() {
+        lines.push(vec!["".to_string()]);
+    }
+    let edit_line = rng.gen_range(0, lines.len());
+    let line = lines.get_mut(edit_line).unwrap();
+    let insert_index = rng.gen_range(0, line.len() + 1);
+    line.insert(insert_index, word);
+}
+
+/// Return the formatted full name string.
+///
+/// TODO: move this to name.rs?
+pub fn name_ref_string(name: &Name, sub: &Option<SubName>) -> String {
+    let sub_str = match *sub {
+        Some(ref s) => s.raw.as_str(),
+        None => "",
+    };
+    format!("{}{}", name.as_str(), sub_str)
 }

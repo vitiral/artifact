@@ -18,25 +18,45 @@
 //! This module is for testing the serialization and deserialization
 //! of RAW artifacts.
 
-use rand::Rng;
+use rand::{self, Rng};
 use serde_json;
-use name::{Name, Type};
+use name::{Name, SubName, Type};
 use family::Names;
-use raw::{from_markdown, to_markdown, TextRaw, ArtifactRaw, NAME_LINE_RE, ATTRS_END_RE};
+use raw::{from_markdown, to_markdown, ArtifactRaw, TextRaw, ATTRS_END_RE, NAME_LINE_RE};
 use raw_names::NamesRaw;
 use regex_generate;
 use test::dev_prelude::*;
 use test::family::{arb_topologically_sorted_names, rand_select_partof};
+use test::implemented::random_impl_links;
 
 // ------------------------------
 // -- FUZZ METHODS
 
-/// Sanitize randomly generated text in-place.
+/// Convert randomly generated text to something useful for artifact.text field.
 ///
 /// This is used mostly in case `\n# ART-name\n` is randomly inserted
-pub fn sanitize_rand_text_raw(lines: &[String]) -> Option<TextRaw> {
+pub fn lines_to_text_raw<R: Rng + Clone>(
+    rng: &mut R,
+    subnames: &HashSet<SubName>,
+    references: &[&(Name, Option<SubName>)],
+    mut lines: Vec<Vec<String>>,
+) -> Option<TextRaw> {
+    for sub in subnames.iter() {
+        insert_word(rng, &mut lines, format!("[[{}]]", sub.as_str()));
+    }
+
+    for &&(ref name, ref sub) in references.iter() {
+        insert_word(
+            rng,
+            &mut lines,
+            format!("[[{}]]", name_ref_string(name, sub)),
+        );
+    }
+
+    // TODO: add link references
     let mut text: String = lines
         .iter()
+        .map(|l| l.join(" "))
         .filter(|l| !(NAME_LINE_RE.is_match(l) || ATTRS_END_RE.is_match(l)))
         .join("\n");
 
@@ -51,75 +71,59 @@ pub fn sanitize_rand_text_raw(lines: &[String]) -> Option<TextRaw> {
     }
 }
 
-/// Generate random text with (TODO) links to artifacts in it.
-pub fn random_text_raw<R: Rng+Clone>(rng: &mut R, name: &Name) -> Option<TextRaw> {
-    let mut text = String::new();
-    let num_lines = rng.gen_range(0, 50);
-    let lines = {
-        let mut r = rng.clone();
-        let mut textgen = regex_generate::Generator::parse(
-            // Any unicode character can be in the "line" except:
-            // - newline
-            // - control characters
-            // r"[^\n[:cntrl:]]{1,50}",
-
-            // Any ascii except newline and cntrl
-            r"(?i)[[:ascii:]&&[^\n[:cntrl:]]]{1,50}",
-            rng,
-        ).unwrap();
-        let mut lines = Vec::new();
-        for _ in 0..num_lines {
-            if r.next_f32() < 0.2 {
-                // 20% chance of blank line
-                lines.push("".to_string());
-                continue;
-            }
-            let mut line: Vec<u8> = Vec::with_capacity(100);
-            textgen.generate(&mut line);
-            lines.push(String::from_utf8(line).unwrap())
-        }
-        lines
-    };
-    // TODO: randomly insert references to other artifacts
-    sanitize_rand_text_raw(&lines)
-}
-
 /// This returns a random set of artifacts for testing
 /// serialization/deserialization.
 ///
 /// These artifacts are NOT necessarily "valid", i.e. their `partof`
 /// field is constructed entirely randomly so the links are probably invalid
-pub fn arb_random_raw_artifacts(size: usize)
-    -> BoxedStrategy<BTreeMap<Name, ArtifactRaw>>
-{
+pub fn arb_raw_artifacts(size: usize) -> BoxedStrategy<BTreeMap<Name, ArtifactRaw>> {
     arb_topologically_sorted_names(size)
-        .prop_perturb(|names, mut rng| {
-            let names = Vec::from_iter(names.iter().cloned());
-            BTreeMap::from_iter(names.iter()
-                .enumerate()
-                .map(|(i, n)| {
-                    let done = if rng.next_f32() < 0.05 {
-                        Some("TODO: use random string".to_string())
-                    } else {
+        .prop_perturb(|(names, sorted_names), mut rng| {
+            let impl_links = random_impl_links(&mut rng, &names);
+
+            // TODO: this should probably use logic defined somewhere else
+            // but that logic doesn't exist yet
+            let mut subnames: HashMap<Name, HashSet<SubName>> =
+                HashMap::with_capacity(impl_links.len());
+            for &(ref name, ref sub) in &impl_links {
+                let insert_it = !subnames.contains_key(&name);
+                if insert_it {
+                    subnames.insert(name.clone(), hashset![]);
+                }
+                if let Some(ref s) = *sub {
+                    let mut subs = subnames.get_mut(&name).unwrap();
+                    subs.insert(s.clone());
+                }
+            }
+            BTreeMap::from_iter(sorted_names.iter().enumerate().map(|(i, name)| {
+                let done = if rng.next_f32() < 0.05 {
+                    Some("TODO: use random string".to_string())
+                } else {
+                    None
+                };
+                let partof = {
+                    let p = rand_select_partof(&mut rng, i, &sorted_names);
+                    if p.is_empty() {
                         None
-                    };
-                    let partof = {
-                        let p = rand_select_partof(&mut rng, i, &names);
-                        if p.is_empty() {
-                            None
-                        } else {
-                            Some(NamesRaw::from(HashSet::from_iter(p.iter().cloned())))
-                        }
-                    };
-                    let text = random_text_raw(&mut rng, n);
-                    let artraw = ArtifactRaw {
-                        done: done,
-                        partof: partof,
-                        text: text,
-                    };
-                    (n.clone(), artraw)
-                })
-            )
+                    } else {
+                        Some(NamesRaw::from(HashSet::from_iter(p.iter().cloned())))
+                    }
+                };
+                let lines = random_lines(&mut rng);
+                let references = {
+                    let num = rng.gen_range(0, impl_links.len());
+                    let mut l = rand::sample(&mut rng, &impl_links, num);
+                    rng.shuffle(&mut l);
+                    l
+                };
+                let text = lines_to_text_raw(&mut rng, &subnames[&name], &references, lines);
+                let artraw = ArtifactRaw {
+                    done: done,
+                    partof: partof,
+                    text: text,
+                };
+                (name.clone(), artraw)
+            }))
         })
         .boxed()
 }
@@ -223,7 +227,8 @@ partof:
         };
 
         // throw in a check that the roundtrip works
-        let new_raw = serde_roundtrip("markdown", from_markdown_str, ::raw::to_markdown, &out).unwrap();
+        let new_raw =
+            serde_roundtrip("markdown", from_markdown_str, ::raw::to_markdown, &out).unwrap();
         println!("### Original Raw:\n{}<END>", raw);
         println!("### New Raw:\n{}<END>", new_raw);
         Ok(out)
@@ -240,7 +245,7 @@ proptest! {
     #[test]
     #[ignore] // TODO: very slow
     #[cfg(not(feature = "cache"))]
-    fn fuzz_raw_artifacts_serde(ref artifacts in arb_random_raw_artifacts(20)) {
+    fn fuzz_artifacts_serde(ref artifacts in arb_raw_artifacts(20)) {
         serde_roundtrip("markdown", from_markdown_str, ::raw::to_markdown, &artifacts).expect("md");
         serde_roundtrip("toml", arts_from_toml_str, to_toml_string, &artifacts).expect("toml");
         serde_roundtrip("json", arts_from_json_str, to_json_string, &artifacts).expect("json");

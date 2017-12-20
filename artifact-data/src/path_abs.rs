@@ -25,7 +25,6 @@ use walkdir::WalkDir;
 use dev_prelude::*;
 use lint;
 
-
 // ------------------------------
 // -- EXPORTED TYPES / METHODS
 #[derive(Clone, Eq, Hash, PartialEq, PartialOrd, Ord)]
@@ -40,6 +39,12 @@ impl PathAbs {
     #[cfg(not(feature = "cache"))]
     pub fn new<P: AsRef<Path>>(path: P) -> io::Result<PathAbs> {
         Ok(PathAbs(Arc::new(path.as_ref().canonicalize()?)))
+    }
+
+    #[cfg(test)]
+    /// For constructing fake paths during tests
+    pub fn fake<P: AsRef<Path>>(fake_path: P) -> PathAbs {
+        PathAbs(Arc::new(fake_path.as_ref().to_path_buf()))
     }
 }
 
@@ -68,10 +73,11 @@ impl FoundPaths {
 pub fn find_paths<F, P>(
     path: P,
     filter: F,
-    visited: &HashSet<PathAbs>)
-    -> ::std::io::Result<FoundPaths>
-    where P: AsRef<Path>,
-          F: Fn(&PathAbs) -> bool
+    visited: &HashSet<PathAbs>,
+) -> ::std::io::Result<FoundPaths>
+where
+    P: AsRef<Path>,
+    F: Fn(&PathAbs) -> bool,
 {
     let mut found = FoundPaths::new();
     let mut it = WalkDir::new(path).into_iter();
@@ -170,11 +176,6 @@ mod test {
         let dir2 = tmp.path().join("dir2");
         let d2_f1 = dir2.join("f1");
 
-        // paths that we do not create
-        let dne1 = tmp.path().join("dne1");
-        let dne2 = dir1.join("dne2");
-        let dne3 = dir2.join("dne3");
-
         let dirs_raw = &[&dir1, &dir2];
         let files_raw = &[&f1, &d1_f1, &d1_f2, &d2_f1];
 
@@ -186,12 +187,8 @@ mod test {
             touch(f).unwrap();
         }
 
-        let mut dirs: Vec<_> = dirs_raw.iter()
-            .map(|p| PathAbs::new(p).unwrap())
-            .collect();
-        let mut files: Vec<_> = files_raw.iter()
-            .map(|p| PathAbs::new(p).unwrap())
-            .collect();
+        let mut dirs: Vec<_> = dirs_raw.iter().map(|p| PathAbs::new(p).unwrap()).collect();
+        let mut files: Vec<_> = files_raw.iter().map(|p| PathAbs::new(p).unwrap()).collect();
         dirs.sort();
         files.sort();
 
@@ -205,7 +202,7 @@ mod test {
 
         // make sure loading works as expected
         {
-            let mut found = find_paths(tmp.path(), |p| true, &HashSet::new()).unwrap();
+            let mut found = find_paths(tmp.path(), |_| true, &HashSet::new()).unwrap();
             found.sort();
             assert_eq!(found.files, files);
             assert_eq!(found.dirs, expected_dirs);
@@ -214,7 +211,7 @@ mod test {
         // visiting no directories because they are already visited
         {
             let visited = HashSet::from_iter(dirs.iter().map(|p| p.clone()));
-            let found = find_paths(tmp.path(), |p| true, &visited).unwrap();
+            let found = find_paths(tmp.path(), |_| true, &visited).unwrap();
             assert_eq!(found.files, &[f1_abs.clone()]);
             assert_eq!(found.dirs, &[tmp_abs.clone()]);
         }

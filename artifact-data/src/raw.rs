@@ -14,8 +14,8 @@
  * You should have received a copy of the Lesser GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
+//! The `ArtifactRaw` type and methods for loading it from files.
 
-//! The ArtifactRaw type and methods for loading it from files.
 use dev_prelude::*;
 
 use std::result;
@@ -24,9 +24,22 @@ use regex::Regex;
 use serde::{self, Deserialize, Deserializer, Serialize, Serializer};
 use serde_yaml;
 use name::Name;
+use family::Names;
 use raw_names::NamesRaw;
 
 // TYPES
+
+impl Names {
+    pub fn to_names_raw(self) -> NamesRaw {
+        NamesRaw { inner: self.0 }
+    }
+}
+
+impl NamesRaw {
+    pub fn to_names(self) -> Names {
+        Names(self.inner)
+    }
+}
 
 #[derive(Debug, Fail)]
 pub enum LoadError {
@@ -118,7 +131,7 @@ pub fn from_markdown<R: Read>(stream: R) -> Result<BTreeMap<Name, ArtifactRaw>> 
             if let Some(n) = name.take() {
                 // Put a new artifact.
                 // Use `take()` for name and attrs so that they end up empty
-                insert_from_parts(&mut out, n, attrs.take(), &other)?;
+                insert_from_parts(&mut out, &n, attrs.take(), &other)?;
             } else {
                 // Ignore text above the first artifact
                 attrs = None;
@@ -144,7 +157,7 @@ pub fn from_markdown<R: Read>(stream: R) -> Result<BTreeMap<Name, ArtifactRaw>> 
         other.push(line)
     }
     if let Some(name) = name {
-        insert_from_parts(&mut out, name, attrs, &mut other)?;
+        insert_from_parts(&mut out, &name, attrs, &other)?;
     }
     Ok(out)
 }
@@ -159,7 +172,7 @@ struct AttrsRaw {
 /// Inserts the artifact based on parts gotten from markdown.
 fn insert_from_parts(
     out: &mut BTreeMap<Name, ArtifactRaw>,
-    name: Name,
+    name: &Name,
     attrs: Option<String>,
     other: &[String],
 ) -> Result<()> {
@@ -189,7 +202,7 @@ fn insert_from_parts(
         partof: partof,
         text: text,
     };
-    if let Some(_) = out.insert(name.clone(), art) {
+    if out.insert(name.clone(), art).is_some() {
         let e = LoadError::MarkdownError {
             msg: format!("name exists twice: {}", name.as_str()),
         };
@@ -252,7 +265,7 @@ fn push_attrs(out: &mut String, raw: &ArtifactRaw) {
             write!(out, "\n").unwrap();
             let mut partof = partof.iter().cloned().collect::<Vec<_>>();
             partof.sort();
-            for n in partof.iter() {
+            for n in &partof {
                 write!(out, "- {}\n", n.as_str()).unwrap();
             }
         }

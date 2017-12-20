@@ -38,7 +38,7 @@ macro_rules! names {
 
 /// Collection of Names, used in partof and parts for storing relationships
 #[derive(Clone, Eq, PartialEq)]
-pub struct Names(HashSet<Name>);
+pub struct Names(pub(crate) HashSet<Name>);
 
 impl Names {
     pub fn new() -> Names {
@@ -76,7 +76,7 @@ impl FromStr for Names {
     type Err = Error;
     /// Parse a collapsed set of names to create them
     fn from_str(collapsed: &str) -> Result<Names> {
-        let inner = ::expand_names::expand_names(&collapsed)?;
+        let inner = ::expand_names::expand_names(collapsed)?;
         Ok(Names(inner))
     }
 }

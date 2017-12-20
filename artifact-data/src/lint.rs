@@ -14,7 +14,6 @@
  * You should have received a copy of the Lesser GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-
 /// Artifact lint types.
 ///
 /// This is the primary error type for all "non fatal" errors and warnings.
@@ -25,10 +24,10 @@ use path_abs::PathAbs;
 #[derive(Debug, Clone, Hash, PartialEq)]
 /// An artifact lint error or warning
 pub struct Lint {
-    category: Category,
-    path: Option<PathAbs>,
-    line: Option<u64>,
-    msg: Msg,
+    pub category: Category,
+    pub path: Option<PathAbs>,
+    pub line: Option<u64>,
+    pub msg: Msg,
 }
 
 #[derive(Debug, Clone, Hash, PartialEq)]

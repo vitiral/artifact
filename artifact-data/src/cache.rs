@@ -34,14 +34,12 @@ lazy_static!{
     });
 }
 
-
 /// Global cache of names. Note: the methods live in `name.rs`.
 ///
 /// #SPC-data-cache.name
 pub(crate) struct NameCache {
     pub(crate) names: HashMap<String, Name>,
 }
-
 
 /// Global cache of absolute paths. Note: the methods live in `path_abs.rs`.
 ///
@@ -50,7 +48,6 @@ pub(crate) struct PathCache {
     /// References made to paths to avoid extra OS calls
     pub(crate) paths: HashMap<OsString, PathAbs>,
 }
-
 
 /// Clear the internal caches.
 ///
