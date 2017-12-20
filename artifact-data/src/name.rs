@@ -43,11 +43,24 @@ macro_rules! name {
     );
 }
 
+#[macro_export]
+/// Macro to get a subname with no error checking.
+macro_rules! subname {
+    ($raw:expr) => (
+        match SubName::from_str(&$raw) {
+            Ok(n) => n,
+            Err(_) => panic!("invalid subname!({})", $raw),
+        }
+    );
+}
+
 #[derive(Debug, Fail)]
 pub enum NameError {
     #[fail(display = "{}", msg)] InvalidName { msg: String },
 
     #[fail(display = "{}", msg)] InvalidCollapsed { msg: String },
+
+    #[fail(display = "{}", msg)] InvalidSubName { msg: String },
 }
 
 #[derive(Clone, Eq, PartialEq, Hash, Ord, PartialOrd)]
@@ -63,6 +76,13 @@ pub enum Type {
     REQ,
     SPC,
     TST,
+}
+
+#[derive(Clone)]
+/// A subname, i.e. `ART-foo.subname`
+pub struct SubName {
+    pub raw: String,
+    pub key: String,
 }
 
 /// Internal Name object, use Name instead.
@@ -102,6 +122,10 @@ lazy_static!{
     /// Valid name regular expression
     static ref NAME_VALID_RE: Regex = Regex::new(
         &format!(r"(?i)^{}$", NAME_VALID_STR)).unwrap();
+
+    /// Valid subname regex
+    static ref VALID_SUB_NAME_RE: Regex = Regex::new(
+        &format!(r"(?i)^\.[{}]+$", NAME_VALID_CHARS!())).unwrap();
 }
 
 
@@ -232,6 +256,66 @@ impl Ord for InternalName {
 }
 
 impl PartialOrd for InternalName {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(&other))
+    }
+}
+
+// SUBNAME METHODS
+
+impl SubName {
+    /// Unchecked creation of subname
+    pub fn new_unchecked(raw: &str) -> SubName {
+        debug_assert!(VALID_SUB_NAME_RE.is_match(raw), "raw: {:?}", raw);
+        SubName {
+            raw: raw.to_string(),
+            key: raw.to_ascii_uppercase(),
+        }
+    }
+}
+
+impl FromStr for SubName {
+    type Err = Error;
+
+    /// Primary method to create a subname.
+    fn from_str(raw: &str) -> Result<SubName> {
+        if !VALID_SUB_NAME_RE.is_match(raw) {
+            Err(NameError::InvalidSubName {
+                msg: format!("{} is not a valid subname", raw)
+            }.into())
+        } else {
+            Ok(SubName::new_unchecked(raw))
+        }
+    }
+}
+
+impl fmt::Debug for SubName {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{:?}", self.raw)
+    }
+}
+
+impl Hash for SubName {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.key.hash(state);
+    }
+}
+
+impl PartialEq for SubName {
+    fn eq(&self, other: &SubName) -> bool {
+        self.key == other.key
+    }
+}
+
+impl Eq for SubName {}
+
+impl Ord for SubName {
+    fn cmp(&self, other: &Self) -> Ordering {
+        self.key.cmp(&other.key)
+    }
+}
+
+impl PartialOrd for SubName {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         Some(self.cmp(&other))
     }

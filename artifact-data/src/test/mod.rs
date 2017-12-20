@@ -23,6 +23,7 @@
 pub mod dev_prelude;
 mod name;
 mod family;
+mod implemented;
 mod raw;
 mod raw_names;
 

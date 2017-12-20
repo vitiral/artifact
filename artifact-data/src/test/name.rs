@@ -16,13 +16,12 @@
  * */
 //! #TST-data-name
 //!
-//! This module defines all operations around creating the key (called Name)
-//! used in Artifact.
+//! This module defines all operations around testing artifact names
 
 use serde_json;
 
 use test::dev_prelude::*;
-use name::{self, Name, Type};
+use name::{self, Name, Type, SubName};
 
 // HELPERS and TRAITS
 
@@ -133,6 +132,30 @@ fn sanity_names_invalid() {
         "",
         "a",
     ]);
+}
+
+#[test]
+fn sanity_subnames() {
+    let subnames: &[(String, Option<SubName>)] = &[
+        // Valid
+        (".foo".into(), Some(SubName { raw: ".foo".into(), key: ".FOO".into() })),
+        (".foo_bar".into(), Some(SubName { raw: ".foo_bar".into(), key: ".FOO_BAR".into() })),
+        (".BAR".into(), Some(subname!(".bar"))), // only keys matter
+        (".bar".into(), Some(subname!(".bAr"))), // only keys matter
+
+        // Invalid
+        ("foo".into(), None),              // no period
+        (".foo-bar".into(), None),              // `-` not allowed
+        ("REQ-foo".into(), None),               // full artifact not allowed
+        ("REQ-foo.foo-bar".into(), None),       // full+subname not allowed
+    ];
+
+    fn subname_valid(s: &String) -> StrResult<SubName> {
+        SubName::from_str(s)
+            .map_err(|e| e.to_string())
+    }
+
+    assert_generic(subname_valid, subnames);
 }
 
 #[test]

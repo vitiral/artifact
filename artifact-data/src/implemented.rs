@@ -19,8 +19,54 @@
 //! This module defines the types and methods necessary for getting the
 //! locations where artifacts are implemented in source code.
 
+use regex::Regex;
+
 use dev_prelude::*;
+use name::{Name, NameError, SubName};
 use path_abs::PathAbs;
+
+/// base definition of a valid name. Some pieces may ignore case.
+pub const NAME_VALID_STR: &'static str = concat!(
+    r"(?:REQ|SPC|TST)-(?:[",
+    NAME_VALID_CHARS!(),
+    r"]+-)*(?:[",
+    NAME_VALID_CHARS!(),
+    r"]+)",
+);
+
+lazy_static!{
+    /// Name reference that can exist in source code
+    static ref SRC_NAME_RE: Regex = Regex::new(
+        &format!(r#"(?xi)
+        \#(                 # start main section
+        (?:SPC|TST)         # only SPC or TST
+        -(?:[{0}]+-)*       # first section
+        (?:[{0}]+)          # (optional) additional sections
+        )                   # end main section
+        (\.[{0}]+)?         # (optional) sub section
+        "#, NAME_VALID_CHARS!())).unwrap();
+}
+
+/// Read from the stream, returning parsed location references
+pub fn parse_locations<R: Read>(stream: R) -> ::std::io::Result<Vec<(u64, Name, Option<SubName>)>> {
+    let mut out: Vec<(u64, Name, Option<SubName>)> = Vec::new();
+    for (line_num, line_maybe) in BufReader::new(stream).lines().enumerate() {
+        let line = line_maybe?;
+        for captures in SRC_NAME_RE.captures_iter(&line) {
+            // unwrap: group 1 always exists in regex
+            let name_mat = captures.get(1).unwrap();
+            // unwrap: pre-validated by regex
+            let name = Name::from_str(name_mat.as_str()).unwrap();
+            // subname is optional
+            let subname = match captures.get(2) {
+                Some(sub_mat) => Some(SubName::new_unchecked(sub_mat.as_str())),
+                None => None,
+            };
+            out.push((line_num as u64, name, subname));
+        }
+    }
+    Ok(out)
+}
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 /// Encapsulates the implementation state of the artifact
@@ -45,13 +91,5 @@ pub struct ImplCode {
 pub struct CodeLoc {
     pub file: PathAbs,
     pub line: u64,
-    pub col: u64,
 }
 
-
-#[derive(Debug, Clone, Hash, PartialEq, Eq)]
-/// A subname, i.e. `ART-foo.subname`
-pub struct SubName {
-    raw: String,
-    key: String,
-}
