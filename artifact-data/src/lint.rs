@@ -17,6 +17,7 @@
 /// Artifact lint types.
 ///
 /// This is the primary error type for all "non fatal" errors and warnings.
+use std::sync::mpsc::Sender;
 
 use dev_prelude::*;
 use path_abs::PathAbs;
@@ -25,7 +26,7 @@ use path_abs::PathAbs;
 /// An artifact lint error or warning
 pub struct Lint {
     pub category: Category,
-    pub path: Option<PathAbs>,
+    pub path: Option<PathBuf>,
     pub line: Option<u64>,
     pub msg: Msg,
 }
@@ -43,4 +44,15 @@ pub enum Category {
 pub enum Msg {
     Error(String),
     Warning(String),
+}
+
+pub fn io_error<P: AsRef<Path>>(lints: &Sender<Lint>, path: P, err: &str) {
+    lints
+        .send(Lint {
+            category: Category::LoadPaths,
+            path: Some(path.as_ref().to_path_buf()),
+            line: None,
+            msg: Msg::Error(format!("Error during loading: {}", err)),
+        })
+        .expect("failed to send io-error");
 }

@@ -26,6 +26,7 @@ extern crate failure;
 extern crate itertools;
 #[macro_use]
 extern crate matches;
+extern crate rayon;
 extern crate regex;
 extern crate serde;
 extern crate serde_json;

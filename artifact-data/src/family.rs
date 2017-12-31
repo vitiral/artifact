@@ -37,14 +37,8 @@ macro_rules! names {
 }
 
 /// Collection of Names, used in partof and parts for storing relationships
-#[derive(Clone, Eq, PartialEq)]
+#[derive(Clone, Default, Eq, PartialEq)]
 pub struct Names(pub(crate) HashSet<Name>);
-
-impl Names {
-    pub fn new() -> Names {
-        Names(HashSet::new())
-    }
-}
 
 impl fmt::Debug for Names {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -147,7 +141,7 @@ impl<'de> Visitor<'de> for NamesVisitor {
     where
         A: SeqAccess<'de>,
     {
-        let mut out = Names::new();
+        let mut out = Names::default();
         while let Some(s) = seq.next_element::<String>()? {
             let n = Name::from_str(&s).map_err(serde::de::Error::custom)?;
             out.insert(n);

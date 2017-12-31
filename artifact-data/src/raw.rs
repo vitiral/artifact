@@ -30,13 +30,15 @@ use raw_names::NamesRaw;
 // TYPES
 
 impl Names {
-    pub fn to_names_raw(self) -> NamesRaw {
+    /// Names and NamesRaw are equivalent
+    pub fn into_names_raw(self) -> NamesRaw {
         NamesRaw { inner: self.0 }
     }
 }
 
 impl NamesRaw {
-    pub fn to_names(self) -> Names {
+    /// Names and NamesRaw are equivalent
+    pub fn into_names(self) -> Names {
         Names(self.inner)
     }
 }

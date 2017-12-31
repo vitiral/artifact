@@ -19,9 +19,11 @@ pub use proptest::prelude::*;
 pub use pretty_assertions::Comparison;
 pub use itertools::Itertools;
 pub use rand::Rng;
+use std::env;
 use regex_generate;
 use unicode_segmentation::UnicodeSegmentation;
 
+use path_abs::PathAbs;
 use name::{Name, SubName};
 use serde::{Deserialize, Serialize};
 
@@ -32,7 +34,23 @@ pub const RNG_LINE_PAT: &str = r#"(?x)
     [-.\ \\/\(\)\[\]!@\#$%^&*A-Za-z0-9]{1,32}
 "#;
 
-// TODO: Given list of `(input, expected)`, assert `method(input) == expected
+lazy_static!{
+    pub static ref ARTIFACT_DATA_PATH: PathAbs = PathAbs::new(
+            PathAbs::new(file!())
+                .unwrap() // crate/src/test/dev_prelude.rs
+                .parent()
+                .unwrap() // crate/src/test
+                .parent()
+                .unwrap() // crate/src
+                .parent()
+                .unwrap() // crate/
+            ).unwrap();
+    pub static ref INTEROP_TESTS_PATH: PathAbs = ARTIFACT_DATA_PATH
+        .join_abs("interop_tests")
+        .unwrap();
+}
+
+/// Given list of `(input, expected)`, assert `method(input) == expected
 pub fn assert_generic<F, I, E>(method: F, values: &[(I, Option<E>)])
 where
     F: Fn(&I) -> StrResult<E>,

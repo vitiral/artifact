@@ -147,41 +147,6 @@ There are a couple of invalid items in text that need to be linted.
 - `^#\sART-name$`: in the markdown format these get interpreted as individual artifacts.
 - `^###$`: in the markdown format these get interepreted as "end of data" lines.
 
-# SPC-data-src
-## Loading source code (implementation) links
-
-### [[.load]]: Loading Locations
-The process for loading implementation locations is fairly straightforward:
-- Define the regular expression of valid names. Valid names inclue:
-  - `SRC` and `TST` types ONLY.
-  - Any valid postfix name (i.e. `SPC-foo-bar-baz_bob`)
-  - (optional) a sub-name specified by a period (i.e. `SPC-foo.sub_impl`).
-- Walk the `code_paths`, iterating over each line for the regex and pulling
-  out any `Name` or `SubName` locations.
-
-This results in two maps for each file:
-- `Name => CodeLoc`
-- `SubName => CodeLoc`
-
-Along with two linting vectors for any collisions.
-
-### [[.join]]: Joining Locations
-The `Name` and `SubName` maps from each file are joined into two large maps
-respectively (with any collisions put in the linting vectors which are also
-joined).
-
-We must then construct a map of `Name => Implementation` in order for later
-steps to construct the full `Artifact` object. We do this by:
-- Constructing a map of `Name => Map<SubName, CodeLoc>`, where `Name` is the
-  prefix/name of the underlying `SubName`s.
-- Building the `Name => Implementation` map by:
-  - Draining the `Name => CodeLoc` map and inserting `Implementation` objects.
-  - Draining the just created `Name => Map<SubName, CodeLoc>` and either
-    modifying or inserting `Implementation` objects.
-
-> Note: we do not worry about whether such `Name` or `SubName`s actually exist.
-> That is the job of a later linting step.
-
 # TST-data
 Testing the data deserialization and processing, as well as reserialization is a major
 concern. The `data` API is used for:
@@ -261,3 +226,4 @@ The basic design is:
       NONE is special.
 - The test harness then loads the project and assertions file and asserts all
   of the assertions.
+

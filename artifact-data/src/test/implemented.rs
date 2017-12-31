@@ -14,6 +14,8 @@
  * You should have received a copy of the Lesser GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
+/// #TST-data-src
+/// Test the "implemented" (i.e. source code parsing) module.
 
 use std::sync::mpsc::channel;
 use rand;
@@ -22,6 +24,7 @@ use unicode_segmentation::UnicodeSegmentation;
 
 use test::dev_prelude::*;
 use test::raw_names::arb_names_raw;
+use test::framework::run_interop_test;
 use name::{self, Name, SubName, Type};
 use raw_names::NamesRaw;
 use path_abs::PathAbs;
@@ -96,6 +99,7 @@ pub fn replace_links(raw: &str) -> String {
 // SANITY
 
 #[test]
+/// #TST-data-src.parse
 fn sanity_parse_locations() {
     let example = r#"
 This is some kind of text file.
@@ -118,7 +122,8 @@ Some are legitamate subnames:
 And to the right:
     %SPC-right.sub
 "#;
-    let expected = &[
+    let file = PathAbs::fake("/fake/file.c");
+    let mut expected: Vec<_> = vec![
         (3, name!("SPC-example"), None),
         (3, name!("TST-example"), None),
         (3, name!("TST-example"), None),
@@ -133,14 +138,22 @@ And to the right:
         (16, name!("SPC-sub"), Some(subname!(".name"))),
         (19, name!("SPC-right"), Some(subname!(".sub"))),
     ];
-    let locations = parse_locations(replace_links(example).as_bytes()).unwrap();
+    let expected: Vec<_> = expected
+        .drain(0..)
+        .map(|(line, name, sub)| (CodeLoc::new(&file, line), name, sub))
+        .collect();
+    let (send, locations) = channel();
+    parse_locations(&send, &file, replace_links(example).as_bytes()).unwrap();
+    drop(send);
+    let locations: Vec<_> = locations.into_iter().collect();
 
-    assert_eq!(expected, locations.as_slice());
+    assert_eq!(expected, locations);
 }
 
 #[test]
+/// #TST-data-src.join
 fn sanity_join_locations() {
-    let (mut send_lints, lints) = channel();
+    let (send_lints, lints) = channel();
 
     let file1 = PathAbs::fake("/fake/foo.py");
     let file2 = PathAbs::fake("/fake/bar.py");
@@ -153,37 +166,52 @@ fn sanity_join_locations() {
     let sub_a = subname!(".sub_a");
     let sub_b = subname!(".sub_b");
 
-    let locations = &[
+    let locations = vec![
+        // -- file1
+        // 3 valid req-foo
+        (CodeLoc::new(&file1, 1), req_foo.clone(), None),
         (
-            file1.clone(),
-            vec![
-                // 3 valid req-foo
-                (1, req_foo.clone(), None),
-                (2, req_foo.clone(), Some(sub_a.clone())),
-                (3, req_foo.clone(), Some(sub_b.clone())),
-                // immediate duplicate spc_bar
-                (4, spc_bar.clone(), Some(sub_a.clone())),
-                (5, spc_bar.clone(), Some(sub_a.clone())),
-            ],
+            CodeLoc::new(&file1, 2),
+            req_foo.clone(),
+            Some(sub_a.clone()),
         ),
         (
-            file2.clone(),
-            vec![
-                (1, tst_baz.clone(), None),
-                (2, tst_baz.clone(), Some(sub_a.clone())),
-            ],
+            CodeLoc::new(&file1, 3),
+            req_foo.clone(),
+            Some(sub_b.clone()),
+        ),
+        // immediate duplicate spc_bar
+        (
+            CodeLoc::new(&file1, 4),
+            spc_bar.clone(),
+            Some(sub_a.clone()),
         ),
         (
-            file3.clone(),
-            vec![
-                // valid spc_bar
-                (4, spc_bar.clone(), Some(sub_b.clone())),
-                // additional duplicate spc_bar.a
-                (5, spc_bar.clone(), Some(sub_a.clone())),
-                // single duplicate of tst_baz
-                (20, tst_baz.clone(), Some(sub_a.clone())),
-            ],
+            CodeLoc::new(&file1, 5),
+            spc_bar.clone(),
+            Some(sub_a.clone()),
         ),
+        // --file2
+        (CodeLoc::new(&file2, 1), tst_baz.clone(), None),
+        (
+            CodeLoc::new(&file2, 2),
+            tst_baz.clone(),
+            Some(sub_a.clone()),
+        ),
+        // --file3
+        (
+            CodeLoc::new(&file3, 4),
+            spc_bar.clone(),
+            Some(sub_b.clone()),
+        ),
+        // additional duplicate spc_bar.a
+        (
+            CodeLoc::new(&file3, 5),
+            spc_bar.clone(),
+            Some(sub_a.clone()),
+        ),
+        // single duplicate of tst_baz
+        (CodeLoc::new(&file3, 20), tst_baz.clone(), None),
     ];
 
     let mut expected = hashmap!{
@@ -202,9 +230,9 @@ fn sanity_join_locations() {
             },
         },
         tst_baz.clone() => ImplCode {
-            primary: Some(CodeLoc::new(&file2, 1)),
+            primary: Some(CodeLoc::new(&file3, 20)),
             secondary: hashmap!{
-                sub_a.clone() => CodeLoc::new(&file3, 20),
+                sub_a.clone() => CodeLoc::new(&file2, 2),
             },
         },
     };
@@ -218,27 +246,22 @@ fn sanity_join_locations() {
     assert_eq!(joined, expected);
 
     let lints: Vec<_> = lints.into_iter().collect();
-    let create_lint = |path: &PathAbs, line, msg: &str| {
-        lint::Lint {
-            category: lint::Category::ParseCodeImplementations,
-            path: Some(path.clone()),
-            line: Some(line),
-            msg: lint::Msg::Error(format!("duplicate detected: {}", msg)),
-        }
+    let create_lint = |path: &PathAbs, line, msg: &str| lint::Lint {
+        category: lint::Category::ParseCodeImplementations,
+        path: Some(path.to_path_buf()),
+        line: Some(line),
+        msg: lint::Msg::Error(format!("duplicate detected: {}", msg)),
     };
 
     let spc_bar_a_str = format!("{}{}", spc_bar.as_str(), sub_a.as_str());
-    let tst_baz_a_str = format!("{}{}", tst_baz.as_str(), sub_a.as_str());
     let expected_lints = vec![
         create_lint(&file1, 4, &spc_bar_a_str),
         create_lint(&file1, 5, &spc_bar_a_str),
-
         // second file re-prints the last lint
         create_lint(&file1, 5, &spc_bar_a_str),
         create_lint(&file3, 5, &spc_bar_a_str),
-
-        create_lint(&file2, 2, &tst_baz_a_str),
-        create_lint(&file3, 20, &tst_baz_a_str),
+        create_lint(&file2, 1, tst_baz.as_str()),
+        create_lint(&file3, 20, tst_baz.as_str()),
     ];
     assert_eq!(lints, expected_lints);
 }
@@ -247,13 +270,17 @@ fn sanity_join_locations() {
 
 proptest! {
     #[test]
+    /// #TST-data-src.parse_fuzz
     fn fuzz_locations((ref _names, ref expected_locations, ref code_text) in arb_source_code(10)) {
         println!("## Code Text:\n{}", code_text);
+        let file = PathAbs::fake("/fake");
         let locations = {
-            let mut l: Vec<_> = parse_locations(code_text.as_bytes())
+            let (send, locations) = channel();
+            parse_locations(&send, &file, code_text.as_bytes())
                 .expect("parse");
-            let mut l: Vec<_> = l.drain(0..)
-                // drop the column
+            drop(send);
+            let mut l: Vec<_> = locations.into_iter()
+                // drop the loc
                 .map(|(_, n, s)| (n, s))
                 .collect();
             l.sort();
@@ -266,4 +293,11 @@ proptest! {
         };
         assert_eq!(locations, expected);
     }
+}
+
+// INTEROP TESTS
+
+#[test]
+fn interop_locations() {
+    run_interop_test(INTEROP_TESTS_PATH.join("interop_locations"));
 }

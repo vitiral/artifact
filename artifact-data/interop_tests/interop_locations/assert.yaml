@@ -1,0 +1,13 @@
+# Source only example project.
+#
+# This just asserts that the source files are parsed as expected.
+
+code_paths:
+- "src/example.py"
+# implemented:
+#     SPC-example:
+#         primary:
+#             - file: "$REPO/src/example.py"
+#             - line: 2
+#         secondary: {}
+

@@ -26,6 +26,7 @@ mod family;
 mod implemented;
 mod raw;
 mod raw_names;
+mod framework;
 
 pub use test::dev_prelude::assert_generic;
 pub use test::family::arb_names;

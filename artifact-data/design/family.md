@@ -97,7 +97,7 @@ detailed in the graph below:
 
 ```dot
 digraph G {
-    "[[dot:.get_parent]]" -> { "if" [label="if elem-len > 1"; shape=diamond] };
+    ".get_parent" -> { "if" [label="if elem-len > 1"; shape=diamond] };
     "if" -> "return None" [label = "no"];
     "if" -> {"clone raw string" [
         shape=box;
@@ -105,7 +105,7 @@ digraph G {
         shape=box;
     ]} -> "return new name";
 
-    "[[dot:.get_auto_partof]]" -> { if_req [label="type is REQ"; shape=diamond] };
+    ".get_auto_partof" -> { if_req [label="type is REQ"; shape=diamond] };
     if_req -> "return None" [label="yes"];
     if_req -> {"get higher-order type" [
         shape=box;
@@ -116,6 +116,9 @@ digraph G {
     ]} -> "return new Name";
 }
 ```
+
+- [[.get_parent]]: defined above (TODO: remove this)
+- [[.get_auto_partof]]: defined above (TODO: remove this)
 
 # TST-data-family
 partof: TST-data-fuzz

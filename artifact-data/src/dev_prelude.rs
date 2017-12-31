@@ -29,16 +29,12 @@ pub fn string_trim_right(s: &mut String) {
 }
 
 /// A simple implementation of "touch"
-#[allow(dead_code)]
 pub fn touch<P: AsRef<Path>>(path: P) -> ::std::io::Result<()> {
-    match OpenOptions::new()
+    OpenOptions::new()
         .create(true)
         .write(true)
-        .open(path.as_ref())
-    {
-        Ok(_) => Ok(()),
-        Err(e) => Err(e),
-    }
+        .open(path.as_ref())?;
+    Ok(())
 }
 
 #[test]
