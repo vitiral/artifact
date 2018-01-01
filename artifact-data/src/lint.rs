@@ -22,37 +22,40 @@ use std::sync::mpsc::Sender;
 use dev_prelude::*;
 use path_abs::PathAbs;
 
-#[derive(Debug, Clone, Hash, PartialEq)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 /// An artifact lint error or warning
 pub struct Lint {
-    pub category: Category,
+    pub level: Level,
     pub path: Option<PathBuf>,
     pub line: Option<u64>,
-    pub msg: Msg,
+    pub category: Category,
+    pub msg: String,
 }
 
-#[derive(Debug, Clone, Hash, PartialEq)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+/// The lint level, error will eventually stop the program.
+pub enum Level {
+    Error,
+    Warn,
+}
+
+#[derive(Debug, Clone, Hash, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 /// Where the lint is from
 pub enum Category {
     LoadPaths,
     ParseCodeImplementations,
     ParseArtifactFiles,
-}
-
-#[derive(Debug, Clone, Hash, PartialEq)]
-/// The actual message and warning level
-pub enum Msg {
-    Error(String),
-    Warning(String),
+    AutoPartof,
 }
 
 pub fn io_error<P: AsRef<Path>>(lints: &Sender<Lint>, path: P, err: &str) {
     lints
         .send(Lint {
+            level: Level::Error,
             category: Category::LoadPaths,
             path: Some(path.as_ref().to_path_buf()),
             line: None,
-            msg: Msg::Error(format!("Error during loading: {}", err)),
+            msg: format!("Error during loading: {}", err),
         })
         .expect("failed to send io-error");
 }

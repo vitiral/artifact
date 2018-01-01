@@ -14,8 +14,13 @@
  * You should have received a copy of the Lesser GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-// the failure `Error` type
 pub use std_prelude::*;
+// TODO: move these to std_prelude
+pub use std::collections::BTreeSet;
+use std::cmp::Ord;
+use std::hash::Hash;
+
+pub use ordermap::{OrderMap, OrderSet};
 
 pub use std::result;
 pub use failure::{Error, Fail};
@@ -42,4 +47,16 @@ fn sanity_trim_right() {
     let mut result = "  hello    ".into();
     string_trim_right(&mut result);
     assert_eq!(result, "  hello");
+}
+
+pub fn sort_ordermap<K: Ord + Hash, V>(m: &mut OrderMap<K, V>) {
+    let mut ordered: Vec<_> = m.drain(..).collect();
+    ordered.sort_by(|left, right| left.0.cmp(&right.0));
+    m.extend(ordered.drain(..));
+}
+
+pub fn sort_orderset<K: Ord + Hash>(m: &mut OrderSet<K>) {
+    let mut ordered: Vec<_> = m.drain(..).collect();
+    ordered.sort_by(|left, right| left.cmp(&right));
+    m.extend(ordered.drain(..));
 }

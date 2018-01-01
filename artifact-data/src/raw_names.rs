@@ -40,7 +40,7 @@ macro_rules! names_raw {
 /// serialization/deserializtion for a better text user interface.
 #[derive(Clone, Default, Eq, PartialEq)]
 pub struct NamesRaw {
-    pub(crate) inner: HashSet<Name>,
+    pub(crate) inner: OrderSet<Name>,
 }
 
 impl fmt::Debug for NamesRaw {
@@ -50,22 +50,30 @@ impl fmt::Debug for NamesRaw {
 }
 
 impl Deref for NamesRaw {
-    type Target = HashSet<Name>;
+    type Target = OrderSet<Name>;
 
-    fn deref(&self) -> &HashSet<Name> {
+    fn deref(&self) -> &OrderSet<Name> {
         &self.inner
     }
 }
 
 impl DerefMut for NamesRaw {
-    fn deref_mut(&mut self) -> &mut HashSet<Name> {
+    fn deref_mut(&mut self) -> &mut OrderSet<Name> {
         &mut self.inner
     }
 }
 
-impl From<HashSet<Name>> for NamesRaw {
-    fn from(names: HashSet<Name>) -> NamesRaw {
+impl From<OrderSet<Name>> for NamesRaw {
+    fn from(names: OrderSet<Name>) -> NamesRaw {
         NamesRaw { inner: names }
+    }
+}
+
+impl From<HashSet<Name>> for NamesRaw {
+    fn from(mut names: HashSet<Name>) -> NamesRaw {
+        NamesRaw {
+            inner: names.drain().collect(),
+        }
     }
 }
 
@@ -130,7 +138,7 @@ impl<'de> Visitor<'de> for NamesRawVisitor {
         // Note: `::<String>` is necessary
         while let Some(s) = seq.next_element::<String>()? {
             let mut elem = NamesRaw::from_str(&s).map_err(serde::de::Error::custom)?;
-            out.extend(elem.drain());
+            out.extend(elem.drain(..));
         }
         Ok(out)
     }

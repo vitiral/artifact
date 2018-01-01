@@ -40,11 +40,11 @@ use lint;
 pub fn random_impl_links<R: Rng + Clone>(
     rng: &mut R,
     names: &NamesRaw,
-) -> HashSet<(Name, Option<SubName>)> {
+) -> OrderSet<(Name, Option<SubName>)> {
     let mut textgen =
         regex_generate::Generator::parse(r"\.([a-zA-Z0-9_]{1,10})", rng.clone()).unwrap();
     let mut buffer: Vec<u8> = Vec::with_capacity(10);
-    let mut out = HashSet::new();
+    let mut out = OrderSet::new();
     for name in names.iter() {
         // Base name is always included
         out.insert((name.clone(), None));
@@ -65,7 +65,7 @@ pub fn random_impl_links<R: Rng + Clone>(
 /// Generate random source code text with links to all the given `name[.sub]`s.
 pub fn random_source_code<R: Rng + Clone>(
     rng: &mut R,
-    locations: &HashSet<(Name, Option<SubName>)>,
+    locations: &OrderSet<(Name, Option<SubName>)>,
 ) -> String {
     let mut lines = random_lines(rng);
     if lines.is_empty() {
@@ -80,7 +80,7 @@ pub fn random_source_code<R: Rng + Clone>(
 /// Arbitrary single source code file
 pub fn arb_source_code(
     size: usize,
-) -> BoxedStrategy<(NamesRaw, HashSet<(Name, Option<SubName>)>, String)> {
+) -> BoxedStrategy<(NamesRaw, OrderSet<(Name, Option<SubName>)>, String)> {
     arb_names_raw(size)
         .prop_perturb(|names, mut rng| {
             let locations = random_impl_links(&mut rng, &names);
@@ -214,43 +214,42 @@ fn sanity_join_locations() {
         (CodeLoc::new(&file3, 20), tst_baz.clone(), None),
     ];
 
-    let mut expected = hashmap!{
+    let expected = ordermap!{
         req_foo.clone() => ImplCode {
             primary: Some(CodeLoc::new(&file1, 1)),
-            secondary: hashmap!{
+            secondary: ordermap!{
                 sub_a.clone() => CodeLoc::new(&file1, 2),
                 sub_b.clone() => CodeLoc::new(&file1, 3),
             },
         },
         spc_bar.clone() => ImplCode {
             primary: None,
-            secondary: hashmap!{
+            secondary: ordermap!{
                 sub_a.clone() => CodeLoc::new(&file3, 5),
                 sub_b.clone() => CodeLoc::new(&file3, 4),
             },
         },
         tst_baz.clone() => ImplCode {
             primary: Some(CodeLoc::new(&file3, 20)),
-            secondary: hashmap!{
+            secondary: ordermap!{
                 sub_a.clone() => CodeLoc::new(&file2, 2),
             },
         },
     };
     println!("getting joined");
-    let mut joined = join_locations(&send_lints, locations);
+    let joined = join_locations(&send_lints, locations);
     drop(send_lints);
     println!("got joined");
 
-    let joined = BTreeMap::from_iter(joined.drain());
-    let expected = BTreeMap::from_iter(expected.drain());
     assert_eq!(joined, expected);
 
     let lints: Vec<_> = lints.into_iter().collect();
     let create_lint = |path: &PathAbs, line, msg: &str| lint::Lint {
+        level: lint::Level::Error,
         category: lint::Category::ParseCodeImplementations,
         path: Some(path.to_path_buf()),
         line: Some(line),
-        msg: lint::Msg::Error(format!("duplicate detected: {}", msg)),
+        msg: format!("duplicate detected: {}", msg),
     };
 
     let spc_bar_a_str = format!("{}{}", spc_bar.as_str(), sub_a.as_str());

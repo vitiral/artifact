@@ -2,12 +2,28 @@
 #
 # This just asserts that the source files are parsed as expected.
 
-code_paths:
-- "src/example.py"
-# implemented:
-#     SPC-example:
-#         primary:
-#             - file: "$REPO/src/example.py"
-#             - line: 2
-#         secondary: {}
+load_lints: []
+implemented_lints: []
 
+code_paths:
+- src/lib.rs
+- pylib/__init__.py
+- pylib/example.py
+
+implemented:
+    TST-pyinit:
+        primary:
+            file: pylib/__init__.py
+            line: 0
+        secondary: {}
+    SPC-pylib:
+        primary: null
+        secondary:
+            .example:
+                file: pylib/example.py
+                line: 1
+    REQ-rust:
+        primary:
+            file: src/lib.rs
+            line: 0
+        secondary: {}

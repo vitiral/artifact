@@ -22,7 +22,7 @@
 
 use regex::Regex;
 use rayon::prelude::*;
-use std::collections::hash_map::Entry;
+use ordermap::Entry;
 use std::sync::mpsc::{channel, Sender};
 
 use dev_prelude::*;
@@ -47,7 +47,7 @@ pub enum Impl {
 /// Encapsulates the implementation state of the artifact in code.
 pub struct ImplCode {
     pub primary: Option<CodeLoc>,
-    pub secondary: HashMap<SubName, CodeLoc>,
+    pub secondary: OrderMap<SubName, CodeLoc>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -84,9 +84,9 @@ lazy_static!{
 /// Parse the locations from a set of files in parallel
 ///
 /// Any io errors are converted into lint errors instead.
-pub fn parse_locations_par(
+pub fn load_locations(
     send_lints: Sender<lint::Lint>,
-    files: &[PathAbs],
+    files: &OrderSet<PathAbs>,
 ) -> Vec<(CodeLoc, Name, Option<SubName>)> {
     let (send, locations) = channel();
     let stuff: Vec<_> = files
@@ -149,10 +149,10 @@ pub(crate) fn parse_locations<R: Read>(
 pub fn join_locations(
     send_lints: &Sender<lint::Lint>,
     mut locations: Vec<(CodeLoc, Name, Option<SubName>)>,
-) -> HashMap<Name, ImplCode> {
+) -> OrderMap<Name, ImplCode> {
     // split into primary and secondary, simultaniously checking there are no duplicates.
-    let mut primary_locs: HashMap<Name, CodeLoc> = HashMap::new();
-    let mut secondary_locs: HashMap<Name, HashMap<SubName, CodeLoc>> = HashMap::new();
+    let mut primary_locs: OrderMap<Name, CodeLoc> = OrderMap::new();
+    let mut secondary_locs: OrderMap<Name, OrderMap<SubName, CodeLoc>> = OrderMap::new();
     for (loc, name, sub) in locations.drain(0..) {
         if let Some(sub) = sub {
             insert_secondary(send_lints, &mut secondary_locs, &name, &sub, loc);
@@ -163,9 +163,9 @@ pub fn join_locations(
     }
 
     // Now join them together
-    let empty_hash = HashMap::with_capacity(0);
-    let mut out: HashMap<Name, ImplCode> =
-        HashMap::from_iter(primary_locs.drain().map(|(name, loc)| {
+    let empty_hash = OrderMap::with_capacity(0);
+    let mut out: OrderMap<Name, ImplCode> =
+        OrderMap::from_iter(primary_locs.drain(..).map(|(name, loc)| {
             let code = ImplCode {
                 primary: Some(loc),
                 secondary: secondary_locs
@@ -175,7 +175,7 @@ pub fn join_locations(
             (name, code)
         }));
 
-    for (name, secondary) in secondary_locs.drain() {
+    for (name, secondary) in secondary_locs.drain(..) {
         // We removed secondary_locs while constructing from primary_locs,
         // so these names are always without a primary.
         // (i.e. no need to use Entry API)
@@ -193,7 +193,7 @@ pub fn join_locations(
 /// internal helper for `join_locations`
 fn insert_secondary(
     send_lints: &Sender<lint::Lint>,
-    locs: &mut HashMap<Name, HashMap<SubName, CodeLoc>>,
+    locs: &mut OrderMap<Name, OrderMap<SubName, CodeLoc>>,
     name: &Name,
     sub: &SubName,
     loc: CodeLoc,
@@ -217,7 +217,7 @@ fn insert_secondary(
             }
         }
         Entry::Vacant(entry) => {
-            entry.insert(hashmap!{sub.clone() => loc});
+            entry.insert(ordermap!{sub.clone() => loc});
         }
     }
 }
@@ -226,10 +226,11 @@ fn insert_secondary(
 fn duplicate_detected(send_lints: &Sender<lint::Lint>, path: &PathAbs, line: u64, msg: &str) {
     send_lints
         .send(lint::Lint {
+            level: lint::Level::Error,
             category: lint::Category::ParseCodeImplementations,
             path: Some(path.to_path_buf()),
             line: Some(line),
-            msg: lint::Msg::Error(format!("duplicate detected: {}", msg)),
+            msg: format!("duplicate detected: {}", msg),
         })
         .expect("send failed in implemented.rs");
 }

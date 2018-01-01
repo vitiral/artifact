@@ -49,11 +49,6 @@ impl PathAbs {
         Ok(out)
     }
 
-    /// Join to a path, ensuring the resulting path is absolute.
-    pub fn join_abs<P: AsRef<Path>>(&self, end: P) -> io::Result<PathAbs> {
-        PathAbs::new(self.join(end))
-    }
-
     /// Create a path from a "project path", i.e. from a settings file.
     ///
     /// Note: for backwards compatibility, project paths can have "{repo}/" in front of them.
@@ -84,11 +79,6 @@ impl FoundPaths {
     }
 }
 
-/// Add the path prefix to a list of strings
-pub fn prefix_paths(prefix: &PathAbs, ends: &[String]) -> io::Result<Vec<PathAbs>> {
-    ends.iter().map(|e| prefix.join_abs(e)).collect()
-}
-
 /// Walk the path returning the found files and directories.
 ///
 /// `filter` is a closure to filter file (not dir) names. Return `false` to exclude
@@ -100,7 +90,7 @@ pub fn prefix_paths(prefix: &PathAbs, ends: &[String]) -> io::Result<Vec<PathAbs
 pub fn discover_paths<F, P>(
     path: P,
     filter: F,
-    visited: &HashSet<PathAbs>,
+    visited: &OrderSet<PathAbs>,
 ) -> ::std::io::Result<FoundPaths>
 where
     P: AsRef<Path>,
@@ -229,7 +219,7 @@ mod test {
 
         // make sure loading works as expected
         {
-            let mut found = discover_paths(tmp.path(), |_| true, &HashSet::new()).unwrap();
+            let mut found = discover_paths(tmp.path(), |_| true, &OrderSet::new()).unwrap();
             found.sort();
             assert_eq!(found.files, files);
             assert_eq!(found.dirs, expected_dirs);
@@ -237,7 +227,7 @@ mod test {
 
         // visiting no directories because they are already visited
         {
-            let visited = HashSet::from_iter(dirs.iter().map(|p| p.clone()));
+            let visited = OrderSet::from_iter(dirs.iter().map(|p| p.clone()));
             let found = discover_paths(tmp.path(), |_| true, &visited).unwrap();
             assert_eq!(found.files, &[f1_abs.clone()]);
             assert_eq!(found.dirs, &[tmp_abs.clone()]);
@@ -250,7 +240,7 @@ mod test {
                 // if it is contained return False (i.e. do not let it exist)
                 !filter_names.contains(p.file_name().unwrap())
             };
-            let mut found = discover_paths(tmp.path(), filter, &HashSet::new()).unwrap();
+            let mut found = discover_paths(tmp.path(), filter, &OrderSet::new()).unwrap();
             found.sort();
             assert_eq!(found.files, &[d1_f2_abs.clone()]);
             assert_eq!(found.dirs, expected_dirs);

@@ -37,7 +37,7 @@ use test::implemented::random_impl_links;
 /// This is used mostly in case `\n# ART-name\n` is randomly inserted
 pub fn lines_to_text_raw<R: Rng + Clone>(
     rng: &mut R,
-    subnames: &HashSet<SubName>,
+    subnames: &OrderSet<SubName>,
     references: &[&(Name, Option<SubName>)],
     mut lines: Vec<Vec<String>>,
 ) -> Option<TextRaw> {
@@ -83,15 +83,15 @@ pub fn arb_raw_artifacts(size: usize) -> BoxedStrategy<BTreeMap<Name, ArtifactRa
 
             // TODO: this should probably use logic defined somewhere else
             // but that logic doesn't exist yet
-            let mut subnames: HashMap<Name, HashSet<SubName>> =
-                HashMap::with_capacity(impl_links.len());
+            let mut subnames: OrderMap<Name, OrderSet<SubName>> =
+                OrderMap::with_capacity(impl_links.len());
             for &(ref name, ref sub) in &impl_links {
-                let insert_it = !subnames.contains_key(&name);
+                let insert_it = !subnames.contains_key(name);
                 if insert_it {
-                    subnames.insert(name.clone(), hashset![]);
+                    subnames.insert(name.clone(), orderset![]);
                 }
                 if let Some(ref s) = *sub {
-                    let mut subs = subnames.get_mut(&name).unwrap();
+                    let mut subs = subnames.get_mut(name).unwrap();
                     subs.insert(s.clone());
                 }
             }
@@ -106,7 +106,7 @@ pub fn arb_raw_artifacts(size: usize) -> BoxedStrategy<BTreeMap<Name, ArtifactRa
                     if p.is_empty() {
                         None
                     } else {
-                        Some(NamesRaw::from(HashSet::from_iter(p.iter().cloned())))
+                        Some(NamesRaw::from(OrderSet::from_iter(p.iter().cloned())))
                     }
                 };
                 let lines = random_lines(&mut rng);
@@ -116,7 +116,7 @@ pub fn arb_raw_artifacts(size: usize) -> BoxedStrategy<BTreeMap<Name, ArtifactRa
                     rng.shuffle(&mut l);
                     l
                 };
-                let text = lines_to_text_raw(&mut rng, &subnames[&name], &references, lines);
+                let text = lines_to_text_raw(&mut rng, &subnames[name], &references, lines);
                 let artraw = ArtifactRaw {
                     done: done,
                     partof: partof,

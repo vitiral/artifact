@@ -26,11 +26,11 @@ use path_abs::PathAbs;
 lazy_static!{
     /// global cache of names
     pub(crate) static ref NAME_CACHE: Mutex<NameCache> = Mutex::new(NameCache {
-        names: HashMap::new(),
+        names: OrderMap::new(),
     });
 
     pub(crate) static ref PATH_CACHE: Mutex<PathCache> = Mutex::new(PathCache {
-        paths: HashMap::new(),
+        paths: OrderMap::new(),
     });
 }
 
@@ -38,7 +38,7 @@ lazy_static!{
 ///
 /// #SPC-data-cache.name
 pub(crate) struct NameCache {
-    pub(crate) names: HashMap<String, Name>,
+    pub(crate) names: OrderMap<String, Name>,
 }
 
 /// Global cache of absolute paths. Note: the methods live in `path_abs.rs`.
@@ -46,7 +46,7 @@ pub(crate) struct NameCache {
 /// #SPC-data-cache.path
 pub(crate) struct PathCache {
     /// References made to paths to avoid extra OS calls
-    pub(crate) paths: HashMap<OsString, PathAbs>,
+    pub(crate) paths: OrderMap<OsString, PathAbs>,
 }
 
 /// Clear the internal caches.

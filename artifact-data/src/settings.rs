@@ -29,8 +29,8 @@ pub const SETTINGS_PATH: &str = ".art/settings.toml";
 
 #[derive(Debug, Eq, PartialEq, Clone, Serialize, Deserialize)]
 pub struct SettingsRaw {
-    // pub artifact_paths: HashSet<PathBuf>,
-    // pub exclude_artifact_paths: HashSet<PathBuf>,
+    // pub artifact_paths: OrderSet<PathBuf>,
+    // pub exclude_artifact_paths: OrderSet<PathBuf>,
     pub code_paths: Vec<String>,
     pub exclude_code_paths: Vec<String>,
     // pub file_type: FileType,
@@ -39,8 +39,8 @@ pub struct SettingsRaw {
 #[derive(Debug, Eq, PartialEq)]
 /// All paths that have to be loaded in the project.
 pub struct ProjectPaths {
-    pub code: HashSet<PathAbs>,
-    // pub artifacts: HashSet<PathAbs>,
+    pub code: OrderSet<PathAbs>,
+    // pub artifacts: OrderSet<PathAbs>,
 }
 
 /// Load the paths to all files in the project from the root path.
@@ -53,7 +53,7 @@ pub fn load_project_paths(project_path: &PathAbs) -> Result<(ProjectPaths, Vec<l
         toml::from_str(&settings_path.read()?)?
     };
 
-    let mut code_paths: HashSet<PathAbs> = HashSet::new();
+    let mut code_paths: OrderSet<PathAbs> = OrderSet::new();
     let mut visited_code_paths = load_raw_paths(&lints, project_path, &raw.exclude_code_paths);
 
     for p in raw.code_paths.drain(0..) {
@@ -82,7 +82,7 @@ fn load_raw_paths(
     lints: &Sender<lint::Lint>,
     project_path: &PathAbs,
     raw_paths: &[String],
-) -> HashSet<PathAbs> {
+) -> OrderSet<PathAbs> {
     raw_paths
         .iter()
         .filter_map(|p| {

@@ -97,7 +97,7 @@ fn names_raw_from_str(s: &str) -> NamesRaw {
 }
 
 fn names_raw_from_strs(s: &Vec<String>) -> NamesRaw {
-    let mut out = HashSet::new();
+    let mut out = OrderSet::new();
     for n in s {
         out.extend(names_raw!(n).iter().cloned())
     }

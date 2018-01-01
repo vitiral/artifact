@@ -45,9 +45,21 @@ lazy_static!{
                 .parent()
                 .unwrap() // crate/
             ).unwrap();
-    pub static ref INTEROP_TESTS_PATH: PathAbs = ARTIFACT_DATA_PATH
-        .join_abs("interop_tests")
-        .unwrap();
+    pub static ref INTEROP_TESTS_PATH: PathAbs = join_abs(&ARTIFACT_DATA_PATH, "interop_tests");
+}
+
+/// Join a path to an absolute path. Panic if it doesn't exist.
+pub fn join_abs<P: AsRef<Path>>(path: &PathAbs, end: P) -> PathAbs {
+    PathAbs::new(path.join(&end)).expect(&format!(
+        "{} + {}",
+        path.display(),
+        end.as_ref().display()
+    ))
+}
+
+/// Add the path prefix to a list of strings
+pub fn prefix_paths(prefix: &PathAbs, ends: &[String]) -> Vec<PathAbs> {
+    ends.iter().map(|e| join_abs(prefix, e)).collect()
 }
 
 /// Given list of `(input, expected)`, assert `method(input) == expected

@@ -44,9 +44,9 @@ pub fn arb_names(size: usize) -> BoxedStrategy<Names> {
 ///
 /// Returns vectors of (REQ, SPC, TST) names grouped by sorted-family
 fn split_names(names: &NamesRaw) -> (Vec<Vec<Name>>, Vec<Vec<Name>>, Vec<Vec<Name>>) {
-    let mut req = HashSet::new();
-    let mut spc = HashSet::new();
-    let mut tst = HashSet::new();
+    let mut req = OrderSet::new();
+    let mut spc = OrderSet::new();
+    let mut tst = OrderSet::new();
 
     for name in names.iter().cloned() {
         match name.ty {
@@ -60,9 +60,9 @@ fn split_names(names: &NamesRaw) -> (Vec<Vec<Name>>, Vec<Vec<Name>>, Vec<Vec<Nam
 }
 
 /// group names by their family (if they have any)
-fn group_family(names: HashSet<Name>) -> Vec<Vec<Name>> {
+fn group_family(names: OrderSet<Name>) -> Vec<Vec<Name>> {
     let mut families = Vec::new();
-    let mut remaining: HashSet<Name> = HashSet::from_iter(names.iter().cloned());
+    let mut remaining: OrderSet<Name> = OrderSet::from_iter(names.iter().cloned());
 
     for name in names.iter() {
         if !remaining.contains(name) {
@@ -167,7 +167,7 @@ pub fn rand_select_partof<R: Rng>(rng: &mut R, index: usize, names: &[Name]) -> 
 /// This does two steps:
 /// - asserts that the result of expanding is the expected
 /// - asserts that re-collapsing results in the original raw
-fn assert_collapsed_valid(values: &[(&str, Option<&str>, HashSet<&str>)]) {
+fn assert_collapsed_valid(values: &[(&str, Option<&str>, OrderSet<&str>)]) {
     let errors = values
         .iter()
         .map(|&(r, e_col, ref e)| (r, e_col, e, expand_names(r)))
@@ -176,7 +176,7 @@ fn assert_collapsed_valid(values: &[(&str, Option<&str>, HashSet<&str>)]) {
                 let result_raw = result
                     .iter()
                     .map(|n| n.raw.as_str())
-                    .collect::<HashSet<_>>();
+                    .collect::<OrderSet<_>>();
                 let mut difference = result_raw.difference(&expect).collect::<Vec<_>>();
                 if !difference.is_empty() {
                     difference.sort();
@@ -226,7 +226,7 @@ fn assert_collapsed_invalid(raw: &[&str]) {
 
 /// take a list of names and collapse them into a single
 /// string with format `REQ-foo-[bar, baz-boo], SPC-foo`
-pub fn collapse_names(names: &HashSet<Name>) -> String {
+pub fn collapse_names(names: &OrderSet<Name>) -> String {
     let raw_pieces: Vec<Vec<String>> = {
         let mut pieces: Vec<Vec<String>> = names
             .iter()
@@ -402,17 +402,17 @@ fn sanity_auto_partof() {
 /// #TST-data-family.collapse
 fn sanity_collapse_name() {
     let values = &[
-        ("REQ-foo", None, hashset!["REQ-foo"]),
-        ("REQ-[bar, foo]", None, hashset!["REQ-foo", "REQ-bar"]),
+        ("REQ-foo", None, orderset!["REQ-foo"]),
+        ("REQ-[bar, foo]", None, orderset!["REQ-foo", "REQ-bar"]),
         (
             "REQ-[zay, bar-[baz, bom], foo]",
             Some("REQ-[bar-[baz, bom], foo, zay]"),
-            hashset!["REQ-foo", "REQ-bar-baz", "REQ-bar-bom", "REQ-zay"],
+            orderset!["REQ-foo", "REQ-bar-baz", "REQ-bar-bom", "REQ-zay"],
         ),
         (
             "SPC-[foo, foo-bob, bar], REQ-baz, SPC-foo-baz",
             Some("REQ-baz, SPC-[bar, foo, foo-[baz, bob]]"),
-            hashset![
+            orderset![
                 "REQ-baz",
                 "SPC-bar",
                 "SPC-foo",

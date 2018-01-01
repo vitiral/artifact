@@ -226,4 +226,3 @@ The basic design is:
       NONE is special.
 - The test harness then loads the project and assertions file and asserts all
   of the assertions.
-

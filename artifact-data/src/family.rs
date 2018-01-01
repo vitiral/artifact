@@ -18,12 +18,16 @@
 //! This implements the types related to discovering the "family"
 //! of any artifact.
 
-use dev_prelude::*;
+use std::sync::mpsc::Sender;
 use std::fmt;
 use serde;
 use serde::de::{Deserialize, Deserializer, SeqAccess, Visitor};
 use serde::ser::{Serialize, Serializer};
+
+use dev_prelude::*;
 use name::{Name, Type, TYPE_SPLIT_LOC};
+use path_abs::PathAbs;
+use lint;
 
 #[macro_export]
 /// Macro to get a name with no error checking.
@@ -38,7 +42,7 @@ macro_rules! names {
 
 /// Collection of Names, used in partof and parts for storing relationships
 #[derive(Clone, Default, Eq, PartialEq)]
-pub struct Names(pub(crate) HashSet<Name>);
+pub struct Names(pub(crate) OrderSet<Name>);
 
 impl fmt::Debug for Names {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -47,22 +51,28 @@ impl fmt::Debug for Names {
 }
 
 impl Deref for Names {
-    type Target = HashSet<Name>;
+    type Target = OrderSet<Name>;
 
-    fn deref(&self) -> &HashSet<Name> {
+    fn deref(&self) -> &OrderSet<Name> {
         &self.0
     }
 }
 
 impl DerefMut for Names {
-    fn deref_mut(&mut self) -> &mut HashSet<Name> {
+    fn deref_mut(&mut self) -> &mut OrderSet<Name> {
         &mut self.0
     }
 }
 
-impl From<HashSet<Name>> for Names {
-    fn from(names: HashSet<Name>) -> Names {
+impl From<OrderSet<Name>> for Names {
+    fn from(names: OrderSet<Name>) -> Names {
         Names(names)
+    }
+}
+
+impl From<HashSet<Name>> for Names {
+    fn from(mut names: HashSet<Name>) -> Names {
+        Names(names.drain().collect())
     }
 }
 
@@ -149,3 +159,35 @@ impl<'de> Visitor<'de> for NamesVisitor {
         Ok(out)
     }
 }
+
+// /// Given an ordermap of all names, return the partof attributes that will be added.
+// pub fn auto_partof(
+//     lints: Sender<lint::Lint>,
+//     names: OrderMap<Name, PathAbs>,
+// ) -> OrderMap<Name, Vec<Name>> {
+//     let mut out = OrderMap::with_capacity(names.len());
+//     for (name, path) in names.iter() {
+//         let mut auto = Vec::new();
+//         if let Some(p) = name.parent() {
+//             if !names.contains_key(&p) {
+//                 lints.send(lint::Lint {
+//                     level: lint::Level::Error,
+//                     path: Some(path.clone()),
+//                     line: None,
+//                     category: lint::Category::AutoPartof,
+//                     msg: format!(
+//                         "Parent of {} ({}) must exist but does not",
+//                         name.as_str(),
+//                         parent.as_str()
+//                     ),
+//                 })
+//             }
+//             auto.push(p);
+//         }
+//         if let Some(p) = name.auto_partof() {
+//             auto.push(p);
+//         }
+//         out.insert(name, auto);
+//     }
+//     out
+// }

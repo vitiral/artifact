@@ -1,2 +1,2 @@
 # this is an example.
-# SPC-example
+# #SPC-pylib.example

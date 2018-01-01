@@ -1,4 +1,3 @@
-
 # SPC-data-src
 ## Loading source code (implementation) links
 
@@ -50,5 +49,3 @@ simple sanity test
   Expect valid names to be included and invalid names to not be included.
 - [[.parse_fuzz]]: there shall be a fuzz test for locations. This is part
   of the larger infrastructure for randomized projects.
-
-

@@ -32,7 +32,7 @@ use name::{Name, NameError};
 /// Expand a string of names into multiple names.
 ///
 /// i.e. `"REQ-[foo, bar]"` -> `["REQ-foo", "REQ-bar"]`
-pub fn expand_names(raw: &str) -> Result<HashSet<Name>> {
+pub fn expand_names(raw: &str) -> Result<OrderSet<Name>> {
     parse_collapsed(&mut raw.chars(), false)?
         .iter()
         // FIXME: CRAZY COLLECT

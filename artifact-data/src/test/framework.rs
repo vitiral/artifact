@@ -19,51 +19,146 @@
 //! This module defines the interop "framework" that is leveraged for
 //! a variety of integration/interop testing.
 
+use std::sync::mpsc::channel;
 use serde_yaml;
 
 use test::dev_prelude::*;
-use implemented::{CodeLoc, ImplCode};
+use implemented::{self, CodeLoc, ImplCode};
 use name::{Name, SubName};
-use path_abs::{self, PathAbs};
+use path_abs::PathAbs;
 use settings::{load_project_paths, ProjectPaths};
 use lint;
-
-#[derive(Debug, Eq, PartialEq, Clone, Serialize, Deserialize)]
-pub struct AssertionsRaw {
-    code_paths: Vec<String>,
-    // implemented: BTreeMap<Name, ImplCode>,
-}
-
-pub struct Assertions {
-    project_paths: ProjectPaths,
-}
-
-impl Assertions {
-    pub fn load(project_path: &PathAbs) -> Assertions {
-        let s = project_path
-            .join_abs("assert.yaml")
-            .unwrap()
-            .read()
-            .unwrap();
-        let raw: AssertionsRaw = serde_yaml::from_str(&s).unwrap();
-        Assertions {
-            project_paths: ProjectPaths {
-                code: path_abs::prefix_paths(project_path, &raw.code_paths)
-                    .unwrap()
-                    // TODO(nll): drain doesn't work because of lifetimes?
-                    .iter()
-                    .cloned()
-                    .collect(),
-            },
-        }
-    }
-}
 
 /// Run the interop test on an example project.
 pub fn run_interop_test<P: AsRef<Path>>(path: P) {
     let project_path = PathAbs::new(path).unwrap();
-    let (project_paths, lints) = load_project_paths(&project_path).unwrap();
-    let assertions = Assertions::load(&project_path);
-    assert_eq!(lints, vec![]);
-    assert_eq!(project_paths, assertions.project_paths);
+    let (project_paths, load_lints) = {
+        let (paths, mut lints) = load_project_paths(&project_path).unwrap();
+        lints.sort();
+        (paths, lints)
+    };
+    let (implemented, impl_lints) = {
+        let (send_lints, recv_lints) = channel();
+        let raw = implemented::load_locations(send_lints.clone(), &project_paths.code);
+        let implemented = implemented::join_locations(&send_lints, raw);
+        drop(send_lints);
+        let mut lints: Vec<_> = recv_lints.into_iter().collect();
+        (implemented, lints)
+    };
+    let mut project = Project {
+        project_paths: project_paths,
+        load_lints: load_lints,
+        implemented: implemented,
+        implemented_lints: impl_lints,
+    };
+    let mut expected = Project::load_from_assertions(&project_path);
+    project.sort();
+    expected.sort();
+    assert_eq!(project, expected);
+}
+
+#[derive(Debug, Eq, PartialEq)]
+pub struct Project {
+    project_paths: ProjectPaths,
+    load_lints: Vec<lint::Lint>,
+
+    implemented: OrderMap<Name, ImplCode>,
+    implemented_lints: Vec<lint::Lint>,
+}
+
+// # IMPLEMENTATION DETAILS
+// This whole module is pretty much just creating a way to specify assertions as strings and then
+// deserialize them into the actual types.
+//
+// Quite a lot of pain has to do with paths, which makes some sense since they ARE a pain.
+
+impl Project {
+    /// Load the assertions from the `project_path/assert.yaml` file
+    pub fn load_from_assertions(project_path: &PathAbs) -> Project {
+        let s = join_abs(project_path, "assert.yaml").read().unwrap();
+        let raw: AssertionsRaw = serde_yaml::from_str(&s).unwrap();
+        Project {
+            load_lints: convert_lints(project_path, raw.load_lints),
+            implemented_lints: vec![],
+            project_paths: ProjectPaths {
+                code: prefix_paths(project_path, &raw.code_paths)
+                    .iter()
+                    .cloned()
+                    .collect(),
+            },
+            implemented: convert_implemented_raw(project_path, raw.implemented),
+        }
+    }
+
+    pub fn sort(&mut self) {
+        self.load_lints.sort();
+        self.load_lints.dedup();
+
+        self.implemented_lints.sort();
+        self.implemented_lints.dedup();
+
+        sort_orderset(&mut self.project_paths.code);
+        sort_ordermap(&mut self.implemented);
+        for (_, code) in self.implemented.iter_mut() {
+            sort_ordermap(&mut code.secondary);
+        }
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct AssertionsRaw {
+    load_lints: Vec<lint::Lint>,
+    code_paths: Vec<String>,
+
+    implemented: OrderMap<Name, ImplCodeRaw>,
+    implemented_lints: Vec<lint::Lint>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct ImplCodeRaw {
+    primary: Option<CodeLocRaw>,
+    secondary: OrderMap<String, CodeLocRaw>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct CodeLocRaw {
+    file: String,
+    line: u64,
+}
+
+fn convert_code_loc(prefix: &PathAbs, raw: CodeLocRaw) -> CodeLoc {
+    CodeLoc {
+        file: join_abs(prefix, raw.file),
+        line: raw.line,
+    }
+}
+
+fn convert_implemented_raw(
+    prefix: &PathAbs,
+    mut raw: OrderMap<Name, ImplCodeRaw>,
+) -> OrderMap<Name, ImplCode> {
+    raw.drain(..)
+        .map(|(name, mut raw)| {
+            let code = ImplCode {
+                primary: raw.primary.map(|r| convert_code_loc(prefix, r)),
+                secondary: raw.secondary
+                    .drain(..)
+                    .map(|(s, r)| (subname!(s), convert_code_loc(prefix, r)))
+                    .collect(),
+            };
+            (name, code)
+        })
+        .collect()
+}
+
+/// Prepend all paths with the project, sort and dedup
+fn convert_lints(project_path: &PathAbs, mut lints: Vec<lint::Lint>) -> Vec<lint::Lint> {
+    let lints: Vec<_> = lints
+        .drain(0..)
+        .map(|mut l| {
+            l.path = l.path.map(|p| project_path.join(p));
+            l
+        })
+        .collect();
+    lints
 }
