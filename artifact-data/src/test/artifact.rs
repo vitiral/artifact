@@ -14,23 +14,6 @@
  * You should have received a copy of the Lesser GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-//! Artifact Data Test Harness
+//! #TST-data-artifact
 //!
-//! This module defines the tests for artifact data and also exports
-//! functions for other libraries to use to make testing artifact
-//! easier.
-
-pub mod dev_prelude;
-mod artifact;
-mod name;
-mod family;
-mod graph;
-mod implemented;
-mod raw;
-mod raw_names;
-mod framework;
-
-pub use test::dev_prelude::assert_generic;
-pub use test::family::arb_names;
-pub use test::name::{arb_name, arb_name_string, names_raw};
-pub use test::raw_names::arb_names_raw;
+//! This module defines tests for the "full" artifact type itself.

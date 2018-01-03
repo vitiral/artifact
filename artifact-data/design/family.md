@@ -120,6 +120,13 @@ digraph G {
 - [[.parent]]: defined above (TODO: remove this)
 - [[.auto_partof]]: defined above (TODO: remove this)
 
+# [[.link]]
+Once family is created and the artifacts are loaded, the artifacts have
+to be autolinked by adding them to the relevant partofs.
+
+# [[.unlink]]
+In order to reserialize the artifacts, their "auto" partof has to be unlinked
+
 # TST-data-family
 partof: TST-data-fuzz
 ###

@@ -113,7 +113,7 @@ pub fn to_json_string<T: Serialize>(value: &T) -> String {
     ::serde_json::to_string(value).expect("failed ser")
 }
 
-pub fn from_markdown_str(s: &str) -> StrResult<BTreeMap<Name, ::raw::ArtifactRaw>> {
+pub fn from_markdown_str(s: &str) -> StrResult<OrderMap<Name, ::raw::ArtifactRaw>> {
     ::raw::from_markdown(s.as_bytes()).map_err(|e| e.to_string())
 }
 

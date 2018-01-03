@@ -17,6 +17,7 @@
 pub use std_prelude::*;
 // TODO: move these to std_prelude
 pub use std::collections::BTreeSet;
+pub use std::ffi::OsStr;
 use std::cmp::Ord;
 use std::hash::Hash;
 

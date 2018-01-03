@@ -160,34 +160,47 @@ impl<'de> Visitor<'de> for NamesVisitor {
     }
 }
 
-// /// Given an ordermap of all names, return the partof attributes that will be added.
-// pub fn auto_partof(
-//     lints: Sender<lint::Lint>,
-//     names: OrderMap<Name, PathAbs>,
-// ) -> OrderMap<Name, Vec<Name>> {
-//     let mut out = OrderMap::with_capacity(names.len());
-//     for (name, path) in names.iter() {
-//         let mut auto = Vec::new();
-//         if let Some(p) = name.parent() {
-//             if !names.contains_key(&p) {
-//                 lints.send(lint::Lint {
-//                     level: lint::Level::Error,
-//                     path: Some(path.clone()),
-//                     line: None,
-//                     category: lint::Category::AutoPartof,
-//                     msg: format!(
-//                         "Parent of {} ({}) must exist but does not",
-//                         name.as_str(),
-//                         parent.as_str()
-//                     ),
-//                 })
-//             }
-//             auto.push(p);
-//         }
-//         if let Some(p) = name.auto_partof() {
-//             auto.push(p);
-//         }
-//         out.insert(name, auto);
-//     }
-//     out
-// }
+/// Run lints on the names, making sure that:
+/// - all children have parents.
+pub fn lint_names(lints: Sender<lint::Lint>, names: &OrderMap<Name, PathAbs>) {
+    for (name, path) in names.iter() {
+        if let Some(parent) = name.parent() {
+            if !names.contains_key(&parent) {
+                lints
+                    .send(lint::Lint {
+                        level: lint::Level::Error,
+                        path: Some(path.to_path_buf()),
+                        line: None,
+                        category: lint::Category::AutoPartof,
+                        msg: format!(
+                            "Parent of {} ({}) must exist but does not",
+                            name.as_str(),
+                            parent.as_str()
+                        ),
+                    })
+                    .expect("inserting lint in auto_partof");
+            }
+        }
+    }
+}
+
+/// #SPC-data-family.link
+/// Given an ordermap of all names, return the partof attributes that will be added.
+pub fn auto_partofs<T>(names: &OrderMap<Name, T>) -> OrderMap<Name, OrderSet<Name>> {
+    let mut out: OrderMap<Name, OrderSet<Name>> = OrderMap::with_capacity(names.len());
+    for name in names.keys() {
+        let mut auto = OrderSet::new();
+        if let Some(parent) = name.parent() {
+            if names.contains_key(&parent) {
+                auto.insert(parent);
+            }
+        }
+        if let Some(partof) = name.auto_partof() {
+            if names.contains_key(&partof) {
+                auto.insert(partof);
+            }
+        }
+        out.insert(name.clone(), auto);
+    }
+    out
+}

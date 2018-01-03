@@ -28,6 +28,7 @@ extern crate itertools;
 extern crate matches;
 #[macro_use]
 extern crate ordermap;
+extern crate petgraph;
 extern crate rayon;
 extern crate regex;
 extern crate serde;
@@ -48,6 +49,7 @@ extern crate serde_derive;
 
 // MODULES
 
+mod artifact;
 mod dev_prelude;
 #[cfg(feature = "cache")]
 pub mod cache;
@@ -56,9 +58,11 @@ mod name;
 mod expand_names;
 #[macro_use]
 mod family;
+mod graph;
 mod implemented;
 mod lint;
 mod path_abs;
+mod project;
 mod raw;
 #[macro_use]
 mod raw_names;

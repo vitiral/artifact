@@ -167,6 +167,25 @@ fn sanity_subnames() {
 }
 
 #[test]
+fn sanity_parse_subnames() {
+    let text = r#"
+This is some text
+subname: [[.subname]].
+[[.a]]
+[[.a_b]]
+[[.not-valid]]
+[[REQ-foo.not-subname]]
+"#;
+    let subnames = name::parse_subnames(text);
+    let expected = orderset!{
+        subname!(".subname"),
+        subname!(".a"),
+        subname!(".a_b"),
+    };
+    assert_eq!(subnames, expected);
+}
+
+#[test]
 /// #TST-data-name.sanity_serde
 fn sanity_serde_name() {
     let json = r#"["REQ-foo","REQ-FOO","REQ-bar","SPC-foo-bar","tst-foo-BAR"]"#;

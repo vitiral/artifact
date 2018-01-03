@@ -23,12 +23,15 @@ use serde_json;
 use serde_yaml;
 use toml;
 
-use test::dev_prelude::*;
-use test::name::{arb_name, names_raw};
+use path_abs::PathAbs;
 use name::{Name, Type};
-use family::Names;
+use family::{auto_partofs, lint_names, Names};
 use expand_names::expand_names;
 use raw_names::NamesRaw;
+use lint;
+use std::sync::mpsc::channel;
+use test::dev_prelude::*;
+use test::name::{arb_name, names_raw};
 use test::raw_names::arb_names_raw;
 
 // ------------------------------
@@ -437,6 +440,65 @@ fn sanity_collapse_name_invalid() {
         "SPC-foo-[bar, [baz, bom]]", // brackets not after `-`
     ];
     assert_collapsed_invalid(values);
+}
+
+#[test]
+fn sanity_auto_partofs() {
+    let req_foo = name!("REQ-foo");
+    let req_foo_bar = name!("REQ-foo-bar");
+    let spc_foo = name!("SPC-foo");
+    let tst_foo = name!("TST-foo");
+    let tst_foo_bar = name!("TST-foo-bar");
+
+    let spc_a_b = name!("SPC-a-b");
+    let tst_a_b = name!("TST-a-b");
+
+    let file = PathAbs::fake("/fake");
+
+    let names = ordermap!{
+        req_foo.clone() => file.clone(),
+        req_foo_bar.clone() => file.clone(),
+        spc_foo.clone() => file.clone(),
+        tst_foo.clone() => file.clone(),
+        tst_foo_bar.clone() => file.clone(),
+        spc_a_b.clone() => file.clone(),
+        tst_a_b.clone() => file.clone(),
+    };
+
+    let expected = ordermap!{
+        req_foo.clone() => orderset![],
+        req_foo_bar.clone() => orderset![req_foo.clone()],
+        spc_foo.clone() => orderset![req_foo.clone()],
+        tst_foo.clone() => orderset![spc_foo.clone()],
+        // contains no auto -- it doesn't exist
+        tst_foo_bar.clone() => orderset![tst_foo.clone()],
+        spc_a_b.clone() => orderset![],
+        tst_a_b.clone() => orderset![spc_a_b.clone()],
+    };
+    let auto = auto_partofs(&names);
+    assert_eq!(expected, auto);
+
+    let (send, recv) = channel();
+    lint_names(send, &names);
+
+    let expected = vec![
+        lint::Lint {
+            level: lint::Level::Error,
+            path: Some(file.to_path_buf()),
+            line: None,
+            category: lint::Category::AutoPartof,
+            msg: "Parent of SPC-a-b (SPC-a) must exist but does not".into(),
+        },
+        lint::Lint {
+            level: lint::Level::Error,
+            path: Some(file.to_path_buf()),
+            line: None,
+            category: lint::Category::AutoPartof,
+            msg: "Parent of TST-a-b (TST-a) must exist but does not".into(),
+        },
+    ];
+    let lints: Vec<_> = recv.into_iter().collect();
+    assert_eq!(expected, lints);
 }
 
 proptest! {

@@ -89,7 +89,7 @@ impl FoundPaths {
 /// effort.
 pub fn discover_paths<F, P>(
     path: P,
-    filter: F,
+    filter: &F,
     visited: &OrderSet<PathAbs>,
 ) -> ::std::io::Result<FoundPaths>
 where
@@ -219,7 +219,7 @@ mod test {
 
         // make sure loading works as expected
         {
-            let mut found = discover_paths(tmp.path(), |_| true, &OrderSet::new()).unwrap();
+            let mut found = discover_paths(tmp.path(), &|_| true, &OrderSet::new()).unwrap();
             found.sort();
             assert_eq!(found.files, files);
             assert_eq!(found.dirs, expected_dirs);
@@ -228,7 +228,7 @@ mod test {
         // visiting no directories because they are already visited
         {
             let visited = OrderSet::from_iter(dirs.iter().map(|p| p.clone()));
-            let found = discover_paths(tmp.path(), |_| true, &visited).unwrap();
+            let found = discover_paths(tmp.path(), &|_| true, &visited).unwrap();
             assert_eq!(found.files, &[f1_abs.clone()]);
             assert_eq!(found.dirs, &[tmp_abs.clone()]);
         }
@@ -240,7 +240,7 @@ mod test {
                 // if it is contained return False (i.e. do not let it exist)
                 !filter_names.contains(p.file_name().unwrap())
             };
-            let mut found = discover_paths(tmp.path(), filter, &OrderSet::new()).unwrap();
+            let mut found = discover_paths(tmp.path(), &filter, &OrderSet::new()).unwrap();
             found.sort();
             assert_eq!(found.files, &[d1_f2_abs.clone()]);
             assert_eq!(found.dirs, expected_dirs);

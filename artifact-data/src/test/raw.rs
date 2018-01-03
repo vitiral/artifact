@@ -144,14 +144,14 @@ impl ArtifactRaw {
 /// Sometimes I really love compilers.
 ///
 /// There is some kind of lifetime BS if you try to use the function directly...
-fn arts_from_toml_str(s: &str) -> StrResult<BTreeMap<Name, ArtifactRaw>> {
+fn arts_from_toml_str(s: &str) -> StrResult<OrderMap<Name, ArtifactRaw>> {
     from_toml_str(s)
 }
 
 /// Sometimes I really love compilers.
 ///
 /// There is some kind of lifetime BS if you try to use the function directly...
-fn arts_from_json_str(s: &str) -> StrResult<BTreeMap<Name, ArtifactRaw>> {
+fn arts_from_json_str(s: &str) -> StrResult<OrderMap<Name, ArtifactRaw>> {
     from_json_str(s)
 }
 
@@ -200,7 +200,7 @@ partof:
 - REQ-baz
 - SPC-bar
 ###"#.to_string();
-    let exp_1 = btreemap! {
+    let mut exp_1 = ordermap! {
         name!("REQ-foo") => ArtifactRaw {
             done: None,
             partof: None,
@@ -218,9 +218,10 @@ partof:
             text: None,
         },
     };
+    sort_ordermap(&mut exp_1);
 
     /// Redefined to have correct signature
-    fn from_md(raw: &String) -> StrResult<BTreeMap<Name, ArtifactRaw>> {
+    fn from_md(raw: &String) -> StrResult<OrderMap<Name, ArtifactRaw>> {
         let out = match from_markdown(raw.as_bytes()) {
             Ok(arts) => arts,
             Err(e) => return Err(e.to_string()),
@@ -245,7 +246,12 @@ proptest! {
     #[test]
     #[ignore] // TODO: very slow
     #[cfg(not(feature = "cache"))]
-    fn fuzz_artifacts_serde(ref artifacts in arb_raw_artifacts(20)) {
+    fn fuzz_artifacts_serde(ref orig in arb_raw_artifacts(20)) {
+        // FIXME: this has to be eaiser
+        let mut artifacts = OrderMap::with_capacity(orig.len());
+        for (n, a) in orig.iter() {
+            artifacts.insert(n.clone(), a.clone());
+        }
         serde_roundtrip("markdown", from_markdown_str, ::raw::to_markdown, &artifacts).expect("md");
         serde_roundtrip("toml", arts_from_toml_str, to_toml_string, &artifacts).expect("toml");
         serde_roundtrip("json", arts_from_json_str, to_json_string, &artifacts).expect("json");

@@ -27,12 +27,13 @@ use implemented::{self, CodeLoc, ImplCode};
 use name::{Name, SubName};
 use path_abs::PathAbs;
 use settings::{load_project_paths, ProjectPaths};
+use project::Project;
 use lint;
 
 /// Run the interop test on an example project.
 pub fn run_interop_test<P: AsRef<Path>>(path: P) {
     let project_path = PathAbs::new(path).unwrap();
-    let (project_paths, load_lints) = {
+    let (project_paths, _load_lints) = {
         let (paths, mut lints) = load_project_paths(&project_path).unwrap();
         lints.sort();
         (paths, lints)
@@ -47,7 +48,6 @@ pub fn run_interop_test<P: AsRef<Path>>(path: P) {
     };
     let mut project = Project {
         project_paths: project_paths,
-        load_lints: load_lints,
         implemented: implemented,
         implemented_lints: impl_lints,
     };
@@ -55,15 +55,6 @@ pub fn run_interop_test<P: AsRef<Path>>(path: P) {
     project.sort();
     expected.sort();
     assert_eq!(project, expected);
-}
-
-#[derive(Debug, Eq, PartialEq)]
-pub struct Project {
-    project_paths: ProjectPaths,
-    load_lints: Vec<lint::Lint>,
-
-    implemented: OrderMap<Name, ImplCode>,
-    implemented_lints: Vec<lint::Lint>,
 }
 
 // # IMPLEMENTATION DETAILS
@@ -78,36 +69,23 @@ impl Project {
         let s = join_abs(project_path, "assert.yaml").read().unwrap();
         let raw: AssertionsRaw = serde_yaml::from_str(&s).unwrap();
         Project {
-            load_lints: convert_lints(project_path, raw.load_lints),
             implemented_lints: vec![],
             project_paths: ProjectPaths {
                 code: prefix_paths(project_path, &raw.code_paths)
                     .iter()
                     .cloned()
                     .collect(),
+                // TODO: implement this
+                artifacts: orderset!(),
             },
             implemented: convert_implemented_raw(project_path, raw.implemented),
-        }
-    }
-
-    pub fn sort(&mut self) {
-        self.load_lints.sort();
-        self.load_lints.dedup();
-
-        self.implemented_lints.sort();
-        self.implemented_lints.dedup();
-
-        sort_orderset(&mut self.project_paths.code);
-        sort_ordermap(&mut self.implemented);
-        for (_, code) in self.implemented.iter_mut() {
-            sort_ordermap(&mut code.secondary);
         }
     }
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 struct AssertionsRaw {
-    load_lints: Vec<lint::Lint>,
+    // load_lints: Vec<lint::Lint>,
     code_paths: Vec<String>,
 
     implemented: OrderMap<Name, ImplCodeRaw>,

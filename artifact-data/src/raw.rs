@@ -18,14 +18,21 @@
 
 use dev_prelude::*;
 
+use std::sync::mpsc::{channel, Sender};
 use std::result;
 use std::fmt;
+use rayon::prelude::*;
 use regex::Regex;
 use serde::{self, Deserialize, Deserializer, Serialize, Serializer};
 use serde_yaml;
+use serde_json;
+use toml;
+
 use name::Name;
 use family::Names;
 use raw_names::NamesRaw;
+use path_abs::PathAbs;
+use lint;
 
 // TYPES
 
@@ -107,6 +114,109 @@ impl<'de> Deserialize<'de> for TextRaw {
 }
 
 // ------------------------------
+// -- LOAD
+
+/// Load artifacts from a set of files in parallel.
+///
+/// Any Errors are converted into lints.
+pub fn load_artifacts_raw(
+    send_lints: &Sender<lint::Lint>,
+    files: OrderSet<PathAbs>,
+) -> Vec<(PathAbs, OrderMap<Name, ArtifactRaw>)> {
+    let (send, artifacts) = channel();
+    let par: Vec<_> = files
+        .iter()
+        .map(|f| (send_lints.clone(), send.clone(), f.clone()))
+        .collect();
+
+    par.into_par_iter()
+        .map(|(lints, send, file)| load_file(lints, send, file))
+        // consume the iterator
+        .count();
+
+    drop(send);
+    artifacts.into_iter().collect()
+}
+
+/// Join loaded raw artifacts into a single hashmap and lint against duplicates.
+pub fn join_artifacts_raw(
+    lints: &Sender<lint::Lint>,
+    mut raw: Vec<(PathAbs, OrderMap<Name, ArtifactRaw>)>,
+) -> (OrderMap<Name, PathAbs>, OrderMap<Name, ArtifactRaw>) {
+    let mut files: OrderMap<Name, PathAbs> = OrderMap::with_capacity(raw.len());
+    let mut artifacts = OrderMap::with_capacity(raw.len());
+    for (file, mut arts) in raw.drain(..) {
+        for (name, art) in arts.drain(..) {
+            if let Some(dup) = files.insert(name.clone(), file.clone()) {
+                lints
+                    .send(lint::Lint {
+                        level: lint::Level::Error,
+                        category: lint::Category::ParseArtifactFiles,
+                        path: Some(dup.to_path_buf()),
+                        line: None,
+                        msg: format!(
+                            "duplicate name detected: {} in {}",
+                            name.as_str(),
+                            dup.display()
+                        ),
+                    })
+                    .expect("send dup artifact");
+                lints
+                    .send(lint::Lint {
+                        level: lint::Level::Error,
+                        category: lint::Category::ParseArtifactFiles,
+                        path: Some(file.to_path_buf()),
+                        line: None,
+                        msg: format!(
+                            "duplicate name detected: {} in {}",
+                            name.as_str(),
+                            file.display()
+                        ),
+                    })
+                    .expect("send dup artifact");
+            }
+
+            artifacts.insert(name, art);
+        }
+    }
+
+    (files, artifacts)
+}
+
+/// Load artifacts from a file.
+///
+/// Any Errors are converted into lints.
+fn load_file(
+    lints: Sender<lint::Lint>,
+    send: Sender<(PathAbs, OrderMap<Name, ArtifactRaw>)>,
+    file: PathAbs,
+) {
+    let ty = match FileType::from_path(file.as_path()) {
+        Some(t) => t,
+        None => panic!("An invalid filetype reached this code: {}", file.display()),
+    };
+
+    let text = match file.read() {
+        Ok(t) => t,
+        Err(err) => {
+            lint::io_error(&lints, file.as_path(), &err.to_string());
+            return;
+        }
+    };
+
+    let r: ::std::result::Result<OrderMap<Name, ArtifactRaw>, String> = match ty {
+        FileType::Toml => toml::from_str(&text).map_err(|e| e.to_string()),
+        FileType::Md => from_markdown(text.as_bytes()).map_err(|e| e.to_string()),
+        FileType::Json => serde_json::from_str(&text).map_err(|e| e.to_string()),
+    };
+
+    match r {
+        Ok(raw) => send.send((file.clone(), raw)).expect("send raw artifact"),
+        Err(err) => lint::io_error(&lints, file.as_path(), &err.to_string()),
+    }
+}
+
+// ------------------------------
 // -- MARKDOWN
 
 // READ MARKDOWN
@@ -120,8 +230,8 @@ lazy_static!{
 
 /// #SPC-data-raw-markdown
 /// Load raw artifacts from a markdown stream
-pub fn from_markdown<R: Read>(stream: R) -> Result<BTreeMap<Name, ArtifactRaw>> {
-    let mut out: BTreeMap<Name, ArtifactRaw> = BTreeMap::new();
+pub fn from_markdown<R: Read>(stream: R) -> Result<OrderMap<Name, ArtifactRaw>> {
+    let mut out: OrderMap<Name, ArtifactRaw> = OrderMap::new();
     let mut name: Option<Name> = None;
     let mut attrs: Option<String> = None;
     let mut other: Vec<String> = Vec::new();
@@ -173,7 +283,7 @@ struct AttrsRaw {
 
 /// Inserts the artifact based on parts gotten from markdown.
 fn insert_from_parts(
-    out: &mut BTreeMap<Name, ArtifactRaw>,
+    out: &mut OrderMap<Name, ArtifactRaw>,
     name: &Name,
     attrs: Option<String>,
     other: &[String],
@@ -216,13 +326,8 @@ fn insert_from_parts(
 
 // WRITE MARKDOWN
 
-fn to_yaml<S: ::serde::Serialize>(value: &S) -> String {
-    let mut s = serde_yaml::to_string(value).unwrap();
-    s.drain(0..4); // remove the ---\n
-    s
-}
-
-pub fn to_markdown(raw_artifacts: &BTreeMap<Name, ArtifactRaw>) -> String {
+/// Convert the artifacts to markdown
+pub fn to_markdown(raw_artifacts: &OrderMap<Name, ArtifactRaw>) -> String {
     let mut out = String::new();
     for (name, raw) in raw_artifacts {
         push_artifact_md(&mut out, name, raw);
@@ -230,6 +335,12 @@ pub fn to_markdown(raw_artifacts: &BTreeMap<Name, ArtifactRaw>) -> String {
     // No newlines at end of file.
     string_trim_right(&mut out);
     out
+}
+
+fn to_yaml<S: ::serde::Serialize>(value: &S) -> String {
+    let mut s = serde_yaml::to_string(value).unwrap();
+    s.drain(0..4); // remove the ---\n
+    s
 }
 
 /// Push a single artifact onto the document
@@ -274,4 +385,51 @@ fn push_attrs(out: &mut String, raw: &ArtifactRaw) {
     }
     string_trim_right(out);
     out.push_str("\n###\n");
+}
+
+// ------------------------------
+// -- INTERNAL STUFF
+
+#[derive(Debug, PartialEq, Eq)]
+pub enum FileType {
+    Toml,
+    Md,
+    Json,
+}
+
+impl FileType {
+    pub fn from_path<P: AsRef<Path>>(path: P) -> Option<FileType> {
+        match path.as_ref().extension() {
+            Some(e) => {
+                if e == OsStr::new("toml") {
+                    Some(FileType::Toml)
+                } else if e == OsStr::new("md") {
+                    Some(FileType::Md)
+                } else if e == OsStr::new("json") {
+                    Some(FileType::Json)
+                } else {
+                    None
+                }
+            }
+            _ => None,
+        }
+    }
+}
+
+#[test]
+fn sanity_filetype() {
+    assert_eq!(
+        FileType::from_path(Path::new("/foo/bar.toml")),
+        Some(FileType::Toml)
+    );
+    assert_eq!(
+        FileType::from_path(Path::new("this-is-it.md")),
+        Some(FileType::Md)
+    );
+    assert_eq!(
+        FileType::from_path(Path::new("/what.json")),
+        Some(FileType::Json)
+    );
+    assert_eq!(FileType::from_path(Path::new("noext")), None);
+    assert_eq!(FileType::from_path(Path::new("other.ext")), None);
 }

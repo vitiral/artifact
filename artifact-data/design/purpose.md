@@ -28,7 +28,6 @@ artifact data are defined below. The types are defined in [[SPC-data-structs]].
 
 ```dot
 digraph G {
-    splines=ortho;
     node [shape=box];
 
     subgraph cluster_start {
@@ -42,25 +41,15 @@ digraph G {
         label=<<b>parse artifacts</b>>;
         start -> [[dot:SPC-data-raw]]
             -> [[dot:SPC-data-family]];
-        "SPC-DATA-RAW" -> [[dot:SPC-data-lint-text]];
+        "SPC-DATA-RAW";
     }
 
-
-    subgraph cluster_join {
-        label=<<b>join and process</b>>;
-        {join [label="join data"]};
-        [[dot:SPC-data-completeness]];
-        "[[dot:.combine]]";
-    }
 
     // join main and branch
-    "SPC-DATA-SRC" -> join;
-    "SPC-DATA-FAMILY" -> join
-        -> "SPC-DATA-COMPLETENESS"
-        -> "[[dot:.combine]]" -> {done [shape=oval]};
-
-
-    join -> [[dot:SPC-data-lint-src]]
+    "SPC-DATA-SRC" -> [[dot:SPC-data-artifact]];
+    "SPC-DATA-FAMILY" -> "SPC-DATA-ARTIFACT"
+      -> [[dot:SPC-data-lint]]
+      -> {done [shape=oval]};
 }
 ```
 
@@ -75,14 +64,11 @@ There are the following subparts, which are also linked in the graph above:
 - [[SPC-data-raw]]: deserialize the artifact files into "raw" data.
 - [[SPC-data-name]]: deserialize the artifact names into objects.
 - [[SPC-data-family]]: Determine the family of the artifats.
-- [[SPC-data-completeness]]: Calculate implemented% and tested%.
-- [[.combine]]: combine to create artifacts.
+- [[SPC-data-artifact]]: join the data and calculate the remaining pieces of
+  the artifact.
 
 In addition:
-- [[SPC-data-lint]]: specified lints
-
-# SPC-data-completeness
-TODO
+- [[SPC-data-lint]]: lints that are done against the artifact data.
 
 # SPC-data-lint
 ## Lint Design

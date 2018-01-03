@@ -66,6 +66,32 @@ impl CodeLoc {
     }
 }
 
+impl Impl {
+    /// Return the `(count, value, secondary_count, secondary_value)`
+    /// that this impl should contribute to the "implemented" statistics.
+    ///
+    /// "secondary" is used because the Done field actually does contribute to
+    /// both spc AND tst for REQ and SPC types.
+    ///
+    /// `subnames` should contain the subnames that exist in that artifact's text
+    pub fn to_statistics(&self, subnames: &OrderSet<SubName>) -> (usize, f32, usize, f32) {
+        match self {
+            &Impl::Done(_) => (1, 1.0, 1, 1.0),
+            &Impl::Code(ref impl_) => {
+                let mut count = impl_.primary.is_some() as usize;
+                let mut value = impl_.primary.is_some() as u32 as f32;
+                for sub in subnames.iter() {
+                    count += 1;
+                    // add 1 if the subname is implemented, else 0
+                    value += impl_.secondary.contains_key(sub) as u32 as f32;
+                }
+                (count, value, 0, 0.0)
+            }
+            &Impl::NotImpl => (0, 0.0, 0, 0.0),
+        }
+    }
+}
+
 // METHODS
 
 lazy_static!{
@@ -89,13 +115,13 @@ pub fn load_locations(
     files: &OrderSet<PathAbs>,
 ) -> Vec<(CodeLoc, Name, Option<SubName>)> {
     let (send, locations) = channel();
-    let stuff: Vec<_> = files
+    let par: Vec<_> = files
         .iter()
         .map(|f| (send_lints.clone(), send.clone(), f.clone()))
         .collect();
     drop(send);
 
-    stuff.into_par_iter()
+    par.into_par_iter()
         .map(|(lints, send, file)| {
             if let Err(err) = parse_file(send, &file) {
                 lint::io_error(&lints, file.as_path(), &err.to_string());

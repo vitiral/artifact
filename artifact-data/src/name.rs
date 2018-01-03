@@ -125,6 +125,10 @@ lazy_static!{
     /// Valid subname regex
     static ref VALID_SUB_NAME_RE: Regex = Regex::new(
         &format!(r"(?i)^\.[{}]+$", NAME_VALID_CHARS!())).unwrap();
+
+    /// Parse subname from text regex
+    static ref TEXT_SUB_NAME_RE: Regex = Regex::new(
+        &format!(r"(?i)\[\[(\.[{}]+)\]\]", NAME_VALID_CHARS!())).unwrap();
 }
 
 // NAME METHODS
@@ -185,6 +189,16 @@ impl FromStr for Name {
             inner: Arc::new(InternalName::from_str(raw)?),
         })
     }
+}
+
+// PUBLIC METHODS
+
+/// Parse subnames from the text field.
+pub fn parse_subnames(text: &str) -> OrderSet<SubName> {
+    TEXT_SUB_NAME_RE
+        .captures_iter(text)
+        .map(|cap| SubName::new_unchecked(cap.get(1).unwrap().as_str()))
+        .collect()
 }
 
 // INTERNAL NAME METHODS
