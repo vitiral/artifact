@@ -153,7 +153,7 @@ operation.
 
 For this part of the tutorial we are going to focus on the following:
 - [[SPC-cmd-ls]]: the `ls` (list) command allows you to view and filter your
-  aritfacts over the command line easily
+  artifacts over the command line easily
 - [[SPC-cmd-serve]]: the `serve` command gives you a web-ui that you can use to
   view, filter and edit your artifacts.
 
