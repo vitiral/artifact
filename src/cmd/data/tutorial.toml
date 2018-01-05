@@ -188,7 +188,7 @@ This will search for the pattern "file" in the text field
 (specified with `-p T`). It will also display a short piece of the text field
 (specified with `-T`).
 
-Now let's say that You see that SPC-learn-valid is what you were looking for,
+Now let's say that you see that SPC-learn-valid is what you were looking for,
 but you want an expanded view:
 
    art ls SPC-learn-valid -l
