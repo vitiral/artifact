@@ -153,7 +153,7 @@ operation.
 
 For this part of the tutorial we are going to focus on the following:
 - [[SPC-cmd-ls]]: the `ls` (list) command allows you to view and filter your
-  aritfacts over the command line easily
+  artifacts over the command line easily
 - [[SPC-cmd-serve]]: the `serve` command gives you a web-ui that you can use to
   view, filter and edit your artifacts.
 
@@ -184,10 +184,11 @@ files in it's text field. You could run:
     # OR
     art ls file -p T -T
 
-This will search for the pattern "file" in the text field (`-p T`). It will also
-display a short piece of the text field (`-T`)
+This will search for the pattern "file" in the text field
+(specified with `-p T`). It will also display a short piece of the text field
+(specified with `-T`).
 
-Now let's say that You see that SPC-learn-valid is what you were looking for,
+Now let's say that you see that SPC-learn-valid is what you were looking for,
 but you want an expanded view:
 
    art ls SPC-learn-valid -l
