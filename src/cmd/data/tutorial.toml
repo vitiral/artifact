@@ -184,8 +184,9 @@ files in it's text field. You could run:
     # OR
     art ls file -p T -T
 
-This will search for the pattern "file" in the text field (`-p T`). It will also
-display a short piece of the text field (`-T`)
+This will search for the pattern "file" in the text field
+(specified with `-p T`). It will also display a short piece of the text field
+(specified with `-T`).
 
 Now let's say that You see that SPC-learn-valid is what you were looking for,
 but you want an expanded view:
