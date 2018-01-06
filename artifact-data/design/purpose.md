@@ -178,37 +178,15 @@ From the implementations, we can randomize testing for the following:
 
 [1]: https://docs.rs/quickcheck/0.4.2/quickcheck/
 
-# TST-data-interop
-There shall be a "interop test harness" constructed for doing interop testing.
+# TST-data-framework
+There shall be a "interop test framework" constructed for doing interop testing.
 The basic design is:
 - *Each test is a full project* (folder with a `.art` folder, source files and
   design documents).
-- Each test contains assertions at `path/to/test/assert.yaml`
-- The assertions file structure is:
-  - error: regular expression of the expected error (invalidates other assertions)
-  - lints:
-    - contains: list of lints that should exist
-    - not_contains: list of lints that should not exist
-    - length: optional total length
-    - Notes:
-      Each lint has the fields specified by the struct, with "NONE" being reserved
-      for specifying that the value should ACTUALLY be `None` (rather than
-      just not specified)
-  - visited_artifact_paths:
-    - contains: list of visited paths
-    - not_contains: list of unvisited paths
-    - length: optional total length
-  - visited_source_paths:
-    - contains: list of visited paths
-    - not_contains: list of unvisited paths
-    - length: optional total length
-  - artifacts:
-    - contains: list of artifacts which should exist and the expected value of
-      their fields.
-    - not_contains: list of artifact names which should not exist.
-    - length: optional total length
-    - Notes:
-      Similar to lints, attributes which are not specified are not asserted but
-      NONE is special.
-- The test harness then loads the project and assertions file and asserts all
-  of the assertions.
+- Each test contains assertions in various files. The assertions cover various
+  stages of loading the project:
+  - `project/assert_load_lints.yaml`: expected lints while loading.
+  - `project/assert_project.yaml`: the expected resulting project. If not included,
+    it is expected that the project is `None`.
+  - `project/assert_project_lints.yaml`: expected lints from linting the project.
+- The assertion files are an exact *explicit* version of the expected project.

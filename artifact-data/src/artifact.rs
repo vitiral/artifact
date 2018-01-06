@@ -15,8 +15,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 
+//! #SPC-data-artifact
+
 use petgraph::graphmap::DiGraphMap;
 use petgraph::{self, Direction};
+use rayon;
+use rayon::prelude::*;
 
 use dev_prelude::*;
 use raw::ArtifactRaw;
@@ -27,10 +31,13 @@ use path_abs::PathAbs;
 use family;
 use graph;
 
+#[derive(Debug, PartialEq)]
 /// #SPC-data-structs.artifact
 /// The primary data structure of this library which encapsulates a majority of the useful
 /// end product of a user's project.
 pub struct Artifact {
+    /// The file the artifact is defined in.
+    pub file: PathAbs,
     /// The user defined and calculated `partof` the artifact.
     pub partof: OrderSet<Name>,
     /// The (calculated) parts of the artifact (opposite of partof)
@@ -43,8 +50,17 @@ pub struct Artifact {
     pub impl_: Impl,
     /// Subnames in the text.
     pub subnames: OrderSet<SubName>,
-    /// The file the artifact is defined in.
-    pub file: PathAbs,
+}
+
+impl Artifact {
+    pub fn sort(&mut self) {
+        sort_orderset(&mut self.partof);
+        sort_orderset(&mut self.parts);
+        if let Impl::Code(ref mut c) = self.impl_ {
+            sort_ordermap(&mut c.secondary);
+        }
+        sort_orderset(&mut self.subnames);
+    }
 }
 
 /// Loaded and somewhat processed artifacts, independent of source implementations.
@@ -56,17 +72,22 @@ pub(crate) struct ArtifactsLoaded {
     subnames: OrderMap<Name, OrderSet<SubName>>,
 }
 
+/// #SPC-data-artifact.finalize_load
 /// Compute everything that is possible based on loaded raw artifacts only.
 /// (no source impls).
 pub(crate) fn finalize_load_artifact(
     raw_artifacts: OrderMap<Name, ArtifactRaw>,
 ) -> ArtifactsLoaded {
-    let subnames = determine_subnames(&raw_artifacts);
-
-    // detemrine partofs, create graphs and use that to determine parts
-    let partofs = determine_partofs(&raw_artifacts);
-    let graphs = graph::determine_graphs(&partofs);
-    let parts = graph::determine_parts(&graphs);
+    let (subnames, (partofs, graphs, parts)) = rayon::join(
+        || determine_subnames(&raw_artifacts),
+        || {
+            // determine partofs, create graphs and use that to determine parts
+            let partofs = determine_partofs(&raw_artifacts);
+            let graphs = graph::determine_graphs(&partofs);
+            let parts = graph::determine_parts(&graphs);
+            (partofs, graphs, parts)
+        },
+    );
 
     ArtifactsLoaded {
         raw_artifacts: raw_artifacts,
@@ -77,21 +98,22 @@ pub(crate) fn finalize_load_artifact(
     }
 }
 
-/// Given the fully loaded artifacts (and related pieces) and code implementations,
-/// calculate the completeness and construct the artifacts.
+/// #SPC-data-artifact.build
+/// Given the fully loaded artifacts (+related pieces) and code implementations,
+/// determine the impls+completeness and construct the artifacts.
 pub(crate) fn determine_artifacts(
     mut loaded: ArtifactsLoaded,
-    impl_codes: &OrderMap<Name, ImplCode>,
-    files: &OrderMap<Name, PathAbs>,
+    code_impls: &OrderMap<Name, ImplCode>,
+    defined: &OrderMap<Name, PathAbs>,
 ) -> OrderMap<Name, Artifact> {
-    let mut impls = determine_impls(&loaded.raw_artifacts, &loaded.subnames, impl_codes);
-    let mut completed = graph::determine_completeness(&loaded.graphs, &impls, &loaded.subnames);
+    let mut impls = determine_impls(&loaded.raw_artifacts, code_impls);
+    let mut completed = graph::determine_completed(&loaded.graphs, &impls, &loaded.subnames);
 
     fn remove<T>(map: &mut OrderMap<Name, T>, name: &Name) -> T {
         map.remove(name).unwrap()
     }
 
-    files
+    let out = defined
         .iter()
         .map(|(name, file)| {
             let art = Artifact {
@@ -103,32 +125,34 @@ pub(crate) fn determine_artifacts(
                 text: remove(&mut loaded.raw_artifacts, name)
                     .text
                     .map(|t| t.0)
-                    .unwrap_or("".into()),
+                    .unwrap_or_else(String::new),
                 impl_: remove(&mut impls, name),
                 subnames: remove(&mut loaded.subnames, name),
                 file: file.clone(),
             };
             (name.clone(), art)
         })
-        .collect()
+        .collect();
+
+    debug_assert!(loaded.partofs.is_empty(), "{:#?}", loaded.partofs);
+    debug_assert!(loaded.parts.is_empty(), "{:#?}", loaded.parts);
+    debug_assert!(completed.is_empty(), "{:#?}", completed);
+    debug_assert!(
+        loaded.raw_artifacts.is_empty(),
+        "{:#?}",
+        loaded.raw_artifacts
+    );
+    debug_assert!(impls.is_empty(), "{:#?}", impls);
+    debug_assert!(loaded.subnames.is_empty(), "{:#?}", loaded.subnames);
+    out
 }
 
-// // TODO: lints are not covered here.
-// // - partof that doesn't exist
-// //   - parent that doesn't exist
-// // - check for type validity in "partof"
-// // - impl_code can not conflict with done
-// // - impl_code with no corresponding raw artifact
-// // - impl_code with no corresponding raw artifact subname
-// fn lint_artifacts() {
-//
-// }
 
 /// Determine `partof` based on the user's definition + automatic relationships.
-fn determine_partofs(
+pub fn determine_partofs(
     raw_artifacts: &OrderMap<Name, ArtifactRaw>,
 ) -> OrderMap<Name, OrderSet<Name>> {
-    let mut partofs = family::auto_partofs(&raw_artifacts);
+    let mut partofs = family::auto_partofs(raw_artifacts);
     // extend the user defined partofs with the automatic ones
     for (name, partof) in partofs.iter_mut() {
         if let Some(ref p) = raw_artifacts[name].partof {
@@ -154,30 +178,25 @@ fn determine_subnames(
         .collect()
 }
 
-/// Determine the valid implementation as well as the subnames for each artifact
+/// Merge the "done" field and the code implementations.
+///
+/// Note that the following may exist but will be linted against later:
+/// - Some of the subnames in `ImplCode.secondary` may not be real subnames in the artifact's
+///   `text`.
+/// - Not all code_impls may be used (i.e. if they have an artifact that doesn't exist).
+/// - Conflict with `done` is ignored here
+///
+/// None of these can affect later calculation of completeness or anythign else.
 fn determine_impls(
     raw_artifacts: &OrderMap<Name, ArtifactRaw>,
-    all_subnames: &OrderMap<Name, OrderSet<SubName>>,
-    impl_codes: &OrderMap<Name, ImplCode>,
+    code_impls: &OrderMap<Name, ImplCode>,
 ) -> OrderMap<Name, Impl> {
     let mut impls = OrderMap::with_capacity(raw_artifacts.len());
     for (name, raw) in raw_artifacts.iter() {
-        let subnames = &all_subnames[name];
         let impl_ = if let Some(ref done) = raw.done {
             Impl::Done(done.clone())
-        } else if let Some(ref code) = impl_codes.get(name) {
-            // Remove subnames that do not exist.
-            // Note: this is linted against later.
-            let remove: Vec<_> = code.secondary
-                .keys()
-                .filter(|sub| !subnames.contains(*sub))
-                .cloned()
-                .collect();
-            let mut code = (*code).clone();
-            for sub in &remove {
-                code.secondary.remove(sub);
-            }
-            Impl::Code(code)
+        } else if let Some(code) = code_impls.get(name) {
+            Impl::Code(code.clone())
         } else {
             Impl::NotImpl
         };

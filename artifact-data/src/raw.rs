@@ -121,7 +121,7 @@ impl<'de> Deserialize<'de> for TextRaw {
 /// Any Errors are converted into lints.
 pub fn load_artifacts_raw(
     send_lints: &Sender<lint::Lint>,
-    files: OrderSet<PathAbs>,
+    files: &OrderSet<PathAbs>,
 ) -> Vec<(PathAbs, OrderMap<Name, ArtifactRaw>)> {
     let (send, artifacts) = channel();
     let par: Vec<_> = files
@@ -130,7 +130,7 @@ pub fn load_artifacts_raw(
         .collect();
 
     par.into_par_iter()
-        .map(|(lints, send, file)| load_file(lints, send, file))
+        .map(|(lints, send, file)| load_file(&lints, &send, &file))
         // consume the iterator
         .count();
 
@@ -187,9 +187,9 @@ pub fn join_artifacts_raw(
 ///
 /// Any Errors are converted into lints.
 fn load_file(
-    lints: Sender<lint::Lint>,
-    send: Sender<(PathAbs, OrderMap<Name, ArtifactRaw>)>,
-    file: PathAbs,
+    lints: &Sender<lint::Lint>,
+    send: &Sender<(PathAbs, OrderMap<Name, ArtifactRaw>)>,
+    file: &PathAbs,
 ) {
     let ty = match FileType::from_path(file.as_path()) {
         Some(t) => t,
@@ -199,7 +199,7 @@ fn load_file(
     let text = match file.read() {
         Ok(t) => t,
         Err(err) => {
-            lint::io_error(&lints, file.as_path(), &err.to_string());
+            lint::io_error(lints, file.as_path(), &err.to_string());
             return;
         }
     };
@@ -212,7 +212,7 @@ fn load_file(
 
     match r {
         Ok(raw) => send.send((file.clone(), raw)).expect("send raw artifact"),
-        Err(err) => lint::io_error(&lints, file.as_path(), &err.to_string()),
+        Err(err) => lint::io_error(lints, file.as_path(), &err.to_string()),
     }
 }
 

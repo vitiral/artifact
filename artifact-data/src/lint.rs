@@ -32,6 +32,48 @@ pub struct Lint {
     pub msg: String,
 }
 
+#[derive(Debug, Default, PartialEq)]
+/// Categorized lints
+pub struct Categorized {
+    pub error: Vec<Lint>,
+    pub other: Vec<Lint>,
+}
+
+impl Categorized {
+    pub fn categorize<I>(&mut self, lints: I)
+    where
+        I: Iterator<Item = Lint>,
+    {
+        for lint in lints {
+            match lint.level {
+                Level::Error => self.error.push(lint),
+                _ => self.other.push(lint),
+            }
+        }
+    }
+
+    /// sort and dedup the internal lists
+    pub fn sort(&mut self) {
+        self.error.sort();
+        self.error.dedup();
+
+        self.other.sort();
+        self.other.dedup();
+    }
+}
+
+impl Lint {
+    pub fn load_error<P: AsRef<Path>>(path: P, err: &str) -> Lint {
+        Lint {
+            level: Level::Error,
+            category: Category::LoadPaths,
+            path: Some(path.as_ref().to_path_buf()),
+            line: None,
+            msg: format!("Error during loading: {}", err),
+        }
+    }
+}
+
 #[derive(Debug, Clone, Hash, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 /// The lint level, error will eventually stop the program.
 pub enum Level {
@@ -50,12 +92,6 @@ pub enum Category {
 
 pub fn io_error<P: AsRef<Path>>(lints: &Sender<Lint>, path: P, err: &str) {
     lints
-        .send(Lint {
-            level: Level::Error,
-            category: Category::LoadPaths,
-            path: Some(path.as_ref().to_path_buf()),
-            line: None,
-            msg: format!("Error during loading: {}", err),
-        })
+        .send(Lint::load_error(path, err))
         .expect("failed to send io-error");
 }

@@ -16,32 +16,107 @@
  * */
 //! The major exported type and function for loading artifacts.
 
+use std::borrow::Borrow;
+use std::sync::mpsc::{channel, Sender};
+use rayon;
+
 use dev_prelude::*;
+use artifact;
+use implemented;
 use lint;
-use name::Name;
-use implemented::ImplCode;
-use settings::ProjectPaths;
+use name;
+use raw;
+use settings;
+use project;
 
-#[derive(Debug, Eq, PartialEq)]
+#[derive(Debug, PartialEq)]
 pub struct Project {
-    pub project_paths: ProjectPaths,
-
-    pub implemented: OrderMap<Name, ImplCode>,
-    pub implemented_lints: Vec<lint::Lint>,
+    pub paths: settings::ProjectPaths,
+    pub code_impls: OrderMap<name::Name, implemented::ImplCode>,
+    pub artifacts: OrderMap<name::Name, artifact::Artifact>,
 }
 
 impl Project {
     /// Recursively sort all the items in the project.
     pub fn sort(&mut self) {
-        self.implemented_lints.sort();
-        self.implemented_lints.dedup();
+        sort_orderset(&mut self.paths.code);
+        sort_orderset(&mut self.paths.artifact);
 
-        sort_orderset(&mut self.project_paths.code);
-        sort_orderset(&mut self.project_paths.artifacts);
-
-        sort_ordermap(&mut self.implemented);
-        for (_, code) in self.implemented.iter_mut() {
+        sort_ordermap(&mut self.code_impls);
+        for (_, code) in self.code_impls.iter_mut() {
             sort_ordermap(&mut code.secondary);
         }
+        sort_ordermap(&mut self.artifacts);
+        for (_, art) in self.artifacts.iter_mut() {
+            art.sort();
+        }
     }
+
+    /// #SPC-data-lint
+    /// FIXME: Need to do LINTS
+    /// - partof that doesn't exist
+    /// - parent that should exist but doesn't
+    /// - check for type validity in "partof"
+    /// - code_impls can NOT conflict with done
+    /// - code_impls with no corresponding raw artifact
+    /// - code_impls with no corresponding raw artifact subname
+    pub fn lint(&self) -> lint::Categorized {
+        let mut lints = lint::Categorized::default();
+
+        lints.sort();
+        lints
+    }
+}
+
+/// Load the project from the given path.
+pub fn load_project<P: AsRef<Path>>(project_path: P) -> (lint::Categorized, Option<Project>) {
+    let mut lints = lint::Categorized::default();
+
+    let paths = {
+        let (mut load_lints, paths) = settings::load_project_paths(project_path);
+        lints.categorize(load_lints.drain(..));
+        if !lints.error.is_empty() {
+            lints.sort();
+            return (lints, None);
+        }
+        paths.expect("No lints but also no settings file!")
+    };
+
+    let (code_impls, (defined, loaded)) = {
+        let (send, recv) = channel();
+        let send = Mutex::new(send);
+        let (locs, arts) = rayon::join(
+            || {
+                let send = send.lock().map(|s| s.clone()).unwrap();
+                let locs = implemented::load_locations(&send, &paths.code);
+                implemented::join_locations(&send, locs)
+            },
+            || {
+                let send = send.lock().map(|s| s.clone()).unwrap();
+                let raw = raw::load_artifacts_raw(&send, &paths.artifact);
+                let (defined, raw) = raw::join_artifacts_raw(&send, raw);
+                let loaded = artifact::finalize_load_artifact(raw);
+                (defined, loaded)
+            },
+        );
+        drop(send);
+        lints.categorize(recv.into_iter());
+
+        if !lints.error.is_empty() {
+            lints.sort();
+            return (lints, None);
+        }
+        (locs, arts)
+    };
+
+    let artifacts = artifact::determine_artifacts(loaded, &code_impls, &defined);
+
+    let mut project = Project {
+        paths: paths,
+        code_impls: code_impls,
+        artifacts: artifacts,
+    };
+    lints.sort();
+    project.sort();
+    (lints, Some(project))
 }

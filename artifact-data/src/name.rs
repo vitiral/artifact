@@ -85,7 +85,7 @@ pub struct SubName {
 }
 
 /// Internal Name object, use Name instead.
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct InternalName {
     /// The artifact type, determined from the name prefix
     pub ty: Type,
@@ -147,7 +147,6 @@ impl<'de> Deserialize<'de> for Name {
     where
         D: Deserializer<'de>,
     {
-        // FIXME: can this be str::deserialize?
         let s = String::deserialize(deserializer)?;
         Name::from_str(&s).map_err(serde::de::Error::custom)
     }
@@ -155,7 +154,7 @@ impl<'de> Deserialize<'de> for Name {
 
 impl fmt::Debug for Name {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{:?}", self.inner)
+        write!(f, "{}", self.inner.raw)
     }
 }
 
@@ -271,6 +270,25 @@ impl PartialOrd for InternalName {
 }
 
 // SUBNAME METHODS
+//
+impl Serialize for SubName {
+    fn serialize<S>(&self, serializer: S) -> result::Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        serializer.serialize_str(&self.raw)
+    }
+}
+
+impl<'de> Deserialize<'de> for SubName {
+    fn deserialize<D>(deserializer: D) -> result::Result<SubName, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let s = String::deserialize(deserializer)?;
+        SubName::from_str(&s).map_err(serde::de::Error::custom)
+    }
+}
 
 impl SubName {
     /// Unchecked creation of subname

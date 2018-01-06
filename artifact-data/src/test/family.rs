@@ -479,7 +479,7 @@ fn sanity_auto_partofs() {
     assert_eq!(expected, auto);
 
     let (send, recv) = channel();
-    lint_names(send, &names);
+    lint_names(&send, &names);
 
     let expected = vec![
         lint::Lint {
@@ -497,6 +497,7 @@ fn sanity_auto_partofs() {
             msg: "Parent of TST-a-b (TST-a) must exist but does not".into(),
         },
     ];
+    drop(send);
     let lints: Vec<_> = recv.into_iter().collect();
     assert_eq!(expected, lints);
 }

@@ -74,11 +74,11 @@ impl Impl {
     /// both spc AND tst for REQ and SPC types.
     ///
     /// `subnames` should contain the subnames that exist in that artifact's text
-    pub fn to_statistics(&self, subnames: &OrderSet<SubName>) -> (usize, f32, usize, f32) {
-        match self {
-            &Impl::Done(_) => (1, 1.0, 1, 1.0),
-            &Impl::Code(ref impl_) => {
-                let mut count = impl_.primary.is_some() as usize;
+    pub(crate) fn to_statistics(&self, subnames: &OrderSet<SubName>) -> (usize, f32, usize, f32) {
+        match *self {
+            Impl::Done(_) => (1, 1.0, 1, 1.0),
+            Impl::Code(ref impl_) => {
+                let mut count = 1;
                 let mut value = impl_.primary.is_some() as u32 as f32;
                 for sub in subnames.iter() {
                     count += 1;
@@ -87,7 +87,15 @@ impl Impl {
                 }
                 (count, value, 0, 0.0)
             }
-            &Impl::NotImpl => (0, 0.0, 0, 0.0),
+            Impl::NotImpl => {
+                if !subnames.is_empty() {
+                    // If subnames are defined not being implemented
+                    // in code means that you get counts against you
+                    (1 + subnames.len(), 0.0, 0, 0.0)
+                } else {
+                    (0, 0.0, 0, 0.0)
+                }
+            }
         }
     }
 }
@@ -111,7 +119,7 @@ lazy_static!{
 ///
 /// Any io errors are converted into lint errors instead.
 pub fn load_locations(
-    send_lints: Sender<lint::Lint>,
+    send_lints: &Sender<lint::Lint>,
     files: &OrderSet<PathAbs>,
 ) -> Vec<(CodeLoc, Name, Option<SubName>)> {
     let (send, locations) = channel();
@@ -123,7 +131,7 @@ pub fn load_locations(
 
     par.into_par_iter()
         .map(|(lints, send, file)| {
-            if let Err(err) = parse_file(send, &file) {
+            if let Err(err) = parse_file(&send, &file) {
                 lint::io_error(&lints, file.as_path(), &err.to_string());
             }
         })
@@ -135,11 +143,11 @@ pub fn load_locations(
 
 /// internal helper to just open a path and parse it
 fn parse_file(
-    send: Sender<(CodeLoc, Name, Option<SubName>)>,
+    send: &Sender<(CodeLoc, Name, Option<SubName>)>,
     file: &PathAbs,
 ) -> ::std::io::Result<()> {
     let f = File::open(file.as_path())?;
-    parse_locations(&send, file, f)
+    parse_locations(send, file, f)
 }
 
 /// #SPC-data-src.load

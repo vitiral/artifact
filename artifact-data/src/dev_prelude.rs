@@ -58,6 +58,6 @@ pub fn sort_ordermap<K: Ord + Hash, V>(m: &mut OrderMap<K, V>) {
 
 pub fn sort_orderset<K: Ord + Hash>(m: &mut OrderSet<K>) {
     let mut ordered: Vec<_> = m.drain(..).collect();
-    ordered.sort_by(|left, right| left.cmp(&right));
+    ordered.sort_by(|left, right| left.cmp(right));
     m.extend(ordered.drain(..));
 }

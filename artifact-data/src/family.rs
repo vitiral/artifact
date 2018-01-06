@@ -162,7 +162,7 @@ impl<'de> Visitor<'de> for NamesVisitor {
 
 /// Run lints on the names, making sure that:
 /// - all children have parents.
-pub fn lint_names(lints: Sender<lint::Lint>, names: &OrderMap<Name, PathAbs>) {
+pub fn lint_names(lints: &Sender<lint::Lint>, names: &OrderMap<Name, PathAbs>) {
     for (name, path) in names.iter() {
         if let Some(parent) = name.parent() {
             if !names.contains_key(&parent) {
@@ -184,7 +184,7 @@ pub fn lint_names(lints: Sender<lint::Lint>, names: &OrderMap<Name, PathAbs>) {
     }
 }
 
-/// #SPC-data-family.link
+/// #SPC-data-family.auto
 /// Given an ordermap of all names, return the partof attributes that will be added.
 pub fn auto_partofs<T>(names: &OrderMap<Name, T>) -> OrderMap<Name, OrderSet<Name>> {
     let mut out: OrderMap<Name, OrderSet<Name>> = OrderMap::with_capacity(names.len());

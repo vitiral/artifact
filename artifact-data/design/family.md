@@ -42,7 +42,7 @@ In essense:
   For example, white box testing will be based on a specification whereas
   blackbox ("requirements based") testing will be based on a requirement.
 
-## Auto Relationships
+## [[.auto]]: Auto Relationships
 The second graph shows the "automatic relationships" of nodes to their
 parents.
 
@@ -120,11 +120,14 @@ digraph G {
 - [[.parent]]: defined above (TODO: remove this)
 - [[.auto_partof]]: defined above (TODO: remove this)
 
-# [[.link]]
+# [[.auto]]
 Once family is created and the artifacts are loaded, the artifacts have
-to be autolinked by adding them to the relevant partofs.
+to be automatically linked to their parent+auto_partof. This is easy
+to determine given the artifacts that exist.
 
-# [[.unlink]]
+Note: make sure to ONLY link to artifacts that exists!
+
+# [[.deauto]]
 In order to reserialize the artifacts, their "auto" partof has to be unlinked
 
 # TST-data-family

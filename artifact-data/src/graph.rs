@@ -28,13 +28,13 @@ use family;
 
 pub(crate) type GraphId = u32;
 
-#[derive(Debug, Default, Clone, PartialEq, Copy)]
+#[derive(Debug, Default, Clone, PartialEq, PartialOrd, Copy, Serialize, Deserialize)]
 /// #SPC-data-structures.completed
 pub struct Completed {
     /// The specification completion ratio.
-    spc: f32,
+    pub spc: f32,
     /// The tested completion ratio.
-    tst: f32,
+    pub tst: f32,
 }
 
 pub(crate) struct Graphs {
@@ -50,18 +50,17 @@ pub(crate) struct Graphs {
     pub tst: DiGraphMap<GraphId, ()>,
 }
 
-/// Create the family graph from the previously computed values.
-///
-/// - `parts` can be determined by `graph.neighbors(id)`
-/// - `partof` can be determined by `graph.neighbors_directed(id, Direction::Incomming)`
+/// #SPC-data-artifact.graph
+/// Create the family graph from their given+auto partof values.
 pub(crate) fn determine_graphs(partofs: &OrderMap<Name, OrderSet<Name>>) -> Graphs {
-    let ids = create_ids(&partofs);
+    let ids = create_ids(partofs);
+
     let mut graph_full: DiGraphMap<GraphId, ()> = DiGraphMap::new();
     let mut graph_req_spc: DiGraphMap<GraphId, ()> = DiGraphMap::new();
     let mut graph_tst: DiGraphMap<GraphId, ()> = DiGraphMap::new();
     for (name, partof) in partofs.iter() {
         for p in partof.iter() {
-            let edge = (ids[p], ids[name].clone());
+            let edge = (ids[p], ids[name]);
             graph_full.add_edge(edge.0, edge.1, ());
             if matches!(name.ty, Type::TST) && matches!(p.ty, Type::TST) {
                 graph_tst.add_edge(edge.0, edge.1, ());
@@ -97,18 +96,19 @@ pub(crate) fn determine_parts(graphs: &Graphs) -> OrderMap<Name, OrderSet<Name>>
         .collect()
 }
 
+/// #SPC-data-artifact.completed
 /// Determine the completeness of the artifacts.
 ///
 /// Basic idea:
-/// - topologically sort the tests and calculate completeness (impl+test)
-/// - topologically sort req_spc and calculate completeness
-///     - keep in mind that tests don't contribute to impl.
-///     - everything else always contributes both
-pub(crate) fn determine_completeness(
+/// - topologically sort the `graphs.tst` and calculate completeness (impl+test)
+/// - topologically sort `graphs.req_spc` and calculate completeness
+pub(crate) fn determine_completed(
     graphs: &Graphs,
     impls: &OrderMap<Name, Impl>,
     subnames: &OrderMap<Name, OrderSet<SubName>>,
 ) -> OrderMap<Name, Completed> {
+    // If there is a cycle we just return everything as 0% complete for spc+tst
+    // We ignore `done` because there will be an ERROR lint later anyway.
     let uncomputed = || {
         impls
             .keys()
@@ -145,7 +145,7 @@ pub(crate) fn determine_completeness(
 
     // topologically sorted means that we can always compute the results of any node
     // based on the previously computed values.
-    for id in &sorted_tst {
+    for id in sorted_tst.iter().rev() {
         // ignore secondary since everything (code+done) always contributes to both.
         let (mut count, mut spc, _, _) =
             impls[id].to_statistics(&subnames[&graphs.lookup_name[id]]);
@@ -159,7 +159,7 @@ pub(crate) fn determine_completeness(
     let mut tested: OrderMap<GraphId, f32> = implemented.iter().map(|(a, b)| (*a, *b)).collect();
 
     // We already computed the TST types, so we just have to compute the req+spc types.
-    for id in &sorted_req_spc {
+    for id in sorted_req_spc.iter().rev() {
         let (mut count_spc, mut spc, mut count_tst, mut tst) =
             impls[id].to_statistics(&subnames[&graphs.lookup_name[id]]);
         for part_id in graphs.req_spc.neighbors(*id) {

@@ -57,11 +57,6 @@ pub fn join_abs<P: AsRef<Path>>(path: &PathAbs, end: P) -> PathAbs {
     ))
 }
 
-/// Add the path prefix to a list of strings
-pub fn prefix_paths(prefix: &PathAbs, ends: &[String]) -> Vec<PathAbs> {
-    ends.iter().map(|e| join_abs(prefix, e)).collect()
-}
-
 /// Given list of `(input, expected)`, assert `method(input) == expected
 pub fn assert_generic<F, I, E>(method: F, values: &[(I, Option<E>)])
 where

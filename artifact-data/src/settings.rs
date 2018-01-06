@@ -37,42 +37,72 @@ pub struct SettingsRaw {
     // pub file_type: FileType,
 }
 
+impl SettingsRaw {
+    fn load<P: AsRef<Path>>(
+        project_path: P,
+    ) -> ::std::result::Result<(PathAbs, SettingsRaw), String> {
+        let project_path = PathAbs::new(project_path.as_ref()).map_err(|e| {
+            format!(
+                "folder does not exist at {}, got {}",
+                project_path.as_ref().display(),
+                e
+            )
+        })?;
+        let raw: SettingsRaw = {
+            let expected = project_path.join(SETTINGS_PATH);
+            let settings_path = PathAbs::new(&expected).map_err(|e| e.to_string())?;
+            let text = settings_path.read().map_err(|e| e.to_string())?;
+            toml::from_str(&text).map_err(|e| e.to_string())?
+        };
+        Ok((project_path, raw))
+    }
+}
+
 #[derive(Debug, Eq, PartialEq)]
 /// All paths that have to be loaded in the project.
 pub struct ProjectPaths {
+    pub base: PathAbs,
     pub code: OrderSet<PathAbs>,
-    pub artifacts: OrderSet<PathAbs>,
+    pub artifact: OrderSet<PathAbs>,
 }
 
 /// Load the paths to all files in the project from the root path.
 ///
 /// The settings file is required to be in `project_path/.art/settings.toml`
-pub fn load_project_paths(project_path: &PathAbs) -> Result<(ProjectPaths, Vec<lint::Lint>)> {
-    let (send_lints, recv_lints) = channel();
-    let raw: SettingsRaw = {
-        let settings_path = PathAbs::new(project_path.join(SETTINGS_PATH))?;
-        toml::from_str(&settings_path.read()?)?
+pub fn load_project_paths<P: AsRef<Path>>(
+    project_path: P,
+) -> (Vec<lint::Lint>, Option<ProjectPaths>) {
+    let (project_path, raw) = match SettingsRaw::load(project_path.as_ref()) {
+        Ok(s) => s,
+        Err(err) => {
+            let lints = vec![
+                lint::Lint::load_error(project_path.as_ref(), &err.to_string()),
+            ];
+            return (lints, None);
+        }
     };
 
+    let (send_lints, recv_lints) = channel();
     let paths = ProjectPaths {
+        base: project_path.clone(),
         code: discover_settings_paths(
             &send_lints,
-            project_path,
+            &project_path,
             &raw.code_paths,
             &raw.exclude_code_paths,
             // TODO: add ability to exclude file patterns
             &|_| true,
         ),
-        artifacts: discover_settings_paths(
+        artifact: discover_settings_paths(
             &send_lints,
-            project_path,
+            &project_path,
             &raw.artifact_paths,
             &raw.exclude_artifact_paths,
             &|p| FileType::from_path(p.as_path()).is_some(),
         ),
     };
     drop(send_lints);
-    Ok((paths, recv_lints.into_iter().collect()))
+    (recv_lints.into_iter().collect(), Some(paths))
 }
 
 /// Discover a list of paths from the settings file.
@@ -87,14 +117,14 @@ where
     F: Fn(&PathAbs) -> bool,
 {
     let mut discovered: OrderSet<PathAbs> = OrderSet::new();
-    let mut visited = resolve_raw_paths(&lints, project_path, raw_exclude);
+    let mut visited = resolve_raw_paths(lints, project_path, raw_exclude);
 
-    for base in resolve_raw_paths(&lints, project_path, &raw_paths) {
+    for base in resolve_raw_paths(lints, project_path, raw_paths) {
         let paths = discover_paths(base.as_path(), filter, &visited);
         let mut paths = match paths {
             Ok(p) => p,
             Err(err) => {
-                lint::io_error(&lints, base.as_path(), &err.to_string());
+                lint::io_error(lints, base.as_path(), &err.to_string());
                 continue;
             }
         };
@@ -105,7 +135,7 @@ where
     discovered
 }
 
-/// Load a list of string paths using the project_path as the base path (i.e. from a settings file)
+/// Load a list of string paths using the `project_path` as the base path (i.e. from a settings file)
 fn resolve_raw_paths(
     lints: &Sender<lint::Lint>,
     project_path: &PathAbs,
