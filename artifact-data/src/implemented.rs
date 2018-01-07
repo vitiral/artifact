@@ -74,16 +74,16 @@ impl Impl {
     /// both spc AND tst for REQ and SPC types.
     ///
     /// `subnames` should contain the subnames that exist in that artifact's text
-    pub(crate) fn to_statistics(&self, subnames: &OrderSet<SubName>) -> (usize, f32, usize, f32) {
+    pub(crate) fn to_statistics(&self, subnames: &OrderSet<SubName>) -> (usize, f64, usize, f64) {
         match *self {
             Impl::Done(_) => (1, 1.0, 1, 1.0),
             Impl::Code(ref impl_) => {
                 let mut count = 1;
-                let mut value = impl_.primary.is_some() as u32 as f32;
+                let mut value = impl_.primary.is_some() as u8 as f64;
                 for sub in subnames.iter() {
                     count += 1;
                     // add 1 if the subname is implemented, else 0
-                    value += impl_.secondary.contains_key(sub) as u32 as f32;
+                    value += impl_.secondary.contains_key(sub) as u8 as f64;
                 }
                 (count, value, 0, 0.0)
             }

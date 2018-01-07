@@ -72,7 +72,7 @@ pub(crate) struct ArtifactsLoaded {
     subnames: OrderMap<Name, OrderSet<SubName>>,
 }
 
-/// #SPC-data-artifact.finalize_load
+/// #SPC-data-artifact.load
 /// Compute everything that is possible based on loaded raw artifacts only.
 /// (no source impls).
 pub(crate) fn finalize_load_artifact(
@@ -147,7 +147,6 @@ pub(crate) fn determine_artifacts(
     out
 }
 
-
 /// Determine `partof` based on the user's definition + automatic relationships.
 pub fn determine_partofs(
     raw_artifacts: &OrderMap<Name, ArtifactRaw>,
@@ -159,6 +158,7 @@ pub fn determine_partofs(
             partof.extend(p.iter().cloned());
         }
     }
+    debug_assert_eq!(raw_artifacts.len(), partofs.len());
     partofs
 }
 
@@ -183,7 +183,7 @@ fn determine_subnames(
 /// Note that the following may exist but will be linted against later:
 /// - Some of the subnames in `ImplCode.secondary` may not be real subnames in the artifact's
 ///   `text`.
-/// - Not all code_impls may be used (i.e. if they have an artifact that doesn't exist).
+/// - Not all `code_impls` may be used (i.e. if they have an artifact that doesn't exist).
 /// - Conflict with `done` is ignored here
 ///
 /// None of these can affect later calculation of completeness or anythign else.

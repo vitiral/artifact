@@ -2,15 +2,13 @@
 #
 # This just asserts that the source files are parsed as expected.
 
-load_lints: []
-implemented_lints: []
-
-code_paths:
-- src/lib.rs
-- pylib/__init__.py
-- pylib/example.py
-
-implemented:
+paths:
+    code:
+    - src/lib.rs
+    - pylib/__init__.py
+    - pylib/example.py
+    artifact: []
+code_impls:
     TST-pyinit:
         primary:
             file: pylib/__init__.py
@@ -27,3 +25,4 @@ implemented:
             file: src/lib.rs
             line: 0
         secondary: {}
+artifacts: {}

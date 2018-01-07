@@ -19,6 +19,7 @@
 //! This module defines tests for the "full" artifact type itself.
 
 use test::dev_prelude::*;
+use test::framework::run_interop_test;
 use name::{Name, SubName};
 use raw::ArtifactRaw;
 use raw_names::NamesRaw;
@@ -63,4 +64,24 @@ fn sanity_determine_partofs() {
     sort_ordermap(&mut partofs);
     sort_ordermap(&mut expected);
     assert_eq!(expected, partofs);
+}
+
+// INTEROP TESTS
+
+#[test]
+/// #TST-data-artifact.empty
+fn interop_project_empty() {
+    run_interop_test(INTEROP_TESTS_PATH.join("empty"));
+}
+
+#[test]
+/// #TST-data-artifact.design_only
+fn interop_design_only() {
+    run_interop_test(INTEROP_TESTS_PATH.join("design_only"));
+}
+
+#[test]
+/// #TST-data-artifact.basic
+fn interop_basic() {
+    run_interop_test(INTEROP_TESTS_PATH.join("basic"));
 }

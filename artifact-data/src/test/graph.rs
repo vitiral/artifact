@@ -20,7 +20,7 @@
 use test::dev_prelude::*;
 use name::{Name, SubName};
 use path_abs::PathAbs;
-use graph;
+use graph::{self, round_ratio};
 use implemented::{CodeLoc, Impl, ImplCode};
 
 /// create the `partof`s and the graphs
@@ -32,6 +32,8 @@ fn simple_graph() -> (OrderMap<Name, OrderSet<Name>>, graph::Graphs) {
         name!("SPC-bbb") => orderset!{name!("REQ-bbb")},
         name!("SPC-bbb-a") => orderset!{name!("SPC-bbb")},
         name!("SPC-bbb-b") => orderset!{name!("SPC-bbb")},
+        name!("TST-aaa") => orderset!{name!("SPC-bbb")},
+        name!("TST-aaa-a") => orderset!{name!("TST-aaa")},
     };
 
     let graphs = graph::determine_graphs(&partofs);
@@ -39,16 +41,18 @@ fn simple_graph() -> (OrderMap<Name, OrderSet<Name>>, graph::Graphs) {
 }
 
 #[test]
-fn sanity_parts() {
+fn sanity_determine_parts() {
     let (_, graphs) = simple_graph();
     let mut parts = graph::determine_parts(&graphs);
     let mut expected = ordermap!{
         name!("REQ-aaa") => orderset!{name!("REQ-bbb")},
         name!("REQ-bbb") => orderset!{name!("REQ-ccc"), name!("SPC-bbb")},
         name!("REQ-ccc") => orderset!{},
-        name!("SPC-bbb") => orderset!{name!("SPC-bbb-a"), name!("SPC-bbb-b")},
+        name!("SPC-bbb") => orderset!{name!("SPC-bbb-a"), name!("SPC-bbb-b"), name!("TST-aaa")},
         name!("SPC-bbb-a") => orderset!{},
         name!("SPC-bbb-b") => orderset!{},
+        name!("TST-aaa") => orderset!{name!("TST-aaa-a")},
+        name!("TST-aaa-a") => orderset!{},
     };
 
     sort_ordermap(&mut parts);
@@ -57,7 +61,19 @@ fn sanity_parts() {
 }
 
 #[test]
-fn sanity_completed() {
+fn sanity_determine_graphs() {
+    let partofs = ordermap!{
+        name!("REQ-a") => orderset!{},
+        name!("TST-a") => orderset!{},
+    };
+    let graphs = graph::determine_graphs(&partofs);
+    assert_eq!(graphs.full.node_count(), 2);
+    assert_eq!(graphs.full.edge_count(), 0);
+    assert_eq!(graphs.lookup_id.len(), 2);
+}
+
+#[test]
+fn sanity_determine_completed() {
     let (_, graphs) = simple_graph();
 
     let loc = CodeLoc::new(&PathAbs::fake("/fake"), 1);
@@ -79,6 +95,11 @@ fn sanity_completed() {
                 subname!(".done") => loc.clone(),
             },
         }),
+        name!("TST-aaa") => Impl::NotImpl,
+        name!("TST-aaa-a") => Impl::Code(ImplCode {
+            primary: Some(loc.clone()),
+            secondary: ordermap!{},
+        }),
     };
     let subnames = ordermap!{
         name!("REQ-aaa") => orderset!{},
@@ -95,20 +116,33 @@ fn sanity_completed() {
             subname!(".notdone1"),
             subname!(".notdone2"),
         },
+        name!("TST-aaa") => orderset!{},
+        name!("TST-aaa-a") => orderset!{
+            subname!(".notdone"),
+        },
     };
 
     type C = graph::Completed;
     let mut completed = graph::determine_completed(&graphs, &impls, &subnames);
-    let spc_bbb_b = 1. / 4.;
-    let spc_bbb = (1. + 2. + spc_bbb_b) / (4. + 2.);
-    let req_bbb = (1. + spc_bbb) / 4.; // one subname so self-count == 2
+    let spc_bbb_b = 1.0_f64 / 4.0_f64;
+    let spc_bbb = (3.0_f64 + spc_bbb_b + 0.0_f64) / (4.0_f64 + 2.0_f64);
+    let req_bbb = (1.0_f64 + spc_bbb) / 4.0_f64; // one subname so self-count == 2
+
+    // test-ratios
+    let tr_tst_aaa_a = 0.5;
+    let tr_spc_bbb = tr_tst_aaa_a / 3.;
+    let tr_req_bbb = (tr_spc_bbb  + 1. /*req-ccc*/) / 2.;
+
+    // FIXME: remove adjustmeents -- why the heck are they needed???
     let mut expected = ordermap!{
-        name!("REQ-aaa") => C {tst: 0.5, spc: req_bbb},
-        name!("REQ-bbb") => C {tst: 0.5, spc: req_bbb},
+        name!("REQ-aaa") => C {tst: round_ratio(tr_req_bbb), spc: round_ratio(req_bbb)},
+        name!("REQ-bbb") => C {tst: round_ratio(tr_req_bbb), spc: round_ratio(req_bbb)},
         name!("REQ-ccc") => C {tst: 1.0, spc: 1.},
-        name!("SPC-bbb") => C {tst: 0.0, spc: spc_bbb},
+        name!("SPC-bbb") => C {tst: round_ratio(tr_spc_bbb), spc: round_ratio(spc_bbb)},
         name!("SPC-bbb-a") => C {tst: 0.0, spc: 0.},
-        name!("SPC-bbb-b") => C {tst: 0.0, spc: spc_bbb_b},
+        name!("SPC-bbb-b") => C {tst: 0.0, spc: round_ratio(spc_bbb_b)},
+        name!("TST-aaa") => C {tst: round_ratio(tr_tst_aaa_a), spc: round_ratio(tr_tst_aaa_a)},
+        name!("TST-aaa-a") => C {tst: round_ratio(tr_tst_aaa_a), spc: round_ratio(tr_tst_aaa_a)},
     };
     sort_ordermap(&mut completed);
     sort_ordermap(&mut expected);

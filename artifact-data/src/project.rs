@@ -16,6 +16,7 @@
  * */
 //! The major exported type and function for loading artifacts.
 
+use time;
 use std::borrow::Borrow;
 use std::sync::mpsc::{channel, Sender};
 use rayon;
@@ -70,15 +71,18 @@ impl Project {
 
 /// Load the project from the given path.
 pub fn load_project<P: AsRef<Path>>(project_path: P) -> (lint::Categorized, Option<Project>) {
+    let start_load = time::get_time();
     let mut lints = lint::Categorized::default();
 
     let paths = {
+        let start = time::get_time();
         let (mut load_lints, paths) = settings::load_project_paths(project_path);
         lints.categorize(load_lints.drain(..));
         if !lints.error.is_empty() {
             lints.sort();
             return (lints, None);
         }
+        eprintln!("loaded paths in {:.3} seconds", time::get_time() - start);
         paths.expect("No lints but also no settings file!")
     };
 
@@ -87,20 +91,33 @@ pub fn load_project<P: AsRef<Path>>(project_path: P) -> (lint::Categorized, Opti
         let send = Mutex::new(send);
         let (locs, arts) = rayon::join(
             || {
-                let send = send.lock().map(|s| s.clone()).unwrap();
+                let start = time::get_time();
+                let send = { send.lock().map(|s| s.clone()).unwrap() };
                 let locs = implemented::load_locations(&send, &paths.code);
-                implemented::join_locations(&send, locs)
+                let out = implemented::join_locations(&send, locs);
+                eprintln!("loaded code in {:.3} seconds", time::get_time() - start);
+                out
             },
             || {
-                let send = send.lock().map(|s| s.clone()).unwrap();
+                let start = time::get_time();
+                let send = { send.lock().map(|s| s.clone()).unwrap() };
                 let raw = raw::load_artifacts_raw(&send, &paths.artifact);
                 let (defined, raw) = raw::join_artifacts_raw(&send, raw);
                 let loaded = artifact::finalize_load_artifact(raw);
+                eprintln!(
+                    "loaded artifacts in {:.3} seconds",
+                    time::get_time() - start
+                );
                 (defined, loaded)
             },
         );
+        let start = time::get_time();
         drop(send);
         lints.categorize(recv.into_iter());
+        eprintln!(
+            "categorized load-lints in {:.3} seconds",
+            time::get_time() - start
+        );
 
         if !lints.error.is_empty() {
             lints.sort();
@@ -109,6 +126,7 @@ pub fn load_project<P: AsRef<Path>>(project_path: P) -> (lint::Categorized, Opti
         (locs, arts)
     };
 
+    let start = time::get_time();
     let artifacts = artifact::determine_artifacts(loaded, &code_impls, &defined);
 
     let mut project = Project {
@@ -116,7 +134,17 @@ pub fn load_project<P: AsRef<Path>>(project_path: P) -> (lint::Categorized, Opti
         code_impls: code_impls,
         artifacts: artifacts,
     };
+    println!(
+        "determined project in {:.3} seconds",
+        time::get_time() - start
+    );
+    let start = time::get_time();
     lints.sort();
     project.sort();
+    eprintln!("sorted project in {:.3} seconds", time::get_time() - start);
+    eprintln!(
+        "project load took {:.3} seconds",
+        time::get_time() - start_load
+    );
     (lints, Some(project))
 }

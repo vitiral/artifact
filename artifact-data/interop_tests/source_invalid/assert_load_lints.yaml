@@ -1,0 +1,38 @@
+error:
+    -
+        level: Error
+        path: src/one.py
+        line: 2
+        category: ParseCodeImplementations
+        msg: "duplicate detected: SPC-one"
+    -
+        level: Error
+        path: src/one.py
+        line: 3
+        category: ParseCodeImplementations
+        msg: "duplicate detected: SPC-one"
+    -
+        level: Error
+        path: src/two.py
+        line: 2
+        category: ParseCodeImplementations
+        msg: "duplicate detected: SPC-two"
+    -
+        level: Error
+        path: src/two.py
+        line: 3
+        category: ParseCodeImplementations
+        msg: "duplicate detected: SPC-two.a"
+    -
+        level: Error
+        path: src/two-b.py
+        line: 2
+        category: ParseCodeImplementations
+        msg: "duplicate detected: SPC-two"
+    -
+        level: Error
+        path: src/two-b.py
+        line: 3
+        category: ParseCodeImplementations
+        msg: "duplicate detected: SPC-two.a"
+other: []

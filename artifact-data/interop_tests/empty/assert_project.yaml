@@ -1,0 +1,30 @@
+# Empty project
+#
+# This file is also used as a template
+
+paths:
+    code: []
+    # - src/lib.rs
+
+    artifact: []
+    # - design/purpose.md
+
+code_impls: {}
+    # TST-pyinit:
+    #     primary:
+    #         file: pylib/__init__.py
+    #         line: 0
+    #     secondary: {}
+
+artifacts: {}
+    # REQ-purpose:
+    #     file: design/purpose.md
+    #     partof: []
+    #     parts: []
+    #     completed: {spc: 0.0, tst: 0.0}
+    #     text: | # note `|` => multiline string. Use `|-` to strip newlines
+    #         The purpose of this project is to test loading artifact designs.
+    #
+    #         This is on a new line.
+    #     impl_: null
+    #     subnames: []

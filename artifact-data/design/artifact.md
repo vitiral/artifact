@@ -6,7 +6,7 @@ The design up until this point has been to create mappings of
 the artifact. That design will continue here to allow for reduced
 complexity and easier testability (where needed).
 
-# [[.finalize_load]]: calculate pieces from ArtifactRaw only
+# [[.load]]: calculate pieces from ArtifactRaw only
 After we have successfully loaded all of the artifacts we still want
 to calculate all of the pieces such as `partof`, `parts` and `subnames`.
 
@@ -71,7 +71,7 @@ The major testing will be done using the interop framework. The following
 test cases should be implemented:
 - [[.empty]]: `empty` project that contains only empty artifact files.
   and no source code.
-- [[.only_design]]: a project containing only design documents (none of the
+- [[.design_only]]: a project containing only design documents (none of the
   artifacts implemented).
   - This is mostly to test that artifact parsing works and linking works
   - A few artifacts should be "defined as done" to get some basic "completion"
@@ -79,9 +79,6 @@ test cases should be implemented:
   - Artifacts should be split into lots of deep folders, to push parsing to
     a higher limit.
   - Some artifact folders should be excluded.
-  - Expected lint errors:
-    - referenes to names+subnames that don't exist
-    - partof values that don't exist
 - [[.basic]]: a basic project with minimal artifacts, some implemented in
   source code.
   - This is mostly a "sanity" project
@@ -90,7 +87,10 @@ test cases should be implemented:
   - At least one artifact with subnames NOT implemented in source
   - At least one artifact only partially implemented (no subnames and not implemented)
   - At least one artifact only partially implemented (no primary + single secondary)
-  - Lints:
-      - At least one artifact BOTH implemenented in source and defined as done
-      - Invalid reference (name + subane) in source
 
+- [[.lint]]: a basic project to test lints
+  - Expected lint errors:
+    - referenes to names+subnames that don't exist
+    - partof values that don't exist
+    - At least one artifact BOTH implemenented in source and defined as done
+    - Invalid reference (name + subane) in source

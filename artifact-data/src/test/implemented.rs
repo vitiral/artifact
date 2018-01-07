@@ -297,6 +297,11 @@ proptest! {
 // INTEROP TESTS
 
 #[test]
-fn interop_locations() {
-    run_interop_test(INTEROP_TESTS_PATH.join("interop_locations"));
+fn interop_source_only() {
+    run_interop_test(INTEROP_TESTS_PATH.join("source_only"));
+}
+
+#[test]
+fn interop_source_invalid() {
+    run_interop_test(INTEROP_TESTS_PATH.join("source_invalid"));
 }

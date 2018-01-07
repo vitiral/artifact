@@ -102,7 +102,8 @@ pub fn load_project_paths<P: AsRef<Path>>(
         ),
     };
     drop(send_lints);
-    (recv_lints.into_iter().collect(), Some(paths))
+    let lints = recv_lints.into_iter().collect();
+    (lints, Some(paths))
 }
 
 /// Discover a list of paths from the settings file.
@@ -145,7 +146,10 @@ fn resolve_raw_paths(
         .iter()
         .filter_map(|p| {
             // backwards compatibility: just ignore front `{repo}/`
-            let p = p.trim_left_matches("{repo}/");
+            let p = p.trim_left_matches("{repo}");
+            // Also just allow `/something`... Path.join will just IGNORE joining
+            // something with the other being "/something"
+            let p = p.trim_left_matches('/');
             let path = project_path.join(p);
             match PathAbs::new(&path) {
                 Ok(p) => Some(p),

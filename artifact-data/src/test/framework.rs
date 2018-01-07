@@ -19,6 +19,7 @@
 //! This module defines the interop "framework" that is leveraged for
 //! a variety of integration/interop testing.
 
+use time;
 use std::sync::mpsc::channel;
 use serde_yaml;
 
@@ -29,25 +30,47 @@ use artifact;
 use implemented;
 use settings;
 use project;
-use lint;
+use lint::{self, Categorized};
 
 /// Run the interop test on an example project.
 pub fn run_interop_test<P: AsRef<Path>>(path: P) {
+    eprintln!("Running interop test: {}", path.as_ref().display());
+    let start = time::get_time();
     let project_path = PathAbs::new(path.as_ref()).expect("project_path DNE");
-    let expect_load_lints = load_lints(&project_path, "assert_load_lints.yaml").unwrap_or_default();
+    let expect_load_lints = load_lints(&project_path, "assert_load_lints.yaml");
     let expect_project_lints = load_lints(&project_path, "assert_project_lints.yaml");
     let expect_project = ProjectAssert::load(&project_path).map(|p| p.expected(&project_path));
+    eprintln!("loaded asserts in {:.3}", time::get_time() - start);
 
     let (load_lints, project) = project::load_project(path.as_ref());
 
-    assert_eq!(expect_load_lints, load_lints);
-    assert_eq!(expect_project, project);
-    if let Some(project) = project {
-        let expect_project_lints = expect_project_lints.expect("project lints DNE");
-        let project_lints = project.lint();
-        assert_eq!(expect_project_lints, project_lints);
-    } else {
+    eprintln!("asserting load lints");
+    if let Some(expect) = expect_load_lints {
+        assert_eq!(expect, load_lints);
+    }
+
+    if !load_lints.error.is_empty() {
+        // make sure we didn't assert anything stupid
         assert_eq!(expect_project_lints, None);
+        assert_eq!(expect_project, None);
+
+        // make sure the project wasn't loaded
+        assert_eq!(project, None);
+        return;
+    }
+
+    if expect_project.is_some() {
+        eprintln!("asserting projects");
+        assert_eq!(expect_project, project);
+    }
+
+    if let Some(expect) = expect_project_lints {
+        let lints = project
+            .as_ref()
+            .expect("expected project lints without project")
+            .lint();
+        eprintln!("asserting project_lints");
+        assert_eq!(expect, lints);
     }
 }
 
@@ -76,6 +99,7 @@ struct ArtifactAssert {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(untagged)]
 enum ImplAssert {
     Done(String),
     Code(ImplCodeAssert),
@@ -193,7 +217,7 @@ impl lint::Lint {
 }
 
 impl CategorizedAssert {
-    fn expected(mut self, base: &PathAbs) -> lint::Categorized {
+    fn expected(mut self, base: &PathAbs) -> Categorized {
         let convert_lints = |lints: &mut Vec<lint::Lint>| {
             lints
                 .iter_mut()
@@ -204,14 +228,14 @@ impl CategorizedAssert {
         };
         convert_lints(&mut self.error);
         convert_lints(&mut self.other);
-        lint::Categorized {
+        Categorized {
             error: self.error,
             other: self.other,
         }
     }
 }
 
-fn load_lints(base: &PathAbs, fname: &str) -> Option<lint::Categorized> {
+fn load_lints(base: &PathAbs, fname: &str) -> Option<Categorized> {
     match PathAbs::new(base.join(fname)) {
         Ok(p) => {
             let out: CategorizedAssert = serde_yaml::from_str(&p.read().unwrap()).unwrap();

@@ -44,10 +44,6 @@ pub(crate) struct Graphs {
     pub lookup_id: OrderMap<Name, GraphId>,
     /// Full graph (all artifacts)
     pub full: DiGraphMap<GraphId, ()>,
-    /// Graph of only REQ and SPC types
-    pub req_spc: DiGraphMap<GraphId, ()>,
-    /// Graph of only TST types
-    pub tst: DiGraphMap<GraphId, ()>,
 }
 
 /// #SPC-data-artifact.graph
@@ -56,27 +52,21 @@ pub(crate) fn determine_graphs(partofs: &OrderMap<Name, OrderSet<Name>>) -> Grap
     let ids = create_ids(partofs);
 
     let mut graph_full: DiGraphMap<GraphId, ()> = DiGraphMap::new();
-    let mut graph_req_spc: DiGraphMap<GraphId, ()> = DiGraphMap::new();
-    let mut graph_tst: DiGraphMap<GraphId, ()> = DiGraphMap::new();
     for (name, partof) in partofs.iter() {
+        let id = ids[name];
+        graph_full.add_node(id);
         for p in partof.iter() {
-            let edge = (ids[p], ids[name]);
-            graph_full.add_edge(edge.0, edge.1, ());
-            if matches!(name.ty, Type::TST) && matches!(p.ty, Type::TST) {
-                graph_tst.add_edge(edge.0, edge.1, ());
-            } else {
-                graph_req_spc.add_edge(edge.0, edge.1, ());
-            }
+            graph_full.add_edge(ids[p], id, ());
         }
     }
 
     let lookup_name = ids.iter().map(|(n, i)| (*i, n.clone())).collect();
+    debug_assert_eq!(ids.len(), partofs.len());
+    debug_assert_eq!(graph_full.node_count(), partofs.len());
     Graphs {
         lookup_id: ids,
         lookup_name: lookup_name,
         full: graph_full,
-        req_spc: graph_req_spc,
-        tst: graph_tst,
     }
 }
 
@@ -98,10 +88,6 @@ pub(crate) fn determine_parts(graphs: &Graphs) -> OrderMap<Name, OrderSet<Name>>
 
 /// #SPC-data-artifact.completed
 /// Determine the completeness of the artifacts.
-///
-/// Basic idea:
-/// - topologically sort the `graphs.tst` and calculate completeness (impl+test)
-/// - topologically sort `graphs.req_spc` and calculate completeness
 pub(crate) fn determine_completed(
     graphs: &Graphs,
     impls: &OrderMap<Name, Impl>,
@@ -115,12 +101,7 @@ pub(crate) fn determine_completed(
             .map(|n| (n.clone(), Completed::default()))
             .collect()
     };
-    let sorted_req_spc = match petgraph::algo::toposort(&graphs.req_spc, None) {
-        Ok(s) => s,
-        // cycle detected
-        Err(_) => return uncomputed(),
-    };
-    let sorted_tst = match petgraph::algo::toposort(&graphs.tst, None) {
+    let sorted_graph = match petgraph::algo::toposort(&graphs.full, None) {
         Ok(s) => s,
         // cycle detected
         Err(_) => return uncomputed(),
@@ -132,61 +113,67 @@ pub(crate) fn determine_completed(
         .map(|(name, v)| (graphs.lookup_id[name], v))
         .collect();
 
-    let mut implemented: OrderMap<GraphId, f32> = OrderMap::with_capacity(impls.len());
-
     /// compute ratio but ignore count=0
-    fn ratio(value: f32, count: usize) -> f32 {
+    fn ratio(value: f64, count: usize) -> f64 {
         if count == 0 {
             0.0
         } else {
-            value / count as f32
+            value / count as f64
         }
     }
 
-    // topologically sorted means that we can always compute the results of any node
-    // based on the previously computed values.
-    for id in sorted_tst.iter().rev() {
-        // ignore secondary since everything (code+done) always contributes to both.
-        let (mut count, mut spc, _, _) =
-            impls[id].to_statistics(&subnames[&graphs.lookup_name[id]]);
-        for part_id in graphs.tst.neighbors(*id) {
-            spc += implemented[&part_id];
-            count += 1;
-        }
-        implemented.insert(*id, ratio(spc, count));
-    }
-    // TST types are as tested as they are implemented (by definition)
-    let mut tested: OrderMap<GraphId, f32> = implemented.iter().map(|(a, b)| (*a, *b)).collect();
+    let mut implemented: OrderMap<GraphId, f64> = OrderMap::with_capacity(impls.len());
+    let mut tested: OrderMap<GraphId, f64> = OrderMap::with_capacity(impls.len());
 
-    // We already computed the TST types, so we just have to compute the req+spc types.
-    for id in sorted_req_spc.iter().rev() {
-        let (mut count_spc, mut spc, mut count_tst, mut tst) =
+    for id in sorted_graph.iter().rev() {
+        // sec is secondary value/count
+        let (mut count_spc, mut value_spc, mut count_tst, mut value_tst) =
             impls[id].to_statistics(&subnames[&graphs.lookup_name[id]]);
-        for part_id in graphs.req_spc.neighbors(*id) {
-            // every type contributes to `tst` ratio
-            tst += tested[&part_id];
-            count_tst += 1;
 
-            if !matches!(graphs.lookup_name[&part_id].ty, Type::TST) {
-                // TST type does not contribute to `spc` ratio
-                spc += implemented[&part_id];
+        if matches!(graphs.lookup_name[id].ty, Type::TST) {
+            // For TST, tst == spc and we can ignore "secondary"
+            for part_id in graphs.full.neighbors(*id) {
+                value_spc += implemented[&part_id];
                 count_spc += 1;
             }
+            value_tst = value_spc;
+            count_tst = count_spc;
+        } else {
+            for part_id in graphs.full.neighbors(*id) {
+                value_tst += tested[&part_id];
+                count_tst += 1;
+
+                if !matches!(graphs.lookup_name[&part_id].ty, Type::TST) {
+                    // TST's dont contribute towards spc in other types
+                    value_spc += implemented[&part_id];
+                    count_spc += 1;
+                }
+            }
         }
-        tested.insert(*id, ratio(tst, count_tst));
-        implemented.insert(*id, ratio(spc, count_spc));
+        tested.insert(*id, ratio(value_tst, count_tst));
+        implemented.insert(*id, ratio(value_spc, count_spc));
     }
 
-    implemented
+    debug_assert_eq!(impls.len(), implemented.len());
+    debug_assert_eq!(impls.len(), tested.len());
+    let out: OrderMap<Name, Completed> = implemented
         .iter()
         .map(|(id, spc)| {
+            // throw away digits after 1000 significant digit
+            // (note: only at end of all calculations!)
             let compl = Completed {
-                spc: *spc,
-                tst: tested[id],
+                spc: round_ratio(*spc),
+                tst: round_ratio(tested[id]),
             };
             (graphs.lookup_name[id].clone(), compl)
         })
-        .collect()
+        .collect();
+    debug_assert_eq!(impls.len(), out.len());
+    out
+}
+
+pub fn round_ratio(ratio: f64) -> f32 {
+    ((ratio * 1000.).round() / 1000.) as f32
 }
 
 // IMPLEMENTATION DETAILS

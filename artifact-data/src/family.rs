@@ -202,5 +202,6 @@ pub fn auto_partofs<T>(names: &OrderMap<Name, T>) -> OrderMap<Name, OrderSet<Nam
         }
         out.insert(name.clone(), auto);
     }
+    debug_assert_eq!(names.len(), out.len());
     out
 }

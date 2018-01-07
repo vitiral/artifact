@@ -46,6 +46,7 @@ extern crate lazy_static;
 extern crate maplit;
 #[macro_use]
 extern crate serde_derive;
+extern crate time;
 
 // MODULES
 
