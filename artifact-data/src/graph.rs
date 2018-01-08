@@ -15,16 +15,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 //! Module for constructing and processing graphs of artifacts.
+use petgraph;
 use petgraph::graphmap::DiGraphMap;
-use petgraph::{self, Direction};
 
 use dev_prelude::*;
-use raw::ArtifactRaw;
-use raw_names::NamesRaw;
-use name::{self, Name, SubName, Type};
-use implemented::{Impl, ImplCode};
-use path_abs::PathAbs;
-use family;
+use name::{Name, SubName, Type};
+use implemented::Impl;
 
 pub(crate) type GraphId = u32;
 
@@ -61,8 +57,6 @@ pub(crate) fn determine_graphs(partofs: &OrderMap<Name, OrderSet<Name>>) -> Grap
     }
 
     let lookup_name = ids.iter().map(|(n, i)| (*i, n.clone())).collect();
-    debug_assert_eq!(ids.len(), partofs.len());
-    debug_assert_eq!(graph_full.node_count(), partofs.len());
     Graphs {
         lookup_id: ids,
         lookup_name: lookup_name,
@@ -178,11 +172,20 @@ pub fn round_ratio(ratio: f64) -> f32 {
 
 // IMPLEMENTATION DETAILS
 
-/// Create ids for the graph based on the names.
-fn create_ids<T>(names: &OrderMap<Name, T>) -> OrderMap<Name, GraphId> {
-    names
-        .keys()
-        .enumerate()
-        .map(|(i, n)| (n.clone(), i as GraphId))
-        .collect()
+/// Create unique ids for the graph based on the names.
+///
+/// They are just guaranteed to be unique... not in any kind of order at all.
+fn create_ids(names: &OrderMap<Name, OrderSet<Name>>) -> OrderMap<Name, GraphId> {
+    let mut out: OrderMap<Name, GraphId> = OrderMap::new();
+    let mut id = 1;
+
+    for (name, partof) in names.iter() {
+        out.insert(name.clone(), id);
+        id += 1;
+        for pof in partof.iter() {
+            out.insert(pof.clone(), id);
+            id += 1;
+        }
+    }
+    out
 }

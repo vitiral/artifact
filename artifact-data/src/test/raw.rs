@@ -19,12 +19,9 @@
 //! of RAW artifacts.
 
 use rand::{self, Rng};
-use serde_json;
-use name::{Name, SubName, Type};
-use family::Names;
+use name::{Name, SubName};
 use raw::{from_markdown, to_markdown, ArtifactRaw, TextRaw, ATTRS_END_RE, NAME_LINE_RE};
 use raw_names::NamesRaw;
-use regex_generate;
 use test::dev_prelude::*;
 use test::family::{arb_topologically_sorted_names, rand_select_partof};
 use test::implemented::random_impl_links;
@@ -244,7 +241,6 @@ partof:
 
 proptest! {
     #[test]
-    #[ignore] // TODO: very slow
     #[cfg(not(feature = "cache"))]
     fn fuzz_artifacts_serde(ref orig in arb_raw_artifacts(20)) {
         // FIXME: this has to be eaiser

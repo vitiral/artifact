@@ -1,0 +1,88 @@
+error:
+-
+    level: Error
+    path: design/purpose.md
+    line: null
+    category: Artifact
+    msg: "REQ-exists defines partof=REQ-dne which does not exist"
+-
+    level: Error
+    path: design/purpose.md
+    line: null
+    category: Artifact
+    msg: "REQ-exists cannot have `partof` SPC-exists: invalid types."
+-
+    level: Error
+    path: design/purpose.md
+    line: null
+    category: Artifact
+    msg: "REQ-exists cannot have `partof` TST-exists: invalid types."
+-
+    level: Error
+    path: design/purpose.md
+    line: null
+    category: Artifact
+    msg: "SPC-exists cannot have `partof` TST-exists: invalid types."
+-
+    level: Error
+    path: design/purpose.md
+    line: null
+    category: Artifact
+    msg: "TST-exists: subnames are defined when the `done` field is set."
+-
+    level: Error
+    path: design/text.toml
+    line: null
+    category: Artifact
+    msg: "REQ-text text is invalid: Cannot have a line of the form \"# ART-name\" as that
+          specifies a new artifact in the markdown format."
+-
+    level: Error
+    path: design/text.toml
+    line: null
+    category: Artifact
+    msg: "REQ-text text is invalid: Cannot have a line of the form \"###+\" as that
+          specifies the end of the metadata in the markdown format."
+other:
+-
+     level: Warn
+     path: design/purpose.md
+     line: null
+     category: Artifact
+     msg: "TST-exists has soft reference [[REQ-dne]] which does not exist."
+-
+     level: Warn
+     path: design/purpose.md
+     line: null
+     category: Artifact
+     msg: "TST-exists has soft reference [[REQ-dne.sub]] which does not exist."
+-
+     level: Warn
+     path: design/purpose.md
+     line: null
+     category: Artifact
+     msg: "TST-exists has soft reference [[REQ-exists.dne]] which does not exist."
+-
+    level: Warn
+    path: src/lib.rs
+    line: 4
+    category: ImplCode
+    msg: "Invalid code impl #SPC-exists.dne. Subname [[.dne]] does not exist in artifact's text"
+-
+    level: Warn
+    path: src/lib.rs
+    line: 6
+    category: ImplCode
+    msg: "Invalid code impl #SPC-dne. Artifact SPC-dne does not exist"
+-
+    level: Warn
+    path: src/lib.rs
+    line: 7
+    category: ImplCode
+    msg: "Invalid code impl #SPC-dne.sub. Artifact SPC-dne does not exist"
+-
+    level: Warn
+    path: src/lib.rs
+    line: 9
+    category: ImplCode
+    msg: "Invalid code impl #TST-exists. Artifact's done field is set"

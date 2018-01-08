@@ -14,7 +14,15 @@ This results in two maps for each file:
 - `Name => CodeLoc`
 - `SubName => CodeLoc`
 
-Along with two linting vectors for any collisions.
+## Lints
+All lints related to source code are only WARNINGS
+
+- [[.lint_done]]: an artifact with its `done` field set is also linked
+  in code.
+- [[.lint_exists]]: the artifact name does not exists but it does not specify the
+  linked
+- [[.lint_subname_exists]]: the artifact name exists but the artifact does not specify
+  the linked subname.
 
 ### [[.join]]: Joining Locations
 The `Name` and `SubName` maps from each file are joined into two large maps

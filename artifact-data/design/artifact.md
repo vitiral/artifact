@@ -55,6 +55,14 @@ Other than that, we simply:
 - If any cycles are detected we just return that all items are 0% completed.
   A later lint will handle that issue.
 
+## Lints
+- [[.lint_text]]: ensure that the artifat's text is valid in all of the
+  formats. For markdown, this means ensuring that nothing would be parsed
+  as "a new artifact" or the "end of metadata" blocks.
+- [[.lint_done]]: ensure that done and subnames are not both defined.
+- [[.lint_text_refs]]: ensure that soft references (`[[ART-name(.sub)]]`)
+  all point to real things.
+
 # TST-data-artifact
 Although the different pieces are separated out, most of the "construction" of
 the artifact objects themselves will not be tested explicitly. Instead

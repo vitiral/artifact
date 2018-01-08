@@ -17,24 +17,38 @@
 //! The major exported type and function for loading artifacts.
 
 use time;
-use std::borrow::Borrow;
 use std::sync::mpsc::{channel, Sender};
 use rayon;
+use regex::Regex;
 
 use dev_prelude::*;
 use artifact;
 use implemented;
 use lint;
-use name;
+use name::{Name, SubName};
 use raw;
 use settings;
-use project;
+use path_abs::PathAbs;
 
 #[derive(Debug, PartialEq)]
 pub struct Project {
     pub paths: settings::ProjectPaths,
-    pub code_impls: OrderMap<name::Name, implemented::ImplCode>,
-    pub artifacts: OrderMap<name::Name, artifact::Artifact>,
+    pub code_impls: OrderMap<Name, implemented::ImplCode>,
+    pub artifacts: OrderMap<Name, artifact::Artifact>,
+}
+
+lazy_static!{
+    /// Name reference that can exist in source code
+    static ref TEXT_REF_RE: Regex = Regex::new(
+        &format!(r#"(?xi)
+        \[\[(               # start main section
+        (?:REQ|SPC|TST)     # all types are supported
+        -(?:[{0}]+-)*       # any number of first element
+        (?:[{0}]+)          # required end element
+        )                   # end main section
+        (\.[{0}]+)?         # (optional) sub section
+        \]\]                # close text reference
+        "#, NAME_VALID_CHARS!())).unwrap();
 }
 
 impl Project {
@@ -54,18 +68,35 @@ impl Project {
     }
 
     /// #SPC-data-lint
-    /// FIXME: Need to do LINTS
-    /// - partof that doesn't exist
-    /// - parent that should exist but doesn't
-    /// - check for type validity in "partof"
-    /// - code_impls can NOT conflict with done
-    /// - code_impls with no corresponding raw artifact
-    /// - code_impls with no corresponding raw artifact subname
+    ///
+    /// TODO WARN:
+    /// - references in text that do not exist
+    /// - (optional?) poorly formed references in text
     pub fn lint(&self) -> lint::Categorized {
-        let mut lints = lint::Categorized::default();
+        let (send, recv) = channel();
 
+        self.lint_errors(&send);
+        self.lint_other(&send);
+
+        drop(send);
+        let mut lints = lint::Categorized::default();
+        lints.categorize(recv.into_iter());
         lints.sort();
         lints
+    }
+
+    /// Lint against only "fatal" errors.
+    pub fn lint_errors(&self, send: &Sender<lint::Lint>) {
+        lint_partof_dne(send, self);
+        lint_partof_types(send, self);
+        lint_artifact_text(send, self);
+        lint_artifact_done_subnames(send, self);
+    }
+
+    /// Lint against non-fatal errors.
+    pub fn lint_other(&self, send: &Sender<lint::Lint>) {
+        lint_artifact_text_refs(send, self);
+        lint_code_impls(send, self);
     }
 }
 
@@ -147,4 +178,234 @@ pub fn load_project<P: AsRef<Path>>(project_path: P) -> (lint::Categorized, Opti
         time::get_time() - start_load
     );
     (lints, Some(project))
+}
+
+/// #REQ-data-family.lint_partof_exists
+/// Lint against partofs that do not exist but should (ERROR)
+pub(crate) fn lint_partof_dne(lints: &Sender<lint::Lint>, project: &Project) {
+    for (name, art) in project.artifacts.iter() {
+        for pof in art.partof.iter() {
+            if !project.artifacts.contains_key(pof) {
+                lints
+                    .send(lint::Lint {
+                        level: lint::Level::Error,
+                        path: Some(art.file.to_path_buf()),
+                        line: None,
+                        category: lint::Category::Artifact,
+                        msg: format!(
+                            "{} defines partof={} which does not exist",
+                            name.as_str(),
+                            pof.as_str()
+                        ),
+                    })
+                    .expect("send lint");
+            }
+        }
+    }
+}
+
+/// #REQ-data-family.lint_types
+/// Lint against partof's that have invalid types.
+pub(crate) fn lint_partof_types(lints: &Sender<lint::Lint>, project: &Project) {
+    use name::Type::{REQ, SPC, TST};
+    for (name, art) in project.artifacts.iter() {
+        for pof in art.partof.iter() {
+            let invalid = match (name.ty, pof.ty) {
+                // SPC can not have part REQ
+                (REQ, SPC)
+                // TST can not have part REQ
+                | (REQ, TST)
+                // TST can not have part SPC
+                | (SPC, TST) => true,
+                _ => false,
+            };
+
+            if invalid {
+                lints
+                    .send(lint::Lint {
+                        level: lint::Level::Error,
+                        path: Some(art.file.to_path_buf()),
+                        line: None,
+                        category: lint::Category::Artifact,
+                        msg: format!(
+                            "{} cannot have `partof` {}: invalid types.",
+                            name.as_str(),
+                            pof.as_str(),
+                        ),
+                    })
+                    .expect("send lint");
+            }
+        }
+    }
+}
+
+/// #SPC-data-artifact.lint_done
+/// Lint that done is not defined on an artifact which has subnames.
+pub(crate) fn lint_artifact_done_subnames(lints: &Sender<lint::Lint>, project: &Project) {
+    for (name, art) in project.artifacts.iter() {
+        if art.impl_.is_done() && !art.subnames.is_empty() {
+            lints
+                .send(lint::Lint {
+                    level: lint::Level::Error,
+                    path: Some(art.file.to_path_buf()),
+                    line: None,
+                    category: lint::Category::Artifact,
+                    msg: format!(
+                        "{}: subnames are defined when the `done` field is set.",
+                        name.as_str()
+                    ),
+                })
+                .expect("send lint");
+        }
+    }
+}
+
+/// Lint against code_impls
+pub(crate) fn lint_code_impls(lints: &Sender<lint::Lint>, project: &Project) {
+    use implemented::{CodeLoc, Impl};
+    let send_lint = |name: &Name, sub: Option<&SubName>, loc: &CodeLoc, msg: &str| {
+        lints
+            .send(lint::Lint {
+                level: lint::Level::Warn,
+                path: Some(loc.file.to_path_buf()),
+                line: Some(loc.line),
+                category: lint::Category::ImplCode,
+                msg: format!("Invalid code impl #{}. {}", name.full(sub), msg),
+            })
+            .expect("send lint");
+    };
+    for (name, code_impl) in project.code_impls.iter() {
+        if let Some(art) = project.artifacts.get(name) {
+            match art.impl_ {
+                Impl::Done(_) => {
+                    // #SPC-data-src.lint_done
+                    // impls exist for artifact defined as done
+                    if let Some(ref loc) = code_impl.primary {
+                        send_lint(name, None, loc, "Artifact's done field is set");
+                    }
+                    for (sub, loc) in code_impl.secondary.iter() {
+                        send_lint(name, Some(sub), loc, "Artifact's done field is set");
+                    }
+                }
+                Impl::Code(_) => {
+                    for (sub, loc) in code_impl.secondary.iter() {
+                        if !art.subnames.contains(sub) {
+                            // #SPC-data-src.lint_exists
+                            // subname ref does not exist
+                            send_lint(
+                                name,
+                                Some(sub),
+                                loc,
+                                &format!(
+                                    "Subname [[{}]] does not exist in artifact's text",
+                                    sub.as_str()
+                                ),
+                            );
+                        }
+                    }
+                }
+                Impl::NotImpl => {}
+            }
+        } else {
+            // #SPC-data-src.lint_subname_exists
+            // artifact does not exist!
+            if let Some(ref loc) = code_impl.primary {
+                send_lint(
+                    name,
+                    None,
+                    loc,
+                    &format!("Artifact {} does not exist", name.as_str()),
+                );
+            }
+            for (sub, loc) in code_impl.secondary.iter() {
+                send_lint(
+                    name,
+                    Some(sub),
+                    loc,
+                    &format!("Artifact {} does not exist", name.as_str()),
+                );
+            }
+        }
+    }
+}
+
+/// #SPC-data-artifact.lint_text
+/// Lint against artifact text being structured incorrectly.
+pub(crate) fn lint_artifact_text(lints: &Sender<lint::Lint>, project: &Project) {
+    let send_lint = |name: &Name, file: &PathAbs, msg: &str| {
+        lints
+            .send(lint::Lint {
+                level: lint::Level::Error,
+                path: Some(file.to_path_buf()),
+                line: None,
+                category: lint::Category::Artifact,
+                msg: format!("{} text is invalid: {}", name.as_str(), msg),
+            })
+            .expect("send lint");
+    };
+    for (name, art) in project.artifacts.iter() {
+        for line in art.text.lines() {
+            if raw::NAME_LINE_RE.is_match(line) {
+                send_lint(
+                    name,
+                    &art.file,
+                    "Cannot have a line of the form \"# ART-name\" as that specifies a new \
+                    artifact in the markdown format.",
+                )
+            } else if raw::ATTRS_END_RE.is_match(line) {
+                send_lint(
+                    name,
+                    &art.file,
+                    "Cannot have a line of the form \"###+\" as that specifies \
+                    the end of the metadata in the markdown format.",
+                )
+            }
+        }
+    }
+}
+
+/// #SPC-data-artifact.lint_text_refs
+/// Lint warnings against invalid references in the artifact text.
+pub(crate) fn lint_artifact_text_refs(lints: &Sender<lint::Lint>, project: &Project) {
+    let send_lint = |name: &Name, ref_name: &Name, ref_sub: Option<&SubName>, file: &PathAbs| {
+        lints
+            .send(lint::Lint {
+                level: lint::Level::Warn,
+                path: Some(file.to_path_buf()),
+                line: None,
+                category: lint::Category::Artifact,
+                msg: format!(
+                    "{} has soft reference [[{}]] which does not exist.",
+                    name.as_str(),
+                    ref_name.full(ref_sub)
+                ),
+            })
+            .expect("send lint");
+    };
+    for (name, art) in project.artifacts.iter() {
+        for captures in TEXT_REF_RE.captures_iter(&art.text) {
+            // unwrap: group 1 always exists in regex
+            let name_mat = captures.get(1).unwrap();
+            // unwrap: pre-validated by regex
+            let ref_name = Name::from_str(name_mat.as_str()).unwrap();
+            // subname is optional
+            let ref_sub = match captures.get(2) {
+                Some(sub_mat) => Some(SubName::new_unchecked(sub_mat.as_str())),
+                None => None,
+            };
+            match (project.artifacts.get(&ref_name), &ref_sub) {
+                (None, _) => {
+                    // specified an artifact that does not exist
+                    send_lint(name, &ref_name, ref_sub.as_ref(), &art.file);
+                }
+                (Some(ref_art), &Some(ref sub)) => {
+                    if !ref_art.subnames.contains(sub) {
+                        // specified a sub that does not exist
+                        send_lint(name, &ref_name, Some(sub), &art.file);
+                    }
+                }
+                _ => {}
+            }
+        }
+    }
 }

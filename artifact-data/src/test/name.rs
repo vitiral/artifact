@@ -106,6 +106,10 @@ fn sanity_names_valid() {
         "TST-bPRJM_07msqpQ",
         "TST-bPRJM07msqpQ-pRMBtV-HJmJOpEgFTI2p8zdEMpluTbnkepzdELxf5CntsW",
     ]);
+    assert_eq!(name!("REQ-foo").ty, Type::REQ);
+    assert_eq!(name!("SPC-foo").ty, Type::SPC);
+    assert_eq!(name!("TST-foo").ty, Type::TST);
+    assert_eq!(name!("tSt-foo").ty, Type::TST);
 }
 
 #[test]

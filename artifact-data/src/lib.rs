@@ -18,11 +18,10 @@
 //! and deserializing raw artifact and processing them into
 //! a full project.
 
-#![allow(dead_code)]
-#![allow(unused_imports)]
+#![allow(unknown_lints)]
+#![allow(doc_markdown)]
 
 extern crate failure;
-#[macro_use(izip)]
 extern crate itertools;
 #[macro_use]
 extern crate matches;
@@ -92,6 +91,11 @@ extern crate unicode_segmentation;
 #[cfg(test)]
 pub mod test;
 
-pub use name::{InternalName, Name, NameError, Type, NAME_VALID_STR};
-pub use raw::ArtifactRaw;
-pub use raw_names::NamesRaw;
+pub use artifact::Artifact;
+pub use implemented::{CodeLoc, Impl, ImplCode};
+pub use name::{Name, NameError, SubName, Type, NAME_VALID_STR};
+pub use path_abs::PathAbs;
+pub use settings::ProjectPaths;
+pub use lint::{Categorized, Category, Level, Lint};
+pub use project::{load_project, Project};
+pub use graph::Completed;

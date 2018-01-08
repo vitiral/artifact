@@ -42,6 +42,12 @@ In essense:
   For example, white box testing will be based on a specification whereas
   blackbox ("requirements based") testing will be based on a requirement.
 
+## Lints
+Lints are required to make sure the above is upheld
+
+- [[TODO.lint_partof_exists]]: Make sure any partof references actually exist.
+- [[TODO.lint_types]]: Make sure that `partof` links are only made between valid types.
+
 ## [[.auto]]: Auto Relationships
 The second graph shows the "automatic relationships" of nodes to their
 parents.

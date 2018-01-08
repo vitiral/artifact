@@ -18,14 +18,12 @@
 /// Test the "implemented" (i.e. source code parsing) module.
 
 use std::sync::mpsc::channel;
-use rand;
 use regex_generate;
-use unicode_segmentation::UnicodeSegmentation;
 
 use test::dev_prelude::*;
 use test::raw_names::arb_names_raw;
 use test::framework::run_interop_test;
-use name::{self, Name, SubName, Type};
+use name::{Name, SubName};
 use raw_names::NamesRaw;
 use path_abs::PathAbs;
 use implemented::{join_locations, parse_locations, CodeLoc, ImplCode};

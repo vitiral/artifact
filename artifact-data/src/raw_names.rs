@@ -21,7 +21,7 @@ use std::fmt;
 use serde;
 use serde::de::{Deserialize, Deserializer, SeqAccess, Visitor};
 use serde::ser::{Serialize, Serializer};
-use name::{Name, Type, TYPE_SPLIT_LOC};
+use name::Name;
 
 #[macro_export]
 /// Macro to get 'raw' names with no error checking

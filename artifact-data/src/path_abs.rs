@@ -19,11 +19,9 @@
 
 use std::io;
 use std::fmt;
-use std::ffi::{OsStr, OsString};
 use walkdir::WalkDir;
 
 use dev_prelude::*;
-use lint;
 
 // ------------------------------
 // -- EXPORTED TYPES / METHODS
@@ -58,20 +56,19 @@ impl PathAbs {
         PathAbs::new(&project_path.join(raw_path))
     }
 
-    #[cfg(test)]
     /// For constructing fake paths during tests
     pub fn fake<P: AsRef<Path>>(fake_path: P) -> PathAbs {
         PathAbs(Arc::new(fake_path.as_ref().to_path_buf()))
     }
 }
 
-pub struct FoundPaths {
+pub(crate) struct FoundPaths {
     pub files: Vec<PathAbs>,
     pub dirs: Vec<PathAbs>,
 }
 
 impl FoundPaths {
-    pub fn new() -> FoundPaths {
+    pub(crate) fn new() -> FoundPaths {
         FoundPaths {
             files: Vec::new(),
             dirs: Vec::new(),
@@ -87,7 +84,7 @@ impl FoundPaths {
 /// It is expected that the caller will add the visited directories
 /// to the `visited` parameter for the next call to avoid duplicated
 /// effort.
-pub fn discover_paths<F, P>(
+pub(crate) fn discover_paths<F, P>(
     path: P,
     filter: &F,
     visited: &OrderSet<PathAbs>,
@@ -170,7 +167,6 @@ mod test {
     use tempdir;
 
     use super::*;
-    use test::dev_prelude::*;
 
     impl FoundPaths {
         /// Used for testing comparisons

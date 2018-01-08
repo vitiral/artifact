@@ -1,0 +1,10 @@
+[REQ-text]
+text = """
+This has some invalid text
+
+# REQ-foo
+^^^ doesn't work in markdown
+
+###
+^^^ also doesn't work in markdown.
+"""

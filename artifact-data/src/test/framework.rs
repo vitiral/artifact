@@ -20,7 +20,6 @@
 //! a variety of integration/interop testing.
 
 use time;
-use std::sync::mpsc::channel;
 use serde_yaml;
 
 use test::dev_prelude::*;

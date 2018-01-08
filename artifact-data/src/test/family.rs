@@ -20,18 +20,14 @@
 
 use rand::{self, Rng};
 use serde_json;
-use serde_yaml;
-use toml;
 
 use path_abs::PathAbs;
 use name::{Name, Type};
-use family::{auto_partofs, lint_names, Names};
+use family::{auto_partofs, Names};
 use expand_names::expand_names;
 use raw_names::NamesRaw;
-use lint;
-use std::sync::mpsc::channel;
 use test::dev_prelude::*;
-use test::name::{arb_name, names_raw};
+use test::name::arb_name;
 use test::raw_names::arb_names_raw;
 
 // ------------------------------
@@ -477,29 +473,6 @@ fn sanity_auto_partofs() {
     };
     let auto = auto_partofs(&names);
     assert_eq!(expected, auto);
-
-    let (send, recv) = channel();
-    lint_names(&send, &names);
-
-    let expected = vec![
-        lint::Lint {
-            level: lint::Level::Error,
-            path: Some(file.to_path_buf()),
-            line: None,
-            category: lint::Category::AutoPartof,
-            msg: "Parent of SPC-a-b (SPC-a) must exist but does not".into(),
-        },
-        lint::Lint {
-            level: lint::Level::Error,
-            path: Some(file.to_path_buf()),
-            line: None,
-            category: lint::Category::AutoPartof,
-            msg: "Parent of TST-a-b (TST-a) must exist but does not".into(),
-        },
-    ];
-    drop(send);
-    let lints: Vec<_> = recv.into_iter().collect();
-    assert_eq!(expected, lints);
 }
 
 proptest! {

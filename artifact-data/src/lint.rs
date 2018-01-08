@@ -14,13 +14,13 @@
  * You should have received a copy of the Lesser GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
+/// #REQ-data-lint
 /// Artifact lint types.
 ///
 /// This is the primary error type for all "non fatal" errors and warnings.
 use std::sync::mpsc::Sender;
 
 use dev_prelude::*;
-use path_abs::PathAbs;
 
 #[derive(Debug, Clone, Hash, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 /// An artifact lint error or warning
@@ -37,6 +37,24 @@ pub struct Lint {
 pub struct Categorized {
     pub error: Vec<Lint>,
     pub other: Vec<Lint>,
+}
+
+#[derive(Debug, Clone, Hash, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+/// The lint level, error will eventually stop the program.
+pub enum Level {
+    Error,
+    Warn,
+}
+
+#[derive(Debug, Clone, Hash, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+/// Where the lint is from
+pub enum Category {
+    LoadPaths,
+    ParseCodeImplementations,
+    ParseArtifactFiles,
+    AutoPartof,
+    Artifact,
+    ImplCode,
 }
 
 impl Categorized {
@@ -63,7 +81,7 @@ impl Categorized {
 }
 
 impl Lint {
-    pub fn load_error<P: AsRef<Path>>(path: P, err: &str) -> Lint {
+    pub(crate) fn load_error<P: AsRef<Path>>(path: P, err: &str) -> Lint {
         Lint {
             level: Level::Error,
             category: Category::LoadPaths,
@@ -74,23 +92,7 @@ impl Lint {
     }
 }
 
-#[derive(Debug, Clone, Hash, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
-/// The lint level, error will eventually stop the program.
-pub enum Level {
-    Error,
-    Warn,
-}
-
-#[derive(Debug, Clone, Hash, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
-/// Where the lint is from
-pub enum Category {
-    LoadPaths,
-    ParseCodeImplementations,
-    ParseArtifactFiles,
-    AutoPartof,
-}
-
-pub fn io_error<P: AsRef<Path>>(lints: &Sender<Lint>, path: P, err: &str) {
+pub(crate) fn io_error<P: AsRef<Path>>(lints: &Sender<Lint>, path: P, err: &str) {
     lints
         .send(Lint::load_error(path, err))
         .expect("failed to send io-error");

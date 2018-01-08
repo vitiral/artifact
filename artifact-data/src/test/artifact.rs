@@ -20,12 +20,9 @@
 
 use test::dev_prelude::*;
 use test::framework::run_interop_test;
-use name::{Name, SubName};
+use name::Name;
 use raw::ArtifactRaw;
 use raw_names::NamesRaw;
-use path_abs::PathAbs;
-use graph;
-use implemented::{CodeLoc, Impl, ImplCode};
 use artifact;
 
 #[test]
@@ -84,4 +81,10 @@ fn interop_design_only() {
 /// #TST-data-artifact.basic
 fn interop_basic() {
     run_interop_test(INTEROP_TESTS_PATH.join("basic"));
+}
+
+#[test]
+/// #TST-data-artifact.basic
+fn interop_lints() {
+    run_interop_test(INTEROP_TESTS_PATH.join("lints"));
 }

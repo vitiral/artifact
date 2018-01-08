@@ -18,7 +18,6 @@
 //! This implements the types related to discovering the "family"
 //! of any artifact.
 
-use std::sync::mpsc::Sender;
 use std::fmt;
 use serde;
 use serde::de::{Deserialize, Deserializer, SeqAccess, Visitor};
@@ -26,8 +25,6 @@ use serde::ser::{Serialize, Serializer};
 
 use dev_prelude::*;
 use name::{Name, Type, TYPE_SPLIT_LOC};
-use path_abs::PathAbs;
-use lint;
 
 #[macro_export]
 /// Macro to get a name with no error checking.
@@ -160,33 +157,9 @@ impl<'de> Visitor<'de> for NamesVisitor {
     }
 }
 
-/// Run lints on the names, making sure that:
-/// - all children have parents.
-pub fn lint_names(lints: &Sender<lint::Lint>, names: &OrderMap<Name, PathAbs>) {
-    for (name, path) in names.iter() {
-        if let Some(parent) = name.parent() {
-            if !names.contains_key(&parent) {
-                lints
-                    .send(lint::Lint {
-                        level: lint::Level::Error,
-                        path: Some(path.to_path_buf()),
-                        line: None,
-                        category: lint::Category::AutoPartof,
-                        msg: format!(
-                            "Parent of {} ({}) must exist but does not",
-                            name.as_str(),
-                            parent.as_str()
-                        ),
-                    })
-                    .expect("inserting lint in auto_partof");
-            }
-        }
-    }
-}
-
 /// #SPC-data-family.auto
 /// Given an ordermap of all names, return the partof attributes that will be added.
-pub fn auto_partofs<T>(names: &OrderMap<Name, T>) -> OrderMap<Name, OrderSet<Name>> {
+pub(crate) fn auto_partofs<T>(names: &OrderMap<Name, T>) -> OrderMap<Name, OrderSet<Name>> {
     let mut out: OrderMap<Name, OrderSet<Name>> = OrderMap::with_capacity(names.len());
     for name in names.keys() {
         let mut auto = OrderSet::new();

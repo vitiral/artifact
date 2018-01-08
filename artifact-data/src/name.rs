@@ -22,7 +22,6 @@
 use std::cmp::Ordering;
 use std::hash::{Hash, Hasher};
 use std::fmt;
-use std::io;
 use std::result;
 use serde::{self, Deserialize, Deserializer, Serialize, Serializer};
 use regex::Regex;
@@ -65,6 +64,26 @@ pub enum NameError {
 #[derive(Clone, Eq, PartialEq, Hash, Ord, PartialOrd)]
 /// The atomically reference counted name, the primary one used by
 /// this module.
+///
+/// # Examples
+/// ```rust
+/// #[macro_use] extern crate artifact_data;
+/// use artifact_data::{Name, SubName, Type};
+/// use std::str::FromStr;
+///
+/// # fn main() {
+/// let name = name!("REQ-example");    // macro instantiation
+/// let name2 = name.clone();           // cloning is cheap.
+/// assert_eq!(name, Name::from_str("REQ-example").unwrap());
+/// assert_eq!(name.ty, Type::REQ);
+///
+/// // case is ignored for equality/hashing
+/// assert_eq!(name!("SPC-key"), name!("sPc-KeY"));
+///
+/// // Helper to get the full name
+/// assert_eq!(name!("REQ-foo").full(Some(&subname!(".sub"))), "REQ-foo.sub");
+/// # }
+/// ```
 pub struct Name {
     inner: Arc<InternalName>,
 }
@@ -79,6 +98,23 @@ pub enum Type {
 
 #[derive(Clone)]
 /// A subname, i.e. `ART-foo.subname`
+///
+/// # Examples
+/// ```rust
+/// #[macro_use] extern crate artifact_data;
+/// use artifact_data::{Name, SubName, Type};
+/// use std::str::FromStr;
+///
+/// # fn main() {
+/// let sub = subname!(".sub_name"); // macro instantiation
+/// let sub2 = sub.clone();          // cloning is NOT cheap.
+///
+/// // case is ignored for equality/hashing
+/// assert_eq!(sub, SubName::from_str(".SuB_NaMe").unwrap());
+///
+/// // Helper to get the full name
+/// assert_eq!(name!("REQ-foo").full(Some(&sub)), "REQ-foo.sub_name");
+/// # }
 pub struct SubName {
     pub raw: String,
     pub key: String,
@@ -132,6 +168,70 @@ lazy_static!{
 }
 
 // NAME METHODS
+impl Name {
+    /// Get the `Name`'s user-defined string representation.
+    ///
+    /// # Examples
+    /// ```rust
+    /// #[macro_use] extern crate artifact_data;
+    /// use artifact_data::Name;
+    /// use std::str::FromStr;
+    ///
+    /// # fn main() {
+    /// assert_eq!(
+    ///     name!("REQ-Example").as_str(),
+    ///     "REQ-Example"
+    /// );
+    /// # }
+    /// ```
+    /// Get the raw str representation
+    pub fn as_str(&self) -> &str {
+        &self.raw
+    }
+
+    /// Get the `Name`'s "key" representation.
+    ///
+    /// # Examples
+    /// ```rust
+    /// #[macro_use] extern crate artifact_data;
+    /// use artifact_data::Name;
+    /// use std::str::FromStr;
+    ///
+    /// # fn main() {
+    /// assert_eq!(
+    ///     name!("REQ-Example").key_str(),
+    ///     "REQ-EXAMPLE"
+    /// );
+    /// # }
+    /// ```
+    /// Get the raw str representation
+    pub fn key_str(&self) -> &str {
+        &self.key
+    }
+
+    /// Concatenate the name with a (possible) subname.
+    ///
+    /// # Examples
+    /// ```rust
+    /// #[macro_use] extern crate artifact_data;
+    /// use artifact_data::{Name, SubName};
+    /// use std::str::FromStr;
+    ///
+    /// # fn main() {
+    /// assert_eq!(
+    ///     name!("REQ-Example").full(Some(&subname!(".sub"))),
+    ///     "REQ-Example.sub"
+    /// );
+    /// # }
+    /// ```
+    pub fn full(&self, subname: Option<&SubName>) -> String {
+        let mut out: String = self.as_str().to_string();
+        if let Some(s) = subname {
+            out.push_str(s.as_str());
+        }
+        out
+    }
+}
 
 impl Serialize for Name {
     fn serialize<S>(&self, serializer: S) -> result::Result<S::Ok, S::Error>
@@ -193,7 +293,7 @@ impl FromStr for Name {
 // PUBLIC METHODS
 
 /// Parse subnames from the text field.
-pub fn parse_subnames(text: &str) -> OrderSet<SubName> {
+pub(crate) fn parse_subnames(text: &str) -> OrderSet<SubName> {
     TEXT_SUB_NAME_RE
         .captures_iter(text)
         .map(|cap| SubName::new_unchecked(cap.get(1).unwrap().as_str()))
@@ -201,20 +301,6 @@ pub fn parse_subnames(text: &str) -> OrderSet<SubName> {
 }
 
 // INTERNAL NAME METHODS
-
-impl InternalName {
-    /// Get the raw str representation
-    pub fn as_str(&self) -> &str {
-        &self.raw
-    }
-
-    /// Get the "key" representation of the name.
-    ///
-    /// i.e. `"TST-FOO-BAR"`
-    pub fn key_str(&self) -> &str {
-        &self.key
-    }
-}
 
 impl FromStr for InternalName {
     type Err = Error;
@@ -292,7 +378,7 @@ impl<'de> Deserialize<'de> for SubName {
 
 impl SubName {
     /// Unchecked creation of subname
-    pub fn new_unchecked(raw: &str) -> SubName {
+    pub(crate) fn new_unchecked(raw: &str) -> SubName {
         debug_assert!(VALID_SUB_NAME_RE.is_match(raw), "raw: {:?}", raw);
         SubName {
             raw: raw.to_string(),
@@ -301,8 +387,41 @@ impl SubName {
     }
 
     /// Get the raw str representation
+    ///
+    /// # Examples
+    /// ```rust
+    /// #[macro_use] extern crate artifact_data;
+    /// use artifact_data::SubName;
+    /// use std::str::FromStr;
+    ///
+    /// # fn main() {
+    /// assert_eq!(
+    ///     subname!(".Example").as_str(),
+    ///     ".Example"
+    /// );
+    /// # }
+    /// ```
     pub fn as_str(&self) -> &str {
         &self.raw
+    }
+
+    /// Get the "key" representation of the subname.
+    ///
+    /// # Examples
+    /// ```rust
+    /// #[macro_use] extern crate artifact_data;
+    /// use artifact_data::SubName;
+    /// use std::str::FromStr;
+    ///
+    /// # fn main() {
+    /// assert_eq!(
+    ///     subname!(".example").key_str(),
+    ///     ".EXAMPLE"
+    /// );
+    /// # }
+    /// ```
+    pub fn key_str(&self) -> &str {
+        &self.key
     }
 }
 

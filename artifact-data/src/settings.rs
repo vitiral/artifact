@@ -18,7 +18,6 @@
 //! This contains the logic for loading the settings of an artifact project.
 
 use toml;
-use serde::{self, Deserialize, Deserializer, Serialize, Serializer};
 use std::sync::mpsc::{channel, Sender};
 
 use dev_prelude::*;
@@ -29,7 +28,7 @@ use lint;
 pub const SETTINGS_PATH: &str = ".art/settings.toml";
 
 #[derive(Debug, Eq, PartialEq, Clone, Serialize, Deserialize)]
-pub struct SettingsRaw {
+pub(crate) struct SettingsRaw {
     pub artifact_paths: Vec<String>,
     pub exclude_artifact_paths: Vec<String>,
     pub code_paths: Vec<String>,
@@ -69,7 +68,7 @@ pub struct ProjectPaths {
 /// Load the paths to all files in the project from the root path.
 ///
 /// The settings file is required to be in `project_path/.art/settings.toml`
-pub fn load_project_paths<P: AsRef<Path>>(
+pub(crate) fn load_project_paths<P: AsRef<Path>>(
     project_path: P,
 ) -> (Vec<lint::Lint>, Option<ProjectPaths>) {
     let (project_path, raw) = match SettingsRaw::load(project_path.as_ref()) {

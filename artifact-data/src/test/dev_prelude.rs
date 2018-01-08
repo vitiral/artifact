@@ -19,7 +19,6 @@ pub use proptest::prelude::*;
 pub use pretty_assertions::Comparison;
 pub use itertools::Itertools;
 pub use rand::Rng;
-use std::env;
 use regex_generate;
 use unicode_segmentation::UnicodeSegmentation;
 

@@ -1,5 +1,10 @@
-# SPC-data-structs
-## Defined Enums and Structs
+# REQ-data-structs
+This requirement details the high level `struct`s and `enum`s that must be
+exported by this module, as well as their features.
+
+In many cases this would be a *specification*, but since this is a library,
+the exported structs and their characteristics practically ARE the
+requirement.
 
 It's critical that the valid types are defined at a high level, since
 they determine how everything works together.
@@ -115,3 +120,32 @@ These types define the "raw data" format of artifact.
 **TextRaw**: just a newtype with some serialization guarantees
 to make it prettier and ensure serialization is possible between
 all of the supported formats.
+
+## Type Details
+> TODO: link these directly to source code (not yet supported for REQ)
+
+**Artifact**: the artifact is the primary exported type. It contains:
+  - `name`: the unique identifier of the artifact.
+  - `file`: the file where the artifact is defined.
+  - `partof` and `parts`: automatic and user-defined relationship to other
+    artifacts where `B in A.partof` means that B is a "parent" of A.
+    More details are in [[REQ-data-family]].
+  - `completed`: the `spc` and `tst` completion ratios, detailing how much of
+    the artifact's specification and test design has been implemented.
+  - `text`: the user defined text in the markdown format.
+  - `impl_`: how the artifact is implemented (if it is implemented at all). Can
+    be `Done(str)`, `Code(ImplCode)` or `NotIMpl`.
+  - `subnames`: a list of subnames defined in `text` using `{{.subname}}`
+    except `[[]]` instead of `[[]]`. These can be linked in code to complete
+    the artifact.
+
+**Name**:
+  - name is of the form `ART-name` where ART is one of {`REQ`, `SPC` or `TST`}
+  - more details are in [[REQ-data-type]].
+
+**Impl**:
+  - Defines how the artifact is implemented.
+  - `Done`: can be "defined as done" through the `done` field in the
+    `ArtifactRaw`.
+  - `Code`: can be implemented in code, where source code just puts `#ART-name`
+    anywhere to mark an artifact as implemented.

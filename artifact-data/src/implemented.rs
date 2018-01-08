@@ -26,7 +26,7 @@ use ordermap::Entry;
 use std::sync::mpsc::{channel, Sender};
 
 use dev_prelude::*;
-use name::{Name, NameError, SubName};
+use name::{Name, SubName};
 use lint;
 use path_abs::PathAbs;
 
@@ -79,11 +79,11 @@ impl Impl {
             Impl::Done(_) => (1, 1.0, 1, 1.0),
             Impl::Code(ref impl_) => {
                 let mut count = 1;
-                let mut value = impl_.primary.is_some() as u8 as f64;
+                let mut value = f64::from(impl_.primary.is_some() as u8);
                 for sub in subnames.iter() {
                     count += 1;
                     // add 1 if the subname is implemented, else 0
-                    value += impl_.secondary.contains_key(sub) as u8 as f64;
+                    value += f64::from(impl_.secondary.contains_key(sub) as u8);
                 }
                 (count, value, 0, 0.0)
             }
@@ -98,6 +98,14 @@ impl Impl {
             }
         }
     }
+
+    /// Return whether this is the `Done` variant.
+    pub fn is_done(&self) -> bool {
+        match *self {
+            Impl::Done(_) => true,
+            _ => false,
+        }
+    }
 }
 
 // METHODS
@@ -108,8 +116,8 @@ lazy_static!{
         &format!(r#"(?xi)
         \#(                 # start main section
         (?:REQ|SPC|TST)     # all types are supported
-        -(?:[{0}]+-)*       # first section
-        (?:[{0}]+)          # (optional) additional sections
+        -(?:[{0}]+-)*       # any number of first elements
+        (?:[{0}]+)          # required end element
         )                   # end main section
         (\.[{0}]+)?         # (optional) sub section
         "#, NAME_VALID_CHARS!())).unwrap();
@@ -118,7 +126,7 @@ lazy_static!{
 /// Parse the locations from a set of files in parallel
 ///
 /// Any io errors are converted into lint errors instead.
-pub fn load_locations(
+pub(crate) fn load_locations(
     send_lints: &Sender<lint::Lint>,
     files: &OrderSet<PathAbs>,
 ) -> Vec<(CodeLoc, Name, Option<SubName>)> {
@@ -180,7 +188,7 @@ pub(crate) fn parse_locations<R: Read>(
 /// Consume the parsed locations, returning the combined implementation objects.
 ///
 /// This also lints against duplicates.
-pub fn join_locations(
+pub(crate) fn join_locations(
     send_lints: &Sender<lint::Lint>,
     mut locations: Vec<(CodeLoc, Name, Option<SubName>)>,
 ) -> OrderMap<Name, ImplCode> {

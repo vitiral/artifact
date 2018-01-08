@@ -17,10 +17,30 @@ the data module with the goals of:
 - memory usage: reference counts should be used to conserve memory+runtime
   where possible.
 - self contained: this module should not depend on any other artifact modules
+- testability: a test framework should be built to make it easy to add
+  "use case" tests. This test framework should be extendable by other higher
+  level test frameworks (i.e. a CLI framework or a web-framework).
 
 This requirement is split into the following
 - [[REQ-data-type]]: the valid types of artifacts and the attrs in an artifact.
 - [[REQ-data-family]]: the valid relationships between artifacts
+
+# REQ-data-test
+This requirement details the *exported* functions, classes and framework for
+making testing artifact projects simpler and more robust.
+
+> This does **not** detail the tests for the `artifact-data` crate, although
+> those tests do leverage this module.
+>
+> For the definition of artifact-data tests see [[TST-data]].
+
+There are three pieces of this requirement:
+- Definition of exported "helper" methods and types for testing  artifact.
+  This is not defined further, but should be clear from reading the test source
+  code documents.
+- Definition of exported "fuzzing" methods for fuzz testing artifact
+- Definition of exported "test framework" for creating examples and assertions
+  using a simple file structure.
 
 # SPC-data
 The control flow and high level architecture for deserializing and processing
@@ -70,35 +90,38 @@ There are the following subparts, which are also linked in the graph above:
 In addition:
 - [[SPC-data-lint]]: lints that are done against the artifact data.
 
-# SPC-data-lint
+# REQ-data-lint
 ## Lint Design
 
 > The design of how linting will be handled is very important to the simplicity
 > of the data flow. Often times "warning" and "non-fatal" level errors are
 > overlooked in the initial design, even put to the job of global logging
 > handlers. It is intended that that is avoided here.
->
-> Note: In cases where an error is "critical" it will not be a lint, it will be
-> in the `Result::Err` type.
 
-The basic design of lints is that each function that *can* do a full lint with
-the information it has *will* do a full lint, and will return it's lint
-information as a Set of `Lint` objects.
+The basic design of lints is that:
+- Every "error", no matter how severe, should always be cast into a lint.  We
+  load lots of files, it is better to simply list all errors rather than fail
+  at each one individually.
+- Loading lints should be errors and the calling functions are *required* to
+  not proceed if there are load errors.
+- Other lints should always be *repeatable*, meaning you can rerun the lints
+  or even run lints on a project passed by some other means (i.e. from a
+  json-rpc call).
 
-In cases where functions do NOT have complete information, linting will be left
-to later functions.
+## Basic Design
 
 The `Lint` type is:
 ```
 enum Lint {
-    category: LintCategory,
-    path: Option<PathAbs>,
+    level: Level,
+    category: Category,
+    path: Option<PathBuf>,
     line: Option<u64>,
-    msg: LintMsg,
+    msg: String,
 }
 
 #[derive(Hash)]
-enum LintCategory {
+enum Category {
     ParseCodeImplementations,
     ParseArtifactFiles,
     ... etc
@@ -110,28 +133,12 @@ enum LintMsg {
 }
 ```
 
-The intention is that `Lint::Error` will cause an application built on artifact
+The intention is that `Level::Error` will cause an application built on artifact
 to *not continue* to any final steps where as `Lint::Warn` will only be printed.
 
 When printing lints (at the application level) they should be sorted and
 grouped by their categories+files. Each lint should be printed on their own
 line.
-
-# SPC-data-lint-src
-This is pretty basic: it is a warning to have dangling references in your
-source code.
-
-The names and subnames obtained from the source code must be checked against
-the defined names+subnames. If a reference exists in source that is not defined
-it is a warning.
-
-# SPC-data-lint-text
-> This is *not* for linting references in text. That is done at a later step.
-
-There are a couple of invalid items in text that need to be linted.
-
-- `^#\sART-name$`: in the markdown format these get interpreted as individual artifacts.
-- `^###$`: in the markdown format these get interepreted as "end of data" lines.
 
 # TST-data
 Testing the data deserialization and processing, as well as reserialization is a major
@@ -146,6 +153,19 @@ The primary approaches to testing shall be:
   "sanity" tests to verify that they work according to user input.
 - [[TST-data-fuzz]]: scaleable fuzz testing design
 - [[TST-data-interop]]: interop testing strategy.
+
+# TST-data-framework
+There shall be a "interop test framework" constructed for doing interop testing.
+The basic design is:
+- *Each test is a full project* (folder with a `.art` folder, source files and
+  design documents).
+- Each test contains assertions in various files. The assertions cover various
+  stages of loading the project:
+  - `project/assert_load_lints.yaml`: expected lints while loading.
+  - `project/assert_project.yaml`: the expected resulting project. If not included,
+    it is expected that the project is `None`.
+  - `project/assert_project_lints.yaml`: expected lints from linting the project.
+- The assertion files are an exact *explicit* version of the expected project.
 
 # TST-data-fuzz
 All data objects shall be designed from the beginning to be fuzz tested, so
@@ -175,18 +195,4 @@ From the implementations, we can randomize testing for the following:
 - [[.load_artifacts]]: simply convert randomly generated artifacts into files
 - [[.load_src]]: load RawCodeLoc and have expected result
 
-
 [1]: https://docs.rs/quickcheck/0.4.2/quickcheck/
-
-# TST-data-framework
-There shall be a "interop test framework" constructed for doing interop testing.
-The basic design is:
-- *Each test is a full project* (folder with a `.art` folder, source files and
-  design documents).
-- Each test contains assertions in various files. The assertions cover various
-  stages of loading the project:
-  - `project/assert_load_lints.yaml`: expected lints while loading.
-  - `project/assert_project.yaml`: the expected resulting project. If not included,
-    it is expected that the project is `None`.
-  - `project/assert_project_lints.yaml`: expected lints from linting the project.
-- The assertion files are an exact *explicit* version of the expected project.

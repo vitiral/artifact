@@ -17,15 +17,11 @@
 
 //! #SPC-data-artifact
 
-use petgraph::graphmap::DiGraphMap;
-use petgraph::{self, Direction};
 use rayon;
-use rayon::prelude::*;
 
 use dev_prelude::*;
 use raw::ArtifactRaw;
-use raw_names::NamesRaw;
-use name::{self, Name, SubName, Type};
+use name::{self, Name, SubName};
 use implemented::{Impl, ImplCode};
 use path_abs::PathAbs;
 use family;
@@ -135,7 +131,8 @@ pub(crate) fn determine_artifacts(
         .collect();
 
     debug_assert!(loaded.partofs.is_empty(), "{:#?}", loaded.partofs);
-    debug_assert!(loaded.parts.is_empty(), "{:#?}", loaded.parts);
+    // Note: Not necessarily true if someone specified invalid partof
+    // debug_assert!(loaded.parts.is_empty(), "{:#?}", loaded.parts);
     debug_assert!(completed.is_empty(), "{:#?}", completed);
     debug_assert!(
         loaded.raw_artifacts.is_empty(),
@@ -148,7 +145,7 @@ pub(crate) fn determine_artifacts(
 }
 
 /// Determine `partof` based on the user's definition + automatic relationships.
-pub fn determine_partofs(
+pub(crate) fn determine_partofs(
     raw_artifacts: &OrderMap<Name, ArtifactRaw>,
 ) -> OrderMap<Name, OrderSet<Name>> {
     let mut partofs = family::auto_partofs(raw_artifacts);

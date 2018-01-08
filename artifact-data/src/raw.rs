@@ -14,6 +14,8 @@
  * You should have received a copy of the Lesser GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
+#![allow(dead_code)]
+
 //! The `ArtifactRaw` type and methods for loading it from files.
 
 use dev_prelude::*;
@@ -23,32 +25,17 @@ use std::result;
 use std::fmt;
 use rayon::prelude::*;
 use regex::Regex;
-use serde::{self, Deserialize, Deserializer, Serialize, Serializer};
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use serde_yaml;
 use serde_json;
 use toml;
 
 use name::Name;
-use family::Names;
 use raw_names::NamesRaw;
 use path_abs::PathAbs;
 use lint;
 
 // TYPES
-
-impl Names {
-    /// Names and NamesRaw are equivalent
-    pub fn into_names_raw(self) -> NamesRaw {
-        NamesRaw { inner: self.0 }
-    }
-}
-
-impl NamesRaw {
-    /// Names and NamesRaw are equivalent
-    pub fn into_names(self) -> Names {
-        Names(self.inner)
-    }
-}
 
 #[derive(Debug, Fail)]
 pub enum LoadError {
@@ -119,7 +106,7 @@ impl<'de> Deserialize<'de> for TextRaw {
 /// Load artifacts from a set of files in parallel.
 ///
 /// Any Errors are converted into lints.
-pub fn load_artifacts_raw(
+pub(crate) fn load_artifacts_raw(
     send_lints: &Sender<lint::Lint>,
     files: &OrderSet<PathAbs>,
 ) -> Vec<(PathAbs, OrderMap<Name, ArtifactRaw>)> {
@@ -139,7 +126,7 @@ pub fn load_artifacts_raw(
 }
 
 /// Join loaded raw artifacts into a single hashmap and lint against duplicates.
-pub fn join_artifacts_raw(
+pub(crate) fn join_artifacts_raw(
     lints: &Sender<lint::Lint>,
     mut raw: Vec<(PathAbs, OrderMap<Name, ArtifactRaw>)>,
 ) -> (OrderMap<Name, PathAbs>, OrderMap<Name, ArtifactRaw>) {
@@ -222,15 +209,15 @@ fn load_file(
 // READ MARKDOWN
 
 lazy_static!{
-    pub static ref NAME_LINE_RE: Regex = Regex::new(
+    pub(crate) static ref NAME_LINE_RE: Regex = Regex::new(
         &format!(r"(?i)^#\s*({})\s*$", ::name::NAME_VALID_STR)).unwrap();
 
-    pub static ref ATTRS_END_RE: Regex = Regex::new(r"^###+\s*$").unwrap();
+    pub(crate) static ref ATTRS_END_RE: Regex = Regex::new(r"^###+\s*$").unwrap();
 }
 
 /// #SPC-data-raw-markdown
 /// Load raw artifacts from a markdown stream
-pub fn from_markdown<R: Read>(stream: R) -> Result<OrderMap<Name, ArtifactRaw>> {
+pub(crate) fn from_markdown<R: Read>(stream: R) -> Result<OrderMap<Name, ArtifactRaw>> {
     let mut out: OrderMap<Name, ArtifactRaw> = OrderMap::new();
     let mut name: Option<Name> = None;
     let mut attrs: Option<String> = None;
@@ -327,7 +314,7 @@ fn insert_from_parts(
 // WRITE MARKDOWN
 
 /// Convert the artifacts to markdown
-pub fn to_markdown(raw_artifacts: &OrderMap<Name, ArtifactRaw>) -> String {
+pub(crate) fn to_markdown(raw_artifacts: &OrderMap<Name, ArtifactRaw>) -> String {
     let mut out = String::new();
     for (name, raw) in raw_artifacts {
         push_artifact_md(&mut out, name, raw);
@@ -391,14 +378,14 @@ fn push_attrs(out: &mut String, raw: &ArtifactRaw) {
 // -- INTERNAL STUFF
 
 #[derive(Debug, PartialEq, Eq)]
-pub enum FileType {
+pub(crate) enum FileType {
     Toml,
     Md,
     Json,
 }
 
 impl FileType {
-    pub fn from_path<P: AsRef<Path>>(path: P) -> Option<FileType> {
+    pub(crate) fn from_path<P: AsRef<Path>>(path: P) -> Option<FileType> {
         match path.as_ref().extension() {
             Some(e) => {
                 if e == OsStr::new("toml") {

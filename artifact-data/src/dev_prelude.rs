@@ -14,28 +14,28 @@
  * You should have received a copy of the Lesser GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-pub use std_prelude::*;
+pub(crate) use std_prelude::*;
 // TODO: move these to std_prelude
-pub use std::collections::BTreeSet;
-pub use std::ffi::OsStr;
+pub(crate) use std::ffi::OsStr;
 use std::cmp::Ord;
 use std::hash::Hash;
 
-pub use ordermap::{OrderMap, OrderSet};
+pub(crate) use ordermap::{OrderMap, OrderSet};
 
-pub use std::result;
-pub use failure::{Error, Fail};
+pub(crate) use std::result;
+pub(crate) use failure::Error;
 
-pub type Result<V> = result::Result<V, Error>;
+pub(crate) type Result<V> = result::Result<V, Error>;
 
 /// Inplace trim is annoyingly not in the stdlib
-pub fn string_trim_right(s: &mut String) {
+pub(crate) fn string_trim_right(s: &mut String) {
     let end = s.trim_right().len();
     s.truncate(end);
 }
 
+#[allow(dead_code)]
 /// A simple implementation of "touch"
-pub fn touch<P: AsRef<Path>>(path: P) -> ::std::io::Result<()> {
+pub(crate) fn touch<P: AsRef<Path>>(path: P) -> ::std::io::Result<()> {
     OpenOptions::new()
         .create(true)
         .write(true)
@@ -50,13 +50,13 @@ fn sanity_trim_right() {
     assert_eq!(result, "  hello");
 }
 
-pub fn sort_ordermap<K: Ord + Hash, V>(m: &mut OrderMap<K, V>) {
+pub(crate) fn sort_ordermap<K: Ord + Hash, V>(m: &mut OrderMap<K, V>) {
     let mut ordered: Vec<_> = m.drain(..).collect();
     ordered.sort_by(|left, right| left.0.cmp(&right.0));
     m.extend(ordered.drain(..));
 }
 
-pub fn sort_orderset<K: Ord + Hash>(m: &mut OrderSet<K>) {
+pub(crate) fn sort_orderset<K: Ord + Hash>(m: &mut OrderSet<K>) {
     let mut ordered: Vec<_> = m.drain(..).collect();
     ordered.sort_by(|left, right| left.cmp(right));
     m.extend(ordered.drain(..));
