@@ -82,7 +82,7 @@ pub fn dump_artifacts(project: &Project) -> result::Result<(), RpcError> {
         Err(e) => {
             return Err(RpcError {
                 code: ErrorCode::InternalError,
-                message: format!("{}", e.display()),
+                message: format!("{}", e),
                 data: None,
             })
         }
@@ -92,7 +92,7 @@ pub fn dump_artifacts(project: &Project) -> result::Result<(), RpcError> {
     if let Err(e) = text.dump() {
         return Err(RpcError {
             code: ErrorCode::InternalError,
-            message: format!("{}", e.display()),
+            message: format!("{}", e),
             data: None,
         });
     }
