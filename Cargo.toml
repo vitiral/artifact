@@ -43,6 +43,7 @@ time = "0.1.*"
 toml = "0.4.5"
 unicode-segmentation = "1.2.0"
 unicode-width = "0.1.4"
+error-chain = "0.11"
 
 [dependencies.clap]
 default-features = false
@@ -56,10 +57,6 @@ version = "2.26.0"
 [dependencies.ctrlc]
 features = ["termination"]
 version = "3.0.2"
-
-[dependencies.error-chain]
-default-features = true
-version = "0.10.0"
 
 [dependencies.jsonrpc-core]
 version = "7.1.0"
