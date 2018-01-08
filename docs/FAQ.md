@@ -4,12 +4,12 @@ Artifact is simply named after what it does: it is a way to write and track your
 
 ### Why is the `partof` attribute a string (not a list)?
 The partof attribute is much more powerful than a simple list. You can do:
-```
+```toml
 [SPC-name]
 partof = "REQ-[name, other, nested-[more, link]]"
 ```
 Which is equivalent to:
-```
+```toml
 [SPC-name]
 partof = "REQ-name, REQ-other, REQ-nested-more, REQ-nested-link"
 ```
@@ -18,14 +18,14 @@ partof = "REQ-name, REQ-other, REQ-nested-more, REQ-nested-link"
 All artifacts are only as done as their parts + implementation/done.
 
 If you have:
-```
+```toml
 [SPC-1]
 [SPC-1-a]
 [SPC-1-b]
 ```
 
 And then the code:
-```
+```python
 def hello():
     """partof: #SPC-1"""
 ```

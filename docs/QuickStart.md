@@ -74,7 +74,7 @@ Or in a web browser
 Now we will create a design specification for `REQ-world`. We do not have
 to use `partof` because the names are identical (only the type differs).
 Using the same process as above, add these artiacts:
-```
+```toml
 [SPC-world]
 text = '''
 The hello-world function shall print hello
@@ -82,7 +82,7 @@ The hello-world function shall print hello
 ```
 
 We can also define a test which is automatically a "partof" SPC-world:
-```
+```toml
 [TST-world]
 text = '''
 We will make a test later.
@@ -93,7 +93,7 @@ We will make a test later.
 Okay, we have designed the "world" part of our application. Now we should
 actually program it. We create a `src/` directory and add it to
 `.art/settings.toml`
-```
+```toml
 artifact_paths = [
     "{repo}/design"  # was already there
 ]
@@ -107,7 +107,7 @@ anywhere in our source code **marks `SPC-world` as implemented**. The source
 code does not have to be in python, any utf-8 file with `#SPC-name` patterns in
 it can be used.
 
-```
+```python
 def hello_world():
     """Say hello to the world
     partof: #SPC-world
