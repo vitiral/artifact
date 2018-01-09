@@ -40,7 +40,7 @@ There are three types of artifacts:
 ## Artifact Format
 Artifact uses toml files to specify the design documents (artifacts).
 The format looks like:
-```
+```toml
 [REQ-name]
 partof = 'REQ-other'
 text = '''
@@ -87,7 +87,7 @@ Writing `#SPC-name` anywhere in any valid utf-8 file that is in a `code_paths` f
 or directory will mark the artifact `SPC-name` as done.
 
 Example:
-```
+```rust
 // Documentation about the create_name function
 //
 // Implements #SPC-name

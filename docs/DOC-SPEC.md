@@ -10,7 +10,7 @@ https://creativecommons.org/publicdomain/
 Artifact documents adhere to a subset of the [toml][1] format and are
 documents of the form:
 
-```
+```toml
 [ART-baz]
 partof = "ART-baa"
 text = '''
