@@ -15,10 +15,10 @@
 # Before we continue too far, why don't you try a command? Type
 # the following command:
 #
-#     art ls REQ-learn-artifact -l
+#     art ls REQ-learn -l
 #
 # You should see a colorized artifact (unless you are on windows, in which case
-# there won't be color). If you do, good. If you are having problems try going 
+# there won't be color). If you do, good. If you are having problems try going
 # back to the installation tutorial at github.com/vitiral/artifact
 
 [REQ-learn]
