@@ -38,6 +38,7 @@ extern crate unicode_width;
 
 extern crate ansi_term;
 extern crate clap;
+#[cfg(feature = "self_update")]
 #[macro_use]
 extern crate self_update;
 extern crate tabwriter;

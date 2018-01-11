@@ -14,6 +14,7 @@ use super::tutorial;
 use super::ls;
 use super::check;
 use super::fmt as fmtcmd;
+#[cfg(feature = "self_update")]
 use super::update;
 use super::server;
 #[cfg(feature = "beta")]
@@ -56,9 +57,9 @@ pub fn art_app<'a, 'b>() -> App<'a, 'b> {
         .subcommand(check::get_subcommand())
         .subcommand(fmtcmd::get_subcommand())
         .subcommand(export::get_subcommand())
-        .subcommand(update::get_subcommand())
         .subcommand(server::get_subcommand());
 
+    let app = add_update_cmd(app);
     add_beta_cmds(app)
 }
 
@@ -80,5 +81,15 @@ fn add_beta_cmds<'a, 'b>(app: App<'a, 'b>) -> App<'a, 'b> {
 #[cfg(not(feature = "beta"))]
 /// add any beta cmdline features in the `[#cfg(feature = "beta")]` function
 fn add_beta_cmds<'a, 'b>(app: App<'a, 'b>) -> App<'a, 'b> {
+    app
+}
+
+#[cfg(feature = "self_update")]
+fn add_update_cmd<'a, 'b>(app: App<'a, 'b>) -> App<'a, 'b> {
+    app.subcommand(update::get_subcommand())
+}
+
+#[cfg(not(feature = "self_update"))]
+fn add_update_cmd<'a, 'b>(app: App<'a, 'b>) -> App<'a, 'b> {
     app
 }

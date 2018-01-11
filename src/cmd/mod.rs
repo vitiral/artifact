@@ -32,6 +32,7 @@ mod display;
 mod fmt;
 mod init;
 mod tutorial;
+#[cfg(feature = "self_update")]
 mod update;
 #[cfg(feature = "beta")]
 mod plugin;
@@ -78,6 +79,18 @@ where
     Err(ErrorKind::NothingDone.into())
 }
 
+#[cfg(feature = "self_update")]
+fn run_update(up: &ArgMatches) -> Result<u8> {
+    info!("Calling the update command");
+    let cmd = update::get_cmd(up);
+    Ok(update::run_cmd(&cmd).expect("update failed"))
+}
+
+#[cfg(not(feature = "self_update"))]
+fn run_update(_: &ArgMatches) -> Result<u8> {
+    Err(ErrorKind::NothingDone.into())
+}
+
 pub fn cmd<W, I, T>(w: &mut W, args: I) -> Result<u8>
 where
     I: IntoIterator<Item = T>,
@@ -101,9 +114,7 @@ where
 
     // if we are updating, just do that and exit
     if let Some(up) = matches.subcommand_matches("update") {
-        info!("Calling the update command");
-        let cmd = update::get_cmd(up);
-        return Ok(update::run_cmd(&cmd).expect("update failed"));
+        return run_update(up);
     }
 
     let cwd = env::current_dir().unwrap();

@@ -31,7 +31,6 @@ lazy_static = "0.2.8"
 log = "0.3.8"
 maplit = "1.0.0"
 regex = "0.2.2"
-self_update = "0.4.0"
 serde = "1.0.*"
 serde_derive = "1.*"
 serde_json = "1.*"
@@ -43,6 +42,10 @@ time = "0.1.*"
 toml = "0.4.5"
 unicode-segmentation = "1.2.0"
 unicode-width = "0.1.4"
+
+[dependencies.self_update]
+version = "0.4.0"
+optional = true
 
 [dependencies.clap]
 default-features = false
@@ -84,6 +87,7 @@ fs_extra = "1.0.0"
 
 [features]
 beta = []
-default = []
+default = ["self_update"]
+
 [profile.dev]
 codegen-units = 3
