@@ -54,20 +54,20 @@ lazy_static!{
 impl Project {
     /// Recursively sort all the items in the project.
     pub fn sort(&mut self) {
-        sort_orderset(&mut self.paths.code);
-        sort_orderset(&mut self.paths.artifact);
+        self.paths.code.sort();
+        self.paths.artifact.sort();
 
-        sort_ordermap(&mut self.code_impls);
+        self.code_impls.sort_keys();
         for (_, code) in self.code_impls.iter_mut() {
-            sort_ordermap(&mut code.secondary);
+            code.secondary.sort_keys();
         }
-        sort_ordermap(&mut self.artifacts);
+        self.artifacts.sort_keys();
         for (_, art) in self.artifacts.iter_mut() {
             art.sort();
         }
     }
 
-    /// #SPC-data-lint
+    /// #SPC-read-lint
     ///
     /// TODO WARN:
     /// - references in text that do not exist
@@ -180,7 +180,7 @@ pub fn load_project<P: AsRef<Path>>(project_path: P) -> (lint::Categorized, Opti
     (lints, Some(project))
 }
 
-/// #REQ-data-family.lint_partof_exists
+/// #REQ-family.lint_partof_exists
 /// Lint against partofs that do not exist but should (ERROR)
 pub(crate) fn lint_partof_dne(lints: &Sender<lint::Lint>, project: &Project) {
     for (name, art) in project.artifacts.iter() {
@@ -204,7 +204,7 @@ pub(crate) fn lint_partof_dne(lints: &Sender<lint::Lint>, project: &Project) {
     }
 }
 
-/// #REQ-data-family.lint_types
+/// #REQ-family.lint_types
 /// Lint against partof's that have invalid types.
 pub(crate) fn lint_partof_types(lints: &Sender<lint::Lint>, project: &Project) {
     use name::Type::{REQ, SPC, TST};
@@ -239,7 +239,7 @@ pub(crate) fn lint_partof_types(lints: &Sender<lint::Lint>, project: &Project) {
     }
 }
 
-/// #SPC-data-artifact.lint_done
+/// #SPC-read-artifact.lint_done
 /// Lint that done is not defined on an artifact which has subnames.
 pub(crate) fn lint_artifact_done_subnames(lints: &Sender<lint::Lint>, project: &Project) {
     for (name, art) in project.artifacts.iter() {
@@ -278,7 +278,7 @@ pub(crate) fn lint_code_impls(lints: &Sender<lint::Lint>, project: &Project) {
         if let Some(art) = project.artifacts.get(name) {
             match art.impl_ {
                 Impl::Done(_) => {
-                    // #SPC-data-src.lint_done
+                    // #SPC-read-impl.lint_done
                     // impls exist for artifact defined as done
                     if let Some(ref loc) = code_impl.primary {
                         send_lint(name, None, loc, "Artifact's done field is set");
@@ -290,7 +290,7 @@ pub(crate) fn lint_code_impls(lints: &Sender<lint::Lint>, project: &Project) {
                 Impl::Code(_) => {
                     for (sub, loc) in code_impl.secondary.iter() {
                         if !art.subnames.contains(sub) {
-                            // #SPC-data-src.lint_exists
+                            // #SPC-read-impl.lint_exists
                             // subname ref does not exist
                             send_lint(
                                 name,
@@ -307,7 +307,7 @@ pub(crate) fn lint_code_impls(lints: &Sender<lint::Lint>, project: &Project) {
                 Impl::NotImpl => {}
             }
         } else {
-            // #SPC-data-src.lint_subname_exists
+            // #SPC-read-impl.lint_subname_exists
             // artifact does not exist!
             if let Some(ref loc) = code_impl.primary {
                 send_lint(
@@ -329,7 +329,7 @@ pub(crate) fn lint_code_impls(lints: &Sender<lint::Lint>, project: &Project) {
     }
 }
 
-/// #SPC-data-artifact.lint_text
+/// #SPC-read-artifact.lint_text
 /// Lint against artifact text being structured incorrectly.
 pub(crate) fn lint_artifact_text(lints: &Sender<lint::Lint>, project: &Project) {
     let send_lint = |name: &Name, file: &PathAbs, msg: &str| {
@@ -350,21 +350,21 @@ pub(crate) fn lint_artifact_text(lints: &Sender<lint::Lint>, project: &Project) 
                     name,
                     &art.file,
                     "Cannot have a line of the form \"# ART-name\" as that specifies a new \
-                    artifact in the markdown format.",
+                     artifact in the markdown format.",
                 )
             } else if raw::ATTRS_END_RE.is_match(line) {
                 send_lint(
                     name,
                     &art.file,
                     "Cannot have a line of the form \"###+\" as that specifies \
-                    the end of the metadata in the markdown format.",
+                     the end of the metadata in the markdown format.",
                 )
             }
         }
     }
 }
 
-/// #SPC-data-artifact.lint_text_refs
+/// #SPC-read-artifact.lint_text_refs
 /// Lint warnings against invalid references in the artifact text.
 pub(crate) fn lint_artifact_text_refs(lints: &Sender<lint::Lint>, project: &Project) {
     let send_lint = |name: &Name, ref_name: &Name, ref_sub: Option<&SubName>, file: &PathAbs| {

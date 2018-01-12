@@ -1,4 +1,18 @@
-# SPC-data-src
+# SPC-impl
+partof: REQ-data
+###
+Implementing artifacts is fairly straight forward:
+- [[.done]]: the artifact can define itself as done. If it does this, it must
+  not have any subnames and must not be implemented (linked) in source.
+- [[.subnames]]: subnames can be defined in the `text` field of the artifact
+  (see the beginning of this line for an example!)
+- [[SPC-read-impl]]: source code can link to either the artifact itself or one
+  of its subnames through `#ART-name` or `#ART-name.sub` respectively.
+-
+
+# SPC-read-impl
+partof: SPC-impl
+###
 ## Loading source code (implementation) links
 
 ### [[.load]]: Loading Locations
@@ -41,7 +55,7 @@ steps to construct the full `Artifact` object. We do this by:
 > Note: we do not worry about whether such `Name` or `SubName`s actually exist.
 > That is the job of a later linting step.
 
-# TST-data-src
+# TST-read-impl
 Only the parsing will be fuzz tested. Joining is covered well enough by a
 simple sanity test
 

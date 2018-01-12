@@ -25,7 +25,7 @@ use implemented::Impl;
 pub(crate) type GraphId = u32;
 
 #[derive(Debug, Default, Clone, PartialEq, PartialOrd, Copy, Serialize, Deserialize)]
-/// #SPC-data-structures.completed
+/// #SPC-read-structures.completed
 pub struct Completed {
     /// The specification completion ratio.
     pub spc: f32,
@@ -42,7 +42,7 @@ pub(crate) struct Graphs {
     pub full: DiGraphMap<GraphId, ()>,
 }
 
-/// #SPC-data-artifact.graph
+/// #SPC-read-artifact.graph
 /// Create the family graph from their given+auto partof values.
 pub(crate) fn determine_graphs(partofs: &OrderMap<Name, OrderSet<Name>>) -> Graphs {
     let ids = create_ids(partofs);
@@ -80,7 +80,7 @@ pub(crate) fn determine_parts(graphs: &Graphs) -> OrderMap<Name, OrderSet<Name>>
         .collect()
 }
 
-/// #SPC-data-artifact.completed
+/// #SPC-read-artifact.completed
 /// Determine the completeness of the artifacts.
 pub(crate) fn determine_completed(
     graphs: &Graphs,

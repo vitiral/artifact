@@ -1,4 +1,4 @@
-# SPC-data-raw
+# SPC-read-raw
 Loading data shall be performed in a parallel fashion, where walking, reading
 and deserializing shall all happen simultaniously.
 
@@ -21,7 +21,7 @@ digraph G {
 }
 ```
 
-# SPC-data-raw-markdown
+# SPC-read-raw-markdown
 An artifact in the markdown format is specified as:
 
     # <ART-name>
@@ -75,10 +75,10 @@ The process for loading markdown will be:
     }
     ```
 
-# TST-data-raw
+# TST-read-raw
 partof:
-- SPC-data-raw-markdown
-- TST-data-fuzz
+- SPC-read-raw-markdown
+- TST-fuzz
 ###
 Testing the deserialization shall require a small testing harness. The goal is that
 function from this harness be reused for writing even higher level tests.

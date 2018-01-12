@@ -3,8 +3,6 @@
 # This contains a "sunny day" project with no errors for basic testing of
 # - loading artifact
 # - linking artifacts to source code
-#
-# See TST-data-artifact.basic
 
 paths:
     code:

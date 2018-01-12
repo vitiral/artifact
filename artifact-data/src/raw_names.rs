@@ -39,13 +39,11 @@ macro_rules! names_raw {
 /// This mostly exists to provide custom
 /// serialization/deserializtion for a better text user interface.
 #[derive(Clone, Default, Eq, PartialEq)]
-pub struct NamesRaw {
-    pub(crate) inner: OrderSet<Name>,
-}
+pub struct NamesRaw(pub(crate) OrderSet<Name>);
 
 impl fmt::Debug for NamesRaw {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{:?}", self.inner)
+        write!(f, "{:?}", self.0)
     }
 }
 
@@ -53,27 +51,25 @@ impl Deref for NamesRaw {
     type Target = OrderSet<Name>;
 
     fn deref(&self) -> &OrderSet<Name> {
-        &self.inner
+        &self.0
     }
 }
 
 impl DerefMut for NamesRaw {
     fn deref_mut(&mut self) -> &mut OrderSet<Name> {
-        &mut self.inner
+        &mut self.0
     }
 }
 
 impl From<OrderSet<Name>> for NamesRaw {
     fn from(names: OrderSet<Name>) -> NamesRaw {
-        NamesRaw { inner: names }
+        NamesRaw(names)
     }
 }
 
 impl From<HashSet<Name>> for NamesRaw {
     fn from(mut names: HashSet<Name>) -> NamesRaw {
-        NamesRaw {
-            inner: names.drain().collect(),
-        }
+        NamesRaw(names.drain().collect())
     }
 }
 
@@ -81,8 +77,7 @@ impl FromStr for NamesRaw {
     type Err = Error;
     /// Parse a collapsed set of names to create them
     fn from_str(collapsed: &str) -> Result<NamesRaw> {
-        let inner = ::expand_names::expand_names(collapsed)?;
-        Ok(NamesRaw { inner: inner })
+        Ok(NamesRaw(::expand_names::expand_names(collapsed)?))
     }
 }
 
@@ -91,14 +86,14 @@ impl Serialize for NamesRaw {
     where
         S: Serializer,
     {
-        if self.inner.is_empty() {
+        if self.0.is_empty() {
             panic!("attempted to serialize an empty names field");
-        } else if self.inner.len() == 1 {
+        } else if self.0.len() == 1 {
             // serialize just the string
-            self.inner.iter().next().unwrap().serialize(serializer)
+            self.0.iter().next().unwrap().serialize(serializer)
         } else {
             // serialize the sorted names
-            let mut names: Vec<_> = self.inner.iter().collect();
+            let mut names: Vec<_> = self.0.iter().collect();
             names.sort();
             names.serialize(serializer)
         }

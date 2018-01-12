@@ -14,42 +14,47 @@
  * You should have received a copy of the Lesser GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-//! #TST-data-artifact
+//! #TST-read-artifact
 //!
 //! This module defines tests for the "full" artifact type itself.
 
 use test::dev_prelude::*;
 use test::framework::run_interop_test;
+use intermediate::ArtifactIm;
 use name::Name;
 use raw::ArtifactRaw;
 use raw_names::NamesRaw;
+use path_abs::PathFile;
 use artifact;
 
 #[test]
-/// #TST-data-artifact.partofs
+/// #TST-read-artifact.partofs
 fn sanity_determine_partofs() {
-    fn with_partof(partof: Option<OrderSet<Name>>) -> ArtifactRaw {
-        ArtifactRaw {
+    fn with_partof(mut partof: Vec<Name>) -> ArtifactIm {
+        partof.sort();
+        ArtifactIm {
+            name: name!("TST-fake"),
+            file: PathFile::mock("/fake"),
+            partof: partof.drain(..).collect(),
             done: None,
-            partof: partof.map(|p| NamesRaw { inner: p }),
-            text: None,
+            text: "".into(),
         }
     }
 
-    let raw_artifacts = ordermap!{
-        name!("REQ-aaa") => with_partof(None),
+    let arts = ordermap!{
+        name!("REQ-aaa") => with_partof(vec![]),
         // test auto-parent
-        name!("REQ-aaa-a") => with_partof(None),
+        name!("REQ-aaa-a") => with_partof(vec![]),
         // test auto-partof (no parent)
-        name!("SPC-aaa-a") => with_partof(None),
-        name!("SPC-bbb") => with_partof(None),
+        name!("SPC-aaa-a") => with_partof(vec![]),
+        name!("SPC-bbb") => with_partof(vec![]),
         // test explcit-link + parent
-        name!("SPC-bbb-p") => with_partof(Some(orderset![name!("REQ-aaa")])),
+        name!("SPC-bbb-p") => with_partof(vec![name!("REQ-aaa")]),
         // test explcit-link only
-        name!("SPC-ccc") => with_partof(Some(orderset![name!("REQ-aaa")])),
+        name!("SPC-ccc") => with_partof(vec![name!("REQ-aaa")]),
     };
 
-    let mut partofs = artifact::determine_partofs(&raw_artifacts);
+    let mut partofs = artifact::determine_partofs(&arts);
     let mut expected = ordermap!{
         name!("REQ-aaa") => orderset![],
         name!("REQ-aaa-a") => orderset![name!("REQ-aaa")],
@@ -58,33 +63,33 @@ fn sanity_determine_partofs() {
         name!("SPC-bbb-p") => orderset![name!("SPC-bbb"), name!("REQ-aaa")],
         name!("SPC-ccc") => orderset![name!("REQ-aaa")],
     };
-    sort_ordermap(&mut partofs);
-    sort_ordermap(&mut expected);
+    partofs.sort_keys();
+    expected.sort_keys();
     assert_eq!(expected, partofs);
 }
 
 // INTEROP TESTS
 
 #[test]
-/// #TST-data-artifact.empty
+/// #TST-read-artifact.empty
 fn interop_project_empty() {
     run_interop_test(INTEROP_TESTS_PATH.join("empty"));
 }
 
 #[test]
-/// #TST-data-artifact.design_only
+/// #TST-read-artifact.design_only
 fn interop_design_only() {
     run_interop_test(INTEROP_TESTS_PATH.join("design_only"));
 }
 
 #[test]
-/// #TST-data-artifact.basic
+/// #TST-read-artifact.basic
 fn interop_basic() {
     run_interop_test(INTEROP_TESTS_PATH.join("basic"));
 }
 
 #[test]
-/// #TST-data-artifact.lints
+/// #TST-read-artifact.lints
 fn interop_lints() {
     run_interop_test(INTEROP_TESTS_PATH.join("lints"));
 }

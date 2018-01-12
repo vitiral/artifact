@@ -14,7 +14,7 @@
  * You should have received a copy of the Lesser GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-//! #TST-data-raw
+//! #TST-read-raw
 //! This module is for testing the serialization and deserialization
 //! of RAW artifacts.
 
@@ -215,7 +215,7 @@ partof:
             text: None,
         },
     };
-    sort_ordermap(&mut exp_1);
+    exp_1.sort_keys();
 
     /// Redefined to have correct signature
     fn from_md(raw: &String) -> StrResult<OrderMap<Name, ArtifactRaw>> {

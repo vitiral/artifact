@@ -14,7 +14,7 @@
  * You should have received a copy of the Lesser GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-//! #TST-data-family
+//! #TST-read-family
 //! These are tests and helpers for testing family relations,
 //! such as parts/partof.
 
@@ -23,7 +23,7 @@ use serde_json;
 
 use path_abs::PathAbs;
 use name::{Name, Type};
-use family::{auto_partofs, Names};
+use family::{self, Names};
 use expand_names::expand_names;
 use raw_names::NamesRaw;
 use test::dev_prelude::*;
@@ -348,7 +348,7 @@ impl NamePiece {
 // -- TESTS
 
 #[test]
-/// #TST-data-family.parent
+/// #TST-read-family.parent
 fn sanity_parent() {
     fn parent(name: &Name) -> StrResult<Name> {
         match name.parent() {
@@ -373,7 +373,7 @@ fn sanity_parent() {
 }
 
 #[test]
-/// #TST-data-family.auto_partof
+/// #TST-read-family.auto_partof
 fn sanity_auto_partof() {
     fn auto_partof(name: &Name) -> StrResult<Name> {
         match name.auto_partof() {
@@ -398,7 +398,7 @@ fn sanity_auto_partof() {
 }
 
 #[test]
-/// #TST-data-family.collapse
+/// #TST-read-family.collapse
 fn sanity_collapse_name() {
     let values = &[
         ("REQ-foo", None, orderset!["REQ-foo"]),
@@ -424,7 +424,7 @@ fn sanity_collapse_name() {
 }
 
 #[test]
-/// #TST-data-family.collapse_invalid
+/// #TST-read-family.collapse_invalid
 fn sanity_collapse_name_invalid() {
     let values = &[
         "REQ",                       // invalid name
@@ -471,13 +471,27 @@ fn sanity_auto_partofs() {
         spc_a_b.clone() => orderset![],
         tst_a_b.clone() => orderset![spc_a_b.clone()],
     };
-    let auto = auto_partofs(&names);
+    let auto = family::auto_partofs(&names);
     assert_eq!(expected, auto);
+}
+
+#[test]
+fn sanity_strip_auto_partofs() {
+    let mut result = orderset![
+        name!("REQ-bar"),
+        name!("REQ-foo"),
+        name!("REQ-foo-bar"),
+        name!("SPC-bar"),
+        name!("SPC-foo"),
+    ];
+    let expected = orderset![name!("REQ-bar"), name!("REQ-foo"), name!("SPC-bar"),];
+    family::strip_auto_partofs(&name!("SPC-foo-bar"), &mut result);
+    assert_eq!(expected, result);
 }
 
 proptest! {
     #[test]
-    /// #TST-data-family.fuzz_parent
+    /// #TST-read-family.fuzz_parent
     fn fuzz_name_parent(ref name in arb_name()) {
         // Basically do the same thing as the code but in a slightly different way
         let mut items = name.raw.split('-').map(|s| s.to_string()).collect::<Vec<_>>();
@@ -494,7 +508,7 @@ proptest! {
     }
 
     #[test]
-    /// #TST-data-family.fuzz_auto_partof
+    /// #TST-read-family.fuzz_auto_partof
     fn fuzz_name_auto_partof(ref name in arb_name()) {
         let ty = match name.ty {
             Type::REQ => {
@@ -514,7 +528,7 @@ proptest! {
     }
 
     #[test]
-    /// #TST-data-family.fuzz_collapse
+    /// #TST-read-family.fuzz_collapse
     fn fuzz_collapse_name_roundtrip(ref names in arb_names(25)) {
         let collapsed = collapse_names(names);
         let expanded = expand_names(&collapsed).expect("failed expanding names");
@@ -522,7 +536,7 @@ proptest! {
     }
 
     #[test]
-    /// #TST-data-family.fuzz_serde
+    /// #TST-read-family.fuzz_serde
     /// This actually creates expected json by first sorting the names
     fn fuzz_names_serde(ref names in arb_names(25)) {
         // construct expected json by sorting and formatting

@@ -30,6 +30,7 @@ use serde_yaml;
 use serde_json;
 use toml;
 
+use intermediate::ArtifactIm;
 use name::Name;
 use raw_names::NamesRaw;
 use path_abs::PathFile;
@@ -109,7 +110,7 @@ impl<'de> Deserialize<'de> for TextRaw {
 pub(crate) fn load_artifacts_raw(
     send_lints: &Sender<lint::Lint>,
     files: &OrderSet<PathFile>,
-) -> Vec<(PathFile, OrderMap<Name, ArtifactRaw>)> {
+) -> Vec<ArtifactIm> {
     let (send, artifacts) = channel();
     let par: Vec<_> = files
         .iter()
@@ -128,43 +129,40 @@ pub(crate) fn load_artifacts_raw(
 /// Join loaded raw artifacts into a single hashmap and lint against duplicates.
 pub(crate) fn join_artifacts_raw(
     lints: &Sender<lint::Lint>,
-    mut raw: Vec<(PathFile, OrderMap<Name, ArtifactRaw>)>,
-) -> (OrderMap<Name, PathFile>, OrderMap<Name, ArtifactRaw>) {
-    let mut files: OrderMap<Name, PathFile> = OrderMap::with_capacity(raw.len());
-    let mut artifacts = OrderMap::with_capacity(raw.len());
-    for (file, mut arts) in raw.drain(..) {
-        for (name, art) in arts.drain(..) {
-            if let Some(dup) = files.insert(name.clone(), file.clone()) {
-                lints
-                    .send(lint::Lint {
-                        level: lint::Level::Error,
-                        category: lint::Category::ParseArtifactFiles,
-                        path: Some(dup.to_path_buf()),
-                        line: None,
-                        msg: format!(
-                            "duplicate name detected: {} in {}",
-                            name.as_str(),
-                            dup.display()
-                        ),
-                    })
-                    .expect("send dup artifact");
-                lints
-                    .send(lint::Lint {
-                        level: lint::Level::Error,
-                        category: lint::Category::ParseArtifactFiles,
-                        path: Some(file.to_path_buf()),
-                        line: None,
-                        msg: format!(
-                            "duplicate name detected: {} in {}",
-                            name.as_str(),
-                            file.display()
-                        ),
-                    })
-                    .expect("send dup artifact");
-            }
-
-            artifacts.insert(name, art);
+    mut art_ims: Vec<ArtifactIm>,
+) -> (OrderMap<Name, PathFile>, OrderMap<Name, ArtifactIm>) {
+    let mut files: OrderMap<Name, PathFile> = OrderMap::with_capacity(art_ims.len());
+    let mut artifacts = OrderMap::with_capacity(art_ims.len());
+    for mut art in art_ims.drain(..) {
+        if let Some(dup) = files.insert(art.name.clone(), art.file.clone()) {
+            lints
+                .send(lint::Lint {
+                    level: lint::Level::Error,
+                    category: lint::Category::ParseArtifactFiles,
+                    path: Some(dup.to_path_buf()),
+                    line: None,
+                    msg: format!(
+                        "duplicate name detected: {} in {}",
+                        art.name.as_str(),
+                        dup.display()
+                    ),
+                })
+                .expect("send dup artifact");
+            lints
+                .send(lint::Lint {
+                    level: lint::Level::Error,
+                    category: lint::Category::ParseArtifactFiles,
+                    path: Some(art.file.to_path_buf()),
+                    line: None,
+                    msg: format!(
+                        "duplicate name detected: {} in {}",
+                        art.name.as_str(),
+                        art.file.display()
+                    ),
+                })
+                .expect("send dup artifact");
         }
+        artifacts.insert(art.name.clone(), art);
     }
 
     (files, artifacts)
@@ -173,11 +171,7 @@ pub(crate) fn join_artifacts_raw(
 /// Load artifacts from a file.
 ///
 /// Any Errors are converted into lints.
-fn load_file(
-    lints: &Sender<lint::Lint>,
-    send: &Sender<(PathFile, OrderMap<Name, ArtifactRaw>)>,
-    file: &PathFile,
-) {
+fn load_file(lints: &Sender<lint::Lint>, send: &Sender<ArtifactIm>, file: &PathFile) {
     let ty = match FileType::from_path(file.as_path()) {
         Some(t) => t,
         None => panic!("An invalid filetype reached this code: {}", file.display()),
@@ -197,9 +191,16 @@ fn load_file(
         FileType::Json => serde_json::from_str(&text).map_err(|e| e.to_string()),
     };
 
-    match r {
-        Ok(raw) => send.send((file.clone(), raw)).expect("send raw artifact"),
-        Err(err) => lint::io_error(lints, file.as_path(), &err.to_string()),
+    let mut raw_artifacts = match r {
+        Ok(raw) => raw,
+        Err(err) => {
+            lint::io_error(lints, file.as_path(), &err.to_string());
+            return;
+        }
+    };
+    for (name, raw) in raw_artifacts.drain(..) {
+        let art = ArtifactIm::from_raw(name, file.clone(), raw);
+        send.send(art).expect("send raw artifact");
     }
 }
 
@@ -215,7 +216,7 @@ lazy_static!{
     pub(crate) static ref ATTRS_END_RE: Regex = Regex::new(r"^###+\s*$").unwrap();
 }
 
-/// #SPC-data-raw-markdown
+/// #SPC-read-raw-markdown
 /// Load raw artifacts from a markdown stream
 pub(crate) fn from_markdown<R: Read>(stream: R) -> Result<OrderMap<Name, ArtifactRaw>> {
     let mut out: OrderMap<Name, ArtifactRaw> = OrderMap::new();

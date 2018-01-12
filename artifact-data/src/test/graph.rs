@@ -55,8 +55,8 @@ fn sanity_determine_parts() {
         name!("TST-aaa-a") => orderset!{},
     };
 
-    sort_ordermap(&mut parts);
-    sort_ordermap(&mut expected);
+    parts.sort_keys();
+    expected.sort_keys();
     assert_eq!(parts, expected);
 }
 
@@ -144,7 +144,7 @@ fn sanity_determine_completed() {
         name!("TST-aaa") => C {tst: round_ratio(tr_tst_aaa_a), spc: round_ratio(tr_tst_aaa_a)},
         name!("TST-aaa-a") => C {tst: round_ratio(tr_tst_aaa_a), spc: round_ratio(tr_tst_aaa_a)},
     };
-    sort_ordermap(&mut completed);
-    sort_ordermap(&mut expected);
+    completed.sort_keys();
+    expected.sort_keys();
     assert_eq!(expected, completed);
 }

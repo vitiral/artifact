@@ -14,7 +14,7 @@
  * You should have received a copy of the Lesser GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-//! #SPC-data-name
+//! #SPC-read-name
 //!
 //! This is the name module, the module for representing artifact names
 //! and subnames
@@ -62,6 +62,7 @@ pub enum NameError {
 }
 
 #[derive(Clone, Eq, PartialEq, Hash, Ord, PartialOrd)]
+/// #SPC-name
 /// The atomically reference counted name, the primary one used by
 /// this module.
 ///
@@ -86,6 +87,7 @@ pub enum NameError {
 /// ```
 pub struct Name(Arc<InternalName>);
 
+/// #SPC-name.type
 /// type of an `Artifact`
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
 pub enum Type {
@@ -168,6 +170,7 @@ lazy_static!{
         &format!(r"(?i)\[\[(\.[{}]+)\]\]", NAME_VALID_CHARS!())).unwrap();
 }
 
+// #SPC-name.attrs
 // NAME METHODS
 impl Name {
     /// Get the `Name`'s user-defined string representation.

@@ -1,4 +1,4 @@
-# SPC-data-artifact
+# SPC-read-artifact
 The artifact type itself must be constructed from its joined parts.
 
 The design up until this point has been to create mappings of
@@ -14,7 +14,7 @@ This is fairly straightforward, but the following should be kept in
 mind.
 - `subnames` is a simple iterative regexp search of `text`
 - `partofs` simply has to concatenate any auto-partof values from the `family`
-  module (see [[SPC-data-family.auto]]).
+  module (see [[SPC-read-family.auto]]).
 - Create a graph using `parofs` and use it to calculate `parts`. We need the
   graph later anyway.
 
@@ -63,7 +63,7 @@ Other than that, we simply:
 - [[.lint_text_refs]]: ensure that soft references (`[[ART-name(.sub)]]`)
   all point to real things.
 
-# TST-data-artifact
+# TST-read-artifact
 Although the different pieces are separated out, most of the "construction" of
 the artifact objects themselves will not be tested explicitly. Instead
 we will rely on the framework to quickly test user scenarios and the already

@@ -14,7 +14,7 @@
  * You should have received a copy of the Lesser GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-//! #SPC-data-settings
+//! #SPC-read-settings
 //! This contains the logic for loading the settings of an artifact project.
 
 use toml;

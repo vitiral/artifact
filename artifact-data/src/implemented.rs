@@ -14,7 +14,7 @@
  * You should have received a copy of the Lesser GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-//! #SPC-data-src
+//! #SPC-read-impl
 //!
 //! This module defines the types and methods necessary for getting the
 //! locations where artifacts are implemented in source code.
@@ -158,7 +158,7 @@ fn parse_file(
     parse_locations(send, file, f)
 }
 
-/// #SPC-data-src.load
+/// #SPC-read-impl.load
 /// Read from the stream, returning parsed location references
 pub(crate) fn parse_locations<R: Read>(
     send: &Sender<(CodeLoc, Name, Option<SubName>)>,
@@ -184,7 +184,7 @@ pub(crate) fn parse_locations<R: Read>(
     Ok(())
 }
 
-/// #SPC-data-src.join
+/// #SPC-read-impl.join
 /// Consume the parsed locations, returning the combined implementation objects.
 ///
 /// This also lints against duplicates.

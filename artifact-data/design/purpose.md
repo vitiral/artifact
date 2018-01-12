@@ -1,33 +1,91 @@
 # REQ-data
-This defines the "artifact-data" module, a self contained programming API for
-deserializing, processing and reserializing artifacts from either strings or a
-set of paths to files.
-
 > This is a work in progress
 
-This document intends to give a highly detailed design of
-the data module with the goals of:
-- simplicity: it should be easy to follow the type structure and function
-  logic.
-- robustness: all methods should have well defined inputs and outputs. In
-  addition, rigourous fuzz testing should be designed in from the very
-  beginning.
-- speed: many of the slowest operations should now be done concurrently,
-  such as file system IO.
-- memory usage: reference counts should be used to conserve memory+runtime
-  where possible.
-- self contained: this module should not depend on any other artifact modules
-- testability: a test framework should be built to make it easy to add
-  "use case" tests. This test framework should be extendable by other higher
-  level test frameworks (i.e. a CLI framework or a web-framework).
+**These are the developer design documents. For user documents and project
+information, see: https://github.com/vitiral/artifact**
 
-This requirement is split into the following
-- [[REQ-data-type]]: the valid types of artifacts and the attrs in an artifact.
-- [[REQ-data-family]]: the valid relationships between artifacts
-- [[REQ-data-save]]: be able to quickly reserialize artifacts, doing
-  any linting before hand.
+## Overview for Artifact
+The purpose of artifact is to provide a simple design documentation tool
+for developers.
 
-# REQ-data-lint
+This may seem trivial, but it's not. A useful design doc tool must have *at least*
+the following characteristics:
+- Allow simple linking of requirements -> specifications -> tests.
+- Easily link to source code (through the source documentation) to determine
+  completeness.
+- Be revision controllable (text based).
+- Have a unix-like command line interface for interacting with your design
+  docs.
+- Have a web-ui for viewing and editing rendered documents.
+- Provide interop functionality like subcommand and data export for integration
+  with external tools and plugins.
+- Be scalable to any size of project.
+
+These features will empower developers to track their own design docs and make
+it possible for them to use their design docs to provide documentation and
+guidance for contributors and teamates.
+
+## What is an "Artifact"?
+`artifact-data` allows the user to define any number of what it calls
+"Artifacts". An Artifact is simply a part of a document (i.e. json, toml
+or extended markdown) which:
+- Is a single entity composed of a specific set of attributes defined below.
+- [[SPC-name]]: Has a project-wide unique `Name` beginning with one of `REQ`,
+  `SPC` or `TST`, which is the artifact's `Type` ([[SPC-name.type]]).
+- [[SPC-partof]]: Has a `partof` attribute which makes it a dependency of other
+  artifacts.
+- [[SPC-impl]]: Has a `text` attribute which allows you to write out the
+  artifact's specification, as well as create subnames which can be linked in
+  source code (i.e. `ART-name.subname`)
+  - [[SPC-impl.done]]: alternatively can be forced as implemented through the
+    `done` attribute
+- [[SPC-read-impl]]: Can be linked in source code using `#ART-name` or
+  `#ART-name.subname`, which allows you to "implement" the artifact directly.
+- [[SPC-read-artifact.completed]]: Tracks spc and tst completion of
+  artifacts by (roughly) averaging the completeness of their children + the
+  completion of their subparts, where TST's only affect the TST completion of
+  REQ and SPC.
+
+Artifacts are first and formost intended to be simple and lightweight. They
+try to stay out of your way and *express what you want, when you want it*.
+
+## Overview For This Crate
+This crate defines "artifact-data", a lightweight and robust API for
+deterministically deserializing, processing and reserializing artifacts from a
+project directory.
+
+This module treats an "artifact project" (which is a path to a folder
+containing a `.art/` directory) as a transactional database, ensuring
+consistency and validity when any update is made. It does this by creating a
+unique-hash of the reduced form of any artifact, and requires all updates to
+that database to have the *correct* original unique-hash before updates are
+allowed.
+
+This allows external applications to use the filesystem *itself* as a "database"
+of sorts, and allows you to simultaniously edit artifacts via (for example)
+*both* a Web-UI *and* a local text-editor and see real-time updates in both
+places -- without having to worry about loosing any of your work.
+
+These requirements are implemented through the following specifications:
+- [[SPC-read]]: the "read" part of the CRUD database. Allows you to load an
+  artifact project.
+- [[SPC-modify]]: the "Create + Update + Delete" part of the CRUD database.
+- [[SPC-structs]]: the exported types of this module and their purpose.
+- [[SPC-name]]: the valid types of artifacts and the attrs in their name.
+- [[SPC-family]]: the valid and automatic relationships between artifacts
+- [[SPC-impl]]: how artifacts are implemented.
+- [[SPC-lint]]: the design of error handling (spoiler: it's all "lints")
+
+The following test helpers are exported under feature flag `test-helpers`:
+- [[TST-fuzz]]: this library shall export **and use** fuzz testing primitives
+  throughout its infrastructure
+- [[TST-framework]]: this library shall export **and use** a testing framework
+  which allows you to express the expected state of a project _as only data_
+  and which makes clear assertions using these expected values.
+
+# SPC-lint
+partof: REQ-data
+###
 ## Lint Design
 
 > The design of how linting will be handled is very important to the simplicity
@@ -77,26 +135,11 @@ When printing lints (at the application level) they should be sorted and
 grouped by their categories+files. Each lint should be printed on their own
 line.
 
-# REQ-data-test
-This requirement details the *exported* functions, classes and framework for
-making testing artifact projects simpler and more robust.
-
-> This does **not** detail the tests for the `artifact-data` crate, although
-> those tests do leverage this module.
->
-> For the definition of artifact-data tests see [[TST-data]].
-
-There are three pieces of this requirement:
-- Definition of exported "helper" methods and types for testing  artifact.
-  This is not defined further, but should be clear from reading the test source
-  code documents.
-- Definition of exported "fuzzing" methods for fuzz testing artifact
-- Definition of exported "test framework" for creating examples and assertions
-  using a simple file structure.
-
-# SPC-data
+# SPC-read
+partof: REQ-data
+###
 The control flow and high level architecture for deserializing and processing
-artifact data are defined below. The types are defined in [[SPC-data-structs]].
+artifact data are defined below. The types are defined in [[SPC-read-structs]].
 
 ```dot
 digraph G {
@@ -107,55 +150,61 @@ digraph G {
      }
     subgraph cluster_src {
         label=<<b>parse src code links</b>>;
-        start -> [[dot:SPC-data-src]];
+        start -> [[dot:SPC-read-impl]];
     }
     subgraph cluster_artifacts {
         label=<<b>parse artifacts</b>>;
-        start -> [[dot:SPC-data-raw]]
-            -> [[dot:SPC-data-family]];
+        start -> [[dot:SPC-read-raw]]
+            -> [[dot:SPC-read-family]];
         "SPC-DATA-RAW";
     }
 
 
     // join main and branch
-    "SPC-DATA-SRC" -> [[dot:SPC-data-artifact]];
+    "SPC-DATA-SRC" -> [[dot:SPC-read-artifact]];
     "SPC-DATA-FAMILY" -> "SPC-DATA-ARTIFACT"
-      -> [[dot:SPC-data-lint]]
+      -> [[dot:SPC-read-lint]]
       -> {done [shape=oval]};
 }
 ```
 
 The following are major design choices:
 - **join-data**: combine the data from the indenpendent (parallizable) streams.
-- [[TST-data]]: the overall testing architecture
+- [[TST-read]]: the overall testing architecture
 
 There are the following subparts, which are also linked in the graph above:
-- [[SPC-data-src]]: "deserialize" the source code and extract the links to
+- [[SPC-read-impl]]: "deserialize" the source code and extract the links to
   artifacts
-- [[SPC-data-raw]]: deserialize the artifact files into "raw" data.
-- [[SPC-data-name]]: deserialize the artifact names into objects.
-- [[SPC-data-family]]: Determine the family of the artifats.
-- [[SPC-data-artifact]]: join the data and calculate the remaining pieces of
+- [[SPC-read-raw]]: deserialize the artifact files into "raw" data.
+- [[SPC-read-name]]: deserialize the artifact names into objects.
+- [[SPC-read-family]]: Determine the family of the artifats.
+- [[SPC-read-artifact]]: join the data and calculate the remaining pieces of
   the artifact.
 
-In addition:
-- [[REQ-data-lint]]: lints that are done against the artifact data.
+# SPC-test
+partof: REQ-data
+###
+This requirement details the *exported* functions, classes and framework for
+making testing artifact projects simpler and more robust.
 
-# TST-data
-Testing the data deserialization and processing, as well as reserialization is a major
-concern. The `data` API is used for:
-- Loading artifacts at init time.
-- Formatting artifacts and dumping them to files (toml, markdown, etc)
-- Editing artifacts through the web-ui and revalidating them before dumping them.
-- Exporting the artifact as JSON, both for the web-ui and for external tools.
+> This does **not** detail the tests for the `artifact-data` crate, although
+> those tests do leverage this module.
+>
+> For the definition of artifact-data tests see [[TST-read]].
 
-The primary approaches to testing shall be:
-- Sanity tests: every data type will have ultra simple human written
-  "sanity" tests to verify that they work according to user input.
-- [[TST-data-fuzz]]: scaleable fuzz testing design
-- [[TST-data-interop]]: interop testing strategy.
+There are three pieces of this requirement:
+- Definition of exported "helper" methods and types for testing  artifact.
+  This is not defined further, but should be clear from reading the test source
+  code documents.
+- Definition of exported "fuzzing" methods for fuzz testing artifact
+- Definition of exported "test framework" for creating examples and assertions
+  using a simple file structure.
 
-# TST-data-framework
+# TST-framework
+> TODO: make it partof REQ-data
+> partof: REQ-data
+> ###
+
 There shall be a "interop test framework" constructed for doing interop testing.
 The basic design is:
 - *Each test is a full project* (folder with a `.art` folder, source files and
@@ -168,7 +217,11 @@ The basic design is:
   - `project/assert_project_lints.yaml`: expected lints from linting the project.
 - The assertion files are an exact *explicit* version of the expected project.
 
-# TST-data-fuzz
+# TST-fuzz
+> TODO: make it partof REQ-data
+> partof: REQ-data
+> ###
+
 All data objects shall be designed from the beginning to be fuzz tested, so
 that even complex "projects" can be built up with random collections of
 artifacts in differing states.
@@ -197,3 +250,17 @@ From the implementations, we can randomize testing for the following:
 - [[.load_src]]: load RawCodeLoc and have expected result
 
 [1]: https://docs.rs/quickcheck/0.4.2/quickcheck/
+
+# TST-read
+Testing the data deserialization and processing, as well as reserialization is a major
+concern. The `data` API is used for:
+- Loading artifacts at init time.
+- Formatting artifacts and dumping them to files (toml, markdown, etc)
+- Editing artifacts through the web-ui and revalidating them before dumping them.
+- Exporting the artifact as JSON, both for the web-ui and for external tools.
+
+The primary approaches to testing shall be:
+- Sanity tests: every data type will have ultra simple human written
+  "sanity" tests to verify that they work according to user input.
+- [[TST-fuzz]]: scaleable fuzz testing design
+- [[TST-read-interop]]: interop testing strategy.

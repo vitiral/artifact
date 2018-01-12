@@ -14,7 +14,7 @@
  * You should have received a copy of the Lesser GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-//! #SPC-data-family
+//! #SPC-read-family
 //! This implements the types related to discovering the "family"
 //! of any artifact.
 
@@ -83,7 +83,7 @@ impl FromStr for Names {
 }
 
 impl Name {
-    /// #SPC-data-family.parent
+    /// #SPC-read-family.parent
     /// The parent of the name. This must exist if not None for all
     /// artifats.
     pub fn parent(&self) -> Option<Name> {
@@ -95,7 +95,7 @@ impl Name {
         }
     }
 
-    /// #SPC-data-family.auto_partof
+    /// #SPC-read-family.auto_partof
     /// The artifact that this COULD be automatically linked to.
     ///
     /// - REQ is not autolinked to anything
@@ -157,7 +157,7 @@ impl<'de> Visitor<'de> for NamesVisitor {
     }
 }
 
-/// #SPC-data-family.auto
+/// #SPC-read-family.auto
 /// Given an ordermap of all names, return the partof attributes that will be added.
 pub(crate) fn auto_partofs<T>(names: &OrderMap<Name, T>) -> OrderMap<Name, OrderSet<Name>> {
     let mut out: OrderMap<Name, OrderSet<Name>> = OrderMap::with_capacity(names.len());
@@ -177,4 +177,14 @@ pub(crate) fn auto_partofs<T>(names: &OrderMap<Name, T>) -> OrderMap<Name, Order
     }
     debug_assert_eq!(names.len(), out.len());
     out
+}
+
+/// Strip the automatic family from a set of names.
+pub(crate) fn strip_auto_partofs(name: &Name, names: &mut OrderSet<Name>) {
+    if let Some(p) = name.parent() {
+        names.remove(&p);
+    }
+    if let Some(p) = name.auto_partof() {
+        names.remove(&p);
+    }
 }

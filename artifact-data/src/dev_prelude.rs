@@ -17,8 +17,9 @@
 pub(crate) use std_prelude::*;
 // TODO: move these to std_prelude
 pub(crate) use std::ffi::OsStr;
-use std::cmp::Ord;
-use std::hash::Hash;
+pub use std::cmp::Ord;
+pub use std::cmp::PartialOrd;
+pub use std::hash::{Hash, Hasher};
 
 pub(crate) use ordermap::{OrderMap, OrderSet};
 
@@ -48,16 +49,4 @@ fn sanity_trim_right() {
     let mut result = "  hello    ".into();
     string_trim_right(&mut result);
     assert_eq!(result, "  hello");
-}
-
-pub(crate) fn sort_ordermap<K: Ord + Hash, V>(m: &mut OrderMap<K, V>) {
-    let mut ordered: Vec<_> = m.drain(..).collect();
-    ordered.sort_by(|left, right| left.0.cmp(&right.0));
-    m.extend(ordered.drain(..));
-}
-
-pub(crate) fn sort_orderset<K: Ord + Hash>(m: &mut OrderSet<K>) {
-    let mut ordered: Vec<_> = m.drain(..).collect();
-    ordered.sort_by(|left, right| left.cmp(right));
-    m.extend(ordered.drain(..));
 }

@@ -14,7 +14,7 @@
  * You should have received a copy of the Lesser GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-//! #TST-data-framework
+//! #TST-framework
 //!
 //! This module defines the interop "framework" that is leveraged for
 //! a variety of integration/interop testing.

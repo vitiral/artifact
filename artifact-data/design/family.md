@@ -1,4 +1,6 @@
-# REQ-data-family
+# SPC-family
+partof: REQ-data
+###
 An artifact (name) has the following "family" defined:
 
 ```dot
@@ -57,7 +59,7 @@ parents.
 - Any artifact that is *not* root has a single parent, which it will automatically
   be a "partof". That parent **must** be defined by the user or it is a hard error
 - SPC and TST artifacts have auto-partof elements of the higher-order type (see
-  [[REQ-data-type]]. This element is **not required** to exist, but if it does
+  [[SPC-name]]. This element is **not required** to exist, but if it does
   they will be linked automatically.
 
 A node can always be partof another node of the same type. In addition, the following type links are allowed
@@ -66,38 +68,7 @@ A node can always be partof another node of the same type. In addition, the foll
 
 ```
 
-# REQ-data-type
-
-The following attributes must be definable by the user:
-- `name`: the artifact name must be given in the form `ART-name`, where `ART`
-  is used to determine the type (see below).
-- `done`: if any string is given, the artifact is "defined as done", meaning it
-  is 100% complete for both implementation and test.
-- `partof`: a list (or compressed syntax) of artifact names which this artifact
-  is a "partof". Valid and automatic links are defined in [[REQ-data-family]].
-- `text`: the description of the artifact which can contain "soft links" to
-  other artifacts as well as to code implementations.
-
-## Artifact Type
-The type of an artifact is simply its prefix, which must be one of:
-- `REQ`: requirement
-- `SPC`: design specification
-- `TST`: test specification
-
-The order of precedence is:
-- `REQ` is "higher order" than `SPC` or `TST`
-- `SPC` is "higher order" than `TST`
-
-```dot
-digraph G {
-    graph [rankdir=LR; splines=ortho]
-    REQ -> SPC -> TST
-}
-```
-
-See [[REQ-data-family]] for how these are related.
-
-# SPC-data-family
+# SPC-read-family
 The method of determining family is fairly straightforward, as is
 detailed in the graph below:
 
@@ -136,8 +107,8 @@ Note: make sure to ONLY link to artifacts that exists!
 # [[.deauto]]
 In order to reserialize the artifacts, their "auto" partof has to be unlinked
 
-# TST-data-family
-partof: TST-data-fuzz
+# TST-read-family
+partof: TST-fuzz
 ###
 Very low level, so no interop testing.
 

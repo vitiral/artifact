@@ -14,7 +14,7 @@
  * You should have received a copy of the Lesser GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-/// #TST-data-src
+/// #TST-read-impl
 /// Test the "implemented" (i.e. source code parsing) module.
 
 use std::sync::mpsc::channel;
@@ -97,7 +97,7 @@ pub fn replace_links(raw: &str) -> String {
 // SANITY
 
 #[test]
-/// #TST-data-src.parse
+/// #TST-read-impl.parse
 fn sanity_parse_locations() {
     let example = r#"
 This is some kind of text file.
@@ -149,7 +149,7 @@ And to the right:
 }
 
 #[test]
-/// #TST-data-src.join
+/// #TST-read-impl.join
 fn sanity_join_locations() {
     let (send_lints, lints) = channel();
 
@@ -267,7 +267,7 @@ fn sanity_join_locations() {
 
 proptest! {
     #[test]
-    /// #TST-data-src.parse_fuzz
+    /// #TST-read-impl.parse_fuzz
     fn fuzz_locations((ref _names, ref expected_locations, ref code_text) in arb_source_code(10)) {
         println!("## Code Text:\n{}", code_text);
         let file = PathFile::mock("/fake");

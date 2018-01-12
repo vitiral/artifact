@@ -18,9 +18,11 @@
 //! and deserializing raw artifact and processing them into
 //! a full project.
 
-#![allow(unknown_lints)]
+#![allow(dead_code)]
 #![allow(doc_markdown)]
+#![allow(unknown_lints)]
 
+extern crate base64;
 extern crate failure;
 extern crate itertools;
 #[macro_use]
@@ -34,6 +36,7 @@ extern crate regex;
 extern crate serde;
 extern crate serde_json;
 extern crate serde_yaml;
+extern crate siphasher;
 extern crate std_prelude;
 extern crate toml;
 extern crate walkdir;
@@ -59,6 +62,7 @@ mod expand_names;
 mod family;
 mod graph;
 mod implemented;
+mod intermediate;
 mod lint;
 mod project;
 mod raw;

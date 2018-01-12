@@ -14,14 +14,14 @@
  * You should have received a copy of the Lesser GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-//! #TST-data-name
+//! #TST-name
 //!
 //! This module defines all operations around testing artifact names
 
 use serde_json;
 
 use test::dev_prelude::*;
-use name::{self, Name, SubName, InternalSubName, Type};
+use name::{self, InternalSubName, Name, SubName, Type};
 
 // HELPERS and TRAITS
 
@@ -90,7 +90,7 @@ fn assert_names_invalid(raw: &[&str]) {
 // SANITY TESTS
 
 #[test]
-/// #TST-data-name.sanity_valid
+/// #TST-name.sanity_valid
 fn sanity_names_valid() {
     assert_names_valid(&[
         "REQ-a",
@@ -113,7 +113,7 @@ fn sanity_names_valid() {
 }
 
 #[test]
-/// #TST-data-name.sanity_invalid
+/// #TST-name.sanity_invalid
 fn sanity_names_invalid() {
     assert_names_invalid(&[
         "RSK-foo",
@@ -190,7 +190,7 @@ subname: [[.subname]].
 }
 
 #[test]
-/// #TST-data-name.sanity_serde
+/// #TST-name.sanity_serde
 fn sanity_serde_name() {
     let json = r#"["REQ-foo","REQ-FOO","REQ-bar","SPC-foo-bar","tst-foo-BAR"]"#;
     let expected = &[
@@ -208,7 +208,7 @@ fn sanity_serde_name() {
 
 proptest! {
     #[test]
-    /// #TST-data-name.sanity_auto_partof
+    /// #TST-name.sanity_auto_partof
     fn fuzz_name_key(ref name in arb_name()) {
         let repr = name.key_str();
         let from_repr = Name::from_str(&repr).unwrap();

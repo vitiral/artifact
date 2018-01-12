@@ -1,4 +1,6 @@
-# REQ-data-structs
+# SPC-structs
+partof: REQ-data
+###
 This requirement details the high level `struct`s and `enum`s that must be
 exported by this module, as well as their features.
 
@@ -36,14 +38,15 @@ digraph G {
     Artifact [label=<
 <TABLE ALIGN="left" BORDER="0" CELLBORDER="1" CELLSPACING="0">
   <TR><TD PORT="self" BGCOLOR="gray"><b>Artifact</b></TD><TD><i>struct</i></TD></TR>
-  <TR><TD PORT="name">name      </TD><TD>Name           </TD></TR>
-  <TR><TD PORT="pof" >partof    </TD><TD>Set[Name]      </TD></TR>
-  <TR><TD PORT="pts" >parts     </TD><TD>Set[Name]      </TD></TR>
-  <TR><TD>completed         </TD><TD PORT="comp">Completed      </TD></TR>
-  <TR><TD>text              </TD><TD PORT="text">String         </TD></TR>
+  <TR><TD PORT="name">name      </TD><TD>Name                       </TD></TR>
+  <TR><TD>file                  </TD><TD PORT="file">Set[PathAbs]   </TD></TR>
+  <TR><TD PORT="pof" >partof    </TD><TD>Set[Name]                  </TD></TR>
+  <TR><TD PORT="pts" >parts     </TD><TD>Set[Name]                  </TD></TR>
+  <TR><TD>completed         </TD><TD PORT="comp">Completed          </TD></TR>
+  <TR><TD>text              </TD><TD PORT="text">String             </TD></TR>
   <TR><TD PORT="impl">impl_ </TD><TD>Implementation </TD></TR>
-  <TR><TD>subnames          </TD><TD PORT="sub" >Set[SubName]   </TD></TR>
-  <TR><TD>file              </TD><TD PORT="file">Set[PathAbs]   </TD></TR>
+  <TR><TD>subnames          </TD><TD PORT="sub" >Set[SubName]       </TD></TR>
+  <TR><TD>orig_hash         </TD><TD PORT="hash">HashIm[PathAbs]    </TD></TR>
 </TABLE>>];
 
     Completed [label=<
@@ -110,16 +113,48 @@ digraph G {
 ```
 
 ### Raw Data Types
-These types define the "raw data" format of artifact.
+These types define the "raw data" format of artifact and are only used
+for de/serializing.
 
-**ArtifactRaw**: (stored with key of `Name`)
+#### [[.artifact_raw]]: ArtifactRaw: (stored with key of `Name`)
 - done: `Option[String]`
 - partof: `Option[HashSet[Name]]`
 - text: `Option[TextRaw]`
 
-**TextRaw**: just a newtype with some serialization guarantees
+#### [[.text_raw]]: TextRaw: just a newtype with some serialization guarantees
 to make it prettier and ensure serialization is possible between
 all of the supported formats.
+
+### Intermediate (`Im`) Data Types
+Intermediate "stripped down" forms of the artifact. These types are used for:
+- linting after reading the project
+- inteacting with the [[SPC-crud]] interface.
+
+#### [[.artifact_op]]: ArtifactOp:
+- `Create(ArtifactIm)`: create an artifact, it must not already exist.
+- `Update(HashIm, ArtifactIm)`: update the artifact with the specified hash.
+- `Delete(HashIm)`: delete the artifact with the specifed hash.
+
+This is the "operation" command used by [[SPC-modify]] for modifying artifacts.
+`Read` is ommitted as it is covered by [[SPC-read]].
+
+#### [[.artifact_im]]: ArtifactIm:
+- name: `Name`
+- file: `PathAbs`
+- partof: `Set<Name>` (auto-partofs are stripped)
+- done: `Option<String>`
+- text: `String`
+
+The `ArtifactIm` is used to create a unique 128 bit hash of the artifacts and
+for specifying *what* should be updated when an update is requested.
+
+This is also the primary type used when linting.
+
+#### HashIm:
+This is simply a 128 bit SipHash created by the [`siphasher` crate][1].
+
+[1]: https://doc.servo.org/siphasher/sip128/struct.Hash128.html
+
 
 ## Type Details
 > TODO: link these directly to source code (not yet supported for REQ)
@@ -129,7 +164,7 @@ all of the supported formats.
   - `file`: the file where the artifact is defined.
   - `partof` and `parts`: automatic and user-defined relationship to other
     artifacts where `B in A.partof` means that B is a "parent" of A.
-    More details are in [[REQ-data-family]].
+    More details are in [[SPC-family]].
   - `completed`: the `spc` and `tst` completion ratios, detailing how much of
     the artifact's specification and test design has been implemented.
   - `text`: the user defined text in the markdown format.
@@ -138,10 +173,11 @@ all of the supported formats.
   - `subnames`: a list of subnames defined in `text` using `{{.subname}}`
     except `[[]]` instead of `[[]]`. These can be linked in code to complete
     the artifact.
+  - `orig_hash`: the original hash of the `ArtifactIm` this was created from.
 
 **Name**:
   - name is of the form `ART-name` where ART is one of {`REQ`, `SPC` or `TST`}
-  - more details are in [[REQ-data-type]].
+  - more details are in [[SPC-name]].
 
 **Impl**:
   - Defines how the artifact is implemented.
