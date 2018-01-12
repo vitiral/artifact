@@ -78,7 +78,7 @@ digraph G {
 
     PathAbs [label=<
 <TABLE ALIGN="left" BORDER="0" CELLBORDER="1" CELLSPACING="0">
-  <TR><TD PORT="self" BGCOLOR="gray"><b>PathAbs</b></TD><TD><i>cached newtype</i></TD></TR>
+  <TR><TD PORT="self" BGCOLOR="gray"><b>PathAbs</b></TD><TD><i>newtype</i></TD></TR>
   <TR><TD>0                 </TD><TD PORT="path">PathBuf        </TD></TR>
 </TABLE>>];
 

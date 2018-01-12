@@ -17,7 +17,7 @@
 //! #SPC-data-name
 //!
 //! This is the name module, the module for representing artifact names
-//! and their global cache.
+//! and subnames
 
 use std::cmp::Ordering;
 use std::hash::{Hash, Hasher};
@@ -84,9 +84,7 @@ pub enum NameError {
 /// assert_eq!(name!("REQ-foo").full(Some(&subname!(".sub"))), "REQ-foo.sub");
 /// # }
 /// ```
-pub struct Name {
-    inner: Arc<InternalName>,
-}
+pub struct Name(Arc<InternalName>);
 
 /// type of an `Artifact`
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
@@ -115,9 +113,12 @@ pub enum Type {
 /// // Helper to get the full name
 /// assert_eq!(name!("REQ-foo").full(Some(&sub)), "REQ-foo.sub_name");
 /// # }
-pub struct SubName {
-    pub raw: String,
-    pub key: String,
+pub struct SubName(pub(crate) Arc<InternalSubName>);
+
+/// Internal SubName object, use SubName instead.
+pub struct InternalSubName {
+    pub(crate) raw: String,
+    pub(crate) key: String,
 }
 
 /// Internal Name object, use Name instead.
@@ -126,9 +127,9 @@ pub struct InternalName {
     /// The artifact type, determined from the name prefix
     pub ty: Type,
     /// Capitalized form
-    pub key: Arc<String>,
+    pub(crate) key: String,
     /// Raw "user" form
-    pub raw: String,
+    pub(crate) raw: String,
 }
 
 // CONSTANTS
@@ -254,7 +255,7 @@ impl<'de> Deserialize<'de> for Name {
 
 impl fmt::Debug for Name {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.inner.raw)
+        write!(f, "{}", self.0.raw)
     }
 }
 
@@ -262,31 +263,14 @@ impl Deref for Name {
     type Target = InternalName;
 
     fn deref(&self) -> &InternalName {
-        self.inner.as_ref()
+        self.0.as_ref()
     }
 }
 
 impl FromStr for Name {
     type Err = Error;
-    #[cfg(feature = "cache")]
-    /// Primary method to create a name.
-    ///
-    /// The name itself, as well as its key are actually stored in the cache
     fn from_str(raw: &str) -> Result<Name> {
-        let mut cache = ::cache::NAME_CACHE.lock().expect("name cache poisioned");
-        cache.get(raw)
-    }
-
-    #[cfg(not(feature = "cache"))]
-    /// When fuzz testing, the cost of the cache is too great as we are
-    /// creating random names too often.
-    ///
-    /// I COULD clear the cache for every fuzz test, but I don't want to
-    /// diagnose memory running out if I forget.
-    fn from_str(raw: &str) -> Result<Name> {
-        Ok(Name {
-            inner: Arc::new(InternalName::from_str(raw)?),
-        })
+        Ok(Name(Arc::new(InternalName::from_str(raw)?)))
     }
 }
 
@@ -311,7 +295,7 @@ impl FromStr for InternalName {
             let msg = format!("Name is invalid: {}", raw);
             return Err(NameError::InvalidName { msg: msg }.into());
         }
-        let key = Arc::new(raw.to_ascii_uppercase());
+        let key = raw.to_ascii_uppercase();
         let ty = match &key[0..TYPE_SPLIT_LOC] {
             "REQ" => Type::REQ,
             "SPC" => Type::SPC,
@@ -356,7 +340,15 @@ impl PartialOrd for InternalName {
 }
 
 // SUBNAME METHODS
-//
+
+impl Deref for SubName {
+    type Target = InternalSubName;
+
+    fn deref(&self) -> &InternalSubName {
+        self.0.as_ref()
+    }
+}
+
 impl Serialize for SubName {
     fn serialize<S>(&self, serializer: S) -> result::Result<S::Ok, S::Error>
     where
@@ -380,10 +372,10 @@ impl SubName {
     /// Unchecked creation of subname
     pub(crate) fn new_unchecked(raw: &str) -> SubName {
         debug_assert!(VALID_SUB_NAME_RE.is_match(raw), "raw: {:?}", raw);
-        SubName {
+        SubName(Arc::new(InternalSubName {
             raw: raw.to_string(),
             key: raw.to_ascii_uppercase(),
-        }
+        }))
     }
 
     /// Get the raw str representation
@@ -442,13 +434,13 @@ impl FromStr for SubName {
 
 impl fmt::Debug for SubName {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{:?}", self.raw)
+        write!(f, "{:?}", self.0.raw)
     }
 }
 
 impl Hash for SubName {
     fn hash<H: Hasher>(&self, state: &mut H) {
-        self.key.hash(state);
+        self.0.key.hash(state);
     }
 }
 
@@ -462,7 +454,7 @@ impl Eq for SubName {}
 
 impl Ord for SubName {
     fn cmp(&self, other: &Self) -> Ordering {
-        self.key.cmp(&other.key)
+        self.0.key.cmp(&other.key)
     }
 }
 
@@ -471,6 +463,8 @@ impl PartialOrd for SubName {
         Some(self.cmp(other))
     }
 }
+
+// INTERNAL SUBNAME METHODS
 
 // TYPE METHODS
 
@@ -481,27 +475,5 @@ impl Type {
             Type::SPC => "SPC",
             Type::TST => "TST",
         }
-    }
-}
-
-// NAME CACHE METHODS
-
-#[cfg(feature = "cache")]
-impl ::cache::NameCache {
-    /// Get the name from the cache, inserting it if it doesn't exist
-    ///
-    /// This is the only way that names are created.
-    fn get(&mut self, raw: &str) -> Result<Name> {
-        // FIXME: I would like to use Arc for raw+name, but
-        // Borrow<str> is not implemented for Arc<String>
-        if let Some(n) = self.names.get(raw) {
-            return Ok(n.clone());
-        }
-
-        let name = Name {
-            inner: Arc::new(InternalName::from_str(raw)?),
-        };
-        self.names.insert(raw.into(), name.clone());
-        Ok(name)
     }
 }

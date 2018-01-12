@@ -8,8 +8,6 @@ fn load_path<T, F>(path: &Path, load: F) -> Result<HashMap<PathAbs, T>>
     where F: Fn(s: &str) -> Result<T>
 ```
 
-> `PathAbs` are absolute paths from the path-cache ([[SPC-data-cache]].path).
-
 The basic logic is:
 ```dot
 digraph G {

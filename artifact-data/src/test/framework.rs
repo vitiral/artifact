@@ -88,6 +88,7 @@ struct ProjectPathsAssert {
 
 #[derive(Debug, Serialize, Deserialize)]
 struct ArtifactAssert {
+    name: Name,
     file: String,
     partof: OrderSet<Name>,
     parts: OrderSet<Name>,
@@ -164,6 +165,7 @@ impl ProjectPathsAssert {
 impl ArtifactAssert {
     fn expected(self, base: &PathAbs) -> artifact::Artifact {
         artifact::Artifact {
+            name: self.name,
             file: join_abs(base, &self.file),
             partof: self.partof,
             parts: self.parts,

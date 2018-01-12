@@ -136,7 +136,6 @@ fn sanity_serde_names_raw_multi_yaml() {
 
 proptest! {
     #[test]
-    #[cfg(not(feature = "cache"))]
     /// This actually creates expected json by first sorting the names
     fn fuzz_names_raw_serde(ref names in arb_names_raw(25)) {
         prop_assume!(!names.is_empty());

@@ -477,7 +477,6 @@ fn sanity_auto_partofs() {
 
 proptest! {
     #[test]
-    #[cfg(not(feature = "cache"))]
     /// #TST-data-family.fuzz_parent
     fn fuzz_name_parent(ref name in arb_name()) {
         // Basically do the same thing as the code but in a slightly different way
@@ -495,7 +494,6 @@ proptest! {
     }
 
     #[test]
-    #[cfg(not(feature = "cache"))]
     /// #TST-data-family.fuzz_auto_partof
     fn fuzz_name_auto_partof(ref name in arb_name()) {
         let ty = match name.ty {
@@ -515,7 +513,6 @@ proptest! {
         assert_eq!(expected, result);
     }
 
-    #[cfg(not(feature = "cache"))]
     #[test]
     /// #TST-data-family.fuzz_collapse
     fn fuzz_collapse_name_roundtrip(ref names in arb_names(25)) {
@@ -525,7 +522,6 @@ proptest! {
     }
 
     #[test]
-    #[cfg(not(feature = "cache"))]
     /// #TST-data-family.fuzz_serde
     /// This actually creates expected json by first sorting the names
     fn fuzz_names_serde(ref names in arb_names(25)) {

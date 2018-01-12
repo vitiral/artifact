@@ -61,6 +61,7 @@ code_impls:
 
 artifacts:
     REQ-purpose:
+        name: REQ-purpose
         file: design/purpose.md
         partof: []
         parts:
@@ -77,6 +78,7 @@ artifacts:
         impl_: null
         subnames: []
     REQ-lib:
+        name: REQ-lib
         file: design/purpose.md
         partof:
             - REQ-purpose
@@ -87,6 +89,7 @@ artifacts:
         impl_: null
         subnames: []
     REQ-foo:
+        name: REQ-foo
         file: design/purpose.md
         partof:
             - REQ-purpose
@@ -101,6 +104,7 @@ artifacts:
         impl_: null
         subnames: []
     REQ-baz:
+        name: REQ-baz
         file: design/purpose.md
         partof: []
         parts: []
@@ -116,6 +120,7 @@ artifacts:
             secondary: {}
         subnames: []
     SPC-build:
+        name: SPC-build
         file: design/purpose.md
         partof:
             - REQ-purpose
@@ -131,6 +136,7 @@ artifacts:
             secondary: {}
         subnames: []
     TST-build:
+        name: TST-build
         file: design/purpose.md
         partof:
             - REQ-purpose
@@ -149,6 +155,7 @@ artifacts:
         subnames:
             - .no
     SPC-foo:
+        name: SPC-foo
         file: design/foo.md
         partof:
             - REQ-foo
@@ -176,6 +183,7 @@ artifacts:
             - .no
             - .yes
     SPC-foo_done:
+        name: SPC-foo_done
         file: design/foo.md
         partof:
             - REQ-foo
@@ -187,6 +195,7 @@ artifacts:
         impl_: this is done
         subnames: []
     TST-foo:
+        name: TST-foo
         file: design/foo.md
         partof:
             - SPC-foo

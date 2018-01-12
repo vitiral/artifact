@@ -241,7 +241,6 @@ partof:
 
 proptest! {
     #[test]
-    #[cfg(not(feature = "cache"))]
     fn fuzz_artifacts_serde(ref orig in arb_raw_artifacts(20)) {
         // FIXME: this has to be eaiser
         let mut artifacts = OrderMap::with_capacity(orig.len());

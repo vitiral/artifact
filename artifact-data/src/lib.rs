@@ -51,8 +51,6 @@ extern crate time;
 
 mod artifact;
 mod dev_prelude;
-#[cfg(feature = "cache")]
-pub mod cache;
 #[macro_use]
 mod name;
 mod expand_names;

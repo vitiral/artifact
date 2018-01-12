@@ -84,7 +84,7 @@ fn interop_basic() {
 }
 
 #[test]
-/// #TST-data-artifact.basic
+/// #TST-data-artifact.lints
 fn interop_lints() {
     run_interop_test(INTEROP_TESTS_PATH.join("lints"));
 }

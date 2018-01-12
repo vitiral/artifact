@@ -24,6 +24,58 @@ the data module with the goals of:
 This requirement is split into the following
 - [[REQ-data-type]]: the valid types of artifacts and the attrs in an artifact.
 - [[REQ-data-family]]: the valid relationships between artifacts
+- [[REQ-data-save]]: be able to quickly reserialize artifacts, doing
+  any linting before hand.
+
+# REQ-data-lint
+## Lint Design
+
+> The design of how linting will be handled is very important to the simplicity
+> of the data flow. Often times "warning" and "non-fatal" level errors are
+> overlooked in the initial design, even put to the job of global logging
+> handlers. It is intended that that is avoided here.
+
+The basic design of lints is that:
+- Every "error", no matter how severe, should always be cast into a lint.  We
+  load lots of files, it is better to simply list all errors rather than fail
+  at each one individually.
+- Loading lints should be errors and the calling functions are *required* to
+  not proceed if there are load errors.
+- Other lints should always be *repeatable*, meaning you can rerun the lints
+  or even run lints on a project passed by some other means (i.e. from a
+  json-rpc call).
+
+## Basic Design
+
+The `Lint` type is:
+```
+enum Lint {
+    level: Level,
+    category: Category,
+    path: Option<PathBuf>,
+    line: Option<u64>,
+    msg: String,
+}
+
+#[derive(Hash)]
+enum Category {
+    ParseCodeImplementations,
+    ParseArtifactFiles,
+    ... etc
+}
+
+enum LintMsg {
+    Error(String),
+    Warn(String),
+}
+```
+
+The intention is that `Level::Error` will cause an application built on artifact
+to *not continue* to any final steps where as `Lint::Warn` will only be printed.
+
+When printing lints (at the application level) they should be sorted and
+grouped by their categories+files. Each lint should be printed on their own
+line.
 
 # REQ-data-test
 This requirement details the *exported* functions, classes and framework for
@@ -75,7 +127,6 @@ digraph G {
 
 The following are major design choices:
 - **join-data**: combine the data from the indenpendent (parallizable) streams.
-- [[SPC-data-cache]]: the "global" caching architecture.
 - [[TST-data]]: the overall testing architecture
 
 There are the following subparts, which are also linked in the graph above:
@@ -88,57 +139,7 @@ There are the following subparts, which are also linked in the graph above:
   the artifact.
 
 In addition:
-- [[SPC-data-lint]]: lints that are done against the artifact data.
-
-# REQ-data-lint
-## Lint Design
-
-> The design of how linting will be handled is very important to the simplicity
-> of the data flow. Often times "warning" and "non-fatal" level errors are
-> overlooked in the initial design, even put to the job of global logging
-> handlers. It is intended that that is avoided here.
-
-The basic design of lints is that:
-- Every "error", no matter how severe, should always be cast into a lint.  We
-  load lots of files, it is better to simply list all errors rather than fail
-  at each one individually.
-- Loading lints should be errors and the calling functions are *required* to
-  not proceed if there are load errors.
-- Other lints should always be *repeatable*, meaning you can rerun the lints
-  or even run lints on a project passed by some other means (i.e. from a
-  json-rpc call).
-
-## Basic Design
-
-The `Lint` type is:
-```
-enum Lint {
-    level: Level,
-    category: Category,
-    path: Option<PathBuf>,
-    line: Option<u64>,
-    msg: String,
-}
-
-#[derive(Hash)]
-enum Category {
-    ParseCodeImplementations,
-    ParseArtifactFiles,
-    ... etc
-}
-
-enum LintMsg {
-    Error(String),
-    Warn(String),
-}
-```
-
-The intention is that `Level::Error` will cause an application built on artifact
-to *not continue* to any final steps where as `Lint::Warn` will only be printed.
-
-When printing lints (at the application level) they should be sorted and
-grouped by their categories+files. Each lint should be printed on their own
-line.
+- [[REQ-data-lint]]: lints that are done against the artifact data.
 
 # TST-data
 Testing the data deserialization and processing, as well as reserialization is a major

@@ -21,7 +21,7 @@
 use serde_json;
 
 use test::dev_prelude::*;
-use name::{self, Name, SubName, Type};
+use name::{self, Name, SubName, InternalSubName, Type};
 
 // HELPERS and TRAITS
 
@@ -142,17 +142,17 @@ fn sanity_subnames() {
         // Valid
         (
             ".foo".into(),
-            Some(SubName {
+            Some(SubName(Arc::new(InternalSubName {
                 raw: ".foo".into(),
                 key: ".FOO".into(),
-            }),
+            }))),
         ),
         (
             ".foo_bar".into(),
-            Some(SubName {
+            Some(SubName(Arc::new(InternalSubName {
                 raw: ".foo_bar".into(),
                 key: ".FOO_BAR".into(),
-            }),
+            }))),
         ),
         (".BAR".into(), Some(subname!(".bar"))), // only keys matter
         (".bar".into(), Some(subname!(".bAr"))), // only keys matter
@@ -207,7 +207,6 @@ fn sanity_serde_name() {
 }
 
 proptest! {
-    #[cfg(not(feature = "cache"))]
     #[test]
     /// #TST-data-name.sanity_auto_partof
     fn fuzz_name_key(ref name in arb_name()) {
@@ -217,7 +216,6 @@ proptest! {
         assert_eq!(repr, from_repr.key_str())
     }
 
-    #[cfg(not(feature = "cache"))]
     #[test]
     fn fuzz_name_serde(ref name in arb_name()) {
         let json = format!("\"{}\"", name.as_str());

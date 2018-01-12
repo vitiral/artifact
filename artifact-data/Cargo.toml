@@ -40,5 +40,4 @@ tempdir = "0.3.5"
 unicode-segmentation = "1.2.0"
 
 [features]
-cache = []
 default = []

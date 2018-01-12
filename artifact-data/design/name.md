@@ -2,14 +2,11 @@
 partof:
 - REQ-data-family
 - REQ-data-type
-- SPC-data-cache
 ###
 The `Name` type shall be the exported "key" of artifacts.  Internally it is
-reference counted by a global cache, externally it exposes itself with
-the following methods:
+reference counted, externally it exposes itself with the following methods:
 - `Name.ty`: get the name's type ([[REQ-data-type]])
-- `Name.from_str(s)`: create or automatically load the name. It will always
-  exist in the cache after this operation.
+- `Name.from_str(s)`: create or automatically load the name.
 - `Name.as_str()`: get the string representation of the name. This must always
   be the same string as the user gave.
 - `Name.key_str()`: get the name's "key" representation

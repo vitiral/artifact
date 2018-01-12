@@ -14,7 +14,7 @@
  * You should have received a copy of the Lesser GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-/// #REQ-data-lint
+/// #TODO(link): REQ-data-lint
 /// Artifact lint types.
 ///
 /// This is the primary error type for all "non fatal" errors and warnings.

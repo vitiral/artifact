@@ -29,12 +29,6 @@ use dev_prelude::*;
 pub struct PathAbs(Arc<PathBuf>);
 
 impl PathAbs {
-    #[cfg(feature = "cache")]
-    pub fn new<P: AsRef<Path>>(path: P) -> io::Result<PathAbs> {
-        ::cache::PATH_CACHE.lock().unwrap().get(path)
-    }
-
-    #[cfg(not(feature = "cache"))]
     pub fn new<P: AsRef<Path>>(path: P) -> io::Result<PathAbs> {
         Ok(PathAbs(Arc::new(path.as_ref().canonicalize()?)))
     }
@@ -138,23 +132,6 @@ impl Deref for PathAbs {
 
     fn deref(&self) -> &PathBuf {
         self.0.as_ref()
-    }
-}
-
-#[cfg(feature = "cache")]
-impl ::cache::PathCache {
-    /// Get the path from the cache, inserting it if it doesn't exist
-    ///
-    /// This is the only way that paths are ever referenced.
-    fn get<P: AsRef<Path>>(&mut self, raw: P) -> io::Result<PathAbs> {
-        let os_str = raw.as_ref().as_os_str();
-        if let Some(p) = self.paths.get(os_str) {
-            return Ok(p.clone());
-        }
-
-        let path = PathAbs(Arc::new(raw.as_ref().canonicalize()?));
-        self.paths.insert(os_str.to_os_string(), path.clone());
-        Ok(path)
     }
 }
 

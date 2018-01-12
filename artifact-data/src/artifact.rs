@@ -32,6 +32,12 @@ use graph;
 /// The primary data structure of this library which encapsulates a majority of the useful
 /// end product of a user's project.
 pub struct Artifact {
+    /// The name of the artifact.
+    ///
+    /// While this library uses `Name` as the key, other libraries (like a web-ui)
+    /// might not. This also makes it much simpler to reserialize artifacts as
+    /// the mapping cannot be broken.
+    pub name: Name,
     /// The file the artifact is defined in.
     pub file: PathAbs,
     /// The user defined and calculated `partof` the artifact.
@@ -113,6 +119,7 @@ pub(crate) fn determine_artifacts(
         .iter()
         .map(|(name, file)| {
             let art = Artifact {
+                name: name.clone(),
                 partof: remove(&mut loaded.partofs, name),
                 parts: remove(&mut loaded.parts, name),
                 completed: remove(&mut completed, name),
