@@ -28,7 +28,7 @@ use std::sync::mpsc::{channel, Sender};
 use dev_prelude::*;
 use name::{Name, SubName};
 use lint;
-use path_abs::PathAbs;
+use path_abs::PathFile;
 
 // EXPORTED TYPES
 
@@ -53,12 +53,12 @@ pub struct ImplCode {
 #[derive(Debug, Clone, PartialEq, Eq)]
 /// The location of an artifact reference in code.
 pub struct CodeLoc {
-    pub file: PathAbs,
+    pub file: PathFile,
     pub line: u64,
 }
 
 impl CodeLoc {
-    pub fn new(file: &PathAbs, line: u64) -> CodeLoc {
+    pub fn new(file: &PathFile, line: u64) -> CodeLoc {
         CodeLoc {
             file: file.clone(),
             line: line,
@@ -128,7 +128,7 @@ lazy_static!{
 /// Any io errors are converted into lint errors instead.
 pub(crate) fn load_locations(
     send_lints: &Sender<lint::Lint>,
-    files: &OrderSet<PathAbs>,
+    files: &OrderSet<PathFile>,
 ) -> Vec<(CodeLoc, Name, Option<SubName>)> {
     let (send, locations) = channel();
     let par: Vec<_> = files
@@ -152,7 +152,7 @@ pub(crate) fn load_locations(
 /// internal helper to just open a path and parse it
 fn parse_file(
     send: &Sender<(CodeLoc, Name, Option<SubName>)>,
-    file: &PathAbs,
+    file: &PathFile,
 ) -> ::std::io::Result<()> {
     let f = File::open(file.as_path())?;
     parse_locations(send, file, f)
@@ -162,7 +162,7 @@ fn parse_file(
 /// Read from the stream, returning parsed location references
 pub(crate) fn parse_locations<R: Read>(
     send: &Sender<(CodeLoc, Name, Option<SubName>)>,
-    file: &PathAbs,
+    file: &PathFile,
     stream: R,
 ) -> ::std::io::Result<()> {
     for (line_num, line_maybe) in BufReader::new(stream).lines().enumerate() {
@@ -265,7 +265,7 @@ fn insert_secondary(
 }
 
 /// internal helper for `join_locations`
-fn duplicate_detected(send_lints: &Sender<lint::Lint>, path: &PathAbs, line: u64, msg: &str) {
+fn duplicate_detected(send_lints: &Sender<lint::Lint>, path: &PathFile, line: u64, msg: &str) {
     send_lints
         .send(lint::Lint {
             level: lint::Level::Error,

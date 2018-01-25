@@ -27,6 +27,7 @@ extern crate itertools;
 extern crate matches;
 #[macro_use]
 extern crate ordermap;
+extern crate path_abs;
 extern crate petgraph;
 extern crate rayon;
 extern crate regex;
@@ -59,7 +60,6 @@ mod family;
 mod graph;
 mod implemented;
 mod lint;
-mod path_abs;
 mod project;
 mod raw;
 #[macro_use]
@@ -92,7 +92,6 @@ pub mod test;
 pub use artifact::Artifact;
 pub use implemented::{CodeLoc, Impl, ImplCode};
 pub use name::{Name, NameError, SubName, Type, NAME_VALID_STR};
-pub use path_abs::PathAbs;
 pub use settings::ProjectPaths;
 pub use lint::{Categorized, Category, Level, Lint};
 pub use project::{load_project, Project};

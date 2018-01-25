@@ -23,7 +23,7 @@ use dev_prelude::*;
 use raw::ArtifactRaw;
 use name::{self, Name, SubName};
 use implemented::{Impl, ImplCode};
-use path_abs::PathAbs;
+use path_abs::PathFile;
 use family;
 use graph;
 
@@ -39,7 +39,7 @@ pub struct Artifact {
     /// the mapping cannot be broken.
     pub name: Name,
     /// The file the artifact is defined in.
-    pub file: PathAbs,
+    pub file: PathFile,
     /// The user defined and calculated `partof` the artifact.
     pub partof: OrderSet<Name>,
     /// The (calculated) parts of the artifact (opposite of partof)
@@ -106,7 +106,7 @@ pub(crate) fn finalize_load_artifact(
 pub(crate) fn determine_artifacts(
     mut loaded: ArtifactsLoaded,
     code_impls: &OrderMap<Name, ImplCode>,
-    defined: &OrderMap<Name, PathAbs>,
+    defined: &OrderMap<Name, PathFile>,
 ) -> OrderMap<Name, Artifact> {
     let mut impls = determine_impls(&loaded.raw_artifacts, code_impls);
     let mut completed = graph::determine_completed(&loaded.graphs, &impls, &loaded.subnames);

@@ -32,7 +32,7 @@ use toml;
 
 use name::Name;
 use raw_names::NamesRaw;
-use path_abs::PathAbs;
+use path_abs::PathFile;
 use lint;
 
 // TYPES
@@ -108,8 +108,8 @@ impl<'de> Deserialize<'de> for TextRaw {
 /// Any Errors are converted into lints.
 pub(crate) fn load_artifacts_raw(
     send_lints: &Sender<lint::Lint>,
-    files: &OrderSet<PathAbs>,
-) -> Vec<(PathAbs, OrderMap<Name, ArtifactRaw>)> {
+    files: &OrderSet<PathFile>,
+) -> Vec<(PathFile, OrderMap<Name, ArtifactRaw>)> {
     let (send, artifacts) = channel();
     let par: Vec<_> = files
         .iter()
@@ -128,9 +128,9 @@ pub(crate) fn load_artifacts_raw(
 /// Join loaded raw artifacts into a single hashmap and lint against duplicates.
 pub(crate) fn join_artifacts_raw(
     lints: &Sender<lint::Lint>,
-    mut raw: Vec<(PathAbs, OrderMap<Name, ArtifactRaw>)>,
-) -> (OrderMap<Name, PathAbs>, OrderMap<Name, ArtifactRaw>) {
-    let mut files: OrderMap<Name, PathAbs> = OrderMap::with_capacity(raw.len());
+    mut raw: Vec<(PathFile, OrderMap<Name, ArtifactRaw>)>,
+) -> (OrderMap<Name, PathFile>, OrderMap<Name, ArtifactRaw>) {
+    let mut files: OrderMap<Name, PathFile> = OrderMap::with_capacity(raw.len());
     let mut artifacts = OrderMap::with_capacity(raw.len());
     for (file, mut arts) in raw.drain(..) {
         for (name, art) in arts.drain(..) {
@@ -175,15 +175,15 @@ pub(crate) fn join_artifacts_raw(
 /// Any Errors are converted into lints.
 fn load_file(
     lints: &Sender<lint::Lint>,
-    send: &Sender<(PathAbs, OrderMap<Name, ArtifactRaw>)>,
-    file: &PathAbs,
+    send: &Sender<(PathFile, OrderMap<Name, ArtifactRaw>)>,
+    file: &PathFile,
 ) {
     let ty = match FileType::from_path(file.as_path()) {
         Some(t) => t,
         None => panic!("An invalid filetype reached this code: {}", file.display()),
     };
 
-    let text = match file.read() {
+    let text = match file.read_string() {
         Ok(t) => t,
         Err(err) => {
             lint::io_error(lints, file.as_path(), &err.to_string());

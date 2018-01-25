@@ -19,7 +19,7 @@
 
 use test::dev_prelude::*;
 use name::{Name, SubName};
-use path_abs::PathAbs;
+use path_abs::PathFile;
 use graph::{self, round_ratio};
 use implemented::{CodeLoc, Impl, ImplCode};
 
@@ -76,7 +76,7 @@ fn sanity_determine_graphs() {
 fn sanity_determine_completed() {
     let (_, graphs) = simple_graph();
 
-    let loc = CodeLoc::new(&PathAbs::fake("/fake"), 1);
+    let loc = CodeLoc::new(&PathFile::mock("/fake"), 1);
     let impls = ordermap!{
         name!("REQ-aaa") => Impl::NotImpl,
         name!("REQ-bbb") => Impl::NotImpl,

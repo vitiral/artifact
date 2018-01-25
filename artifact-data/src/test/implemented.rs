@@ -25,7 +25,7 @@ use test::raw_names::arb_names_raw;
 use test::framework::run_interop_test;
 use name::{Name, SubName};
 use raw_names::NamesRaw;
-use path_abs::PathAbs;
+use path_abs::{PathAbs, PathFile};
 use implemented::{join_locations, parse_locations, CodeLoc, ImplCode};
 use lint;
 
@@ -120,7 +120,7 @@ Some are legitamate subnames:
 And to the right:
     %SPC-right.sub
 "#;
-    let file = PathAbs::fake("/fake/file.c");
+    let file = PathFile::mock("/fake/file.c");
     let mut expected: Vec<_> = vec![
         (3, name!("SPC-example"), None),
         (3, name!("TST-example"), None),
@@ -153,9 +153,9 @@ And to the right:
 fn sanity_join_locations() {
     let (send_lints, lints) = channel();
 
-    let file1 = PathAbs::fake("/fake/foo.py");
-    let file2 = PathAbs::fake("/fake/bar.py");
-    let file3 = PathAbs::fake("/fake/long/foo.py");
+    let file1 = PathFile::mock("/fake/foo.py");
+    let file2 = PathFile::mock("/fake/bar.py");
+    let file3 = PathFile::mock("/fake/long/foo.py");
 
     let req_foo = name!("req-foo");
     let spc_bar = name!("spc-bar");
@@ -242,7 +242,7 @@ fn sanity_join_locations() {
     assert_eq!(joined, expected);
 
     let lints: Vec<_> = lints.into_iter().collect();
-    let create_lint = |path: &PathAbs, line, msg: &str| lint::Lint {
+    let create_lint = |path: &PathFile, line, msg: &str| lint::Lint {
         level: lint::Level::Error,
         category: lint::Category::ParseCodeImplementations,
         path: Some(path.to_path_buf()),
@@ -270,7 +270,7 @@ proptest! {
     /// #TST-data-src.parse_fuzz
     fn fuzz_locations((ref _names, ref expected_locations, ref code_text) in arb_source_code(10)) {
         println!("## Code Text:\n{}", code_text);
-        let file = PathAbs::fake("/fake");
+        let file = PathFile::mock("/fake");
         let locations = {
             let (send, locations) = channel();
             parse_locations(&send, &file, code_text.as_bytes())

@@ -19,9 +19,10 @@
 
 use toml;
 use std::sync::mpsc::{channel, Sender};
+use path_abs::{PathAbs, PathFile};
+use walkdir::WalkDir;
 
 use dev_prelude::*;
-use path_abs::{discover_paths, PathAbs};
 use raw::FileType;
 use lint;
 
@@ -34,6 +35,20 @@ pub(crate) struct SettingsRaw {
     pub code_paths: Vec<String>,
     pub exclude_code_paths: Vec<String>,
     // pub file_type: FileType,
+}
+
+pub(crate) struct FoundPaths {
+    pub files: Vec<PathFile>,
+    pub dirs: Vec<PathAbs>,
+}
+
+impl FoundPaths {
+    pub(crate) fn new() -> FoundPaths {
+        FoundPaths {
+            files: Vec::new(),
+            dirs: Vec::new(),
+        }
+    }
 }
 
 impl SettingsRaw {
@@ -49,8 +64,8 @@ impl SettingsRaw {
         })?;
         let raw: SettingsRaw = {
             let expected = project_path.join(SETTINGS_PATH);
-            let settings_path = PathAbs::new(&expected).map_err(|e| e.to_string())?;
-            let text = settings_path.read().map_err(|e| e.to_string())?;
+            let settings_path = PathFile::new(&expected).map_err(|e| e.to_string())?;
+            let text = settings_path.read_string().map_err(|e| e.to_string())?;
             toml::from_str(&text).map_err(|e| e.to_string())?
         };
         Ok((project_path, raw))
@@ -61,8 +76,8 @@ impl SettingsRaw {
 /// All paths that have to be loaded in the project.
 pub struct ProjectPaths {
     pub base: PathAbs,
-    pub code: OrderSet<PathAbs>,
-    pub artifact: OrderSet<PathAbs>,
+    pub code: OrderSet<PathFile>,
+    pub artifact: OrderSet<PathFile>,
 }
 
 /// Load the paths to all files in the project from the root path.
@@ -112,11 +127,11 @@ fn discover_settings_paths<F>(
     raw_paths: &[String],
     raw_exclude: &[String],
     filter: &F,
-) -> OrderSet<PathAbs>
+) -> OrderSet<PathFile>
 where
     F: Fn(&PathAbs) -> bool,
 {
-    let mut discovered: OrderSet<PathAbs> = OrderSet::new();
+    let mut discovered: OrderSet<PathFile> = OrderSet::new();
     let mut visited = resolve_raw_paths(lints, project_path, raw_exclude);
 
     for base in resolve_raw_paths(lints, project_path, raw_paths) {
@@ -128,8 +143,8 @@ where
                 continue;
             }
         };
-        visited.extend(paths.files.iter().cloned());
-        visited.extend(paths.dirs.drain(..));
+        visited.extend(paths.files.iter().map(|p| p.clone().into()));
+        visited.extend(paths.dirs.drain(..).map(|p| p.into()));
         discovered.extend(paths.files.drain(..));
     }
     discovered
@@ -160,3 +175,52 @@ fn resolve_raw_paths(
         })
         .collect()
 }
+
+/// Walk the path returning the found files and directories.
+///
+/// `filter` is a closure to filter file (not dir) names. Return `false` to exclude
+/// the file from `files`.
+///
+/// It is expected that the caller will add the visited directories
+/// to the `visited` parameter for the next call to avoid duplicated
+/// effort.
+pub(crate) fn discover_paths<F, P>(
+    path: P,
+    filter: &F,
+    visited: &OrderSet<PathAbs>,
+) -> ::std::io::Result<FoundPaths>
+where
+    P: AsRef<Path>,
+    F: Fn(&PathAbs) -> bool,
+{
+    let mut found = FoundPaths::new();
+    let mut it = WalkDir::new(path).into_iter();
+    loop {
+        let entry = match it.next() {
+            None => break,
+            Some(e) => e?,
+        };
+
+        let abs = PathAbs::new(entry.path())?;
+        let filetype = entry.file_type();
+
+        if visited.contains(&abs) {
+            if filetype.is_dir() {
+                it.skip_current_dir();
+            }
+            continue;
+        }
+
+        if filetype.is_dir() {
+            found.dirs.push(abs);
+        } else {
+            debug_assert!(filetype.is_file());
+            if !filter(&abs) {
+                continue;
+            }
+            found.files.push(abs.into_file()?);
+        }
+    }
+    Ok(found)
+}
+

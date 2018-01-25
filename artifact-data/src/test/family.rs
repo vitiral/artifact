@@ -449,7 +449,7 @@ fn sanity_auto_partofs() {
     let spc_a_b = name!("SPC-a-b");
     let tst_a_b = name!("TST-a-b");
 
-    let file = PathAbs::fake("/fake");
+    let file = PathAbs::mock("/fake");
 
     let names = ordermap!{
         req_foo.clone() => file.clone(),

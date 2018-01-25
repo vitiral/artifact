@@ -24,7 +24,7 @@ use serde_yaml;
 
 use test::dev_prelude::*;
 use name::{Name, SubName};
-use path_abs::PathAbs;
+use path_abs::{PathAbs, PathFile};
 use artifact;
 use implemented;
 use settings;
@@ -128,8 +128,8 @@ struct CategorizedAssert {
 impl ProjectAssert {
     /// Load the assertions from the `project_path/assert.yaml` file
     fn load(base: &PathAbs) -> Option<ProjectAssert> {
-        match PathAbs::new(base.join("assert_project.yaml")) {
-            Ok(p) => Some(serde_yaml::from_str(&p.read().unwrap()).unwrap()),
+        match PathFile::new(base.join("assert_project.yaml")) {
+            Ok(p) => Some(serde_yaml::from_str(&p.read_string().unwrap()).unwrap()),
             Err(_) => None,
         }
     }
@@ -212,7 +212,7 @@ impl lint::Lint {
     /// just mutate the lint to be correct
     fn make_expected(&mut self, base: &PathAbs) {
         if let Some(ref mut p) = self.path {
-            *p = base.join(&p);
+            *p = base.join(&p).to_path_buf();
         }
     }
 }
@@ -237,9 +237,9 @@ impl CategorizedAssert {
 }
 
 fn load_lints(base: &PathAbs, fname: &str) -> Option<Categorized> {
-    match PathAbs::new(base.join(fname)) {
+    match PathFile::new(base.join(fname)) {
         Ok(p) => {
-            let out: CategorizedAssert = serde_yaml::from_str(&p.read().unwrap()).unwrap();
+            let out: CategorizedAssert = serde_yaml::from_str(&p.read_string().unwrap()).unwrap();
             let mut out = out.expected(base);
             out.sort();
             Some(out)
@@ -251,6 +251,6 @@ fn load_lints(base: &PathAbs, fname: &str) -> Option<Categorized> {
 // HELPERS
 
 /// Add the path prefix to a list of strings
-fn prefix_paths(base: &PathAbs, ends: &[String]) -> OrderSet<PathAbs> {
+fn prefix_paths(base: &PathAbs, ends: &[String]) -> OrderSet<PathFile> {
     ends.iter().map(|e| join_abs(base, e)).collect()
 }

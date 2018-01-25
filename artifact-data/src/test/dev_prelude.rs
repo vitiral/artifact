@@ -22,7 +22,7 @@ pub use rand::Rng;
 use regex_generate;
 use unicode_segmentation::UnicodeSegmentation;
 
-use path_abs::PathAbs;
+use path_abs::{PathAbs, PathFile};
 use name::{Name, SubName};
 use serde::{Deserialize, Serialize};
 
@@ -44,12 +44,13 @@ lazy_static!{
                 .parent()
                 .unwrap() // crate/
             ).unwrap();
-    pub static ref INTEROP_TESTS_PATH: PathAbs = join_abs(&ARTIFACT_DATA_PATH, "interop_tests");
+    pub static ref INTEROP_TESTS_PATH: PathAbs = PathAbs::new(
+        ARTIFACT_DATA_PATH.join("interop_tests")).unwrap();
 }
 
 /// Join a path to an absolute path. Panic if it doesn't exist.
-pub fn join_abs<P: AsRef<Path>>(path: &PathAbs, end: P) -> PathAbs {
-    PathAbs::new(path.join(&end)).expect(&format!(
+pub fn join_abs<P: AsRef<Path>>(path: &PathAbs, end: P) -> PathFile {
+    PathFile::new(path.join(&end)).expect(&format!(
         "{} + {}",
         path.display(),
         end.as_ref().display()
