@@ -17,14 +17,12 @@
 pub use dev_prelude::*;
 pub use proptest::prelude::*;
 pub use pretty_assertions::Comparison;
-pub use itertools::Itertools;
 pub use rand::Rng;
 use regex_generate;
 use unicode_segmentation::UnicodeSegmentation;
 
-use path_abs::{PathAbs, PathFile};
 use name::{Name, SubName};
-use serde::{Deserialize, Serialize};
+use ergo::serde::{Deserialize, Serialize};
 
 pub type StrResult<T> = result::Result<T, String>;
 
@@ -93,19 +91,19 @@ where
 }
 
 pub fn from_toml_str<'a, T: Deserialize<'a>>(s: &'a str) -> StrResult<T> {
-    ::toml::from_str(s).map_err(|e| e.to_string())
+    ::ergo::toml::from_str(s).map_err(|e| e.to_string())
 }
 
 pub fn to_toml_string<T: Serialize>(value: &T) -> String {
-    ::toml::to_string(value).expect("failed ser")
+    ::ergo::toml::to_string(value).expect("failed ser")
 }
 
 pub fn from_json_str<'a, T: Deserialize<'a>>(s: &'a str) -> StrResult<T> {
-    ::serde_json::from_str(s).map_err(|e| e.to_string())
+    ::ergo::json::from_str(s).map_err(|e| e.to_string())
 }
 
 pub fn to_json_string<T: Serialize>(value: &T) -> String {
-    ::serde_json::to_string(value).expect("failed ser")
+    ::ergo::json::to_string(value).expect("failed ser")
 }
 
 pub fn from_markdown_str(s: &str) -> StrResult<OrderMap<Name, ::raw::ArtifactRaw>> {

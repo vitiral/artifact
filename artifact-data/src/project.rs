@@ -18,8 +18,6 @@
 
 use time;
 use std::sync::mpsc::{channel, Sender};
-use rayon;
-use regex::Regex;
 
 use dev_prelude::*;
 use artifact;
@@ -28,11 +26,10 @@ use lint;
 use name::{Name, SubName};
 use raw;
 use settings;
-use path_abs::PathAbs;
 
 #[derive(Debug, PartialEq)]
 pub struct Project {
-    pub paths: settings::ProjectPaths,
+    pub paths: Arc<settings::ProjectPaths>,
     pub code_impls: OrderMap<Name, implemented::ImplCode>,
     pub artifacts: OrderMap<Name, artifact::Artifact>,
 }
@@ -54,9 +51,6 @@ lazy_static!{
 impl Project {
     /// Recursively sort all the items in the project.
     pub fn sort(&mut self) {
-        self.paths.code.sort();
-        self.paths.artifact.sort();
-
         self.code_impls.sort_keys();
         for (_, code) in self.code_impls.iter_mut() {
             code.secondary.sort_keys();
@@ -106,58 +100,109 @@ pub fn load_project<P: AsRef<Path>>(project_path: P) -> (lint::Categorized, Opti
     let mut lints = lint::Categorized::default();
 
     let paths = {
-        let start = time::get_time();
         let (mut load_lints, paths) = settings::load_project_paths(project_path);
         lints.categorize(load_lints.drain(..));
         if !lints.error.is_empty() {
             lints.sort();
             return (lints, None);
         }
-        eprintln!("loaded paths in {:.3} seconds", time::get_time() - start);
-        paths.expect("No lints but also no settings file!")
+
+        let mut paths = paths.expect("No lints but also no settings file!");
+        paths.code_paths.sort();
+        paths.exclude_code_paths.sort();
+        paths.artifact_paths.sort();
+        paths.exclude_artifact_paths.sort();
+        Arc::new(paths)
     };
 
-    let (code_impls, (defined, loaded)) = {
-        let (send, recv) = channel();
-        let send = Mutex::new(send);
-        let (locs, arts) = rayon::join(
-            || {
-                let start = time::get_time();
-                let send = { send.lock().map(|s| s.clone()).unwrap() };
-                let locs = implemented::load_locations(&send, &paths.code);
-                let out = implemented::join_locations(&send, locs);
-                eprintln!("loaded code in {:.3} seconds", time::get_time() - start);
-                out
-            },
-            || {
-                let start = time::get_time();
-                let send = { send.lock().map(|s| s.clone()).unwrap() };
-                let raw = raw::load_artifacts_raw(&send, &paths.artifact);
-                let (defined, raw) = raw::join_artifacts_raw(&send, raw);
-                let loaded = artifact::finalize_load_artifact(raw);
-                eprintln!(
-                    "loaded artifacts in {:.3} seconds",
-                    time::get_time() - start
-                );
-                (defined, loaded)
-            },
-        );
-        let start = time::get_time();
-        drop(send);
-        lints.categorize(recv.into_iter());
-        eprintln!(
-            "categorized load-lints in {:.3} seconds",
-            time::get_time() - start
-        );
+    let (lint_handle, locs_handle, loaded_handle) = {
+        let (send_err, recv_err) = ch::bounded(128);
+        let lint_handle = spawn(move || {
+            lints.categorize(recv_err.iter());
+            lints
+        });
 
-        if !lints.error.is_empty() {
-            lints.sort();
-            return (lints, None);
+        // -------- CODE LOCATIONS --------
+        take!(=send_err as errs, =paths as cl_paths);
+        let (send_code_path, recv_code_path) = ch::bounded(128);
+        spawn(move || {
+            settings::walk_paths(&send_code_path, &errs, &cl_paths.code_paths, |path| {
+                let abs: &PathAbs = path.as_ref();
+                !cl_paths.exclude_code_paths.contains(abs)
+            })
+        });
+
+        let (send_loc, recv_loc) = ch::bounded(128);
+        for _ in 0..4 {
+            take!(=recv_code_path, =send_loc, =send_err);
+            spawn(move || {
+                for file in recv_code_path.iter() {
+                    implemented::load_locations(&send_err, &file, &send_loc);
+                }
+            });
         }
-        (locs, arts)
+
+        take!(=send_err as errs);
+        let locs_handle = spawn(move || {
+            let locs: Vec<_> = recv_loc.iter().collect();
+            implemented::join_locations(&errs, locs)
+        });
+
+        // -------- ARTIFACTS --------
+        take!(=send_err as errs, =paths as cl_paths);
+        let (send_artifact_paths, recv_artifact_paths) = ch::bounded(128);
+        println!("GOT PATHS: {:#?}", cl_paths);
+        spawn(move || {
+            settings::walk_paths(
+                &send_artifact_paths,
+                &errs,
+                &cl_paths.artifact_paths,
+                |path| {
+                    let abs: &PathAbs = path.as_ref();
+                    if cl_paths.exclude_artifact_paths.contains(abs) {
+                        println!("excluding {} ", path.display());
+                        false
+                    } else if path.is_file() && raw::ArtFileType::from_path(path).is_none() {
+                        println!("filtering {} ", path.display());
+                        false
+                    } else {
+                        println!("including {} ", path.display());
+                        true
+                    }
+                },
+            )
+        });
+
+        let (send_artifact_im, recv_artifact_im) = ch::bounded(128);
+        for _ in 0..num_cpus::get() {
+            take!(=recv_artifact_paths, =send_artifact_im, =send_err);
+            spawn(move || {
+                for file in recv_artifact_paths {
+                    raw::load_file(&send_err, &send_artifact_im, &file);
+                }
+            });
+        }
+
+        take!(=send_err as errs);
+        let loaded_handle = spawn(move || {
+            let artifacts_im: Vec<_> = recv_artifact_im.iter().collect();
+            let (defined, raw) = raw::join_artifacts_raw(&errs, artifacts_im);
+            let loaded = artifact::finalize_load_artifact(raw);
+            (defined, loaded)
+        });
+
+        (lint_handle, locs_handle, loaded_handle)
     };
 
-    let start = time::get_time();
+    let mut lints = lint_handle.finish();
+
+    if !lints.error.is_empty() {
+        lints.sort();
+        return (lints, None);
+    }
+
+    let code_impls = locs_handle.finish();
+    let (defined, loaded) = loaded_handle.finish();
     let artifacts = artifact::determine_artifacts(loaded, &code_impls, &defined);
 
     let mut project = Project {
@@ -165,14 +210,10 @@ pub fn load_project<P: AsRef<Path>>(project_path: P) -> (lint::Categorized, Opti
         code_impls: code_impls,
         artifacts: artifacts,
     };
-    println!(
-        "determined project in {:.3} seconds",
-        time::get_time() - start
-    );
-    let start = time::get_time();
+
     lints.sort();
     project.sort();
-    eprintln!("sorted project in {:.3} seconds", time::get_time() - start);
+
     eprintln!(
         "project load took {:.3} seconds",
         time::get_time() - start_load

@@ -3,14 +3,12 @@
 # This file is also used as a template
 
 paths:
-    # --------------
-    # code paths
-    code: []
+    code_paths: []
+    exclude_code_paths: []
 
-    # --------------
-    # Artifact Paths
-    artifact:
-    - design/purpose.md
+    artifact_paths:
+    - design
+    exclude_artifact_paths: []
 
 code_impls: {}
 

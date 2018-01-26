@@ -17,7 +17,6 @@
 /// #TST-read-impl
 /// Test the "implemented" (i.e. source code parsing) module.
 
-use std::sync::mpsc::channel;
 use regex_generate;
 
 use test::dev_prelude::*;
@@ -25,7 +24,6 @@ use test::raw_names::arb_names_raw;
 use test::framework::run_interop_test;
 use name::{Name, SubName};
 use raw_names::NamesRaw;
-use path_abs::{PathAbs, PathFile};
 use implemented::{join_locations, parse_locations, CodeLoc, ImplCode};
 use lint;
 
@@ -140,7 +138,7 @@ And to the right:
         .drain(0..)
         .map(|(line, name, sub)| (CodeLoc::new(&file, line), name, sub))
         .collect();
-    let (send, locations) = channel();
+    let (send, locations) = ch::unbounded();
     parse_locations(&send, &file, replace_links(example).as_bytes()).unwrap();
     drop(send);
     let locations: Vec<_> = locations.into_iter().collect();
@@ -151,7 +149,7 @@ And to the right:
 #[test]
 /// #TST-read-impl.join
 fn sanity_join_locations() {
-    let (send_lints, lints) = channel();
+    let (send_lints, lints) = ch::unbounded();
 
     let file1 = PathFile::mock("/fake/foo.py");
     let file2 = PathFile::mock("/fake/bar.py");
@@ -272,7 +270,7 @@ proptest! {
         println!("## Code Text:\n{}", code_text);
         let file = PathFile::mock("/fake");
         let locations = {
-            let (send, locations) = channel();
+            let (send, locations) = ch::unbounded();
             parse_locations(&send, &file, code_text.as_bytes())
                 .expect("parse");
             drop(send);

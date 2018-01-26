@@ -18,7 +18,7 @@
 //!
 //! This module defines all operations around testing artifact names
 
-use serde_json;
+use ergo::json;
 
 use test::dev_prelude::*;
 use name::{self, InternalSubName, Name, SubName, Type};
@@ -200,8 +200,8 @@ fn sanity_serde_name() {
         "SPC-foo-bar",
         "tst-foo-BAR",
     ];
-    assert_eq!(json, serde_json::to_string(expected).unwrap());
-    let names: Vec<Name> = serde_json::from_str(&json).unwrap();
+    assert_eq!(json, json::to_string(expected).unwrap());
+    let names: Vec<Name> = json::from_str(&json).unwrap();
     let result = names_raw(&names);
     assert_eq!(expected, result.as_slice());
 }
@@ -219,8 +219,8 @@ proptest! {
     #[test]
     fn fuzz_name_serde(ref name in arb_name()) {
         let json = format!("\"{}\"", name.as_str());
-        let result_json = serde_json::to_string(&name).unwrap();
-        let result = serde_json::from_str(&json).unwrap();
+        let result_json = json::to_string(&name).unwrap();
+        let result = json::from_str(&json).unwrap();
         assert_eq!(*name, result);
         assert_eq!(json, result_json);
     }

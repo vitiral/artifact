@@ -22,9 +22,6 @@ use test::dev_prelude::*;
 use test::framework::run_interop_test;
 use intermediate::ArtifactIm;
 use name::Name;
-use raw::ArtifactRaw;
-use raw_names::NamesRaw;
-use path_abs::PathFile;
 use artifact;
 
 #[test]

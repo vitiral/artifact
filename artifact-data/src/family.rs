@@ -19,9 +19,9 @@
 //! of any artifact.
 
 use std::fmt;
-use serde;
-use serde::de::{Deserialize, Deserializer, SeqAccess, Visitor};
-use serde::ser::{Serialize, Serializer};
+use ergo::serde;
+use ergo::serde::de::{Deserialize, Deserializer, SeqAccess, Visitor};
+use ergo::serde::ser::{Serialize, Serializer};
 
 use dev_prelude::*;
 use name::{Name, Type, TYPE_SPLIT_LOC};

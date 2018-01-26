@@ -19,36 +19,23 @@
 //! a full project.
 
 #![allow(dead_code)]
-#![allow(doc_markdown)]
 #![allow(unknown_lints)]
 
 extern crate base64;
+extern crate ergo;
+#[macro_use]
+extern crate expect_macro;
 extern crate failure;
-extern crate itertools;
 #[macro_use]
 extern crate matches;
 #[macro_use]
 extern crate ordermap;
-extern crate path_abs;
 extern crate petgraph;
 extern crate rayon;
-extern crate regex;
-extern crate serde;
-extern crate serde_json;
-extern crate serde_yaml;
 extern crate siphasher;
-extern crate std_prelude;
-extern crate toml;
-extern crate walkdir;
 
 #[macro_use]
 extern crate failure_derive;
-#[macro_use]
-extern crate lazy_static;
-#[macro_use]
-extern crate maplit;
-#[macro_use]
-extern crate serde_derive;
 extern crate time;
 
 // MODULES

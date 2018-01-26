@@ -23,8 +23,7 @@ use std::cmp::Ordering;
 use std::hash::{Hash, Hasher};
 use std::fmt;
 use std::result;
-use serde::{self, Deserialize, Deserializer, Serialize, Serializer};
-use regex::Regex;
+use ergo::serde::{self, Deserialize, Deserializer, Serialize, Serializer};
 
 use dev_prelude::*;
 
@@ -54,11 +53,14 @@ macro_rules! subname {
 
 #[derive(Debug, Fail)]
 pub enum NameError {
-    #[fail(display = "{}", msg)] InvalidName { msg: String },
+    #[fail(display = "{}", msg)]
+    InvalidName { msg: String },
 
-    #[fail(display = "{}", msg)] InvalidCollapsed { msg: String },
+    #[fail(display = "{}", msg)]
+    InvalidCollapsed { msg: String },
 
-    #[fail(display = "{}", msg)] InvalidSubName { msg: String },
+    #[fail(display = "{}", msg)]
+    InvalidSubName { msg: String },
 }
 
 #[derive(Clone, Eq, PartialEq, Hash, Ord, PartialOrd)]

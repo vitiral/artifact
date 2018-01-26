@@ -12,7 +12,7 @@ artifact_paths = ["{repo}/design"]
 exclude_artifact_paths = []
 
 # directories containing code that has artifact links
-code_paths = ["/src", "src/foo", "/build.rs"]
+code_paths = ["/src", "/build.rs"]
 
 # directories to exclude when searching through code
 exclude_code_paths = []

@@ -23,7 +23,6 @@ use dev_prelude::*;
 use intermediate::ArtifactIm;
 use name::{self, Name, SubName};
 use implemented::{Impl, ImplCode};
-use path_abs::PathFile;
 use family;
 use graph;
 

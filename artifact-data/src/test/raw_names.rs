@@ -17,9 +17,7 @@
 
 //! Test serializing/deserializing raw names
 
-use serde_json;
-use serde_yaml;
-use toml;
+use ergo::{json, toml, yaml};
 
 use raw_names::NamesRaw;
 use test::dev_prelude::*;
@@ -106,12 +104,12 @@ fn names_raw_from_strs(s: &Vec<String>) -> NamesRaw {
 
 #[test]
 fn sanity_serde_names_raw_single_json() {
-    assert_partof_serde!(SINGLE_PARTOFS, names_raw_from_str, serde_json);
+    assert_partof_serde!(SINGLE_PARTOFS, names_raw_from_str, json);
 }
 
 #[test]
 fn sanity_serde_names_raw_multi_json() {
-    assert_partof_serde!(MULTI_PARTOFS, names_raw_from_strs, serde_json);
+    assert_partof_serde!(MULTI_PARTOFS, names_raw_from_strs, json);
 }
 
 #[test]
@@ -126,12 +124,12 @@ fn sanity_serde_names_raw_multi_toml() {
 
 #[test]
 fn sanity_serde_names_raw_single_yaml() {
-    assert_partof_serde!(SINGLE_PARTOFS, names_raw_from_str, serde_yaml);
+    assert_partof_serde!(SINGLE_PARTOFS, names_raw_from_str, yaml);
 }
 
 #[test]
 fn sanity_serde_names_raw_multi_yaml() {
-    assert_partof_serde!(MULTI_PARTOFS, names_raw_from_strs, serde_yaml);
+    assert_partof_serde!(MULTI_PARTOFS, names_raw_from_strs, yaml);
 }
 
 proptest! {
@@ -154,8 +152,8 @@ proptest! {
             }
         };
         // do serde-roundtrip as well
-        let result_json = serde_json::to_string(&names).unwrap();
-        let result: NamesRaw = serde_json::from_str(&result_json).unwrap();
+        let result_json = json::to_string(&names).unwrap();
+        let result: NamesRaw = json::from_str(&result_json).unwrap();
         assert_eq!(*names, result);
         assert_eq!(expected_json, result_json);
     }

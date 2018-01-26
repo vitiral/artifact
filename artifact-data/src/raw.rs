@@ -20,27 +20,22 @@
 
 use dev_prelude::*;
 
-use std::sync::mpsc::{channel, Sender};
 use std::result;
 use std::fmt;
-use rayon::prelude::*;
-use regex::Regex;
-use serde::{Deserialize, Deserializer, Serialize, Serializer};
-use serde_yaml;
-use serde_json;
-use toml;
+use ergo::serde::{Deserialize, Deserializer, Serialize, Serializer};
+use ergo::{json, toml, yaml};
 
 use intermediate::ArtifactIm;
 use name::Name;
 use raw_names::NamesRaw;
-use path_abs::PathFile;
 use lint;
 
 // TYPES
 
 #[derive(Debug, Fail)]
 pub enum LoadError {
-    #[fail(display = "{}", msg)] MarkdownError { msg: String },
+    #[fail(display = "{}", msg)]
+    MarkdownError { msg: String },
 }
 
 #[derive(Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
@@ -104,27 +99,27 @@ impl<'de> Deserialize<'de> for TextRaw {
 // ------------------------------
 // -- LOAD
 
-/// Load artifacts from a set of files in parallel.
-///
-/// Any Errors are converted into lints.
-pub(crate) fn load_artifacts_raw(
-    send_lints: &Sender<lint::Lint>,
-    files: &OrderSet<PathFile>,
-) -> Vec<ArtifactIm> {
-    let (send, artifacts) = channel();
-    let par: Vec<_> = files
-        .iter()
-        .map(|f| (send_lints.clone(), send.clone(), f.clone()))
-        .collect();
-
-    par.into_par_iter()
-        .map(|(lints, send, file)| load_file(&lints, &send, &file))
-        // consume the iterator
-        .count();
-
-    drop(send);
-    artifacts.into_iter().collect()
-}
+// /// Load artifacts from a set of files in parallel.
+// ///
+// /// Any Errors are converted into lints.
+// pub(crate) fn load_artifacts_raw(
+//     send_lints: &Sender<lint::Lint>,
+//     files: &OrderSet<PathFile>,
+// ) -> Vec<ArtifactIm> {
+//     let (send, artifacts) = channel();
+//     let par: Vec<_> = files
+//         .iter()
+//         .map(|f| (send_lints.clone(), send.clone(), f.clone()))
+//         .collect();
+//
+//     par.into_par_iter()
+//         .map(|(lints, send, file)| load_file(&lints, &send, &file))
+//         // consume the iterator
+//         .count();
+//
+//     drop(send);
+//     artifacts.into_iter().collect()
+// }
 
 /// Join loaded raw artifacts into a single hashmap and lint against duplicates.
 pub(crate) fn join_artifacts_raw(
@@ -171,8 +166,8 @@ pub(crate) fn join_artifacts_raw(
 /// Load artifacts from a file.
 ///
 /// Any Errors are converted into lints.
-fn load_file(lints: &Sender<lint::Lint>, send: &Sender<ArtifactIm>, file: &PathFile) {
-    let ty = match FileType::from_path(file.as_path()) {
+pub(crate) fn load_file(lints: &Sender<lint::Lint>, send: &Sender<ArtifactIm>, file: &PathFile) {
+    let ty = match ArtFileType::from_path(file.as_path()) {
         Some(t) => t,
         None => panic!("An invalid filetype reached this code: {}", file.display()),
     };
@@ -180,21 +175,21 @@ fn load_file(lints: &Sender<lint::Lint>, send: &Sender<ArtifactIm>, file: &PathF
     let text = match file.read_string() {
         Ok(t) => t,
         Err(err) => {
-            lint::io_error(lints, file.as_path(), &err.to_string());
+            ch!(lints <- lint::Lint::load_error(file, &err.to_string()));
             return;
         }
     };
 
     let r: ::std::result::Result<OrderMap<Name, ArtifactRaw>, String> = match ty {
-        FileType::Toml => toml::from_str(&text).map_err(|e| e.to_string()),
-        FileType::Md => from_markdown(text.as_bytes()).map_err(|e| e.to_string()),
-        FileType::Json => serde_json::from_str(&text).map_err(|e| e.to_string()),
+        ArtFileType::Toml => toml::from_str(&text).map_err(|e| e.to_string()),
+        ArtFileType::Md => from_markdown(text.as_bytes()).map_err(|e| e.to_string()),
+        ArtFileType::Json => json::from_str(&text).map_err(|e| e.to_string()),
     };
 
     let mut raw_artifacts = match r {
         Ok(raw) => raw,
         Err(err) => {
-            lint::io_error(lints, file.as_path(), &err.to_string());
+            ch!(lints <- lint::Lint::load_error(file, &err.to_string()));
             return;
         }
     };
@@ -278,7 +273,7 @@ fn insert_from_parts(
 ) -> Result<()> {
     let (done, partof) = match attrs {
         Some(s) => {
-            let a: AttrsRaw = serde_yaml::from_str(&s)?;
+            let a: AttrsRaw = yaml::from_str(&s)?;
             (a.done, a.partof)
         }
         None => (None, None),
@@ -325,8 +320,8 @@ pub(crate) fn to_markdown(raw_artifacts: &OrderMap<Name, ArtifactRaw>) -> String
     out
 }
 
-fn to_yaml<S: ::serde::Serialize>(value: &S) -> String {
-    let mut s = serde_yaml::to_string(value).unwrap();
+fn to_yaml<S: Serialize>(value: &S) -> String {
+    let mut s = yaml::to_string(value).unwrap();
     s.drain(0..4); // remove the ---\n
     s
 }
@@ -379,22 +374,22 @@ fn push_attrs(out: &mut String, raw: &ArtifactRaw) {
 // -- INTERNAL STUFF
 
 #[derive(Debug, PartialEq, Eq)]
-pub(crate) enum FileType {
+pub(crate) enum ArtFileType {
     Toml,
     Md,
     Json,
 }
 
-impl FileType {
-    pub(crate) fn from_path<P: AsRef<Path>>(path: P) -> Option<FileType> {
+impl ArtFileType {
+    pub(crate) fn from_path<P: AsRef<Path>>(path: P) -> Option<ArtFileType> {
         match path.as_ref().extension() {
             Some(e) => {
                 if e == OsStr::new("toml") {
-                    Some(FileType::Toml)
+                    Some(ArtFileType::Toml)
                 } else if e == OsStr::new("md") {
-                    Some(FileType::Md)
+                    Some(ArtFileType::Md)
                 } else if e == OsStr::new("json") {
-                    Some(FileType::Json)
+                    Some(ArtFileType::Json)
                 } else {
                     None
                 }
@@ -407,17 +402,17 @@ impl FileType {
 #[test]
 fn sanity_filetype() {
     assert_eq!(
-        FileType::from_path(Path::new("/foo/bar.toml")),
-        Some(FileType::Toml)
+        ArtFileType::from_path(Path::new("/foo/bar.toml")),
+        Some(ArtFileType::Toml)
     );
     assert_eq!(
-        FileType::from_path(Path::new("this-is-it.md")),
-        Some(FileType::Md)
+        ArtFileType::from_path(Path::new("this-is-it.md")),
+        Some(ArtFileType::Md)
     );
     assert_eq!(
-        FileType::from_path(Path::new("/what.json")),
-        Some(FileType::Json)
+        ArtFileType::from_path(Path::new("/what.json")),
+        Some(ArtFileType::Json)
     );
-    assert_eq!(FileType::from_path(Path::new("noext")), None);
-    assert_eq!(FileType::from_path(Path::new("other.ext")), None);
+    assert_eq!(ArtFileType::from_path(Path::new("noext")), None);
+    assert_eq!(ArtFileType::from_path(Path::new("other.ext")), None);
 }

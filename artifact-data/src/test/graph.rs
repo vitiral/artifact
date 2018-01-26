@@ -19,7 +19,6 @@
 
 use test::dev_prelude::*;
 use name::{Name, SubName};
-use path_abs::PathFile;
 use graph::{self, round_ratio};
 use implemented::{CodeLoc, Impl, ImplCode};
 

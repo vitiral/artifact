@@ -20,15 +20,11 @@
 //! locations where artifacts are implemented in source code.
 #![allow(dead_code)]
 
-use regex::Regex;
-use rayon::prelude::*;
 use ordermap::Entry;
-use std::sync::mpsc::{channel, Sender};
 
 use dev_prelude::*;
 use name::{Name, SubName};
 use lint;
-use path_abs::PathFile;
 
 // EXPORTED TYPES
 
@@ -128,25 +124,12 @@ lazy_static!{
 /// Any io errors are converted into lint errors instead.
 pub(crate) fn load_locations(
     send_lints: &Sender<lint::Lint>,
-    files: &OrderSet<PathFile>,
-) -> Vec<(CodeLoc, Name, Option<SubName>)> {
-    let (send, locations) = channel();
-    let par: Vec<_> = files
-        .iter()
-        .map(|f| (send_lints.clone(), send.clone(), f.clone()))
-        .collect();
-    drop(send);
-
-    par.into_par_iter()
-        .map(|(lints, send, file)| {
-            if let Err(err) = parse_file(&send, &file) {
-                lint::io_error(&lints, file.as_path(), &err.to_string());
-            }
-        })
-        // consume the iterator
-        .count();
-
-    locations.into_iter().collect()
+    file: &PathFile,
+    send_locs: &Sender<(CodeLoc, Name, Option<SubName>)>,
+) {
+    if let Err(err) = parse_file(&send_locs, &file) {
+        ch!(send_lints <- lint::Lint::load_error(file, &err.to_string()));
+    }
 }
 
 /// internal helper to just open a path and parse it
@@ -168,17 +151,14 @@ pub(crate) fn parse_locations<R: Read>(
     for (line_num, line_maybe) in BufReader::new(stream).lines().enumerate() {
         let line = line_maybe?;
         for captures in SRC_NAME_RE.captures_iter(&line) {
-            // unwrap: group 1 always exists in regex
-            let name_mat = captures.get(1).unwrap();
-            // unwrap: pre-validated by regex
-            let name = Name::from_str(name_mat.as_str()).unwrap();
+            let name_mat = expect!(captures.get(1), "group 1");
+            let name = expect!(Name::from_str(name_mat.as_str()), "name pre-validated");
             // subname is optional
             let subname = match captures.get(2) {
                 Some(sub_mat) => Some(SubName::new_unchecked(sub_mat.as_str())),
                 None => None,
             };
-            send.send((CodeLoc::new(file, line_num as u64), name, subname))
-                .expect("failed to send during parse");
+            ch!(send <- (CodeLoc::new(file, line_num as u64), name, subname));
         }
     }
     Ok(())

@@ -20,11 +20,10 @@
 //! a variety of integration/interop testing.
 
 use time;
-use serde_yaml;
+use ergo::yaml;
 
 use test::dev_prelude::*;
 use name::{Name, SubName};
-use path_abs::{PathAbs, PathFile};
 use artifact;
 use implemented;
 use settings;
@@ -82,8 +81,10 @@ struct ProjectAssert {
 
 #[derive(Debug, Serialize, Deserialize)]
 struct ProjectPathsAssert {
-    code: Vec<String>,
-    artifact: Vec<String>,
+    code_paths: Vec<String>,
+    exclude_code_paths: Vec<String>,
+    artifact_paths: Vec<String>,
+    exclude_artifact_paths: Vec<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -129,7 +130,7 @@ impl ProjectAssert {
     /// Load the assertions from the `project_path/assert.yaml` file
     fn load(base: &PathAbs) -> Option<ProjectAssert> {
         match PathFile::new(base.join("assert_project.yaml")) {
-            Ok(p) => Some(serde_yaml::from_str(&p.read_string().unwrap()).unwrap()),
+            Ok(p) => Some(yaml::from_str(&p.read_string().unwrap()).unwrap()),
             Err(_) => None,
         }
     }
@@ -137,7 +138,7 @@ impl ProjectAssert {
     /// Get the "expected" value based on this assertion object.
     fn expected(mut self, base: &PathAbs) -> project::Project {
         let mut out = project::Project {
-            paths: self.paths.expected(base),
+            paths: Arc::new(self.paths.expected(base)),
             code_impls: self.code_impls
                 .drain(..)
                 .map(|(name, impl_)| (name, impl_.expected(base)))
@@ -156,8 +157,10 @@ impl ProjectPathsAssert {
     fn expected(self, base: &PathAbs) -> settings::ProjectPaths {
         settings::ProjectPaths {
             base: base.clone(),
-            code: prefix_paths(base, &self.code),
-            artifact: prefix_paths(base, &self.artifact),
+            code_paths: prefix_paths(base, &self.code_paths),
+            exclude_code_paths: prefix_paths(base, &self.exclude_code_paths),
+            artifact_paths: prefix_paths(base, &self.artifact_paths),
+            exclude_artifact_paths: prefix_paths(base, &self.exclude_artifact_paths),
         }
     }
 }
@@ -239,7 +242,7 @@ impl CategorizedAssert {
 fn load_lints(base: &PathAbs, fname: &str) -> Option<Categorized> {
     match PathFile::new(base.join(fname)) {
         Ok(p) => {
-            let out: CategorizedAssert = serde_yaml::from_str(&p.read_string().unwrap()).unwrap();
+            let out: CategorizedAssert = yaml::from_str(&p.read_string().unwrap()).unwrap();
             let mut out = out.expected(base);
             out.sort();
             Some(out)
@@ -251,6 +254,11 @@ fn load_lints(base: &PathAbs, fname: &str) -> Option<Categorized> {
 // HELPERS
 
 /// Add the path prefix to a list of strings
-fn prefix_paths(base: &PathAbs, ends: &[String]) -> OrderSet<PathFile> {
-    ends.iter().map(|e| join_abs(base, e)).collect()
+fn prefix_paths(base: &PathAbs, ends: &[String]) -> OrderSet<PathAbs> {
+    ends.iter()
+        .map(|e| match PathAbs::new(base.join(e)) {
+            Ok(p) => p,
+            Err(e) => panic!("{}", e),
+        })
+        .collect()
 }

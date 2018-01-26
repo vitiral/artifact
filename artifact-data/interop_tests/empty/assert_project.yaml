@@ -3,11 +3,13 @@
 # This file is also used as a template
 
 paths:
-    code: []
-    # - src/lib.rs
+    code_paths: []
+    exclude_code_paths: []
 
-    artifact: []
-    # - design/purpose.md
+    artifact_paths: [
+        "design",
+    ]
+    exclude_artifact_paths: []
 
 code_impls: {}
     # TST-pyinit:

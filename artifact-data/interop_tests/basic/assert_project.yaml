@@ -5,17 +5,16 @@
 # - linking artifacts to source code
 
 paths:
-    code:
+    code_paths:
     - build.rs
-    - src/lib.rs
-    - src/baz.rs
-    - src/foo/mod.rs
-    - src/foo/fab.rs
-    - src/foo/test.rs
+    - src
 
-    artifact:
-    - design/purpose.md
-    - design/foo.md
+    exclude_code_paths: []
+
+    artifact_paths:
+    - design
+
+    exclude_artifact_paths: []
 
 code_impls:
     REQ-baz:

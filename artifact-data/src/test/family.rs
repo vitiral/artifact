@@ -19,9 +19,8 @@
 //! such as parts/partof.
 
 use rand::{self, Rng};
-use serde_json;
+use ergo::json;
 
-use path_abs::PathAbs;
 use name::{Name, Type};
 use family::{self, Names};
 use expand_names::expand_names;
@@ -549,8 +548,8 @@ proptest! {
             format!("[{}]", strs.join(","))
         };
         // do serde-roundtrip as well
-        let result_json = serde_json::to_string(&names).unwrap();
-        let result: Names = serde_json::from_str(&result_json).unwrap();
+        let result_json = json::to_string(&names).unwrap();
+        let result: Names = json::from_str(&result_json).unwrap();
         assert_eq!(*names, result);
         assert_eq!(expected_json, result_json);
     }

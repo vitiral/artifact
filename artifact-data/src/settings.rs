@@ -17,13 +17,10 @@
 //! #SPC-read-settings
 //! This contains the logic for loading the settings of an artifact project.
 
-use toml;
-use std::sync::mpsc::{channel, Sender};
-use path_abs::{PathAbs, PathFile};
-use walkdir::WalkDir;
+use ergo::toml;
 
+use std::io;
 use dev_prelude::*;
-use raw::FileType;
 use lint;
 
 pub const SETTINGS_PATH: &str = ".art/settings.toml";
@@ -34,7 +31,6 @@ pub(crate) struct SettingsRaw {
     pub exclude_artifact_paths: Vec<String>,
     pub code_paths: Vec<String>,
     pub exclude_code_paths: Vec<String>,
-    // pub file_type: FileType,
 }
 
 pub(crate) struct FoundPaths {
@@ -73,11 +69,67 @@ impl SettingsRaw {
 }
 
 #[derive(Debug, Eq, PartialEq)]
-/// All paths that have to be loaded in the project.
+/// Paths that have have be recursively loaded.
 pub struct ProjectPaths {
     pub base: PathAbs,
-    pub code: OrderSet<PathFile>,
-    pub artifact: OrderSet<PathFile>,
+    pub code_paths: OrderSet<PathAbs>,
+    pub exclude_code_paths: OrderSet<PathAbs>,
+    pub artifact_paths: OrderSet<PathAbs>,
+    pub exclude_artifact_paths: OrderSet<PathAbs>,
+}
+
+pub fn walk_paths<F>(
+    send_paths: &Sender<PathFile>,
+    send_err: &Sender<lint::Lint>,
+    paths: &OrderSet<PathAbs>,
+    filter: F,
+) where
+    F: Fn(&PathType) -> bool,
+{
+    for path in paths.iter() {
+        let res = walk_path(&send_paths, path.clone(), &filter);
+        if let Err(err) = res {
+            ch!(send_err <- lint::Lint::load_error(path, &err.to_string()));
+        }
+    }
+}
+
+/// Walk the path, using the filter and sending any found files
+/// to the sender.
+///
+/// `filter` filters out every item that return `false`
+fn walk_path<F>(send_paths: &Sender<PathFile>, path: PathAbs, filter: &F) -> io::Result<()>
+where
+    F: Fn(&PathType) -> bool,
+{
+    let dir = match PathType::from_abs(path)? {
+        PathType::File(f) => {
+            ch!(send_paths <- f);
+            return Ok(());
+        }
+        PathType::Dir(dir) => dir,
+    };
+    let mut it = dir.walk().into_iter();
+    loop {
+        let entry = match it.next() {
+            None => break,
+            Some(e) => e?,
+        };
+
+        let ty = PathType::from_entry(entry)?;
+
+        if !filter(&ty) {
+            if ty.is_dir() {
+                it.skip_current_dir();
+            }
+            continue;
+        }
+
+        if let PathType::File(file) = ty {
+            ch!(send_paths <- file);
+        }
+    }
+    Ok(())
 }
 
 /// Load the paths to all files in the project from the root path.
@@ -96,23 +148,16 @@ pub(crate) fn load_project_paths<P: AsRef<Path>>(
         }
     };
 
-    let (send_lints, recv_lints) = channel();
+    let (send_lints, recv_lints) = ::std::sync::mpsc::channel();
     let paths = ProjectPaths {
         base: project_path.clone(),
-        code: discover_settings_paths(
+        code_paths: resolve_raw_paths(&send_lints, &project_path, &raw.code_paths),
+        exclude_code_paths: resolve_raw_paths(&send_lints, &project_path, &raw.exclude_code_paths),
+        artifact_paths: resolve_raw_paths(&send_lints, &project_path, &raw.artifact_paths),
+        exclude_artifact_paths: resolve_raw_paths(
             &send_lints,
             &project_path,
-            &raw.code_paths,
-            &raw.exclude_code_paths,
-            // TODO: add ability to exclude file patterns
-            &|_| true,
-        ),
-        artifact: discover_settings_paths(
-            &send_lints,
-            &project_path,
-            &raw.artifact_paths,
             &raw.exclude_artifact_paths,
-            &|p| FileType::from_path(p.as_path()).is_some(),
         ),
     };
     drop(send_lints);
@@ -120,39 +165,9 @@ pub(crate) fn load_project_paths<P: AsRef<Path>>(
     (lints, Some(paths))
 }
 
-/// Discover a list of paths from the settings file.
-fn discover_settings_paths<F>(
-    lints: &Sender<lint::Lint>,
-    project_path: &PathAbs,
-    raw_paths: &[String],
-    raw_exclude: &[String],
-    filter: &F,
-) -> OrderSet<PathFile>
-where
-    F: Fn(&PathAbs) -> bool,
-{
-    let mut discovered: OrderSet<PathFile> = OrderSet::new();
-    let mut visited = resolve_raw_paths(lints, project_path, raw_exclude);
-
-    for base in resolve_raw_paths(lints, project_path, raw_paths) {
-        let paths = discover_paths(base.as_path(), filter, &visited);
-        let mut paths = match paths {
-            Ok(p) => p,
-            Err(err) => {
-                lint::io_error(lints, base.as_path(), &err.to_string());
-                continue;
-            }
-        };
-        visited.extend(paths.files.iter().map(|p| p.clone().into()));
-        visited.extend(paths.dirs.drain(..).map(|p| p.into()));
-        discovered.extend(paths.files.drain(..));
-    }
-    discovered
-}
-
 /// Load a list of string paths using the `project_path` as the base path (i.e. from a settings file)
 fn resolve_raw_paths(
-    lints: &Sender<lint::Lint>,
+    lints: &::std::sync::mpsc::Sender<lint::Lint>,
     project_path: &PathAbs,
     raw_paths: &[String],
 ) -> OrderSet<PathAbs> {
@@ -223,4 +238,3 @@ where
     }
     Ok(found)
 }
-

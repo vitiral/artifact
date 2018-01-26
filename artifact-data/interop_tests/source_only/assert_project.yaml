@@ -3,11 +3,14 @@
 # This just asserts that the source files are parsed as expected.
 
 paths:
-    code:
-    - src/lib.rs
-    - pylib/__init__.py
-    - pylib/example.py
-    artifact: []
+    code_paths:
+    - pylib
+    - src
+    exclude_code_paths:
+    - pylib/noinclude.py
+    - pylib/noinclude
+    artifact_paths: []
+    exclude_artifact_paths: []
 code_impls:
     TST-pyinit:
         primary:

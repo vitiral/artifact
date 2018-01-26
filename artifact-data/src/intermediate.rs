@@ -17,14 +17,13 @@
 //! #SPC-structs.artifact_im
 use base64;
 use siphasher::sip128::{Hash128, Hasher128, SipHasher};
-use serde::{self, Deserialize, Deserializer, Serialize, Serializer};
+use ergo::serde::{self, Deserialize, Deserializer, Serialize, Serializer};
 
 use dev_prelude::*;
 use family;
 use raw::ArtifactRaw;
 use artifact::Artifact;
 use name::Name;
-use path_abs::PathFile;
 
 /// The type used for unique hash ids
 #[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
@@ -120,10 +119,7 @@ impl Serialize for HashIm {
     where
         S: Serializer,
     {
-        let b64 = base64::encode_config(
-            &self.0,
-            base64::URL_SAFE_NO_PAD,
-        );
+        let b64 = base64::encode_config(&self.0, base64::URL_SAFE_NO_PAD);
         serializer.serialize_str(&b64)
     }
 }
