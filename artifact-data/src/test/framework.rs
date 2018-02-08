@@ -26,6 +26,7 @@ use test::dev_prelude::*;
 use name::{Name, SubName};
 use artifact;
 use implemented;
+use intermediate;
 use settings;
 use project;
 use lint::{self, Categorized};
@@ -33,6 +34,8 @@ use lint::{self, Categorized};
 /// Run the interop test on an example project.
 pub fn run_interop_test<P: AsRef<Path>>(path: P) {
     eprintln!("Running interop test: {}", path.as_ref().display());
+    let tmp = PathTmp::create("test");
+
     let start = time::get_time();
     let project_path = PathAbs::new(path.as_ref()).expect("project_path DNE");
     let expect_load_lints = load_lints(&project_path, "assert_load_lints.yaml");
@@ -40,7 +43,7 @@ pub fn run_interop_test<P: AsRef<Path>>(path: P) {
     let expect_project = ProjectAssert::load(&project_path).map(|p| p.expected(&project_path));
     eprintln!("loaded asserts in {:.3}", time::get_time() - start);
 
-    let (load_lints, project) = project::load_project(path.as_ref());
+    let (load_lints, project) = project::read_project(path.as_ref());
 
     eprintln!("asserting load lints");
     if let Some(expect) = expect_load_lints {
@@ -167,7 +170,8 @@ impl ProjectPathsAssert {
 
 impl ArtifactAssert {
     fn expected(self, base: &PathAbs) -> artifact::Artifact {
-        artifact::Artifact {
+        let mut art = artifact::Artifact {
+            id: intermediate::HashIm([0; 16]),
             name: self.name,
             file: join_abs(base, &self.file),
             partof: self.partof,
@@ -176,7 +180,12 @@ impl ArtifactAssert {
             text: self.text,
             impl_: self.impl_.expected(base),
             subnames: self.subnames,
-        }
+        };
+
+        let mut im = intermediate::ArtifactIm::from(art.clone());
+        im.clean();
+        art.id = im.hash_im();
+        art
     }
 }
 

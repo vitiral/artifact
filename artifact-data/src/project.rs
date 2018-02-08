@@ -17,7 +17,6 @@
 //! The major exported type and function for loading artifacts.
 
 use time;
-use std::sync::mpsc::{channel, Sender};
 
 use dev_prelude::*;
 use artifact;
@@ -67,7 +66,7 @@ impl Project {
     /// - references in text that do not exist
     /// - (optional?) poorly formed references in text
     pub fn lint(&self) -> lint::Categorized {
-        let (send, recv) = channel();
+        let (send, recv) = ch::unbounded();
 
         self.lint_errors(&send);
         self.lint_other(&send);
@@ -95,7 +94,7 @@ impl Project {
 }
 
 /// Load the project from the given path.
-pub fn load_project<P: AsRef<Path>>(project_path: P) -> (lint::Categorized, Option<Project>) {
+pub fn read_project<P: AsRef<Path>>(project_path: P) -> (lint::Categorized, Option<Project>) {
     let start_load = time::get_time();
     let mut lints = lint::Categorized::default();
 
@@ -153,23 +152,11 @@ pub fn load_project<P: AsRef<Path>>(project_path: P) -> (lint::Categorized, Opti
         let (send_artifact_paths, recv_artifact_paths) = ch::bounded(128);
         println!("GOT PATHS: {:#?}", cl_paths);
         spawn(move || {
-            settings::walk_paths(
+            settings::walk_artifact_paths(
                 &send_artifact_paths,
                 &errs,
                 &cl_paths.artifact_paths,
-                |path| {
-                    let abs: &PathAbs = path.as_ref();
-                    if cl_paths.exclude_artifact_paths.contains(abs) {
-                        println!("excluding {} ", path.display());
-                        false
-                    } else if path.is_file() && raw::ArtFileType::from_path(path).is_none() {
-                        println!("filtering {} ", path.display());
-                        false
-                    } else {
-                        println!("including {} ", path.display());
-                        true
-                    }
-                },
+                &cl_paths.exclude_artifact_paths,
             )
         });
 

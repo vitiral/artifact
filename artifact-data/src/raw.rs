@@ -69,15 +69,9 @@ impl Serialize for TextRaw {
         S: Serializer,
     {
         // TODO: error check for invalid markdown lines
-        let trimmed = self.0.trim_right();
-        if trimmed.contains('\n') {
-            // TODO: the performance could be improved a lot here
-            let mut out = trimmed.to_string();
-            out.push('\n');
-            serializer.serialize_str(&out)
-        } else {
-            serializer.serialize_str(trimmed)
-        }
+        let mut trimmed = self.0.trim_right().to_string();
+        clean_text(&mut trimmed);
+        serializer.serialize_str(&trimmed)
     }
 }
 
@@ -86,40 +80,22 @@ impl<'de> Deserialize<'de> for TextRaw {
     where
         D: Deserializer<'de>,
     {
-        // TODO: error check for invalid markdown lines
+        // FIXME: error check for invalid markdown lines
         let mut s = String::deserialize(deserializer)?;
-        string_trim_right(&mut s);
-        if s.contains('\n') {
-            s.push('\n');
-        }
+        clean_text(&mut s);
         Ok(TextRaw(s))
+    }
+}
+
+pub(crate) fn clean_text(s: &mut String) {
+    string_trim_right(s);
+    if s.contains('\n') {
+        s.push('\n');
     }
 }
 
 // ------------------------------
 // -- LOAD
-
-// /// Load artifacts from a set of files in parallel.
-// ///
-// /// Any Errors are converted into lints.
-// pub(crate) fn load_artifacts_raw(
-//     send_lints: &Sender<lint::Lint>,
-//     files: &OrderSet<PathFile>,
-// ) -> Vec<ArtifactIm> {
-//     let (send, artifacts) = channel();
-//     let par: Vec<_> = files
-//         .iter()
-//         .map(|f| (send_lints.clone(), send.clone(), f.clone()))
-//         .collect();
-//
-//     par.into_par_iter()
-//         .map(|(lints, send, file)| load_file(&lints, &send, &file))
-//         // consume the iterator
-//         .count();
-//
-//     drop(send);
-//     artifacts.into_iter().collect()
-// }
 
 /// Join loaded raw artifacts into a single hashmap and lint against duplicates.
 pub(crate) fn join_artifacts_raw(
@@ -157,6 +133,7 @@ pub(crate) fn join_artifacts_raw(
                 })
                 .expect("send dup artifact");
         }
+        art.clean();
         artifacts.insert(art.name.clone(), art);
     }
 
@@ -281,13 +258,10 @@ fn insert_from_parts(
 
     let text = {
         let mut t = other.join("\n");
-        string_trim_right(&mut t);
+        clean_text(&mut t);
         if t.is_empty() {
             None
         } else {
-            if t.contains('\n') {
-                t.push('\n');
-            }
             Some(TextRaw(t))
         }
     };

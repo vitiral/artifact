@@ -55,6 +55,12 @@ pub enum Category {
     AutoPartof,
     Artifact,
     ImplCode,
+    CreateExists,
+    UpdateDne,
+    DeleteDne,
+    CreateBackups,
+    SaveProject,
+    RemoveBackups,
 }
 
 impl Categorized {
@@ -88,6 +94,36 @@ impl Lint {
             path: Some(path.as_ref().to_path_buf()),
             line: None,
             msg: format!("Error during loading: {}", err),
+        }
+    }
+
+    pub(crate) fn create_exists(err: String) -> Lint {
+        Lint {
+            level: Level::Error,
+            category: Category::CreateExists,
+            path: None,
+            line: None,
+            msg: err,
+        }
+    }
+
+    pub(crate) fn update_dne(err: String) -> Lint {
+        Lint {
+            level: Level::Error,
+            category: Category::UpdateDne,
+            path: None,
+            line: None,
+            msg: err,
+        }
+    }
+
+    pub(crate) fn delete_dne(err: String) -> Lint {
+        Lint {
+            level: Level::Error,
+            category: Category::DeleteDne,
+            path: None,
+            line: None,
+            msg: err,
         }
     }
 }

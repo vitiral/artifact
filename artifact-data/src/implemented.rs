@@ -127,7 +127,7 @@ pub(crate) fn load_locations(
     file: &PathFile,
     send_locs: &Sender<(CodeLoc, Name, Option<SubName>)>,
 ) {
-    if let Err(err) = parse_file(&send_locs, &file) {
+    if let Err(err) = parse_file(send_locs, file) {
         ch!(send_lints <- lint::Lint::load_error(file, &err.to_string()));
     }
 }

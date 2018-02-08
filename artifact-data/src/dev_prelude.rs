@@ -21,6 +21,8 @@ pub(crate) use std::ffi::OsStr;
 pub use std::cmp::Ord;
 pub use std::cmp::PartialOrd;
 pub use std::hash::{Hash, Hasher};
+use std::io;
+use std::fs;
 
 pub(crate) use ordermap::{OrderMap, OrderSet};
 
@@ -50,4 +52,52 @@ fn sanity_trim_right() {
     let mut result = "  hello    ".into();
     string_trim_right(&mut result);
     assert_eq!(result, "  hello");
+}
+
+fn create_dir_maybe<P: AsRef<Path>>(path: P) -> path_abs::Result<PathDir> {
+    let arc = PathArc::new(path);
+    fs::create_dir(&arc).map_err(|err| {
+        let out: result::Result<(), path_abs::Error> =
+            Err(path_abs::Error::new(err, "creating dir", arc.clone()));
+        return out;
+    });
+    PathDir::new(arc)
+}
+
+/// Copy a directory from one location to another quickly.
+pub fn copy_dir<P: AsRef<Path>>(from: PathDir, to: P) -> result::Result<PathDir, Vec<io::Error>> {
+    let recv_err = {
+        let (send_err, recv_err) = ch::bounded(128);
+        let handle_err = spawn(move || {
+            recv_err.iter().collect::<Vec<io::Error>>();
+        });
+
+        let to = match create_dir_maybe(to) {
+            Ok(d) => d,
+            Err(err) => return Err(vec![err.into()]),
+        };
+
+        // let (send_file, recv_file) = ch::bounded(128);
+        take!(send_err as errs);
+        spawn(move || {
+            // Do a contents-first yeild and follow any symlinks -- we are doing an _actual_ copy
+            for entry in from.walk().follow_links(true).contents_first(true) {
+                let entry = match entry {
+                    Ok(e) => e,
+                    Err(err) => {
+                        ch!(errs <- err.into());
+                        continue;
+                    }
+                };
+                let postfix = expect!(
+                    entry.path().strip_prefix(&from),
+                    "{} does not have prefix {}",
+                    entry.path().display(),
+                    from.display()
+                );
+            }
+        })
+    };
+
+    unimplemented!();
 }

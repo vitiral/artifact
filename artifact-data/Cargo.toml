@@ -28,7 +28,6 @@ version = "0.3"
 [dev-dependencies]
 pretty_assertions = "0.4"
 proptest = "0.3"
-rand = "0.3"
 regex_generate = "0.2"
 tempdir = "0.3"
 unicode-segmentation = "1.2"

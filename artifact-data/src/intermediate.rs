@@ -15,28 +15,21 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 //! #SPC-structs.artifact_im
+use std::fmt;
 use base64;
-use siphasher::sip128::{Hash128, Hasher128, SipHasher};
+use siphasher::sip128::{Hasher128, SipHasher};
 use ergo::serde::{self, Deserialize, Deserializer, Serialize, Serializer};
 
 use dev_prelude::*;
 use family;
-use raw::ArtifactRaw;
+use raw::{self, ArtifactRaw, TextRaw};
+use raw_names::NamesRaw;
 use artifact::Artifact;
 use name::Name;
 
 /// The type used for unique hash ids
-#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
-pub struct HashIm([u8; 16]);
-
-#[derive(Debug, Serialize, Deserialize)]
-/// #SPC-structs.artifact_op
-/// Used for specifying operations to perform.
-pub enum ArtifactOp {
-    Create { artifact: ArtifactIm, hash: HashIm },
-    Update(HashIm, ArtifactIm),
-    Delete(HashIm),
-}
+#[derive(Copy, Clone, Eq, PartialEq, Hash)]
+pub struct HashIm(pub(crate) [u8; 16]);
 
 #[derive(Debug, Serialize, Deserialize)]
 /// #SPC-structs.artifact_im
@@ -60,6 +53,15 @@ impl ArtifactIm {
         HashIm(hasher.finish128().as_bytes())
     }
 
+    /// Process the `ArtifactIm`.
+    ///
+    /// This is required whenever serializing/deserializing the ArtifactIm.
+    pub fn clean(&mut self) {
+        family::strip_auto_partofs(&self.name, &mut self.partof);
+        self.partof.sort();
+        raw::clean_text(&mut self.text);
+    }
+
     /// Get an `ArtifactIm` from an `ArtifactRaw`.
     pub(crate) fn from_raw(name: Name, file: PathFile, raw: ArtifactRaw) -> ArtifactIm {
         let mut partof = raw.partof
@@ -78,13 +80,32 @@ impl ArtifactIm {
             text: raw.text.map(|t| t.0).unwrap_or_else(String::new),
         }
     }
+
+    pub(crate) fn into_raw(self) -> (PathFile, Name, ArtifactRaw) {
+        let partof = if self.partof.is_empty() {
+            None
+        } else {
+            Some(NamesRaw::from(self.partof))
+        };
+
+        let text = if self.text.is_empty() {
+            None
+        } else {
+            Some(TextRaw(self.text))
+        };
+
+        let raw = ArtifactRaw {
+            done: self.done,
+            partof: partof,
+            text: text,
+        };
+        (self.file, self.name, raw)
+    }
 }
 
 impl From<Artifact> for ArtifactIm {
     /// Get an `ArtifactIm` from an `Artifact`
-    fn from(mut art: Artifact) -> ArtifactIm {
-        family::strip_auto_partofs(&art.name, &mut art.partof);
-        art.partof.sort();
+    fn from(art: Artifact) -> ArtifactIm {
         ArtifactIm {
             name: art.name,
             file: art.file,
@@ -112,6 +133,18 @@ impl Hash for ArtifactIm {
         }
         self.done.hash(state);
         self.text.hash(state);
+    }
+}
+
+impl fmt::Display for HashIm {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", expect!(json::to_string(&self)))
+    }
+}
+
+impl fmt::Debug for HashIm {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self)
     }
 }
 

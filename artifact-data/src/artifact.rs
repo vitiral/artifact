@@ -20,17 +20,19 @@
 use rayon;
 
 use dev_prelude::*;
-use intermediate::ArtifactIm;
+use intermediate::{ArtifactIm, HashIm};
 use name::{self, Name, SubName};
 use implemented::{Impl, ImplCode};
 use family;
 use graph;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 /// #SPC-read-structs.artifact
 /// The primary data structure of this library which encapsulates a majority of the useful
 /// end product of a user's project.
 pub struct Artifact {
+    /// The hahs-id of this artifact. This is required for modifying artifacts.
+    pub id: HashIm,
     /// The name of the artifact.
     ///
     /// While this library uses `Name` as the key, other libraries (like a web-ui)
@@ -46,6 +48,8 @@ pub struct Artifact {
     /// The (calculated) completion+tested ratios of the artifact.
     pub completed: graph::Completed,
     /// The user defined text
+    ///
+    /// FIXME: make Arc
     pub text: String,
     /// Whether the artifact is implemented directly (in code or `done` field)
     pub impl_: Impl,
@@ -105,26 +109,41 @@ pub(crate) fn determine_artifacts(
     code_impls: &OrderMap<Name, ImplCode>,
     defined: &OrderMap<Name, PathFile>,
 ) -> OrderMap<Name, Artifact> {
-    let mut impls = determine_impls(&loaded.artifact_ims, code_impls);
-    let mut completed = graph::determine_completed(&loaded.graphs, &impls, &loaded.subnames);
+    let ((mut impls, mut completed), mut ids): (_, OrderMap<Name, HashIm>) = rayon::join(
+        || {
+            let impls = determine_impls(&loaded.artifact_ims, code_impls);
+            let completed = graph::determine_completed(&loaded.graphs, &impls, &loaded.subnames);
+            (impls, completed)
+        },
+        || {
+            loaded
+                .artifact_ims
+                .iter()
+                .map(|(name, art)| (name.clone(), art.hash_im()))
+                .collect()
+        },
+    );
 
-    fn remove<T>(map: &mut OrderMap<Name, T>, name: &Name) -> T {
-        map.remove(name).unwrap()
+    macro_rules! remove {
+        [$map:expr, $name:expr] => {
+            $map.remove($name).unwrap()
+        };
     }
 
     let out = defined
         .iter()
         .map(|(name, file)| {
             let art = Artifact {
+                id: remove!(ids, name),
                 name: name.clone(),
-                partof: remove(&mut loaded.partofs, name),
-                parts: remove(&mut loaded.parts, name),
-                completed: remove(&mut completed, name),
+                partof: remove!(loaded.partofs, name),
+                parts: remove!(loaded.parts, name),
+                completed: remove!(completed, name),
                 // The only thing left in `ArtifactIm` that we care
                 // about is the `text`
-                text: remove(&mut loaded.artifact_ims, name).text,
-                impl_: remove(&mut impls, name),
-                subnames: remove(&mut loaded.subnames, name),
+                text: remove!(loaded.artifact_ims, name).text,
+                impl_: remove!(impls, name),
+                subnames: remove!(loaded.subnames, name),
                 file: file.clone(),
             };
             (name.clone(), art)

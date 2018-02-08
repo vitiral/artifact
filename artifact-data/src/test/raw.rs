@@ -18,7 +18,6 @@
 //! This module is for testing the serialization and deserialization
 //! of RAW artifacts.
 
-use rand::{self, Rng};
 use name::{Name, SubName};
 use raw::{from_markdown, to_markdown, ArtifactRaw, TextRaw, ATTRS_END_RE, NAME_LINE_RE};
 use raw_names::NamesRaw;
@@ -109,7 +108,7 @@ pub fn arb_raw_artifacts(size: usize) -> BoxedStrategy<BTreeMap<Name, ArtifactRa
                 let lines = random_lines(&mut rng);
                 let references = {
                     let num = rng.gen_range(0, impl_links.len());
-                    let mut l = rand::sample(&mut rng, &impl_links, num);
+                    let mut l = expect!(rand::seq::sample_iter(&mut rng, &impl_links, num));
                     rng.shuffle(&mut l);
                     l
                 };

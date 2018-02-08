@@ -20,6 +20,7 @@
 
 #![allow(dead_code)]
 #![allow(unknown_lints)]
+#![allow(doc_markdown)]
 
 extern crate base64;
 extern crate ergo;
@@ -42,6 +43,7 @@ extern crate time;
 
 mod artifact;
 mod dev_prelude;
+mod modify;
 #[macro_use]
 mod name;
 mod expand_names;
@@ -65,8 +67,8 @@ extern crate proptest;
 #[macro_use]
 extern crate pretty_assertions;
 
-#[cfg(test)]
-extern crate rand;
+// #[cfg(test)]
+// extern crate rand;
 
 #[cfg(test)]
 extern crate regex_generate;
@@ -85,5 +87,5 @@ pub use implemented::{CodeLoc, Impl, ImplCode};
 pub use name::{Name, NameError, SubName, Type, NAME_VALID_STR};
 pub use settings::ProjectPaths;
 pub use lint::{Categorized, Category, Level, Lint};
-pub use project::{load_project, Project};
+pub use project::{read_project, Project};
 pub use graph::Completed;

@@ -18,7 +18,6 @@
 //! These are tests and helpers for testing family relations,
 //! such as parts/partof.
 
-use rand::{self, Rng};
 use ergo::json;
 
 use name::{Name, Type};
@@ -149,7 +148,7 @@ pub fn arb_topologically_sorted_names(size: usize) -> BoxedStrategy<(NamesRaw, V
 /// To be valid, this assumes that `names` is topographically sorted.
 pub fn rand_select_partof<R: Rng>(rng: &mut R, index: usize, names: &[Name]) -> Vec<Name> {
     let amount = rng.gen_range(0, index + 1);
-    rand::sample(rng, &names[0..index], amount)
+    rand::seq::sample_slice(rng, &names[0..index], amount)
         .iter()
         .map(|n| (*n).clone())
         .collect()

@@ -22,6 +22,7 @@ use ergo::toml;
 use std::io;
 use dev_prelude::*;
 use lint;
+use raw;
 
 pub const SETTINGS_PATH: &str = ".art/settings.toml";
 
@@ -78,7 +79,21 @@ pub struct ProjectPaths {
     pub exclude_artifact_paths: OrderSet<PathAbs>,
 }
 
-pub fn walk_paths<F>(
+pub(crate) fn walk_artifact_paths(
+    send_paths: &Sender<PathFile>,
+    send_err: &Sender<lint::Lint>,
+    paths: &OrderSet<PathAbs>,
+    exclude_paths: &OrderSet<PathAbs>,
+) {
+    let f = |path: &PathType| -> bool {
+        let abs: &PathAbs = path.as_ref();
+        !(exclude_paths.contains(abs)
+            || (path.is_file() && raw::ArtFileType::from_path(path).is_none()))
+    };
+    walk_paths(send_paths, send_err, paths, f)
+}
+
+pub(crate) fn walk_paths<F>(
     send_paths: &Sender<PathFile>,
     send_err: &Sender<lint::Lint>,
     paths: &OrderSet<PathAbs>,
@@ -87,7 +102,7 @@ pub fn walk_paths<F>(
     F: Fn(&PathType) -> bool,
 {
     for path in paths.iter() {
-        let res = walk_path(&send_paths, path.clone(), &filter);
+        let res = walk_path(send_paths, path.clone(), &filter);
         if let Err(err) = res {
             ch!(send_err <- lint::Lint::load_error(path, &err.to_string()));
         }

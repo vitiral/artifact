@@ -17,7 +17,7 @@
 pub use dev_prelude::*;
 pub use proptest::prelude::*;
 pub use pretty_assertions::Comparison;
-pub use rand::Rng;
+pub use ergo::rand::{self, Rng};
 use regex_generate;
 use unicode_segmentation::UnicodeSegmentation;
 
