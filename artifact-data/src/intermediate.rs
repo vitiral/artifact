@@ -29,6 +29,7 @@ use name::Name;
 #[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
 pub struct HashIm([u8; 16]);
 
+#[derive(Debug, Serialize, Deserialize)]
 /// #SPC-structs.artifact_op
 /// Used for specifying operations to perform.
 pub enum ArtifactOp {
@@ -37,14 +38,14 @@ pub enum ArtifactOp {
     Delete(HashIm),
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 /// #SPC-structs.artifact_im
 pub struct ArtifactIm {
-    pub(crate) name: Name,
-    pub(crate) file: PathFile,
-    pub(crate) partof: OrderSet<Name>,
-    pub(crate) done: Option<String>,
-    pub(crate) text: String,
+    pub name: Name,
+    pub file: PathFile,
+    pub partof: OrderSet<Name>,
+    pub done: Option<String>,
+    pub text: String,
 }
 
 // IMPL ArtifactIm
