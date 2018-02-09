@@ -1,0 +1,66 @@
+# Empty project
+#
+# This file is also used as a template
+
+paths:
+    code_paths: []
+    exclude_code_paths: []
+
+    artifact_paths:
+    - design
+    exclude_artifact_paths: []
+
+code_impls: {}
+
+artifacts:
+    REQ-purpose:
+        name: REQ-purpose
+        file: design/purpose.md
+        partof: []
+        parts: [REQ-new]
+        completed: {spc: 0.0, tst: 0.0}
+        text: |
+          The purpose of this project is to test loading artifact designs.
+
+          This is on a new line.
+        impl_: null
+        subnames: []
+    REQ-new:
+        name: REQ-new
+        file: design/new.md
+        partof:
+        - REQ-purpose
+        parts: []
+        completed: {spc: 0.0, tst: 0.0}
+        text: |-
+            This was created out of whole cloth
+        impl_: null
+        subnames: []
+    REQ-completed:
+        name: REQ-completed
+        file: design/purpose.md
+        partof: []
+        parts:
+            - SPC-completed-changed
+        completed: {spc: 0.25, tst: 1.0}
+        text: |
+            Basic demonstration of completeness
+
+            Has some subnames:
+            - [[.one]]
+            - [[.two]]
+        impl_: null
+        subnames:
+            - .one
+            - .two
+    SPC-completed-changed:
+        name: SPC-completed-changed
+        file: design/purpose.md
+        partof:
+            - REQ-completed
+        parts: []
+        completed: {spc: 1.0, tst: 1.0}
+        text: |-
+            Still just marked as done.
+        impl_: "still done"
+        subnames: []

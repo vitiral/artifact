@@ -1,0 +1,24 @@
+-
+  op: update
+  name: SPC-completed
+  artifact:
+      name: SPC-completed-changed
+      file: design/purpose.md
+      partof:
+        - REQ-completed
+      done: "still done"
+      text: |-
+        Still just marked as done.
+-
+  op: delete
+  name: REQ-single
+-
+  op: create
+  artifact:
+      name: REQ-new
+      file: design/new.md
+      partof:
+      - REQ-purpose
+      done: null
+      text: |-
+          This was created out of whole cloth

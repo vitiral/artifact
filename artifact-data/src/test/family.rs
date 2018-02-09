@@ -68,7 +68,7 @@ fn group_family(names: OrderSet<Name>) -> Vec<Vec<Name>> {
         }
         remaining.remove(name);
         let mut fam = vec![name.clone()];
-        // FIXME: well, this doesn't actually work... If I find a match
+        // TODO: well, this doesn't actually work... If I find a match
         // I need to scan for THAT match, etc etc until there are no more
         // matches... probably needs to be recursive.
         for other in remaining.iter() {

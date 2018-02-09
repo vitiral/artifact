@@ -80,7 +80,6 @@ impl<'de> Deserialize<'de> for TextRaw {
     where
         D: Deserializer<'de>,
     {
-        // FIXME: error check for invalid markdown lines
         let mut s = String::deserialize(deserializer)?;
         clean_text(&mut s);
         Ok(TextRaw(s))
@@ -110,7 +109,7 @@ pub(crate) fn join_artifacts_raw(
                 .send(lint::Lint {
                     level: lint::Level::Error,
                     category: lint::Category::ParseArtifactFiles,
-                    path: Some(dup.to_path_buf()),
+                    path: Some(dup.clone().into()),
                     line: None,
                     msg: format!(
                         "duplicate name detected: {} in {}",
@@ -123,7 +122,7 @@ pub(crate) fn join_artifacts_raw(
                 .send(lint::Lint {
                     level: lint::Level::Error,
                     category: lint::Category::ParseArtifactFiles,
-                    path: Some(art.file.to_path_buf()),
+                    path: Some(art.file.clone().into()),
                     line: None,
                     msg: format!(
                         "duplicate name detected: {} in {}",

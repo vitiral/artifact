@@ -56,11 +56,7 @@ fn sanity_trim_right() {
 
 fn create_dir_maybe<P: AsRef<Path>>(path: P) -> path_abs::Result<PathDir> {
     let arc = PathArc::new(path);
-    fs::create_dir(&arc).map_err(|err| {
-        let out: result::Result<(), path_abs::Error> =
-            Err(path_abs::Error::new(err, "creating dir", arc.clone()));
-        return out;
-    });
+    fs::create_dir(&arc).map_err(|err| path_abs::Error::new(err, "creating dir", arc.clone()))?;
     PathDir::new(arc)
 }
 
@@ -127,7 +123,7 @@ fn walk_and_create_dirs(
             from.display()
         );
         match handle_err!(PathType::new(entry.path())) {
-            PathType::Dir(from_dir) => {
+            PathType::Dir(_) => {
                 // Create it immediately
                 if let Err(err) = PathDir::create(to.join(to_postfix)) {
                     ch!(send_err <- err.into());

@@ -216,7 +216,7 @@ pub(crate) fn lint_partof_dne(lints: &Sender<lint::Lint>, project: &Project) {
                 lints
                     .send(lint::Lint {
                         level: lint::Level::Error,
-                        path: Some(art.file.to_path_buf()),
+                        path: Some(art.file.clone().into()),
                         line: None,
                         category: lint::Category::Artifact,
                         msg: format!(
@@ -251,7 +251,7 @@ pub(crate) fn lint_partof_types(lints: &Sender<lint::Lint>, project: &Project) {
                 lints
                     .send(lint::Lint {
                         level: lint::Level::Error,
-                        path: Some(art.file.to_path_buf()),
+                        path: Some(art.file.clone().into()),
                         line: None,
                         category: lint::Category::Artifact,
                         msg: format!(
@@ -274,7 +274,7 @@ pub(crate) fn lint_artifact_done_subnames(lints: &Sender<lint::Lint>, project: &
             lints
                 .send(lint::Lint {
                     level: lint::Level::Error,
-                    path: Some(art.file.to_path_buf()),
+                    path: Some(art.file.clone().into()),
                     line: None,
                     category: lint::Category::Artifact,
                     msg: format!(
@@ -294,7 +294,7 @@ pub(crate) fn lint_code_impls(lints: &Sender<lint::Lint>, project: &Project) {
         lints
             .send(lint::Lint {
                 level: lint::Level::Warn,
-                path: Some(loc.file.to_path_buf()),
+                path: Some(loc.file.clone().into()),
                 line: Some(loc.line),
                 category: lint::Category::ImplCode,
                 msg: format!("Invalid code impl #{}. {}", name.full(sub), msg),
@@ -363,7 +363,7 @@ pub(crate) fn lint_artifact_text(lints: &Sender<lint::Lint>, project: &Project) 
         lints
             .send(lint::Lint {
                 level: lint::Level::Error,
-                path: Some(file.to_path_buf()),
+                path: Some(file.clone().into()),
                 line: None,
                 category: lint::Category::Artifact,
                 msg: format!("{} text is invalid: {}", name.as_str(), msg),
@@ -398,7 +398,7 @@ pub(crate) fn lint_artifact_text_refs(lints: &Sender<lint::Lint>, project: &Proj
         lints
             .send(lint::Lint {
                 level: lint::Level::Warn,
-                path: Some(file.to_path_buf()),
+                path: Some(file.clone().into()),
                 line: None,
                 category: lint::Category::Artifact,
                 msg: format!(

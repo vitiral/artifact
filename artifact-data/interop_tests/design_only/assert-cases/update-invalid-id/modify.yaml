@@ -1,0 +1,10 @@
+-
+  op: update
+  name: REQ-purpose
+  artifact:
+      name: REQ-purpose
+      file: design/purpose.md
+      partof: []
+      done: null
+      text: "changing stuff, wrong id"
+  id: "gQ7cdQ7IvyIoaUTEUsxMsg"

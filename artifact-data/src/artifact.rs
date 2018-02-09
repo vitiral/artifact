@@ -48,8 +48,6 @@ pub struct Artifact {
     /// The (calculated) completion+tested ratios of the artifact.
     pub completed: graph::Completed,
     /// The user defined text
-    ///
-    /// FIXME: make Arc
     pub text: String,
     /// Whether the artifact is implemented directly (in code or `done` field)
     pub impl_: Impl,

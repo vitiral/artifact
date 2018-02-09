@@ -73,13 +73,18 @@ pub fn run_interop_tests<P: AsRef<Path>>(test_base: P) {
             expect!(PathDir::new(project_path))
         };
 
-        // copy the assertions into the root
+        // Copy the assertions into the root
         for assert in expect!(testcase.list()) {
             let assert = expect!(assert).unwrap_file();
             let fname = expect!(assert.file_name());
             expect!(assert.copy(project_path.join(fname)));
         }
 
+        eprintln!(
+            "  ----- Running Testcase {:?}:{:?} -----",
+            expect!(test_base.file_name()),
+            expect!(testcase.file_name())
+        );
         run_interop_test(project_path);
     }
 }
@@ -112,7 +117,7 @@ fn run_interop_test(project_path: PathDir) {
                 None,
             );
             return;
-        },
+        }
         Some(project) => project,
     };
 
@@ -126,32 +131,33 @@ fn run_interop_test(project_path: PathDir) {
                 Some(project),
             );
         }
-        Some(operations) => {
-            match modify::modify_project(&project_path, operations) {
-                Ok((lints, project)) => {
-                    assert!(expect_modify_fail.is_none());
-                    if let Some(expect) = expect_modify_lints {
-                        eprintln!("asserting modify lints");
-                        assert_eq!(expect, lints);
-                    }
+        Some(operations) => match modify::modify_project(&project_path, operations) {
+            Ok((lints, project)) => {
+                if let Some(expect) = expect_modify_lints {
+                    eprintln!("asserting modify lints");
+                    assert_eq!(expect, lints);
+                }
 
-                    let (load_lints, expect) = project::read_project(&project_path);
-                    let expect = expect!(expect);
-                    assert_eq!(expect, project);
-                    assert_stuff(
-                        expect_load_lints,
-                        expect_project_lints,
-                        expect_project,
-                        load_lints,
-                        Some(project),
-                    );
-                }
-                Err(err) => {
-                    assert!(expect_modify_lints.is_none());
-                    assert_eq!(expect_modify_fail, Some(err.lints));
-                }
+                let (load_lints, expect) = project::read_project(&project_path);
+                let expect = expect!(expect);
+                assert_eq!(expect, project);
+                assert_stuff(
+                    expect_load_lints,
+                    expect_project_lints,
+                    expect_project,
+                    load_lints,
+                    Some(project),
+                );
+                assert!(expect_modify_fail.is_none());
             }
-        }
+            Err(err) => {
+                assert_eq!(expect_modify_fail, Some(err.lints));
+                assert!(expect_load_lints.is_none());
+                assert!(expect_project.is_none());
+                assert!(expect_project_lints.is_none());
+                assert!(expect_modify_lints.is_none());
+            }
+        },
     };
 }
 
@@ -195,11 +201,22 @@ fn assert_stuff(
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-#[serde(tag="op", rename_all="lowercase")]
+#[serde(tag = "op", rename_all = "lowercase")]
 enum ArtifactOpAssert {
-    Create { artifact: ArtifactImAssert },
-    Update { artifact: ArtifactImAssert, name: Name },
-    Delete { name: Name },
+    Create {
+        artifact: ArtifactImAssert,
+    },
+    Update {
+        artifact: ArtifactImAssert,
+        name: Name,
+        /// Example: "gQ7cdQ7bvyIoaUTEUsxMsg"
+        id: Option<intermediate::HashIm>,
+    },
+    Delete {
+        name: Name,
+        /// Example: "gQ7cdQ7bvyIoaUTEUsxMsg"
+        id: Option<intermediate::HashIm>,
+    },
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -332,9 +349,7 @@ impl ArtifactAssert {
             subnames: self.subnames,
         };
 
-        let mut im = ArtifactIm::from(art.clone());
-        im.clean();
-        art.id = im.hash_im();
+        art.id = ArtifactIm::from(art.clone()).hash_im();
         art
     }
 }
@@ -374,7 +389,7 @@ impl lint::Lint {
     /// just mutate the lint to be correct
     fn make_expected(&mut self, base: &PathAbs) {
         if let Some(ref mut p) = self.path {
-            *p = base.join(&p).to_path_buf();
+            *p = PathArc::new(base.join(&p));
         }
     }
 }
@@ -403,24 +418,32 @@ fn load_modify(base: &PathDir, project: &project::Project, fname: &str) -> Optio
         Ok(p) => {
             let mut assert: Vec<ArtifactOpAssert> =
                 expect!(yaml::from_str(&expect!(p.read_string())));
-            let get_id = |name: &Name| {
+            // If the id is given, just use that.
+            //
+            // Otherwise pull it from the artifact name
+            let get_id = |id, name: &Name| -> intermediate::HashIm {
+                if let Some(id) = id {
+                    return id;
+                }
+                eprintln!("Getting id for name: {}", name.as_str());
                 match project.artifacts.get(name) {
                     Some(art) => art.id,
                     None => intermediate::HashIm([0; 16]),
                 }
             };
+
             let out = assert
                 .drain(..)
                 .map(|m| match m {
-                    ArtifactOpAssert::Create { artifact } => {
-                        ArtifactOp::Create { artifact: artifact.expected(base) }
-                    }
-                    ArtifactOpAssert::Update { artifact, name } => ArtifactOp::Update {
+                    ArtifactOpAssert::Create { artifact } => ArtifactOp::Create {
                         artifact: artifact.expected(base),
-                        orig_id: get_id(&name),
                     },
-                    ArtifactOpAssert::Delete { name } => ArtifactOp::Delete {
-                        orig_id: get_id(&name),
+                    ArtifactOpAssert::Update { artifact, name, id } => ArtifactOp::Update {
+                        orig_id: get_id(id, &name),
+                        artifact: artifact.expected(base),
+                    },
+                    ArtifactOpAssert::Delete { name, id } => ArtifactOp::Delete {
+                        orig_id: get_id(id, &name),
                         name: name,
                     },
                 })

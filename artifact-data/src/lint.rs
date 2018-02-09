@@ -26,7 +26,7 @@ use dev_prelude::*;
 /// An artifact lint error or warning
 pub struct Lint {
     pub level: Level,
-    pub path: Option<PathBuf>,
+    pub path: Option<PathArc>,
     pub line: Option<u64>,
     pub category: Category,
     pub msg: String,
@@ -55,6 +55,7 @@ pub enum Category {
     AutoPartof,
     Artifact,
     ImplCode,
+    ModifyPathInvalid,
     CreateExists,
     UpdateDne,
     DeleteDne,
@@ -91,7 +92,7 @@ impl Lint {
         Lint {
             level: Level::Error,
             category: Category::LoadPaths,
-            path: Some(path.as_ref().to_path_buf()),
+            path: Some(PathArc::new(path)),
             line: None,
             msg: format!("Error during loading: {}", err),
         }

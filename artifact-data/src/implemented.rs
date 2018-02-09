@@ -250,7 +250,7 @@ fn duplicate_detected(send_lints: &Sender<lint::Lint>, path: &PathFile, line: u6
         .send(lint::Lint {
             level: lint::Level::Error,
             category: lint::Category::ParseCodeImplementations,
-            path: Some(path.to_path_buf()),
+            path: Some(path.clone().into()),
             line: Some(line),
             msg: format!("duplicate detected: {}", msg),
         })

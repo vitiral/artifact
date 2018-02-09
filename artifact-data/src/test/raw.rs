@@ -241,7 +241,6 @@ partof:
 proptest! {
     #[test]
     fn fuzz_artifacts_serde(ref orig in arb_raw_artifacts(20)) {
-        // FIXME: this has to be eaiser
         let mut artifacts = OrderMap::with_capacity(orig.len());
         for (n, a) in orig.iter() {
             artifacts.insert(n.clone(), a.clone());

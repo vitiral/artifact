@@ -35,7 +35,6 @@ use name::{Name, NameError};
 pub(crate) fn expand_names(raw: &str) -> Result<OrderSet<Name>> {
     parse_collapsed(&mut raw.chars(), false)?
         .iter()
-        // FIXME: CRAZY COLLECT
         .map(|n| Name::from_str(n))
         .collect()
 }

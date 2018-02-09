@@ -132,7 +132,6 @@ fn sanity_determine_completed() {
     let tr_spc_bbb = tr_tst_aaa_a / 3.;
     let tr_req_bbb = (tr_spc_bbb  + 1. /*req-ccc*/) / 2.;
 
-    // FIXME: remove adjustmeents -- why the heck are they needed???
     let mut expected = ordermap!{
         name!("REQ-aaa") => C {tst: round_ratio(tr_req_bbb), spc: round_ratio(req_bbb)},
         name!("REQ-bbb") => C {tst: round_ratio(tr_req_bbb), spc: round_ratio(req_bbb)},

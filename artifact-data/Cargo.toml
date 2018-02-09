@@ -14,12 +14,8 @@ serde = "1.*"
 serde_derive = "1.*"
 siphasher = "0.2.2"
 time = "0.1"
-
-[dependencies.failure]
-git = "https://github.com/withoutboats/failure"
-
-[dependencies.failure_derive]
-git = "https://github.com/withoutboats/failure_derive"
+failure = "0.1"
+failure_derive = "0.1"
 
 [dependencies.ordermap]
 features = ["serde-1"]

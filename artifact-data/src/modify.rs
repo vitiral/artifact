@@ -66,6 +66,9 @@ pub enum ModifyErrorKind {
     /// Project was corrupted by the user
     InvalidFromLoad,
 
+    /// Some of the operations have invalid paths
+    InvalidPaths,
+
     /// Some of the hash ids did not match
     HashMismatch,
 
@@ -85,7 +88,6 @@ pub fn modify_project<P: AsRef<Path>>(
     operations: Vec<ArtifactOp>,
 ) -> ::std::result::Result<(lint::Categorized, Project), ModifyError> {
     let (mut lints, original_project) = read_project(project_path);
-
     macro_rules! check_lints {
         ($kind:ident) => {
             if !lints.error.is_empty() {
@@ -97,6 +99,7 @@ pub fn modify_project<P: AsRef<Path>>(
             }
         };
     }
+
     let original_project = match original_project {
         Some(p) => p,
         None => {
@@ -105,8 +108,8 @@ pub fn modify_project<P: AsRef<Path>>(
         }
     };
 
-    // FIXME: make sure NO PATHS are outside the defined paths in project_paths
-    // FIXME: make sure ALL paths have valid extensions
+    check_paths(&mut lints, &original_project, &operations);
+    check_lints!(InvalidPaths);
 
     let mut artifacts = original_project.artifacts;
 
@@ -117,6 +120,8 @@ pub fn modify_project<P: AsRef<Path>>(
             (im.hash_im(), im)
         })
         .collect();
+
+    // FIXME: prevent overlapping hashs
 
     perform_operations(operations, &mut lints, &mut artifact_ims);
     check_lints!(HashMismatch);
@@ -148,6 +153,65 @@ pub fn modify_project<P: AsRef<Path>>(
     project.sort();
 
     Ok((lints, project))
+}
+
+/// Make sure that
+///
+/// - All file extensions are valid.
+/// - None of the requested modifications are outside of the include paths.
+fn check_paths(lints: &mut lint::Categorized, project: &Project, operations: &[ArtifactOp]) {
+    // TODO: make parallel
+    for op in operations.iter() {
+        let path = match *op {
+            ArtifactOp::Create { ref artifact } => artifact.file.clone(),
+            ArtifactOp::Update { ref artifact, .. } => artifact.file.clone(),
+            ArtifactOp::Delete { .. } => continue,
+        };
+
+        macro_rules! not_valid { ($msg:expr) => {{
+            let l = lint::Lint {
+                level: lint::Level::Error,
+                path: Some(path.clone()),
+                line: None,
+                category: lint::Category::ModifyPathInvalid,
+                msg: $msg.to_string(),
+            };
+            lints.error.push(l);
+            continue;
+        }}}
+
+        if raw::ArtFileType::from_path(&path).is_none() {
+            not_valid!("Not one of the valid extensions [.toml, .md, .json]")
+        }
+
+        // First make sure that the path _can_ be valid
+        let artifact_paths = &project.paths.artifact_paths;
+        let valid_paths: Vec<_> = artifact_paths
+            .iter()
+            .filter_map(|valid| {
+                if path.starts_with(valid) {
+                    Some(valid)
+                } else {
+                    None
+                }
+            })
+            .collect();
+
+        if valid_paths.is_empty() {
+            not_valid!("Not inside artifact_paths");
+        }
+
+        // It COULD be valid, but it could also be excluded
+        for exclude in project.paths.exclude_artifact_paths.iter() {
+            if path.starts_with(exclude) {
+                // okay, the path is inside an exclude path... is there an
+                // INCLUDE that is inside this EXCLUDE?
+                if valid_paths.iter().any(|valid| valid.starts_with(exclude)) {
+                    not_valid!("Is inside exclude_artifact_paths");
+                }
+            }
+        }
+    }
 }
 
 fn perform_operations(

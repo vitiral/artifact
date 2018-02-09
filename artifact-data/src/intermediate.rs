@@ -106,7 +106,7 @@ impl ArtifactIm {
 impl From<Artifact> for ArtifactIm {
     /// Get an `ArtifactIm` from an `Artifact`
     fn from(art: Artifact) -> ArtifactIm {
-        ArtifactIm {
+        let mut out = ArtifactIm {
             name: art.name,
             file: art.file.into(),
             partof: art.partof,
@@ -115,7 +115,9 @@ impl From<Artifact> for ArtifactIm {
                 _ => None,
             },
             text: art.text,
-        }
+        };
+        out.clean();
+        out
     }
 }
 

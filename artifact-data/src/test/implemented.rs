@@ -243,7 +243,7 @@ fn sanity_join_locations() {
     let create_lint = |path: &PathFile, line, msg: &str| lint::Lint {
         level: lint::Level::Error,
         category: lint::Category::ParseCodeImplementations,
-        path: Some(path.to_path_buf()),
+        path: Some(path.clone().into()),
         line: Some(line),
         msg: format!("duplicate detected: {}", msg),
     };
