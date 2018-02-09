@@ -1,0 +1,10 @@
+-
+  op: update
+  name: TST-dne
+  artifact:
+      name: TST-dne
+      file: design/purpose.md
+      partof: []
+      done: null
+      text: This test does not exist
+

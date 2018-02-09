@@ -19,7 +19,7 @@
 //! This module defines tests for the "full" artifact type itself.
 
 use test::dev_prelude::*;
-use test::framework::run_interop_test;
+use test::framework::run_interop_tests;
 use intermediate::ArtifactIm;
 use name::Name;
 use artifact;
@@ -31,7 +31,7 @@ fn sanity_determine_partofs() {
         partof.sort();
         ArtifactIm {
             name: name!("TST-fake"),
-            file: PathFile::mock("/fake"),
+            file: PathArc::new("/fake"),
             partof: partof.drain(..).collect(),
             done: None,
             text: "".into(),
@@ -70,23 +70,23 @@ fn sanity_determine_partofs() {
 #[test]
 /// #TST-read-artifact.empty
 fn interop_project_empty() {
-    run_interop_test(INTEROP_TESTS_PATH.join("empty"));
+    run_interop_tests(INTEROP_TESTS_PATH.join("empty"));
 }
 
 #[test]
 /// #TST-read-artifact.design_only
 fn interop_design_only() {
-    run_interop_test(INTEROP_TESTS_PATH.join("design_only"));
+    run_interop_tests(INTEROP_TESTS_PATH.join("design_only"));
 }
 
 #[test]
 /// #TST-read-artifact.basic
 fn interop_basic() {
-    run_interop_test(INTEROP_TESTS_PATH.join("basic"));
+    run_interop_tests(INTEROP_TESTS_PATH.join("basic"));
 }
 
 #[test]
 /// #TST-read-artifact.lints
 fn interop_lints() {
-    run_interop_test(INTEROP_TESTS_PATH.join("lints"));
+    run_interop_tests(INTEROP_TESTS_PATH.join("lints"));
 }

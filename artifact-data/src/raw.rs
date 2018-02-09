@@ -101,8 +101,8 @@ pub(crate) fn clean_text(s: &mut String) {
 pub(crate) fn join_artifacts_raw(
     lints: &Sender<lint::Lint>,
     mut art_ims: Vec<ArtifactIm>,
-) -> (OrderMap<Name, PathFile>, OrderMap<Name, ArtifactIm>) {
-    let mut files: OrderMap<Name, PathFile> = OrderMap::with_capacity(art_ims.len());
+) -> (OrderMap<Name, PathArc>, OrderMap<Name, ArtifactIm>) {
+    let mut files: OrderMap<Name, PathArc> = OrderMap::with_capacity(art_ims.len());
     let mut artifacts = OrderMap::with_capacity(art_ims.len());
     for mut art in art_ims.drain(..) {
         if let Some(dup) = files.insert(art.name.clone(), art.file.clone()) {

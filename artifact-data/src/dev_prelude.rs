@@ -64,40 +64,80 @@ fn create_dir_maybe<P: AsRef<Path>>(path: P) -> path_abs::Result<PathDir> {
     PathDir::new(arc)
 }
 
-/// Copy a directory from one location to another quickly.
-pub fn copy_dir<P: AsRef<Path>>(from: PathDir, to: P) -> result::Result<PathDir, Vec<io::Error>> {
-    let recv_err = {
-        let (send_err, recv_err) = ch::bounded(128);
-        let handle_err = spawn(move || {
-            recv_err.iter().collect::<Vec<io::Error>>();
-        });
+/// Do a deep copy of a directory from one location to another.
+pub fn deep_copy<P: AsRef<Path>>(send_err: Sender<io::Error>, from: PathDir, to: P) {
+    let to = ch_try!(
+        send_err,
+        create_dir_maybe(to).map_err(|err| err.into()),
+        return
+    );
 
-        let to = match create_dir_maybe(to) {
-            Ok(d) => d,
-            Err(err) => return Err(vec![err.into()]),
-        };
+    let (send_file, recv_file) = ch::bounded(128);
 
-        // let (send_file, recv_file) = ch::bounded(128);
-        take!(send_err as errs);
+    // First thread walks and creates directories, and sends files to copy
+    take!(=send_err as errs, =to as to_walk);
+    spawn(move || {
+        walk_and_create_dirs(from, to_walk, errs, send_file);
+    });
+
+    // Threadpool copy files into directories that are pre-created.
+    for _ in 0..num_cpus::get() {
+        take!(=send_err, =recv_file, =to);
         spawn(move || {
-            // Do a contents-first yeild and follow any symlinks -- we are doing an _actual_ copy
-            for entry in from.walk().follow_links(true).contents_first(true) {
-                let entry = match entry {
-                    Ok(e) => e,
-                    Err(err) => {
-                        ch!(errs <- err.into());
-                        continue;
-                    }
-                };
-                let postfix = expect!(
-                    entry.path().strip_prefix(&from),
-                    "{} does not have prefix {}",
-                    entry.path().display(),
-                    from.display()
+            for (from, to_postfix) in recv_file {
+                ch_try!(
+                    send_err,
+                    from.copy(to.join(to_postfix)).map_err(|err| err.into()),
+                    continue
                 );
             }
-        })
-    };
+        });
+    }
+}
 
-    unimplemented!();
+/// Do a contents-first yeild and follow any symlinks -- we are doing an _actual_ copy
+fn walk_and_create_dirs(
+    from: PathDir,
+    to: PathDir,
+    send_err: Sender<io::Error>,
+    send_file: Sender<(PathFile, PathBuf)>,
+) {
+    let mut it = from.walk().follow_links(true).into_iter();
+    loop {
+        let entry = match it.next() {
+            Some(entry) => entry,
+            None => break,
+        };
+        macro_rules! handle_err {
+            ($entry:expr) => {
+                match $entry {
+                    Ok(e) => e,
+                    Err(err) => {
+                        ch!(send_err <- err.into());
+                        continue;
+                    }
+                }
+            };
+        }
+        let entry = handle_err!(entry);
+        let to_postfix = expect!(
+            entry.path().strip_prefix(&from),
+            "{} does not have prefix {}",
+            entry.path().display(),
+            from.display()
+        );
+        match handle_err!(PathType::new(entry.path())) {
+            PathType::Dir(from_dir) => {
+                // Create it immediately
+                if let Err(err) = PathDir::create(to.join(to_postfix)) {
+                    ch!(send_err <- err.into());
+                    // We couldn't create the directory so it needs to be skipped.
+                    it.skip_current_dir();
+                }
+            }
+            PathType::File(from_file) => {
+                ch!(send_file <- (from_file, to_postfix.to_path_buf()));
+            }
+        }
+    }
 }

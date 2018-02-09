@@ -40,7 +40,7 @@ pub struct Artifact {
     /// the mapping cannot be broken.
     pub name: Name,
     /// The file the artifact is defined in.
-    pub file: PathFile,
+    pub file: PathArc,
     /// The user defined and calculated `partof` the artifact.
     pub partof: OrderSet<Name>,
     /// The (calculated) parts of the artifact (opposite of partof)
@@ -107,8 +107,10 @@ pub(crate) fn finalize_load_artifact(artifact_ims: OrderMap<Name, ArtifactIm>) -
 pub(crate) fn determine_artifacts(
     mut loaded: ArtifactsLoaded,
     code_impls: &OrderMap<Name, ImplCode>,
-    defined: &OrderMap<Name, PathFile>,
+    defined: &OrderMap<Name, PathArc>,
 ) -> OrderMap<Name, Artifact> {
+    // TODO: paralize this
+
     let ((mut impls, mut completed), mut ids): (_, OrderMap<Name, HashIm>) = rayon::join(
         || {
             let impls = determine_impls(&loaded.artifact_ims, code_impls);

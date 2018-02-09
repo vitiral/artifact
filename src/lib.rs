@@ -19,7 +19,11 @@ extern crate error_chain;
 extern crate fern;
 extern crate itertools;
 #[macro_use]
+extern crate lazy_static;
+#[macro_use]
 extern crate log;
+#[macro_use]
+extern crate maplit;
 
 // # core crates
 

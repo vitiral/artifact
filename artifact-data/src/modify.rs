@@ -57,8 +57,8 @@ impl ArtifactOp {
 
 #[derive(Debug)]
 pub struct ModifyError {
-    lints: lint::Categorized,
-    kind: ModifyErrorKind,
+    pub lints: lint::Categorized,
+    pub kind: ModifyErrorKind,
 }
 
 #[derive(Debug)]
@@ -97,7 +97,6 @@ pub fn modify_project<P: AsRef<Path>>(
             }
         };
     }
-
     let original_project = match original_project {
         Some(p) => p,
         None => {
@@ -105,6 +104,10 @@ pub fn modify_project<P: AsRef<Path>>(
             unreachable!()
         }
     };
+
+    // FIXME: make sure NO PATHS are outside the defined paths in project_paths
+    // FIXME: make sure ALL paths have valid extensions
+
     let mut artifacts = original_project.artifacts;
 
     let mut artifact_ims: OrderMap<HashIm, ArtifactIm> = artifacts
@@ -271,7 +274,7 @@ fn remove_backups(lints: &mut lint::Categorized, paths: Arc<settings::ProjectPat
 /// Save the project to disk, recording any lints along the way
 fn save_project(lints: &mut lint::Categorized, project: &Project) {
     // split up the artifacts into their relevant files
-    let mut files: OrderMap<PathFile, OrderMap<Name, raw::ArtifactRaw>> = OrderMap::new();
+    let mut files: OrderMap<PathArc, OrderMap<Name, raw::ArtifactRaw>> = OrderMap::new();
     for art in project.artifacts.values() {
         let art = ArtifactIm::from(art.clone());
         let (file, name, raw) = art.into_raw();
@@ -286,20 +289,35 @@ fn save_project(lints: &mut lint::Categorized, project: &Project) {
         for _ in 0..num_cpus::get() {
             take!(=send_lint, =recv_arts);
             spawn(move || {
-                for (file, arts) in recv_arts {
-                    let file: PathFile = file;
-                    // FIXME: use settings to specfiy the type of file to save
-                    let text = raw::to_markdown(&arts);
-                    if let Err(err) = file.write_str(&text) {
-                        let l = lint::Lint {
-                            level: lint::Level::Error,
-                            path: Some(file.into()),
-                            line: None,
-                            category: lint::Category::SaveProject,
-                            msg: err.to_string(),
+                for (path, arts) in recv_arts {
+                    let path: PathArc = path;
+                    macro_rules! handle_err {
+                        [$result:expr] => {
+                            match $result {
+                                Ok(v) => v,
+                                Err(err) => {
+                                    let l = lint::Lint {
+                                        level: lint::Level::Error,
+                                        path: Some(path.clone().into()),
+                                        line: None,
+                                        category: lint::Category::SaveProject,
+                                        msg: err.to_string(),
+                                    };
+                                    ch!(send_lint <- l);
+                                    continue;
+                                }
+                            }
                         };
-                        ch!(send_lint <- l);
                     }
+
+                    let file = handle_err!(PathFile::create(&path));
+                    let text = match raw::ArtFileType::from_path(&file) {
+                        Some(raw::ArtFileType::Toml) => expect!(toml::to_string(&arts)),
+                        Some(raw::ArtFileType::Md) => raw::to_markdown(&arts),
+                        Some(raw::ArtFileType::Json) => expect!(json::to_string(&arts)),
+                        None => unreachable!(),
+                    };
+                    handle_err!(file.write_str(&text));
                 }
             });
         }

@@ -21,7 +21,7 @@ use regex_generate;
 
 use test::dev_prelude::*;
 use test::raw_names::arb_names_raw;
-use test::framework::run_interop_test;
+use test::framework::run_interop_tests;
 use name::{Name, SubName};
 use raw_names::NamesRaw;
 use implemented::{join_locations, parse_locations, CodeLoc, ImplCode};
@@ -294,10 +294,10 @@ proptest! {
 
 #[test]
 fn interop_source_only() {
-    run_interop_test(INTEROP_TESTS_PATH.join("source_only"));
+    run_interop_tests(INTEROP_TESTS_PATH.join("source_only"));
 }
 
 #[test]
 fn interop_source_invalid() {
-    run_interop_test(INTEROP_TESTS_PATH.join("source_invalid"));
+    run_interop_tests(INTEROP_TESTS_PATH.join("source_invalid"));
 }

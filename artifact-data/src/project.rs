@@ -150,7 +150,6 @@ pub fn read_project<P: AsRef<Path>>(project_path: P) -> (lint::Categorized, Opti
         // -------- ARTIFACTS --------
         take!(=send_err as errs, =paths as cl_paths);
         let (send_artifact_paths, recv_artifact_paths) = ch::bounded(128);
-        println!("GOT PATHS: {:#?}", cl_paths);
         spawn(move || {
             settings::walk_artifact_paths(
                 &send_artifact_paths,
@@ -360,7 +359,7 @@ pub(crate) fn lint_code_impls(lints: &Sender<lint::Lint>, project: &Project) {
 /// #SPC-read-artifact.lint_text
 /// Lint against artifact text being structured incorrectly.
 pub(crate) fn lint_artifact_text(lints: &Sender<lint::Lint>, project: &Project) {
-    let send_lint = |name: &Name, file: &PathAbs, msg: &str| {
+    let send_lint = |name: &Name, file: &PathArc, msg: &str| {
         lints
             .send(lint::Lint {
                 level: lint::Level::Error,
@@ -395,7 +394,7 @@ pub(crate) fn lint_artifact_text(lints: &Sender<lint::Lint>, project: &Project) 
 /// #SPC-read-artifact.lint_text_refs
 /// Lint warnings against invalid references in the artifact text.
 pub(crate) fn lint_artifact_text_refs(lints: &Sender<lint::Lint>, project: &Project) {
-    let send_lint = |name: &Name, ref_name: &Name, ref_sub: Option<&SubName>, file: &PathAbs| {
+    let send_lint = |name: &Name, ref_name: &Name, ref_sub: Option<&SubName>, file: &PathArc| {
         lints
             .send(lint::Lint {
                 level: lint::Level::Warn,

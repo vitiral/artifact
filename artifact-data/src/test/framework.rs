@@ -26,53 +26,189 @@ use test::dev_prelude::*;
 use name::{Name, SubName};
 use artifact;
 use implemented;
-use intermediate;
+use intermediate::{self, ArtifactIm};
 use settings;
 use project;
+use modify::{self, ArtifactOp};
 use lint::{self, Categorized};
 
-/// Run the interop test on an example project.
-pub fn run_interop_test<P: AsRef<Path>>(path: P) {
-    eprintln!("Running interop test: {}", path.as_ref().display());
-    let tmp = PathTmp::create("test");
+/// This runs the interop tests.
+///
+/// Directory structure:
+/// ```no_compile
+/// test/
+///     assert-cases/
+///         test-case-a/
+///             modify.yaml  <-- modification commands to execute
+///             project.yaml
+///             ... etc
+///         test-case-b/
+///             modify.yaml
+///             project.yaml
+///             ... etc
+///     # assert-case  <-- this is created by the framework
+///         meta.json
+///         modify.yaml
+///         project.yaml
+///         ... etc
+/// ```
+pub fn run_interop_tests<P: AsRef<Path>>(test_base: P) {
+    eprintln!(
+        "Running interop test suite: {}",
+        test_base.as_ref().display()
+    );
+    let test_base = expect!(PathDir::new(test_base));
+    let testcases = expect!(PathDir::new(test_base.join("assert-cases")));
+    for testcase in expect!(testcases.list()) {
+        let testcase = expect!(testcase).unwrap_dir();
 
+        // Do a deepcopy to a tmpdir and run the test out of there.
+        let tmp = expect!(PathTmp::create("test-"));
+        let project_path = {
+            let project_path = tmp.join(expect!(test_base.file_name()));
+            let (send_err, recv_err) = ch::bounded(128);
+            deep_copy(send_err, test_base.clone(), project_path.clone());
+            let errs: Vec<_> = recv_err.iter().collect();
+            assert!(errs.is_empty(), "Got IO Errors:\n{:#?}", errs);
+            expect!(PathDir::new(project_path))
+        };
+
+        // copy the assertions into the root
+        for assert in expect!(testcase.list()) {
+            let assert = expect!(assert).unwrap_file();
+            let fname = expect!(assert.file_name());
+            expect!(assert.copy(project_path.join(fname)));
+        }
+
+        run_interop_test(project_path);
+    }
+}
+
+/// Run the interop test on an example project.
+fn run_interop_test(project_path: PathDir) {
+    static MODIFY_NAME: &'static str = "modify.yaml";
+
+    // Run the project against the copied directory
     let start = time::get_time();
-    let project_path = PathAbs::new(path.as_ref()).expect("project_path DNE");
     let expect_load_lints = load_lints(&project_path, "assert_load_lints.yaml");
     let expect_project_lints = load_lints(&project_path, "assert_project_lints.yaml");
     let expect_project = ProjectAssert::load(&project_path).map(|p| p.expected(&project_path));
+    let modify_path = project_path.join(MODIFY_NAME);
+    let expect_modify_fail = load_lints(&project_path, "assert_modify_fail.yaml");
+    let expect_modify_lints = load_lints(&project_path, "assert_modify_lints.yaml");
+
     eprintln!("loaded asserts in {:.3}", time::get_time() - start);
 
-    let (load_lints, project) = project::read_project(path.as_ref());
+    let (load_lints, project) = project::read_project(&project_path);
 
-    eprintln!("asserting load lints");
+    let project = match project {
+        None => {
+            assert!(!modify_path.exists(), "cannot modify non-existant project");
+            assert_stuff(
+                expect_load_lints,
+                expect_project_lints,
+                expect_project,
+                load_lints,
+                None,
+            );
+            return;
+        },
+        Some(project) => project,
+    };
+
+    match load_modify(&project_path, &project, MODIFY_NAME) {
+        None => {
+            assert_stuff(
+                expect_load_lints,
+                expect_project_lints,
+                expect_project,
+                load_lints,
+                Some(project),
+            );
+        }
+        Some(operations) => {
+            match modify::modify_project(&project_path, operations) {
+                Ok((lints, project)) => {
+                    assert!(expect_modify_fail.is_none());
+                    if let Some(expect) = expect_modify_lints {
+                        eprintln!("asserting modify lints");
+                        assert_eq!(expect, lints);
+                    }
+
+                    let (load_lints, expect) = project::read_project(&project_path);
+                    let expect = expect!(expect);
+                    assert_eq!(expect, project);
+                    assert_stuff(
+                        expect_load_lints,
+                        expect_project_lints,
+                        expect_project,
+                        load_lints,
+                        Some(project),
+                    );
+                }
+                Err(err) => {
+                    assert!(expect_modify_lints.is_none());
+                    assert_eq!(expect_modify_fail, Some(err.lints));
+                }
+            }
+        }
+    };
+}
+
+fn assert_stuff(
+    expect_load_lints: Option<Categorized>,
+    expect_project_lints: Option<Categorized>,
+    expect_project: Option<project::Project>,
+    load_lints: Categorized,
+    project: Option<project::Project>,
+) {
     if let Some(expect) = expect_load_lints {
+        eprintln!("asserting load lints");
         assert_eq!(expect, load_lints);
     }
 
-    if !load_lints.error.is_empty() {
-        // make sure we didn't assert anything stupid
-        assert_eq!(expect_project_lints, None);
-        assert_eq!(expect_project, None);
+    let project = match project {
+        Some(p) => p,
+        None => {
+            assert!(
+                expect_project.is_none(),
+                "expected project but no project exists."
+            );
+            assert!(
+                expect_project_lints.is_none(),
+                "expected project lints but no project exists."
+            );
+            return;
+        }
+    };
 
-        // make sure the project wasn't loaded
-        assert_eq!(project, None);
-        return;
-    }
-
-    if expect_project.is_some() {
+    if let Some(expect_project) = expect_project {
         eprintln!("asserting projects");
         assert_eq!(expect_project, project);
     }
 
     if let Some(expect) = expect_project_lints {
-        let lints = project
-            .as_ref()
-            .expect("expected project lints without project")
-            .lint();
+        let lints = project.lint();
         eprintln!("asserting project_lints");
         assert_eq!(expect, lints);
     }
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(tag="op", rename_all="lowercase")]
+enum ArtifactOpAssert {
+    Create { artifact: ArtifactImAssert },
+    Update { artifact: ArtifactImAssert, name: Name },
+    Delete { name: Name },
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct ArtifactImAssert {
+    name: Name,
+    file: String,
+    partof: OrderSet<Name>,
+    done: Option<String>,
+    text: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -129,9 +265,23 @@ struct CategorizedAssert {
     other: Vec<lint::Lint>,
 }
 
+impl ArtifactImAssert {
+    fn expected(self, base: &PathDir) -> ArtifactIm {
+        let mut out = ArtifactIm {
+            name: self.name,
+            file: PathArc::new(base.join(self.file)),
+            partof: self.partof,
+            done: self.done,
+            text: self.text,
+        };
+        out.clean();
+        out
+    }
+}
+
 impl ProjectAssert {
     /// Load the assertions from the `project_path/assert.yaml` file
-    fn load(base: &PathAbs) -> Option<ProjectAssert> {
+    fn load(base: &PathDir) -> Option<ProjectAssert> {
         match PathFile::new(base.join("assert_project.yaml")) {
             Ok(p) => Some(yaml::from_str(&p.read_string().unwrap()).unwrap()),
             Err(_) => None,
@@ -139,7 +289,7 @@ impl ProjectAssert {
     }
 
     /// Get the "expected" value based on this assertion object.
-    fn expected(mut self, base: &PathAbs) -> project::Project {
+    fn expected(mut self, base: &PathDir) -> project::Project {
         let mut out = project::Project {
             paths: Arc::new(self.paths.expected(base)),
             code_impls: self.code_impls
@@ -157,7 +307,7 @@ impl ProjectAssert {
 }
 
 impl ProjectPathsAssert {
-    fn expected(self, base: &PathAbs) -> settings::ProjectPaths {
+    fn expected(self, base: &PathDir) -> settings::ProjectPaths {
         settings::ProjectPaths {
             base: base.clone(),
             code_paths: prefix_paths(base, &self.code_paths),
@@ -173,7 +323,7 @@ impl ArtifactAssert {
         let mut art = artifact::Artifact {
             id: intermediate::HashIm([0; 16]),
             name: self.name,
-            file: join_abs(base, &self.file),
+            file: PathArc::new(base.join(&self.file)),
             partof: self.partof,
             parts: self.parts,
             completed: self.completed,
@@ -182,7 +332,7 @@ impl ArtifactAssert {
             subnames: self.subnames,
         };
 
-        let mut im = intermediate::ArtifactIm::from(art.clone());
+        let mut im = ArtifactIm::from(art.clone());
         im.clean();
         art.id = im.hash_im();
         art
@@ -248,7 +398,40 @@ impl CategorizedAssert {
     }
 }
 
-fn load_lints(base: &PathAbs, fname: &str) -> Option<Categorized> {
+fn load_modify(base: &PathDir, project: &project::Project, fname: &str) -> Option<Vec<ArtifactOp>> {
+    match PathFile::new(base.join(fname)) {
+        Ok(p) => {
+            let mut assert: Vec<ArtifactOpAssert> =
+                expect!(yaml::from_str(&expect!(p.read_string())));
+            let get_id = |name: &Name| {
+                match project.artifacts.get(name) {
+                    Some(art) => art.id,
+                    None => intermediate::HashIm([0; 16]),
+                }
+            };
+            let out = assert
+                .drain(..)
+                .map(|m| match m {
+                    ArtifactOpAssert::Create { artifact } => {
+                        ArtifactOp::Create { artifact: artifact.expected(base) }
+                    }
+                    ArtifactOpAssert::Update { artifact, name } => ArtifactOp::Update {
+                        artifact: artifact.expected(base),
+                        orig_id: get_id(&name),
+                    },
+                    ArtifactOpAssert::Delete { name } => ArtifactOp::Delete {
+                        orig_id: get_id(&name),
+                        name: name,
+                    },
+                })
+                .collect();
+            Some(out)
+        }
+        Err(_) => None, // no modifications
+    }
+}
+
+fn load_lints(base: &PathDir, fname: &str) -> Option<Categorized> {
     match PathFile::new(base.join(fname)) {
         Ok(p) => {
             let out: CategorizedAssert = yaml::from_str(&p.read_string().unwrap()).unwrap();

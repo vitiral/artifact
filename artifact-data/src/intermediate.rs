@@ -35,7 +35,7 @@ pub struct HashIm(pub(crate) [u8; 16]);
 /// #SPC-structs.artifact_im
 pub struct ArtifactIm {
     pub name: Name,
-    pub file: PathFile,
+    pub file: PathArc,
     pub partof: OrderSet<Name>,
     pub done: Option<String>,
     pub text: String,
@@ -74,14 +74,14 @@ impl ArtifactIm {
 
         ArtifactIm {
             name: name,
-            file: file,
+            file: file.into(),
             partof: partof,
             done: raw.done,
             text: raw.text.map(|t| t.0).unwrap_or_else(String::new),
         }
     }
 
-    pub(crate) fn into_raw(self) -> (PathFile, Name, ArtifactRaw) {
+    pub(crate) fn into_raw(self) -> (PathArc, Name, ArtifactRaw) {
         let partof = if self.partof.is_empty() {
             None
         } else {
@@ -108,7 +108,7 @@ impl From<Artifact> for ArtifactIm {
     fn from(art: Artifact) -> ArtifactIm {
         ArtifactIm {
             name: art.name,
-            file: art.file,
+            file: art.file.into(),
             partof: art.partof,
             done: match art.impl_ {
                 ::implemented::Impl::Done(d) => Some(d),

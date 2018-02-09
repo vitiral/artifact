@@ -51,8 +51,8 @@ impl FoundPaths {
 impl SettingsRaw {
     fn load<P: AsRef<Path>>(
         project_path: P,
-    ) -> ::std::result::Result<(PathAbs, SettingsRaw), String> {
-        let project_path = PathAbs::new(project_path.as_ref()).map_err(|e| {
+    ) -> ::std::result::Result<(PathDir, SettingsRaw), String> {
+        let project_path = PathDir::new(project_path.as_ref()).map_err(|e| {
             format!(
                 "folder does not exist at {}, got {}",
                 project_path.as_ref().display(),
@@ -72,7 +72,7 @@ impl SettingsRaw {
 #[derive(Debug, Eq, PartialEq)]
 /// Paths that have have be recursively loaded.
 pub struct ProjectPaths {
-    pub base: PathAbs,
+    pub base: PathDir,
     pub code_paths: OrderSet<PathAbs>,
     pub exclude_code_paths: OrderSet<PathAbs>,
     pub artifact_paths: OrderSet<PathAbs>,

@@ -1,0 +1,30 @@
+# Empty project
+#
+# This file is also used as a template
+
+paths:
+    code_paths: []
+    exclude_code_paths: []
+
+    artifact_paths: [
+        "design",
+    ]
+    exclude_artifact_paths: []
+
+code_impls: {}
+    # TST-pyinit:
+    #     primary:
+    #         file: pylib/__init__.py
+    #         line: 0
+    #     secondary: {}
+
+artifacts:
+    REQ-foo:
+        name: REQ-foo
+        file: design/purpose.md
+        partof: []
+        parts: []
+        completed: {spc: 0.0, tst: 0.0}
+        text: "This is foo"
+        impl_: null
+        subnames: []

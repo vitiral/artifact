@@ -1,0 +1,8 @@
+error:
+  -
+    level: Error
+    path: null
+    line: null
+    category: UpdateDne
+    msg: "Attempt to update 'TST-dne' failed, hash-id does not exist"
+other: []

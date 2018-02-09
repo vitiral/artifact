@@ -1,0 +1,9 @@
+-
+  op: update
+  name: REQ-purpose
+  artifact:
+      name: REQ-purpose
+      file: design/purpose.md
+      partof: []
+      done: null
+      text: This text was updated
