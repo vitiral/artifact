@@ -150,6 +150,12 @@ impl fmt::Debug for HashIm {
     }
 }
 
+impl Default for HashIm {
+    fn default() -> HashIm {
+        HashIm([0; 16])
+    }
+}
+
 impl Serialize for HashIm {
     fn serialize<S>(&self, serializer: S) -> result::Result<S::Ok, S::Error>
     where

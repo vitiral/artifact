@@ -19,6 +19,8 @@
 ///
 /// This is the primary error type for all "non fatal" errors and warnings.
 use std::sync::mpsc::Sender;
+use std::error;
+use std::fmt;
 
 use dev_prelude::*;
 
@@ -26,13 +28,15 @@ use dev_prelude::*;
 /// An artifact lint error or warning
 pub struct Lint {
     pub level: Level,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub path: Option<PathArc>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub line: Option<u64>,
     pub category: Category,
     pub msg: String,
 }
 
-#[derive(Debug, Default, PartialEq)]
+#[derive(Debug, Default, PartialEq, Serialize, Deserialize)]
 /// Categorized lints
 pub struct Categorized {
     pub error: Vec<Lint>,
@@ -86,6 +90,27 @@ impl Categorized {
 
         self.other.sort();
         self.other.dedup();
+    }
+}
+
+impl error::Error for Categorized {
+    fn description(&self) -> &str {
+        "multiple lint errors, both errors and warnings"
+    }
+}
+
+impl fmt::Display for Categorized {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(
+            f,
+            "  ----- ERRORS -----:\n{}\n\n",
+            expect!(json::to_string(&self.error))
+        )?;
+        write!(
+            f,
+            "  ----- WARNINGS -----:\n{}\n",
+            expect!(json::to_string(&self.other))
+        )
     }
 }
 

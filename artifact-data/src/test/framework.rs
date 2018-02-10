@@ -104,10 +104,9 @@ fn run_interop_test(project_path: PathDir) {
 
     eprintln!("loaded asserts in {:.3}", time::get_time() - start);
 
-    let (load_lints, project) = project::read_project(&project_path);
-
-    let project = match project {
-        None => {
+    let (load_lints, project) = match project::read_project(&project_path) {
+        Ok(v) => v,
+        Err(load_lints) => {
             assert!(!modify_path.exists(), "cannot modify non-existant project");
             assert_stuff(
                 expect_load_lints,
@@ -118,7 +117,6 @@ fn run_interop_test(project_path: PathDir) {
             );
             return;
         }
-        Some(project) => project,
     };
 
     match load_modify(&project_path, &project, MODIFY_NAME) {
@@ -138,8 +136,7 @@ fn run_interop_test(project_path: PathDir) {
                     assert_eq!(expect, lints);
                 }
 
-                let (load_lints, expect) = project::read_project(&project_path);
-                let expect = expect!(expect);
+                let (load_lints, expect) = project::read_project(&project_path).unwrap();
                 assert_eq!(expect, project);
                 assert_stuff(
                     expect_load_lints,

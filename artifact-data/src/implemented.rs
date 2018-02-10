@@ -20,8 +20,8 @@
 //! locations where artifacts are implemented in source code.
 #![allow(dead_code)]
 
-use ordermap::Entry;
-
+use std::fmt;
+use ordermap::map::Entry;
 use dev_prelude::*;
 use name::{Name, SubName};
 use lint;
@@ -46,7 +46,7 @@ pub struct ImplCode {
     pub secondary: OrderMap<SubName, CodeLoc>,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Clone, PartialEq, Eq)]
 /// The location of an artifact reference in code.
 pub struct CodeLoc {
     pub file: PathFile,
@@ -101,6 +101,34 @@ impl Impl {
             Impl::Done(_) => true,
             _ => false,
         }
+    }
+}
+
+impl fmt::Display for Impl {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            Impl::Done(ref s) => write!(f, "{}", s),
+            Impl::Code(ref c) => write!(f, "{}", c),
+            Impl::NotImpl => write!(f, "not directly implemented"),
+        }
+    }
+}
+
+impl fmt::Display for ImplCode {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        if let Some(ref loc) = self.primary {
+            write!(f, "{:?}", loc)?;
+        }
+        if !self.secondary.is_empty() {
+            write!(f, "Secondary{:?}", self.secondary)?;
+        }
+        Ok(())
+    }
+}
+
+impl fmt::Debug for CodeLoc {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}[{}]", self.file.display(), self.line)
     }
 }
 

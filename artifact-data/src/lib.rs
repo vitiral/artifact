@@ -39,6 +39,9 @@ extern crate siphasher;
 extern crate failure_derive;
 extern crate time;
 
+#[macro_use]
+extern crate log;
+
 // MODULES
 
 mod artifact;
@@ -84,6 +87,7 @@ pub mod test;
 
 pub use artifact::Artifact;
 pub use implemented::{CodeLoc, Impl, ImplCode};
+pub use intermediate::{ArtifactIm, HashIm};
 pub use name::{Name, NameError, SubName, Type, NAME_VALID_STR};
 pub use settings::ProjectPaths;
 pub use lint::{Categorized, Category, Level, Lint};

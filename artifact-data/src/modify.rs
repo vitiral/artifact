@@ -63,27 +63,27 @@ impl ArtifactOp {
 
     fn id_pieces(&self) -> IdPieces {
         match *self {
-            ArtifactOp::Create { ref artifact } => {
-                IdPieces {
-                    name: artifact.name.clone(),
-                    orig_id: None,
-                    new_id: Some(artifact.hash_im()),
-                }
-            }
-            ArtifactOp::Update { ref artifact, ref orig_id } => {
-                IdPieces {
-                    name: artifact.name.clone(),
-                    orig_id: Some(*orig_id),
-                    new_id: Some(artifact.hash_im()),
-                }
-            }
-            ArtifactOp::Delete { ref name, ref orig_id } => {
-                IdPieces {
-                    name: name.clone(),
-                    orig_id: Some(*orig_id),
-                    new_id: None,
-                }
-            }
+            ArtifactOp::Create { ref artifact } => IdPieces {
+                name: artifact.name.clone(),
+                orig_id: None,
+                new_id: Some(artifact.hash_im()),
+            },
+            ArtifactOp::Update {
+                ref artifact,
+                ref orig_id,
+            } => IdPieces {
+                name: artifact.name.clone(),
+                orig_id: Some(*orig_id),
+                new_id: Some(artifact.hash_im()),
+            },
+            ArtifactOp::Delete {
+                ref name,
+                ref orig_id,
+            } => IdPieces {
+                name: name.clone(),
+                orig_id: Some(*orig_id),
+                new_id: None,
+            },
         }
     }
 }
@@ -120,34 +120,33 @@ pub fn modify_project<P: AsRef<Path>>(
     project_path: P,
     mut operations: Vec<ArtifactOp>,
 ) -> ::std::result::Result<(lint::Categorized, Project), ModifyError> {
-    let (mut lints, original_project) = read_project(project_path);
     macro_rules! check_lints {
-        ($kind:ident) => {
-            if !lints.error.is_empty() {
-                lints.sort();
+        ($lints:ident, $kind:ident) => {
+            if !$lints.error.is_empty() {
+                $lints.sort();
                 return Err(ModifyError {
-                    lints: lints,
+                    lints: $lints,
                     kind: ModifyErrorKind::$kind,
                 });
             }
         };
     }
 
-    // TODO: move this before even reading the project
-    check_overlap(&mut lints, &mut operations);
-    check_lints!(InvalidPaths);
-
-
-    let original_project = match original_project {
-        Some(p) => p,
-        None => {
-            check_lints!(InvalidFromLoad);
+    let (mut lints, original_project) = match read_project(project_path) {
+        Ok(ok) => ok,
+        Err(mut lints) => {
+            check_lints!(lints, InvalidFromLoad);
             unreachable!()
         }
     };
+    check_lints!(lints, InvalidFromLoad);
+
+    // TODO: move this before even reading the project
+    check_overlap(&mut lints, &mut operations);
+    check_lints!(lints, InvalidPaths);
 
     check_paths(&mut lints, &original_project, &operations);
-    check_lints!(InvalidPaths);
+    check_lints!(lints, InvalidPaths);
 
     let mut artifacts = original_project.artifacts;
 
@@ -162,7 +161,7 @@ pub fn modify_project<P: AsRef<Path>>(
     // FIXME: prevent overlapping hashs
 
     perform_operations(operations, &mut lints, &mut artifact_ims);
-    check_lints!(HashMismatch);
+    check_lints!(lints, HashMismatch);
 
     let artifacts_im = artifact_ims.drain(..).map(|(_, a)| a).collect();
     let (send_errs, recv_errs) = ch::unbounded();
@@ -179,13 +178,13 @@ pub fn modify_project<P: AsRef<Path>>(
 
     drop(send_errs);
     lints.categorize(recv_errs.iter());
-    check_lints!(InvalidFromModify);
+    check_lints!(lints, InvalidFromModify);
 
     create_backups(&mut lints, project.paths.clone());
-    check_lints!(CreateBackups);
+    check_lints!(lints, CreateBackups);
 
     save_project(&mut lints, &project);
-    check_lints!(SaveProject);
+    check_lints!(lints, SaveProject);
 
     remove_backups(&mut lints, project.paths.clone());
     project.sort();
@@ -252,10 +251,7 @@ fn check_paths(lints: &mut lint::Categorized, project: &Project, operations: &[A
     }
 }
 
-fn check_overlap(
-    lints: &mut lint::Categorized,
-    operations: &mut Vec<ArtifactOp>,
-) {
+fn check_overlap(lints: &mut lint::Categorized, operations: &mut Vec<ArtifactOp>) {
     let mut ids = OrderSet::new();
 
     for mut op in operations {

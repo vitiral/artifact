@@ -94,7 +94,9 @@ impl Project {
 }
 
 /// Load the project from the given path.
-pub fn read_project<P: AsRef<Path>>(project_path: P) -> (lint::Categorized, Option<Project>) {
+pub fn read_project<P: AsRef<Path>>(
+    project_path: P,
+) -> result::Result<(lint::Categorized, Project), lint::Categorized> {
     let start_load = time::get_time();
     let mut lints = lint::Categorized::default();
 
@@ -103,7 +105,7 @@ pub fn read_project<P: AsRef<Path>>(project_path: P) -> (lint::Categorized, Opti
         lints.categorize(load_lints.drain(..));
         if !lints.error.is_empty() {
             lints.sort();
-            return (lints, None);
+            return Err(lints);
         }
 
         let mut paths = paths.expect("No lints but also no settings file!");
@@ -184,7 +186,7 @@ pub fn read_project<P: AsRef<Path>>(project_path: P) -> (lint::Categorized, Opti
 
     if !lints.error.is_empty() {
         lints.sort();
-        return (lints, None);
+        return Err(lints);
     }
 
     let code_impls = locs_handle.finish();
@@ -200,11 +202,11 @@ pub fn read_project<P: AsRef<Path>>(project_path: P) -> (lint::Categorized, Opti
     lints.sort();
     project.sort();
 
-    eprintln!(
+    debug!(
         "project load took {:.3} seconds",
         time::get_time() - start_load
     );
-    (lints, Some(project))
+    Ok((lints, project))
 }
 
 /// #REQ-family.lint_partof_exists
