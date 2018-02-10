@@ -1,0 +1,8 @@
+error:
+  -
+    level: Error
+    path: null
+    line: null
+    category: IdOverlap
+    msg: "Attempting to operate twice on REQ-purpose"
+other: []

@@ -25,24 +25,24 @@ version = "1.1.0-beta001"
 [dependencies]
 ansi_term = "0.9.0"
 difference = "1.0.0"
+ergo = "0.1.2"
 fern = "0.4.2"
-itertools = "0.6.2"
-lazy_static = "0.2.8"
 log = "0.3.8"
 maplit = "1.0.0"
 regex = "0.2.2"
 self_update = "0.4.0"
 serde = "1.0.*"
 serde_derive = "1.*"
-serde_json = "1.*"
-serde_yaml = "0.7"
 strfmt = "0.1.5"
 tar = "0.4.13"
 tempdir = "0.3.5"
+termstyle = "0.1.1"
 time = "0.1.*"
-toml = "0.4.5"
 unicode-segmentation = "1.2.0"
 unicode-width = "0.1.4"
+
+[dependencies.artifact-data]
+path = "artifact-data"
 
 [dependencies.clap]
 default-features = false
@@ -67,6 +67,9 @@ version = "7.1.0"
 [dependencies.nickel]
 version = "0.10.0"
 
+[dependencies.quicli]
+path = "quicli"
+
 [dependencies.tabwriter]
 default-features = false
 features = ["ansi_formatting"]
@@ -80,6 +83,7 @@ features = [
 version = "0.5.1"
 
 [dev-dependencies]
+assert_cli = "0.5.4"
 fs_extra = "1.0.0"
 
 [features]

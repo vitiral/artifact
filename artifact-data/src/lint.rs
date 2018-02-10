@@ -57,8 +57,10 @@ pub enum Category {
     ImplCode,
     ModifyPathInvalid,
     CreateExists,
+    UpdateNoop,
     UpdateDne,
     DeleteDne,
+    IdOverlap,
     CreateBackups,
     SaveProject,
     RemoveBackups,
@@ -108,6 +110,16 @@ impl Lint {
         }
     }
 
+    pub(crate) fn update_noop(err: String) -> Lint {
+        Lint {
+            level: Level::Error,
+            category: Category::UpdateNoop,
+            path: None,
+            line: None,
+            msg: err,
+        }
+    }
+
     pub(crate) fn update_dne(err: String) -> Lint {
         Lint {
             level: Level::Error,
@@ -122,6 +134,16 @@ impl Lint {
         Lint {
             level: Level::Error,
             category: Category::DeleteDne,
+            path: None,
+            line: None,
+            msg: err,
+        }
+    }
+
+    pub(crate) fn id_overlap(err: String) -> Lint {
+        Lint {
+            level: Level::Error,
+            category: Category::IdOverlap,
             path: None,
             line: None,
             msg: err,

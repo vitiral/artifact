@@ -14,6 +14,7 @@
  * You should have received a copy of the Lesser GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
+//! #SPC-modify
 
 use dev_prelude::*;
 use artifact;
@@ -43,6 +44,12 @@ pub enum ArtifactOp {
     },
 }
 
+struct IdPieces {
+    name: Name,
+    orig_id: Option<HashIm>,
+    new_id: Option<HashIm>,
+}
+
 impl ArtifactOp {
     pub(crate) fn clean(&mut self) {
         match *self {
@@ -51,6 +58,32 @@ impl ArtifactOp {
                 ref mut artifact, ..
             } => artifact.clean(),
             _ => {}
+        }
+    }
+
+    fn id_pieces(&self) -> IdPieces {
+        match *self {
+            ArtifactOp::Create { ref artifact } => {
+                IdPieces {
+                    name: artifact.name.clone(),
+                    orig_id: None,
+                    new_id: Some(artifact.hash_im()),
+                }
+            }
+            ArtifactOp::Update { ref artifact, ref orig_id } => {
+                IdPieces {
+                    name: artifact.name.clone(),
+                    orig_id: Some(*orig_id),
+                    new_id: Some(artifact.hash_im()),
+                }
+            }
+            ArtifactOp::Delete { ref name, ref orig_id } => {
+                IdPieces {
+                    name: name.clone(),
+                    orig_id: Some(*orig_id),
+                    new_id: None,
+                }
+            }
         }
     }
 }
@@ -85,7 +118,7 @@ pub enum ModifyErrorKind {
 /// Perform a list of modifications to the project
 pub fn modify_project<P: AsRef<Path>>(
     project_path: P,
-    operations: Vec<ArtifactOp>,
+    mut operations: Vec<ArtifactOp>,
 ) -> ::std::result::Result<(lint::Categorized, Project), ModifyError> {
     let (mut lints, original_project) = read_project(project_path);
     macro_rules! check_lints {
@@ -99,6 +132,11 @@ pub fn modify_project<P: AsRef<Path>>(
             }
         };
     }
+
+    // TODO: move this before even reading the project
+    check_overlap(&mut lints, &mut operations);
+    check_lints!(InvalidPaths);
+
 
     let original_project = match original_project {
         Some(p) => p,
@@ -214,17 +252,59 @@ fn check_paths(lints: &mut lint::Categorized, project: &Project, operations: &[A
     }
 }
 
+fn check_overlap(
+    lints: &mut lint::Categorized,
+    operations: &mut Vec<ArtifactOp>,
+) {
+    let mut ids = OrderSet::new();
+
+    for mut op in operations {
+        op.clean();
+
+        let pieces = op.id_pieces();
+
+        macro_rules! overlap { [$name:expr] => {{
+            lints.error.push(lint::Lint::id_overlap(
+                format!(
+                    "Attempting to operate twice on {}",
+                    $name.as_str()
+                )
+            ));
+        }}}
+
+        if pieces.new_id == pieces.orig_id {
+            lints.error.push(lint::Lint::update_noop(format!(
+                "Attempt to update '{}' with identical data",
+                pieces.name.as_str(),
+            )));
+            continue;
+        }
+
+        if let Some(id) = pieces.new_id {
+            if !ids.insert(id) {
+                overlap!(pieces.name);
+            }
+        }
+
+        if let Some(id) = pieces.orig_id {
+            if !ids.insert(id) {
+                overlap!(pieces.name);
+            }
+        }
+    }
+}
+
+/// #SPC-modify-update
 fn perform_operations(
     mut operations: Vec<ArtifactOp>,
     lints: &mut lint::Categorized,
     artifact_ims: &mut OrderMap<HashIm, ArtifactIm>,
 ) {
-    for mut op in operations.drain(..) {
-        op.clean();
+    for op in operations.drain(..) {
         match op {
             ArtifactOp::Create { artifact } => {
-                let hash = artifact.hash_im();
-                if let Some(exists) = artifact_ims.insert(hash, artifact) {
+                let id = artifact.hash_im();
+                if let Some(exists) = artifact_ims.insert(id, artifact) {
                     lints.error.push(lint::Lint::create_exists(format!(
                         "Attempting to create an artifact which already exists: {:?}",
                         exists
@@ -232,25 +312,30 @@ fn perform_operations(
                 }
             }
             ArtifactOp::Update { artifact, orig_id } => {
-                let hash = artifact.hash_im();
+                let id = artifact.hash_im();
                 if artifact_ims.remove(&orig_id).is_none() {
                     lints.error.push(lint::Lint::update_dne(format!(
                         "Attempt to update '{}' failed, hash-id does not exist",
                         artifact.name.as_str(),
                     )));
+                    continue;
                 } else {
-                    artifact_ims.insert(hash, artifact);
+                    artifact_ims.insert(id, artifact);
                 }
             }
             ArtifactOp::Delete { name, orig_id } => {
-                if artifact_ims.remove(&orig_id).is_none() {
-                    lints.error.push(lint::Lint::delete_dne(format!(
-                        "Attempt to delete '{}' failed, hash-id does not exist",
-                        name.as_str(),
-                    )));
-                }
+                match artifact_ims.remove(&orig_id) {
+                    None => {
+                        lints.error.push(lint::Lint::delete_dne(format!(
+                            "Attempt to delete '{}' failed, hash-id does not exist",
+                            name.as_str(),
+                        )));
+                        continue;
+                    }
+                    Some(art) => art.name,
+                };
             }
-        }
+        };
     }
 }
 
