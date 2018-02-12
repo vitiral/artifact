@@ -26,9 +26,9 @@ use name::{Name, SubName};
 use raw;
 use settings;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Serialize)]
 pub struct Project {
-    pub paths: Arc<settings::ProjectPaths>,
+    pub paths: settings::ProjectPaths,
     pub code_impls: OrderMap<Name, implemented::ImplCode>,
     pub artifacts: OrderMap<Name, artifact::Artifact>,
 }
@@ -65,17 +65,9 @@ impl Project {
     /// TODO WARN:
     /// - references in text that do not exist
     /// - (optional?) poorly formed references in text
-    pub fn lint(&self) -> lint::Categorized {
-        let (send, recv) = ch::unbounded();
-
+    pub fn lint(&self, send: &Sender<lint::Lint>) {
         self.lint_errors(&send);
         self.lint_other(&send);
-
-        drop(send);
-        let mut lints = lint::Categorized::default();
-        lints.categorize(recv.into_iter());
-        lints.sort();
-        lints
     }
 
     /// Lint against only "fatal" errors.
@@ -113,7 +105,7 @@ pub fn read_project<P: AsRef<Path>>(
         paths.exclude_code_paths.sort();
         paths.artifact_paths.sort();
         paths.exclude_artifact_paths.sort();
-        Arc::new(paths)
+        paths
     };
 
     let (lint_handle, locs_handle, loaded_handle) = {
@@ -199,6 +191,13 @@ pub fn read_project<P: AsRef<Path>>(
         artifacts: artifacts,
     };
 
+    let recv = {
+        let (send, recv) = ch::unbounded();
+        project.lint(&send);
+        recv
+    };
+
+    lints.categorize(recv.iter());
     lints.sort();
     project.sort();
 

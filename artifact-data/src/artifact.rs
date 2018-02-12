@@ -26,7 +26,7 @@ use implemented::{Impl, ImplCode};
 use family;
 use graph;
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
 /// #SPC-read-structs.artifact
 /// The primary data structure of this library which encapsulates a majority of the useful
 /// end product of a user's project.

@@ -28,7 +28,8 @@ use lint;
 
 // EXPORTED TYPES
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(tag="type", content="value")]
 /// Encapsulates the implementation state of the artifact
 pub enum Impl {
     /// The artifact is "defined as done"
@@ -39,14 +40,14 @@ pub enum Impl {
     NotImpl,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 /// Encapsulates the implementation state of the artifact in code.
 pub struct ImplCode {
     pub primary: Option<CodeLoc>,
     pub secondary: OrderMap<SubName, CodeLoc>,
 }
 
-#[derive(Clone, PartialEq, Eq)]
+#[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
 /// The location of an artifact reference in code.
 pub struct CodeLoc {
     pub file: PathFile,

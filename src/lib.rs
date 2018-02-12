@@ -37,6 +37,13 @@ extern crate quicli;
 extern crate expect_macro;
 extern crate termstyle;
 
+extern crate nickel;
+extern crate jsonrpc_core;
+
+// #[macro_use]
+// #[cfg(test)]
+// extern crate pretty_assertions;
+
 #[allow(unused_imports)]
 use ergo::*;
 #[allow(unused_imports)]
@@ -46,20 +53,33 @@ use quicli::prelude::*;
 #[macro_use]
 mod dev_prelude;
 
+mod check;
+mod fmt;
+mod init;
 mod ls;
+mod serve;
 
+/// #SPC-cli
 pub fn run() -> Result<i32> {
     use quicli::prelude::structopt::clap::*;
     let app = App::new("art")
         .author("vitiral")
         .version(env!("CARGO_PKG_VERSION"))
         .about("Design documentation tool for everybody.")
-        .subcommand(ls::Ls::clap());
+        .subcommand(init::Init::clap())
+        .subcommand(check::Check::clap())
+        .subcommand(fmt::Fmt::clap())
+        .subcommand(ls::Ls::clap())
+        .subcommand(serve::Serve::clap());
 
     let matches = app.get_matches();
 
     match matches.subcommand() {
-        ("ls", Some(args)) => ls::run(ls::Ls::from_clap(args.clone())),
+        ("ls", Some(args)) => ls::run(ls::Ls::from_clap(&args)),
+        ("init", Some(args)) => init::run(init::Init::from_clap(&args)),
+        ("check", Some(args)) => check::run(check::Check::from_clap(&args)),
+        ("fmt", Some(args)) => fmt::run(fmt::Fmt::from_clap(&args)),
+        ("serve", Some(args)) => serve::run(serve::Serve::from_clap(&args)),
         (sub, _) => unimplemented!("sub: {}", sub),
     }
 }

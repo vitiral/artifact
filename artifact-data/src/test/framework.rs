@@ -191,9 +191,9 @@ fn assert_stuff(
     }
 
     if let Some(expect) = expect_project_lints {
-        let lints = project.lint();
+        // let lints = project.lint();
         eprintln!("asserting project_lints");
-        assert_eq!(expect, lints);
+        assert_eq!(expect, load_lints);
     }
 }
 

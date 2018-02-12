@@ -24,7 +24,8 @@ use dev_prelude::*;
 use lint;
 use raw;
 
-pub const SETTINGS_PATH: &str = ".art/settings.toml";
+pub const ART_DIR: &str = ".art";
+pub const SETTINGS_FILE: &str = "settings.toml";
 
 #[derive(Debug, Eq, PartialEq, Clone, Serialize, Deserialize)]
 pub(crate) struct SettingsRaw {
@@ -60,7 +61,7 @@ impl SettingsRaw {
             )
         })?;
         let raw: SettingsRaw = {
-            let expected = project_path.join(SETTINGS_PATH);
+            let expected = project_path.join(ART_DIR).join(SETTINGS_FILE);
             let settings_path = PathFile::new(&expected).map_err(|e| e.to_string())?;
             let text = settings_path.read_string().map_err(|e| e.to_string())?;
             toml::from_str(&text).map_err(|e| e.to_string())?
@@ -69,7 +70,7 @@ impl SettingsRaw {
     }
 }
 
-#[derive(Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 /// Paths that have have be recursively loaded.
 pub struct ProjectPaths {
     pub base: PathDir,

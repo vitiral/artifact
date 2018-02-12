@@ -16,6 +16,9 @@
  * */
 //! #SPC-modify
 
+use std::error;
+use std::fmt;
+
 use dev_prelude::*;
 use artifact;
 use intermediate::{ArtifactIm, HashIm};
@@ -25,7 +28,7 @@ use project::{read_project, Project};
 use raw;
 use settings;
 
-static ART_BK_EXT: &str = ".artbk";
+static ART_BK_EXT: &str = "artbk";
 
 #[derive(Debug, Serialize, Deserialize)]
 /// #SPC-structs.artifact_op
@@ -92,6 +95,19 @@ impl ArtifactOp {
 pub struct ModifyError {
     pub lints: lint::Categorized,
     pub kind: ModifyErrorKind,
+}
+
+impl error::Error for ModifyError {
+    fn description(&self) -> &str {
+        "error while modifying an artifact project"
+    }
+}
+
+impl fmt::Display for ModifyError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "ModifyErrorKind: {:?}\n", self.kind)?;
+        write!(f, "{}", self.lints)
+    }
 }
 
 #[derive(Debug)]
@@ -336,7 +352,9 @@ fn perform_operations(
 }
 
 /// #SPC-modify.backup
-fn create_backups(lints: &mut lint::Categorized, paths: Arc<settings::ProjectPaths>) {
+fn create_backups(lints: &mut lint::Categorized, paths: settings::ProjectPaths) {
+    // TODO: figure out how to just use a reference
+    let paths = Arc::new(paths);
     let recv_lint = {
         let (send_lint, recv_lint) = ch::bounded(128);
         let (send_path, recv_path) = ch::bounded(128);
@@ -375,7 +393,9 @@ fn create_backups(lints: &mut lint::Categorized, paths: Arc<settings::ProjectPat
     lints.categorize(recv_lint.iter());
 }
 
-fn remove_backups(lints: &mut lint::Categorized, paths: Arc<settings::ProjectPaths>) {
+fn remove_backups(lints: &mut lint::Categorized, paths: settings::ProjectPaths) {
+    // TODO: figure out how to just use a reference
+    let paths = Arc::new(paths);
     let recv_lint = {
         let (send_lint, recv_lint) = ch::bounded(128);
         let (send_path, recv_path) = ch::bounded(128);
@@ -456,6 +476,8 @@ fn save_project(lints: &mut lint::Categorized, project: &Project) {
                     }
 
                     let file = handle_err!(PathFile::create(&path));
+                    let mut arts: OrderMap<Name, raw::ArtifactRaw> = arts;
+                    arts.sort_keys();
                     let text = match raw::ArtFileType::from_path(&file) {
                         Some(raw::ArtFileType::Toml) => expect!(toml::to_string(&arts)),
                         Some(raw::ArtFileType::Md) => raw::to_markdown(&arts),

@@ -1,22 +1,50 @@
+/* artifact: the requirements tracking tool made for developers
+ * Copyright (C) 2018  Garrett Berg <@vitiral, vitiral@gmail.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the Lesser GNU General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the Lesser GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * */
+//! #SPC-cli-ls
+use std::io;
+
 use dev_prelude::*;
 use artifact_data::*;
-use termstyle::{self, Color, El, Text};
+use termstyle::{self, Color, El, Table, Text};
 use termstyle::Color::*;
+
+macro_rules! t { [$t:expr] => {{
+    Text::new($t.into())
+}}}
 
 #[derive(Debug, StructOpt)]
 #[structopt(name = "ls", about = "List and filter artifacts")]
 #[cfg_attr(rustfmt, rustfmt_skip)]
+// #SPC-cli-ls.args
 pub struct Ls {
+    #[structopt(long = "verbose", short = "v", default_value="0")]
     /// Pass many times for more log output.
-    #[structopt(long = "verbose", short = "v")]
     pub verbosity: u64,
 
-    #[structopt(name="PATTERN", help = "\
-Regular expression to search for artifact names.")]
-    pub pattern: String,
+    #[structopt(long="work-dir")]
+    /// Use a different working directory [default: $CWD]
+    pub work_dir: Option<String>,
+
+    #[structopt(name="PATTERN")]
+    /// Regular expression to search for artifact names.")]
+    pub pattern: Option<String>,
 
     #[structopt(short="f", long="fields", value_name="FIELDS",
-      default_value="name,parts",
+      default_value="name",
       help="\
 Specify fields to search for the regular expression PATTERN.
 
@@ -25,7 +53,6 @@ Valid FIELDS are:
 - F/file: search the \"file\" field (see -F)
 - P/parts: search the \"parts\" field (see -P)
 - O/partof: search the \"partof\" field (see -O)
-- C/code: search the \"code\" field (see -C)
 - T/text: search the \"text\" field (see -T)
 
 Fields can be listed by all caps, or comma-separated lowercase.
@@ -42,9 +69,9 @@ identical to perl/python with a few minor differences
 https://doc.rust-lang.org/regex/regex/index.html#syntax.\n\n    ")]
     pub fields: String,
 
-    #[structopt(short="l", long="long", help = "Print items in the 'long form'")]
+    #[structopt(short="l", long="long")]
+    /// Print items in the 'long form'
     pub long: bool,
-
 
     #[structopt(short="s", long="spc", default_value=">0", help = "\
 Filter by spc (specification) completeness
@@ -54,73 +81,213 @@ Filter by spc (specification) completeness
 - `-s \">\"`  : show only items with spc >=100%\n\n    ")]
     pub spc: String,
 
-    #[structopt(short="t", long="tst", default_value=">0", help = "\
-Filter by tst (test) completeness. See `-s/--spc` for format.")]
+    #[structopt(short="t", long="tst", default_value=">0")]
+    /// Filter by tst (test) completeness. See `-s/--spc` for format.
     pub tst: String,
 
-    #[structopt(short="N", long="name", help = "\
-\"name\" field: show the name of the artifact.")]
+    #[structopt(short="N", long="name")]
+    /// \"name\" field: show the name of the artifact.
     pub name: bool,
 
-    #[structopt(short="F", long="file", help = "\
-\"file\" field: show the file where the artifact is defined.")]
+    #[structopt(short="F", long="file")]
+    /// \"file\" field: show the file where the artifact is defined.
     pub file: bool,
 
-    #[structopt(short="P", long="parts", help = "\
-\"parts\" field: show the children of the artifact.")]
+    #[structopt(short="S", long="subnames")]
+    /// \"subnames\" field: show the subnames of the artifact.
+    pub subnames: bool,
+
+    #[structopt(short="P", long="parts")]
+    /// \"parts\" field: show the children of the artifact.
     pub parts: bool,
 
-    #[structopt(short="O", long="partof", help = "\
-\"partof\" field: show the parents of the artifact.")]
+    #[structopt(short="O", long="partof")]
+    /// \"partof\" field: show the parents of the artifact.
     pub partof: bool,
 
-    #[structopt(short="C", long="code", help = "\
-\"code\" field: show the code paths where the artifact is implemented.")]
-    pub code: bool,
+    #[structopt(short="I", long="impl")]
+    /// \"impl\" field: show the where the artifact is implemented.
+    pub impl_: bool,
 
-    #[structopt(short="T", long="text", help = "\
-\"text\" field: show the text of the artifact")]
+    #[structopt(short="T", long="text")]
+    /// \"text\" field: show the text of the artifact.
     pub text: bool,
 
-    #[structopt(short="A", long="all", help = "\
-\"all\" field: activate ALL fields, additional fields DEACTIVATE fields")]
+    #[structopt(short="A", long="all")]
+    /// \"all\" field: activate ALL fields, additional fields DEACTIVATE fields.
     pub all: bool,
 
-    #[structopt(long="plain", help = "Do not display color in the output.")]
+    #[structopt(long="plain")]
+    /// Do not display color in the output.
     pub plain: bool,
 
-    #[structopt(long="type", default_value="list", help = "\
-Type of output from [list, json]")]
-    pub ty_: String,
-
-    #[structopt(long="work-dir", help = "Use a different working directory [default: $CWD]")]
-    pub work_dir: Option<String>,
+    #[structopt(long="type", default_value="list")]
+    /// Type of output from [list, json]
+    pub output_ty: String,
 }
 
 /// Run the `art ls` command
 pub fn run(cmd: Ls) -> Result<i32> {
-    set_log_verbosity("art", cmd.verbosity)?;
-    let work_dir = work_dir!(cmd);
-    info!("Running art-ls in working directory {}", work_dir.display());
+    let mut w = io::stdout();
 
-    let (mut lints, project) = read_project(work_dir)?;
+    set_log_verbosity!(cmd);
+    let repo = find_repo(&work_dir!(cmd))?;
+    info!("Running art-ls in repo {}", repo.display());
+
+    let (_, project) = read_project(repo)?;
+    let display_flags = Flags::from_cmd(&cmd);
+    let mut filtered = filter_artifacts(&cmd, &project.artifacts)?;
+    filtered.sort();
+
+    let ty_ = OutputType::from_str(&cmd.output_ty)?;
+    if ty_ == OutputType::Json {
+        let artifacts: Vec<_> = filtered.iter().map(|n| project.artifacts.get(n)).collect();
+        write!(w, "{}", expect!(json::to_string_pretty(&artifacts)))?;
+        return Ok(0);
+    }
+
+    if cmd.long {
+        for name in filtered.iter() {
+            let art = &project.artifacts[name];
+            for el in &mut art.full_style(&project.artifacts, &display_flags) {
+                if cmd.plain {
+                    el.set_plain();
+                }
+                el.paint(&mut w)?;
+            }
+        }
+    } else {
+        display_table(&mut w, &cmd, &display_flags, &filtered, &project.artifacts)?;
+    }
+
     Ok(0)
+}
+
+fn filter_artifacts(cmd: &Ls, artifacts: &OrderMap<Name, Artifact>) -> Result<OrderSet<Name>> {
+    let fields = Flags::from_str(&cmd.fields)?;
+    ensure!(!fields.impl_, "I/impl field not supported in search");
+    let re = match cmd.pattern {
+        Some(ref p) => {
+            if p.starts_with("(?") {
+                Regex::new(p)
+            } else {
+                // ignore case by default
+                Regex::new(&format!("(?i){}", p))
+            }?
+        }
+        None => return Ok(artifacts.keys().cloned().collect()),
+    };
+    // return true if we should keep
+    let filter_map = |(name, art): (&Name, &Artifact)| -> Option<Name> {
+        debug_assert_eq!(name, &art.name);
+        macro_rules! check { [$field:expr] => {{
+            if !re.is_match($field) {
+                return None;
+            }
+        }}}
+
+        if fields.name {
+            check!(art.name.as_str());
+        }
+        if fields.file {
+            check!(&art.file.to_string_lossy())
+        }
+        if fields.parts {
+            if art.parts.iter().all(|n| !re.is_match(n.as_str())) {
+                return None;
+            }
+        }
+        if fields.partof {
+            if art.partof.iter().all(|n| !re.is_match(n.as_str())) {
+                return None;
+            }
+        }
+        if fields.text {
+            check!(&art.text);
+        }
+
+        Some(name.clone())
+    };
+
+    Ok(artifacts.iter().filter_map(filter_map).collect())
+}
+
+/// SPC-cli-ls.table
+fn display_table<W: IoWrite>(
+    w: &mut W,
+    cmd: &Ls,
+    display_flags: &Flags,
+    filtered: &OrderSet<Name>,
+    artifacts: &OrderMap<Name, Artifact>,
+) -> io::Result<()> {
+    let mut header = vec![vec![t!("spc%").bold()], vec![t!("tst%").bold()]];
+    if display_flags.name {
+        header.push(vec![t!(" | name").bold()]);
+    }
+    if display_flags.subnames {
+        header.push(vec![t!(" | subnames").bold()]);
+    }
+    if display_flags.parts {
+        header.push(vec![t!(" | parts").bold()]);
+    }
+    if display_flags.partof {
+        header.push(vec![t!(" | partof").bold()]);
+    }
+    if display_flags.file {
+        header.push(vec![t!(" | file").bold()]);
+    }
+    if display_flags.impl_ {
+        header.push(vec![t!(" | impl").bold()]);
+    }
+    if display_flags.text {
+        header.push(vec![t!(" | text").bold()]);
+    }
+    let mut rows = Vec::with_capacity(filtered.len() + 1);
+    rows.push(header);
+
+    rows.extend(
+        filtered
+            .iter()
+            .map(|name| artifacts[name].line_style(artifacts, &display_flags)),
+    );
+    let mut table = El::Table(Table::new(rows));
+    if cmd.plain {
+        table.set_plain();
+    }
+    table.paint(w)
+}
+
+#[derive(Debug, Eq, PartialEq)]
+enum OutputType {
+    List,
+    Json,
+}
+
+impl OutputType {
+    fn from_str(s: &str) -> Result<OutputType> {
+        Ok(match s {
+            "list" => OutputType::List,
+            "json" => OutputType::Json,
+            _ => bail!("Invalid output type: {}", s),
+        })
+    }
 }
 
 #[derive(Debug, Eq, PartialEq, Copy, Clone)]
 struct Flags {
     name: bool,
     file: bool,
+    subnames: bool,
     parts: bool,
     partof: bool,
-    code: bool,
+    impl_: bool,
     text: bool,
 }
 
 lazy_static!{
     pub static ref VALID_SEARCH_FIELDS: OrderSet<&'static str> = OrderSet::from_iter(
-        ["N", "F", "P", "O", "C", "T", "A",
-        "name", "file", "parts", "partof", "code", "text", "all"]
+        ["N", "F", "S", "P", "O", "I", "T", "A",
+        "name", "file", "subnames", "parts", "partof", "impl", "text", "all"]
         .iter().map(|s| *s));
 
     pub static ref ANY_UPPERCASE: Regex = Regex::new("[A-Z]").unwrap();
@@ -128,26 +295,31 @@ lazy_static!{
 
 impl Default for Flags {
     fn default() -> Flags {
-        Flags {
-            name: true,
-            file: false,
-            parts: true,
-            partof: false,
-            code: false,
-            text: false,
-        }
+        let mut out = Flags::empty();
+        out.name = true;
+        out.parts = true;
+        out
     }
 }
 
 impl Flags {
-    pub fn from_str<'a>(s: &'a str) -> Result<Flags> {
-        if s.is_empty() {
-            return Ok(Flags::default());
+    pub fn empty() -> Flags {
+        Flags {
+            name: false,
+            file: false,
+            subnames: false,
+            parts: false,
+            partof: false,
+            impl_: false,
+            text: false,
         }
-        let first_char = s.chars().next().unwrap();
+    }
+
+    pub fn from_str<'a>(s: &'a str) -> Result<Flags> {
+        ensure!(!s.is_empty(), "Must search at least one field");
         let flags: OrderSet<&'a str> = if s.contains(',') {
             s.split(',').filter(|s| !s.is_empty()).collect()
-        } else if ANY_UPPERCASE.find(s).is_none() {
+        } else if !ANY_UPPERCASE.is_match(s) {
             orderset!(s)
         } else {
             s.split("").filter(|s| !s.is_empty()).collect()
@@ -161,23 +333,39 @@ impl Flags {
         let out = Flags {
             name: fc("N") || fc("name"),
             file: fc("F") || fc("file"),
+            subnames: fc("S") || fc("subnames"),
             parts: fc("P") || fc("parts"),
             partof: fc("O") || fc("partof"),
-            code: fc("C") || fc("code"),
+            impl_: fc("I") || fc("impl"),
             text: fc("T") || fc("text"),
         };
         Ok(out.resolve_actual(all))
     }
 
     /// Get the given flags from the command
-    pub fn from_cmd(cmd: Ls) -> Flags {
+    pub fn from_cmd(cmd: &Ls) -> Flags {
         let out = Flags {
             name: cmd.name,
             file: cmd.file,
+            subnames: cmd.subnames,
             parts: cmd.parts,
             partof: cmd.partof,
-            code: cmd.code,
+            impl_: cmd.impl_,
             text: cmd.text,
+        };
+        let out = if cmd.long && !cmd.all && out.len() == 0 {
+            // For the "long" form we display everything by default
+            Flags {
+                name: true,
+                file: true,
+                subnames: true,
+                parts: true,
+                partof: true,
+                impl_: true,
+                text: true,
+            }
+        } else {
+            out
         };
         out.resolve_actual(cmd.all)
     }
@@ -197,9 +385,7 @@ impl Flags {
 
     /// Return the number of flags set
     pub fn len(&self) -> usize {
-        macro_rules! u { [$v:expr] => {{ $v as usize }}}
-
-        macro_rules! add { ( $( $x:expr ),* ) => {{
+        macro_rules! add { [ $( $x:expr ),* ] => {{
             let mut out = 0;
             $( out += $x as usize; )*
             out
@@ -207,9 +393,10 @@ impl Flags {
         add!(
             self.name,
             self.file,
+            self.subnames,
             self.parts,
             self.partof,
-            self.code,
+            self.impl_,
             self.text
         )
     }
@@ -219,71 +406,133 @@ impl Flags {
         Flags {
             name: !self.name,
             file: !self.file,
+            subnames: !self.subnames,
             parts: !self.parts,
             partof: !self.partof,
-            code: !self.code,
+            impl_: !self.impl_,
             text: !self.text,
         }
     }
 }
 
 /// Faster `Text`
-macro_rules! t { [$t:expr] => {{
-    Text::new($t.into())
-}}}
-
 trait ArtifactExt {
-    fn line_style(
-        &self,
-        artifacts: &OrderMap<Name, Artifact>,
-        flags: &Flags,
-        plain: bool,
-    ) -> Vec<Vec<Text>>;
+    fn line_style(&self, artifacts: &OrderMap<Name, Artifact>, flags: &Flags) -> Vec<Vec<Text>>;
+
+    fn full_style(&self, artifacts: &OrderMap<Name, Artifact>, flags: &Flags) -> Vec<El>;
+
     fn name_style(&self) -> Text;
+
+    fn subname_style(&self, subname: &SubName) -> Text;
 }
 
 impl ArtifactExt for Artifact {
-    fn line_style(
-        &self,
-        artifacts: &OrderMap<Name, Artifact>,
-        flags: &Flags,
-        plain: bool,
-    ) -> Vec<Vec<Text>> {
+    fn line_style(&self, artifacts: &OrderMap<Name, Artifact>, flags: &Flags) -> Vec<Vec<Text>> {
         let mut out = Vec::with_capacity(flags.len() + 2);
-        macro_rules! push { [$item:expr] => {{
+        macro_rules! cell { [$item:expr] => {{
             let mut cell = $item;
-            cell.push(t!("|"));
+            cell.insert(0, t!(" | "));
             out.push(cell);
         }}};
 
         out.push(vec![self.completed.spc_style()]);
-        push!(vec![self.completed.tst_style()]);
+        out.push(vec![self.completed.tst_style()]);
 
         if flags.name {
-            push!(vec![self.name_style()])
+            cell!(vec![self.name_style()])
+        }
+        if flags.subnames {
+            let mut styles = Vec::new();
+            for s in self.subnames.iter() {
+                styles.push(self.subname_style(s));
+                styles.push(t!(", "));
+            }
+            if !styles.is_empty() {
+                styles.pop(); // remove trailing comma
+            }
+            cell!(styles);
         }
         if flags.parts {
-            push!(lookup_name_styles(artifacts, &self.parts));
+            cell!(lookup_name_styles(artifacts, &self.parts));
         }
         if flags.partof {
-            push!(lookup_name_styles(artifacts, &self.partof));
+            cell!(lookup_name_styles(artifacts, &self.partof));
         }
         if flags.file {
-            push!(vec![t!(self.file.display().to_string())]);
+            cell!(vec![t!(self.file.display().to_string())]);
         }
-        if flags.code {
-            push!(vec![t!(self.impl_.to_string())]);
+        if flags.impl_ {
+            cell!(vec![t!(self.impl_.to_string())]);
         }
         if flags.text {
-            push!(vec![t!(truncate(&self.text, 30))]);
+            cell!(vec![t!(truncate(&self.text, 30).replace("\n", "\\n"))]);
         }
-        let last = out.len() - 1;
-        out[last].pop(); // remove last `|`
+        out
+    }
+
+    fn full_style(&self, artifacts: &OrderMap<Name, Artifact>, flags: &Flags) -> Vec<El> {
+        let mut out = Vec::new();
+
+        macro_rules! line { [ $( $x:expr ),* ] => {{
+            $( out.push(El::Text($x)); )*
+            out.push(El::Text(t!("\n")));
+        }}}
+
+        macro_rules! extend_names { [ $title:expr, $x:expr ] => {{
+            line![t!(concat!($title, ":")).bold()];
+            for name in lookup_name_styles(artifacts, &$x) {
+                line![t!("- ").bold(), name];
+            }
+        }}}
+
+        // Name and completion
+        line![t!("# ").bold(), self.name_style().bold()];
+        line![
+            t!("Completed: spc=").bold(),
+            self.completed.spc_style(),
+            t!("%  tst=").bold(),
+            self.completed.tst_style(),
+            t!("%").bold()
+        ];
+
+        if flags.file {
+            line![t!("File: ").bold(), t!(self.file.display().to_string())];
+        }
+        if flags.impl_ {
+            line![t!("Implemented: ").bold(), t!(self.impl_.to_string())];
+        }
+        if flags.parts {
+            extend_names!("Parts", self.parts);
+        }
+        if flags.partof {
+            extend_names!("Partof", self.partof);
+        }
+        if flags.text {
+            line![t!(self.text.trim_right().to_string())]
+        }
+
+        line![t!("\n\n")];
+
         out
     }
 
     fn name_style(&self) -> Text {
         t!(self.name.as_str()).color(self.completed.name_color())
+    }
+
+    fn subname_style(&self, sub: &SubName) -> Text {
+        let color = match self.impl_ {
+            Impl::Done(_) => Red,
+            Impl::Code(ref code) => {
+                if code.secondary.contains_key(sub) {
+                    Green
+                } else {
+                    Red
+                }
+            }
+            Impl::NotImpl => Red,
+        };
+        t!(sub.as_str()).color(color)
     }
 }
 
@@ -323,7 +572,7 @@ trait CompletedExt {
 }
 
 impl CompletedExt for Completed {
-    /// #SPC-ls.color_spc
+    /// #SPC-cli-ls.color_spc
     fn spc_style(&self) -> Text {
         let color = match self.spc_points() {
             0 => Red,
@@ -347,7 +596,7 @@ impl CompletedExt for Completed {
         }
     }
 
-    /// #SPC-ls.color_spc
+    /// #SPC-cli-ls.color_tst
     fn tst_style(&self) -> Text {
         let color = match self.tst_points() {
             0 => Red,
@@ -368,7 +617,7 @@ impl CompletedExt for Completed {
         }
     }
 
-    /// #SPC-ls.color_name
+    /// #SPC-cli-ls.color_name
     fn name_color(&self) -> Color {
         match self.spc_points() + self.tst_points() {
             0 => Red,
@@ -386,11 +635,10 @@ fn test_flags_str() {
     macro_rules! from_str { ($f:expr) => {{
         expect!(Flags::from_str($f))
     }}}
-    assert_eq!(flags, from_str!(""));
     assert_eq!(flags, from_str!("NP"));
     assert_eq!(flags, from_str!("N,parts"));
     assert_eq!(flags, from_str!("name,parts"));
-    assert_eq!(flags, from_str!("AFOCT"));
+    assert_eq!(flags, from_str!("AFOITS"));
     flags.text = true;
     assert_eq!(flags, from_str!("NTP"));
     assert_eq!(flags, from_str!("TNP"));
@@ -399,6 +647,8 @@ fn test_flags_str() {
     flags.text = false;
     assert_eq!(flags, from_str!("N"));
     assert_eq!(flags, from_str!("name"));
+
+    assert!(Flags::from_str("").is_err());
 }
 
 #[test]
@@ -442,12 +692,12 @@ fn test_style() {
     let expected = vec![
         // % spc+tst completed
         vec![t!("100.0").color(Green)],
-        vec![t!("0.3").color(Red), t!("|")],
+        vec![t!("0.3").color(Red)],
         // name
-        vec![t!("REQ-foo").color(Blue), t!("|")],
+        vec![t!(" | "), t!("REQ-foo").color(Blue)],
         // parts
-        vec![],
+        vec![t!(" | ")],
     ];
     let flags = Flags::default();
-    assert_eq!(expected, art.line_style(&artifacts, &flags, false));
+    assert_eq!(expected, art.line_style(&artifacts, &flags));
 }

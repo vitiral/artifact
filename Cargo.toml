@@ -30,11 +30,13 @@ serde = "1.0.*"
 serde_derive = "1.*"
 structopt = "0.1.7"
 structopt-derive = "0.1.6"
-termstyle = "0.1.1"
+termstyle = "0.1.2"
 unicode-segmentation = "1.2.0"
 unicode-width = "0.1.4"
 expect_macro = "0.2.0"
 ordermap = "0.4.0"
+nickel = "0.10.1"
+jsonrpc-core = "7.*"
 
 [dependencies.artifact-data]
 path = "artifact-data"
@@ -51,3 +53,4 @@ default-features = false
 
 [dev-dependencies]
 assert_cli = "0.5.4"
+# pretty_assertions = "0.5.0"
