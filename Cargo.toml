@@ -77,7 +77,7 @@ features = [
     "v4",
     "serde",
 ]
-version = "0.5.1"
+version = "0.6"
 
 [dev-dependencies]
 fs_extra = "1.0.0"
