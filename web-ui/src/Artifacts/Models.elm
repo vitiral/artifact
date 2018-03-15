@@ -24,42 +24,63 @@ artifactsUrl =
     "#artifacts"
 
 
+newId : String
+newId =
+    "new-artifact"
+
 
 -- TYPES
 
 
 type alias Project =
     { artifacts : Artifacts
-    , files : Set.Set String
+    , paths : ProjectPaths
     }
 
+type alias ProjectPaths =
+    { base: String
+    , code_paths : Set.Set String
+    , exclude_code_paths : Set.Set String
+    , artifact_paths : Set.Set String
+    , exclude_artifact_paths : Set.Set String
+    }
 
 type alias ProjectData =
     { artifacts : List Artifact
-    , files : Set.Set String
+    , paths : ProjectPaths
+    , code_impls: Dict.Dict String ImplCode
     , checked : String
-    , uuid : String
     }
 
+type alias Completed =
+    { spc: Float
+    , tst: Float
+    }
 
 {-| representation of an Artifact object
 -}
 type alias Artifact =
     { id : ArtifactId
-    , revision : Int
     , name : Name
-    , def : String
+    , file : String
     , text : String
-    , subnames : List String
     , partof : List Name
     , parts : List Name
-    , code : Maybe FullLocs
-    , done : Maybe String
-    , completed : Float
-    , tested : Float
-    , edited : Maybe EditableArtifact
+    , completed : Completed
+    , impl : Impl
+    , subnames : List String
+    , edited: Maybe EditableArtifact
     }
 
+type Impl
+    = Done String
+    | Code ImplCode
+    | NotImpl
+
+type alias ImplCode =
+    { primary: Maybe Loc
+    , secondary: Dict.Dict String Loc
+    }
 
 type alias FullLocs =
     { root : Maybe Loc
@@ -68,7 +89,7 @@ type alias FullLocs =
 
 
 type alias Loc =
-    { path : String
+    { file : String
     , line : Int
     }
 
@@ -83,7 +104,7 @@ type alias Name =
 {-| pretty much only used when updating artifacts
 -}
 type alias ArtifactId =
-    Int
+    String
 
 
 {-| the type of the artifact name
@@ -110,11 +131,11 @@ type alias Artifacts =
 -}
 type alias EditableArtifact =
     { name : String
-    , def : String
-    , text : String
+    , file : String
     , partof : List Name
-    , done : String
-    , revision : Int
+    , done : Maybe String
+    , text : String
+    , original_id: ArtifactId
     }
 
 
@@ -311,39 +332,39 @@ or creates the default one
 -}
 getEditable : Artifact -> EditableArtifact
 getEditable artifact =
-    case artifact.edited of
-        Just e ->
-            e
+    -- FIXME
+    -- case artifact.edited of
+    --     Just e ->
+    --         e
 
-        Nothing ->
+    --     Nothing ->
             createEditable artifact
 
 
 createEditable : Artifact -> EditableArtifact
 createEditable artifact =
     { name = artifact.name.raw
-    , def = artifact.def
+    , file = artifact.file
     , text = artifact.text
     , partof = artifact.partof
     , done =
-        case artifact.done of
-            Just s ->
-                s
+        case artifact.impl of
+            Done s ->
+                Just s
 
-            Nothing ->
-                ""
-    , revision = artifact.revision
+            _ ->
+                Nothing
+    , original_id = artifact.id
     }
 
 
 editedDebug : EditableArtifact -> String
 editedDebug e =
     [ "name = " ++ e.name
-    , "def = " ++ e.def
+    , "file = " ++ e.file
     , "text = " ++ e.text
     , "partof = " ++ (String.join ", " <| List.map (\p -> p.raw) e.partof)
-    , "done = " ++ e.done
-    , "revision = " ++ (toString e.revision)
+    , "done = " ++ (Maybe.withDefault "NULL" e.done)
     ]
         |> String.join " "
 
@@ -364,7 +385,7 @@ editedEqual e1 e2 =
                         |> List.map (\p -> p.raw)
 
                 sanitize =
-                    (\e -> { e | partof = [], revision = 0 })
+                    (\e -> { e | partof = []})
 
                 p1 =
                     Set.fromList <| nonAuto n1 e1.partof
@@ -415,7 +436,7 @@ getArtifactId option =
             artifact.id
 
         CreateChoice _ ->
-            0
+            "FIXME: fake"
 
 
 artifactNameUrl : String -> String
@@ -441,7 +462,7 @@ type alias Columns =
     { parts : Bool
     , partof : Bool
     , text : Bool
-    , def : Bool
+    , file : Bool
     , loc : Bool
     }
 
@@ -451,7 +472,7 @@ initialColumns =
     { parts = True
     , partof = False
     , text = True
-    , def = False
+    , file = False
     , loc = False
     }
 

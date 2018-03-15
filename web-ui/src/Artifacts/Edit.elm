@@ -1,5 +1,6 @@
 module Artifacts.Edit exposing (..)
 
+import Maybe exposing (withDefault)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick, onInput)
@@ -143,9 +144,13 @@ doneFieldEdit model choice =
             getEdited choice
 
         editMsg t =
-            setEdited choice { edited | done = t }
-                |> EditArtifact
-                |> ArtifactsMsg
+            let d = case t of
+                "" -> Nothing
+                _ -> Just t
+            in
+                setEdited choice { edited | done = d }
+                    |> EditArtifact
+                    |> ArtifactsMsg
     in
         [ span [ class "bold" ]
             [ Nav.helpBtn HelpDone False
@@ -154,7 +159,7 @@ doneFieldEdit model choice =
         , input
             [ View.idAttr "done" <| EditChoice choice
             , onInput editMsg
-            , value edited.done
+            , value (withDefault "" edited.done)
             ]
             []
         ]

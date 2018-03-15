@@ -132,7 +132,7 @@ revisionWarnings model option =
         EditChoice choice ->
             case choice of
                 ChangeChoice artifact edited ->
-                    if artifact.revision == edited.revision then
+                    if artifact.id == edited.original_id then
                         []
                     else
                         [ h1
@@ -227,7 +227,7 @@ completedPerc artifact =
                 redColor
     in
         span [ class "bold", colorAttr color ]
-            [ text <| (String.left 3 (toString (artifact.completed * 100))) ++ "%" ]
+            [ text <| (String.left 3 (toString (artifact.completed.spc * 100))) ++ "%" ]
 
 
 testedPerc : Artifact -> Html msg
@@ -245,78 +245,82 @@ testedPerc artifact =
                 redColor
     in
         span [ class "bold", colorAttr color ]
-            [ text <| (String.left 3 (toString (artifact.tested * 100))) ++ "%" ]
+            [ text <| (String.left 3 (toString (artifact.completed.tst * 100))) ++ "%" ]
 
 
 implemented : Model -> Artifact -> Html AppMsg
 implemented model artifact =
-    div []
-        (case ( artifact.code, artifact.done ) of
-            ( Just loc, Nothing ) ->
-                [ Nav.helpBtn HelpImplemented False
-                , span [ class "bold" ] [ text "Implemented:" ]
-                , implementedBasic model artifact
-                ]
+    text "FIXME: implemented"
+    -- FIXME
+    -- div []
+    --     (case ( artifact.code, artifact.done ) of
+    --         ( Just loc, Nothing ) ->
+    --             [ Nav.helpBtn HelpImplemented False
+    --             , span [ class "bold" ] [ text "Implemented:" ]
+    --             , implementedBasic model artifact
+    --             ]
 
-            ( Nothing, Just done ) ->
-                [ Nav.helpBtn HelpDone False
-                , span [ class "bold" ] [ text "Defined as done:" ]
-                , implementedBasic model artifact
-                ]
+    --         ( Nothing, Just done ) ->
+    --             [ Nav.helpBtn HelpDone False
+    --             , span [ class "bold" ] [ text "Defined as done:" ]
+    --             , implementedBasic model artifact
+    --             ]
 
-            ( Nothing, Nothing ) ->
-                [ Nav.helpBtn HelpImplemented False
-                , span [ class "bold" ] [ text "Implemented:" ]
-                , implementedBasic model artifact
-                ]
+    --         ( Nothing, Nothing ) ->
+    --             [ Nav.helpBtn HelpImplemented False
+    --             , span [ class "bold" ] [ text "Implemented:" ]
+    --             , implementedBasic model artifact
+    --             ]
 
-            ( Just _, Just _ ) ->
-                -- error is displayed by implementedBasic
-                [ Nav.helpBtn HelpImplemented False
-                , implementedBasic model artifact
-                ]
-        )
+    --         ( Just _, Just _ ) ->
+    --             -- error is displayed by implementedBasic
+    --             [ Nav.helpBtn HelpImplemented False
+    --             , implementedBasic model artifact
+    --             ]
+    --     )
 
 
 {-| show implemented with some settings
 -}
 implementedBasic : Model -> Artifact -> Html m
 implementedBasic model artifact =
-    let
-        ( s, d ) =
-            case ( artifact.code, artifact.done ) of
-                ( Just loc, Nothing ) ->
-                    case loc.root of
-                        Just root ->
-                            ( [], implementedCodeRoot model root )
+    text "FIXME: implementedBasic"
+    -- FIXME
+    -- let
+    --     ( s, d ) =
+    --         case ( artifact.code, artifact.done ) of
+    --             ( Just loc, Nothing ) ->
+    --                 case loc.root of
+    --                     Just root ->
+    --                         ( [], implementedCodeRoot model root )
 
-                        Nothing ->
-                            ( [], text "sublocations are implemented, see text" )
+    --                     Nothing ->
+    --                         ( [], text "sublocations are implemented, see text" )
 
-                ( Nothing, Just done ) ->
-                    ( [], text done )
+    --             ( Nothing, Just done ) ->
+    --                 ( [], text done )
 
-                ( Nothing, Nothing ) ->
-                    ( [ class "italic gray" ], text "not directly implemented" )
+    --             ( Nothing, Nothing ) ->
+    --                 ( [ class "italic gray" ], text "not directly implemented" )
 
-                ( Just _, Just _ ) ->
-                    ( [ class "bold red" ], text "ERROR: code+done both set" )
-    in
-        span (s ++ [ getId "implemented" artifact Nothing ]) [ d ]
+    --             ( Just _, Just _ ) ->
+    --                 ( [ class "bold red" ], text "ERROR: code+done both set" )
+    -- in
+    --     span (s ++ [ getId "implemented" artifact Nothing ]) [ d ]
 
 
 implementedCodeRoot : Model -> Loc -> Html m
 implementedCodeRoot model root =
     let
         plain =
-            root.path ++ "[" ++ (toString root.line) ++ "]"
+            root.file ++ "[" ++ (toString root.line) ++ "]"
     in
         if model.flags.path_url == "" then
             text plain
         else
             let
                 url =
-                    Utils.strReplace "{path}" root.path model.flags.path_url
+                    Utils.strReplace "{path}" root.file model.flags.path_url
                         |> Utils.strReplace "{line}" (toString root.line)
             in
                 a [ href url ] [ text plain ]
@@ -361,9 +365,9 @@ textPiece model artifact =
 
 testedScore : Artifact -> Int
 testedScore artifact =
-    if artifact.tested >= 1.0 then
+    if artifact.completed.tst >= 1.0 then
         2
-    else if artifact.tested >= 0.5 then
+    else if artifact.completed.tst >= 0.5 then
         1
     else
         0
@@ -371,11 +375,11 @@ testedScore artifact =
 
 completedScore : Artifact -> Int
 completedScore artifact =
-    if artifact.completed >= 1.0 then
+    if artifact.completed.spc >= 1.0 then
         3
-    else if artifact.completed >= 0.7 then
+    else if artifact.completed.spc >= 0.7 then
         2
-    else if artifact.completed >= 0.4 then
+    else if artifact.completed.spc >= 0.4 then
         1
     else
         0

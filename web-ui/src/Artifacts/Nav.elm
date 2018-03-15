@@ -373,8 +373,8 @@ checkPartof model name partof =
 
 checkDef : Model -> EditableArtifact -> Result String String
 checkDef model edited =
-    if Set.member edited.def model.files then
-        Ok edited.def
+    if Set.member edited.file model.files then
+        Ok edited.file
     else
         Err "invalid definition path"
 

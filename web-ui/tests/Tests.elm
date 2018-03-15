@@ -25,49 +25,49 @@ import Artifacts.Commands
 import Utils
 
 
-artifact : Artifact
-artifact =
-    { id = 10
-    , revision = 0
-    , name = { value = "REQ-NAME", raw = "req-name", ty = Req }
-    , def = "path"
-    , text = "text"
-    , subnames = []
-    , partof = [ { value = "REQ-PARTOF-1", raw = "req-partof-1", ty = Req } ]
-    , parts = [ { value = "REQ-PART-1", raw = "req-part-1", ty = Req } ]
-    , code = Just { root = Just { path = "path", line = 10 }, sublocs = Dict.empty }
-    , done = Nothing
-    , completed = 0.0
-    , tested = 0.0
-    , edited = Nothing
-    }
-
-
-expectedEncoded =
-    "{\"id\":10,\"revision\":0,\"name\":\"req-name\",\"def\":\"path\",\"text\":\"text\",\"partof\":[\"req-partof-1\"],\"done\":null}"
-
-
-artifactsJson =
-    """
-  [
-    { "id": 10
-    , "revision": 0
-    , "name":"req-name"
-    , "def":"path"
-    , "text": "text"
-    , "subnames": []
-    , "partof": ["req-partof-1"]
-    , "parts": ["req-part-1"]
-    , "code":
-        { "root": { "path": "path", "line": 10 }
-        , "sublocs": {}
-        }
-    , "done": null
-    , "completed": 0.0
-    , "tested": 0.0
-    }
-  ]
-  """
+-- artifact : Artifact
+-- artifact =
+--     { id = 10
+--     , revision = 0
+--     , name = { value = "REQ-NAME", raw = "req-name", ty = Req }
+--     , def = "path"
+--     , text = "text"
+--     , subnames = []
+--     , partof = [ { value = "REQ-PARTOF-1", raw = "req-partof-1", ty = Req } ]
+--     , parts = [ { value = "REQ-PART-1", raw = "req-part-1", ty = Req } ]
+--     , code = Just { root = Just { path = "path", line = 10 }, sublocs = Dict.empty }
+--     , done = Nothing
+--     , completed = 0.0
+--     , tested = 0.0
+--     , edited = Nothing
+--     }
+-- 
+-- 
+-- expectedEncoded =
+--     "{\"id\":10,\"revision\":0,\"name\":\"req-name\",\"def\":\"path\",\"text\":\"text\",\"partof\":[\"req-partof-1\"],\"done\":null}"
+-- 
+-- 
+-- artifactsJson =
+--     """
+--   [
+--     { "id": 10
+--     , "revision": 0
+--     , "name":"req-name"
+--     , "def":"path"
+--     , "text": "text"
+--     , "subnames": []
+--     , "partof": ["req-partof-1"]
+--     , "parts": ["req-part-1"]
+--     , "code":
+--         { "root": { "path": "path", "line": 10 }
+--         , "sublocs": {}
+--         }
+--     , "done": null
+--     , "completed": 0.0
+--     , "tested": 0.0
+--     }
+--   ]
+--   """
 
 
 nameValid : String -> Bool
@@ -91,23 +91,23 @@ testJson =
             [ test "Addition" <|
                 \() ->
                     Expect.equal (3 + 7) 10
-            , test "encode artifact" <|
-                \() ->
-                    let
-                        encoded =
-                            artifactEncoded ( artifact.id, getEditable artifact )
+            -- , test "encode artifact" <|
+            --     \() ->
+            --         let
+            --             encoded =
+            --                 artifactEncoded ( artifact.id, getEditable artifact )
 
-                        result =
-                            Encode.encode 0 encoded
-                    in
-                        Expect.equal result expectedEncoded
-            , test "decode artifact" <|
-                \() ->
-                    let
-                        expected =
-                            Dict.singleton 10 artifact
-                    in
-                        Expect.equal (artifactsFromStrUnsafe artifactsJson) expected
+            --             result =
+            --                 Encode.encode 0 encoded
+            --         in
+            --             Expect.equal result expectedEncoded
+            -- , test "decode artifact" <|
+            --     \() ->
+            --         let
+            --             expected =
+            --                 Dict.singleton 10 artifact
+            --         in
+            --             Expect.equal (artifactsFromStrUnsafe artifactsJson) expected
             ]
         , describe "name: test name validation"
             [ test "valid names 1" <|

@@ -295,11 +295,11 @@ defined model option =
                 ReadChoice artifact ->
                     let
                         url =
-                            strReplace "{path}" artifact.def model.flags.path_url
+                            strReplace "{path}" artifact.file model.flags.path_url
                     in
                         span
                             [ View.idAttr "def" option ]
-                            [ a [ href url ] [ text artifact.def ] ]
+                            [ a [ href url ] [ text artifact.file ] ]
 
                 EditChoice choice ->
                     editDefined model choice
@@ -319,8 +319,8 @@ editDefined model ed_option =
         edited =
             getEdited ed_option
 
-        selectMsg def =
-            ArtifactsMsg <| EditArtifact <| setEdited ed_option { edited | def = def }
+        selectMsg file =
+            ArtifactsMsg <| EditArtifact <| setEdited ed_option { edited | file = file }
 
         warn =
             case Nav.checkDef model edited of
@@ -331,21 +331,21 @@ editDefined model ed_option =
                     [ warning e ]
 
         elements =
-            [ [ span [ class "bold" ] [ text edited.def ]
+            [ [ span [ class "bold" ] [ text edited.file ]
               , select
                     [ class "select-tiny"
-                    , View.idAttr "def" (EditChoice ed_option)
+                    , View.idAttr "file" (EditChoice ed_option)
                     , onChange selectMsg
                     ]
                     (List.map
                         (\d ->
                             option
                                 [ value d
-                                , selected (d == edited.def)
+                                , selected (d == edited.file)
                                 ]
                                 [ text <| "  " ++ d ]
                         )
-                        (getFiles model <| Just edited.def)
+                        (getFiles model <| Just edited.file)
                     )
               ]
             , warn

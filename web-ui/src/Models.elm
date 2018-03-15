@@ -29,6 +29,7 @@ type alias RenderedText =
 
 type alias Model =
     { artifacts : Artifacts
+    -- FIXME: this needs to be ProjectPaths
     , files : Set.Set String
     , checked : String
     , uuid : String
@@ -117,11 +118,11 @@ getCreateArtifact model =
 
         Nothing ->
             { name = ""
-            , def = ""
+            , file = ""
             , text = ""
             , partof = []
-            , done = ""
-            , revision = 0
+            , done = Nothing
+            , original_id = "FIXME: fake id"
             }
 
 

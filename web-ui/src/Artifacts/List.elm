@@ -38,7 +38,7 @@ view model artifacts =
 {-| SELECT COL
 select which attrs to view
 
-ids: select_col_{arts, partof, text, def, done}
+ids: select_col_{arts, partof, text, file, done}
 
 -}
 select : Model -> Html AppMsg
@@ -52,7 +52,7 @@ select model =
             , selectColBtn "parts" cols.parts (\s -> { cols | parts = s })
             , selectColBtn "partof" cols.partof (\s -> { cols | partof = s })
             , selectColBtn "text" cols.text (\s -> { cols | text = s })
-            , selectColBtn "def" cols.def (\s -> { cols | def = s })
+            , selectColBtn "file" cols.file (\s -> { cols | file = s })
             , selectColBtn "done" cols.loc (\s -> { cols | loc = s })
             ]
 
@@ -231,8 +231,8 @@ list model =
                     else
                         []
                    )
-                ++ (if columns.def then
-                        [ th [ cls, w2, id "th_def" ] [ text "Def" ] ]
+                ++ (if columns.file then
+                        [ th [ cls, w2, id "th_file" ] [ text "Def" ] ]
                     else
                         []
                    )
@@ -285,8 +285,8 @@ artifactRow model artifact =
                     else
                         []
                    )
-                ++ (if columns.def then
-                        [ td [ s, cls, w2 ] [ text artifact.def ] ]
+                ++ (if columns.file then
+                        [ td [ s, cls, w2 ] [ text artifact.file ] ]
                     else
                         []
                    )

@@ -24,7 +24,7 @@ import Debounce
 
 initialModel : Navigation.Location -> Flags -> Route -> Model
 initialModel location flags route =
-    { artifacts = artifactsFromStrUnsafe "[]"
+    { artifacts = artifactsFromStrUnsafe "{}"
     , files = Set.empty
     , checked = ""
     , uuid = ""

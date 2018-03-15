@@ -11,7 +11,7 @@ mod handler;
 #[cfg_attr(rustfmt, rustfmt_skip)]
 // #SPC-cli-serve.args
 pub struct Serve {
-    #[structopt(long = "verbose", short = "v", default_value="0")]
+    #[structopt(long = "verbose", short = "v", parse(from_occurrences))]
     /// Pass many times for more log output.
     pub verbosity: u64,
 
@@ -43,10 +43,14 @@ pub fn run(cmd: Serve) -> Result<i32> {
 
 
     let (lints, project) = read_project(repo)?;
-    let locked = LockedData {
-        project: project,
-        lints: lints,
-    };
+    {
+        let mut locked = LOCKED.lock().unwrap();
+        *locked = Some(LockedData {
+            project: project,
+            lints: lints,
+        });
+    }
 
+    handler::start_api(cmd);
     Ok(0)
 }

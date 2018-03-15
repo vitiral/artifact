@@ -7,6 +7,7 @@ use tar::Archive;
 use tempdir::TempDir;
 use jsonrpc_core::{IoHandler, Error as RpcError, ErrorCode, Params, RpcMethodSync};
 use std::result;
+use std::mem;
 
 // use api::crud;
 use serve;
@@ -18,7 +19,7 @@ lazy_static! {
     pub static ref RPC_HANDLER: IoHandler = init_rpc_handler();
 }
 
-const WEB_FRONTEND_TAR: &'static [u8] = include_bytes!("data/web-ui.tar");
+const WEB_FRONTEND_TAR: &'static [u8] = include_bytes!("../../web-ui/target/web-ui.tar");
 const REPLACE_FLAGS: &str = "{/* REPLACE WITH FLAGS */}";
 
 
@@ -29,15 +30,53 @@ struct Flags {
     path_url: String,
 }
 
+// ----- SERVER -----
+
+pub fn start_api(cmd: super::Serve) {
+    let endpoint = "/json-rpc";
+    let mut server = Box::new(Nickel::new());
+
+    server.get(endpoint, handle_artifacts);
+    server.put(endpoint, handle_artifacts);
+    server.options(endpoint, handle_options);
+
+    let running = Arc::new(AtomicBool::new(true));
+    let r = running.clone();
+    ctrlc::set_handler(move || { r.store(false, AtomicOrdering::SeqCst); })
+        .expect("Error setting Ctrl-C handler");
+
+    // host the frontend files using a static file handler
+    // and own the tmpdir for as long as needed
+    let tmp_dir = host_frontend(&mut server, &cmd);
+
+    // everything in a thread has to be owned by the thread
+    let addr = format!("127.0.0.1:{}", cmd.port);
+    let th = spawn(move || {
+        server.listen(addr).expect("cannot connect to port");
+    });
+
+     println!("exit with ctrlc+C or SIGINT");
+     while running.load(AtomicOrdering::SeqCst) {
+         sleep(Duration::new(0, 10 * 1e6 as u32));
+     }
+
+    debug!("Got SIGINT, cleaning up");
+    let locked = super::LOCKED.lock().unwrap();
+    mem::forget(locked); // never unlock again
+    debug!("All cleaned up, exiting");
+}
+
 // ----- API CALLS -----
 
 /// the rpc initializer that implements the API spec
 fn init_rpc_handler() -> IoHandler {
     let mut handler = IoHandler::new();
-    // TODO: rename to ReadProject instead of ReadArtifacts
     // FIXME
     // handler.add_method("CreateArtifacts", crud::CreateArtifacts);
+
+    // TODO: rename to ReadProject instead of ReadArtifacts
     handler.add_method("ReadArtifacts", ReadArtifacts);
+
     // handler.add_method("UpdateArtifacts", crud::UpdateArtifacts);
     // handler.add_method("DeleteArtifacts", crud::DeleteArtifacts);
     handler
@@ -71,12 +110,11 @@ fn handle_artifacts<'a>(req: &mut Request, mut res: Response<'a>) -> MiddlewareR
         }
     };
 
-    debug!("body: {:?}", body);
-    unimplemented!();
+    debug!("request: {:?}", body);
     match RPC_HANDLER.handle_request_sync(body) {
         Some(body) => {
-            trace!("- response {}", body);
             config_json_res(&mut res);
+            trace!("- response {}", body);
             res.send(body)
         }
         None => {
