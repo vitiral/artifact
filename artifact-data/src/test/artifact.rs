@@ -20,8 +20,6 @@
 
 use test::dev_prelude::*;
 use test::framework::run_interop_tests;
-use intermediate::ArtifactIm;
-use name::Name;
 use artifact;
 
 #[test]
@@ -38,7 +36,7 @@ fn sanity_determine_partofs() {
         }
     }
 
-    let arts = ordermap!{
+    let arts = indexmap!{
         name!("REQ-aaa") => with_partof(vec![]),
         // test auto-parent
         name!("REQ-aaa-a") => with_partof(vec![]),
@@ -52,13 +50,13 @@ fn sanity_determine_partofs() {
     };
 
     let mut partofs = artifact::determine_partofs(&arts);
-    let mut expected = ordermap!{
-        name!("REQ-aaa") => orderset![],
-        name!("REQ-aaa-a") => orderset![name!("REQ-aaa")],
-        name!("SPC-aaa-a") => orderset![name!("REQ-aaa-a")],
-        name!("SPC-bbb") => orderset![],
-        name!("SPC-bbb-p") => orderset![name!("SPC-bbb"), name!("REQ-aaa")],
-        name!("SPC-ccc") => orderset![name!("REQ-aaa")],
+    let mut expected = indexmap!{
+        name!("REQ-aaa") => indexset![],
+        name!("REQ-aaa-a") => indexset![name!("REQ-aaa")],
+        name!("SPC-aaa-a") => indexset![name!("REQ-aaa-a")],
+        name!("SPC-bbb") => indexset![],
+        name!("SPC-bbb-p") => indexset![name!("SPC-bbb"), name!("REQ-aaa")],
+        name!("SPC-ccc") => indexset![name!("REQ-aaa")],
     };
     partofs.sort_keys();
     expected.sort_keys();

@@ -32,18 +32,11 @@ termstyle = "0.1.2"
 unicode-segmentation = "1.2.0"
 unicode-width = "0.1.4"
 expect_macro = "0.2.0"
-ordermap = "0.4.0"
+indexmap = {version="1.0.0", features=["serde-1"]}
 nickel = "0.10.1"
 jsonrpc-core = "7.*"
-
-[dependencies.artifact-data]
-path = "artifact-data"
-
-# [dependencies.jsonrpc-core]
-# version = "7.1.0"
-#
-# [dependencies.nickel]
-# version = "0.10.0"
+artifact_data = {path = "artifact-data"}
+artifact_lib = {path = "artifact-lib"}
 
 [dependencies.quicli]
 path = "quicli"

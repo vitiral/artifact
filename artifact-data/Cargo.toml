@@ -1,6 +1,6 @@
 [package]
 authors = ["Garrett Berg <googberg@gmail.com>"]
-name = "artifact-data"
+name = "artifact_data"
 version = "0.1.0"
 
 [dependencies]
@@ -17,10 +17,8 @@ time = "0.1"
 failure = "0.1"
 failure_derive = "0.1"
 log = "0.4.1"
-
-[dependencies.ordermap]
-features = ["serde-1"]
-version = "0.4.0"
+artifact_lib = {path="../artifact-lib"}
+indexmap = {version="1.0.0", features=["serde-1"]}
 
 [dev-dependencies]
 pretty_assertions = "0.4"

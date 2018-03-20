@@ -22,12 +22,15 @@
 #[macro_use]
 extern crate artifact_data;
 
+#[macro_use]
+extern crate artifact_lib;
+
 #[allow(unused_imports)]
 #[macro_use]
 extern crate ergo;
 
 #[macro_use]
-extern crate ordermap;
+extern crate indexmap;
 
 #[allow(unused_imports)]
 #[macro_use]
@@ -37,8 +40,8 @@ extern crate quicli;
 extern crate expect_macro;
 extern crate termstyle;
 
-extern crate nickel;
 extern crate jsonrpc_core;
+extern crate nickel;
 
 // #[macro_use]
 // #[cfg(test)]

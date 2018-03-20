@@ -25,10 +25,8 @@ use std::fmt;
 use ergo::serde::{Deserialize, Deserializer, Serialize, Serializer};
 use ergo::{json, toml, yaml};
 
-use intermediate::ArtifactIm;
-use name::Name;
 use raw_names::NamesRaw;
-use lint;
+use intermediate::ArtifactImExt;
 
 // TYPES
 
@@ -86,13 +84,6 @@ impl<'de> Deserialize<'de> for TextRaw {
     }
 }
 
-pub(crate) fn clean_text(s: &mut String) {
-    string_trim_right(s);
-    if s.contains('\n') {
-        s.push('\n');
-    }
-}
-
 // ------------------------------
 // -- LOAD
 
@@ -100,9 +91,9 @@ pub(crate) fn clean_text(s: &mut String) {
 pub(crate) fn join_artifacts_raw(
     lints: &Sender<lint::Lint>,
     mut art_ims: Vec<ArtifactIm>,
-) -> (OrderMap<Name, PathArc>, OrderMap<Name, ArtifactIm>) {
-    let mut files: OrderMap<Name, PathArc> = OrderMap::with_capacity(art_ims.len());
-    let mut artifacts = OrderMap::with_capacity(art_ims.len());
+) -> (IndexMap<Name, PathArc>, IndexMap<Name, ArtifactIm>) {
+    let mut files: IndexMap<Name, PathArc> = IndexMap::with_capacity(art_ims.len());
+    let mut artifacts = IndexMap::with_capacity(art_ims.len());
     for mut art in art_ims.drain(..) {
         if let Some(dup) = files.insert(art.name.clone(), art.file.clone()) {
             lints
@@ -113,7 +104,7 @@ pub(crate) fn join_artifacts_raw(
                     line: None,
                     msg: format!(
                         "duplicate name detected: {} in {}",
-                        art.name.as_str(),
+                        art.name,
                         dup.display()
                     ),
                 })
@@ -126,7 +117,7 @@ pub(crate) fn join_artifacts_raw(
                     line: None,
                     msg: format!(
                         "duplicate name detected: {} in {}",
-                        art.name.as_str(),
+                        art.name,
                         art.file.display()
                     ),
                 })
@@ -156,7 +147,7 @@ pub(crate) fn load_file(lints: &Sender<lint::Lint>, send: &Sender<ArtifactIm>, f
         }
     };
 
-    let r: ::std::result::Result<OrderMap<Name, ArtifactRaw>, String> = match ty {
+    let r: ::std::result::Result<IndexMap<Name, ArtifactRaw>, String> = match ty {
         ArtFileType::Toml => toml::from_str(&text).map_err(|e| e.to_string()),
         ArtFileType::Md => from_markdown(text.as_bytes()).map_err(|e| e.to_string()),
         ArtFileType::Json => json::from_str(&text).map_err(|e| e.to_string()),
@@ -182,15 +173,15 @@ pub(crate) fn load_file(lints: &Sender<lint::Lint>, send: &Sender<ArtifactIm>, f
 
 lazy_static!{
     pub(crate) static ref NAME_LINE_RE: Regex = Regex::new(
-        &format!(r"(?i)^#\s*({})\s*$", ::name::NAME_VALID_STR)).unwrap();
+        &format!(r"(?i)^#\s*({})\s*$", NAME_VALID_STR)).unwrap();
 
     pub(crate) static ref ATTRS_END_RE: Regex = Regex::new(r"^###+\s*$").unwrap();
 }
 
 /// #SPC-read-raw-markdown
 /// Load raw artifacts from a markdown stream
-pub(crate) fn from_markdown<R: Read>(stream: R) -> Result<OrderMap<Name, ArtifactRaw>> {
-    let mut out: OrderMap<Name, ArtifactRaw> = OrderMap::new();
+pub(crate) fn from_markdown<R: Read>(stream: R) -> Result<IndexMap<Name, ArtifactRaw>> {
+    let mut out: IndexMap<Name, ArtifactRaw> = IndexMap::new();
     let mut name: Option<Name> = None;
     let mut attrs: Option<String> = None;
     let mut other: Vec<String> = Vec::new();
@@ -216,7 +207,7 @@ pub(crate) fn from_markdown<R: Read>(stream: R) -> Result<OrderMap<Name, Artifac
             // the `other` lines we have been collecting are attrs!
             if name.is_some() && attrs.is_some() {
                 let e = LoadError::MarkdownError {
-                    msg: format!("`###+\\s+` exists twice under {}", name.unwrap().as_str()),
+                    msg: format!("`###+\\s+` exists twice under {}", name.unwrap()),
                 };
                 return Err(e.into());
             }
@@ -242,7 +233,7 @@ struct AttrsRaw {
 
 /// Inserts the artifact based on parts gotten from markdown.
 fn insert_from_parts(
-    out: &mut OrderMap<Name, ArtifactRaw>,
+    out: &mut IndexMap<Name, ArtifactRaw>,
     name: &Name,
     attrs: Option<String>,
     other: &[String],
@@ -272,7 +263,7 @@ fn insert_from_parts(
     };
     if out.insert(name.clone(), art).is_some() {
         let e = LoadError::MarkdownError {
-            msg: format!("name exists twice: {}", name.as_str()),
+            msg: format!("name exists twice: {}", name),
         };
         Err(e.into())
     } else {
@@ -283,7 +274,7 @@ fn insert_from_parts(
 // WRITE MARKDOWN
 
 /// Convert the artifacts to markdown
-pub(crate) fn to_markdown(raw_artifacts: &OrderMap<Name, ArtifactRaw>) -> String {
+pub(crate) fn to_markdown(raw_artifacts: &IndexMap<Name, ArtifactRaw>) -> String {
     let mut out = String::new();
     for (name, raw) in raw_artifacts {
         push_artifact_md(&mut out, name, raw);
@@ -301,7 +292,7 @@ fn to_yaml<S: Serialize>(value: &S) -> String {
 
 /// Push a single artifact onto the document
 fn push_artifact_md(out: &mut String, name: &Name, raw: &ArtifactRaw) {
-    write!(out, "# {}\n", name.as_str()).unwrap();
+    write!(out, "# {}\n", name).unwrap();
 
     // push attrs if they exist
     if raw.done.is_some() || raw.partof.is_some() {
@@ -329,13 +320,13 @@ fn push_attrs(out: &mut String, raw: &ArtifactRaw) {
             panic!("partof is not None but has no length");
         } else if partof.len() == 1 {
             let n = partof.iter().next().unwrap();
-            write!(out, " {}", n.as_str()).unwrap();
+            write!(out, " {}", n).unwrap();
         } else {
             write!(out, "\n").unwrap();
             let mut partof = partof.iter().cloned().collect::<Vec<_>>();
             partof.sort();
             for n in &partof {
-                write!(out, "- {}\n", n.as_str()).unwrap();
+                write!(out, "- {}\n", n).unwrap();
             }
         }
     }

@@ -5,7 +5,7 @@ use nickel::status::StatusCode;
 use ergo::json;
 use tar::Archive;
 use tempdir::TempDir;
-use jsonrpc_core::{IoHandler, Error as RpcError, ErrorCode, Params, RpcMethodSync};
+use jsonrpc_core::{Error as RpcError, ErrorCode, IoHandler, Params, RpcMethodSync};
 use std::result;
 use std::mem;
 
@@ -21,7 +21,6 @@ lazy_static! {
 
 const WEB_FRONTEND_TAR: &'static [u8] = include_bytes!("../../web-ui/target/web-ui.tar");
 const REPLACE_FLAGS: &str = "{/* REPLACE WITH FLAGS */}";
-
 
 #[derive(Debug, Serialize, Deserialize)]
 struct Flags {
@@ -42,8 +41,9 @@ pub fn start_api(cmd: super::Serve) {
 
     let running = Arc::new(AtomicBool::new(true));
     let r = running.clone();
-    ctrlc::set_handler(move || { r.store(false, AtomicOrdering::SeqCst); })
-        .expect("Error setting Ctrl-C handler");
+    ctrlc::set_handler(move || {
+        r.store(false, AtomicOrdering::SeqCst);
+    }).expect("Error setting Ctrl-C handler");
 
     // host the frontend files using a static file handler
     // and own the tmpdir for as long as needed
@@ -55,10 +55,10 @@ pub fn start_api(cmd: super::Serve) {
         server.listen(addr).expect("cannot connect to port");
     });
 
-     println!("exit with ctrlc+C or SIGINT");
-     while running.load(AtomicOrdering::SeqCst) {
-         sleep(Duration::new(0, 10 * 1e6 as u32));
-     }
+    println!("exit with ctrlc+C or SIGINT");
+    while running.load(AtomicOrdering::SeqCst) {
+        sleep(Duration::new(0, 10 * 1e6 as u32));
+    }
 
     debug!("Got SIGINT, cleaning up");
     let locked = super::LOCKED.lock().unwrap();
@@ -148,7 +148,7 @@ fn host_frontend(server: &mut Nickel, cmd: &serve::Serve) -> TempDir {
         .expect("app.js couldn't be read");
     app_js.seek(SeekFrom::Start(0)).unwrap();
     app_js.set_len(0).unwrap(); // delete what is there
-    // the elm app uses a certain address by default, replace it
+                                // the elm app uses a certain address by default, replace it
 
     assert!(text.contains(REPLACE_FLAGS));
     let flags = Flags {
@@ -196,4 +196,3 @@ fn handle_options<'a>(_: &mut Request, mut res: Response<'a>) -> MiddlewareResul
     res.set(StatusCode::Ok);
     res.send("ok")
 }
-

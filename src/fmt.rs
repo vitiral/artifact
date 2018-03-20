@@ -23,7 +23,7 @@ use artifact_data::*;
 #[structopt(name = "fmt")]
 /// Format the project and change the filetype.
 pub struct Fmt {
-    #[structopt(long = "verbose", short = "v", default_value="0")]
+    #[structopt(long = "verbose", short = "v", default_value = "0")]
     /// Pass many times for more log output.
     pub verbosity: u64,
 

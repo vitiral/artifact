@@ -18,7 +18,6 @@
 //! This module is for testing the serialization and deserialization
 //! of RAW artifacts.
 
-use name::{Name, SubName};
 use raw::{from_markdown, to_markdown, ArtifactRaw, TextRaw, ATTRS_END_RE, NAME_LINE_RE};
 use raw_names::NamesRaw;
 use test::dev_prelude::*;
@@ -33,7 +32,7 @@ use test::implemented::random_impl_links;
 /// This is used mostly in case `\n# ART-name\n` is randomly inserted
 pub fn lines_to_text_raw<R: Rng + Clone>(
     rng: &mut R,
-    subnames: &OrderSet<SubName>,
+    subnames: &IndexSet<SubName>,
     references: &[&(Name, Option<SubName>)],
     mut lines: Vec<Vec<String>>,
 ) -> Option<TextRaw> {
@@ -79,12 +78,12 @@ pub fn arb_raw_artifacts(size: usize) -> BoxedStrategy<BTreeMap<Name, ArtifactRa
 
             // TODO: this should probably use logic defined somewhere else
             // but that logic doesn't exist yet
-            let mut subnames: OrderMap<Name, OrderSet<SubName>> =
-                OrderMap::with_capacity(impl_links.len());
+            let mut subnames: IndexMap<Name, IndexSet<SubName>> =
+                IndexMap::with_capacity(impl_links.len());
             for &(ref name, ref sub) in &impl_links {
                 let insert_it = !subnames.contains_key(name);
                 if insert_it {
-                    subnames.insert(name.clone(), orderset![]);
+                    subnames.insert(name.clone(), indexset![]);
                 }
                 if let Some(ref s) = *sub {
                     let mut subs = subnames.get_mut(name).unwrap();
@@ -102,7 +101,7 @@ pub fn arb_raw_artifacts(size: usize) -> BoxedStrategy<BTreeMap<Name, ArtifactRa
                     if p.is_empty() {
                         None
                     } else {
-                        Some(NamesRaw::from(OrderSet::from_iter(p.iter().cloned())))
+                        Some(NamesRaw::from(IndexSet::from_iter(p.iter().cloned())))
                     }
                 };
                 let lines = random_lines(&mut rng);
@@ -140,14 +139,14 @@ impl ArtifactRaw {
 /// Sometimes I really love compilers.
 ///
 /// There is some kind of lifetime BS if you try to use the function directly...
-fn arts_from_toml_str(s: &str) -> StrResult<OrderMap<Name, ArtifactRaw>> {
+fn arts_from_toml_str(s: &str) -> StrResult<IndexMap<Name, ArtifactRaw>> {
     from_toml_str(s)
 }
 
 /// Sometimes I really love compilers.
 ///
 /// There is some kind of lifetime BS if you try to use the function directly...
-fn arts_from_json_str(s: &str) -> StrResult<OrderMap<Name, ArtifactRaw>> {
+fn arts_from_json_str(s: &str) -> StrResult<IndexMap<Name, ArtifactRaw>> {
     from_json_str(s)
 }
 
@@ -196,7 +195,7 @@ partof:
 - REQ-baz
 - SPC-bar
 ###"#.to_string();
-    let mut exp_1 = ordermap! {
+    let mut exp_1 = indexmap! {
         name!("REQ-foo") => ArtifactRaw {
             done: None,
             partof: None,
@@ -217,7 +216,7 @@ partof:
     exp_1.sort_keys();
 
     /// Redefined to have correct signature
-    fn from_md(raw: &String) -> StrResult<OrderMap<Name, ArtifactRaw>> {
+    fn from_md(raw: &String) -> StrResult<IndexMap<Name, ArtifactRaw>> {
         let out = match from_markdown(raw.as_bytes()) {
             Ok(arts) => arts,
             Err(e) => return Err(e.to_string()),
@@ -241,7 +240,7 @@ partof:
 proptest! {
     #[test]
     fn fuzz_artifacts_serde(ref orig in arb_raw_artifacts(20)) {
-        let mut artifacts = OrderMap::with_capacity(orig.len());
+        let mut artifacts = IndexMap::with_capacity(orig.len());
         for (n, a) in orig.iter() {
             artifacts.insert(n.clone(), a.clone());
         }

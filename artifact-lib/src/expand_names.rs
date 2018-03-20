@@ -32,7 +32,7 @@ use name::{Name, NameError};
 /// Expand a string of names into multiple names.
 ///
 /// i.e. `"REQ-[foo, bar]"` -> `["REQ-foo", "REQ-bar"]`
-pub(crate) fn expand_names(raw: &str) -> Result<OrderSet<Name>> {
+pub fn expand_names(raw: &str) -> Result<IndexSet<Name>> {
     parse_collapsed(&mut raw.chars(), false)?
         .iter()
         .map(|n| Name::from_str(n))

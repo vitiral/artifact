@@ -21,17 +21,8 @@ use time;
 use dev_prelude::*;
 use artifact;
 use implemented;
-use lint;
-use name::{Name, SubName};
 use raw;
 use settings;
-
-#[derive(Debug, PartialEq, Serialize)]
-pub struct Project {
-    pub paths: settings::ProjectPaths,
-    pub code_impls: OrderMap<Name, implemented::ImplCode>,
-    pub artifacts: OrderMap<Name, artifact::Artifact>,
-}
 
 lazy_static!{
     /// Name reference that can exist in source code
@@ -47,31 +38,26 @@ lazy_static!{
         "#, NAME_VALID_CHARS!())).unwrap();
 }
 
-impl Project {
-    /// Recursively sort all the items in the project.
-    pub fn sort(&mut self) {
-        self.code_impls.sort_keys();
-        for (_, code) in self.code_impls.iter_mut() {
-            code.secondary.sort_keys();
-        }
-        self.artifacts.sort_keys();
-        for (_, art) in self.artifacts.iter_mut() {
-            art.sort();
-        }
-    }
+// FIXME: convert to methods instead
+pub trait ProjectExt {
+    fn lint(&self, send: &Sender<lint::Lint>);
+    fn lint_errors(&self, send: &Sender<lint::Lint>);
+    fn lint_other(&self, send: &Sender<lint::Lint>);
+}
 
+impl ProjectExt for Project {
     /// #SPC-read-lint
     ///
     /// TODO WARN:
     /// - references in text that do not exist
     /// - (optional?) poorly formed references in text
-    pub fn lint(&self, send: &Sender<lint::Lint>) {
+    fn lint(&self, send: &Sender<lint::Lint>) {
         self.lint_errors(&send);
         self.lint_other(&send);
     }
 
     /// Lint against only "fatal" errors.
-    pub fn lint_errors(&self, send: &Sender<lint::Lint>) {
+    fn lint_errors(&self, send: &Sender<lint::Lint>) {
         lint_partof_dne(send, self);
         lint_partof_types(send, self);
         lint_artifact_text(send, self);
@@ -79,7 +65,7 @@ impl Project {
     }
 
     /// Lint against non-fatal errors.
-    pub fn lint_other(&self, send: &Sender<lint::Lint>) {
+    fn lint_other(&self, send: &Sender<lint::Lint>) {
         lint_artifact_text_refs(send, self);
         lint_code_impls(send, self);
     }
@@ -222,8 +208,8 @@ pub(crate) fn lint_partof_dne(lints: &Sender<lint::Lint>, project: &Project) {
                         category: lint::Category::Artifact,
                         msg: format!(
                             "{} defines partof={} which does not exist",
-                            name.as_str(),
-                            pof.as_str()
+                            name,
+                            pof
                         ),
                     })
                     .expect("send lint");
@@ -235,7 +221,7 @@ pub(crate) fn lint_partof_dne(lints: &Sender<lint::Lint>, project: &Project) {
 /// #REQ-family.lint_types
 /// Lint against partof's that have invalid types.
 pub(crate) fn lint_partof_types(lints: &Sender<lint::Lint>, project: &Project) {
-    use name::Type::{REQ, SPC, TST};
+    use artifact_lib::Type::{REQ, SPC, TST};
     for (name, art) in project.artifacts.iter() {
         for pof in art.partof.iter() {
             let invalid = match (name.ty, pof.ty) {
@@ -257,8 +243,8 @@ pub(crate) fn lint_partof_types(lints: &Sender<lint::Lint>, project: &Project) {
                         category: lint::Category::Artifact,
                         msg: format!(
                             "{} cannot have `partof` {}: invalid types.",
-                            name.as_str(),
-                            pof.as_str(),
+                            name,
+                            pof,
                         ),
                     })
                     .expect("send lint");
@@ -280,7 +266,7 @@ pub(crate) fn lint_artifact_done_subnames(lints: &Sender<lint::Lint>, project: &
                     category: lint::Category::Artifact,
                     msg: format!(
                         "{}: subnames are defined when the `done` field is set.",
-                        name.as_str()
+                        name
                     ),
                 })
                 .expect("send lint");
@@ -290,7 +276,6 @@ pub(crate) fn lint_artifact_done_subnames(lints: &Sender<lint::Lint>, project: &
 
 /// Lint against code_impls
 pub(crate) fn lint_code_impls(lints: &Sender<lint::Lint>, project: &Project) {
-    use implemented::{CodeLoc, Impl};
     let send_lint = |name: &Name, sub: Option<&SubName>, loc: &CodeLoc, msg: &str| {
         lints
             .send(lint::Lint {
@@ -326,7 +311,7 @@ pub(crate) fn lint_code_impls(lints: &Sender<lint::Lint>, project: &Project) {
                                 loc,
                                 &format!(
                                     "Subname [[{}]] does not exist in artifact's text",
-                                    sub.as_str()
+                                    sub
                                 ),
                             );
                         }
@@ -342,7 +327,7 @@ pub(crate) fn lint_code_impls(lints: &Sender<lint::Lint>, project: &Project) {
                     name,
                     None,
                     loc,
-                    &format!("Artifact {} does not exist", name.as_str()),
+                    &format!("Artifact {} does not exist", name),
                 );
             }
             for (sub, loc) in code_impl.secondary.iter() {
@@ -350,7 +335,7 @@ pub(crate) fn lint_code_impls(lints: &Sender<lint::Lint>, project: &Project) {
                     name,
                     Some(sub),
                     loc,
-                    &format!("Artifact {} does not exist", name.as_str()),
+                    &format!("Artifact {} does not exist", name),
                 );
             }
         }
@@ -367,7 +352,7 @@ pub(crate) fn lint_artifact_text(lints: &Sender<lint::Lint>, project: &Project) 
                 path: Some(file.clone().into()),
                 line: None,
                 category: lint::Category::Artifact,
-                msg: format!("{} text is invalid: {}", name.as_str(), msg),
+                msg: format!("{} text is invalid: {}", name, msg),
             })
             .expect("send lint");
     };
@@ -404,7 +389,7 @@ pub(crate) fn lint_artifact_text_refs(lints: &Sender<lint::Lint>, project: &Proj
                 category: lint::Category::Artifact,
                 msg: format!(
                     "{} has soft reference [[{}]] which does not exist.",
-                    name.as_str(),
+                    name,
                     ref_name.full(ref_sub)
                 ),
             })

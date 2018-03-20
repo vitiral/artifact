@@ -23,7 +23,7 @@ use artifact_data::*;
 #[structopt(name = "check")]
 /// Check your project for errors and warnings.
 pub struct Check {
-    #[structopt(long = "verbose", short = "v", default_value="0")]
+    #[structopt(long = "verbose", short = "v", default_value = "0")]
     /// Pass many times for more log output.
     pub verbosity: u64,
 

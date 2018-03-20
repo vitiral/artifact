@@ -41,7 +41,6 @@ pub fn run(cmd: Serve) -> Result<i32> {
     let repo = find_repo(&work_dir!(cmd))?;
     info!("Running art-serve in repo {}", repo.display());
 
-
     let (lints, project) = read_project(repo)?;
     {
         let mut locked = LOCKED.lock().unwrap();

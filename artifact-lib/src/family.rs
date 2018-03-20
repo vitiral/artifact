@@ -19,9 +19,9 @@
 //! of any artifact.
 
 use std::fmt;
-use ergo::serde;
-use ergo::serde::de::{Deserialize, Deserializer, SeqAccess, Visitor};
-use ergo::serde::ser::{Serialize, Serializer};
+use ergo_std::serde;
+use ergo_std::serde::de::{Deserialize, Deserializer, SeqAccess, Visitor};
+use ergo_std::serde::ser::{Serialize, Serializer};
 
 use dev_prelude::*;
 use name::{Name, Type, TYPE_SPLIT_LOC};
@@ -29,17 +29,17 @@ use name::{Name, Type, TYPE_SPLIT_LOC};
 #[macro_export]
 /// Macro to get a name with no error checking.
 macro_rules! names {
-    ($raw:expr) => (
+    ($raw: expr) => {
         match Names::from_str(&$raw) {
             Ok(n) => n,
             Err(e) => panic!("invalid names!({}): {}", $raw, e),
         }
-    );
+    };
 }
 
 /// Collection of Names, used in partof and parts for storing relationships
 #[derive(Clone, Default, Eq, PartialEq)]
-pub struct Names(pub(crate) OrderSet<Name>);
+pub struct Names(pub(crate) IndexSet<Name>);
 
 impl fmt::Debug for Names {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -48,21 +48,21 @@ impl fmt::Debug for Names {
 }
 
 impl Deref for Names {
-    type Target = OrderSet<Name>;
+    type Target = IndexSet<Name>;
 
-    fn deref(&self) -> &OrderSet<Name> {
+    fn deref(&self) -> &IndexSet<Name> {
         &self.0
     }
 }
 
 impl DerefMut for Names {
-    fn deref_mut(&mut self) -> &mut OrderSet<Name> {
+    fn deref_mut(&mut self) -> &mut IndexSet<Name> {
         &mut self.0
     }
 }
 
-impl From<OrderSet<Name>> for Names {
-    fn from(names: OrderSet<Name>) -> Names {
+impl From<IndexSet<Name>> for Names {
+    fn from(names: IndexSet<Name>) -> Names {
         Names(names)
     }
 }
@@ -158,11 +158,11 @@ impl<'de> Visitor<'de> for NamesVisitor {
 }
 
 /// #SPC-read-family.auto
-/// Given an ordermap of all names, return the partof attributes that will be added.
-pub(crate) fn auto_partofs<T>(names: &OrderMap<Name, T>) -> OrderMap<Name, OrderSet<Name>> {
-    let mut out: OrderMap<Name, OrderSet<Name>> = OrderMap::with_capacity(names.len());
+/// Given an indexmap of all names, return the partof attributes that will be added.
+pub fn auto_partofs<T>(names: &IndexMap<Name, T>) -> IndexMap<Name, IndexSet<Name>> {
+    let mut out: IndexMap<Name, IndexSet<Name>> = IndexMap::with_capacity(names.len());
     for name in names.keys() {
-        let mut auto = OrderSet::new();
+        let mut auto = IndexSet::new();
         if let Some(parent) = name.parent() {
             if names.contains_key(&parent) {
                 auto.insert(parent);
@@ -177,14 +177,4 @@ pub(crate) fn auto_partofs<T>(names: &OrderMap<Name, T>) -> OrderMap<Name, Order
     }
     debug_assert_eq!(names.len(), out.len());
     out
-}
-
-/// Strip the automatic family from a set of names.
-pub(crate) fn strip_auto_partofs(name: &Name, names: &mut OrderSet<Name>) {
-    if let Some(p) = name.parent() {
-        names.remove(&p);
-    }
-    if let Some(p) = name.auto_partof() {
-        names.remove(&p);
-    }
 }

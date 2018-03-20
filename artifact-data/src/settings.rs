@@ -21,7 +21,6 @@ use ergo::toml;
 
 use std::io;
 use dev_prelude::*;
-use lint;
 use raw;
 
 pub const ART_DIR: &str = ".art";
@@ -49,6 +48,9 @@ impl FoundPaths {
     }
 }
 
+
+
+// FIXME: convert to trait
 impl SettingsRaw {
     fn load<P: AsRef<Path>>(
         project_path: P,
@@ -70,21 +72,11 @@ impl SettingsRaw {
     }
 }
 
-#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
-/// Paths that have have be recursively loaded.
-pub struct ProjectPaths {
-    pub base: PathDir,
-    pub code_paths: OrderSet<PathAbs>,
-    pub exclude_code_paths: OrderSet<PathAbs>,
-    pub artifact_paths: OrderSet<PathAbs>,
-    pub exclude_artifact_paths: OrderSet<PathAbs>,
-}
-
 pub(crate) fn walk_artifact_paths(
     send_paths: &Sender<PathFile>,
     send_err: &Sender<lint::Lint>,
-    paths: &OrderSet<PathAbs>,
-    exclude_paths: &OrderSet<PathAbs>,
+    paths: &IndexSet<PathAbs>,
+    exclude_paths: &IndexSet<PathAbs>,
 ) {
     let f = |path: &PathType| -> bool {
         let abs: &PathAbs = path.as_ref();
@@ -97,7 +89,7 @@ pub(crate) fn walk_artifact_paths(
 pub(crate) fn walk_paths<F>(
     send_paths: &Sender<PathFile>,
     send_err: &Sender<lint::Lint>,
-    paths: &OrderSet<PathAbs>,
+    paths: &IndexSet<PathAbs>,
     filter: F,
 ) where
     F: Fn(&PathType) -> bool,
@@ -186,7 +178,7 @@ fn resolve_raw_paths(
     lints: &::std::sync::mpsc::Sender<lint::Lint>,
     project_path: &PathAbs,
     raw_paths: &[String],
-) -> OrderSet<PathAbs> {
+) -> IndexSet<PathAbs> {
     raw_paths
         .iter()
         .filter_map(|p| {
@@ -218,7 +210,7 @@ fn resolve_raw_paths(
 pub(crate) fn discover_paths<F, P>(
     path: P,
     filter: &F,
-    visited: &OrderSet<PathAbs>,
+    visited: &IndexSet<PathAbs>,
 ) -> ::std::io::Result<FoundPaths>
 where
     P: AsRef<Path>,

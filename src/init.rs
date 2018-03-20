@@ -23,7 +23,7 @@ use termstyle::Color::*;
 #[derive(Debug, StructOpt)]
 #[structopt(name = "init", about = "Initialize the directory for artifact.")]
 pub struct Init {
-    #[structopt(long = "verbose", short = "v", default_value="0")]
+    #[structopt(long = "verbose", short = "v", default_value = "0")]
     /// Pass many times for more log output.
     pub verbosity: u64,
 

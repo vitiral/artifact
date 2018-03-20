@@ -30,7 +30,7 @@ extern crate failure;
 #[macro_use]
 extern crate matches;
 #[macro_use]
-extern crate ordermap;
+extern crate indexmap;
 extern crate petgraph;
 extern crate rayon;
 extern crate siphasher;
@@ -41,21 +41,17 @@ extern crate time;
 
 #[macro_use]
 extern crate log;
+#[macro_use]
+extern crate artifact_lib;
 
 // MODULES
 
 mod artifact;
 mod dev_prelude;
 mod modify;
-#[macro_use]
-mod name;
-mod expand_names;
-#[macro_use]
-mod family;
 mod graph;
 mod implemented;
 mod intermediate;
-mod lint;
 mod project;
 mod raw;
 #[macro_use]
@@ -85,12 +81,6 @@ extern crate unicode_segmentation;
 #[cfg(test)]
 pub mod test;
 
-pub use artifact::Artifact;
-pub use implemented::{CodeLoc, Impl, ImplCode};
-pub use intermediate::{ArtifactIm, HashIm};
-pub use modify::{modify_project, ModifyError, ModifyErrorKind, ArtifactOp};
-pub use name::{Name, NameError, SubName, Type, NAME_VALID_STR};
-pub use settings::{ProjectPaths, ART_DIR, SETTINGS_FILE};
-pub use lint::{Categorized, Category, Level, Lint};
-pub use project::{read_project, Project};
-pub use graph::Completed;
+pub use modify::{modify_project, ModifyError, ModifyErrorKind};
+pub use settings::{ART_DIR, SETTINGS_FILE};
+pub use project::read_project;

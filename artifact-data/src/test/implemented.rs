@@ -22,10 +22,8 @@ use regex_generate;
 use test::dev_prelude::*;
 use test::raw_names::arb_names_raw;
 use test::framework::run_interop_tests;
-use name::{Name, SubName};
 use raw_names::NamesRaw;
-use implemented::{join_locations, parse_locations, CodeLoc, ImplCode};
-use lint;
+use implemented::{join_locations, parse_locations};
 
 // ------------------------------
 // -- FUZZ METHODS
@@ -36,11 +34,11 @@ use lint;
 pub fn random_impl_links<R: Rng + Clone>(
     rng: &mut R,
     names: &NamesRaw,
-) -> OrderSet<(Name, Option<SubName>)> {
+) -> IndexSet<(Name, Option<SubName>)> {
     let mut textgen =
         regex_generate::Generator::parse(r"\.([a-zA-Z0-9_]{1,10})", rng.clone()).unwrap();
     let mut buffer: Vec<u8> = Vec::with_capacity(10);
-    let mut out = OrderSet::new();
+    let mut out = IndexSet::new();
     for name in names.iter() {
         // Base name is always included
         out.insert((name.clone(), None));
@@ -61,7 +59,7 @@ pub fn random_impl_links<R: Rng + Clone>(
 /// Generate random source code text with links to all the given `name[.sub]`s.
 pub fn random_source_code<R: Rng + Clone>(
     rng: &mut R,
-    locations: &OrderSet<(Name, Option<SubName>)>,
+    locations: &IndexSet<(Name, Option<SubName>)>,
 ) -> String {
     let mut lines = random_lines(rng);
     if lines.is_empty() {
@@ -76,7 +74,7 @@ pub fn random_source_code<R: Rng + Clone>(
 /// Arbitrary single source code file
 pub fn arb_source_code(
     size: usize,
-) -> BoxedStrategy<(NamesRaw, OrderSet<(Name, Option<SubName>)>, String)> {
+) -> BoxedStrategy<(NamesRaw, IndexSet<(Name, Option<SubName>)>, String)> {
     arb_names_raw(size)
         .prop_perturb(|names, mut rng| {
             let locations = random_impl_links(&mut rng, &names);
@@ -210,24 +208,24 @@ fn sanity_join_locations() {
         (CodeLoc::new(&file3, 20), tst_baz.clone(), None),
     ];
 
-    let expected = ordermap!{
+    let expected = indexmap!{
         req_foo.clone() => ImplCode {
             primary: Some(CodeLoc::new(&file1, 1)),
-            secondary: ordermap!{
+            secondary: indexmap!{
                 sub_a.clone() => CodeLoc::new(&file1, 2),
                 sub_b.clone() => CodeLoc::new(&file1, 3),
             },
         },
         spc_bar.clone() => ImplCode {
             primary: None,
-            secondary: ordermap!{
+            secondary: indexmap!{
                 sub_a.clone() => CodeLoc::new(&file3, 5),
                 sub_b.clone() => CodeLoc::new(&file3, 4),
             },
         },
         tst_baz.clone() => ImplCode {
             primary: Some(CodeLoc::new(&file3, 20)),
-            secondary: ordermap!{
+            secondary: indexmap!{
                 sub_a.clone() => CodeLoc::new(&file2, 2),
             },
         },

@@ -21,7 +21,6 @@ pub use ergo::rand::{self, Rng};
 use regex_generate;
 use unicode_segmentation::UnicodeSegmentation;
 
-use name::{Name, SubName};
 use ergo::serde::{Deserialize, Serialize};
 
 pub type StrResult<T> = result::Result<T, String>;
@@ -44,15 +43,6 @@ lazy_static!{
             ).unwrap();
     pub static ref INTEROP_TESTS_PATH: PathAbs = PathAbs::new(
         ARTIFACT_DATA_PATH.join("interop_tests")).unwrap();
-}
-
-/// Join a path to an absolute path. Panic if it doesn't exist.
-pub fn join_abs<P: AsRef<Path>>(path: &PathAbs, end: P) -> PathFile {
-    PathFile::new(path.join(&end)).expect(&format!(
-        "{} + {}",
-        path.display(),
-        end.as_ref().display()
-    ))
 }
 
 /// Given list of `(input, expected)`, assert `method(input) == expected
@@ -106,7 +96,7 @@ pub fn to_json_string<T: Serialize>(value: &T) -> String {
     ::ergo::json::to_string(value).expect("failed ser")
 }
 
-pub fn from_markdown_str(s: &str) -> StrResult<OrderMap<Name, ::raw::ArtifactRaw>> {
+pub fn from_markdown_str(s: &str) -> StrResult<IndexMap<Name, ::raw::ArtifactRaw>> {
     ::raw::from_markdown(s.as_bytes()).map_err(|e| e.to_string())
 }
 

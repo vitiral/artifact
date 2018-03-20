@@ -20,65 +20,21 @@
 use rayon;
 
 use dev_prelude::*;
-use intermediate::{ArtifactIm, HashIm};
-use name::{self, Name, SubName};
-use implemented::{Impl, ImplCode};
-use family;
 use graph;
-
-#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
-/// #SPC-read-structs.artifact
-/// The primary data structure of this library which encapsulates a majority of the useful
-/// end product of a user's project.
-pub struct Artifact {
-    /// The hahs-id of this artifact. This is required for modifying artifacts.
-    pub id: HashIm,
-    /// The name of the artifact.
-    ///
-    /// While this library uses `Name` as the key, other libraries (like a web-ui)
-    /// might not. This also makes it much simpler to reserialize artifacts as
-    /// the mapping cannot be broken.
-    pub name: Name,
-    /// The file the artifact is defined in.
-    pub file: PathArc,
-    /// The user defined and calculated `partof` the artifact.
-    pub partof: OrderSet<Name>,
-    /// The (calculated) parts of the artifact (opposite of partof)
-    pub parts: OrderSet<Name>,
-    /// The (calculated) completion+tested ratios of the artifact.
-    pub completed: graph::Completed,
-    /// The user defined text
-    pub text: String,
-    /// Whether the artifact is implemented directly (in code or `done` field)
-    pub impl_: Impl,
-    /// Subnames in the text.
-    pub subnames: OrderSet<SubName>,
-}
-
-impl Artifact {
-    pub fn sort(&mut self) {
-        self.partof.sort();
-        self.parts.sort();
-        if let Impl::Code(ref mut c) = self.impl_ {
-            c.secondary.sort_keys();
-        }
-        self.subnames.sort();
-    }
-}
 
 /// Loaded and somewhat processed artifacts, independent of source implementations.
 pub(crate) struct ArtifactsLoaded {
-    artifact_ims: OrderMap<Name, ArtifactIm>,
+    artifact_ims: IndexMap<Name, ArtifactIm>,
     graphs: graph::Graphs,
-    partofs: OrderMap<Name, OrderSet<Name>>,
-    parts: OrderMap<Name, OrderSet<Name>>,
-    subnames: OrderMap<Name, OrderSet<SubName>>,
+    partofs: IndexMap<Name, IndexSet<Name>>,
+    parts: IndexMap<Name, IndexSet<Name>>,
+    subnames: IndexMap<Name, IndexSet<SubName>>,
 }
 
 /// #SPC-read-artifact.load
 /// Compute everything that is possible based on loaded raw artifacts only.
 /// (no source impls).
-pub(crate) fn finalize_load_artifact(artifact_ims: OrderMap<Name, ArtifactIm>) -> ArtifactsLoaded {
+pub(crate) fn finalize_load_artifact(artifact_ims: IndexMap<Name, ArtifactIm>) -> ArtifactsLoaded {
     let (subnames, (partofs, graphs, parts)) = rayon::join(
         || determine_subnames(&artifact_ims),
         || {
@@ -104,12 +60,12 @@ pub(crate) fn finalize_load_artifact(artifact_ims: OrderMap<Name, ArtifactIm>) -
 /// determine the impls+completeness and construct the artifacts.
 pub(crate) fn determine_artifacts(
     mut loaded: ArtifactsLoaded,
-    code_impls: &OrderMap<Name, ImplCode>,
-    defined: &OrderMap<Name, PathArc>,
-) -> OrderMap<Name, Artifact> {
+    code_impls: &IndexMap<Name, ImplCode>,
+    defined: &IndexMap<Name, PathArc>,
+) -> IndexMap<Name, Artifact> {
     // TODO: paralize this
 
-    let ((mut impls, mut completed), mut ids): (_, OrderMap<Name, HashIm>) = rayon::join(
+    let ((mut impls, mut completed), mut ids): (_, IndexMap<Name, HashIm>) = rayon::join(
         || {
             let impls = determine_impls(&loaded.artifact_ims, code_impls);
             let completed = graph::determine_completed(&loaded.graphs, &impls, &loaded.subnames);
@@ -162,9 +118,9 @@ pub(crate) fn determine_artifacts(
 
 /// Determine `partof` based on the user's definition + automatic relationships.
 pub(crate) fn determine_partofs(
-    artifact_ims: &OrderMap<Name, ArtifactIm>,
-) -> OrderMap<Name, OrderSet<Name>> {
-    let mut partofs = family::auto_partofs(artifact_ims);
+    artifact_ims: &IndexMap<Name, ArtifactIm>,
+) -> IndexMap<Name, IndexSet<Name>> {
+    let mut partofs = auto_partofs(artifact_ims);
     // extend the user defined partofs with the automatic ones
     for (name, partof) in partofs.iter_mut() {
         partof.extend(artifact_ims[name].partof.iter().cloned());
@@ -175,11 +131,11 @@ pub(crate) fn determine_partofs(
 
 /// Parse the raw artifacts for their subnames.
 fn determine_subnames(
-    artifact_ims: &OrderMap<Name, ArtifactIm>,
-) -> OrderMap<Name, OrderSet<SubName>> {
+    artifact_ims: &IndexMap<Name, ArtifactIm>,
+) -> IndexMap<Name, IndexSet<SubName>> {
     artifact_ims
         .iter()
-        .map(|(name, art)| (name.clone(), name::parse_subnames(&art.text)))
+        .map(|(name, art)| (name.clone(), parse_subnames(&art.text)))
         .collect()
 }
 
@@ -193,10 +149,10 @@ fn determine_subnames(
 ///
 /// None of these can affect later calculation of completeness or anythign else.
 fn determine_impls(
-    artifact_ims: &OrderMap<Name, ArtifactIm>,
-    code_impls: &OrderMap<Name, ImplCode>,
-) -> OrderMap<Name, Impl> {
-    let mut impls = OrderMap::with_capacity(artifact_ims.len());
+    artifact_ims: &IndexMap<Name, ArtifactIm>,
+    code_impls: &IndexMap<Name, ImplCode>,
+) -> IndexMap<Name, Impl> {
+    let mut impls = IndexMap::with_capacity(artifact_ims.len());
     for (name, raw) in artifact_ims.iter() {
         let impl_ = if let Some(ref done) = raw.done {
             Impl::Done(done.clone())

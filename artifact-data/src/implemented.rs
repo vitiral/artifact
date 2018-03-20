@@ -21,119 +21,8 @@
 #![allow(dead_code)]
 
 use std::fmt;
-use ordermap::map::Entry;
+use indexmap::map::Entry;
 use dev_prelude::*;
-use name::{Name, SubName};
-use lint;
-
-// EXPORTED TYPES
-
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(tag="type", content="value")]
-/// Encapsulates the implementation state of the artifact
-pub enum Impl {
-    /// The artifact is "defined as done"
-    Done(String),
-    /// The artifact is at least partially implemented in code.
-    Code(ImplCode),
-    /// The artifact is not implemented directly at all
-    NotImpl,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-/// Encapsulates the implementation state of the artifact in code.
-pub struct ImplCode {
-    pub primary: Option<CodeLoc>,
-    pub secondary: OrderMap<SubName, CodeLoc>,
-}
-
-#[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
-/// The location of an artifact reference in code.
-pub struct CodeLoc {
-    pub file: PathFile,
-    pub line: u64,
-}
-
-impl CodeLoc {
-    pub fn new(file: &PathFile, line: u64) -> CodeLoc {
-        CodeLoc {
-            file: file.clone(),
-            line: line,
-        }
-    }
-}
-
-impl Impl {
-    /// Return the `(count, value, secondary_count, secondary_value)`
-    /// that this impl should contribute to the "implemented" statistics.
-    ///
-    /// "secondary" is used because the Done field actually does contribute to
-    /// both spc AND tst for REQ and SPC types.
-    ///
-    /// `subnames` should contain the subnames that exist in that artifact's text
-    pub(crate) fn to_statistics(&self, subnames: &OrderSet<SubName>) -> (usize, f64, usize, f64) {
-        match *self {
-            Impl::Done(_) => (1, 1.0, 1, 1.0),
-            Impl::Code(ref impl_) => {
-                let mut count = 1;
-                let mut value = f64::from(impl_.primary.is_some() as u8);
-                for sub in subnames.iter() {
-                    count += 1;
-                    // add 1 if the subname is implemented, else 0
-                    value += f64::from(impl_.secondary.contains_key(sub) as u8);
-                }
-                (count, value, 0, 0.0)
-            }
-            Impl::NotImpl => {
-                if !subnames.is_empty() {
-                    // If subnames are defined not being implemented
-                    // in code means that you get counts against you
-                    (1 + subnames.len(), 0.0, 0, 0.0)
-                } else {
-                    (0, 0.0, 0, 0.0)
-                }
-            }
-        }
-    }
-
-    /// Return whether this is the `Done` variant.
-    pub fn is_done(&self) -> bool {
-        match *self {
-            Impl::Done(_) => true,
-            _ => false,
-        }
-    }
-}
-
-impl fmt::Display for Impl {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match *self {
-            Impl::Done(ref s) => write!(f, "{}", s),
-            Impl::Code(ref c) => write!(f, "{}", c),
-            Impl::NotImpl => write!(f, "not directly implemented"),
-        }
-    }
-}
-
-impl fmt::Display for ImplCode {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        if let Some(ref loc) = self.primary {
-            write!(f, "{:?}", loc)?;
-        }
-        if !self.secondary.is_empty() {
-            write!(f, "Secondary{:?}", self.secondary)?;
-        }
-        Ok(())
-    }
-}
-
-impl fmt::Debug for CodeLoc {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}[{}]", self.file.display(), self.line)
-    }
-}
-
-// METHODS
 
 lazy_static!{
     /// Name reference that can exist in source code
@@ -200,10 +89,10 @@ pub(crate) fn parse_locations<R: Read>(
 pub(crate) fn join_locations(
     send_lints: &Sender<lint::Lint>,
     mut locations: Vec<(CodeLoc, Name, Option<SubName>)>,
-) -> OrderMap<Name, ImplCode> {
+) -> IndexMap<Name, ImplCode> {
     // split into primary and secondary, simultaniously checking there are no duplicates.
-    let mut primary_locs: OrderMap<Name, CodeLoc> = OrderMap::new();
-    let mut secondary_locs: OrderMap<Name, OrderMap<SubName, CodeLoc>> = OrderMap::new();
+    let mut primary_locs: IndexMap<Name, CodeLoc> = IndexMap::new();
+    let mut secondary_locs: IndexMap<Name, IndexMap<SubName, CodeLoc>> = IndexMap::new();
     for (loc, name, sub) in locations.drain(0..) {
         if let Some(sub) = sub {
             insert_secondary(send_lints, &mut secondary_locs, &name, &sub, loc);
@@ -214,9 +103,9 @@ pub(crate) fn join_locations(
     }
 
     // Now join them together
-    let empty_hash = OrderMap::with_capacity(0);
-    let mut out: OrderMap<Name, ImplCode> =
-        OrderMap::from_iter(primary_locs.drain(..).map(|(name, loc)| {
+    let empty_hash = IndexMap::with_capacity(0);
+    let mut out: IndexMap<Name, ImplCode> =
+        IndexMap::from_iter(primary_locs.drain(..).map(|(name, loc)| {
             let code = ImplCode {
                 primary: Some(loc),
                 secondary: secondary_locs
@@ -244,7 +133,7 @@ pub(crate) fn join_locations(
 /// internal helper for `join_locations`
 fn insert_secondary(
     send_lints: &Sender<lint::Lint>,
-    locs: &mut OrderMap<Name, OrderMap<SubName, CodeLoc>>,
+    locs: &mut IndexMap<Name, IndexMap<SubName, CodeLoc>>,
     name: &Name,
     sub: &SubName,
     loc: CodeLoc,
@@ -257,18 +146,18 @@ fn insert_secondary(
                     send_lints,
                     &orig.file,
                     orig.line,
-                    &format!("{}{}", name.as_str(), sub.as_str()),
+                    &format!("{}{}", name, sub),
                 );
                 duplicate_detected(
                     send_lints,
                     &loc.file,
                     loc.line,
-                    &format!("{}{}", name.as_str(), sub.as_str()),
+                    &format!("{}{}", name, sub),
                 );
             }
         }
         Entry::Vacant(entry) => {
-            entry.insert(ordermap!{sub.clone() => loc});
+            entry.insert(indexmap!{sub.clone() => loc});
         }
     }
 }

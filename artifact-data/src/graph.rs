@@ -19,32 +19,21 @@ use petgraph;
 use petgraph::graphmap::DiGraphMap;
 
 use dev_prelude::*;
-use name::{Name, SubName, Type};
-use implemented::Impl;
 
 pub(crate) type GraphId = u32;
 
-#[derive(Debug, Default, Clone, PartialEq, PartialOrd, Copy, Serialize, Deserialize)]
-/// #SPC-read-structures.completed
-pub struct Completed {
-    /// The specification completion ratio.
-    pub spc: f32,
-    /// The tested completion ratio.
-    pub tst: f32,
-}
-
 pub(crate) struct Graphs {
     /// Map of `id => name`
-    pub lookup_name: OrderMap<GraphId, Name>,
+    pub lookup_name: IndexMap<GraphId, Name>,
     /// Map of `name => id`
-    pub lookup_id: OrderMap<Name, GraphId>,
+    pub lookup_id: IndexMap<Name, GraphId>,
     /// Full graph (all artifacts)
     pub full: DiGraphMap<GraphId, ()>,
 }
 
 /// #SPC-read-artifact.graph
 /// Create the family graph from their given+auto partof values.
-pub(crate) fn determine_graphs(partofs: &OrderMap<Name, OrderSet<Name>>) -> Graphs {
+pub(crate) fn determine_graphs(partofs: &IndexMap<Name, IndexSet<Name>>) -> Graphs {
     let ids = create_ids(partofs);
 
     let mut graph_full: DiGraphMap<GraphId, ()> = DiGraphMap::new();
@@ -65,7 +54,7 @@ pub(crate) fn determine_graphs(partofs: &OrderMap<Name, OrderSet<Name>>) -> Grap
 }
 
 /// Determine the `parts` of each artifact based on its neighbors in the graph.
-pub(crate) fn determine_parts(graphs: &Graphs) -> OrderMap<Name, OrderSet<Name>> {
+pub(crate) fn determine_parts(graphs: &Graphs) -> IndexMap<Name, IndexSet<Name>> {
     graphs
         .lookup_name
         .iter()
@@ -84,9 +73,9 @@ pub(crate) fn determine_parts(graphs: &Graphs) -> OrderMap<Name, OrderSet<Name>>
 /// Determine the completeness of the artifacts.
 pub(crate) fn determine_completed(
     graphs: &Graphs,
-    impls: &OrderMap<Name, Impl>,
-    subnames: &OrderMap<Name, OrderSet<SubName>>,
-) -> OrderMap<Name, Completed> {
+    impls: &IndexMap<Name, Impl>,
+    subnames: &IndexMap<Name, IndexSet<SubName>>,
+) -> IndexMap<Name, Completed> {
     // If there is a cycle we just return everything as 0% complete for spc+tst
     // We ignore `done` because there will be an ERROR lint later anyway.
     let uncomputed = || {
@@ -102,7 +91,7 @@ pub(crate) fn determine_completed(
     };
 
     // convert to by-id
-    let impls: OrderMap<GraphId, &_> = impls
+    let impls: IndexMap<GraphId, &_> = impls
         .iter()
         .map(|(name, v)| (graphs.lookup_id[name], v))
         .collect();
@@ -116,8 +105,8 @@ pub(crate) fn determine_completed(
         }
     }
 
-    let mut implemented: OrderMap<GraphId, f64> = OrderMap::with_capacity(impls.len());
-    let mut tested: OrderMap<GraphId, f64> = OrderMap::with_capacity(impls.len());
+    let mut implemented: IndexMap<GraphId, f64> = IndexMap::with_capacity(impls.len());
+    let mut tested: IndexMap<GraphId, f64> = IndexMap::with_capacity(impls.len());
 
     for id in sorted_graph.iter().rev() {
         // sec is secondary value/count
@@ -150,7 +139,7 @@ pub(crate) fn determine_completed(
 
     debug_assert_eq!(impls.len(), implemented.len());
     debug_assert_eq!(impls.len(), tested.len());
-    let out: OrderMap<Name, Completed> = implemented
+    let out: IndexMap<Name, Completed> = implemented
         .iter()
         .map(|(id, spc)| {
             // throw away digits after 1000 significant digit
@@ -175,8 +164,8 @@ pub fn round_ratio(ratio: f64) -> f32 {
 /// Create unique ids for the graph based on the names.
 ///
 /// They are just guaranteed to be unique... not in any kind of order at all.
-fn create_ids(names: &OrderMap<Name, OrderSet<Name>>) -> OrderMap<Name, GraphId> {
-    let mut out: OrderMap<Name, GraphId> = OrderMap::new();
+fn create_ids(names: &IndexMap<Name, IndexSet<Name>>) -> IndexMap<Name, GraphId> {
+    let mut out: IndexMap<Name, GraphId> = IndexMap::new();
     let mut id = 1;
 
     for (name, partof) in names.iter() {

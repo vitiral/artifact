@@ -21,75 +21,13 @@ use std::fmt;
 
 use dev_prelude::*;
 use artifact;
-use intermediate::{ArtifactIm, HashIm};
-use lint;
-use name::Name;
-use project::{read_project, Project};
+use project::{ProjectExt, read_project};
+use intermediate::ArtifactImExt;
 use raw;
 use settings;
 
 static ART_BK_EXT: &str = "artbk";
 
-#[derive(Debug, Serialize, Deserialize)]
-/// #SPC-structs.artifact_op
-/// Used for specifying operations to perform.
-pub enum ArtifactOp {
-    Create {
-        artifact: ArtifactIm,
-    },
-    Update {
-        artifact: ArtifactIm,
-        orig_id: HashIm,
-    },
-    Delete {
-        name: Name,
-        orig_id: HashIm,
-    },
-}
-
-struct IdPieces {
-    name: Name,
-    orig_id: Option<HashIm>,
-    new_id: Option<HashIm>,
-}
-
-impl ArtifactOp {
-    pub(crate) fn clean(&mut self) {
-        match *self {
-            ArtifactOp::Create { ref mut artifact }
-            | ArtifactOp::Update {
-                ref mut artifact, ..
-            } => artifact.clean(),
-            _ => {}
-        }
-    }
-
-    fn id_pieces(&self) -> IdPieces {
-        match *self {
-            ArtifactOp::Create { ref artifact } => IdPieces {
-                name: artifact.name.clone(),
-                orig_id: None,
-                new_id: Some(artifact.hash_im()),
-            },
-            ArtifactOp::Update {
-                ref artifact,
-                ref orig_id,
-            } => IdPieces {
-                name: artifact.name.clone(),
-                orig_id: Some(*orig_id),
-                new_id: Some(artifact.hash_im()),
-            },
-            ArtifactOp::Delete {
-                ref name,
-                ref orig_id,
-            } => IdPieces {
-                name: name.clone(),
-                orig_id: Some(*orig_id),
-                new_id: None,
-            },
-        }
-    }
-}
 
 #[derive(Debug)]
 pub struct ModifyError {
@@ -166,7 +104,7 @@ pub fn modify_project<P: AsRef<Path>>(
 
     let mut artifacts = original_project.artifacts;
 
-    let mut artifact_ims: OrderMap<HashIm, ArtifactIm> = artifacts
+    let mut artifact_ims: IndexMap<HashIm, ArtifactIm> = artifacts
         .drain(..)
         .map(|(_, art)| {
             let im = ArtifactIm::from(art);
@@ -268,7 +206,7 @@ fn check_paths(lints: &mut lint::Categorized, project: &Project, operations: &[A
 }
 
 fn check_overlap(lints: &mut lint::Categorized, operations: &mut Vec<ArtifactOp>) {
-    let mut ids = OrderSet::new();
+    let mut ids = IndexSet::new();
 
     for mut op in operations {
         op.clean();
@@ -279,7 +217,7 @@ fn check_overlap(lints: &mut lint::Categorized, operations: &mut Vec<ArtifactOp>
             lints.error.push(lint::Lint::id_overlap(
                 format!(
                     "Attempting to operate twice on {}",
-                    $name.as_str()
+                    $name
                 )
             ));
         }}}
@@ -287,7 +225,7 @@ fn check_overlap(lints: &mut lint::Categorized, operations: &mut Vec<ArtifactOp>
         if pieces.new_id == pieces.orig_id {
             lints.error.push(lint::Lint::update_noop(format!(
                 "Attempt to update '{}' with identical data",
-                pieces.name.as_str(),
+                pieces.name,
             )));
             continue;
         }
@@ -310,7 +248,7 @@ fn check_overlap(lints: &mut lint::Categorized, operations: &mut Vec<ArtifactOp>
 fn perform_operations(
     mut operations: Vec<ArtifactOp>,
     lints: &mut lint::Categorized,
-    artifact_ims: &mut OrderMap<HashIm, ArtifactIm>,
+    artifact_ims: &mut IndexMap<HashIm, ArtifactIm>,
 ) {
     for op in operations.drain(..) {
         match op {
@@ -328,7 +266,7 @@ fn perform_operations(
                 if artifact_ims.remove(&orig_id).is_none() {
                     lints.error.push(lint::Lint::update_dne(format!(
                         "Attempt to update '{}' failed, hash-id does not exist",
-                        artifact.name.as_str(),
+                        artifact.name,
                     )));
                     continue;
                 } else {
@@ -340,7 +278,7 @@ fn perform_operations(
                     None => {
                         lints.error.push(lint::Lint::delete_dne(format!(
                             "Attempt to delete '{}' failed, hash-id does not exist",
-                            name.as_str(),
+                            name,
                         )));
                         continue;
                     }
@@ -352,7 +290,7 @@ fn perform_operations(
 }
 
 /// #SPC-modify.backup
-fn create_backups(lints: &mut lint::Categorized, paths: settings::ProjectPaths) {
+fn create_backups(lints: &mut lint::Categorized, paths: ProjectPaths) {
     // TODO: figure out how to just use a reference
     let paths = Arc::new(paths);
     let recv_lint = {
@@ -393,7 +331,7 @@ fn create_backups(lints: &mut lint::Categorized, paths: settings::ProjectPaths) 
     lints.categorize(recv_lint.iter());
 }
 
-fn remove_backups(lints: &mut lint::Categorized, paths: settings::ProjectPaths) {
+fn remove_backups(lints: &mut lint::Categorized, paths: ProjectPaths) {
     // TODO: figure out how to just use a reference
     let paths = Arc::new(paths);
     let recv_lint = {
@@ -439,11 +377,11 @@ fn remove_backups(lints: &mut lint::Categorized, paths: settings::ProjectPaths) 
 /// Save the project to disk, recording any lints along the way
 fn save_project(lints: &mut lint::Categorized, project: &Project) {
     // split up the artifacts into their relevant files
-    let mut files: OrderMap<PathArc, OrderMap<Name, raw::ArtifactRaw>> = OrderMap::new();
+    let mut files: IndexMap<PathArc, IndexMap<Name, raw::ArtifactRaw>> = IndexMap::new();
     for art in project.artifacts.values() {
         let art = ArtifactIm::from(art.clone());
         let (file, name, raw) = art.into_raw();
-        let entry = files.entry(file).or_insert_with(OrderMap::new);
+        let entry = files.entry(file).or_insert_with(IndexMap::new);
         entry.insert(name, raw);
     }
 
@@ -476,7 +414,7 @@ fn save_project(lints: &mut lint::Categorized, project: &Project) {
                     }
 
                     let file = handle_err!(PathFile::create(&path));
-                    let mut arts: OrderMap<Name, raw::ArtifactRaw> = arts;
+                    let mut arts: IndexMap<Name, raw::ArtifactRaw> = arts;
                     arts.sort_keys();
                     let text = match raw::ArtFileType::from_path(&file) {
                         Some(raw::ArtFileType::Toml) => expect!(toml::to_string(&arts)),

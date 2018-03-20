@@ -23,19 +23,15 @@ pub use std::cmp::PartialOrd;
 pub use std::hash::{Hash, Hasher};
 use std::io;
 use std::fs;
+pub(crate) use artifact_lib::*;
+pub(crate) use artifact_lib;
 
-pub(crate) use ordermap::{OrderMap, OrderSet};
+pub(crate) use indexmap::{IndexMap, IndexSet};
 
 pub(crate) use std::result;
 pub(crate) use failure::Error;
 
 pub(crate) type Result<V> = result::Result<V, Error>;
-
-/// Inplace trim is annoyingly not in the stdlib
-pub(crate) fn string_trim_right(s: &mut String) {
-    let end = s.trim_right().len();
-    s.truncate(end);
-}
 
 #[allow(dead_code)]
 /// A simple implementation of "touch"

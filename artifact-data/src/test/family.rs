@@ -20,9 +20,6 @@
 
 use ergo::json;
 
-use name::{Name, Type};
-use family::{self, Names};
-use expand_names::expand_names;
 use raw_names::NamesRaw;
 use test::dev_prelude::*;
 use test::name::arb_name;
@@ -41,9 +38,9 @@ pub fn arb_names(size: usize) -> BoxedStrategy<Names> {
 ///
 /// Returns vectors of (REQ, SPC, TST) names grouped by sorted-family
 fn split_names(names: &NamesRaw) -> (Vec<Vec<Name>>, Vec<Vec<Name>>, Vec<Vec<Name>>) {
-    let mut req = OrderSet::new();
-    let mut spc = OrderSet::new();
-    let mut tst = OrderSet::new();
+    let mut req = IndexSet::new();
+    let mut spc = IndexSet::new();
+    let mut tst = IndexSet::new();
 
     for name in names.iter().cloned() {
         match name.ty {
@@ -57,9 +54,9 @@ fn split_names(names: &NamesRaw) -> (Vec<Vec<Name>>, Vec<Vec<Name>>, Vec<Vec<Nam
 }
 
 /// group names by their family (if they have any)
-fn group_family(names: OrderSet<Name>) -> Vec<Vec<Name>> {
+fn group_family(names: IndexSet<Name>) -> Vec<Vec<Name>> {
     let mut families = Vec::new();
-    let mut remaining: OrderSet<Name> = OrderSet::from_iter(names.iter().cloned());
+    let mut remaining: IndexSet<Name> = IndexSet::from_iter(names.iter().cloned());
 
     for name in names.iter() {
         if !remaining.contains(name) {
@@ -164,7 +161,7 @@ pub fn rand_select_partof<R: Rng>(rng: &mut R, index: usize, names: &[Name]) -> 
 /// This does two steps:
 /// - asserts that the result of expanding is the expected
 /// - asserts that re-collapsing results in the original raw
-fn assert_collapsed_valid(values: &[(&str, Option<&str>, OrderSet<&str>)]) {
+fn assert_collapsed_valid(values: &[(&str, Option<&str>, IndexSet<&str>)]) {
     let errors = values
         .iter()
         .map(|&(r, e_col, ref e)| (r, e_col, e, expand_names(r)))
@@ -173,7 +170,7 @@ fn assert_collapsed_valid(values: &[(&str, Option<&str>, OrderSet<&str>)]) {
                 let result_raw = result
                     .iter()
                     .map(|n| n.raw.as_str())
-                    .collect::<OrderSet<_>>();
+                    .collect::<IndexSet<_>>();
                 let mut difference = result_raw.difference(&expect).collect::<Vec<_>>();
                 if !difference.is_empty() {
                     difference.sort();
@@ -223,7 +220,7 @@ fn assert_collapsed_invalid(raw: &[&str]) {
 
 /// take a list of names and collapse them into a single
 /// string with format `REQ-foo-[bar, baz-boo], SPC-foo`
-pub fn collapse_names(names: &OrderSet<Name>) -> String {
+pub fn collapse_names(names: &IndexSet<Name>) -> String {
     let raw_pieces: Vec<Vec<String>> = {
         let mut pieces: Vec<Vec<String>> = names
             .iter()
@@ -399,17 +396,17 @@ fn sanity_auto_partof() {
 /// #TST-read-family.collapse
 fn sanity_collapse_name() {
     let values = &[
-        ("REQ-foo", None, orderset!["REQ-foo"]),
-        ("REQ-[bar, foo]", None, orderset!["REQ-foo", "REQ-bar"]),
+        ("REQ-foo", None, indexset!["REQ-foo"]),
+        ("REQ-[bar, foo]", None, indexset!["REQ-foo", "REQ-bar"]),
         (
             "REQ-[zay, bar-[baz, bom], foo]",
             Some("REQ-[bar-[baz, bom], foo, zay]"),
-            orderset!["REQ-foo", "REQ-bar-baz", "REQ-bar-bom", "REQ-zay"],
+            indexset!["REQ-foo", "REQ-bar-baz", "REQ-bar-bom", "REQ-zay"],
         ),
         (
             "SPC-[foo, foo-bob, bar], REQ-baz, SPC-foo-baz",
             Some("REQ-baz, SPC-[bar, foo, foo-[baz, bob]]"),
-            orderset![
+            indexset![
                 "REQ-baz",
                 "SPC-bar",
                 "SPC-foo",
@@ -449,7 +446,7 @@ fn sanity_auto_partofs() {
 
     let file = PathAbs::mock("/fake");
 
-    let names = ordermap!{
+    let names = indexmap!{
         req_foo.clone() => file.clone(),
         req_foo_bar.clone() => file.clone(),
         spc_foo.clone() => file.clone(),
@@ -459,31 +456,31 @@ fn sanity_auto_partofs() {
         tst_a_b.clone() => file.clone(),
     };
 
-    let expected = ordermap!{
-        req_foo.clone() => orderset![],
-        req_foo_bar.clone() => orderset![req_foo.clone()],
-        spc_foo.clone() => orderset![req_foo.clone()],
-        tst_foo.clone() => orderset![spc_foo.clone()],
+    let expected = indexmap!{
+        req_foo.clone() => indexset![],
+        req_foo_bar.clone() => indexset![req_foo.clone()],
+        spc_foo.clone() => indexset![req_foo.clone()],
+        tst_foo.clone() => indexset![spc_foo.clone()],
         // contains no auto -- it doesn't exist
-        tst_foo_bar.clone() => orderset![tst_foo.clone()],
-        spc_a_b.clone() => orderset![],
-        tst_a_b.clone() => orderset![spc_a_b.clone()],
+        tst_foo_bar.clone() => indexset![tst_foo.clone()],
+        spc_a_b.clone() => indexset![],
+        tst_a_b.clone() => indexset![spc_a_b.clone()],
     };
-    let auto = family::auto_partofs(&names);
+    let auto = auto_partofs(&names);
     assert_eq!(expected, auto);
 }
 
 #[test]
 fn sanity_strip_auto_partofs() {
-    let mut result = orderset![
+    let mut result = indexset![
         name!("REQ-bar"),
         name!("REQ-foo"),
         name!("REQ-foo-bar"),
         name!("SPC-bar"),
         name!("SPC-foo"),
     ];
-    let expected = orderset![name!("REQ-bar"), name!("REQ-foo"), name!("SPC-bar"),];
-    family::strip_auto_partofs(&name!("SPC-foo-bar"), &mut result);
+    let expected = indexset![name!("REQ-bar"), name!("REQ-foo"), name!("SPC-bar"),];
+    strip_auto_partofs(&name!("SPC-foo-bar"), &mut result);
     assert_eq!(expected, result);
 }
 

@@ -163,7 +163,7 @@ pub fn run(cmd: Ls) -> Result<i32> {
     Ok(0)
 }
 
-fn filter_artifacts(cmd: &Ls, artifacts: &OrderMap<Name, Artifact>) -> Result<OrderSet<Name>> {
+fn filter_artifacts(cmd: &Ls, artifacts: &IndexMap<Name, Artifact>) -> Result<IndexSet<Name>> {
     let fields = Flags::from_str(&cmd.fields)?;
     ensure!(!fields.impl_, "I/impl field not supported in search");
     let re = match cmd.pattern {
@@ -217,8 +217,8 @@ fn display_table<W: IoWrite>(
     w: &mut W,
     cmd: &Ls,
     display_flags: &Flags,
-    filtered: &OrderSet<Name>,
-    artifacts: &OrderMap<Name, Artifact>,
+    filtered: &IndexSet<Name>,
+    artifacts: &IndexMap<Name, Artifact>,
 ) -> io::Result<()> {
     let mut header = vec![vec![t!("spc%").bold()], vec![t!("tst%").bold()]];
     if display_flags.name {
@@ -284,12 +284,14 @@ struct Flags {
     text: bool,
 }
 
-lazy_static!{
-    pub static ref VALID_SEARCH_FIELDS: OrderSet<&'static str> = OrderSet::from_iter(
-        ["N", "F", "S", "P", "O", "I", "T", "A",
-        "name", "file", "subnames", "parts", "partof", "impl", "text", "all"]
-        .iter().map(|s| *s));
-
+lazy_static! {
+    pub static ref VALID_SEARCH_FIELDS: IndexSet<&'static str> = IndexSet::from_iter(
+        [
+            "N", "F", "S", "P", "O", "I", "T", "A", "name", "file", "subnames", "parts", "partof",
+            "impl", "text", "all",
+        ].iter()
+            .map(|s| *s)
+    );
     pub static ref ANY_UPPERCASE: Regex = Regex::new("[A-Z]").unwrap();
 }
 
@@ -317,15 +319,15 @@ impl Flags {
 
     pub fn from_str<'a>(s: &'a str) -> Result<Flags> {
         ensure!(!s.is_empty(), "Must search at least one field");
-        let flags: OrderSet<&'a str> = if s.contains(',') {
+        let flags: IndexSet<&'a str> = if s.contains(',') {
             s.split(',').filter(|s| !s.is_empty()).collect()
         } else if !ANY_UPPERCASE.is_match(s) {
-            orderset!(s)
+            indexset!(s)
         } else {
             s.split("").filter(|s| !s.is_empty()).collect()
         };
 
-        let invalid: OrderSet<&'a str> =
+        let invalid: IndexSet<&'a str> =
             flags.difference(&VALID_SEARCH_FIELDS).map(|s| *s).collect();
         ensure!(invalid.is_empty(), "Unknown fields: {:#?}", invalid);
         let fc = |c| flags.contains(c);
@@ -417,9 +419,9 @@ impl Flags {
 
 /// Faster `Text`
 trait ArtifactExt {
-    fn line_style(&self, artifacts: &OrderMap<Name, Artifact>, flags: &Flags) -> Vec<Vec<Text>>;
+    fn line_style(&self, artifacts: &IndexMap<Name, Artifact>, flags: &Flags) -> Vec<Vec<Text>>;
 
-    fn full_style(&self, artifacts: &OrderMap<Name, Artifact>, flags: &Flags) -> Vec<El>;
+    fn full_style(&self, artifacts: &IndexMap<Name, Artifact>, flags: &Flags) -> Vec<El>;
 
     fn name_style(&self) -> Text;
 
@@ -427,7 +429,7 @@ trait ArtifactExt {
 }
 
 impl ArtifactExt for Artifact {
-    fn line_style(&self, artifacts: &OrderMap<Name, Artifact>, flags: &Flags) -> Vec<Vec<Text>> {
+    fn line_style(&self, artifacts: &IndexMap<Name, Artifact>, flags: &Flags) -> Vec<Vec<Text>> {
         let mut out = Vec::with_capacity(flags.len() + 2);
         macro_rules! cell { [$item:expr] => {{
             let mut cell = $item;
@@ -470,7 +472,7 @@ impl ArtifactExt for Artifact {
         out
     }
 
-    fn full_style(&self, artifacts: &OrderMap<Name, Artifact>, flags: &Flags) -> Vec<El> {
+    fn full_style(&self, artifacts: &IndexMap<Name, Artifact>, flags: &Flags) -> Vec<El> {
         let mut out = Vec::new();
 
         macro_rules! line { [ $( $x:expr ),* ] => {{
@@ -546,7 +548,7 @@ fn truncate(s: &str, len: usize) -> String {
 }
 
 /// Find the styles of names that may or may not exist.
-fn lookup_name_styles(artifacts: &OrderMap<Name, Artifact>, names: &OrderSet<Name>) -> Vec<Text> {
+fn lookup_name_styles(artifacts: &IndexMap<Name, Artifact>, names: &IndexSet<Name>) -> Vec<Text> {
     let lookup = |name: &Name| match artifacts.get(name) {
         None => t!(name.as_str()).italic(),
         Some(art) => art.name_style(),
@@ -632,9 +634,11 @@ impl CompletedExt for Completed {
 #[test]
 fn test_flags_str() {
     let mut flags = Flags::default();
-    macro_rules! from_str { ($f:expr) => {{
-        expect!(Flags::from_str($f))
-    }}}
+    macro_rules! from_str {
+        ($f: expr) => {{
+            expect!(Flags::from_str($f))
+        }};
+    }
     assert_eq!(flags, from_str!("NP"));
     assert_eq!(flags, from_str!("N,parts"));
     assert_eq!(flags, from_str!("name,parts"));
@@ -675,17 +679,17 @@ fn test_style() {
         id: HashIm::default(),
         name: name!("REQ-foo"),
         file: PathArc::new("/fake"),
-        partof: orderset!{},
-        parts: orderset!{},
+        partof: indexset!{},
+        parts: indexset!{},
         completed: Completed {
             spc: 1.0,
             tst: 0.003343,
         },
         text: "some text".into(),
         impl_: Impl::NotImpl,
-        subnames: orderset!{},
+        subnames: indexset!{},
     };
-    let artifacts = ordermap![
+    let artifacts = indexmap![
         name!("REQ-foo") => art.clone(),
     ];
 

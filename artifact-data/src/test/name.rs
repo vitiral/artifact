@@ -21,7 +21,6 @@
 use ergo::json;
 
 use test::dev_prelude::*;
-use name::{self, InternalSubName, Name, SubName, Type};
 
 // HELPERS and TRAITS
 
@@ -180,8 +179,8 @@ subname: [[.subname]].
 [[.not-valid]]
 [[REQ-foo.not-subname]]
 "#;
-    let subnames = name::parse_subnames(text);
-    let expected = orderset!{
+    let subnames = parse_subnames(text);
+    let expected = indexset!{
         subname!(".subname"),
         subname!(".a"),
         subname!(".a_b"),

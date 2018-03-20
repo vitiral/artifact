@@ -120,7 +120,7 @@ impl fmt::Display for Categorized {
 }
 
 impl Lint {
-    pub(crate) fn load_error<P: AsRef<Path>>(path: P, err: &str) -> Lint {
+    pub fn load_error<P: AsRef<Path>>(path: P, err: &str) -> Lint {
         Lint {
             level: Level::Error,
             category: Category::LoadPaths,
@@ -130,7 +130,7 @@ impl Lint {
         }
     }
 
-    pub(crate) fn create_exists(err: String) -> Lint {
+    pub fn create_exists(err: String) -> Lint {
         Lint {
             level: Level::Error,
             category: Category::CreateExists,
@@ -140,7 +140,7 @@ impl Lint {
         }
     }
 
-    pub(crate) fn update_noop(err: String) -> Lint {
+    pub fn update_noop(err: String) -> Lint {
         Lint {
             level: Level::Error,
             category: Category::UpdateNoop,
@@ -150,7 +150,7 @@ impl Lint {
         }
     }
 
-    pub(crate) fn update_dne(err: String) -> Lint {
+    pub fn update_dne(err: String) -> Lint {
         Lint {
             level: Level::Error,
             category: Category::UpdateDne,
@@ -160,7 +160,7 @@ impl Lint {
         }
     }
 
-    pub(crate) fn delete_dne(err: String) -> Lint {
+    pub fn delete_dne(err: String) -> Lint {
         Lint {
             level: Level::Error,
             category: Category::DeleteDne,
@@ -170,7 +170,7 @@ impl Lint {
         }
     }
 
-    pub(crate) fn id_overlap(err: String) -> Lint {
+    pub fn id_overlap(err: String) -> Lint {
         Lint {
             level: Level::Error,
             category: Category::IdOverlap,
@@ -181,7 +181,7 @@ impl Lint {
     }
 }
 
-pub(crate) fn io_error<P: AsRef<Path>>(lints: &Sender<Lint>, path: P, err: &str) {
+pub fn io_error<P: AsRef<Path>>(lints: &Sender<Lint>, path: P, err: &str) {
     lints
         .send(Lint::load_error(path, err))
         .expect("failed to send io-error");
