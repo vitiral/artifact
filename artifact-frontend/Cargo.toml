@@ -9,7 +9,13 @@ stdweb = "0.4.2"
 chrono = "0.4.0"
 base64 = "0.9.0"
 siphasher = "0.2.2"
-path_abs = "0.3.16"
+path_abs = "0.4.*"
 artifact_lib = {path="../artifact-lib"}
 ergo_std = "0.0.1"
 ergo_config = "0.0.1"
+yew_route = { path = "/home/garrett/code/ruststuff/yew_router" }
+expect_macro = "0.2.1"
+
+[dev-dependencies]
+fantoccini = { git = "https://github.com/jonhoo/fantoccini" }
+futures = "0.1.*"

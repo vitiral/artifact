@@ -10,6 +10,7 @@ pub struct Props {
 #[derive(Debug, Clone, PartialEq)]
 pub struct ArtifactEdit {
     pub shared: Arc<ProjectSer>,
+    pub original: Option<ArtifactSer>,
     pub original_id: Option<HashIm>,
     pub name: String,
     // pub file: String,
@@ -40,6 +41,7 @@ impl Component<super::Context> for ArtifactEdit {
             Some(a) => {
                 ArtifactEdit {
                     shared,
+                    original: Some(a.clone()),
                     original_id: Some(a.id.clone()),
                     name: a.name.to_string(),
                     // file: a.file.to_stfu8(),
@@ -51,6 +53,7 @@ impl Component<super::Context> for ArtifactEdit {
             None => {
                 ArtifactEdit {
                     shared,
+                    original: None,
                     original_id: None,
                     name: "".into(),
                     // file: a.file.to_stfu8(),
@@ -77,9 +80,24 @@ impl Component<super::Context> for ArtifactEdit {
     }
 }
 
+fn view_parts(artifact: &ArtifactSer) -> Html<super::Context, ArtifactEdit> {
+    let view_part = |name: &Name| html![
+        <li>{name}</li>
+    ];
+    html![
+        <ul>{ for artifact.parts.iter().map(view_part) }</ul>
+    ]
+}
+
 impl Renderable<super::Context, ArtifactEdit> for ArtifactEdit {
     fn view(&self) -> Html<super::Context, Self> {
+        let artifact = expect!(self.original.as_ref(), "TODO");
         html![
+            <div>
+              <h1>{ format!("Artifact: {}", artifact.name) }</h1>
+              <p><b>{"Parts:"}</b></p>
+              { view_parts(&artifact) }
+            </div>
             <h1>{ format!("Editable: {}", self.name) }</h1>
             <h1>
               <input value=&self.name,

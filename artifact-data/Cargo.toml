@@ -5,7 +5,7 @@ version = "0.1.0"
 
 [dependencies]
 base64 = "0.9.0"
-ergo = "0.0.1"
+ergo = "*"
 expect_macro = "0.2.0"
 matches = "0.1"
 petgraph = "0.4"

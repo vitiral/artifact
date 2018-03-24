@@ -19,6 +19,7 @@
 //! a full project.
 
 #![allow(dead_code)]
+#![allow(unused_imports)]
 #![allow(unknown_lints)]
 #![allow(doc_markdown)]
 

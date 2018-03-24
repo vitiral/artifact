@@ -5,7 +5,7 @@ authors = ["Garrett Berg <googberg@gmail.com>"]
 
 [dependencies]
 base64 = "0.9.0"
-path_abs = "0.3.*"
+path_abs = "0.4.*"
 serde = "1.*"
 serde_derive = "1.*"
 failure = "0.1.1"

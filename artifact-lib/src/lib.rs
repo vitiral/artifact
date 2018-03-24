@@ -18,7 +18,7 @@
 //!
 //! This library of artifact types is intended to be usable both natively and via wasm.
 
-#![allow(unused_import)]
+#![allow(unused_imports)]
 extern crate base64;
 #[macro_use]
 extern crate expect_macro;
