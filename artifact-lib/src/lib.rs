@@ -430,6 +430,36 @@ impl fmt::Display for Completed {
     }
 }
 
+impl Completed {
+    /// Used to determine the color.
+    ///
+    /// See SPC-cli-ls.color_spc
+    pub fn spc_points(&self) -> u8 {
+        if self.spc >= 1.0 {
+            3
+        } else if self.spc >= 0.7 {
+            2
+        } else if self.spc >= 0.4 {
+            1
+        } else {
+            0
+        }
+    }
+
+    /// Used to determine the color.
+    ///
+    /// See SPC-cli-ls.color_tst
+    pub fn tst_points(&self) -> u8 {
+        if self.tst >= 1.0 {
+            2
+        } else if self.tst >= 0.5 {
+            1
+        } else {
+            0
+        }
+    }
+}
+
 #[test]
 fn test_completed_fmt() {
     fn assert(spc: f32, tst: f32, result: &str) {

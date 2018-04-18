@@ -24,7 +24,7 @@ version = "1.1.0-beta002"
 
 [dependencies]
 difference = "1.0.0"
-ergo = "0.0.1"
+ergo = "*"
 self_update = "0.4.0"
 serde = "1.0.*"
 serde_derive = "1.*"

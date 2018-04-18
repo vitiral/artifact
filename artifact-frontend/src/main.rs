@@ -6,7 +6,7 @@ extern crate chrono;
 extern crate expect_macro;
 #[macro_use]
 extern crate yew;
-extern crate yew_route;
+extern crate yew_router;
 #[macro_use]
 extern crate artifact_lib;
 #[macro_use]
@@ -21,41 +21,27 @@ mod example;
 mod dev_prelude;
 
 use dev_prelude::*;
-use artifact::ArtifactEdit;
-
-struct Context {
-    console: ConsoleService,
-}
-
-pub enum View {
-    List,
-    Artifact(Name),
-}
-
-struct Model {
-    shared: Arc<ProjectSer>,
-    view: View,
-    router: yew_route::RouterTask<Context, Model>,
-}
-
-enum Msg {
-    SetView(View),
-    Ignore,
-}
-
 
 lazy_static! {
     static ref NAME_URL: Regex = Regex::new(
-        &format!(r"(?i)/?(?:artifacts/)({})", NAME_VALID_STR)
+        &format!(r"(?i)(?:artifacts/)?({})", NAME_VALID_STR)
     ).unwrap();
 }
 
-pub(crate) fn router(info: yew_route::RouteInfo) -> Msg {
-    let url = info.url;
-    if let Some(cap) = NAME_URL.captures(url.path()) {
+pub(crate) fn router(info: yew_router::RouteInfo) -> Msg {
+    let hash = if let Some(h) = info.url.fragment() {
+        h
+    } else {
+        return Msg::Ignore;
+    };
+
+    println!("routing hash: {}", hash);
+    if let Some(cap) = NAME_URL.captures(hash) {
         let name = name!(&cap[1]);
+        println!("SetView={}", name);
         Msg::SetView(View::Artifact(name))
     } else {
+        println!("ignoring route");
         Msg::Ignore
     }
 }
@@ -69,31 +55,34 @@ impl Component<Context> for Model {
         Model {
             shared: Arc::new(project),
             view: View::Artifact(name!("REQ-completed")),
-            router: yew_route::RouterTask::new(context, &router),
+            router: yew_router::RouterTask::new(context, &router),
         }
     }
 
     fn update(&mut self, msg: Self::Msg, context: &mut Env<Context, Self>) -> ShouldRender {
-        false
+        match msg {
+            Msg::SetView(view) => {
+                println!("Setting view: {:?}", view);
+                self.view = view;
+                true
+            }
+            Msg::Ignore => {
+                false
+            }
+        }
     }
 }
 
 impl Renderable<Context, Model> for Model {
-    fn view(&self) -> Html<Context, Self> {
+    fn view(&self) -> HtmlApp {
         match self.view {
             View::List => {
                 html![
-                  <h1>{ "List View (unimplemented)" }</h1>
+                  <h1>{ "List View" }</h1>
                 ]
             }
             View::Artifact(ref name) => {
-                let artifact = expect!(self.shared.artifacts.get(name), "FIXME");
-                html! [
-                  <ArtifactEdit:
-                    shared=Some(self.shared.clone()),
-                    artifact=Some(artifact.clone()),
-                  />
-                ]
+                artifact::view_artifact(self, name)
             }
         }
     }
@@ -101,9 +90,7 @@ impl Renderable<Context, Model> for Model {
 
 fn main() {
     yew::initialize();
-    let context = Context {
-        console: ConsoleService,
-    };
+    let context = Context {};
     let app: App<_, Model> = App::new(context);
     app.mount_to_body();
     yew::run_loop();

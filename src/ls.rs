@@ -567,9 +567,7 @@ fn lookup_name_styles(artifacts: &IndexMap<Name, Artifact>, names: &IndexSet<Nam
 
 trait CompletedExt {
     fn spc_style(&self) -> Text;
-    fn spc_points(&self) -> u8;
     fn tst_style(&self) -> Text;
-    fn tst_points(&self) -> u8;
     fn name_color(&self) -> Color;
 }
 
@@ -586,18 +584,6 @@ impl CompletedExt for Completed {
         t!(format!("{:.1}", self.spc * 100.0)).color(color)
     }
 
-    fn spc_points(&self) -> u8 {
-        if self.spc >= 1.0 {
-            3
-        } else if self.spc >= 0.7 {
-            2
-        } else if self.spc >= 0.4 {
-            1
-        } else {
-            0
-        }
-    }
-
     /// #SPC-cli-ls.color_tst
     fn tst_style(&self) -> Text {
         let color = match self.tst_points() {
@@ -609,15 +595,7 @@ impl CompletedExt for Completed {
         t!(format!("{:.1}", self.tst * 100.0)).color(color)
     }
 
-    fn tst_points(&self) -> u8 {
-        if self.tst >= 1.0 {
-            2
-        } else if self.tst >= 0.5 {
-            1
-        } else {
-            0
-        }
-    }
+
 
     /// #SPC-cli-ls.color_name
     fn name_color(&self) -> Color {

@@ -1,3 +1,9 @@
 [submodule "quicli"]
 	path = quicli
 	url = ./quicli
+[submodule "artifact-frontend/yew_router"]
+	path = artifact-frontend/yew_router
+	url = git@github.com:vitiral/yew_router.git
+[submodule "artifact-frontend/yew"]
+	path = artifact-frontend/yew
+	url = git@github.com:vitiral/yew.git

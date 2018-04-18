@@ -1,109 +1,80 @@
 use dev_prelude::*;
 
-#[derive(Debug, Default, Clone, PartialEq)]
-pub struct Props {
-    pub shared: Option<Arc<ProjectSer>>,
-    pub artifact: Option<ArtifactSer>,
-}
 
-/// Editable Artifact
-#[derive(Debug, Clone, PartialEq)]
-pub struct ArtifactEdit {
-    pub shared: Arc<ProjectSer>,
-    pub original: Option<ArtifactSer>,
-    pub original_id: Option<HashIm>,
-    pub name: String,
-    // pub file: String,
-    pub partof: Vec<String>,
-    pub done: String,
-    pub text: String,
-}
-
-pub enum StrField {
-    Name,
-    // File,
-    Done,
-    Text,
-}
-
-pub enum Msg {
-    SetStr(StrField, String),
-}
-
-
-impl Component<super::Context> for ArtifactEdit {
-    type Msg = Msg;
-    type Properties = Props;
-
-    fn create(p: Self::Properties, _: &mut Env<super::Context, Self>) -> Self {
-        let shared = p.shared.expect("artifact: shared does not exist");
-        match p.artifact {
-            Some(a) => {
-                ArtifactEdit {
-                    shared,
-                    original: Some(a.clone()),
-                    original_id: Some(a.id.clone()),
-                    name: a.name.to_string(),
-                    // file: a.file.to_stfu8(),
-                    partof: a.partof.iter().map(|n| n.to_string()).collect(),
-                    done: a.impl_.as_done().map(String::from).unwrap_or_else(String::new),
-                    text: a.text.clone(),
-                }
-            }
-            None => {
-                ArtifactEdit {
-                    shared,
-                    original: None,
-                    original_id: None,
-                    name: "".into(),
-                    // file: a.file.to_stfu8(),
-                    partof: Vec::new(),
-                    done: "".into(),
-                    text: "".into(),
-                }
-            }
-        }
+pub(crate) fn view_artifact(model: &Model, name: &Name) -> HtmlApp {
+    match model.shared.artifacts.get(name) {
+        Some(ref art) => {
+            html! [
+                <div><h1 class=H1,>{ name }</h1></div>
+                <div class=(CLEARFIX, PY1),>
+                    <div class=(COL, COL_3),>{ "comp?" }</div>
+                    <div class=(COL, COL_3),>{ "test?" }</div>
+                    <div class=(COL, COL_6),>{ "done?" }</div>
+                </div>
+                <div><textarea readonly=true, cols=80, rows=100,>
+                    { &art.text }
+                </textarea></div>
+            ]
+        },
+        None => return html![
+            <h3 class=H3,>{format!("Artifact with name {:?} not found", name)}</h3>
+        ],
     }
 
-    fn update(&mut self, msg: Self::Msg, context: &mut Env<super::Context, Self>) -> ShouldRender {
-        match msg {
-            Msg::SetStr(field, value) => {
-                match field {
-                    StrField::Name => self.name = value,
-                    // StrField::File => self.file = value,
-                    StrField::Done => self.done = value,
-                    StrField::Text => self.text = value,
-                }
-            }
-        }
-        true
-    }
+    // div [ class "clearfix py1" ]
+    //     [ div [ class "col col-6" ] (viewCompletedPerc artifact)
+    //     , div [ class "col col-6" ] (viewTestedPerc artifact)
+    //     ]
 }
 
-fn view_parts(artifact: &ArtifactSer) -> Html<super::Context, ArtifactEdit> {
-    let view_part = |name: &Name| html![
-        <li>{name}</li>
-    ];
-    html![
-        <ul>{ for artifact.parts.iter().map(view_part) }</ul>
-    ]
+trait CompletedExt {
+    fn spc_style(&self) -> HtmlApp;
+    fn tst_style(&self) -> HtmlApp;
+    fn name_color(&self) -> &'static str;
 }
 
-impl Renderable<super::Context, ArtifactEdit> for ArtifactEdit {
-    fn view(&self) -> Html<super::Context, Self> {
-        let artifact = expect!(self.original.as_ref(), "TODO");
+impl CompletedExt for Completed {
+    /// #SPC-cli-ls.color_spc
+    fn spc_style(&self) -> HtmlApp {
+        let color = match self.spc_points() {
+            0 => RED,
+            1 => YELLOW,
+            2 => BLUE,
+            3 => OLIVE,
+            _ => unreachable!(),
+        };
         html![
-            <div>
-              <h1>{ format!("Artifact: {}", artifact.name) }</h1>
-              <p><b>{"Parts:"}</b></p>
-              { view_parts(&artifact) }
-            </div>
-            <h1>{ format!("Editable: {}", self.name) }</h1>
-            <h1>
-              <input value=&self.name,
-                 oninput=|e: InputData| Msg::SetStr(StrField::Name, e.value),
-              />
-            </h1>
+            // <span color=color,>
+            //     format!("{:.1}", self.spc * 100.0)
+            // </span>
         ]
+    }
+
+    /// #SPC-cli-ls.color_tst
+    fn tst_style(&self) -> HtmlApp {
+        let color = match self.tst_points() {
+            0 => RED,
+            1 => YELLOW,
+            2 => OLIVE,
+            _ => unreachable!(),
+        };
+        html![
+            // <span color=color,>
+            //     format!("{:.1}", self.tst * 100.0)
+            // </span>
+        ]
+    }
+
+
+
+    /// #SPC-cli-ls.color_name
+    fn name_color(&self) -> &'static str {
+        match self.spc_points() + self.tst_points() {
+            0 => RED,
+            1 | 2 => YELLOW,
+            3 | 4 => BLUE,
+            5 => OLIVE,
+            _ => unreachable!(),
+        }
     }
 }
