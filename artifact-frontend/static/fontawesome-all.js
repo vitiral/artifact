@@ -8,7 +8,7 @@
 var _WINDOW = {};
 try {
   if (typeof window !== 'undefined') _WINDOW = window;
-  
+
 } catch (e) {}
 
 var _ref = _WINDOW.navigator || {};
@@ -458,7 +458,7 @@ bunker(function () {
 var _WINDOW = {};
 try {
   if (typeof window !== 'undefined') _WINDOW = window;
-  
+
 } catch (e) {}
 
 var _ref = _WINDOW.navigator || {};
@@ -693,7 +693,7 @@ bunker(function () {
 var _WINDOW = {};
 try {
   if (typeof window !== 'undefined') _WINDOW = window;
-  
+
 } catch (e) {}
 
 var _ref = _WINDOW.navigator || {};
