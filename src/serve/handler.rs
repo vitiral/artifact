@@ -35,8 +35,9 @@ pub fn start_api(cmd: super::Serve) {
     let endpoint = "/json-rpc";
     let mut server = Box::new(Nickel::new());
 
-    server.get(endpoint, handle_artifacts);
-    server.put(endpoint, handle_artifacts);
+    server.post(endpoint, handle_rpc);
+    server.get(endpoint, handle_rpc);
+    server.put(endpoint, handle_rpc);
     server.options(endpoint, handle_options);
 
     let running = Arc::new(AtomicBool::new(true));
@@ -55,7 +56,7 @@ pub fn start_api(cmd: super::Serve) {
         server.listen(addr).expect("cannot connect to port");
     });
 
-    println!("exit with ctrlc+C or SIGINT");
+    println!("Exit with ctrlc+C or SIGINT");
     while running.load(AtomicOrdering::SeqCst) {
         sleep(Duration::new(0, 10 * 1e6 as u32));
     }
@@ -68,25 +69,18 @@ pub fn start_api(cmd: super::Serve) {
 
 // ----- API CALLS -----
 
-/// the rpc initializer that implements the API spec
+/// The rpc initializer that implements the API spec
 fn init_rpc_handler() -> IoHandler {
     let mut handler = IoHandler::new();
-    // FIXME
-    // handler.add_method("CreateArtifacts", crud::CreateArtifacts);
-
-    // TODO: rename to ReadProject instead of ReadArtifacts
-    handler.add_method("ReadArtifacts", ReadArtifacts);
-
-    // handler.add_method("UpdateArtifacts", crud::UpdateArtifacts);
-    // handler.add_method("DeleteArtifacts", crud::DeleteArtifacts);
+    handler.add_method("ReadProject", ReadProject);
     handler
 }
 
-/// `ReadArtifacts` API Handler
-pub struct ReadArtifacts;
-impl RpcMethodSync for ReadArtifacts {
+/// `ReadProject` API Handler
+pub struct ReadProject;
+impl RpcMethodSync for ReadProject {
     fn call(&self, _: Params) -> result::Result<json::Value, RpcError> {
-        info!("ReadArtifacts");
+        info!("ReadProject");
         let locked = super::LOCKED.lock().unwrap();
         let locked = locked.as_ref().unwrap();
         Ok(json::to_value(&locked.project).expect("serde"))
@@ -96,7 +90,7 @@ impl RpcMethodSync for ReadArtifacts {
 // ----- HANDLE ENDPOINTS -----
 
 /// Handle the `/artifacts` endpoint.
-fn handle_artifacts<'a>(req: &mut Request, mut res: Response<'a>) -> MiddlewareResult<'a> {
+fn handle_rpc<'a>(req: &mut Request, mut res: Response<'a>) -> MiddlewareResult<'a> {
     setup_headers(&mut res);
     debug!("handling json-rpc request");
 
@@ -110,11 +104,11 @@ fn handle_artifacts<'a>(req: &mut Request, mut res: Response<'a>) -> MiddlewareR
         }
     };
 
-    debug!("request: {:?}", body);
-    match RPC_HANDLER.handle_request_sync(body) {
+    debug!("request: {}", body);
+    let out = match RPC_HANDLER.handle_request_sync(body) {
         Some(body) => {
             config_json_res(&mut res);
-            trace!("- response {}", body);
+            trace!("- response: {}", body);
             res.send(body)
         }
         None => {
@@ -123,7 +117,10 @@ fn handle_artifacts<'a>(req: &mut Request, mut res: Response<'a>) -> MiddlewareR
             res.set(StatusCode::InternalServerError);
             res.send(msg)
         }
-    }
+    };
+
+    debug!("Exiting handle_rpc");
+    out
 }
 
 /// Host the frontend web-server on `/`, returning the tempdir where the

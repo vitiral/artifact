@@ -37,6 +37,7 @@ nickel = "0.10.1"
 jsonrpc-core = "7.*"
 artifact_data = {path = "artifact-data"}
 artifact_lib = {path = "artifact-lib"}
+jrpc = "0.3.0"
 
 [dependencies.quicli]
 path = "quicli"
@@ -44,4 +45,5 @@ default-features = false
 
 [dev-dependencies]
 assert_cli = "0.5.4"
-# pretty_assertions = "0.5.0"
+reqwest = "0.8.5"
+pretty_assertions = "0.5.0"
