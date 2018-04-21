@@ -148,12 +148,7 @@ fn insert_secondary(
                     orig.line,
                     &format!("{}{}", name, sub),
                 );
-                duplicate_detected(
-                    send_lints,
-                    &loc.file,
-                    loc.line,
-                    &format!("{}{}", name, sub),
-                );
+                duplicate_detected(send_lints, &loc.file, loc.line, &format!("{}{}", name, sub));
             }
         }
         Entry::Vacant(entry) => {

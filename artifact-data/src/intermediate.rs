@@ -25,7 +25,6 @@ use raw::{self, ArtifactRaw, TextRaw};
 use raw_names::NamesRaw;
 
 pub trait ArtifactImExt {
-
     /// Get an `ArtifactIm` from an `ArtifactRaw`.
     fn from_raw(name: Name, file: PathFile, raw: ArtifactRaw) -> ArtifactIm;
 
@@ -33,7 +32,6 @@ pub trait ArtifactImExt {
 }
 
 impl ArtifactImExt for ArtifactIm {
-
     fn from_raw(name: Name, file: PathFile, raw: ArtifactRaw) -> ArtifactIm {
         let mut partof = raw.partof
             .map(|mut p| {

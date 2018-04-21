@@ -1,7 +1,6 @@
 extern crate artifact_test;
 use artifact_test::*;
 use artifact_test::artifact_data::raw_names::NamesRaw;
-use artifact_test::name::arb_name;
 use artifact_test::raw_names::*;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

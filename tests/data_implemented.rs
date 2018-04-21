@@ -1,8 +1,6 @@
 extern crate artifact_test;
 use artifact_test::*;
 use artifact_test::implemented::*;
-use artifact_test::raw_names::arb_names_raw;
-use artifact_test::artifact_data::raw_names::NamesRaw;
 use artifact_test::artifact_data::implemented::{join_locations, parse_locations};
 
 // SANITY
@@ -202,4 +200,3 @@ proptest! {
         assert_eq!(locations, expected);
     }
 }
-

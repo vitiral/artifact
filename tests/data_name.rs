@@ -138,4 +138,3 @@ proptest! {
         assert_eq!(json, result_json);
     }
 }
-

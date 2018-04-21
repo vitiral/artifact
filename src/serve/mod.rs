@@ -35,8 +35,6 @@ lazy_static! {
 
 /// Run the `art serve` command
 pub fn run(cmd: Serve) -> Result<i32> {
-    let mut w = io::stdout();
-
     set_log_verbosity!(cmd);
     let repo = find_repo(&work_dir!(cmd))?;
     info!("Running art-serve in repo {}", repo.display());

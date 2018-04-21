@@ -595,8 +595,6 @@ impl CompletedExt for Completed {
         t!(format!("{:.1}", self.tst * 100.0)).color(color)
     }
 
-
-
     /// #SPC-cli-ls.color_name
     fn name_color(&self) -> Color {
         match self.spc_points() + self.tst_points() {

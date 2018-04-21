@@ -1,7 +1,7 @@
-extern crate ergo;
-extern crate artifact_lib;
 extern crate artifact_data;
+extern crate artifact_lib;
 extern crate artifact_test;
+extern crate ergo;
 use artifact_test::{run_generic_interop_tests, INTEROP_TESTS_PATH};
 use artifact_lib::*;
 use ergo::*;
@@ -19,7 +19,8 @@ fn run_interop_tests<P: AsRef<Path>>(test_base: P) {
 /// Simply calls `artifact_data::read_project(project_path)`
 ///
 /// Used to satisfy the type requirements of `Fn` (cannot accept `AsRef`)
-fn read_project_shim(project_path: PathDir
+fn read_project_shim(
+    project_path: PathDir,
 ) -> Result<(lint::Categorized, Project), lint::Categorized> {
     artifact_data::read_project(project_path)
 }
@@ -83,7 +84,6 @@ pub fn assert_stuff_data(
         assert_eq!(expect, load_lints);
     }
 }
-
 
 #[test]
 fn interop_source_only() {

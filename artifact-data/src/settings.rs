@@ -48,8 +48,6 @@ impl FoundPaths {
     }
 }
 
-
-
 // FIXME: convert to trait
 impl SettingsRaw {
     fn load<P: AsRef<Path>>(

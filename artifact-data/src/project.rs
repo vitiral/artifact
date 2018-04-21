@@ -206,11 +206,7 @@ pub(crate) fn lint_partof_dne(lints: &Sender<lint::Lint>, project: &Project) {
                         path: Some(art.file.clone().into()),
                         line: None,
                         category: lint::Category::Artifact,
-                        msg: format!(
-                            "{} defines partof={} which does not exist",
-                            name,
-                            pof
-                        ),
+                        msg: format!("{} defines partof={} which does not exist", name, pof),
                     })
                     .expect("send lint");
             }
@@ -241,11 +237,7 @@ pub(crate) fn lint_partof_types(lints: &Sender<lint::Lint>, project: &Project) {
                         path: Some(art.file.clone().into()),
                         line: None,
                         category: lint::Category::Artifact,
-                        msg: format!(
-                            "{} cannot have `partof` {}: invalid types.",
-                            name,
-                            pof,
-                        ),
+                        msg: format!("{} cannot have `partof` {}: invalid types.", name, pof,),
                     })
                     .expect("send lint");
             }
@@ -309,10 +301,7 @@ pub(crate) fn lint_code_impls(lints: &Sender<lint::Lint>, project: &Project) {
                                 name,
                                 Some(sub),
                                 loc,
-                                &format!(
-                                    "Subname [[{}]] does not exist in artifact's text",
-                                    sub
-                                ),
+                                &format!("Subname [[{}]] does not exist in artifact's text", sub),
                             );
                         }
                     }

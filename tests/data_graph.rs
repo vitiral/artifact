@@ -125,4 +125,3 @@ fn sanity_determine_completed() {
     expected.sort_keys();
     assert_eq!(expected, completed);
 }
-

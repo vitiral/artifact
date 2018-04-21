@@ -1,10 +1,7 @@
 extern crate artifact_test;
 use artifact_test::*;
 
-use artifact_test::family::{arb_topologically_sorted_names, rand_select_partof};
-use artifact_test::implemented::random_impl_links;
-use artifact_data::raw::{from_markdown, to_markdown, ArtifactRaw, TextRaw, ATTRS_END_RE,
-                         NAME_LINE_RE, ArtFileType};
+use artifact_data::raw::{from_markdown, to_markdown, ArtFileType, ArtifactRaw, TextRaw};
 use artifact_data::raw_names::NamesRaw;
 use artifact_test::raw::{arb_raw_artifacts, arts_from_json_str, arts_from_toml_str};
 

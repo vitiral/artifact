@@ -102,11 +102,7 @@ pub(crate) fn join_artifacts_raw(
                     category: lint::Category::ParseArtifactFiles,
                     path: Some(dup.clone().into()),
                     line: None,
-                    msg: format!(
-                        "duplicate name detected: {} in {}",
-                        art.name,
-                        dup.display()
-                    ),
+                    msg: format!("duplicate name detected: {} in {}", art.name, dup.display()),
                 })
                 .expect("send dup artifact");
             lints
@@ -362,4 +358,3 @@ impl ArtFileType {
         }
     }
 }
-

@@ -20,14 +20,14 @@
 
 #![allow(unused_imports)]
 extern crate base64;
+extern crate ergo_config;
+#[macro_use]
+extern crate ergo_std;
 #[macro_use]
 extern crate expect_macro;
 extern crate failure;
 #[macro_use]
 extern crate failure_derive;
-#[macro_use]
-extern crate ergo_std;
-extern crate ergo_config;
 extern crate path_abs;
 extern crate siphasher;
 
@@ -50,8 +50,8 @@ pub use name::{parse_subnames, InternalSubName, Name, SubName, Type, NAME_VALID_
 pub use family::{auto_partofs, Names};
 pub use expand_names::expand_names;
 pub use lint::{Categorized, Category, Level, Lint};
-pub use ser::{ArtifactImSer, ArtifactSer, CodeLocSer, ImplCodeSer, ImplSer,
-              ProjectSer, ProjectPathsSer};
+pub use ser::{ArtifactImSer, ArtifactSer, CodeLocSer, ImplCodeSer, ImplSer, ProjectPathsSer,
+              ProjectSer};
 
 #[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
 /// #SPC-read-structs.artifact

@@ -23,7 +23,6 @@ extern crate ergo;
 
 use artifact_test::dev_prelude::*;
 use artifact_data::artifact;
-use ergo::*;
 
 #[test]
 /// #TST-read-artifact.partofs
@@ -65,4 +64,3 @@ fn sanity_determine_partofs() {
     expected.sort_keys();
     assert_eq!(expected, partofs);
 }
-

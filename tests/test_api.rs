@@ -1,13 +1,12 @@
-extern crate reqwest;
-extern crate artifact_lib;
-extern crate artifact_app;
-extern crate ergo;
-#[macro_use]
-extern crate pretty_assertions;
-extern crate jrpc;
-use ergo::*;
-use reqwest::header::*;
-
+// extern crate artifact_app;
+// extern crate artifact_lib;
+// extern crate ergo;
+// extern crate jrpc;
+// #[macro_use]
+// extern crate pretty_assertions;
+// extern crate reqwest;
+// use ergo::*;
+// use reqwest::header::*;
 
 // #[test]
 // fn test_basic() {

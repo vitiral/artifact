@@ -48,11 +48,11 @@ pub fn start_api(cmd: super::Serve) {
 
     // host the frontend files using a static file handler
     // and own the tmpdir for as long as needed
-    let tmp_dir = host_frontend(&mut server, &cmd);
+    let _tmp_dir = host_frontend(&mut server, &cmd);
 
     // everything in a thread has to be owned by the thread
     let addr = format!("127.0.0.1:{}", cmd.port);
-    let th = spawn(move || {
+    let _th = spawn(move || {
         server.listen(addr).expect("cannot connect to port");
     });
 

@@ -21,13 +21,12 @@ use std::fmt;
 
 use dev_prelude::*;
 use artifact;
-use project::{ProjectExt, read_project};
+use project::{read_project, ProjectExt};
 use intermediate::ArtifactImExt;
 use raw;
 use settings;
 
 static ART_BK_EXT: &str = "artbk";
-
 
 #[derive(Debug)]
 pub struct ModifyError {

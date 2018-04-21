@@ -59,7 +59,6 @@ pub struct ProjectPathsSer {
     pub exclude_artifact_paths: IndexSet<String>,
 }
 
-
 #[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
 pub struct ArtifactSer {
     pub id: HashIm,
