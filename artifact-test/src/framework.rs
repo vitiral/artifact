@@ -27,7 +27,19 @@ use artifact_lib::expected::*;
 use artifact_lib::*;
 use artifact_data;
 
-/// This runs the interop tests.
+/// This runs the interop tests for artifact-data.
+///
+/// TODO: move this to artifact data
+pub fn run_interop_tests<P: AsRef<Path>>(test_base: P) {
+    run_generic_interop_tests(
+        test_base,
+        read_project_shim,
+        modify_project_shim,
+        assert_stuff_direct,
+    );
+}
+
+/// Run the generic interop tests.
 ///
 /// Directory structure:
 /// ```no_compile
@@ -47,7 +59,24 @@ use artifact_data;
 ///         project.yaml
 ///         ... etc
 /// ```
-pub fn run_interop_tests<P: AsRef<Path>>(test_base: P) {
+pub fn run_generic_interop_tests<P, READ, MODIFY, ASSERT>(
+    test_base: P,
+    read_project: READ,
+    modify_project: MODIFY,
+    assert_stuff: ASSERT,
+) where
+    P: AsRef<Path>,
+    READ: Clone + Fn(PathDir) -> result::Result<(lint::Categorized, Project), lint::Categorized>,
+    MODIFY: Clone + Fn(PathDir, Vec<ArtifactOp>)
+        -> result::Result<(lint::Categorized, Project), artifact_data::ModifyError>,
+    ASSERT: Clone + Fn(
+        Option<Categorized>,
+        Option<Categorized>,
+        Option<Project>,
+        Categorized,
+        Option<Project>
+    ),
+{
     eprintln!(
         "Running interop test suite: {}",
         test_base.as_ref().display()
@@ -80,13 +109,53 @@ pub fn run_interop_tests<P: AsRef<Path>>(test_base: P) {
             expect!(test_base.file_name()),
             expect!(testcase.file_name())
         );
-        run_interop_test(project_path);
+        run_generic_interop_test(
+            project_path.clone(),
+            read_project.clone(),
+            modify_project.clone(),
+            assert_stuff.clone(),
+        );
     }
 }
 
-/// Run the interop test on an example project.
-fn run_interop_test(project_path: PathDir) {
+/// Simply calls `artifact_data::read_project(project_path)`
+///
+/// Used to satisfy the type requirements of `Fn` (cannot accept `AsRef`)
+pub fn read_project_shim(project_path: PathDir
+) -> result::Result<(lint::Categorized, Project), lint::Categorized> {
+    artifact_data::read_project(project_path)
+}
+
+/// Simply calls `artifact_data::modify_project(project_path, operations)`
+///
+/// Used to satisfy the type requirements of `Fn` (cannot accept `AsRef`)
+pub fn modify_project_shim(
+    project_path: PathDir,
+    operations: Vec<ArtifactOp>,
+) -> ::std::result::Result<(lint::Categorized, Project), artifact_data::ModifyError> {
+    artifact_data::modify_project(project_path, operations)
+}
+
+pub fn run_generic_interop_test<P, READ, MODIFY, ASSERT>(
+    project_path: P,
+    read_project: READ,
+    modify_project: MODIFY,
+    assert_stuff: ASSERT,
+) where
+    P: AsRef<Path>,
+    READ: Fn(PathDir) -> result::Result<(lint::Categorized, Project), lint::Categorized>,
+    MODIFY: Fn(PathDir, Vec<ArtifactOp>)
+        -> result::Result<(lint::Categorized, Project), artifact_data::ModifyError>,
+    ASSERT: Fn(
+        Option<Categorized>,
+        Option<Categorized>,
+        Option<Project>,
+        Categorized,
+        Option<Project>
+    ),
+{
     static MODIFY_NAME: &'static str = "modify.yaml";
+    let project_path = PathDir::new(project_path).unwrap();
 
     // Run the project against the copied directory
     let start = time::get_time();
@@ -99,7 +168,7 @@ fn run_interop_test(project_path: PathDir) {
 
     eprintln!("loaded asserts in {:.3}", time::get_time() - start);
 
-    let (load_lints, project) = match artifact_data::read_project(&project_path) {
+    let (load_lints, project) = match read_project(project_path.clone()) {
         Ok(v) => v,
         Err(load_lints) => {
             assert!(!modify_path.exists(), "cannot modify non-existant project");
@@ -124,14 +193,14 @@ fn run_interop_test(project_path: PathDir) {
                 Some(project),
             );
         }
-        Some(operations) => match artifact_data::modify_project(&project_path, operations) {
+        Some(operations) => match modify_project(project_path.clone(), operations) {
             Ok((lints, project)) => {
                 if let Some(expect) = expect_modify_lints {
                     eprintln!("asserting modify lints");
                     assert_eq!(expect, lints);
                 }
 
-                let (load_lints, expect) = artifact_data::read_project(&project_path).unwrap();
+                let (load_lints, expect) = read_project(project_path.clone()).unwrap();
                 assert_eq!(expect, project);
                 assert_stuff(
                     expect_load_lints,
@@ -153,7 +222,7 @@ fn run_interop_test(project_path: PathDir) {
     };
 }
 
-fn assert_stuff(
+pub fn assert_stuff_direct(
     expect_load_lints: Option<Categorized>,
     expect_project_lints: Option<Categorized>,
     expect_project: Option<Project>,
