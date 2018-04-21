@@ -11,7 +11,7 @@ base64 = "0.9.0"
 siphasher = "0.2.2"
 path_abs = "0.4.*"
 artifact_lib = {path="../artifact-lib"}
-ergo_std = "0.0.1"
+ergo_std = "0.0.3"
 ergo_config = "0.0.1"
 yew_router = { path = "yew_router" }
 expect_macro = "0.2.1"

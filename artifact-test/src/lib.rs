@@ -26,8 +26,6 @@ pub extern crate ergo;
 pub extern crate expect_macro;
 pub extern crate failure;
 #[macro_use]
-pub extern crate indexmap;
-#[macro_use]
 pub extern crate matches;
 pub extern crate petgraph;
 pub extern crate rayon;
@@ -58,17 +56,19 @@ extern crate tempdir;
 extern crate unicode_segmentation;
 
 pub mod dev_prelude;
-pub mod artifact;
 pub mod name;
 pub mod family;
 pub mod graph;
 pub mod implemented;
 pub mod raw;
+#[macro_use]
 pub mod raw_names;
 pub mod framework;
 
-pub use framework::run_interop_tests;
-pub use dev_prelude::INTEROP_TESTS_PATH;
+pub use framework::run_generic_interop_tests;
+pub use artifact_data::*;  // for macros
+pub use proptest::*;
+pub use dev_prelude::*;
 
 // pub use dev_prelude::assert_generic;
 // pub use family::arb_names;

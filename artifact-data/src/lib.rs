@@ -32,8 +32,6 @@ extern crate expect_macro;
 extern crate failure;
 #[macro_use]
 extern crate matches;
-#[macro_use]
-extern crate indexmap;
 extern crate petgraph;
 extern crate rayon;
 extern crate siphasher;

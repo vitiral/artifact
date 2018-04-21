@@ -28,8 +28,6 @@ extern crate failure_derive;
 #[macro_use]
 extern crate ergo_std;
 extern crate ergo_config;
-#[macro_use]
-extern crate indexmap;
 extern crate path_abs;
 extern crate siphasher;
 
@@ -458,21 +456,6 @@ impl Completed {
             0
         }
     }
-}
-
-#[test]
-fn test_completed_fmt() {
-    fn assert(spc: f32, tst: f32, result: &str) {
-        let c = Completed { spc: spc, tst: tst };
-        assert_eq!(&c.to_string(), result);
-    }
-
-    // max of 2 decimals
-    assert(1.0, 0.334323, "spc=1.00, tst=0.33");
-    // exactly 2 decimals
-    assert(0.0, 0.2, "spc=0.00, tst=0.20");
-    // rounding works as expected
-    assert(0.127, 0.231, "spc=0.13, tst=0.23");
 }
 
 // ------ PROJECT ------

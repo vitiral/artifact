@@ -28,7 +28,6 @@ use serde::{self, Deserialize, Deserializer, Serialize, Serializer};
 use ergo_std::*;
 use ergo_config::*;
 use failure::*;
-use indexmap::*;
 
 // EXPORTED TYPES AND FUNCTIONS
 

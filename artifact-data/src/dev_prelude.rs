@@ -16,17 +16,11 @@
 pub(crate) use ergo::*;
 #[allow(unused_imports)]
 pub(crate) use expect_macro::*;
-// TODO: move these to std_prelude
 pub(crate) use std::ffi::OsStr;
-pub use std::cmp::Ord;
-pub use std::cmp::PartialOrd;
-pub use std::hash::{Hash, Hasher};
 use std::io;
 use std::fs;
 pub(crate) use artifact_lib::*;
 pub(crate) use artifact_lib;
-
-pub(crate) use indexmap::{IndexMap, IndexSet};
 
 pub(crate) use std::result;
 pub(crate) use failure::Error;

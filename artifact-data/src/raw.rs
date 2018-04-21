@@ -338,14 +338,14 @@ fn push_attrs(out: &mut String, raw: &ArtifactRaw) {
 // -- INTERNAL STUFF
 
 #[derive(Debug, PartialEq, Eq)]
-pub(crate) enum ArtFileType {
+pub enum ArtFileType {
     Toml,
     Md,
     Json,
 }
 
 impl ArtFileType {
-    pub(crate) fn from_path<P: AsRef<Path>>(path: P) -> Option<ArtFileType> {
+    pub fn from_path<P: AsRef<Path>>(path: P) -> Option<ArtFileType> {
         match path.as_ref().extension() {
             Some(e) => {
                 if e == OsStr::new("toml") {
@@ -363,20 +363,3 @@ impl ArtFileType {
     }
 }
 
-#[test]
-fn sanity_filetype() {
-    assert_eq!(
-        ArtFileType::from_path(Path::new("/foo/bar.toml")),
-        Some(ArtFileType::Toml)
-    );
-    assert_eq!(
-        ArtFileType::from_path(Path::new("this-is-it.md")),
-        Some(ArtFileType::Md)
-    );
-    assert_eq!(
-        ArtFileType::from_path(Path::new("/what.json")),
-        Some(ArtFileType::Json)
-    );
-    assert_eq!(ArtFileType::from_path(Path::new("noext")), None);
-    assert_eq!(ArtFileType::from_path(Path::new("other.ext")), None);
-}

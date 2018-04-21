@@ -18,18 +18,11 @@
 pub use ergo::*;
 #[allow(unused_imports)]
 pub use expect_macro::*;
-// TODO: move these to std_prelude
-pub use std::ffi::OsStr;
-pub use std::cmp::Ord;
-pub use std::cmp::PartialOrd;
-pub use std::hash::{Hash, Hasher};
 use std::io;
 use std::fs;
 pub use artifact_lib::*;
 pub use artifact_lib;
 pub use artifact_data;
-
-pub use indexmap::{IndexMap, IndexSet};
 
 pub use std::result;
 pub use failure::Error;

@@ -1,5 +1,5 @@
 [package]
-name = "artifact-test"
+name = "artifact_test"
 version = "0.1.0"
 authors = ["Garrett Berg <vitiral@gmail.com>"]
 
@@ -25,4 +25,3 @@ time = "0.1"
 failure = "0.1"
 failure_derive = "0.1"
 log = "0.4.1"
-indexmap = {version="1.0.0", features=["serde-1"]}

@@ -20,7 +20,6 @@ pub use expect_macro::*;
 pub use ergo::*;
 #[allow(unused_imports)]
 pub use quicli::prelude::*;
-pub use indexmap::*;
 pub use artifact_data::ART_DIR;
 pub use artifact_lib::*;
 

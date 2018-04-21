@@ -21,7 +21,7 @@
 #![allow(dead_code)]
 
 use std::fmt;
-use indexmap::map::Entry;
+use ergo::indexmap::map::Entry;
 use dev_prelude::*;
 
 lazy_static!{

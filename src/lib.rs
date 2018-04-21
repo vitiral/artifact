@@ -29,9 +29,6 @@ extern crate artifact_lib;
 #[macro_use]
 extern crate ergo;
 
-#[macro_use]
-extern crate indexmap;
-
 #[allow(unused_imports)]
 #[macro_use]
 extern crate quicli;
