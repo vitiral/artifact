@@ -17,8 +17,8 @@
 //! This module defines tests for the graph implementation details of
 //! computing artifacts.
 
-use test::dev_prelude::*;
-use graph::{self, round_ratio};
+use super::dev_prelude::*;
+use artifact_data::graph::{self, round_ratio};
 
 /// create the `partof`s and the graphs
 fn simple_graph() -> (IndexMap<Name, IndexSet<Name>>, graph::Graphs) {

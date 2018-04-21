@@ -20,9 +20,9 @@ use petgraph::graphmap::DiGraphMap;
 
 use dev_prelude::*;
 
-pub(crate) type GraphId = u32;
+pub type GraphId = u32;
 
-pub(crate) struct Graphs {
+pub struct Graphs {
     /// Map of `id => name`
     pub lookup_name: IndexMap<GraphId, Name>,
     /// Map of `name => id`
@@ -33,7 +33,7 @@ pub(crate) struct Graphs {
 
 /// #SPC-read-artifact.graph
 /// Create the family graph from their given+auto partof values.
-pub(crate) fn determine_graphs(partofs: &IndexMap<Name, IndexSet<Name>>) -> Graphs {
+pub fn determine_graphs(partofs: &IndexMap<Name, IndexSet<Name>>) -> Graphs {
     let ids = create_ids(partofs);
 
     let mut graph_full: DiGraphMap<GraphId, ()> = DiGraphMap::new();
@@ -54,7 +54,7 @@ pub(crate) fn determine_graphs(partofs: &IndexMap<Name, IndexSet<Name>>) -> Grap
 }
 
 /// Determine the `parts` of each artifact based on its neighbors in the graph.
-pub(crate) fn determine_parts(graphs: &Graphs) -> IndexMap<Name, IndexSet<Name>> {
+pub fn determine_parts(graphs: &Graphs) -> IndexMap<Name, IndexSet<Name>> {
     graphs
         .lookup_name
         .iter()
@@ -71,7 +71,7 @@ pub(crate) fn determine_parts(graphs: &Graphs) -> IndexMap<Name, IndexSet<Name>>
 
 /// #SPC-read-artifact.completed
 /// Determine the completeness of the artifacts.
-pub(crate) fn determine_completed(
+pub fn determine_completed(
     graphs: &Graphs,
     impls: &IndexMap<Name, Impl>,
     subnames: &IndexMap<Name, IndexSet<SubName>>,

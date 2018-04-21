@@ -61,7 +61,7 @@ fn parse_file(
 
 /// #SPC-read-impl.load
 /// Read from the stream, returning parsed location references
-pub(crate) fn parse_locations<R: Read>(
+pub fn parse_locations<R: Read>(
     send: &Sender<(CodeLoc, Name, Option<SubName>)>,
     file: &PathFile,
     stream: R,
@@ -86,7 +86,7 @@ pub(crate) fn parse_locations<R: Read>(
 /// Consume the parsed locations, returning the combined implementation objects.
 ///
 /// This also lints against duplicates.
-pub(crate) fn join_locations(
+pub fn join_locations(
     send_lints: &Sender<lint::Lint>,
     mut locations: Vec<(CodeLoc, Name, Option<SubName>)>,
 ) -> IndexMap<Name, ImplCode> {

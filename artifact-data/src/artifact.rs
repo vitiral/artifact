@@ -117,7 +117,7 @@ pub(crate) fn determine_artifacts(
 }
 
 /// Determine `partof` based on the user's definition + automatic relationships.
-pub(crate) fn determine_partofs(
+pub fn determine_partofs(
     artifact_ims: &IndexMap<Name, ArtifactIm>,
 ) -> IndexMap<Name, IndexSet<Name>> {
     let mut partofs = auto_partofs(artifact_ims);

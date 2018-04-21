@@ -1,0 +1,28 @@
+[package]
+name = "artifact-test"
+version = "0.1.0"
+authors = ["Garrett Berg <vitiral@gmail.com>"]
+
+[dependencies]
+artifact_data = { path = "../artifact-data" }
+artifact_lib = { path = "../artifact-lib" }
+pretty_assertions = "0.4"
+proptest = "0.3"
+regex_generate = "0.2"
+tempdir = "0.3"
+unicode-segmentation = "1.2"
+
+base64 = "0.9.0"
+ergo = "*"
+expect_macro = "0.2.0"
+matches = "0.1"
+petgraph = "0.4"
+rayon = "0.9"
+serde = "1.*"
+serde_derive = "1.*"
+siphasher = "0.2.2"
+time = "0.1"
+failure = "0.1"
+failure_derive = "0.1"
+log = "0.4.1"
+indexmap = {version="1.0.0", features=["serde-1"]}

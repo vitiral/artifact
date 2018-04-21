@@ -43,13 +43,6 @@ pub(crate) fn touch<P: AsRef<Path>>(path: P) -> ::std::io::Result<()> {
     Ok(())
 }
 
-#[test]
-fn sanity_trim_right() {
-    let mut result = "  hello    ".into();
-    string_trim_right(&mut result);
-    assert_eq!(result, "  hello");
-}
-
 fn create_dir_maybe<P: AsRef<Path>>(path: P) -> path_abs::Result<PathDir> {
     let arc = PathArc::new(path);
     fs::create_dir(&arc).map_err(|err| path_abs::Error::new(err, "creating dir", arc.clone()))?;

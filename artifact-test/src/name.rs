@@ -20,7 +20,7 @@
 
 use ergo::json;
 
-use test::dev_prelude::*;
+use super::dev_prelude::*;
 
 // HELPERS and TRAITS
 

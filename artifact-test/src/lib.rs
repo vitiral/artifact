@@ -14,73 +14,63 @@
  * You should have received a copy of the Lesser GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-//! The artifact data crate defines the method of serializing
-//! and deserializing raw artifact and processing them into
-//! a full project.
-//!
-//! Note that almost all tests for artifact-data are in artifact-test
-
-#![allow(dead_code)]
+//! This subcrate is to provide a common testing framework/functions
+//! for testing artifact.
 #![allow(unused_imports)]
-#![allow(unknown_lints)]
-#![allow(doc_markdown)]
+#![allow(dead_code)]
+#![allow(unused_macros)]
 
-extern crate base64;
-extern crate ergo;
+pub extern crate base64;
+pub extern crate ergo;
 #[macro_use]
-extern crate expect_macro;
-extern crate failure;
+pub extern crate expect_macro;
+pub extern crate failure;
 #[macro_use]
-extern crate matches;
+pub extern crate indexmap;
 #[macro_use]
-extern crate indexmap;
-extern crate petgraph;
-extern crate rayon;
-extern crate siphasher;
+pub extern crate matches;
+pub extern crate petgraph;
+pub extern crate rayon;
+pub extern crate siphasher;
 
 #[macro_use]
-extern crate failure_derive;
-extern crate time;
+pub extern crate failure_derive;
+pub extern crate time;
 
+#[macro_use]
+pub extern crate artifact_data;
+#[macro_use]
+pub extern crate artifact_lib;
 #[macro_use]
 extern crate log;
-#[macro_use]
-extern crate artifact_lib;
 
-// MODULES
-
-pub mod artifact;
-mod dev_prelude;
-mod modify;
-pub mod graph;
-pub mod implemented;
-mod intermediate;
-mod project;
-pub mod raw;
-#[macro_use]
-pub mod raw_names;
-mod settings;
-
-#[cfg(test)]
 #[macro_use]
 extern crate proptest;
 
-#[cfg(test)]
 #[macro_use]
 extern crate pretty_assertions;
 
 // #[cfg(test)]
 // extern crate rand;
 
-#[cfg(test)]
 extern crate regex_generate;
-
-#[cfg(test)]
 extern crate tempdir;
-
-#[cfg(test)]
 extern crate unicode_segmentation;
 
-pub use modify::{modify_project, ModifyError, ModifyErrorKind};
-pub use settings::{ART_DIR, SETTINGS_FILE};
-pub use project::read_project;
+pub mod dev_prelude;
+pub mod artifact;
+pub mod name;
+pub mod family;
+pub mod graph;
+pub mod implemented;
+pub mod raw;
+pub mod raw_names;
+pub mod framework;
+
+pub use framework::run_interop_tests;
+pub use dev_prelude::INTEROP_TESTS_PATH;
+
+// pub use dev_prelude::assert_generic;
+// pub use family::arb_names;
+// pub use name::{arb_name, arb_name_string, names_raw};
+// pub use raw_names::arb_names_raw;

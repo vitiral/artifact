@@ -19,11 +19,10 @@
 
 use regex_generate;
 
-use test::dev_prelude::*;
-use test::raw_names::arb_names_raw;
-use test::framework::run_interop_tests;
-use raw_names::NamesRaw;
-use implemented::{join_locations, parse_locations};
+use super::dev_prelude::*;
+use super::raw_names::arb_names_raw;
+use artifact_data::raw_names::NamesRaw;
+use artifact_data::implemented::{join_locations, parse_locations};
 
 // ------------------------------
 // -- FUZZ METHODS
@@ -286,16 +285,4 @@ proptest! {
         };
         assert_eq!(locations, expected);
     }
-}
-
-// INTEROP TESTS
-
-#[test]
-fn interop_source_only() {
-    run_interop_tests(INTEROP_TESTS_PATH.join("source_only"));
-}
-
-#[test]
-fn interop_source_invalid() {
-    run_interop_tests(INTEROP_TESTS_PATH.join("source_invalid"));
 }

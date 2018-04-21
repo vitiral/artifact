@@ -45,7 +45,7 @@ pub struct ArtifactRaw {
 }
 
 #[derive(Clone, Eq, Hash, PartialEq, PartialOrd, Ord)]
-pub struct TextRaw(pub(crate) String);
+pub struct TextRaw(pub String);
 
 impl fmt::Debug for TextRaw {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -172,15 +172,15 @@ pub(crate) fn load_file(lints: &Sender<lint::Lint>, send: &Sender<ArtifactIm>, f
 // READ MARKDOWN
 
 lazy_static!{
-    pub(crate) static ref NAME_LINE_RE: Regex = Regex::new(
+    pub static ref NAME_LINE_RE: Regex = Regex::new(
         &format!(r"(?i)^#\s*({})\s*$", NAME_VALID_STR)).unwrap();
 
-    pub(crate) static ref ATTRS_END_RE: Regex = Regex::new(r"^###+\s*$").unwrap();
+    pub static ref ATTRS_END_RE: Regex = Regex::new(r"^###+\s*$").unwrap();
 }
 
 /// #SPC-read-raw-markdown
 /// Load raw artifacts from a markdown stream
-pub(crate) fn from_markdown<R: Read>(stream: R) -> Result<IndexMap<Name, ArtifactRaw>> {
+pub fn from_markdown<R: Read>(stream: R) -> Result<IndexMap<Name, ArtifactRaw>> {
     let mut out: IndexMap<Name, ArtifactRaw> = IndexMap::new();
     let mut name: Option<Name> = None;
     let mut attrs: Option<String> = None;
@@ -274,7 +274,7 @@ fn insert_from_parts(
 // WRITE MARKDOWN
 
 /// Convert the artifacts to markdown
-pub(crate) fn to_markdown(raw_artifacts: &IndexMap<Name, ArtifactRaw>) -> String {
+pub fn to_markdown(raw_artifacts: &IndexMap<Name, ArtifactRaw>) -> String {
     let mut out = String::new();
     for (name, raw) in raw_artifacts {
         push_artifact_md(&mut out, name, raw);

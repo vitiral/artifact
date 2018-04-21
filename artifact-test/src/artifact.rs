@@ -18,9 +18,8 @@
 //!
 //! This module defines tests for the "full" artifact type itself.
 
-use test::dev_prelude::*;
-use test::framework::run_interop_tests;
-use artifact;
+use super::dev_prelude::*;
+use artifact_data::artifact;
 
 #[test]
 /// #TST-read-artifact.partofs
@@ -61,30 +60,4 @@ fn sanity_determine_partofs() {
     partofs.sort_keys();
     expected.sort_keys();
     assert_eq!(expected, partofs);
-}
-
-// INTEROP TESTS
-
-#[test]
-/// #TST-read-artifact.empty
-fn interop_project_empty() {
-    run_interop_tests(INTEROP_TESTS_PATH.join("empty"));
-}
-
-#[test]
-/// #TST-read-artifact.design_only
-fn interop_design_only() {
-    run_interop_tests(INTEROP_TESTS_PATH.join("design_only"));
-}
-
-#[test]
-/// #TST-read-artifact.basic
-fn interop_basic() {
-    run_interop_tests(INTEROP_TESTS_PATH.join("basic"));
-}
-
-#[test]
-/// #TST-read-artifact.lints
-fn interop_lints() {
-    run_interop_tests(INTEROP_TESTS_PATH.join("lints"));
 }

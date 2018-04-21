@@ -20,10 +20,10 @@
 
 use ergo::json;
 
-use raw_names::NamesRaw;
-use test::dev_prelude::*;
-use test::name::arb_name;
-use test::raw_names::arb_names_raw;
+use artifact_data::raw_names::NamesRaw;
+use super::dev_prelude::*;
+use super::name::arb_name;
+use super::raw_names::arb_names_raw;
 
 // ------------------------------
 // -- FUZZ METHODS

@@ -22,14 +22,10 @@
 use time;
 use ergo::yaml;
 
-use test::dev_prelude::*;
+use super::dev_prelude::*;
 use artifact_lib::expected::*;
 use artifact_lib::*;
-use artifact;
-use implemented;
-use settings;
-use project;
-use modify;
+use artifact_data;
 
 /// This runs the interop tests.
 ///
@@ -103,7 +99,7 @@ fn run_interop_test(project_path: PathDir) {
 
     eprintln!("loaded asserts in {:.3}", time::get_time() - start);
 
-    let (load_lints, project) = match project::read_project(&project_path) {
+    let (load_lints, project) = match artifact_data::read_project(&project_path) {
         Ok(v) => v,
         Err(load_lints) => {
             assert!(!modify_path.exists(), "cannot modify non-existant project");
@@ -128,14 +124,14 @@ fn run_interop_test(project_path: PathDir) {
                 Some(project),
             );
         }
-        Some(operations) => match modify::modify_project(&project_path, operations) {
+        Some(operations) => match artifact_data::modify_project(&project_path, operations) {
             Ok((lints, project)) => {
                 if let Some(expect) = expect_modify_lints {
                     eprintln!("asserting modify lints");
                     assert_eq!(expect, lints);
                 }
 
-                let (load_lints, expect) = project::read_project(&project_path).unwrap();
+                let (load_lints, expect) = artifact_data::read_project(&project_path).unwrap();
                 assert_eq!(expect, project);
                 assert_stuff(
                     expect_load_lints,
@@ -193,7 +189,6 @@ fn assert_stuff(
         let project_ser = round_ser!(ProjectSer, project).unwrap();
         let result = round_ser!(Project, project_ser).unwrap();
         assert_eq!(project, result);
-
     }
 
     if let Some(expect_project) = expect_project {
@@ -215,7 +210,6 @@ fn load_project(base: &PathDir) -> Option<ProjectAssert> {
         Err(_) => None,
     }
 }
-
 
 fn load_modify(base: &PathDir, project: &Project, fname: &str) -> Option<Vec<ArtifactOp>> {
     match PathFile::new(base.join(fname)) {

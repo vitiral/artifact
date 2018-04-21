@@ -18,11 +18,12 @@
 //! This module is for testing the serialization and deserialization
 //! of RAW artifacts.
 
-use raw::{from_markdown, to_markdown, ArtifactRaw, TextRaw, ATTRS_END_RE, NAME_LINE_RE};
-use raw_names::NamesRaw;
-use test::dev_prelude::*;
-use test::family::{arb_topologically_sorted_names, rand_select_partof};
-use test::implemented::random_impl_links;
+use super::dev_prelude::*;
+use super::family::{arb_topologically_sorted_names, rand_select_partof};
+use super::implemented::random_impl_links;
+use artifact_data::raw::{from_markdown, to_markdown, ArtifactRaw, TextRaw, ATTRS_END_RE,
+                         NAME_LINE_RE};
+use artifact_data::raw_names::NamesRaw;
 
 // ------------------------------
 // -- FUZZ METHODS
@@ -126,8 +127,12 @@ pub fn arb_raw_artifacts(size: usize) -> BoxedStrategy<BTreeMap<Name, ArtifactRa
 // ------------------------------
 // -- METHODS / ATTRIBUTES
 
-impl ArtifactRaw {
-    pub fn empty() -> ArtifactRaw {
+pub trait ArtifactRawExt {
+    fn empty() -> ArtifactRaw;
+}
+
+impl ArtifactRawExt for ArtifactRaw {
+    fn empty() -> ArtifactRaw {
         ArtifactRaw {
             done: None,
             partof: None,
@@ -223,8 +228,12 @@ partof:
         };
 
         // throw in a check that the roundtrip works
-        let new_raw =
-            serde_roundtrip("markdown", from_markdown_str, ::raw::to_markdown, &out).unwrap();
+        let new_raw = serde_roundtrip(
+            "markdown",
+            from_markdown_str,
+            ::artifact_data::raw::to_markdown,
+            &out,
+        ).unwrap();
         println!("### Original Raw:\n{}<END>", raw);
         println!("### New Raw:\n{}<END>", new_raw);
         Ok(out)
@@ -244,7 +253,7 @@ proptest! {
         for (n, a) in orig.iter() {
             artifacts.insert(n.clone(), a.clone());
         }
-        serde_roundtrip("markdown", from_markdown_str, ::raw::to_markdown, &artifacts).expect("md");
+        serde_roundtrip("markdown", from_markdown_str, ::artifact_data::raw::to_markdown, &artifacts).expect("md");
         serde_roundtrip("toml", arts_from_toml_str, to_toml_string, &artifacts).expect("toml");
         serde_roundtrip("json", arts_from_json_str, to_json_string, &artifacts).expect("json");
     }
