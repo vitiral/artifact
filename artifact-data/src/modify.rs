@@ -28,61 +28,6 @@ use settings;
 
 static ART_BK_EXT: &str = "artbk";
 
-#[derive(Debug)]
-pub struct ModifyError {
-    pub lints: lint::Categorized,
-    pub kind: ModifyErrorKind,
-}
-
-impl error::Error for ModifyError {
-    fn description(&self) -> &str {
-        "error while modifying an artifact project"
-    }
-}
-
-impl fmt::Display for ModifyError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "ModifyErrorKind: {:?}\n", self.kind)?;
-        write!(f, "{}", self.lints)
-    }
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub enum ModifyErrorKind {
-    /// Project was corrupted by the user
-    InvalidFromLoad,
-
-    /// Some of the operations have invalid paths
-    InvalidPaths,
-
-    /// Some of the hash ids did not match
-    HashMismatch,
-
-    /// The project would have been corrupted by the modifications
-    InvalidFromModify,
-
-    /// Failure while creating, recovery required.
-    CreateBackups,
-
-    /// Failure while saving the project, recovery required.
-    SaveProject,
-}
-
-impl ModifyErrorKind {
-    pub fn from_str(s: &str) -> Option<ModifyErrorKind> {
-        let out = match s {
-            "InvalidFromLoad" => ModifyErrorKind::InvalidFromLoad,
-            "InvalidPaths" => ModifyErrorKind::InvalidPaths,
-            "HashMismatch" => ModifyErrorKind::HashMismatch,
-            "InvalidFromModify" => ModifyErrorKind::InvalidFromModify,
-            "CreateBackups" => ModifyErrorKind::CreateBackups,
-            "SaveProject" => ModifyErrorKind::SaveProject,
-            _ => return None,
-        };
-        Some(out)
-    }
-}
-
 /// Perform a list of modifications to the project
 pub fn modify_project<P: AsRef<Path>>(
     project_path: P,

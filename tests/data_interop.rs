@@ -39,7 +39,7 @@ fn modify_project_shim(
     project_path: PathDir,
     operations: Vec<ArtifactOp>,
     _state: (),
-) -> Result<(lint::Categorized, Project), artifact_data::ModifyError> {
+) -> Result<(lint::Categorized, Project), ModifyError> {
     artifact_data::modify_project(project_path, operations)
 }
 

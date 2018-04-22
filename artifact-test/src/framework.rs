@@ -105,7 +105,7 @@ pub fn run_generic_interop_test<P, STATE, READ, MODIFY, ASSERT>(
     P: AsRef<Path>,
     READ: Fn(PathDir, STATE) -> result::Result<(lint::Categorized, Project), lint::Categorized>,
     MODIFY: Fn(PathDir, Vec<ArtifactOp>, STATE)
-        -> result::Result<(lint::Categorized, Project), artifact_data::ModifyError>,
+        -> result::Result<(lint::Categorized, Project), ModifyError>,
     ASSERT: Fn(PathDir, STATE, Categorized, Option<Project>, ExpectStuff),
     STATE: Debug + Clone,
 {

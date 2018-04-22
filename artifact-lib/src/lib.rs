@@ -42,6 +42,7 @@ pub mod lint;
 pub mod expected;
 mod ser;
 
+use std::error;
 use std::fmt;
 use siphasher::sip128::{Hasher128, SipHasher};
 
@@ -399,6 +400,78 @@ impl ArtifactOp {
     }
 }
 
+#[derive(Debug)]
+pub struct ModifyError {
+    pub lints: lint::Categorized,
+    pub kind: ModifyErrorKind,
+}
+
+impl error::Error for ModifyError {
+    fn description(&self) -> &str {
+        "error while modifying an artifact project"
+    }
+}
+
+impl fmt::Display for ModifyError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "ModifyErrorKind: {:?}\n", self.kind)?;
+        write!(f, "{}", self.lints)
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub enum ModifyErrorKind {
+    /// Project was corrupted by the user
+    InvalidFromLoad,
+
+    /// Some of the operations have invalid paths
+    InvalidPaths,
+
+    /// Some of the hash ids did not match
+    HashMismatch,
+
+    /// The project would have been corrupted by the modifications
+    InvalidFromModify,
+
+    /// Failure while creating, recovery required.
+    CreateBackups,
+
+    /// Failure while saving the project, recovery required.
+    SaveProject,
+}
+
+impl ModifyErrorKind {
+    pub fn from_str(s: &str) -> Option<ModifyErrorKind> {
+        let out = match s {
+            "InvalidFromLoad" => ModifyErrorKind::InvalidFromLoad,
+            "InvalidPaths" => ModifyErrorKind::InvalidPaths,
+            "HashMismatch" => ModifyErrorKind::HashMismatch,
+            "InvalidFromModify" => ModifyErrorKind::InvalidFromModify,
+            "CreateBackups" => ModifyErrorKind::CreateBackups,
+            "SaveProject" => ModifyErrorKind::SaveProject,
+            _ => return None,
+        };
+        Some(out)
+    }
+
+    pub fn as_str(&self) -> &'static str {
+        match *self {
+            ModifyErrorKind::InvalidFromLoad => "InvalidFromLoad",
+            ModifyErrorKind::InvalidPaths => "InvalidPaths",
+            ModifyErrorKind::HashMismatch => "HashMismatch",
+            ModifyErrorKind::InvalidFromModify => "InvalidFromModify",
+            ModifyErrorKind::CreateBackups => "CreateBackups",
+            ModifyErrorKind::SaveProject => "SaveProject",
+        }
+    }
+}
+
+impl fmt::Display for ModifyErrorKind {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self.as_str())
+    }
+}
+
 // ----- SETTINGS -----
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
@@ -460,14 +533,6 @@ impl Completed {
 
 // ------ PROJECT ------
 
-/// The API call result/response with a valid project
-/// and possibly warning-level lints.
-#[derive(Debug, Serialize, Deserialize)]
-pub struct ProjectResult {
-    pub project: Project,
-    pub lints: Categorized,
-}
-
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub struct Project {
     pub paths: ProjectPaths,
@@ -485,6 +550,41 @@ impl Project {
         self.artifacts.sort_keys();
         for (_, art) in self.artifacts.iter_mut() {
             art.sort();
+        }
+    }
+}
+
+// ------ API OBJECTS ------
+
+/// The API call result/response with a valid project
+/// and possibly warning-level lints.
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ProjectResult {
+    pub project: Project,
+    pub lints: Categorized,
+}
+
+#[derive(Copy, Clone, Eq, PartialEq, Debug, Serialize, Deserialize)]
+/// API modification method
+pub enum Method {
+    ReadProject,
+    ModifyProject,
+}
+
+impl Method {
+    pub fn from_str(s: &str) -> Option<Method> {
+        let out = match s {
+            "ReadProject" => Method::ReadProject,
+            "ModifyProject" => Method::ModifyProject,
+            _ => return None,
+        };
+        Some(out)
+    }
+
+    pub fn as_str(&self) -> &'static str {
+        match *self {
+            Method::ReadProject => "ReadProject",
+            Method::ModifyProject => "ModifyProject",
         }
     }
 }
@@ -534,3 +634,4 @@ macro_rules! round_ser {
         json::from_str::<$to>(&json::to_string(&$from).unwrap())
     }
 }
+

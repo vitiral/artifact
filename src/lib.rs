@@ -37,7 +37,7 @@ extern crate quicli;
 extern crate expect_macro;
 extern crate termstyle;
 
-extern crate jsonrpc_core;
+extern crate jrpc;
 extern crate nickel;
 
 // #[macro_use]

@@ -5,19 +5,16 @@ use nickel::status::StatusCode;
 use ergo::json;
 use tar::Archive;
 use tempdir::TempDir;
-use jsonrpc_core::{Error as RpcError, ErrorCode, IoHandler, Params, RpcMethodSync};
+// use jsonrpc_core::{Error as RpcError, ErrorCode, IoHandler, Params, RpcMethodSync};
 use std::result;
 use std::mem;
+use jrpc;
 
 // use api::crud;
 use serve;
 
 use dev_prelude::*;
 use artifact_data::*;
-
-lazy_static! {
-    pub static ref RPC_HANDLER: IoHandler = init_rpc_handler();
-}
 
 const WEB_FRONTEND_TAR: &'static [u8] = include_bytes!("../../web-ui/target/web-ui.tar");
 const REPLACE_FLAGS: &str = "{/* REPLACE WITH FLAGS */}";
@@ -69,86 +66,54 @@ pub fn start_api(cmd: super::Serve) {
 
 // ----- API CALLS -----
 
-/// The rpc initializer that implements the API spec
-fn init_rpc_handler() -> IoHandler {
-    let mut handler = IoHandler::new();
-    handler.add_method("ReadProject", ReadProject);
-    handler
+fn rpc_read_project(id: jrpc::Id) -> jrpc::Response<json::Value> {
+    info!("ReadProject");
+    let locked = super::LOCKED.lock().unwrap();
+    let locked = locked.as_ref().unwrap();
+    jrpc::Response::success(id, json::to_value(locked).expect("serde"))
 }
 
-/// `ReadProject` API Handler
-pub struct ReadProject;
-impl RpcMethodSync for ReadProject {
-    fn call(&self, _: Params) -> result::Result<json::Value, RpcError> {
-        info!("ReadProject");
-        let locked = super::LOCKED.lock().unwrap();
-        let locked = locked.as_ref().unwrap();
-        Ok(json::to_value(locked).expect("serde"))
-    }
-}
+fn rpc_modify_project(id: jrpc::Id, params: Option<json::Value>) -> jrpc::Response<json::Value> {
+    info!("ModifyProject");
+    let mut locked = super::LOCKED.lock().unwrap();
+    let locked = locked.as_mut().unwrap();
 
-pub const X_CODE: i64 = -32_000;
-pub const SERVER_ERROR: ErrorCode = ErrorCode::ServerError(X_CODE);
+    let params = match params {
+        Some(p) => p,
+        None => {
+            return jrpc::Response::error(
+                id,
+                jrpc::ErrorCode::InvalidParams,
+                "No 'params'".to_string(),
+                None,
+            );
+        }
+    };
 
-/// `ModifyProject` API Handler
-pub struct ModifyProject;
-impl RpcMethodSync for ModifyProject {
-    fn call(&self, params: Params) -> result::Result<json::Value, RpcError> {
-        info!("ModifyProject");
-        let mut locked = super::LOCKED.lock().unwrap();
-        let locked = locked.as_mut().unwrap();
+    let ops: Vec<ArtifactOp> = match json::from_value(params) {
+        Ok(o) => o,
+        Err(err) => {
+            return jrpc::Response::error(id, jrpc::ErrorCode::InvalidParams, err.to_string(), None);
+        }
+    };
 
-        // get the operations to perform
-        let ops: Vec<ArtifactOp> = match params {
-            Params::Array(mut value) => {
-                let ops: result::Result<Vec<_>, RpcError> = value.drain(..).map(parse_op).collect();
-                ops?
-            }
-            _ => {
-                return Err(invalid_params(
-                    "params must be a list of ArtifactOp objects",
-                ))
-            }
-        };
+    let (lints, project) = match modify_project(&locked.project.paths.base, ops) {
+        Ok(r) => r,
+        Err(err) => {
+            return jrpc::Response::error(
+                id,
+                jrpc::ErrorCode::ServerError(-32000),
+                err.kind.to_string(),
+                Some(json::to_value(&err.lints).unwrap()),
+            );
+        }
+    };
 
-        let (lints, project) = match modify_project(&locked.project.paths.base, ops) {
-            Ok(r) => r,
-            Err(err) => {
-                return Err(RpcError {
-                    code: SERVER_ERROR,
-                    message: format!("{:?}", err.kind),
-                    data: Some(json::to_value(&err.lints).unwrap()),
-                });
-            }
-        };
+    let result = ProjectResult { project, lints };
+    *locked = result;
+    let value = json::to_value(locked).expect("serde");
 
-        let result = ProjectResult { project, lints };
-        *locked = result;
-        Ok(json::to_value(locked).expect("serde"))
-    }
-}
-
-fn parse_op(value: json::Value) -> result::Result<ArtifactOp, RpcError> {
-    match json::from_value::<ArtifactOp>(value) {
-        Ok(a) => Ok(a),
-        Err(e) => Err(parse_error(&format!("{}", e))),
-    }
-}
-
-fn invalid_params(desc: &str) -> RpcError {
-    RpcError {
-        code: ErrorCode::InvalidParams,
-        message: desc.to_string(),
-        data: None,
-    }
-}
-
-fn parse_error(desc: &str) -> RpcError {
-    RpcError {
-        code: ErrorCode::ParseError,
-        message: desc.to_string(),
-        data: None,
-    }
+    jrpc::Response::success(id, value)
 }
 
 // ----- HANDLE ENDPOINTS -----
@@ -169,20 +134,21 @@ fn handle_rpc<'a>(req: &mut Request, mut res: Response<'a>) -> MiddlewareResult<
     };
 
     debug!("request: {}", body);
-    let out = match RPC_HANDLER.handle_request_sync(body) {
-        Some(body) => {
-            config_json_res(&mut res);
-            trace!("- response: {}", body);
-            res.send(body)
-        }
-        None => {
-            let msg = "InternalServerError: Got None from json-rpc handler";
-            error!("{}", msg);
-            res.set(StatusCode::InternalServerError);
-            res.send(msg)
-        }
+    let request: result::Result<jrpc::Request<Method, json::Value>, jrpc::Error<json::Value>> =
+        jrpc::parse_request(body);
+
+    let request = match request {
+        Ok(r) => r,
+        Err(err) => return res.send(json::to_string(&err).unwrap()),
     };
 
+    let id = request.id.to_id().clone().unwrap_or(jrpc::Id::Null);
+
+    let response = match request.method {
+        Method::ReadProject => rpc_read_project(id),
+        Method::ModifyProject => rpc_modify_project(id, request.params),
+    };
+    let out = res.send(json::to_string(&response).unwrap());
     debug!("Exiting handle_rpc");
     out
 }

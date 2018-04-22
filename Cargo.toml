@@ -36,7 +36,7 @@ nickel = "0.10.1"
 jsonrpc-core = "7.*"
 artifact_data = {path = "artifact-data"}
 artifact_lib = {path = "artifact-lib"}
-jrpc = "0.3.0"
+jrpc = "0.4.0"
 
 [dependencies.quicli]
 path = "quicli"
