@@ -2,14 +2,20 @@ extern crate artifact_data;
 extern crate artifact_lib;
 extern crate artifact_test;
 extern crate ergo;
-use artifact_test::{run_generic_interop_tests, INTEROP_TESTS_PATH};
+use artifact_test::{assert_stuff_data, run_generic_interop_test, run_generic_interop_tests,
+                    INTEROP_TESTS_PATH};
 use artifact_lib::*;
 use ergo::*;
 
 /// This runs the interop tests for artifact-data.
 fn run_interop_tests<P: AsRef<Path>>(test_base: P) {
-    run_generic_interop_tests(
-        test_base,
+    run_generic_interop_tests(test_base, run_data_test);
+}
+
+fn run_data_test(project_path: PathDir) {
+    run_generic_interop_test(
+        project_path,
+        (),
         read_project_shim,
         modify_project_shim,
         assert_stuff_data,
@@ -21,6 +27,7 @@ fn run_interop_tests<P: AsRef<Path>>(test_base: P) {
 /// Used to satisfy the type requirements of `Fn` (cannot accept `AsRef`)
 fn read_project_shim(
     project_path: PathDir,
+    _state: (),
 ) -> Result<(lint::Categorized, Project), lint::Categorized> {
     artifact_data::read_project(project_path)
 }
@@ -31,58 +38,9 @@ fn read_project_shim(
 fn modify_project_shim(
     project_path: PathDir,
     operations: Vec<ArtifactOp>,
+    _state: (),
 ) -> Result<(lint::Categorized, Project), artifact_data::ModifyError> {
     artifact_data::modify_project(project_path, operations)
-}
-
-pub fn assert_stuff_data(
-    expect_load_lints: Option<Categorized>,
-    expect_project_lints: Option<Categorized>,
-    expect_project: Option<Project>,
-    load_lints: Categorized,
-    project: Option<Project>,
-) {
-    if let Some(expect) = expect_load_lints {
-        eprintln!("asserting load lints");
-        assert_eq!(expect, load_lints);
-    }
-
-    let project = match project {
-        Some(p) => p,
-        None => {
-            assert!(
-                expect_project.is_none(),
-                "expected project but no project exists."
-            );
-            assert!(
-                expect_project_lints.is_none(),
-                "expected project lints but no project exists."
-            );
-            return;
-        }
-    };
-
-    {
-        // Do basic round-trip serialization
-        let result = round_ser!(Project, project).unwrap();
-        assert_eq!(project, result);
-
-        // Do round trip through `*Ser` types
-        let project_ser = round_ser!(ProjectSer, project).unwrap();
-        let result = round_ser!(Project, project_ser).unwrap();
-        assert_eq!(project, result);
-    }
-
-    if let Some(expect_project) = expect_project {
-        eprintln!("asserting projects");
-        assert_eq!(expect_project, project);
-    }
-
-    if let Some(expect) = expect_project_lints {
-        // let lints = project.lint();
-        eprintln!("asserting project_lints");
-        assert_eq!(expect, load_lints);
-    }
 }
 
 #[test]

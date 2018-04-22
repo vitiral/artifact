@@ -65,8 +65,9 @@ pub mod raw;
 pub mod raw_names;
 pub mod framework;
 
-pub use framework::run_generic_interop_tests;
-pub use artifact_data::*;  // for macros
+pub use framework::{assert_stuff_data, run_generic_interop_test, run_generic_interop_tests,
+                    ExpectStuff};
+pub use artifact_data::*; // for macros
 pub use proptest::*;
 pub use dev_prelude::*;
 

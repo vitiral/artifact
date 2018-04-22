@@ -460,6 +460,14 @@ impl Completed {
 
 // ------ PROJECT ------
 
+/// The API call result/response with a valid project
+/// and possibly warning-level lints.
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ProjectResult {
+    pub project: Project,
+    pub lints: Categorized,
+}
+
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub struct Project {
     pub paths: ProjectPaths,

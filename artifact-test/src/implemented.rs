@@ -88,4 +88,3 @@ pub fn arb_source_code(
 pub fn replace_links(raw: &str) -> String {
     raw.replace('%', "#")
 }
-

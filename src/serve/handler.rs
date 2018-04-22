@@ -83,7 +83,71 @@ impl RpcMethodSync for ReadProject {
         info!("ReadProject");
         let locked = super::LOCKED.lock().unwrap();
         let locked = locked.as_ref().unwrap();
-        Ok(json::to_value(&locked.project).expect("serde"))
+        Ok(json::to_value(locked).expect("serde"))
+    }
+}
+
+pub const X_CODE: i64 = -32_000;
+pub const SERVER_ERROR: ErrorCode = ErrorCode::ServerError(X_CODE);
+
+/// `ModifyProject` API Handler
+pub struct ModifyProject;
+impl RpcMethodSync for ModifyProject {
+    fn call(&self, params: Params) -> result::Result<json::Value, RpcError> {
+        info!("ModifyProject");
+        let mut locked = super::LOCKED.lock().unwrap();
+        let locked = locked.as_mut().unwrap();
+
+        // get the operations to perform
+        let ops: Vec<ArtifactOp> = match params {
+            Params::Array(mut value) => {
+                let ops: result::Result<Vec<_>, RpcError> = value.drain(..).map(parse_op).collect();
+                ops?
+            }
+            _ => {
+                return Err(invalid_params(
+                    "params must be a list of ArtifactOp objects",
+                ))
+            }
+        };
+
+        let (lints, project) = match modify_project(&locked.project.paths.base, ops) {
+            Ok(r) => r,
+            Err(err) => {
+                return Err(RpcError {
+                    code: SERVER_ERROR,
+                    message: format!("{:?}", err.kind),
+                    data: Some(json::to_value(&err.lints).unwrap()),
+                });
+            }
+        };
+
+        let result = ProjectResult { project, lints };
+        *locked = result;
+        Ok(json::to_value(locked).expect("serde"))
+    }
+}
+
+fn parse_op(value: json::Value) -> result::Result<ArtifactOp, RpcError> {
+    match json::from_value::<ArtifactOp>(value) {
+        Ok(a) => Ok(a),
+        Err(e) => Err(parse_error(&format!("{}", e))),
+    }
+}
+
+fn invalid_params(desc: &str) -> RpcError {
+    RpcError {
+        code: ErrorCode::InvalidParams,
+        message: desc.to_string(),
+        data: None,
+    }
+}
+
+fn parse_error(desc: &str) -> RpcError {
+    RpcError {
+        code: ErrorCode::ParseError,
+        message: desc.to_string(),
+        data: None,
     }
 }
 

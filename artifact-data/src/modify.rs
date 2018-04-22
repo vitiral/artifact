@@ -47,7 +47,7 @@ impl fmt::Display for ModifyError {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub enum ModifyErrorKind {
     /// Project was corrupted by the user
     InvalidFromLoad,
@@ -66,6 +66,21 @@ pub enum ModifyErrorKind {
 
     /// Failure while saving the project, recovery required.
     SaveProject,
+}
+
+impl ModifyErrorKind {
+    pub fn from_str(s: &str) -> Option<ModifyErrorKind> {
+        let out = match s {
+            "InvalidFromLoad" => ModifyErrorKind::InvalidFromLoad,
+            "InvalidPaths" => ModifyErrorKind::InvalidPaths,
+            "HashMismatch" => ModifyErrorKind::HashMismatch,
+            "InvalidFromModify" => ModifyErrorKind::InvalidFromModify,
+            "CreateBackups" => ModifyErrorKind::CreateBackups,
+            "SaveProject" => ModifyErrorKind::SaveProject,
+            _ => return None,
+        };
+        Some(out)
+    }
 }
 
 /// Perform a list of modifications to the project

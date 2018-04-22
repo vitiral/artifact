@@ -24,13 +24,8 @@ pub struct Serve {
     pub port: u64,
 }
 
-pub struct LockedData {
-    pub project: Project,
-    pub lints: Categorized,
-}
-
 lazy_static! {
-    static ref LOCKED: Mutex<Option<LockedData>> = Mutex::new(None);
+    static ref LOCKED: Mutex<Option<ProjectResult>> = Mutex::new(None);
 }
 
 /// Run the `art serve` command
@@ -42,7 +37,7 @@ pub fn run(cmd: Serve) -> Result<i32> {
     let (lints, project) = read_project(repo)?;
     {
         let mut locked = LOCKED.lock().unwrap();
-        *locked = Some(LockedData {
+        *locked = Some(ProjectResult {
             project: project,
             lints: lints,
         });

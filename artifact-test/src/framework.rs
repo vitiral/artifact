@@ -47,23 +47,10 @@ use artifact_data;
 ///         project.yaml
 ///         ... etc
 /// ```
-pub fn run_generic_interop_tests<P, READ, MODIFY, ASSERT>(
-    test_base: P,
-    read_project: READ,
-    modify_project: MODIFY,
-    assert_stuff: ASSERT,
-) where
+pub fn run_generic_interop_tests<P, TEST>(test_base: P, run_test: TEST)
+where
     P: AsRef<Path>,
-    READ: Clone + Fn(PathDir) -> result::Result<(lint::Categorized, Project), lint::Categorized>,
-    MODIFY: Clone + Fn(PathDir, Vec<ArtifactOp>)
-        -> result::Result<(lint::Categorized, Project), artifact_data::ModifyError>,
-    ASSERT: Clone + Fn(
-        Option<Categorized>,
-        Option<Categorized>,
-        Option<Project>,
-        Categorized,
-        Option<Project>
-    ),
+    TEST: Clone + Fn(PathDir),
 {
     eprintln!(
         "Running interop test suite: {}",
@@ -97,57 +84,58 @@ pub fn run_generic_interop_tests<P, READ, MODIFY, ASSERT>(
             expect!(test_base.file_name()),
             expect!(testcase.file_name())
         );
-        run_generic_interop_test(
-            project_path.clone(),
-            read_project.clone(),
-            modify_project.clone(),
-            assert_stuff.clone(),
-        );
+        run_test(project_path.clone());
     }
 }
 
-pub fn run_generic_interop_test<P, READ, MODIFY, ASSERT>(
+/// This is the basic "data" way to run the test.
+///
+/// Other interop tests may want to wrap this to:
+///
+/// - Set up a server.
+/// - Other test harness setup (i.e. selenium)
+/// - etc.
+pub fn run_generic_interop_test<P, STATE, READ, MODIFY, ASSERT>(
     project_path: P,
+    state: STATE,
     read_project: READ,
     modify_project: MODIFY,
     assert_stuff: ASSERT,
 ) where
     P: AsRef<Path>,
-    READ: Fn(PathDir) -> result::Result<(lint::Categorized, Project), lint::Categorized>,
-    MODIFY: Fn(PathDir, Vec<ArtifactOp>)
+    READ: Fn(PathDir, STATE) -> result::Result<(lint::Categorized, Project), lint::Categorized>,
+    MODIFY: Fn(PathDir, Vec<ArtifactOp>, STATE)
         -> result::Result<(lint::Categorized, Project), artifact_data::ModifyError>,
-    ASSERT: Fn(
-        Option<Categorized>,
-        Option<Categorized>,
-        Option<Project>,
-        Categorized,
-        Option<Project>
-    ),
+    ASSERT: Fn(PathDir, STATE, Categorized, Option<Project>, ExpectStuff),
+    STATE: Debug + Clone,
 {
     static MODIFY_NAME: &'static str = "modify.yaml";
     let project_path = PathDir::new(project_path).unwrap();
 
     // Run the project against the copied directory
     let start = time::get_time();
-    let expect_load_lints = load_lints(&project_path, "assert_load_lints.yaml");
-    let expect_project_lints = load_lints(&project_path, "assert_project_lints.yaml");
-    let expect_project = load_project(&project_path).map(|p| p.expected(&project_path));
     let modify_path = project_path.join(MODIFY_NAME);
-    let expect_modify_fail = load_lints(&project_path, "assert_modify_fail.yaml");
-    let expect_modify_lints = load_lints(&project_path, "assert_modify_lints.yaml");
 
-    eprintln!("loaded asserts in {:.3}", time::get_time() - start);
+    let expect = ExpectStuff {
+        load_lints: load_lints(&project_path, "assert_load_lints.yaml"),
+        project_lints: load_lints(&project_path, "assert_project_lints.yaml"),
+        project: load_project(&project_path).map(|p| p.expected(&project_path)),
+        modify_fail: load_lints(&project_path, "assert_modify_fail.yaml"),
+        modify_lints: load_lints(&project_path, "assert_modify_lints.yaml"),
+    };
 
-    let (load_lints, project) = match read_project(project_path.clone()) {
+    eprintln!("loaded ExpectStuff in {:.3}", time::get_time() - start);
+
+    let (load_lints, project) = match read_project(project_path.clone(), state.clone()) {
         Ok(v) => v,
         Err(load_lints) => {
             assert!(!modify_path.exists(), "cannot modify non-existant project");
             assert_stuff(
-                expect_load_lints,
-                expect_project_lints,
-                expect_project,
+                project_path.clone(),
+                state.clone(),
                 load_lints,
                 None,
+                expect,
             );
             return;
         }
@@ -156,42 +144,113 @@ pub fn run_generic_interop_test<P, READ, MODIFY, ASSERT>(
     match load_modify(&project_path, &project, MODIFY_NAME) {
         None => {
             assert_stuff(
-                expect_load_lints,
-                expect_project_lints,
-                expect_project,
+                project_path.clone(),
+                state.clone(),
                 load_lints,
                 Some(project),
+                expect,
             );
         }
-        Some(operations) => match modify_project(project_path.clone(), operations) {
+        Some(operations) => match modify_project(project_path.clone(), operations, state.clone()) {
             Ok((lints, project)) => {
-                if let Some(expect) = expect_modify_lints {
+                if let Some(ref expect_modify_lints) = expect.modify_lints {
                     eprintln!("asserting modify lints");
-                    assert_eq!(expect, lints);
+                    assert_eq!(expect_modify_lints, &lints);
                 }
 
-                let (load_lints, expect) = read_project(project_path.clone()).unwrap();
-                assert_eq!(expect, project);
+                let (load_lints, expect_project) =
+                    read_project(project_path.clone(), state.clone()).unwrap();
+                assert_eq!(expect_project, project);
+                assert!(expect.modify_fail.is_none());
                 assert_stuff(
-                    expect_load_lints,
-                    expect_project_lints,
-                    expect_project,
+                    project_path.clone(),
+                    state.clone(),
                     load_lints,
                     Some(project),
+                    expect,
                 );
-                assert!(expect_modify_fail.is_none());
             }
             Err(err) => {
-                assert_eq!(expect_modify_fail, Some(err.lints));
-                assert!(expect_load_lints.is_none());
-                assert!(expect_project.is_none());
-                assert!(expect_project_lints.is_none());
-                assert!(expect_modify_lints.is_none());
+                assert_eq!(expect.modify_fail, Some(err.lints));
+                assert!(expect.load_lints.is_none());
+                assert!(expect.project.is_none());
+                assert!(expect.project_lints.is_none());
+                assert!(expect.modify_lints.is_none());
             }
         },
     };
 }
 
+/// Loaded stuff to expect
+pub struct ExpectStuff {
+    /// The project data itself
+    pub project: Option<Project>,
+
+    /// Lints during loading
+    pub load_lints: Option<Categorized>,
+
+    /// Lints from the project
+    pub project_lints: Option<Categorized>,
+
+    /// Lints from a failed modify
+    pub modify_fail: Option<Categorized>,
+
+    /// Lints during modify
+    pub modify_lints: Option<Categorized>,
+}
+
+/// The "standard" assertions, used in artifact-data interop tests.
+///
+/// These are generally useful, but other suites probably want to build on them.
+pub fn assert_stuff_data(
+    _project_path: PathDir,
+    state: (),
+    load_lints: Categorized,
+    project: Option<Project>,
+    expect: ExpectStuff,
+) {
+    if let Some(expect) = expect.load_lints {
+        eprintln!("asserting load lints");
+        assert_eq!(expect, load_lints);
+    }
+
+    let project = match project {
+        Some(p) => p,
+        None => {
+            assert!(
+                expect.project.is_none(),
+                "expected project but no project exists."
+            );
+            assert!(
+                expect.project_lints.is_none(),
+                "expected project lints but no project exists."
+            );
+            return;
+        }
+    };
+
+    {
+        // Do basic round-trip serialization
+        let result = round_ser!(Project, project).unwrap();
+        assert_eq!(project, result);
+
+        // Do round trip through `*Ser` types
+        let project_ser = round_ser!(ProjectSer, project).unwrap();
+        let result = round_ser!(Project, project_ser).unwrap();
+        assert_eq!(project, result);
+    }
+
+    if let Some(expect_project) = expect.project {
+        eprintln!("asserting projects");
+        assert_eq!(expect_project, project);
+    }
+
+    if let Some(expect) = expect.project_lints {
+        // let lints = project.lint();
+        eprintln!("asserting project_lints");
+        assert_eq!(expect, load_lints);
+    }
+}
 
 /// Load the assertions from the `project_path/assert.yaml` file
 fn load_project(base: &PathDir) -> Option<ProjectAssert> {

@@ -338,4 +338,3 @@ impl NamePiece {
         }
     }
 }
-
