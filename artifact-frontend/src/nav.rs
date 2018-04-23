@@ -21,22 +21,25 @@ use name;
 pub(crate) fn view_nav(model: &Model, page: HtmlApp) -> HtmlApp {
     let search = &model.nav.search;
     let icon = if search.on {
-        // Doesn't appear to work due to a bug?
-        // css classes are not updated for some reason.
         FA_SEARCH_MINUS
     } else {
         FA_SEARCH
     };
-    eprintln!("Search icon: {}", icon);
     html![<div>
         <div class=(CLEARFIX, MB2, ACE_WHITE, ACE_BG_BLACK, P1),>
             <button class=(BTN, REGULAR), id="search",
-             onclick=|_| Msg::ToggleSearch,>
-                <i class=(FA, FA_SEARCH),></i>
-                <span>{ "Search" }</span>
+             onclick=|_| Msg::ToggleSearch,
+             title="Search for an artifact.",>
+                { fa_icon(icon) }
+                <span class=ML1,>{ "Search" }</span>
+            </button>
+            <button class=(BTN, REGULAR), id="sync",
+             onclick=|_| Msg::FetchProject,
+             title="Sync frontend with file system.",>
+                { fa_icon(FA_SYNC) }
+                <span class=ML1,>{ "Sync" }</span>
             </button>
         </div>
-
         <div class=(CLEARFIX, PY1),>
             { search_pane(model) }
             <div class=(SM_COL, SM_COL_11, MD_COL_7, LG_COL_9),>

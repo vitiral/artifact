@@ -18,14 +18,18 @@
 pub use chrono::prelude::*;
 pub use yew::prelude::*;
 pub use yew::services::console::ConsoleService;
+pub use yew_simple::FetchTask;
+pub use yew::virtual_dom::VNode;
 pub use artifact_lib::*;
 pub use ergo_std::*;
 pub use ergo_config::*;
 pub use path_abs::*;
+pub use stdweb::web::Node;
 
 pub(crate) type HtmlApp = Html<Context, Model>;
 
-pub(crate) struct Context {}
+pub(crate) struct Context {
+}
 
 // http://basscss.com/
 
@@ -128,6 +132,7 @@ pub(crate) const FA_SEARCH_PLUS: &str = "fa-search-plus";
 pub(crate) const FA_SEARCH_MINUS: &str = "fa-search-minus";
 pub(crate) const FA_EXCLAMATION: &str = "fa-exclamation";
 pub(crate) const FA_EXCLAMATION_CIRCLE: &str = "fa-exclamation-circle";
+pub(crate) const FA_SYNC: &str = "fa-sync";
 pub(crate) const FA_TRASH: &str = "fa-trash";
 pub(crate) const FA_TIMES: &str = "fa-times";
 
@@ -142,16 +147,20 @@ pub(crate) enum View {
 }
 
 pub(crate) struct Model {
+    // TODO: make ProjectResult
     pub(crate) shared: Arc<ProjectSer>,
     pub(crate) view: View,
-    pub(crate) router: ::yew_router::RouterTask<Context, Model>,
+    pub(crate) router: ::yew_simple::RouterTask<Context, Model>,
     pub(crate) nav: Nav,
+    pub(crate) fetch_task: Option<FetchTask>,
 }
 
 pub(crate) enum Msg {
     SetView(View),
     ToggleSearch,
     SetSearch(String),
+    FetchProject,
+    RecvProject(ProjectSer),
     Ignore,
 }
 
@@ -181,4 +190,19 @@ pub(crate) trait CompletedExt {
     fn spc_html(&self) -> HtmlApp;
     fn tst_html(&self) -> HtmlApp;
     fn name_color(&self) -> &'static str;
+}
+
+/// These are unbelivably annoying to create.
+///
+/// The FA library _mutates_ the item with it's class assigned, which means that when yew tries to
+/// call `parent.remove_child` the child cannot be found... since it changed.
+///
+/// I'm not totally sure what's happening here but it ain't fun.
+///
+/// Anyway, the issue can be avoided by wrapping it in an additional element, hence
+/// the extra `<span>...</span>`
+pub(crate) fn fa_icon(icon: &str) -> HtmlApp {
+    let icon = format!(r#"<span><i class="{} {}"></i></span>"#, FA, icon);
+    let icon = Node::from_html(icon.trim()).expect("fa-icon");
+    VNode::VRef(icon)
 }

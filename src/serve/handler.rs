@@ -17,6 +17,8 @@ use dev_prelude::*;
 use artifact_data::*;
 
 const WEB_FRONTEND_TAR: &'static [u8] = include_bytes!("../../web-ui/target/web-ui.tar");
+// const WEB_FRONTEND_TAR: &'static [u8] = include_bytes!(
+//     "../../artifact-frontend/target/frontend.tar");
 const REPLACE_FLAGS: &str = "{/* REPLACE WITH FLAGS */}";
 
 #[derive(Debug, Serialize, Deserialize)]

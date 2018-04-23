@@ -52,7 +52,7 @@ pub use family::{auto_partofs, Names};
 pub use expand_names::expand_names;
 pub use lint::{Categorized, Category, Level, Lint};
 pub use ser::{ArtifactImSer, ArtifactSer, CodeLocSer, ImplCodeSer, ImplSer, ProjectPathsSer,
-              ProjectSer};
+              ProjectSer, ProjectResultSer};
 
 #[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
 /// #SPC-read-structs.artifact

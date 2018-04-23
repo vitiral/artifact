@@ -27,6 +27,12 @@ use dev_prelude::*;
 use std::fmt;
 
 #[derive(Debug, Serialize, Deserialize)]
+pub struct ProjectResultSer {
+    pub project: ProjectSer,
+    pub lints: Categorized,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
 #[serde(tag = "op", rename_all = "lowercase")]
 pub enum ArtifactOpSer {
     Create {

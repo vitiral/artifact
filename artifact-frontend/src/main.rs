@@ -30,7 +30,17 @@ extern crate path_abs;
 extern crate stdweb;
 #[macro_use]
 extern crate yew;
-extern crate yew_router;
+extern crate yew_simple;
+extern crate jrpc;
+extern crate http;
+
+use std::result;
+
+use yew::prelude::*;
+use yew::format::{Nothing, Json};
+use yew::services::Task;
+use yew::services::websocket::{WebSocketService, WebSocketTask, WebSocketStatus};
+use http::response::{Parts};
 
 mod artifact;
 mod dev_prelude;
@@ -47,7 +57,7 @@ lazy_static! {
     ).unwrap();
 }
 
-pub(crate) fn router(info: yew_router::RouteInfo) -> Msg {
+pub(crate) fn router(info: yew_simple::RouteInfo) -> Msg {
     let hash = if let Some(h) = info.url.fragment() {
         h
     } else {
@@ -76,8 +86,9 @@ impl Component<Context> for Model {
         Model {
             shared: Arc::new(project),
             view: View::Artifact(name!("REQ-completed")),
-            router: yew_router::RouterTask::new(context, &router),
+            router: yew_simple::RouterTask::new(context, &router),
             nav: Nav::default(),
+            fetch_task: None,
         }
     }
 
@@ -90,9 +101,43 @@ impl Component<Context> for Model {
                 eprintln!("search toggled to: {}", self.nav.search.on);
             }
             Msg::SetSearch(v) => self.nav.search.value = v,
+            Msg::FetchProject => {
+                if self.fetch_task.is_some() {
+                    eprintln!("ERROR TODO: already fetching");
+                    return false;
+                }
+                let callback = context.send_back(fetch_fn);
+                let request = jrpc::Request::new(jrpc::Id::Int(1), Method::ReadProject);
+                let request = http::Request::post("/json-rpc")
+                    .body(json::to_string(&request).expect("request-ser"))
+                    .expect("create request");
+                self.fetch_task = Some(FetchTask::new(request, callback));
+            }
+            Msg::RecvProject(project) => {
+                self.shared = Arc::new(project);
+            }
         }
         true
     }
+}
+
+fn fetch_fn(response: http::Response<String>) -> Msg {
+    if !response.status().is_success() {
+        eprintln!("TODO: meta not successful: {:?}", response.status());
+        return Msg::Ignore;
+    }
+
+    let body = response.into_body();
+    let response: jrpc::Response<ProjectResultSer> = expect!(json::from_str(&body), "response-serde");
+    let result = match response {
+        jrpc::Response::Ok(r) => r,
+        jrpc::Response::Err(err) => {
+            eprintln!("TODO: received jrpc Error: {:?}", err);
+            return Msg::Ignore;
+        }
+    };
+
+    Msg::RecvProject(result.result.project)
 }
 
 impl Renderable<Context, Model> for Model {
@@ -106,7 +151,8 @@ impl Renderable<Context, Model> for Model {
 
 fn main() {
     yew::initialize();
-    let context = Context {};
+    let context = Context {
+    };
     let app: App<_, Model> = App::new(context);
     app.mount_to_body();
     yew::run_loop();
