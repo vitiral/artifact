@@ -21,11 +21,7 @@ fn run_interop_tests<P: AsRef<Path>>(test_base: P) {
 }
 
 fn run_server_test(project_path: PathDir) {
-    let port = {
-        let mut locked = AVAILABLE_PORTS.lock();
-        let locked = expect!(locked.as_mut());
-        locked.take()
-    };
+    let port = AVAILABLE_PORTS.take();
 
     let args = &[
         "run",
@@ -79,35 +75,11 @@ fn run_server_test(project_path: PathDir) {
         );
     });
 
-    {
-        let mut locked = AVAILABLE_PORTS.lock();
-        let locked = expect!(locked.as_mut());
-        locked.give(port);
-    }
     expect!(server.kill(), "server didn't die");
+    AVAILABLE_PORTS.give(port);
 
     if let Err(err) = result {
         panic::resume_unwind(err);
-    }
-}
-
-lazy_static! {
-    static ref AVAILABLE_PORTS: Mutex<UsePort> = Mutex::new(UsePort {
-        available: (8500..9000).collect(),
-    });
-}
-
-struct UsePort {
-    available: Vec<u32>,
-}
-
-impl UsePort {
-    fn take(&mut self) -> u32 {
-        expect!(self.available.pop(), "ports ran out")
-    }
-
-    fn give(&mut self, port: u32) {
-        self.available.push(port)
     }
 }
 
@@ -185,12 +157,34 @@ fn assert_stuff_serve(
     assert_stuff_data(project_path, (), load_lints, project, expect)
 }
 
+#[test]
+fn serve_interop_source_only() {
+    run_interop_tests(INTEROP_TESTS_PATH.join("source_only"));
+}
+
+// TODO(maybe): the server doesn't start because there is a critical
+//   error.
 // #[test]
-// fn sanity_server() {
-//     run_interop_with_server("foo");
+// fn serve_interop_source_invalid() {
+//     run_interop_tests(INTEROP_TESTS_PATH.join("source_invalid"));
 // }
 
 #[test]
-fn server_interop_design_only() {
+fn serve_interop_project_empty() {
+    run_interop_tests(INTEROP_TESTS_PATH.join("empty"));
+}
+
+#[test]
+fn serve_interop_design_only() {
     run_interop_tests(INTEROP_TESTS_PATH.join("design_only"));
+}
+
+#[test]
+fn serve_interop_basic() {
+    run_interop_tests(INTEROP_TESTS_PATH.join("basic"));
+}
+
+#[test]
+fn serve_interop_lints() {
+    run_interop_tests(INTEROP_TESTS_PATH.join("lints"));
 }

@@ -59,7 +59,36 @@ lazy_static!{
             ).unwrap();
     pub static ref INTEROP_TESTS_PATH: PathAbs = PathAbs::new(
         ARTIFACT_TEST_PATH.join("interop_tests")).unwrap();
+
+    /// Makes sure nobody is using the same port.
+    ///
+    /// Tests rely on ports 8500 - 8600 to be available.
+    pub static ref AVAILABLE_PORTS: UsePort = {
+        let (send, recv) = ch::bounded(100);
+        for port in 8500..8600 {
+            assert!(ch!(send <-? port).is_none());
+        }
+        UsePort { send, recv }
+    };
 }
+
+pub struct UsePort {
+    send: ch::Sender<u32>,
+    recv: ch::Receiver<u32>,
+}
+
+impl UsePort {
+    pub fn take(&self) -> u32 {
+        let recv = &self.recv;
+        ch!(<- recv)
+    }
+
+    pub fn give(&self, port: u32) {
+        let send = &self.send;
+        ch!(send <- port);
+    }
+}
+
 
 /// Given list of `(input, expected)`, assert `method(input) == expected
 pub fn assert_generic<F, I, E>(method: F, values: &[(I, Option<E>)])
