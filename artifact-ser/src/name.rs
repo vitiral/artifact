@@ -25,9 +25,11 @@ use std::fmt;
 use std::result;
 use serde::{self, Deserialize, Deserializer, Serialize, Serializer};
 
-use ergo_std::*;
-use ergo_config::*;
-use failure::*;
+use dev_prelude::*;
+
+// use ergo_std::*;
+// use ergo_config::*;
+// use failure::*;
 
 // EXPORTED TYPES AND FUNCTIONS
 
@@ -53,17 +55,21 @@ macro_rules! subname {
     };
 }
 
-#[derive(Debug, Fail)]
+pub type NameResult<T> = Result<T, NameError>;
+
+#[derive(Debug, Error)]
 pub enum NameError {
-    #[fail(display = "{}", msg)]
+    #[error(msg_embedded, no_from, non_std)]
+    /// Name is not valid.
     InvalidName { msg: String },
-
-    #[fail(display = "{}", msg)]
+    #[error(msg_embedded, no_from, non_std)]
+    /// Collapsed form is not valid.
     InvalidCollapsed { msg: String },
-
-    #[fail(display = "{}", msg)]
+    #[error(msg_embedded, no_from, non_std)]
+    /// SubName is not valid.
     InvalidSubName { msg: String },
 }
+
 
 #[derive(Clone, Eq, PartialEq, Hash, Ord, PartialOrd)]
 /// #SPC-name
@@ -284,8 +290,8 @@ impl Deref for Name {
 }
 
 impl FromStr for Name {
-    type Err = Error;
-    fn from_str(raw: &str) -> super::Result<Name> {
+    type Err = NameError;
+    fn from_str(raw: &str) -> NameResult<Name> {
         Ok(Name(Arc::new(InternalName::from_str(raw)?)))
     }
 }
@@ -303,10 +309,10 @@ pub fn parse_subnames(text: &str) -> IndexSet<SubName> {
 // INTERNAL NAME METHODS
 
 impl FromStr for InternalName {
-    type Err = Error;
+    type Err = NameError;
 
     /// Use `Name::from_str` instead. This should only be used in this module.
-    fn from_str(raw: &str) -> super::Result<InternalName> {
+    fn from_str(raw: &str) -> NameResult<InternalName> {
         if !NAME_VALID_RE.is_match(raw) {
             let msg = format!("Name is invalid: {}", raw);
             return Err(NameError::InvalidName { msg: msg }.into());
@@ -440,10 +446,10 @@ impl SubName {
 }
 
 impl FromStr for SubName {
-    type Err = Error;
+    type Err = NameError;
 
     /// Primary method to create a subname.
-    fn from_str(raw: &str) -> super::Result<SubName> {
+    fn from_str(raw: &str) -> NameResult<SubName> {
         if !VALID_SUB_NAME_RE.is_match(raw) {
             Err(NameError::InvalidSubName {
                 msg: format!("{} is not a valid subname", raw),

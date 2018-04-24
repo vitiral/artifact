@@ -121,7 +121,7 @@ fn check_paths(lints: &mut lint::Categorized, project: &Project, operations: &[A
         macro_rules! not_valid { ($msg:expr) => {{
             let l = lint::Lint {
                 level: lint::Level::Error,
-                path: Some(path.clone()),
+                path: Some(path.to_string()),
                 line: None,
                 category: lint::Category::ModifyPathInvalid,
                 msg: $msg.to_string(),
@@ -273,7 +273,7 @@ fn create_backups(lints: &mut lint::Categorized, paths: ProjectPaths) {
                     if let Err(err) = path.clone().rename(bk) {
                         let l = lint::Lint {
                             level: lint::Level::Error,
-                            path: Some(path.into()),
+                            path: Some(path.to_string()),
                             line: None,
                             category: lint::Category::CreateBackups,
                             msg: err.to_string(),
@@ -316,7 +316,7 @@ fn remove_backups(lints: &mut lint::Categorized, paths: ProjectPaths) {
                     if let Err(err) = path.clone().remove() {
                         let l = lint::Lint {
                             level: lint::Level::Warn,
-                            path: Some(path.into()),
+                            path: Some(path.to_string()),
                             line: None,
                             category: lint::Category::RemoveBackups,
                             msg: err.to_string(),
@@ -360,7 +360,7 @@ fn save_project(lints: &mut lint::Categorized, project: &Project) {
                                 Err(err) => {
                                     let l = lint::Lint {
                                         level: lint::Level::Error,
-                                        path: Some(path.clone().into()),
+                                        path: Some(path.to_string()),
                                         line: None,
                                         category: lint::Category::SaveProject,
                                         msg: err.to_string(),

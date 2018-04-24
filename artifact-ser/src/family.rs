@@ -24,7 +24,7 @@ use ergo_std::serde::de::{Deserialize, Deserializer, SeqAccess, Visitor};
 use ergo_std::serde::ser::{Serialize, Serializer};
 
 use dev_prelude::*;
-use name::{Name, Type, TYPE_SPLIT_LOC};
+use name::{Name, NameError, Type, TYPE_SPLIT_LOC};
 
 #[macro_export]
 /// Macro to get a name with no error checking.
@@ -74,9 +74,9 @@ impl From<HashSet<Name>> for Names {
 }
 
 impl FromStr for Names {
-    type Err = Error;
+    type Err = NameError;
     /// Parse a collapsed set of names to create them
-    fn from_str(collapsed: &str) -> Result<Names> {
+    fn from_str(collapsed: &str) -> Result<Names, NameError> {
         let inner = ::expand_names::expand_names(collapsed)?;
         Ok(Names(inner))
     }
@@ -115,7 +115,7 @@ impl Name {
 }
 
 impl Serialize for Names {
-    fn serialize<S>(&self, serializer: S) -> result::Result<S::Ok, S::Error>
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: Serializer,
     {
@@ -127,7 +127,7 @@ impl Serialize for Names {
 }
 
 impl<'de> Deserialize<'de> for Names {
-    fn deserialize<D>(deserializer: D) -> result::Result<Names, D::Error>
+    fn deserialize<D>(deserializer: D) -> Result<Names, D::Error>
     where
         D: Deserializer<'de>,
     {
@@ -144,7 +144,7 @@ impl<'de> Visitor<'de> for NamesVisitor {
         formatter.write_str("a list of names")
     }
 
-    fn visit_seq<A>(self, mut seq: A) -> result::Result<Self::Value, A::Error>
+    fn visit_seq<A>(self, mut seq: A) -> Result<Self::Value, A::Error>
     where
         A: SeqAccess<'de>,
     {

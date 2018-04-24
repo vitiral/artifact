@@ -15,15 +15,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 #![allow(dead_code)]
-pub use chrono::prelude::*;
 pub use yew::prelude::*;
 pub use yew::services::console::ConsoleService;
 pub use yew_simple::FetchTask;
 pub use yew::virtual_dom::VNode;
-pub use artifact_lib::*;
+pub use artifact_ser::*;
 pub use ergo_std::*;
 pub use ergo_config::*;
-pub use path_abs::*;
 pub use stdweb::web::Node;
 
 pub(crate) type HtmlApp = Html<Context, Model>;
@@ -123,6 +121,7 @@ pub(crate) const LG_COL_12: &str = "lg-col-12";
 
 // Font Awesome
 pub(crate) const FA: &str = "fas";
+pub(crate) const FA_GRAPH: &str = "fa-code-branch";
 pub(crate) const FA_INFO_CIRCLE: &str = "fa-info-circle";
 pub(crate) const FA_EYE: &str = "fa-eye";
 pub(crate) const FA_FLOPPY_O: &str = "fa-floppy-o";
@@ -144,21 +143,25 @@ pub(crate) const SELECT_TINY: &str = "select-tiny";
 pub(crate) enum View {
     Graph,
     Artifact(Name),
+    NotFound,
 }
 
 pub(crate) struct Model {
     // TODO: make ProjectResult
     pub(crate) shared: Arc<ProjectSer>,
     pub(crate) view: View,
-    pub(crate) router: ::yew_simple::RouterTask<Context, Model>,
+    pub(crate) router: Arc<::yew_simple::RouterTask<Context, Model>>,
     pub(crate) nav: Nav,
+    pub(crate) graph: Graph,
     pub(crate) fetch_task: Option<FetchTask>,
+    pub(crate) console: Arc<ConsoleService>,
 }
 
 pub(crate) enum Msg {
     SetView(View),
     ToggleSearch,
-    SetSearch(String),
+    SetNavSearch(String),
+    SetGraphSearch(String),
     FetchProject,
     RecvProject(ProjectSer),
     Ignore,
@@ -168,6 +171,13 @@ pub(crate) enum Msg {
 /// Navigation bar
 pub(crate) struct Nav {
     pub(crate) search: Search,
+}
+
+
+#[derive(Debug, Default, Clone)]
+/// Graph View / search
+pub(crate) struct Graph {
+    pub(crate) search: String,
 }
 
 #[derive(Debug, Default, Clone)]
@@ -205,4 +215,21 @@ pub(crate) fn fa_icon(icon: &str) -> HtmlApp {
     let icon = format!(r#"<span><i class="{} {}"></i></span>"#, FA, icon);
     let icon = Node::from_html(icon.trim()).expect("fa-icon");
     VNode::VRef(icon)
+}
+
+
+/// Parse the regex. If it is invalid, return the html error
+/// message to display to the user.
+pub(crate) fn parse_regex(s: &str) -> Result<Regex, HtmlApp> {
+    Regex::new(s).map_err(|e| {
+        html![
+            <a
+             href="https://docs.rs/regex/0.2.10/regex/#syntax",
+             title="See syntax definition.",
+             class=(RED, BTN, BOLD),
+            >
+            { "INVALID REGEX" }
+            </a>
+        ]
+    })
 }

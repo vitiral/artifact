@@ -61,7 +61,7 @@ impl CompletedExt for Completed {
             1 => ORANGE,
             2 => BLUE,
             3 => OLIVE,
-            _ => unreachable!(),
+            _ => panic!("invalid spc_points"),
         };
         html![
             <span color=color, class=BOLD,>{
@@ -75,7 +75,7 @@ impl CompletedExt for Completed {
             0 => RED,
             1 => ORANGE,
             2 => OLIVE,
-            _ => unreachable!(),
+            _ => panic!("invalid tst_points"),
         };
         html![
             <span class=(color, BOLD),>{
@@ -90,7 +90,7 @@ impl CompletedExt for Completed {
             1 | 2 => ORANGE,
             3 | 4 => BLUE,
             5 => OLIVE,
-            _ => unreachable!(),
+            _ => panic!("invalid name points"),
         }
     }
 }

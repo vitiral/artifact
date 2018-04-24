@@ -15,6 +15,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 
+use yew_simple;
+use stdweb::Value;
 use dev_prelude::*;
 use name;
 
@@ -25,6 +27,7 @@ pub(crate) fn view_nav(model: &Model, page: HtmlApp) -> HtmlApp {
     } else {
         FA_SEARCH
     };
+    let router = model.router.clone();
     html![<div>
         <div class=(CLEARFIX, MB2, ACE_WHITE, ACE_BG_BLACK, P1),>
             <button class=(BTN, REGULAR), id="search",
@@ -39,6 +42,16 @@ pub(crate) fn view_nav(model: &Model, page: HtmlApp) -> HtmlApp {
                 { fa_icon(FA_SYNC) }
                 <span class=ML1,>{ "Sync" }</span>
             </button>
+            <button class=(BTN, REGULAR), id="graph",
+             onclick=move |_| {
+                router.push_hash(Some("graph"))
+             },
+             title="View Graph",
+             href="#graph",
+             >
+                { fa_icon(FA_GRAPH) }
+                <span class=ML1,>{ "Graph" }</span>
+            </button>
         </div>
         <div class=(CLEARFIX, PY1),>
             { search_pane(model) }
@@ -51,7 +64,7 @@ pub(crate) fn view_nav(model: &Model, page: HtmlApp) -> HtmlApp {
 
 pub(crate) fn search_pane(model: &Model) -> HtmlApp {
     if model.nav.search.on {
-        let names = match Regex::new(&model.nav.search.value) {
+        let names = match parse_regex(&model.nav.search.value) {
             Ok(re) => html![<div>
                 { for model.shared.artifacts
                     .keys()
@@ -59,21 +72,13 @@ pub(crate) fn search_pane(model: &Model) -> HtmlApp {
                     .map(|n| name::name_html(model, n))
                 }
             </div>],
-            Err(e) => html![
-                <a
-                 href="https://docs.rs/regex/0.2.10/regex/#syntax",
-                 title="See syntax definition.",
-                 class=(RED, BTN, BOLD),
-                >
-                { "INVALID REGEX" }
-                </a>
-            ],
+            Err(err) => err,
         };
         html![<div class=(SM_COL, SM_COL_6, MD_COL_4, LG_COL_2, MR1),>
             <input
              id="search-input",
              value=model.nav.search.value.clone(),
-             oninput=|e: InputData| Msg::SetSearch(e.value),
+             oninput=|e: InputData| Msg::SetNavSearch(e.value),
              class=INPUT,
              ></input>
             { names }

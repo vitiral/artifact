@@ -95,7 +95,7 @@ pub(crate) fn walk_paths<F>(
     for path in paths.iter() {
         let res = walk_path(send_paths, path.clone(), &filter);
         if let Err(err) = res {
-            ch!(send_err <- lint::Lint::load_error(path, &err.to_string()));
+            ch!(send_err <- lint::Lint::load_error(path.to_string(), &err.to_string()));
         }
     }
 }
@@ -148,7 +148,7 @@ pub(crate) fn load_project_paths<P: AsRef<Path>>(
         Ok(s) => s,
         Err(err) => {
             let lints = vec![
-                lint::Lint::load_error(project_path.as_ref(), &err.to_string()),
+                lint::Lint::load_error(project_path.as_ref().to_string_lossy(), &err.to_string()),
             ];
             return (lints, None);
         }
@@ -189,7 +189,7 @@ fn resolve_raw_paths(
             match PathAbs::new(&path) {
                 Ok(p) => Some(p),
                 Err(err) => {
-                    lint::io_error(lints, &path, &err.to_string());
+                    lint::io_error(lints, path.to_string(), &err.to_string());
                     None
                 }
             }

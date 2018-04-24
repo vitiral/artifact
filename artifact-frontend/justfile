@@ -1,3 +1,0 @@
-
-build:
-	cargo +nightly web deploy --release --target wasm32-unknown-unknown

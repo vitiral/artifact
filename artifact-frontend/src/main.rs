@@ -17,15 +17,13 @@
 #![recursion_limit = "128"]
 
 #[macro_use]
-extern crate artifact_lib;
-extern crate chrono;
+extern crate artifact_ser;
 #[macro_use]
 extern crate ergo_config;
 #[macro_use]
 extern crate ergo_std;
 #[macro_use]
 extern crate expect_macro;
-extern crate path_abs;
 #[macro_use]
 extern crate stdweb;
 #[macro_use]
@@ -54,27 +52,24 @@ use dev_prelude::*;
 lazy_static! {
     static ref NAME_URL: Regex = Regex::new(
         &format!(r"(?i)(?:artifacts/)?({})", NAME_VALID_STR)
-    ).unwrap();
+    ).expect("regex");
 }
 
 pub(crate) fn router(info: yew_simple::RouteInfo) -> Msg {
-    let hash = if let Some(h) = info.url.fragment() {
-        h
-    } else {
-        return Msg::Ignore;
-    };
+    let view = get_view(info.url.fragment().unwrap_or_default());
+    Msg::SetView(view)
+}
 
-    println!("routing hash: {}", hash);
-    if hash.to_ascii_lowercase() == "graph" {
-        Msg::SetView(View::Graph)
+fn get_view(hash: &str) -> View {
+    if hash.to_ascii_lowercase() == "graph" || hash == "" {
+        View::Graph
     } else if let Some(cap) = NAME_URL.captures(hash) {
         let name = name!(&cap[1]);
-        println!("SetView={}", name);
-        Msg::SetView(View::Artifact(name))
+        View::Artifact(name)
     } else {
-        println!("ignoring route");
-        Msg::Ignore
+        View::NotFound
     }
+
 }
 
 impl Component<Context> for Model {
@@ -83,12 +78,17 @@ impl Component<Context> for Model {
 
     fn create(_: Self::Properties, context: &mut Env<Context, Self>) -> Self {
         let project: ProjectSer = yaml::from_str(example::YAML).unwrap();
+        let router = yew_simple::RouterTask::new(context, &router);
+        let url = router.current_url();
+
         Model {
             shared: Arc::new(project),
-            view: View::Artifact(name!("REQ-completed")),
-            router: yew_simple::RouterTask::new(context, &router),
+            view: get_view(&url.fragment().unwrap_or_default()),
+            router: Arc::new(router),
             nav: Nav::default(),
+            graph: Graph::default(),
             fetch_task: None,
+            console: Arc::new(ConsoleService::new()),
         }
     }
 
@@ -98,12 +98,11 @@ impl Component<Context> for Model {
             Msg::Ignore => return false,
             Msg::ToggleSearch => {
                 self.nav.search.on = !self.nav.search.on;
-                eprintln!("search toggled to: {}", self.nav.search.on);
             }
-            Msg::SetSearch(v) => self.nav.search.value = v,
+            Msg::SetNavSearch(v) => self.nav.search.value = v,
+            Msg::SetGraphSearch(v) => self.graph.search = v,
             Msg::FetchProject => {
                 if self.fetch_task.is_some() {
-                    eprintln!("ERROR TODO: already fetching");
                     return false;
                 }
                 let callback = context.send_back(fetch_fn);
@@ -123,7 +122,7 @@ impl Component<Context> for Model {
 
 fn fetch_fn(response: http::Response<String>) -> Msg {
     if !response.status().is_success() {
-        eprintln!("TODO: meta not successful: {:?}", response.status());
+        // TODO: meta not successful
         return Msg::Ignore;
     }
 
@@ -132,7 +131,7 @@ fn fetch_fn(response: http::Response<String>) -> Msg {
     let result = match response {
         jrpc::Response::Ok(r) => r,
         jrpc::Response::Err(err) => {
-            eprintln!("TODO: received jrpc Error: {:?}", err);
+            // TODO: received jrpc Error: {:?}", err
             return Msg::Ignore;
         }
     };
@@ -145,6 +144,11 @@ impl Renderable<Context, Model> for Model {
         match self.view {
             View::Graph => graph::graph_html(self),
             View::Artifact(ref name) => artifact::view_artifact(self, name),
+            View::NotFound => html![
+                <div class=BOLD,>
+                    { "Url not found" }
+                </div>
+            ],
         }
     }
 }

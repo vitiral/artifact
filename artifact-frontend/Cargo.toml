@@ -6,11 +6,7 @@ authors = ["Garrett Berg <googberg@gmail.com>"]
 [dependencies]
 yew = { path = "yew" }
 stdweb = { path = 'stdweb' }
-chrono = "0.4.0"
-base64 = "0.9.0"
-siphasher = "0.2.2"
-path_abs = "0.4.*"
-artifact_lib = {path="../artifact-lib"}
+artifact_ser = {path="../artifact-ser"}
 ergo_std = "0.0.3"
 ergo_config = "0.0.1"
 yew_simple = { path = "yew_simple" }
@@ -19,10 +15,7 @@ jrpc = "0.4.0"
 http = "0.1"
 
 [dev-dependencies]
-fantoccini = { git = "https://github.com/jonhoo/fantoccini" }
-futures = "0.1.*"
 
 [replace]
 "stdweb:0.4.4" = { path = 'stdweb' }
 "yew:0.3.0" = { path = 'yew' }
-

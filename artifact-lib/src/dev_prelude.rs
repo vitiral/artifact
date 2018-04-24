@@ -5,5 +5,3 @@ pub use path_abs::*;
 pub use failure::*;
 pub use expect_macro::*;
 pub use failure::Error;
-
-pub type Result<V> = result::Result<V, Error>;

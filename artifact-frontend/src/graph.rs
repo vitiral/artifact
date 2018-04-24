@@ -15,14 +15,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 
-use dev_prelude::*;
-use name;
-
 use stdweb::Value;
 use stdweb::web::Node;
 use stdweb::unstable::TryFrom;
 use yew::virtual_dom::VNode;
 
+
+use dev_prelude::*;
+use name;
+use nav;
+
+/// The small graph at the top of every artifact, displaying it's `partof` and `parts`.
 pub(crate) fn artifact_part_html(model: &Model, art: &ArtifactSer) -> HtmlApp {
     // Create node formats
     let mut dot = name_dot(model, &art.name, true);
@@ -37,14 +40,64 @@ pub(crate) fn artifact_part_html(model: &Model, art: &ArtifactSer) -> HtmlApp {
 }
 
 pub(crate) fn graph_html(model: &Model) -> HtmlApp {
+    let page = html![<div class=(SM_COL, SM_COL_6, MD_COL_4, LG_COL_2, MR1),>
+        <input
+         id="search-graph",
+         value=model.graph.search.clone(),
+         oninput=|e: InputData| Msg::SetGraphSearch(e.value),
+         class=INPUT,
+         ></input>
+         { graph_html_results(model) }
+    </div>];
+
+    nav::view_nav(model, page)
+}
+
+/// The "search graph".
+fn graph_html_results(model: &Model) -> HtmlApp {
+    let re = match parse_regex(&model.graph.search) {
+        Ok(r) => r,
+        Err(e) => return e,
+    };
     let mut dot = String::new();
 
-    for name in model.shared.artifacts.keys() {
-        dot.push_str(&name_dot(model, name, false));
+    let focus: HashMap<&Name, &ArtifactSer> = model.shared.artifacts
+        .iter()
+        .filter(|(n, _)| re.is_match(n.as_str()))
+        .collect();
+
+    for (name, art) in &focus {
+        dot.push_str(&name_dot(model, name, true));
+
+        // push the parts+partof, but only if they are not also
+        // in focus (if they are in focus they will be pushed
+        // separately)
+        for part in &art.parts {
+            if !focus.contains_key(part) {
+                dot.push_str(&name_dot(model, part, false));
+            }
+        }
+
+        for part in &art.partof {
+            if !focus.contains_key(part) {
+                dot.push_str(&name_dot(model, part, false));
+            }
+        }
     }
 
-    for art in model.shared.artifacts.values() {
-        push_connections(&mut dot, art);
+    let mut connections: HashSet<(&Name, &Name)> = HashSet::new();
+
+    for (name, art) in &focus {
+        for part in &art.parts {
+            connections.insert((name, part));
+        }
+        for part in &art.partof {
+            connections.insert((part, name));
+        }
+    }
+
+    for (from, to) in connections {
+        dot.push_str(&connect_names_dot(from, to));
     }
 
     dot_html(&wrap_dot(&dot))
@@ -55,7 +108,6 @@ fn dot_html(dot: &str) -> HtmlApp {
     let result = js!{
         try {
             var svg = Viz(@{dot});
-            console.log("SVG\n" + svg);
             var div = document.createElement("div");
             div.innerHTML = svg;
             return { value: div, success: true };
@@ -75,7 +127,7 @@ fn dot_html(dot: &str) -> HtmlApp {
             <div color=RED, class=(BOLD),>
                 { expect!(js!{ return @{result}.value; }.into_string()) }
             </div>
-            <textarea readonly=true, value=dot.to_owned(), rows=100, cols=80,>
+            <textarea readonly=true, value=dot, rows=100, cols=80,>
             </textarea>
         ];
     };
@@ -84,16 +136,17 @@ fn dot_html(dot: &str) -> HtmlApp {
 
     let svg = VNode::VRef(node);
     html![
-        <h1>{ "Graph View" }</h1>
+        // <h1>{ "Graph View" }</h1>
+        <div></div> // TODO: this seems to be necessary otherwise things panic...
         { svg }
     ]
 }
 
-fn push_connections(out: &mut String, art: &ArtifactSer) {
-    fn connect_names_dot(from: &Name, to: &Name) -> String {
-        format!("        \"{}\" -> \"{}\"\n", from.key_str(), to.key_str())
-    }
+fn connect_names_dot(from: &Name, to: &Name) -> String {
+    format!("        \"{}\" -> \"{}\"\n", from.key_str(), to.key_str())
+}
 
+fn push_connections(out: &mut String, art: &ArtifactSer) {
     for part in &art.parts {
         out.push_str(&connect_names_dot(&art.name, part));
     }
@@ -106,9 +159,8 @@ fn push_connections(out: &mut String, art: &ArtifactSer) {
 fn wrap_dot(dot: &str) -> String {
     format!(
         r##"
-        digraph G {{ graph [rankdir=LR, fontsize=14, margin=0.001];
-        subgraph cluster_family {{
-        margin=4; label=<<b>related artifacts</b>>
+        digraph G {{
+        graph [rankdir=LR; margin=0.001; label="";];
 
         ////////////////////
         // DOT INSERTED HERE
@@ -118,7 +170,6 @@ fn wrap_dot(dot: &str) -> String {
         ///////////////////
         // END INSERTED DOT
 
-        }}
         }}
         "##,
         dot=dot
@@ -130,26 +181,32 @@ fn name_dot(model: &Model, name: &Name, is_focus: bool) -> String {
         return dne_name_dot(name);
     }
     let attrs = if is_focus {
-        "penwidth=1.5; style=filled; fillcolor=cyan;"
+        "penwidth=1.5".to_string()
     } else {
-        ""
+        format!("style=filled; fillcolor=\"{}\";", GRAY)
+    };
+    let size = if is_focus {
+        12
+    } else {
+        8
     };
     format!(
         r##"
         {{
             "{key}" [
-                label=<<b>{name}</b>>;
+                label="{name}";
                 href="#{name_url}";
                 fontcolor="{color}";
-                fontsize=12; margin=0.01; shape=invhouse;
+                fontsize={min}; margin=0.01; shape=invhouse;
                 {attrs}
             ]
         }}
         "##,
         key=name.key_str(),
         name=name.as_str(),
-        name_url=name.as_str().to_ascii_lowercase(),
+        name_url=name.key_str().to_ascii_lowercase(),
         color=name::name_color(model, name),
+        min=size,
         attrs=attrs,
     )
 }

@@ -40,10 +40,6 @@ extern crate termstyle;
 extern crate jrpc;
 extern crate nickel;
 
-// #[macro_use]
-// #[cfg(test)]
-// extern crate pretty_assertions;
-
 #[allow(unused_imports)]
 use ergo::*;
 #[allow(unused_imports)]

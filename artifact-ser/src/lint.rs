@@ -29,7 +29,7 @@ use dev_prelude::*;
 pub struct Lint {
     pub level: Level,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub path: Option<PathArc>,
+    pub path: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub line: Option<u64>,
     pub category: Category,
@@ -120,11 +120,11 @@ impl fmt::Display for Categorized {
 }
 
 impl Lint {
-    pub fn load_error<P: AsRef<Path>>(path: P, err: &str) -> Lint {
+    pub fn load_error<S: ToString>(path: S, err: &str) -> Lint {
         Lint {
             level: Level::Error,
             category: Category::LoadPaths,
-            path: Some(PathArc::new(path)),
+            path: Some(path.to_string()),
             line: None,
             msg: format!("Error during loading: {}", err),
         }
@@ -181,7 +181,7 @@ impl Lint {
     }
 }
 
-pub fn io_error<P: AsRef<Path>>(lints: &Sender<Lint>, path: P, err: &str) {
+pub fn io_error<S: ToString>(lints: &Sender<Lint>, path: S, err: &str) {
     lints
         .send(Lint::load_error(path, err))
         .expect("failed to send io-error");

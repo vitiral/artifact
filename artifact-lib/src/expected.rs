@@ -195,11 +195,16 @@ impl CodeLocAssert {
     }
 }
 
-impl lint::Lint {
+
+pub trait LintExp {
     /// just mutate the lint to be correct
-    pub fn make_expected(&mut self, base: &PathAbs) {
+    fn make_expected(&mut self, base: &PathAbs);
+}
+
+impl LintExp for lint::Lint {
+    fn make_expected(&mut self, base: &PathAbs) {
         if let Some(ref mut p) = self.path {
-            *p = PathArc::new(base.join(&p));
+            *p = PathArc::new(base.join(&p)).to_string();
         }
     }
 }

@@ -16,9 +16,7 @@ use serve;
 use dev_prelude::*;
 use artifact_data::*;
 
-const WEB_FRONTEND_TAR: &'static [u8] = include_bytes!("../../web-ui/target/web-ui.tar");
-// const WEB_FRONTEND_TAR: &'static [u8] = include_bytes!(
-//     "../../artifact-frontend/target/frontend.tar");
+const WEB_FRONTEND_TAR: &'static [u8] = include_bytes!("../../artifact-frontend/target/frontend.tar");
 const REPLACE_FLAGS: &str = "{/* REPLACE WITH FLAGS */}";
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -163,37 +161,38 @@ fn host_frontend(server: &mut Nickel, cmd: &serve::Serve) -> TempDir {
     // or the webapp will be deleted!
     let tmp_dir = TempDir::new("artifact-web-ui").expect("unable to create temporary directory");
     let dir = tmp_dir.path().to_path_buf(); // we have to clone this because *borrow*
-    info!("Unpacking web-ui at: {}", dir.display());
+    info!("Unpacking frontend at: {}", dir.display());
 
     let mut archive = Archive::new(WEB_FRONTEND_TAR);
     archive.unpack(&dir).expect("Unable to unpack web frontend");
 
-    // replace the default ip address with the real one
-    let app_js_path = dir.join("app.js");
-    let mut app_js = FileEdit::edit(app_js_path).unwrap();
-    let mut text = String::new();
-    app_js
-        .read_to_string(&mut text)
-        .expect("app.js couldn't be read");
-    app_js.seek(SeekFrom::Start(0)).unwrap();
-    app_js.set_len(0).unwrap(); // delete what is there
-                                // the elm app uses a certain address by default, replace it
+    // TODO: this can all probably be safely removed
+    // // replace the default ip address with the real one
+    // let app_js_path = dir.join("app.js");
+    // let mut app_js = FileEdit::edit(app_js_path).unwrap();
+    // let mut text = String::new();
+    // app_js
+    //     .read_to_string(&mut text)
+    //     .expect("app.js couldn't be read");
+    // app_js.seek(SeekFrom::Start(0)).unwrap();
+    // app_js.set_len(0).unwrap(); // delete what is there
+    //                             // the elm app uses a certain address by default, replace it
 
-    assert!(text.contains(REPLACE_FLAGS));
-    let flags = Flags {
-        readonly: true,
-        path_url: "".into(),
-    };
-    app_js
-        .write_all(
-            text.replace(REPLACE_FLAGS, &json::to_string(&flags).unwrap())
-                .as_bytes(),
-        )
-        .unwrap();
-    app_js.flush().unwrap();
+    // assert!(text.contains(REPLACE_FLAGS));
+    // let flags = Flags {
+    //     readonly: true,
+    //     path_url: "".into(),
+    // };
+    // app_js
+    //     .write_all(
+    //         text.replace(REPLACE_FLAGS, &json::to_string(&flags).unwrap())
+    //             .as_bytes(),
+    //     )
+    //     .unwrap();
+    // app_js.flush().unwrap();
 
     server.utilize(StaticFilesHandler::new(&dir));
-    println!("Hosting web ui at {}", cmd.port);
+    println!("Hosting frontend at {}", cmd.port);
     tmp_dir
 }
 

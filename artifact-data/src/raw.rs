@@ -100,7 +100,7 @@ pub(crate) fn join_artifacts_raw(
                 .send(lint::Lint {
                     level: lint::Level::Error,
                     category: lint::Category::ParseArtifactFiles,
-                    path: Some(dup.clone().into()),
+                    path: Some(dup.to_string()),
                     line: None,
                     msg: format!("duplicate name detected: {} in {}", art.name, dup.display()),
                 })
@@ -109,7 +109,7 @@ pub(crate) fn join_artifacts_raw(
                 .send(lint::Lint {
                     level: lint::Level::Error,
                     category: lint::Category::ParseArtifactFiles,
-                    path: Some(art.file.clone().into()),
+                    path: Some(art.file.to_string()),
                     line: None,
                     msg: format!(
                         "duplicate name detected: {} in {}",
@@ -138,7 +138,7 @@ pub(crate) fn load_file(lints: &Sender<lint::Lint>, send: &Sender<ArtifactIm>, f
     let text = match file.read_string() {
         Ok(t) => t,
         Err(err) => {
-            ch!(lints <- lint::Lint::load_error(file, &err.to_string()));
+            ch!(lints <- lint::Lint::load_error(file.to_string(), &err.to_string()));
             return;
         }
     };
@@ -152,7 +152,7 @@ pub(crate) fn load_file(lints: &Sender<lint::Lint>, send: &Sender<ArtifactIm>, f
     let mut raw_artifacts = match r {
         Ok(raw) => raw,
         Err(err) => {
-            ch!(lints <- lint::Lint::load_error(file, &err.to_string()));
+            ch!(lints <- lint::Lint::load_error(file.to_string(), &err.to_string()));
             return;
         }
     };

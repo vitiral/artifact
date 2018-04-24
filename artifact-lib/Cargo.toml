@@ -14,3 +14,4 @@ expect_macro = "0.2.0"
 ergo_std = "0.0.3"
 ergo_config = "0.0.1"
 siphasher = "0.2.2"
+artifact_ser = { path = "../artifact-ser" }

@@ -32,7 +32,7 @@ use name::{Name, NameError};
 /// Expand a string of names into multiple names.
 ///
 /// i.e. `"REQ-[foo, bar]"` -> `["REQ-foo", "REQ-bar"]`
-pub fn expand_names(raw: &str) -> Result<IndexSet<Name>> {
+pub fn expand_names(raw: &str) -> Result<IndexSet<Name>, NameError> {
     parse_collapsed(&mut raw.chars(), false)?
         .iter()
         .map(|n| Name::from_str(n))
@@ -42,7 +42,7 @@ pub fn expand_names(raw: &str) -> Result<IndexSet<Name>> {
 // Private: Expanding Names. Use `Name::from_str`
 
 /// subfunction to parse names from a names-str recusively
-fn parse_collapsed<I>(raw: &mut I, in_brackets: bool) -> Result<Vec<String>>
+fn parse_collapsed<I>(raw: &mut I, in_brackets: bool) -> Result<Vec<String>, NameError>
 where
     I: Iterator<Item = char>,
 {

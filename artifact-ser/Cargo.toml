@@ -1,0 +1,15 @@
+[package]
+name = "artifact_ser"
+version = "0.1.0"
+authors = ["Garrett Berg <googberg@gmail.com>"]
+
+[dependencies]
+serde = "1.*"
+serde_derive = "1.*"
+expect_macro = "0.2.1"
+lazy_static = "1.0.0"
+indexmap = "1.0.1"
+ergo_std = "0.0.3"
+ergo_config = "0.0.1"
+base64 = "0.9.1"
+derive-error = "0.0.4"
