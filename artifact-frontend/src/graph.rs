@@ -20,7 +20,6 @@ use stdweb::web::Node;
 use stdweb::unstable::TryFrom;
 use yew::virtual_dom::VNode;
 
-
 use dev_prelude::*;
 use name;
 use nav;
@@ -61,7 +60,9 @@ fn graph_html_results(model: &Model) -> HtmlApp {
     };
     let mut dot = String::new();
 
-    let focus: HashMap<&Name, &ArtifactSer> = model.shared.artifacts
+    let focus: HashMap<&Name, &ArtifactSer> = model
+        .shared
+        .artifacts
         .iter()
         .filter(|(n, _)| re.is_match(n.as_str()))
         .collect();
@@ -172,7 +173,7 @@ fn wrap_dot(dot: &str) -> String {
 
         }}
         "##,
-        dot=dot
+        dot = dot
     )
 }
 
@@ -185,11 +186,7 @@ fn name_dot(model: &Model, name: &Name, is_focus: bool) -> String {
     } else {
         format!("style=filled; fillcolor=\"{}\";", GRAY)
     };
-    let size = if is_focus {
-        12
-    } else {
-        8
-    };
+    let size = if is_focus { 12 } else { 8 };
     format!(
         r##"
         {{
@@ -202,12 +199,12 @@ fn name_dot(model: &Model, name: &Name, is_focus: bool) -> String {
             ]
         }}
         "##,
-        key=name.key_str(),
-        name=name.as_str(),
-        name_url=name.key_str().to_ascii_lowercase(),
-        color=name::name_color(model, name),
-        min=size,
-        attrs=attrs,
+        key = name.key_str(),
+        name = name.as_str(),
+        name_url = name.key_str().to_ascii_lowercase(),
+        color = name::name_color(model, name),
+        min = size,
+        attrs = attrs,
     )
 }
 
@@ -223,8 +220,7 @@ fn dne_name_dot(name: &Name) -> String {
             ]
         }}
         "##,
-        key=name.key_str(),
-        name=name,
+        key = name.key_str(),
+        name = name,
     )
 }
-

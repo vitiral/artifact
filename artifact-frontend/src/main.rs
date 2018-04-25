@@ -24,21 +24,21 @@ extern crate ergo_config;
 extern crate ergo_std;
 #[macro_use]
 extern crate expect_macro;
+extern crate http;
+extern crate jrpc;
 #[macro_use]
 extern crate stdweb;
 #[macro_use]
 extern crate yew;
 extern crate yew_simple;
-extern crate jrpc;
-extern crate http;
 
 use std::result;
 
 use yew::prelude::*;
-use yew::format::{Nothing, Json};
+use yew::format::{Json, Nothing};
 use yew::services::Task;
-use yew::services::websocket::{WebSocketService, WebSocketTask, WebSocketStatus};
-use http::response::{Parts};
+use yew::services::websocket::{WebSocketService, WebSocketStatus, WebSocketTask};
+use http::response::Parts;
 
 mod artifact;
 mod dev_prelude;
@@ -53,6 +53,8 @@ lazy_static! {
     static ref NAME_URL: Regex = Regex::new(
         &format!(r"(?i)(?:artifacts/)?({})", NAME_VALID_STR)
     ).expect("regex");
+
+    static ref LOG_ID: AtomicUsize = ATOMIC_USIZE_INIT;
 }
 
 pub(crate) fn router(info: yew_simple::RouteInfo) -> Msg {
@@ -69,7 +71,6 @@ fn get_view(hash: &str) -> View {
     } else {
         View::NotFound
     }
-
 }
 
 impl Component<Context> for Model {
@@ -89,6 +90,7 @@ impl Component<Context> for Model {
             graph: Graph::default(),
             fetch_task: None,
             console: Arc::new(ConsoleService::new()),
+            logs: Logs::default(),
         }
     }
 
@@ -115,8 +117,38 @@ impl Component<Context> for Model {
             Msg::RecvProject(project) => {
                 self.shared = Arc::new(project);
             }
+            Msg::PushLogs(logs) => push_logs(self, logs),
+            Msg::ClearLogs(clear) => clear_logs(self, clear),
         }
         true
+    }
+}
+
+fn push_logs(model: &mut Model, mut logs: Vec<Log>) {
+    for log in logs.drain(..) {
+        let id = LOG_ID.fetch_add(1, AtomicOrdering::SeqCst);
+        match log.level {
+            LogLevel::Error => {
+                model.logs.error.insert(id, log);
+            }
+            LogLevel::Info => {
+                // FIXME: add scheduling to remove id for info
+                model.logs.error.insert(id, log);
+            }
+        }
+    }
+}
+
+fn clear_logs(model: &mut Model, mut clear: ClearLogs) {
+    match clear {
+        ClearLogs::Error(mut ids) => {
+            for id in ids.drain(..) {
+                model.logs.error.remove(&id);
+            }
+        }
+        ClearLogs::ErrorAll => {
+            model.logs.error.clear();
+        }
     }
 }
 
@@ -127,12 +159,14 @@ fn fetch_fn(response: http::Response<String>) -> Msg {
     }
 
     let body = response.into_body();
-    let response: jrpc::Response<ProjectResultSer> = expect!(json::from_str(&body), "response-serde");
+    let response: jrpc::Response<ProjectResultSer> =
+        expect!(json::from_str(&body), "response-serde");
     let result = match response {
         jrpc::Response::Ok(r) => r,
         jrpc::Response::Err(err) => {
-            // TODO: received jrpc Error: {:?}", err
-            return Msg::Ignore;
+            return Msg::PushLogs(vec![
+                Log::error(format!("<div>received jrpc Error: {:?}</div>", err)),
+            ]);
         }
     };
 
@@ -155,8 +189,7 @@ impl Renderable<Context, Model> for Model {
 
 fn main() {
     yew::initialize();
-    let context = Context {
-    };
+    let context = Context {};
     let app: App<_, Model> = App::new(context);
     app.mount_to_body();
     yew::run_loop();

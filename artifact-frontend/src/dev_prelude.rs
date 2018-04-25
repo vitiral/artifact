@@ -26,8 +26,7 @@ pub use stdweb::web::Node;
 
 pub(crate) type HtmlApp = Html<Context, Model>;
 
-pub(crate) struct Context {
-}
+pub(crate) struct Context {}
 
 // http://basscss.com/
 
@@ -67,11 +66,11 @@ pub(crate) const MY1: &str = "my1";
 
 pub(crate) const MB2: &str = "mb2";
 
-
 // Colors
 pub(crate) const ACE_WHITE: &str = "white";
 pub(crate) const ACE_GRAY: &str = "gray";
 pub(crate) const ACE_BG_BLACK: &str = "bg-black";
+pub(crate) const ACE_RED: &str = "red";
 
 pub(crate) const GRAY: &str = "#DCDEE2";
 pub(crate) const OLIVE: &str = "#3DA03D";
@@ -155,6 +154,12 @@ pub(crate) struct Model {
     pub(crate) graph: Graph,
     pub(crate) fetch_task: Option<FetchTask>,
     pub(crate) console: Arc<ConsoleService>,
+    pub(crate) logs: Logs,
+}
+
+pub(crate) enum ClearLogs {
+    Error(Vec<usize>),
+    ErrorAll,
 }
 
 pub(crate) enum Msg {
@@ -164,7 +169,43 @@ pub(crate) enum Msg {
     SetGraphSearch(String),
     FetchProject,
     RecvProject(ProjectSer),
+    PushLogs(Vec<Log>),
+    ClearLogs(ClearLogs),
     Ignore,
+}
+
+#[derive(Debug, Default)]
+pub(crate) struct Logs {
+    pub(crate) error: IndexMap<usize, Log>,
+    pub(crate) info: IndexMap<usize, Log>,
+}
+
+#[derive(Debug, Clone)]
+pub(crate) struct Log {
+    pub(crate) level: LogLevel,
+    pub(crate) html: String,
+}
+
+impl Log {
+    pub(crate) fn error(html: String) -> Self {
+        Log {
+            level: LogLevel::Error,
+            html: html,
+        }
+    }
+
+    pub(crate) fn info(html: String) -> Self {
+        Log {
+            level: LogLevel::Info,
+            html: html,
+        }
+    }
+}
+
+#[derive(Debug, Copy, Clone)]
+pub(crate) enum LogLevel {
+    Error,
+    Info,
 }
 
 #[derive(Debug, Default, Clone)]
@@ -172,7 +213,6 @@ pub(crate) enum Msg {
 pub(crate) struct Nav {
     pub(crate) search: Search,
 }
-
 
 #[derive(Debug, Default, Clone)]
 /// Graph View / search
@@ -216,7 +256,6 @@ pub(crate) fn fa_icon(icon: &str) -> HtmlApp {
     let icon = Node::from_html(icon.trim()).expect("fa-icon");
     VNode::VRef(icon)
 }
-
 
 /// Parse the regex. If it is invalid, return the html error
 /// message to display to the user.
