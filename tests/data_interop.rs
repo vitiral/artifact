@@ -1,3 +1,4 @@
+#[macro_use] extern crate expect_macro;
 extern crate artifact_data;
 extern crate artifact_lib;
 extern crate artifact_test;
@@ -40,6 +41,15 @@ fn modify_project_shim(
     operations: Vec<ArtifactOp>,
     _state: (),
 ) -> Result<(lint::Categorized, Project), ModifyError> {
+
+    // Do basic round-trip serialization
+    let result = expect!(round_ser!(Vec<ArtifactOp>, operations));
+    assert_eq!(operations, result);
+
+    // Do round trip through `*Ser` types
+    let operations_ser = expect!(round_ser!(Vec<ArtifactOpSer>, operations));
+    let result = expect!(round_ser!(Vec<ArtifactOp>, operations_ser));
+
     artifact_data::modify_project(project_path, operations)
 }
 

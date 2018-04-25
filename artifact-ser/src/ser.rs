@@ -21,12 +21,11 @@ pub enum ArtifactOpSer {
     },
     Update {
         artifact: ArtifactImSer,
-        name: Name,
-        id: HashIm,
+        orig_id: HashIm,
     },
     Delete {
         name: Name,
-        id: HashIm,
+        orig_id: HashIm,
     },
 }
 

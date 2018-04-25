@@ -215,7 +215,7 @@ impl fmt::Debug for CodeLoc {
 
 // ----- INTERMEDIATE -----
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
 /// #SPC-structs.artifact_im
 pub struct ArtifactIm {
     pub name: Name,
@@ -285,9 +285,10 @@ impl Hash for ArtifactIm {
 
 // ------ OPERATIONS -----
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
 /// #SPC-structs.artifact_op
 /// Used for specifying operations to perform.
+#[serde(tag = "op", rename_all = "lowercase")]
 pub enum ArtifactOp {
     Create {
         artifact: ArtifactIm,
