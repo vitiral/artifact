@@ -22,7 +22,7 @@ use name;
 
 pub(crate) fn view_nav(model: &Model, page: HtmlApp) -> HtmlApp {
     let search = &model.nav.search;
-    let icon = if search.on {
+    let icon_search = if search.on {
         FA_SEARCH_MINUS
     } else {
         FA_SEARCH
@@ -34,8 +34,15 @@ pub(crate) fn view_nav(model: &Model, page: HtmlApp) -> HtmlApp {
             <button class=(BTN, REGULAR), id="search",
              onclick=|_| Msg::ToggleSearch,
              title="Search for an artifact.",>
-                { fa_icon(icon) }
+                { fa_icon(icon_search) }
                 <span class=ML1,>{ "Search" }</span>
+            </button>
+
+            <button class=(BTN, REGULAR), id="editing",
+             onclick=|_| Msg::ToggleEditing,
+             title="View artifacts being edited.",>
+                { fa_icon(FA_EDIT) }
+                <span class=ML1,>{ "Editing" }</span>
             </button>
 
             <button class=(BTN, REGULAR), id="sync",
@@ -74,9 +81,15 @@ pub(crate) fn view_nav(model: &Model, page: HtmlApp) -> HtmlApp {
 
         // Embed the pages
         <div class=(CLEARFIX, PY1),>
-            { error_pane(model) }
-            { search_pane(model) }
+            <div class=(SM_COL, SM_COL_6, MD_COL_4, LG_COL_2),>
+                // viewing panes
+                { error_pane(model) }
+                { editing_pane(model) }
+                { search_pane(model) }
+            </div>
+
             <div class=(SM_COL, SM_COL_11, MD_COL_7, LG_COL_9),>
+                // rest of page
                 { page }
             </div>
         </div>
@@ -113,7 +126,7 @@ fn error_pane(model: &Model) -> HtmlApp {
         ]
     }
 
-    html![<div class=(SM_COL, SM_COL_6, MD_COL_4, LG_COL_2, MR1),>
+    html![<div class=(BORDER, MR1),>
         <div class=H3,>
             <button class=BTN,
              id="close-err-all",
@@ -129,9 +142,44 @@ fn error_pane(model: &Model) -> HtmlApp {
     </div>]
 }
 
+fn editing_pane(model: &Model) -> HtmlApp {
+    if !model.nav.editing.on {
+        return html![<div></div>];
+    }
+
+    fn editing_name_html(id: usize, name: &str) -> HtmlApp {
+        html![<div>
+            <a href=format!("#edit/{}", id), class=BTN,>
+                { name }
+            </a>
+        </div>]
+    }
+
+    let names = match parse_regex(&model.nav.editing.value) {
+        Ok(re) => html![<div>
+            { for model.editing
+                .iter()
+                .filter(|(_, a)| re.is_match(&a.name))
+                .map(|(id, art)| editing_name_html(*id, &art.name))
+            }
+        </div>],
+        Err(err) => err,
+    };
+
+    html![<div class=(BORDER, MR1),>
+        <h2 class=H2,>{ "Editing" }</h2>
+        <input id="search-editing",
+         value=model.nav.editing.value.clone(),
+         oninput=|e: InputData| Msg::SetNavEditing(e.value),
+         class=INPUT,
+         ></input>
+        { names }
+    </div>]
+}
+
 fn search_pane(model: &Model) -> HtmlApp {
     if !model.nav.search.on {
-        return html![<div></div>]
+        return html![<div></div>];
     }
 
     let names = match parse_regex(&model.nav.search.value) {
@@ -145,7 +193,8 @@ fn search_pane(model: &Model) -> HtmlApp {
         Err(err) => err,
     };
 
-    html![<div class=(SM_COL, SM_COL_6, MD_COL_4, LG_COL_2, MR1),>
+    html![<div class=(BORDER, MR1),>
+        <h2 class=H2,>{ "Search" }</h2>
         <input
          id="search-input",
          value=model.nav.search.value.clone(),

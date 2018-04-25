@@ -35,7 +35,7 @@ pub(crate) fn artifact_part_html(model: &Model, art: &ArtifactSer) -> HtmlApp {
         dot.push_str(&name_dot(model, part, false));
     }
     push_connections(&mut dot, art);
-    dot_html(&wrap_dot(&dot))
+    dot_html(&wrap_dot(&model.window, &dot, false))
 }
 
 pub(crate) fn graph_html(model: &Model) -> HtmlApp {
@@ -101,7 +101,7 @@ fn graph_html_results(model: &Model) -> HtmlApp {
         dot.push_str(&connect_names_dot(from, to));
     }
 
-    dot_html(&wrap_dot(&dot))
+    dot_html(&wrap_dot(&model.window, &dot, true))
 }
 
 /// Convert DOT to HTML
@@ -157,11 +157,26 @@ fn push_connections(out: &mut String, art: &ArtifactSer) {
 }
 
 /// Put a bunch of dot stuff into the standard graph format.
-fn wrap_dot(dot: &str) -> String {
+fn wrap_dot(window: &Window, dot: &str, big: bool) -> String {
+    let attrs = if big {
+        format!(
+            // This is scaling for 1920x1080. I'm not sure how graphviz is measuring an "inch"
+            // (how is it getting it?)
+            "autosize=false; size=\"{width},{height}!\";",
+            width = window.inner_width() / 96,
+            height = window.inner_height() / 96,
+        )
+    } else {
+        "randir=LR;".to_string()
+    };
+
     format!(
         r##"
         digraph G {{
-        graph [rankdir=LR; margin=0.001; label="";];
+        graph [
+            margin=0.001; label="";
+            {attrs}
+        ];
 
         ////////////////////
         // DOT INSERTED HERE
@@ -173,7 +188,8 @@ fn wrap_dot(dot: &str) -> String {
 
         }}
         "##,
-        dot = dot
+        attrs = attrs,
+        dot = dot,
     )
 }
 

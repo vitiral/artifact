@@ -15,111 +15,127 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 use dev_prelude::*;
+use nav;
 
-#[derive(Debug, Default, Clone, PartialEq)]
-pub struct Props {
-    pub shared: Option<Arc<ProjectSer>>,
-    pub name: Option<Name>,
+// pub(crate) fn update(model: &mut Model, id: usize, field: Field) -> ShouldRender {
+//     match field {
+//         Field::Name(v) => model.name = v,
+//         // StrField::File => model.file = value,
+//         Field::Done(v) => model.done = v,
+//         Field::Text(v) => model.text = v,
+//
+//         Field::Partof(id, part) => {
+//             unimplemented!()
+//         }
+//     }
+//     true
+// }
+
+pub(crate) fn view_edit(model: &Model, id: usize) -> HtmlApp {
+    nav::view_nav(model, view_edit_page(model, id))
 }
 
-/// Editable Artifact
-#[derive(Debug, Clone, PartialEq)]
-pub struct ArtifactEdit {
-    pub shared: Arc<ProjectSer>,
-    pub original: Option<ArtifactSer>,
-    pub original_id: Option<HashIm>,
-    pub name: String,
-    // pub file: String,
-    pub partof: Vec<String>,
-    pub done: String,
-    pub text: String,
-}
-
-pub enum StrField {
-    Name,
-    // File,
-    Done,
-    Text,
-}
-
-pub enum Msg {
-    SetStr(StrField, String),
-}
-
-
-impl Component<super::Context> for ArtifactEdit {
-    type Msg = Msg;
-    type Properties = Props;
-
-    fn create(p: Self::Properties, _: &mut Env<super::Context, Self>) -> Self {
-        let shared = p.shared.expect("artifact: shared does not exist");
-        match artifact {
-            Some(a) => {
-                ArtifactEdit {
-                    shared,
-                    original: Some(a.clone()),
-                    original_id: Some(a.id.clone()),
-                    name: a.name.to_string(),
-                    // file: a.file.to_stfu8(),
-                    partof: a.partof.iter().map(|n| n.to_string()).collect(),
-                    done: a.impl_.as_done().map(String::from).unwrap_or_else(String::new),
-                    text: a.text.clone(),
-                }
-            }
-            None => {
-                ArtifactEdit {
-                    shared,
-                    original: None,
-                    original_id: None,
-                    name: "".into(),
-                    // file: a.file.to_stfu8(),
-                    partof: Vec::new(),
-                    done: "".into(),
-                    text: "".into(),
-                }
-            }
+fn view_edit_page(model: &Model, id: usize) -> HtmlApp {
+    let art = match model.editing.get(&id) {
+        Some(a) => a,
+        None => {
+            return html![
+            <div>{ "Editing artifact not found"} </div>
+        ]
         }
-    }
+    };
 
-    fn update(&mut self, msg: Self::Msg, context: &mut Env<super::Context, Self>) -> ShouldRender {
-        match msg {
-            Msg::SetStr(field, value) => {
-                match field {
-                    StrField::Name => self.name = value,
-                    // StrField::File => self.file = value,
-                    StrField::Done => self.done = value,
-                    StrField::Text => self.text = value,
-                }
-            }
-        }
-        true
-    }
-}
-
-fn view_parts(artifact: &ArtifactSer) -> Html<super::Context, ArtifactEdit> {
-    let view_part = |name: &Name| html![
-        <li>{name}</li>
-    ];
     html![
-        <ul>{ for artifact.parts.iter().map(view_part) }</ul>
+        <h1 class=H1,>
+            <span class=MR2,>{ "Editing" }</span>
+            <input id="edit-name",
+                value=art.name.to_string(),
+                oninput=move |e: InputData| Msg::EditArtifact(id, Field::Name(e.value)),
+                class=(H1),
+                cols=80,
+            >
+            </input>
+        </h1>
+
+        <div class=H3,>
+            <span class=(H3, MR2),>{ "File:" }</span>
+            <input id="edit-file",
+                class=(H3),
+                value=art.file.to_string(),
+                oninput=move |e: InputData| Msg::EditArtifact(id, Field::File(e.value)),
+                cols=80,
+            >
+            </input>
+        </div>
+
+        <div class=H3,>
+            <span class=MR2,>{ "Done:" }</span>
+            <input id="edit-done",
+                value=art.done.to_string(),
+                oninput=move |e: InputData| Msg::EditArtifact(id, Field::Done(e.value)),
+                cols=80,
+            >
+            </input>
+        </div>
+
+        <div class=(H2),>
+            <span class=(H2),>{ "Partof:" }</span>
+            <button
+                id=format!("create-partof"),
+                class=(BTN, H2),
+                onclick=move |_| Msg::EditArtifact(
+                   id, Field::Partof(0, FieldOp::Create)
+                ),
+                title="create",
+            >
+                { fa_icon(FA_PLUS_SQUARE) }
+            </button>
+        </div>
+        { view_partof(model, id, art) }
+
+        <div class=H2,>{ "Text:" }</div>
+        <div class=H3,>
+            <textarea
+                id="edit-text",
+                value=art.text.to_string(),
+                oninput=move |e: InputData| Msg::EditArtifact(id, Field::Text(e.value)),
+                cols=80,
+                rows=100,
+            >
+            </textarea>
+        </div>
     ]
 }
 
-impl Renderable<super::Context, ArtifactEdit> for ArtifactEdit {
-    fn view(&self) -> Html<super::Context, Self> {
-        let artifact = expect!(self.original.as_ref(), "TODO");
+
+fn view_partof(model: &Model, id: usize, artifact: &ArtifactEdit) -> HtmlApp {
+    let view_part = |(index, name): (usize, &String)| {
         html![
-            <div>
-              <h1>{ format!("Artifact: {}", artifact.name) }</h1>
-              <p><b>{"Parts:"}</b></p>
-              { view_parts(&artifact) }
-            </div>
-            // <h1>{ format!("Editable: {}", self.name) }</h1>
-            // <h1>
-            //   <input value=&self.name,
-            //      oninput=|e: InputData| Msg::SetStr(StrField::Name, e.value),
-            //   />
-            // </h1>
-        ]
-    }
+        <div class=REGULAR,>
+            <button
+                id=format!("rm-partof-{}", index),
+                class=(BTN, REGULAR),
+                onclick=move |_| Msg::EditArtifact(
+                   id, Field::Partof(index, FieldOp::Delete)
+                ),
+                title="remove",
+            >
+                { fa_icon(FA_TIMES) }
+            </button>
+
+            <input
+                id=format!("edit-partof-{}", index),
+                value=name.to_owned(),
+                oninput=move |e: InputData| Msg::EditArtifact(
+                    id, Field::Partof(index, FieldOp::Update(e.value))
+                ),
+                cols=60,
+            >
+            </input>
+        </div>
+    ]
+    };
+    html![<div>
+            { for artifact.partof.iter().enumerate().map(view_part) }
+    </div>]
 }

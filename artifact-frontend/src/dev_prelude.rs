@@ -22,7 +22,15 @@ pub use yew::virtual_dom::VNode;
 pub use artifact_ser::*;
 pub use ergo_std::*;
 pub use ergo_config::*;
-pub use stdweb::web::Node;
+pub use stdweb::web::{Node, Window};
+
+lazy_static! {
+    static ref ATOMIC_ID: AtomicUsize = ATOMIC_USIZE_INIT;
+}
+
+pub(crate) fn new_id() -> usize {
+    ATOMIC_ID.fetch_add(1, AtomicOrdering::SeqCst)
+}
 
 pub(crate) type HtmlApp = Html<Context, Model>;
 
@@ -64,12 +72,14 @@ pub(crate) const ML1: &str = "ml1";
 pub(crate) const MX1: &str = "mx1";
 pub(crate) const MY1: &str = "my1";
 
+pub(crate) const MR2: &str = "mr2";
 pub(crate) const MB2: &str = "mb2";
 
 // Colors
 pub(crate) const ACE_WHITE: &str = "white";
 pub(crate) const ACE_GRAY: &str = "gray";
 pub(crate) const ACE_BG_BLACK: &str = "bg-black";
+pub(crate) const ACE_BG_GRAY: &str = "bg-gray";
 pub(crate) const ACE_RED: &str = "red";
 
 pub(crate) const GRAY: &str = "#DCDEE2";
@@ -122,6 +132,7 @@ pub(crate) const LG_COL_12: &str = "lg-col-12";
 pub(crate) const FA: &str = "fas";
 pub(crate) const FA_GRAPH: &str = "fa-code-branch";
 pub(crate) const FA_INFO_CIRCLE: &str = "fa-info-circle";
+pub(crate) const FA_EDIT: &str = "fa-edit";
 pub(crate) const FA_EYE: &str = "fa-eye";
 pub(crate) const FA_FLOPPY_O: &str = "fa-floppy-o";
 pub(crate) const FA_PLUS_SQUARE: &str = "fa-plus-square";
@@ -142,6 +153,7 @@ pub(crate) const SELECT_TINY: &str = "select-tiny";
 pub(crate) enum View {
     Graph,
     Artifact(Name),
+    Edit(usize),
     NotFound,
 }
 
@@ -155,6 +167,8 @@ pub(crate) struct Model {
     pub(crate) fetch_task: Option<FetchTask>,
     pub(crate) console: Arc<ConsoleService>,
     pub(crate) logs: Logs,
+    pub(crate) window: Window,
+    pub(crate) editing: IndexMap<usize, ArtifactEdit>,
 }
 
 pub(crate) enum ClearLogs {
@@ -164,14 +178,29 @@ pub(crate) enum ClearLogs {
 
 pub(crate) enum Msg {
     SetView(View),
+
     ToggleSearch,
+    ToggleEditing,
     SetNavSearch(String),
+    SetNavEditing(String),
+
     SetGraphSearch(String),
     FetchProject,
     RecvProject(ProjectSer),
+
     PushLogs(Vec<Log>),
     ClearLogs(ClearLogs),
+
+    EditArtifact(usize, Field),
+    StartEdit(usize, StartEditType),
+
     Ignore,
+    Batch(Vec<Msg>),
+}
+
+pub(crate) enum StartEditType {
+    New,
+    Current,
 }
 
 #[derive(Debug, Default)]
@@ -212,6 +241,7 @@ pub(crate) enum LogLevel {
 /// Navigation bar
 pub(crate) struct Nav {
     pub(crate) search: Search,
+    pub(crate) editing: Search,
 }
 
 #[derive(Debug, Default, Clone)]
@@ -240,6 +270,49 @@ pub(crate) trait CompletedExt {
     fn spc_html(&self) -> HtmlApp;
     fn tst_html(&self) -> HtmlApp;
     fn name_color(&self) -> &'static str;
+}
+
+/// Editable Artifact
+#[derive(Debug, Default, Clone, PartialEq)]
+pub(crate) struct ArtifactEdit {
+    pub original_id: Option<HashIm>,
+    pub name: String,
+    pub file: String,
+    pub partof: Vec<String>,
+    pub done: String,
+    pub text: String,
+}
+
+impl ArtifactEdit {
+    pub(crate) fn from_artifact(art: &ArtifactSer) -> ArtifactEdit {
+        ArtifactEdit {
+            original_id: Some(art.id.clone()),
+            name: art.name.to_string(),
+            file: art.file.clone(),
+            partof: art.partof.iter().map(|n| n.to_string()).collect(),
+            done: art.impl_
+                .as_done()
+                .map(String::from)
+                .unwrap_or_else(String::new),
+            text: art.text.clone(),
+        }
+    }
+}
+
+/// The field that is being edited.
+pub enum Field {
+    Name(String),
+    File(String),
+    Done(String),
+    Text(String),
+    /// Create/Update/Delete partof at index.
+    Partof(usize, FieldOp),
+}
+
+pub enum FieldOp {
+    Create,
+    Update(String),
+    Delete,
 }
 
 /// These are unbelivably annoying to create.

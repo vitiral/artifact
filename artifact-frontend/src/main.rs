@@ -42,6 +42,7 @@ use http::response::Parts;
 
 mod artifact;
 mod dev_prelude;
+mod edit;
 mod example;
 mod graph;
 mod name;
@@ -54,7 +55,9 @@ lazy_static! {
         &format!(r"(?i)(?:artifacts/)?({})", NAME_VALID_STR)
     ).expect("regex");
 
-    static ref LOG_ID: AtomicUsize = ATOMIC_USIZE_INIT;
+    static ref EDIT_URL: Regex = Regex::new(r"(?i)edit/(\d+)").expect("regex");
+
+    static ref ATOMIC_ID: AtomicUsize = ATOMIC_USIZE_INIT;
 }
 
 pub(crate) fn router(info: yew_simple::RouteInfo) -> Msg {
@@ -68,6 +71,12 @@ fn get_view(hash: &str) -> View {
     } else if let Some(cap) = NAME_URL.captures(hash) {
         let name = name!(&cap[1]);
         View::Artifact(name)
+    } else if let Some(cap) = EDIT_URL.captures(hash) {
+        let id = match usize::from_str(&cap[1]) {
+            Ok(id) => id,
+            Err(_) => return View::NotFound,
+        };
+        View::Edit(id)
     } else {
         View::NotFound
     }
@@ -82,7 +91,7 @@ impl Component<Context> for Model {
         let router = yew_simple::RouterTask::new(context, &router);
         let url = router.current_url();
 
-        Model {
+        let mut out = Model {
             shared: Arc::new(project),
             view: get_view(&url.fragment().unwrap_or_default()),
             router: Arc::new(router),
@@ -91,42 +100,105 @@ impl Component<Context> for Model {
             fetch_task: None,
             console: Arc::new(ConsoleService::new()),
             logs: Logs::default(),
-        }
+            window: ::stdweb::web::window(),
+            editing: IndexMap::new(),
+        };
+        out.nav.search.on = true;
+        out.nav.editing.on = true;
+        out
     }
 
     fn update(&mut self, msg: Self::Msg, context: &mut Env<Context, Self>) -> ShouldRender {
         match msg {
-            Msg::SetView(view) => self.view = view,
-            Msg::Ignore => return false,
-            Msg::ToggleSearch => {
-                self.nav.search.on = !self.nav.search.on;
+            Msg::Batch(mut batch) => {
+                let count: usize = batch
+                    .drain(..)
+                    .map(|msg| update_model(self, msg, context) as usize)
+                    .sum();
+                count != 0
             }
-            Msg::SetNavSearch(v) => self.nav.search.value = v,
-            Msg::SetGraphSearch(v) => self.graph.search = v,
-            Msg::FetchProject => {
-                if self.fetch_task.is_some() {
-                    return false;
-                }
-                let callback = context.send_back(fetch_fn);
-                let request = jrpc::Request::new(jrpc::Id::Int(1), Method::ReadProject);
-                let request = http::Request::post("/json-rpc")
-                    .body(json::to_string(&request).expect("request-ser"))
-                    .expect("create request");
-                self.fetch_task = Some(FetchTask::new(request, callback));
-            }
-            Msg::RecvProject(project) => {
-                self.shared = Arc::new(project);
-            }
-            Msg::PushLogs(logs) => push_logs(self, logs),
-            Msg::ClearLogs(clear) => clear_logs(self, clear),
+            msg @ _ => update_model(self, msg, context),
         }
-        true
+    }
+}
+
+fn update_model(model: &mut Model, msg: Msg, context: &mut Env<Context, Model>) -> ShouldRender {
+    match msg {
+        Msg::SetView(view) => model.view = view,
+        Msg::Ignore => return false,
+
+        Msg::ToggleSearch => model.nav.search.on = !model.nav.search.on,
+        Msg::ToggleEditing => model.nav.editing.on = !model.nav.editing.on,
+        Msg::SetNavSearch(v) => model.nav.search.value = v,
+        Msg::SetNavEditing(v) => model.nav.editing.value = v,
+
+        Msg::SetGraphSearch(v) => model.graph.search = v,
+
+        Msg::FetchProject => {
+            if model.fetch_task.is_some() {
+                return false;
+            }
+            let callback = context.send_back(fetch_fn);
+            let request = jrpc::Request::new(jrpc::Id::Int(1), Method::ReadProject);
+            let request = http::Request::post("/json-rpc")
+                .body(json::to_string(&request).expect("request-ser"))
+                .expect("create request");
+            model.fetch_task = Some(FetchTask::new(request, callback));
+        }
+        Msg::RecvProject(project) => {
+            model.shared = Arc::new(project);
+        }
+
+        Msg::PushLogs(logs) => push_logs(model, logs),
+        Msg::ClearLogs(clear) => clear_logs(model, clear),
+
+        Msg::EditArtifact(id, field) => edit_artifact(model, id, field),
+        Msg::StartEdit(id, ty) => {
+            let artifact = match ty {
+                StartEditType::New => ArtifactEdit::default(),
+                StartEditType::Current => {
+                    if let View::Artifact(ref name) = model.view {
+                        let art = expect!(
+                            model.shared.artifacts.get(name),
+                            "{} viewed but not here",
+                            name,
+                        );
+                        ArtifactEdit::from_artifact(art)
+                    } else {
+                        panic!("wrong view");
+                    }
+                }
+            };
+            model.editing.insert(id, artifact);
+        }
+        Msg::Batch(_) => panic!("batch within a batch"),
+    }
+    true
+}
+
+fn edit_artifact(model: &mut Model, id: usize, field: Field) {
+    let artifact = match model.editing.get_mut(&id) {
+        Some(a) => a,
+        None => panic!("TODO: got invalid editing artifact"),
+    };
+    match field {
+        Field::Name(v) => artifact.name = v,
+        Field::File(v) => artifact.file = v,
+        Field::Done(v) => artifact.done = v,
+        Field::Text(v) => artifact.text = v,
+        Field::Partof(index, op) => match op {
+            FieldOp::Create => artifact.partof.push("".into()),
+            FieldOp::Update(v) => artifact.partof[index] = v,
+            FieldOp::Delete => {
+                artifact.partof.remove(index);
+            }
+        },
     }
 }
 
 fn push_logs(model: &mut Model, mut logs: Vec<Log>) {
     for log in logs.drain(..) {
-        let id = LOG_ID.fetch_add(1, AtomicOrdering::SeqCst);
+        let id = new_id();
         match log.level {
             LogLevel::Error => {
                 model.logs.error.insert(id, log);
@@ -141,11 +213,9 @@ fn push_logs(model: &mut Model, mut logs: Vec<Log>) {
 
 fn clear_logs(model: &mut Model, mut clear: ClearLogs) {
     match clear {
-        ClearLogs::Error(mut ids) => {
-            for id in ids.drain(..) {
-                model.logs.error.remove(&id);
-            }
-        }
+        ClearLogs::Error(mut ids) => for id in ids.drain(..) {
+            model.logs.error.remove(&id);
+        },
         ClearLogs::ErrorAll => {
             model.logs.error.clear();
         }
@@ -153,9 +223,15 @@ fn clear_logs(model: &mut Model, mut clear: ClearLogs) {
 }
 
 fn fetch_fn(response: http::Response<String>) -> Msg {
-    if !response.status().is_success() {
-        // TODO: meta not successful
-        return Msg::Ignore;
+    let status = response.status();
+    if !status.is_success() {
+        let html = format!(
+            "<div>Received {} from server: {}</div>",
+            status,
+            response.into_body(),
+        );
+
+        return Msg::PushLogs(vec![Log::error(html)]);
     }
 
     let body = response.into_body();
@@ -178,9 +254,10 @@ impl Renderable<Context, Model> for Model {
         match self.view {
             View::Graph => graph::graph_html(self),
             View::Artifact(ref name) => artifact::view_artifact(self, name),
+            View::Edit(id) => edit::view_edit(self, id),
             View::NotFound => html![
                 <div class=BOLD,>
-                    { "Url not found" }
+                    { "Page not found" }
                 </div>
             ],
         }

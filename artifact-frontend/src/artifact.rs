@@ -32,7 +32,29 @@ pub(crate) fn view_artifact(model: &Model, name: &Name) -> HtmlApp {
 }
 
 fn view_existing_artifact(model: &Model, art: &ArtifactSer) -> HtmlApp {
+    let edit = ArtifactEdit::from_artifact(art);
+    let router = model.router.clone();
     html! [
+        <div>
+            <button class=(BTN, ACE_WHITE, ACE_BG_BLACK), id="edit",
+             onclick=move |_| {
+                 let id = new_id();
+                 Msg::Batch(vec![
+                    // TODO: for some reason this wouldn't let me
+                    // move the artifact value in... but I CAN
+                    // move the router in?
+                    Msg::StartEdit(id, StartEditType::Current),
+                    router.push_hash(Some(&format!("edit/{}", id))),
+                    // Msg::SetView(View::Edit(id)),
+                 ])
+             },
+             title="Edit this artifact.",
+            >
+                { fa_icon(FA_EDIT) }
+                <span class=ML1,>{ "Edit" }</span>
+            </button>
+            // TODO: do something special if artifact already exists
+        </div>
         <div><h1 class=H1,>{ &art.name }</h1></div>
         { graph::artifact_part_html(model, art) }
 
