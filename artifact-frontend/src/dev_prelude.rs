@@ -44,6 +44,9 @@ pub(crate) const H2: &str = "h2";
 pub(crate) const H3: &str = "h3";
 pub(crate) const BTN: &str = "btn";
 pub(crate) const INPUT: &str = "input";
+pub(crate) const TEXTAREA: &str = "textarea";
+pub(crate) const BLOCK: &str = "block";
+pub(crate) const FIELD: &str = "field";
 
 // Styles
 pub(crate) const REGULAR: &str = "regular";
@@ -134,7 +137,7 @@ pub(crate) const FA_GRAPH: &str = "fa-code-branch";
 pub(crate) const FA_INFO_CIRCLE: &str = "fa-info-circle";
 pub(crate) const FA_EDIT: &str = "fa-edit";
 pub(crate) const FA_EYE: &str = "fa-eye";
-pub(crate) const FA_FLOPPY_O: &str = "fa-floppy-o";
+pub(crate) const FA_SAVE: &str = "fa-floppy-o";
 pub(crate) const FA_PLUS_SQUARE: &str = "fa-plus-square";
 pub(crate) const FA_SEARCH: &str = "fa-search";
 pub(crate) const FA_SEARCH_PLUS: &str = "fa-search-plus";
@@ -186,6 +189,7 @@ pub(crate) enum Msg {
 
     SetGraphSearch(String),
     FetchProject,
+    SendUpdate(Vec<usize>),
     RecvProject(ProjectSer),
 
     PushLogs(Vec<Log>),
@@ -344,4 +348,19 @@ pub(crate) fn parse_regex(s: &str) -> Result<Regex, HtmlApp> {
             </a>
         ]
     })
+}
+
+/// Render the markdown correctly.
+pub(crate) fn markdown_html(model: &Model, markdown: &str) -> HtmlApp {
+    let value = js!{
+        var reader = new commonmark.Parser();
+        var writer = new commonmark.HtmlRenderer();
+        var parsed = reader.parse(@{markdown});
+        return writer.render(parsed);
+    };
+    let mut md_html = expect!(value.into_string(), "markdown not a string");
+    md_html.insert_str(0, "<div>");
+    md_html.push_str("</div>");
+    let node = expect!(Node::from_html(md_html.trim()), "md-html: {}", md_html);
+    VNode::VRef(node)
 }

@@ -15,94 +15,97 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 use dev_prelude::*;
-use nav;
-
-// pub(crate) fn update(model: &mut Model, id: usize, field: Field) -> ShouldRender {
-//     match field {
-//         Field::Name(v) => model.name = v,
-//         // StrField::File => model.file = value,
-//         Field::Done(v) => model.done = v,
-//         Field::Text(v) => model.text = v,
-//
-//         Field::Partof(id, part) => {
-//             unimplemented!()
-//         }
-//     }
-//     true
-// }
 
 pub(crate) fn view_edit(model: &Model, id: usize) -> HtmlApp {
-    nav::view_nav(model, view_edit_page(model, id))
-}
-
-fn view_edit_page(model: &Model, id: usize) -> HtmlApp {
     let art = match model.editing.get(&id) {
         Some(a) => a,
         None => {
             return html![
-            <div>{ "Editing artifact not found"} </div>
-        ]
+                <div>{ "Editing artifact not found"}</div>
+            ]
         }
     };
 
     html![
-        <h1 class=H1,>
-            <span class=MR2,>{ "Editing" }</span>
+
+        // <button
+        //     id=format!("create-partof"),
+        //     class=(BTN),
+        //     onclick=move |_| Msg::SendUpdate(vec![id]),
+        //     title="create",
+        // >
+        //     { fa_icon(FA_SAVE) }
+        // </button>
+
+        // NAME
+        // TODO: to the right of name/partof put a "relationship" graph that dynamically updates
+        <div><h1 class=H1,>
+            <label class=MR2,>{ "Editing:" }</label>
             <input id="edit-name",
+                type="text",
                 value=art.name.to_string(),
                 oninput=move |e: InputData| Msg::EditArtifact(id, Field::Name(e.value)),
-                class=(H1),
-                cols=80,
+                class=(H1, FIELD),
             >
             </input>
-        </h1>
 
-        <div class=H3,>
-            <span class=(H3, MR2),>{ "File:" }</span>
+        </h1></div>
+
+        // PARTOF
+        <div>
+            <div>
+                <span class=(BOLD),>{ "Partof:" }</span>
+                <button
+                    id=format!("create-partof"),
+                    class=(BTN),
+                    onclick=move |_| Msg::EditArtifact(
+                       id, Field::Partof(0, FieldOp::Create)
+                    ),
+                    title="create",
+                >
+                    { fa_icon(FA_PLUS_SQUARE) }
+                </button>
+            </div>
+            { view_partof(model, id, art) }
+        </div>
+
+        <div class=(MY1),>
+            <label class=(BOLD, MR1),>{ "File:" }</label>
             <input id="edit-file",
-                class=(H3),
+                type="text",
+                class=(FIELD),
                 value=art.file.to_string(),
                 oninput=move |e: InputData| Msg::EditArtifact(id, Field::File(e.value)),
-                cols=80,
             >
             </input>
         </div>
 
-        <div class=H3,>
-            <span class=MR2,>{ "Done:" }</span>
+        <div class=(MY1),>
+            <label class=(BOLD, MR1),>{ "Done:" }</label>
             <input id="edit-done",
+                type="text",
+                class=(FIELD),
                 value=art.done.to_string(),
                 oninput=move |e: InputData| Msg::EditArtifact(id, Field::Done(e.value)),
-                cols=80,
             >
             </input>
         </div>
 
-        <div class=(H2),>
-            <span class=(H2),>{ "Partof:" }</span>
-            <button
-                id=format!("create-partof"),
-                class=(BTN, H2),
-                onclick=move |_| Msg::EditArtifact(
-                   id, Field::Partof(0, FieldOp::Create)
-                ),
-                title="create",
-            >
-                { fa_icon(FA_PLUS_SQUARE) }
-            </button>
-        </div>
-        { view_partof(model, id, art) }
+        <div class=(BOLD, MT1),>{ "Text:" }</div>
+        <div class=(CLEARFIX, PY1),>
+            <div class=(SM_COL, SM_COL_12, MD_COL_6, LG_COL_6),>
+                <textarea id="edit-text",
+                    value=art.text.to_string(),
+                    oninput=move |e: InputData| Msg::EditArtifact(id, Field::Text(e.value)),
+                    class=TEXTAREA,
+                    rows=50,
+                >
+                </textarea>
+            </div>
 
-        <div class=H2,>{ "Text:" }</div>
-        <div class=H3,>
-            <textarea
-                id="edit-text",
-                value=art.text.to_string(),
-                oninput=move |e: InputData| Msg::EditArtifact(id, Field::Text(e.value)),
-                cols=80,
-                rows=100,
-            >
-            </textarea>
+            <div class=(SM_COL, SM_COL_12, MD_COL_6, LG_COL_6),>
+                { markdown_html(model, &art.text) }
+            </div>
         </div>
     ]
 }
@@ -110,11 +113,12 @@ fn view_edit_page(model: &Model, id: usize) -> HtmlApp {
 
 fn view_partof(model: &Model, id: usize, artifact: &ArtifactEdit) -> HtmlApp {
     let view_part = |(index, name): (usize, &String)| {
+        let id_str = format!("edit-partof-{}", index);
         html![
-        <div class=REGULAR,>
+        <div>
             <button
                 id=format!("rm-partof-{}", index),
-                class=(BTN, REGULAR),
+                class=(BTN),
                 onclick=move |_| Msg::EditArtifact(
                    id, Field::Partof(index, FieldOp::Delete)
                 ),
@@ -123,13 +127,14 @@ fn view_partof(model: &Model, id: usize, artifact: &ArtifactEdit) -> HtmlApp {
                 { fa_icon(FA_TIMES) }
             </button>
 
-            <input
-                id=format!("edit-partof-{}", index),
+            <input id=id_str.to_owned(),
+                name=id_str,
+                type="text",
+                class=(FIELD),
                 value=name.to_owned(),
                 oninput=move |e: InputData| Msg::EditArtifact(
                     id, Field::Partof(index, FieldOp::Update(e.value))
                 ),
-                cols=60,
             >
             </input>
         </div>

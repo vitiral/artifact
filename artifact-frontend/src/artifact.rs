@@ -23,12 +23,14 @@ pub(crate) fn view_artifact(model: &Model, name: &Name) -> HtmlApp {
         Some(ref art) => view_existing_artifact(model, art),
         None => {
             return html![
-            <h3 class=H3,>{format!("Artifact with name {:?} not found", name)}</h3>
+            <div><h3 class=H3,>
+                {format!("Artifact with name {:?} not found", name)}
+            </h3></div>
         ]
         }
     };
 
-    nav::view_nav(model, page)
+    page
 }
 
 fn view_existing_artifact(model: &Model, art: &ArtifactSer) -> HtmlApp {
@@ -70,9 +72,7 @@ fn view_existing_artifact(model: &Model, art: &ArtifactSer) -> HtmlApp {
             </div>
         </div>
         { art.impl_.html() }
-        <div><textarea readonly=true, cols=80, rows=100,>
-            { &art.text }
-        </textarea></div>
+        { markdown_html(model, &art.text) }
     ]
 }
 

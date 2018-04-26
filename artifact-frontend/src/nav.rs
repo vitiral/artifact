@@ -167,7 +167,7 @@ fn editing_pane(model: &Model) -> HtmlApp {
     };
 
     html![<div class=(BORDER, MR1),>
-        <h2 class=H2,>{ "Editing" }</h2>
+        <div><h2 class=H2,>{ "Editing" }</h2></div>
         <input id="search-editing",
          value=model.nav.editing.value.clone(),
          oninput=|e: InputData| Msg::SetNavEditing(e.value),

@@ -22,7 +22,6 @@ use yew::virtual_dom::VNode;
 
 use dev_prelude::*;
 use name;
-use nav;
 
 /// The small graph at the top of every artifact, displaying it's `partof` and `parts`.
 pub(crate) fn artifact_part_html(model: &Model, art: &ArtifactSer) -> HtmlApp {
@@ -49,7 +48,7 @@ pub(crate) fn graph_html(model: &Model) -> HtmlApp {
          { graph_html_results(model) }
     </div>];
 
-    nav::view_nav(model, page)
+    page
 }
 
 /// The "search graph".
@@ -137,9 +136,9 @@ fn dot_html(dot: &str) -> HtmlApp {
 
     let svg = VNode::VRef(node);
     html![
-        // <h1>{ "Graph View" }</h1>
-        <div></div> // TODO: this seems to be necessary otherwise things panic...
-        { svg }
+        <div>
+            { svg }
+        </div>
     ]
 }
 

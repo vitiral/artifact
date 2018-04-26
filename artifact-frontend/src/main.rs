@@ -148,6 +148,7 @@ fn update_model(model: &mut Model, msg: Msg, context: &mut Env<Context, Model>) 
         Msg::RecvProject(project) => {
             model.shared = Arc::new(project);
         }
+        Msg::SendUpdate(id) => unimplemented!("FIXME"),
 
         Msg::PushLogs(logs) => push_logs(model, logs),
         Msg::ClearLogs(clear) => clear_logs(model, clear),
@@ -251,7 +252,7 @@ fn fetch_fn(response: http::Response<String>) -> Msg {
 
 impl Renderable<Context, Model> for Model {
     fn view(&self) -> HtmlApp {
-        match self.view {
+        let out = match self.view {
             View::Graph => graph::graph_html(self),
             View::Artifact(ref name) => artifact::view_artifact(self, name),
             View::Edit(id) => edit::view_edit(self, id),
@@ -260,7 +261,9 @@ impl Renderable<Context, Model> for Model {
                     { "Page not found" }
                 </div>
             ],
-        }
+        };
+
+        nav::view_nav(self, out)
     }
 }
 
