@@ -36,6 +36,28 @@ pub struct ProjectSer {
     pub artifacts: IndexMap<Name, ArtifactSer>,
 }
 
+impl ProjectSer {
+    /// Get the name/subname code location if they exist.
+    pub fn get_impl(&self, name: &str, sub: Option<&str>) -> Result<&CodeLocSer, String> {
+        let name = Name::from_str(name).map_err(|e| e.to_string())?;
+        let code = self.code_impls.get(&name)
+            .ok_or_else(|| format!("{} not implemented", name))?;
+        match sub {
+            None => {
+                match code.primary {
+                    Some(ref c) => Ok(c),
+                    None => Err("not implemented".into()),
+                }
+            }
+            Some(sub) => {
+                let sub = SubName::from_str(sub).map_err(|e| e.to_string())?;
+                code.secondary.get(&sub)
+                    .ok_or_else(|| format!("{}.{} not implemented", name, sub))
+            },
+        }
+    }
+}
+
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub struct ProjectPathsSer {
     pub base: String,

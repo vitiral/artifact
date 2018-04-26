@@ -15,8 +15,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 use dev_prelude::*;
-use nav;
 use graph;
+use nav;
+use view;
 
 pub(crate) fn view_artifact(model: &Model, name: &Name) -> HtmlApp {
     let page = match model.shared.artifacts.get(name) {
@@ -72,7 +73,7 @@ fn view_existing_artifact(model: &Model, art: &ArtifactSer) -> HtmlApp {
             </div>
         </div>
         { art.impl_.html() }
-        { markdown_html(model, &art.text) }
+        { view::markdown_html(model, art.name.as_str(), &art.text) }
     ]
 }
 

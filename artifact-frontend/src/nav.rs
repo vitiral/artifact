@@ -15,10 +15,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 
-use yew_simple;
-use stdweb::Value;
 use dev_prelude::*;
 use name;
+use stdweb::Value;
+use yew_simple;
 
 pub(crate) fn view_nav(model: &Model, page: HtmlApp) -> HtmlApp {
     let search = &model.nav.search;

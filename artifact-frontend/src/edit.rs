@@ -15,6 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 use dev_prelude::*;
+use view;
 
 pub(crate) fn view_edit(model: &Model, id: usize) -> HtmlApp {
     let art = match model.editing.get(&id) {
@@ -104,12 +105,11 @@ pub(crate) fn view_edit(model: &Model, id: usize) -> HtmlApp {
             </div>
 
             <div class=(SM_COL, SM_COL_12, MD_COL_6, LG_COL_6),>
-                { markdown_html(model, &art.text) }
+                { view::markdown_html(model, &art.name, &art.text) }
             </div>
         </div>
     ]
 }
-
 
 fn view_partof(model: &Model, id: usize, artifact: &ArtifactEdit) -> HtmlApp {
     let view_part = |(index, name): (usize, &String)| {

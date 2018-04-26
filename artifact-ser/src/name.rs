@@ -169,6 +169,10 @@ pub const NAME_VALID_STR: &str = concat!(
     r"]+)",
 );
 
+pub const SUB_RE_KEY: &str = "sub";
+pub const NAME_RE_KEY: &str = "name";
+pub const NAME_SUB_RE_KEY: &str = "name_sub";
+
 lazy_static!{
     /// Valid name regular expression
     static ref NAME_VALID_RE: Regex = Regex::new(
@@ -178,9 +182,31 @@ lazy_static!{
     static ref VALID_SUB_NAME_RE: Regex = Regex::new(
         &format!(r"(?i)^\.[{}]+$", NAME_VALID_CHARS!())).unwrap();
 
+    pub static ref TEXT_SUB_NAME_STR: String = format!(
+        r"(?i)\[\[(?P<{}>\.[{}]+)\]\]",
+        SUB_RE_KEY,
+        NAME_VALID_CHARS!(),
+    );
+
+    pub static ref TEXT_REF_STR: String = format!(r#"(?xi)
+        \[\[(?P<{1}>            # start main section
+        (?:REQ|SPC|TST)         # all types are supported
+        -(?:[{0}]+-)*           # any number of first element
+        (?:[{0}]+)              # required end element
+        )                       # end main section
+        (?P<{2}>\.[{0}]+)?      # (optional) sub section
+        \]\]                    # close text reference
+        "#,
+        NAME_VALID_CHARS!(),
+        NAME_RE_KEY,
+        NAME_SUB_RE_KEY,
+    );
+
     /// Parse subname from text regex
-    static ref TEXT_SUB_NAME_RE: Regex = Regex::new(
-        &format!(r"(?i)\[\[(\.[{}]+)\]\]", NAME_VALID_CHARS!())).unwrap();
+    pub static ref TEXT_SUB_NAME_RE: Regex = Regex::new(&TEXT_SUB_NAME_STR).unwrap();
+
+    /// Name reference that can exist in source code
+    pub static ref TEXT_REF_RE: Regex = Regex::new(&TEXT_REF_STR).unwrap();
 }
 
 // #SPC-name.attrs
@@ -302,7 +328,7 @@ impl FromStr for Name {
 pub fn parse_subnames(text: &str) -> IndexSet<SubName> {
     TEXT_SUB_NAME_RE
         .captures_iter(text)
-        .map(|cap| SubName::new_unchecked(cap.get(1).unwrap().as_str()))
+        .map(|cap| SubName::new_unchecked(cap.name(SUB_RE_KEY).unwrap().as_str()))
         .collect()
 }
 

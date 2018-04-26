@@ -15,14 +15,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 #![allow(dead_code)]
+pub use artifact_ser::*;
+pub use ergo_config::*;
+pub use ergo_std::*;
+pub use stdweb::web::{Node, Window};
 pub use yew::prelude::*;
 pub use yew::services::console::ConsoleService;
-pub use yew_simple::FetchTask;
 pub use yew::virtual_dom::VNode;
-pub use artifact_ser::*;
-pub use ergo_std::*;
-pub use ergo_config::*;
-pub use stdweb::web::{Node, Window};
+pub use yew_simple::FetchTask;
 
 lazy_static! {
     static ref ATOMIC_ID: AtomicUsize = ATOMIC_USIZE_INIT;
@@ -151,6 +151,23 @@ pub(crate) const FA_TIMES: &str = "fa-times";
 // Custom
 pub(crate) const ART_INFO: &str = "art-info";
 pub(crate) const SELECT_TINY: &str = "select-tiny";
+
+#[derive(Debug, Copy, Clone)]
+pub(crate) enum CssFont {
+    Plain,
+    Bold,
+    Italic,
+}
+
+impl CssFont {
+    pub fn as_css(&self) -> &'static str {
+        match *self {
+            CssFont::Plain => "",
+            CssFont::Bold => "font-weight: bold; ",
+            CssFont::Italic => "font-style: italic; ",
+        }
+    }
+}
 
 #[derive(Debug, Clone)]
 pub(crate) enum View {
@@ -348,19 +365,4 @@ pub(crate) fn parse_regex(s: &str) -> Result<Regex, HtmlApp> {
             </a>
         ]
     })
-}
-
-/// Render the markdown correctly.
-pub(crate) fn markdown_html(model: &Model, markdown: &str) -> HtmlApp {
-    let value = js!{
-        var reader = new commonmark.Parser();
-        var writer = new commonmark.HtmlRenderer();
-        var parsed = reader.parse(@{markdown});
-        return writer.render(parsed);
-    };
-    let mut md_html = expect!(value.into_string(), "markdown not a string");
-    md_html.insert_str(0, "<div>");
-    md_html.push_str("</div>");
-    let node = expect!(Node::from_html(md_html.trim()), "md-html: {}", md_html);
-    VNode::VRef(node)
 }

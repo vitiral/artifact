@@ -15,6 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 #![recursion_limit = "128"]
+#![allow(unused_imports)]
 
 #[macro_use]
 extern crate artifact_ser;
@@ -34,11 +35,11 @@ extern crate yew_simple;
 
 use std::result;
 
-use yew::prelude::*;
+use http::response::Parts;
 use yew::format::{Json, Nothing};
+use yew::prelude::*;
 use yew::services::Task;
 use yew::services::websocket::{WebSocketService, WebSocketStatus, WebSocketTask};
-use http::response::Parts;
 
 mod artifact;
 mod dev_prelude;
@@ -47,16 +48,14 @@ mod example;
 mod graph;
 mod name;
 mod nav;
+mod view;
 
 use dev_prelude::*;
 
 lazy_static! {
-    static ref NAME_URL: Regex = Regex::new(
-        &format!(r"(?i)(?:artifacts/)?({})", NAME_VALID_STR)
-    ).expect("regex");
-
+    static ref NAME_URL: Regex =
+        Regex::new(&format!(r"(?i)(?:artifacts/)?({})", NAME_VALID_STR)).expect("regex");
     static ref EDIT_URL: Regex = Regex::new(r"(?i)edit/(\d+)").expect("regex");
-
     static ref ATOMIC_ID: AtomicUsize = ATOMIC_USIZE_INIT;
 }
 

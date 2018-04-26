@@ -24,20 +24,6 @@ use implemented;
 use raw;
 use settings;
 
-lazy_static!{
-    /// Name reference that can exist in source code
-    static ref TEXT_REF_RE: Regex = Regex::new(
-        &format!(r#"(?xi)
-        \[\[(               # start main section
-        (?:REQ|SPC|TST)     # all types are supported
-        -(?:[{0}]+-)*       # any number of first element
-        (?:[{0}]+)          # required end element
-        )                   # end main section
-        (\.[{0}]+)?         # (optional) sub section
-        \]\]                # close text reference
-        "#, NAME_VALID_CHARS!())).unwrap();
-}
-
 // FIXME: convert to methods instead
 pub trait ProjectExt {
     fn lint(&self, send: &Sender<lint::Lint>);
@@ -385,13 +371,13 @@ pub(crate) fn lint_artifact_text_refs(lints: &Sender<lint::Lint>, project: &Proj
             .expect("send lint");
     };
     for (name, art) in project.artifacts.iter() {
-        for captures in TEXT_REF_RE.captures_iter(&art.text) {
-            // unwrap: group 1 always exists in regex
-            let name_mat = captures.get(1).unwrap();
+        for captures in name::TEXT_REF_RE.captures_iter(&art.text) {
+            // unwrap: group "name" always exists in regex
+            let name_mat = captures.name(name::NAME_RE_KEY).unwrap();
             // unwrap: pre-validated by regex
             let ref_name = Name::from_str(name_mat.as_str()).unwrap();
-            // subname is optional
-            let ref_sub = match captures.get(2) {
+            // "name_sub" is optional
+            let ref_sub = match captures.name(name::NAME_SUB_RE_KEY) {
                 Some(sub_mat) => Some(SubName::new_unchecked(sub_mat.as_str())),
                 None => None,
             };

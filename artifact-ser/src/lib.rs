@@ -39,7 +39,7 @@ use std::result;
 use std::error;
 
 #[macro_use]
-mod name;
+pub mod name;
 mod dev_prelude;
 pub mod lint;
 mod ser;
