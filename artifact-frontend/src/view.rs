@@ -14,23 +14,51 @@
  * You should have received a copy of the Lesser GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-use stdweb::Value;
 use yew_simple;
 
 use dev_prelude::*;
 use graph;
 
 lazy_static! {
-    // FIXME: do beginning of line
+    static ref NAME_URL: Regex =
+        Regex::new(&format!(r"(?i)(?:artifacts/)?({})", NAME_VALID_STR)).expect("regex");
+    static ref EDIT_URL: Regex = Regex::new(r"(?i)edit/(\d+)").expect("regex");
     static ref REPLACE_TEXT_RE: Regex = Regex::new(&format!(
-        r#"(?xi)
-        (?:```dot\s*\n(?P<dot>[\s\S]+\n)```)  # graphviz dot rendering
+        r#"(?xim)
+        (?:^```dot\s*\n(?P<dot>[\s\S]+\n)```$)  # graphviz dot rendering
         |({})                       # subname creation
         |({})                       # name reference
         "#,
         name::TEXT_SUB_NAME_STR.as_str(),
         name::TEXT_REF_STR.as_str(),
     )).unwrap();
+}
+
+/// The function used for routing urls.
+#[allow(needless_pass_by_value)]
+pub(crate) fn router_fn(info: yew_simple::RouteInfo) -> Msg {
+    let hash = info.url.fragment().unwrap_or_default();
+    let view = View::from_hash(hash);
+    Msg::SetView(view)
+}
+
+impl View {
+    pub(crate) fn from_hash(hash: &str) -> View {
+        if hash.to_ascii_lowercase() == "graph" || hash == "" {
+            View::Graph
+        } else if let Some(cap) = NAME_URL.captures(hash) {
+            let name = name!(&cap[1]);
+            View::Artifact(name)
+        } else if let Some(cap) = EDIT_URL.captures(hash) {
+            let id = match usize::from_str(&cap[1]) {
+                Ok(id) => id,
+                Err(_) => return View::NotFound,
+            };
+            View::Edit(id)
+        } else {
+            View::NotFound
+        }
+    }
 }
 
 /// Render the markdown correctly.
@@ -71,7 +99,7 @@ fn replace_markdown<'a, 't>(model: &Model, parent: &'a str, markdown: &'t str) -
 }
 
 /// Replace the markdown for a subname declaraction.
-fn replace_markdown_sub<'a, 't>(model: &Model, parent: &str, sub: &str) -> String {
+fn replace_markdown_sub(model: &Model, parent: &str, sub: &str) -> String {
     // TODO: also format the link/location
     let color = match model.shared.get_impl(parent, Some(sub)) {
         Ok(_) => BLUE,
@@ -79,8 +107,8 @@ fn replace_markdown_sub<'a, 't>(model: &Model, parent: &str, sub: &str) -> Strin
     };
     format!(
         "<span title=\"subname\" style=\"font-weight: bold; color: {}\">\
-        {}\
-        </span>",
+         {}\
+         </span>",
         color, sub,
     )
 }
@@ -93,7 +121,7 @@ fn replace_markdown_dot(model: &Model, parent: &str, dot: &str) -> String {
             let sub = cap.name(name::NAME_SUB_RE_KEY)
                 .map(|s| subname!(s.as_str()));
             graph::fullname_dot(model, &name!(name.as_str()), sub.as_ref(), true)
-        } else if let Some(dot) = cap.name("dot") {
+        } else if cap.name("dot").is_some() {
             "**RENDER ERROR: cannot put dot within dot**".into()
         } else {
             panic!("Got unknown match in md: {:?}", cap);
@@ -101,5 +129,5 @@ fn replace_markdown_dot(model: &Model, parent: &str, dot: &str) -> String {
     };
     let dot = REPLACE_TEXT_RE.replace_all(dot, replacer);
     let html = graph::dot_html_string(dot.as_ref());
-    format!("SVG:\n```\n{0}```\n<html>\n{0}\n</html>", html)
+    format!("\n<html>\n{0}\n</html>\n", html)
 }

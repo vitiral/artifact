@@ -1,22 +1,23 @@
 //! Handle RPC Requests
+use ergo::json;
+use nickel::status::StatusCode;
 use nickel::{HttpRouter, MediaType, MiddlewareResult, Nickel, Request, Response,
              StaticFilesHandler};
-use nickel::status::StatusCode;
-use ergo::json;
 use tar::Archive;
 use tempdir::TempDir;
 // use jsonrpc_core::{Error as RpcError, ErrorCode, IoHandler, Params, RpcMethodSync};
-use std::result;
-use std::mem;
 use jrpc;
+use std::mem;
+use std::result;
 
 // use api::crud;
 use serve;
 
-use dev_prelude::*;
 use artifact_data::*;
+use dev_prelude::*;
 
-const WEB_FRONTEND_TAR: &'static [u8] = include_bytes!("../../artifact-frontend/target/frontend.tar");
+const WEB_FRONTEND_TAR: &'static [u8] =
+    include_bytes!("../../artifact-frontend/target/frontend.tar");
 const REPLACE_FLAGS: &str = "{/* REPLACE WITH FLAGS */}";
 
 #[derive(Debug, Serialize, Deserialize)]

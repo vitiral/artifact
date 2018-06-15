@@ -1,7 +1,7 @@
 extern crate artifact_test;
-use artifact_test::*;
 use artifact_test::artifact_data::raw_names::NamesRaw;
 use artifact_test::raw_names::*;
+use artifact_test::*;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 struct PartofSingle<'a> {
@@ -33,11 +33,21 @@ static SINGLE_PARTOFS: &[PartofSingle] = &[
 
 lazy_static! {
     static ref MULTI_PARTOFS: Vec<PartofMulti> = vec![
-        PartofMulti { partof: vec!["REQ-foo".into()] },
-        PartofMulti { partof: vec!["REQ-foo".into(), "SPC-bar".into()] },
-        PartofMulti { partof: vec!["REQ-foo".into(), "REQ-bar".into()] },
-        PartofMulti { partof: vec!["REQ-[foo, baz]".into(), "REQ-bar".into()] },
-        PartofMulti { partof: vec!["REQ-[foo, bar]".into(), "REQ-bar".into()] },
+        PartofMulti {
+            partof: vec!["REQ-foo".into()],
+        },
+        PartofMulti {
+            partof: vec!["REQ-foo".into(), "SPC-bar".into()],
+        },
+        PartofMulti {
+            partof: vec!["REQ-foo".into(), "REQ-bar".into()],
+        },
+        PartofMulti {
+            partof: vec!["REQ-[foo, baz]".into(), "REQ-bar".into()],
+        },
+        PartofMulti {
+            partof: vec!["REQ-[foo, bar]".into(), "REQ-bar".into()],
+        },
     ];
 }
 
@@ -45,24 +55,21 @@ lazy_static! {
 /// module: the serialization module to test
 #[macro_export]
 macro_rules! assert_partof_serde {
-    ($values:expr, $conv:expr, $module:tt) => (
-        {
-            // convert the singles to the serialization's format
-            let singles = $values
-                .iter()
-                .map(|s| ($module::to_string(s).unwrap(), Some($conv(&s.partof))))
-                .collect::<Vec<_>>();
+    ($values:expr, $conv:expr, $module:tt) => {{
+        // convert the singles to the serialization's format
+        let singles = $values
+            .iter()
+            .map(|s| ($module::to_string(s).unwrap(), Some($conv(&s.partof))))
+            .collect::<Vec<_>>();
 
-            fn from_str(s: &String) -> StrResult<NamesRaw> {
-                println!("Deserializing {}:\n{}", stringify!($module), s);
-                let s: PartofNames = $module::from_str(s)
-                    .map_err(|e| e.to_string())?;
-                Ok(s.partof)
-            }
-
-            assert_generic(from_str, singles.as_slice());
+        fn from_str(s: &String) -> StrResult<NamesRaw> {
+            println!("Deserializing {}:\n{}", stringify!($module), s);
+            let s: PartofNames = $module::from_str(s).map_err(|e| e.to_string())?;
+            Ok(s.partof)
         }
-    );
+
+        assert_generic(from_str, singles.as_slice());
+    }};
 }
 
 fn names_raw_from_str(s: &str) -> NamesRaw {

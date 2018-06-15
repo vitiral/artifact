@@ -1,11 +1,12 @@
-#[macro_use] extern crate expect_macro;
+#[macro_use]
+extern crate expect_macro;
 extern crate artifact_data;
 extern crate artifact_lib;
 extern crate artifact_test;
 extern crate ergo;
+use artifact_lib::*;
 use artifact_test::{assert_stuff_data, run_generic_interop_test, run_generic_interop_tests,
                     INTEROP_TESTS_PATH};
-use artifact_lib::*;
 use ergo::*;
 
 /// This runs the interop tests for artifact-data.
@@ -41,7 +42,6 @@ fn modify_project_shim(
     operations: Vec<ArtifactOp>,
     _state: (),
 ) -> Result<(lint::Categorized, Project), ModifyError> {
-
     // Do basic round-trip serialization
     let result = expect!(round_ser!(Vec<ArtifactOp>, operations));
     assert_eq!(operations, result);

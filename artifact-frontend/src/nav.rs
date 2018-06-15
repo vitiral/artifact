@@ -17,8 +17,6 @@
 
 use dev_prelude::*;
 use name;
-use stdweb::Value;
-use yew_simple;
 
 pub(crate) fn view_nav(model: &Model, page: HtmlApp) -> HtmlApp {
     let search = &model.nav.search;
@@ -53,8 +51,8 @@ pub(crate) fn view_nav(model: &Model, page: HtmlApp) -> HtmlApp {
             </button>
 
             <button class=(BTN, REGULAR), id="graph",
-             onclick=move |_| {
-                router.push_hash(Some("graph"))
+             onclick=|_| {
+                router.push_hash(Some(HASH_GRAPH))
              },
              title="View Graph",
              href="#graph",
@@ -64,7 +62,7 @@ pub(crate) fn view_nav(model: &Model, page: HtmlApp) -> HtmlApp {
             </button>
 
             <button class=(BTN, REGULAR), id="TEST",
-             onclick=move |_| {
+             onclick=|_| {
                 Msg::PushLogs(vec![
                     Log::error(format!(
                         "<span>Created error at: {}</span>",
@@ -115,7 +113,7 @@ fn error_pane(model: &Model) -> HtmlApp {
         html![
             <button class=(BTN, REGULAR),
              id=format!("close-err-{}", id),
-             onclick=move |_| Msg::ClearLogs(ClearLogs::Error(vec![id])),
+             onclick=|_| Msg::ClearLogs(ClearLogs::Error(vec![id])),
              title="clear error",
             >
                 { fa_icon(FA_TIMES) }
@@ -170,7 +168,7 @@ fn editing_pane(model: &Model) -> HtmlApp {
         <div><h2 class=H2,>{ "Editing" }</h2></div>
         <input id="search-editing",
          value=model.nav.editing.value.clone(),
-         oninput=|e: InputData| Msg::SetNavEditing(e.value),
+         oninput=|e| Msg::SetNavEditing(e.value),
          class=INPUT,
          ></input>
         { names }
@@ -198,7 +196,7 @@ fn search_pane(model: &Model) -> HtmlApp {
         <input
          id="search-input",
          value=model.nav.search.value.clone(),
-         oninput=|e: InputData| Msg::SetNavSearch(e.value),
+         oninput=|e| Msg::SetNavSearch(e.value),
          class=INPUT,
          ></input>
         { names }

@@ -15,9 +15,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 
-use stdweb::Value;
 use stdweb::unstable::TryFrom;
 use stdweb::web::Node;
+use stdweb::Value;
 use yew::virtual_dom::VNode;
 
 use dev_prelude::*;
@@ -42,7 +42,7 @@ pub(crate) fn graph_html(model: &Model) -> HtmlApp {
         <input
          id="search-graph",
          value=model.graph.search.clone(),
-         oninput=|e: InputData| Msg::SetGraphSearch(e.value),
+         oninput=|e| Msg::SetGraphSearch(e.value),
          class=INPUT,
          ></input>
          { graph_html_results(model) }
@@ -51,6 +51,7 @@ pub(crate) fn graph_html(model: &Model) -> HtmlApp {
     page
 }
 
+/// Get the dot html for untrusted dot.
 pub(crate) fn dot_html_string(dot: &str) -> String {
     let html = js!{
         try {
@@ -58,8 +59,8 @@ pub(crate) fn dot_html_string(dot: &str) -> String {
             return svg;
         } catch ( error ) {
             return (
-                "INVALID SVG:\n" + error.message
-                + "\n```" + @{dot} + "\n```\n"
+                "<h2>ERROR: Invalid SVG</h2>\n" + error.message
+                + "\n<pre><code class=\"language-//\">" + @{dot} + "\n</code></pre>\n"
             );
         }
     };
@@ -68,39 +69,13 @@ pub(crate) fn dot_html_string(dot: &str) -> String {
 
 /// Convert DOT to HTML
 pub(crate) fn dot_html(dot: &str) -> HtmlApp {
-    let result = js!{
-        try {
-            var svg = Viz(@{dot});
-            var div = document.createElement("div");
-            div.innerHTML = svg;
-            return { value: div, success: true };
-        } catch ( error ) {
-            return { value: error.message, success: false };
-        }
-    };
-
-    let js_div: Value = if let Value::Bool(true) = js!{ return @{&result}.success; } {
-        let v = js! { return @{result}.value; };
-        v
-    } else {
-        return html![
-            <div color=RED, class=(BOLD, MR1),>
-                { "INVALID SVG: " }
-            </div>
-            <div color=RED, class=(BOLD),>
-                { expect!(js!{ return @{result}.value; }.into_string()) }
-            </div>
-            <textarea readonly=true, value=dot, rows=100, cols=80,>
-            </textarea>
-        ];
-    };
-
-    let node = Node::try_from(js_div).expect("SVG is not a node");
-
+    let dot_string = dot_html_string(dot);
+    let dot_string = format!("<div>{}</div>", dot_string);
+    let node = expect!(Node::from_html(&dot_string), "invalid html");
     let svg = VNode::VRef(node);
     html![
         <div>
-            { svg }
+       { svg }
         </div>
     ]
 }
@@ -213,10 +188,14 @@ pub(crate) fn name_dot(model: &Model, name: &Name, is_focus: bool) -> String {
 
 pub(crate) fn subname_dot(model: &Model, name: &str, sub: &SubName) -> String {
     let name = match Name::from_str(name) {
-    Ok(n) => n,
+        Ok(n) => n,
         Err(_) => return subname_raw(sub, None),
     };
-    if model.shared.get_impl(name.as_str(), Some(sub.as_str())).is_err() {
+    if model
+        .shared
+        .get_impl(name.as_str(), Some(sub.as_str()))
+        .is_err()
+    {
         return subname_raw(sub, None);
     }
 
@@ -225,14 +204,13 @@ pub(crate) fn subname_dot(model: &Model, name: &str, sub: &SubName) -> String {
 
 fn subname_raw(sub: &SubName, attrs: Option<&str>) -> String {
     let attrs = attrs.unwrap_or("penwidth=1.5");
-    // FIXME: shape=square?
     format!(
         r##"
         {{
             "{sub_key}" [
                 label="{sub}";
                 fontsize=12; margin=0.01;
-                shape=invhouse;
+                shape=box;
                 {attrs};
             ]
         }}

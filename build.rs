@@ -1,4 +1,3 @@
-
 #[macro_use]
 extern crate ergo;
 use ergo::*;
@@ -10,7 +9,7 @@ fn main() {
     tar_frontend().expect("tarring frontend failed");
 }
 
-lazy_static!{
+lazy_static! {
     static ref FRONTEND: PathDir = PathDir::new("artifact-frontend").unwrap();
 }
 
@@ -23,7 +22,7 @@ fn build_frontend() {
             "deploy",
             "--release",
             "--target",
-            "wasm32-unknown-unknown"
+            "wasm32-unknown-unknown",
         ])
         .status()
         .unwrap();
@@ -57,4 +56,3 @@ fn tar_frontend() -> ::std::io::Result<PathFile> {
 
     Ok(archive_path)
 }
-

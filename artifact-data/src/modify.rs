@@ -71,8 +71,6 @@ pub fn modify_project<P: AsRef<Path>>(
         })
         .collect();
 
-    // FIXME: prevent overlapping hashs
-
     perform_operations(operations, &mut lints, &mut artifact_ims);
     check_lints!(lints, HashMismatch);
 

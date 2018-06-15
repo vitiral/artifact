@@ -17,10 +17,10 @@
 //! #SPC-cli-ls
 use std::io;
 
-use dev_prelude::*;
 use artifact_data::*;
-use termstyle::{self, Color, El, Table, Text};
+use dev_prelude::*;
 use termstyle::Color::*;
+use termstyle::{self, Color, El, Table, Text};
 
 macro_rules! t { [$t:expr] => {{
     Text::new($t.into())
@@ -611,7 +611,7 @@ impl CompletedExt for Completed {
 fn test_flags_str() {
     let mut flags = Flags::default();
     macro_rules! from_str {
-        ($f: expr) => {{
+        ($f:expr) => {{
             expect!(Flags::from_str($f))
         }};
     }

@@ -15,10 +15,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 
-use dev_prelude::*;
 use artifact_data::*;
-use termstyle::{self, Color, El, Table, Text};
+use dev_prelude::*;
 use termstyle::Color::*;
+use termstyle::{self, Color, El, Table, Text};
 
 #[derive(Debug, StructOpt)]
 #[structopt(name = "init", about = "Initialize the directory for artifact.")]

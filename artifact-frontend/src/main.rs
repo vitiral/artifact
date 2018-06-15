@@ -14,12 +14,11 @@
  * You should have received a copy of the Lesser GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-#![recursion_limit = "128"]
-#![allow(unused_imports)]
+#![recursion_limit = "256"]
+#![allow(unknown_lints)]
 
 #[macro_use]
 extern crate artifact_ser;
-#[macro_use]
 extern crate ergo_config;
 #[macro_use]
 extern crate ergo_std;
@@ -33,18 +32,13 @@ extern crate stdweb;
 extern crate yew;
 extern crate yew_simple;
 
-use std::result;
-
-use http::response::Parts;
-use yew::format::{Json, Nothing};
 use yew::prelude::*;
-use yew::services::Task;
-use yew::services::websocket::{WebSocketService, WebSocketStatus, WebSocketTask};
 
 mod artifact;
 mod dev_prelude;
 mod edit;
 mod example;
+mod fetch;
 mod graph;
 mod name;
 mod nav;
@@ -52,47 +46,18 @@ mod view;
 
 use dev_prelude::*;
 
-lazy_static! {
-    static ref NAME_URL: Regex =
-        Regex::new(&format!(r"(?i)(?:artifacts/)?({})", NAME_VALID_STR)).expect("regex");
-    static ref EDIT_URL: Regex = Regex::new(r"(?i)edit/(\d+)").expect("regex");
-    static ref ATOMIC_ID: AtomicUsize = ATOMIC_USIZE_INIT;
-}
-
-pub(crate) fn router(info: yew_simple::RouteInfo) -> Msg {
-    let view = get_view(info.url.fragment().unwrap_or_default());
-    Msg::SetView(view)
-}
-
-fn get_view(hash: &str) -> View {
-    if hash.to_ascii_lowercase() == "graph" || hash == "" {
-        View::Graph
-    } else if let Some(cap) = NAME_URL.captures(hash) {
-        let name = name!(&cap[1]);
-        View::Artifact(name)
-    } else if let Some(cap) = EDIT_URL.captures(hash) {
-        let id = match usize::from_str(&cap[1]) {
-            Ok(id) => id,
-            Err(_) => return View::NotFound,
-        };
-        View::Edit(id)
-    } else {
-        View::NotFound
-    }
-}
-
 impl Component<Context> for Model {
-    type Msg = Msg;
+    type Message = Msg;
     type Properties = ();
 
     fn create(_: Self::Properties, context: &mut Env<Context, Self>) -> Self {
         let project: ProjectSer = yaml::from_str(example::YAML).unwrap();
-        let router = yew_simple::RouterTask::new(context, &router);
+        let router = yew_simple::RouterTask::new(context, &view::router_fn);
         let url = router.current_url();
 
-        let mut out = Model {
+        let mut model = Model {
             shared: Arc::new(project),
-            view: get_view(&url.fragment().unwrap_or_default()),
+            view: View::from_hash(&url.fragment().unwrap_or_default()),
             router: Arc::new(router),
             nav: Nav::default(),
             graph: Graph::default(),
@@ -101,13 +66,15 @@ impl Component<Context> for Model {
             logs: Logs::default(),
             window: ::stdweb::web::window(),
             editing: IndexMap::new(),
+            updating: IndexMap::new(),
         };
-        out.nav.search.on = true;
-        out.nav.editing.on = true;
-        out
+        model.nav.search.on = true;
+        model.nav.editing.on = true;
+        fetch::handle_fetch_project(&mut model, context);
+        model
     }
 
-    fn update(&mut self, msg: Self::Msg, context: &mut Env<Context, Self>) -> ShouldRender {
+    fn update(&mut self, msg: Self::Message, context: &mut Env<Context, Self>) -> ShouldRender {
         match msg {
             Msg::Batch(mut batch) => {
                 let count: usize = batch
@@ -116,7 +83,7 @@ impl Component<Context> for Model {
                     .sum();
                 count != 0
             }
-            msg @ _ => update_model(self, msg, context),
+            msg => update_model(self, msg, context),
         }
     }
 }
@@ -133,85 +100,26 @@ fn update_model(model: &mut Model, msg: Msg, context: &mut Env<Context, Model>) 
 
         Msg::SetGraphSearch(v) => model.graph.search = v,
 
-        Msg::FetchProject => {
-            if model.fetch_task.is_some() {
-                return false;
-            }
-            let callback = context.send_back(fetch_fn);
-            let request = jrpc::Request::new(jrpc::Id::Int(1), Method::ReadProject);
-            let request = http::Request::post("/json-rpc")
-                .body(json::to_string(&request).expect("request-ser"))
-                .expect("create request");
-            model.fetch_task = Some(FetchTask::new(request, callback));
+        Msg::FetchProject => return fetch::handle_fetch_project(model, context),
+        Msg::SendUpdate(ids) => return fetch::handle_send_update(model, context, ids),
+        Msg::RecvProject(jid, project) => fetch::handle_recv_project(model, &jid, project),
+        Msg::RecvError(logs) => {
+            model.push_logs(logs);
+            model.fetch_task = None;
         }
-        Msg::RecvProject(project) => {
-            model.shared = Arc::new(project);
-        }
-        Msg::SendUpdate(id) => unimplemented!("FIXME"),
 
-        Msg::PushLogs(logs) => push_logs(model, logs),
+        Msg::PushLogs(logs) => model.push_logs(logs),
         Msg::ClearLogs(clear) => clear_logs(model, clear),
 
-        Msg::EditArtifact(id, field) => edit_artifact(model, id, field),
-        Msg::StartEdit(id, ty) => {
-            let artifact = match ty {
-                StartEditType::New => ArtifactEdit::default(),
-                StartEditType::Current => {
-                    if let View::Artifact(ref name) = model.view {
-                        let art = expect!(
-                            model.shared.artifacts.get(name),
-                            "{} viewed but not here",
-                            name,
-                        );
-                        ArtifactEdit::from_artifact(art)
-                    } else {
-                        panic!("wrong view");
-                    }
-                }
-            };
-            model.editing.insert(id, artifact);
-        }
+        Msg::EditArtifact(id, field) => edit::handle_edit_artifact(model, id, field),
+        Msg::StartEdit(id, ty) => edit::handle_start_edit(model, id, &ty),
+        Msg::StopEdit(id) => model.complete_editing(id),
         Msg::Batch(_) => panic!("batch within a batch"),
     }
     true
 }
 
-fn edit_artifact(model: &mut Model, id: usize, field: Field) {
-    let artifact = match model.editing.get_mut(&id) {
-        Some(a) => a,
-        None => panic!("TODO: got invalid editing artifact"),
-    };
-    match field {
-        Field::Name(v) => artifact.name = v,
-        Field::File(v) => artifact.file = v,
-        Field::Done(v) => artifact.done = v,
-        Field::Text(v) => artifact.text = v,
-        Field::Partof(index, op) => match op {
-            FieldOp::Create => artifact.partof.push("".into()),
-            FieldOp::Update(v) => artifact.partof[index] = v,
-            FieldOp::Delete => {
-                artifact.partof.remove(index);
-            }
-        },
-    }
-}
-
-fn push_logs(model: &mut Model, mut logs: Vec<Log>) {
-    for log in logs.drain(..) {
-        let id = new_id();
-        match log.level {
-            LogLevel::Error => {
-                model.logs.error.insert(id, log);
-            }
-            LogLevel::Info => {
-                // FIXME: add scheduling to remove id for info
-                model.logs.error.insert(id, log);
-            }
-        }
-    }
-}
-
-fn clear_logs(model: &mut Model, mut clear: ClearLogs) {
+fn clear_logs(model: &mut Model, clear: ClearLogs) {
     match clear {
         ClearLogs::Error(mut ids) => for id in ids.drain(..) {
             model.logs.error.remove(&id);
@@ -220,33 +128,6 @@ fn clear_logs(model: &mut Model, mut clear: ClearLogs) {
             model.logs.error.clear();
         }
     }
-}
-
-fn fetch_fn(response: http::Response<String>) -> Msg {
-    let status = response.status();
-    if !status.is_success() {
-        let html = format!(
-            "<div>Received {} from server: {}</div>",
-            status,
-            response.into_body(),
-        );
-
-        return Msg::PushLogs(vec![Log::error(html)]);
-    }
-
-    let body = response.into_body();
-    let response: jrpc::Response<ProjectResultSer> =
-        expect!(json::from_str(&body), "response-serde");
-    let result = match response {
-        jrpc::Response::Ok(r) => r,
-        jrpc::Response::Err(err) => {
-            return Msg::PushLogs(vec![
-                Log::error(format!("<div>received jrpc Error: {:?}</div>", err)),
-            ]);
-        }
-    };
-
-    Msg::RecvProject(result.result.project)
 }
 
 impl Renderable<Context, Model> for Model {

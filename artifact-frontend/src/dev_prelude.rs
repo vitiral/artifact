@@ -137,7 +137,7 @@ pub(crate) const FA_GRAPH: &str = "fa-code-branch";
 pub(crate) const FA_INFO_CIRCLE: &str = "fa-info-circle";
 pub(crate) const FA_EDIT: &str = "fa-edit";
 pub(crate) const FA_EYE: &str = "fa-eye";
-pub(crate) const FA_SAVE: &str = "fa-floppy-o";
+pub(crate) const FA_SAVE: &str = "fa-save";
 pub(crate) const FA_PLUS_SQUARE: &str = "fa-plus-square";
 pub(crate) const FA_SEARCH: &str = "fa-search";
 pub(crate) const FA_SEARCH_PLUS: &str = "fa-search-plus";
@@ -151,6 +151,13 @@ pub(crate) const FA_TIMES: &str = "fa-times";
 // Custom
 pub(crate) const ART_INFO: &str = "art-info";
 pub(crate) const SELECT_TINY: &str = "select-tiny";
+
+// Routing Hashes
+pub(crate) const HASH_GRAPH: &str = "graph";
+
+pub(crate) fn hash_edit(id: usize) -> String {
+    format!("edit/{}", id)
+}
 
 #[derive(Debug, Copy, Clone)]
 pub(crate) enum CssFont {
@@ -169,7 +176,7 @@ impl CssFont {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Eq, PartialEq)]
 pub(crate) enum View {
     Graph,
     Artifact(Name),
@@ -178,47 +185,157 @@ pub(crate) enum View {
 }
 
 pub(crate) struct Model {
-    // TODO: make ProjectResult
+    /// The project. TODO: rename `project`.
     pub(crate) shared: Arc<ProjectSer>,
+
+    /// The current view.
     pub(crate) view: View,
+
+    /// The routers
     pub(crate) router: Arc<::yew_simple::RouterTask<Context, Model>>,
+
+    /// Nav View state.
     pub(crate) nav: Nav,
+
+    /// Graph View state.
     pub(crate) graph: Graph,
+
+    /// The current fetch/http task.
     pub(crate) fetch_task: Option<FetchTask>,
+
+    /// Shortcut to the console/logging service.
     pub(crate) console: Arc<ConsoleService>,
+
+    /// Current logs displayed to the user.
     pub(crate) logs: Logs,
+
+    /// Shortcut to the js window object.
     pub(crate) window: Window,
+
+    /// Artifacts that are currently being edited.
     pub(crate) editing: IndexMap<usize, ArtifactEdit>,
+
+    /// HTTP updates in flight.
+    ///
+    /// Maps the json rpc request to the ids of what is being updated.
+    /// When an OK is received, these items are deleted from `editing`.
+    pub(crate) updating: IndexMap<::jrpc::Id, Vec<usize>>,
 }
 
+impl Model {
+    /// Push logs onto the model.
+    pub(crate) fn push_logs(&mut self, mut logs: Vec<Log>) {
+        for log in logs.drain(..) {
+            let id = new_id();
+            match log.level {
+                LogLevel::Error => {
+                    self.logs.error.insert(id, log);
+                }
+                LogLevel::Info => {
+                    // TODO: add scheduling to remove id for info
+                    self.logs.error.insert(id, log);
+                }
+            }
+        }
+    }
+
+    /// Set the hash and update the view.
+    ///
+    /// If the hash needs to change in `update` this is how it should be done.
+    pub(crate) fn update_hash(&mut self, hash: &str) {
+        let msg = self.router.push_hash(Some(hash));
+        if let Msg::SetView(view) = msg {
+            self.view = view;
+        }
+    }
+
+    /// Complete editing for the assosiated id.
+    ///
+    /// This involves:
+    /// - Removing the item from editing
+    /// - If the (edited view) of the item is currently being viewed, changing the router to route to
+    ///   the saved item.
+    pub(crate) fn complete_editing(&mut self, id: usize) {
+        let edit = if let Some(e) = self.editing.remove(&id) {
+            e
+        } else {
+            return;
+        };
+
+        if View::Edit(id) == self.view {
+            let hash = get_route_because_editing_removed(self, edit);
+            self.update_hash(&hash);
+        }
+    }
+}
+
+/// Change the editing view because the item being edited no longer exists.
+fn get_route_because_editing_removed(model: &mut Model, edit: ArtifactEdit) -> String {
+    if let Some(hid) = edit.original_id {
+        if let Some(art) = model.shared.artifacts.values().find(|a| a.id == hid) {
+            return art.name.as_str().to_string();
+        }
+    }
+
+    if let Ok(name) = Name::from_str(&edit.name) {
+        if model.shared.artifacts.contains_key(&name) {
+            return edit.name;
+        }
+    }
+
+    HASH_GRAPH.to_string()
+}
+
+#[derive(Debug)]
 pub(crate) enum ClearLogs {
     Error(Vec<usize>),
     ErrorAll,
 }
 
+#[derive(Debug)]
+/// The `Msg` type determines the next action performed by `update`.
 pub(crate) enum Msg {
+    /// Set the current view (i.e. page).
     SetView(View),
 
+    /// Toggle whether we are searching for artifacts.
     ToggleSearch,
+    /// Toggle whether we are searching for editing artifacts.
     ToggleEditing,
+    /// Set the nav bar `search` string.
     SetNavSearch(String),
+    /// Set the nav bar `editing` search string.
     SetNavEditing(String),
-
+    /// Set the Graph `search` string.
     SetGraphSearch(String),
-    FetchProject,
-    SendUpdate(Vec<usize>),
-    RecvProject(ProjectSer),
 
+    /// Send an HTTP request to get the project.
+    FetchProject,
+    /// Send an HTTP update to server with the specified edit ids.
+    SendUpdate(Vec<usize>),
+    /// Received an OK HTTP response with the project.
+    RecvProject(::jrpc::Id, Arc<ProjectSer>),
+    /// Received an ERR HTTP response.
+    RecvError(Vec<Log>),
+
+    /// Push some logs into the UI.
     PushLogs(Vec<Log>),
+    /// Clear some logs from the UI.
     ClearLogs(ClearLogs),
 
+    /// Edit the field of an artifact.
     EditArtifact(usize, Field),
+    /// Start editing an artifact.
     StartEdit(usize, StartEditType),
+    StopEdit(usize),
 
-    Ignore,
+    /// Do multiple messages in series.
     Batch(Vec<Msg>),
+    /// Ignore message, i.e. N/A
+    Ignore,
 }
 
+#[derive(Debug)]
 pub(crate) enum StartEditType {
     New,
     Current,
@@ -240,14 +357,14 @@ impl Log {
     pub(crate) fn error(html: String) -> Self {
         Log {
             level: LogLevel::Error,
-            html: html,
+            html,
         }
     }
 
     pub(crate) fn info(html: String) -> Self {
         Log {
             level: LogLevel::Info,
-            html: html,
+            html,
         }
     }
 }
@@ -281,7 +398,7 @@ pub(crate) struct Search {
 impl Search {
     pub(crate) fn with_on(self, on: bool) -> Self {
         Self {
-            on: on,
+            on,
             value: self.value,
         }
     }
@@ -307,7 +424,7 @@ pub(crate) struct ArtifactEdit {
 impl ArtifactEdit {
     pub(crate) fn from_artifact(art: &ArtifactSer) -> ArtifactEdit {
         ArtifactEdit {
-            original_id: Some(art.id.clone()),
+            original_id: Some(art.id),
             name: art.name.to_string(),
             file: art.file.clone(),
             partof: art.partof.iter().map(|n| n.to_string()).collect(),
@@ -318,9 +435,30 @@ impl ArtifactEdit {
             text: art.text.clone(),
         }
     }
+
+    /// Convert the ArtifactEdit into ArtifactIm.
+    ///
+    /// This must only be called in places where all fields are pre-validated (valid name and
+    /// partof).
+    pub(crate) fn to_im(&self) -> ArtifactImSer {
+        let partof = IndexSet::from_iter(self.partof.iter().map(|n| name!(n)));
+        let done = if self.done.is_empty() {
+            None
+        } else {
+            Some(self.done.clone())
+        };
+        ArtifactImSer {
+            name: name!(&self.name),
+            file: self.file.clone(),
+            partof,
+            done,
+            text: self.text.clone(),
+        }
+    }
 }
 
 /// The field that is being edited.
+#[derive(Debug)]
 pub enum Field {
     Name(String),
     File(String),
@@ -330,6 +468,7 @@ pub enum Field {
     Partof(usize, FieldOp),
 }
 
+#[derive(Debug)]
 pub enum FieldOp {
     Create,
     Update(String),
@@ -361,7 +500,7 @@ pub(crate) fn parse_regex(s: &str) -> Result<Regex, HtmlApp> {
              title="See syntax definition.",
              class=(RED, BTN, BOLD),
             >
-            { "INVALID REGEX" }
+            { format!("INVALID REGEX: {}", e) }
             </a>
         ]
     })

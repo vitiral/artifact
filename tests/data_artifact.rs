@@ -21,8 +21,8 @@ extern crate artifact_data;
 extern crate artifact_test;
 extern crate ergo;
 
-use artifact_test::dev_prelude::*;
 use artifact_data::artifact;
+use artifact_test::dev_prelude::*;
 
 #[test]
 /// #TST-read-artifact.partofs

@@ -16,12 +16,12 @@
  * */
 pub use expect_macro::*;
 
+pub use artifact_data::ART_DIR;
+pub use artifact_lib::*;
 #[allow(unused_imports)]
 pub use ergo::*;
 #[allow(unused_imports)]
 pub use quicli::prelude::*;
-pub use artifact_data::ART_DIR;
-pub use artifact_lib::*;
 
 #[macro_export]
 macro_rules! work_dir { [$cmd:expr] => {{

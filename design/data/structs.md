@@ -15,6 +15,22 @@ they determine how everything works together.
 These are the types that make up the exported "product" of this library. The
 major type is the **Artifact** and its associated **Name**.
 
+TODO: this graph broke with the update to newer graphiz. Rewrite with the format below.
+
+```dot
+digraph G {
+    node [shape=record];
+    Animal [
+        label =
+        "{Animal
+        \l|+ name : string
+        \l+ age : int
+        \l|+ die() : void
+        \l}"
+    ]
+}
+```
+
 ```dot
 digraph G {
     node [shape=plaintext];

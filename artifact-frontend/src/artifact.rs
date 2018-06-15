@@ -16,11 +16,10 @@
  * */
 use dev_prelude::*;
 use graph;
-use nav;
 use view;
 
 pub(crate) fn view_artifact(model: &Model, name: &Name) -> HtmlApp {
-    let page = match model.shared.artifacts.get(name) {
+    match model.shared.artifacts.get(name) {
         Some(ref art) => view_existing_artifact(model, art),
         None => {
             return html![
@@ -29,25 +28,22 @@ pub(crate) fn view_artifact(model: &Model, name: &Name) -> HtmlApp {
             </h3></div>
         ]
         }
-    };
-
-    page
+    }
 }
 
 fn view_existing_artifact(model: &Model, art: &ArtifactSer) -> HtmlApp {
-    let edit = ArtifactEdit::from_artifact(art);
     let router = model.router.clone();
     html! [
         <div>
             <button class=(BTN, ACE_WHITE, ACE_BG_BLACK), id="edit",
-             onclick=move |_| {
+             onclick=|_| {
                  let id = new_id();
                  Msg::Batch(vec![
                     // TODO: for some reason this wouldn't let me
                     // move the artifact value in... but I CAN
                     // move the router in?
                     Msg::StartEdit(id, StartEditType::Current),
-                    router.push_hash(Some(&format!("edit/{}", id))),
+                    router.push_hash(Some(&hash_edit(id))),
                     // Msg::SetView(View::Edit(id)),
                  ])
              },

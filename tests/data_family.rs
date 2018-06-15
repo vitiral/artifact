@@ -1,7 +1,7 @@
 extern crate artifact_test;
-use artifact_test::*;
 use artifact_test::family::*;
 use artifact_test::name::arb_name;
+use artifact_test::*;
 
 #[test]
 /// #TST-read-family.parent

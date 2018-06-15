@@ -1,7 +1,7 @@
 extern crate artifact_test;
-use artifact_test::*;
-use artifact_test::implemented::*;
 use artifact_test::artifact_data::implemented::{join_locations, parse_locations};
+use artifact_test::implemented::*;
+use artifact_test::*;
 
 // SANITY
 

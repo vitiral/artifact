@@ -24,7 +24,6 @@ use implemented;
 use raw;
 use settings;
 
-// FIXME: convert to methods instead
 pub trait ProjectExt {
     fn lint(&self, send: &Sender<lint::Lint>);
     fn lint_errors(&self, send: &Sender<lint::Lint>);

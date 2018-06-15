@@ -1,7 +1,7 @@
 extern crate artifact_test;
 use artifact_test::artifact_data::graph::{self, round_ratio};
-use artifact_test::*;
 use artifact_test::graph::*;
+use artifact_test::*;
 
 #[test]
 fn test_completed_fmt() {
@@ -109,7 +109,7 @@ fn sanity_determine_completed() {
     // test-ratios
     let tr_tst_aaa_a = 0.5;
     let tr_spc_bbb = tr_tst_aaa_a / 3.;
-    let tr_req_bbb = (tr_spc_bbb  + 1. /*req-ccc*/) / 2.;
+    let tr_req_bbb = (tr_spc_bbb + 1./*req-ccc*/) / 2.;
 
     let mut expected = indexmap!{
         name!("REQ-aaa") => C {tst: round_ratio(tr_req_bbb), spc: round_ratio(req_bbb)},

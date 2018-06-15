@@ -4,15 +4,15 @@ version = "0.1.0"
 authors = ["Garrett Berg <googberg@gmail.com>"]
 
 [dependencies]
-yew = { path = "yew" }
-stdweb = { path = 'stdweb' }
+yew = "0.4.0"
+stdweb = "0.4.6"
 artifact_ser = {path="../artifact-ser"}
 ergo_std = "0.0.3"
 ergo_config = "0.0.1"
 yew_simple = { path = "yew_simple" }
 expect_macro = "0.2.1"
 jrpc = "0.4.0"
-http = "0.1"
+http = "0.1.6"
 
 [dev-dependencies]
 

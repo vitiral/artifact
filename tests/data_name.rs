@@ -1,6 +1,6 @@
 extern crate artifact_test;
-use artifact_test::*;
 use artifact_test::name::*;
+use artifact_test::*;
 
 #[test]
 /// #TST-name.sanity_valid

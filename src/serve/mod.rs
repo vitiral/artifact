@@ -1,8 +1,8 @@
 //! #SPC-cli-serve
 use std::io;
 
-use dev_prelude::*;
 use artifact_data::*;
+use dev_prelude::*;
 
 mod handler;
 

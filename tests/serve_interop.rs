@@ -13,8 +13,8 @@ use std::process::{Command, Stdio};
 use std::result;
 
 use artifact_test::*;
-use reqwest::header::*;
 use expect_macro::*;
+use reqwest::header::*;
 
 fn run_interop_tests<P: AsRef<Path>>(test_base: P) {
     run_generic_interop_tests(test_base, run_server_test);

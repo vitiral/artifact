@@ -28,15 +28,27 @@ pub(crate) fn view_edit(model: &Model, id: usize) -> HtmlApp {
     };
 
     html![
+        <div>
+            <span><button
+                class=(BTN, ACE_WHITE, ACE_BG_BLACK),
+                id="edit-save",
+                onclick=|_| Msg::SendUpdate(vec![id]),
+                title="save",
+            >
+                { fa_icon(FA_SAVE) }
+                <span class=ML1,>{ "Save" }</span>
+            </button></span>
 
-        // <button
-        //     id=format!("create-partof"),
-        //     class=(BTN),
-        //     onclick=move |_| Msg::SendUpdate(vec![id]),
-        //     title="create",
-        // >
-        //     { fa_icon(FA_SAVE) }
-        // </button>
+            <span><button
+                class=(BTN, ACE_WHITE, ACE_BG_BLACK),
+                id="edit-cancel",
+                onclick=|_| Msg::StopEdit(id),
+                title="cancel edit",
+            >
+                { fa_icon(FA_TRASH) }
+                <span class=ML1,>{ "Cancel" }</span>
+            </button></span>
+        </div>
 
         // NAME
         // TODO: to the right of name/partof put a "relationship" graph that dynamically updates
@@ -45,7 +57,7 @@ pub(crate) fn view_edit(model: &Model, id: usize) -> HtmlApp {
             <input id="edit-name",
                 type="text",
                 value=art.name.to_string(),
-                oninput=move |e: InputData| Msg::EditArtifact(id, Field::Name(e.value)),
+                oninput=|e| Msg::EditArtifact(id, Field::Name(e.value)),
                 class=(H1, FIELD),
             >
             </input>
@@ -57,9 +69,9 @@ pub(crate) fn view_edit(model: &Model, id: usize) -> HtmlApp {
             <div>
                 <span class=(BOLD),>{ "Partof:" }</span>
                 <button
-                    id=format!("create-partof"),
+                    id="create-partof",
                     class=(BTN),
-                    onclick=move |_| Msg::EditArtifact(
+                    onclick=|_| Msg::EditArtifact(
                        id, Field::Partof(0, FieldOp::Create)
                     ),
                     title="create",
@@ -76,7 +88,7 @@ pub(crate) fn view_edit(model: &Model, id: usize) -> HtmlApp {
                 type="text",
                 class=(FIELD),
                 value=art.file.to_string(),
-                oninput=move |e: InputData| Msg::EditArtifact(id, Field::File(e.value)),
+                oninput=|e| Msg::EditArtifact(id, Field::File(e.value)),
             >
             </input>
         </div>
@@ -87,7 +99,7 @@ pub(crate) fn view_edit(model: &Model, id: usize) -> HtmlApp {
                 type="text",
                 class=(FIELD),
                 value=art.done.to_string(),
-                oninput=move |e: InputData| Msg::EditArtifact(id, Field::Done(e.value)),
+                oninput=|e| Msg::EditArtifact(id, Field::Done(e.value)),
             >
             </input>
         </div>
@@ -97,7 +109,7 @@ pub(crate) fn view_edit(model: &Model, id: usize) -> HtmlApp {
             <div class=(SM_COL, SM_COL_12, MD_COL_6, LG_COL_6),>
                 <textarea id="edit-text",
                     value=art.text.to_string(),
-                    oninput=move |e: InputData| Msg::EditArtifact(id, Field::Text(e.value)),
+                    oninput=|e| Msg::EditArtifact(id, Field::Text(e.value)),
                     class=TEXTAREA,
                     rows=50,
                 >
@@ -111,7 +123,46 @@ pub(crate) fn view_edit(model: &Model, id: usize) -> HtmlApp {
     ]
 }
 
-fn view_partof(model: &Model, id: usize, artifact: &ArtifactEdit) -> HtmlApp {
+pub(crate) fn handle_edit_artifact(model: &mut Model, id: usize, field: Field) {
+    let artifact = match model.editing.get_mut(&id) {
+        Some(a) => a,
+        None => panic!("TODO: got invalid editing artifact"),
+    };
+    match field {
+        Field::Name(v) => artifact.name = v,
+        Field::File(v) => artifact.file = v,
+        Field::Done(v) => artifact.done = v,
+        Field::Text(v) => artifact.text = v,
+        Field::Partof(index, op) => match op {
+            FieldOp::Create => artifact.partof.push("".into()),
+            FieldOp::Update(v) => artifact.partof[index] = v,
+            FieldOp::Delete => {
+                artifact.partof.remove(index);
+            }
+        },
+    }
+}
+
+pub(crate) fn handle_start_edit(model: &mut Model, id: usize, ty: &StartEditType) {
+    let artifact = match *ty {
+        StartEditType::New => ArtifactEdit::default(),
+        StartEditType::Current => {
+            if let View::Artifact(ref name) = model.view {
+                let art = expect!(
+                    model.shared.artifacts.get(name),
+                    "{} viewed but not here",
+                    name,
+                );
+                ArtifactEdit::from_artifact(art)
+            } else {
+                panic!("wrong view");
+            }
+        }
+    };
+    model.editing.insert(id, artifact);
+}
+
+fn view_partof(_: &Model, id: usize, artifact: &ArtifactEdit) -> HtmlApp {
     let view_part = |(index, name): (usize, &String)| {
         let id_str = format!("edit-partof-{}", index);
         html![
@@ -119,7 +170,7 @@ fn view_partof(model: &Model, id: usize, artifact: &ArtifactEdit) -> HtmlApp {
             <button
                 id=format!("rm-partof-{}", index),
                 class=(BTN),
-                onclick=move |_| Msg::EditArtifact(
+                onclick=|_| Msg::EditArtifact(
                    id, Field::Partof(index, FieldOp::Delete)
                 ),
                 title="remove",
@@ -132,7 +183,7 @@ fn view_partof(model: &Model, id: usize, artifact: &ArtifactEdit) -> HtmlApp {
                 type="text",
                 class=(FIELD),
                 value=name.to_owned(),
-                oninput=move |e: InputData| Msg::EditArtifact(
+                oninput=|e| Msg::EditArtifact(
                     id, Field::Partof(index, FieldOp::Update(e.value))
                 ),
             >
