@@ -21,6 +21,7 @@ digraph G {
 }
 ```
 
+
 # SPC-read-raw-markdown
 An artifact in the markdown format is specified as:
 
@@ -75,10 +76,9 @@ The process for loading markdown will be:
     }
     ```
 
+
 # TST-read-raw
-partof:
-- SPC-read-raw-markdown
-- TST-fuzz
+partof: SPC-read-raw-markdown
 ###
 Testing the deserialization shall require a small testing harness. The goal is that
 function from this harness be reused for writing even higher level tests.

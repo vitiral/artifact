@@ -61,7 +61,6 @@ pub enum Category {
     ImplCode,
     ModifyPathInvalid,
     CreateExists,
-    UpdateNoop,
     UpdateDne,
     DeleteDne,
     IdOverlap,
@@ -134,16 +133,6 @@ impl Lint {
         Lint {
             level: Level::Error,
             category: Category::CreateExists,
-            path: None,
-            line: None,
-            msg: err,
-        }
-    }
-
-    pub fn update_noop(err: String) -> Lint {
-        Lint {
-            level: Level::Error,
-            category: Category::UpdateNoop,
             path: None,
             line: None,
             msg: err,

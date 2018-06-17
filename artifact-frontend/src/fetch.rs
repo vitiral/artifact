@@ -2,10 +2,6 @@ use dev_prelude::*;
 use http;
 use jrpc;
 
-lazy_static! {
-    static ref ATOMIC_ID: AtomicUsize = ATOMIC_USIZE_INIT;
-}
-
 macro_rules! create_fetch_task {
     [$ctx:ident, $jreq:ident] => {{
         let callback = $ctx.send_back(handle_response);
@@ -17,12 +13,20 @@ macro_rules! create_fetch_task {
 }
 
 /// Send a request to fetch the project.
-pub(crate) fn handle_fetch_project(model: &mut Model, context: &mut Env<Context, Model>) -> bool {
+pub(crate) fn handle_fetch_project(
+    model: &mut Model,
+    context: &mut Env<Context, Model>,
+    reload: bool,
+) -> bool {
     if model.fetch_task.is_some() {
         push_logs_fetch_in_progress(model);
         false
     } else {
-        let request = jrpc::Request::new(new_rpc_id(), Method::ReadProject);
+        let request = jrpc::Request::with_params(
+            new_rpc_id(),
+            Method::ReadProject,
+            ParamsReadProject { reload: reload },
+        );
         model.fetch_task = Some(create_fetch_task!(context, request));
         false
     }
@@ -80,8 +84,7 @@ fn push_logs_fetch_in_progress(model: &mut Model) {
 }
 
 fn new_rpc_id() -> jrpc::Id {
-    let id = ATOMIC_ID.fetch_add(1, AtomicOrdering::SeqCst);
-    jrpc::Id::Int(id as i64)
+    jrpc::Id::Int(new_id() as i64)
 }
 
 /// Handle response of fetch

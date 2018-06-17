@@ -24,6 +24,8 @@ pub use yew::services::console::ConsoleService;
 pub use yew::virtual_dom::VNode;
 pub use yew_simple::FetchTask;
 
+use ergo_std::regex::RegexBuilder;
+
 lazy_static! {
     static ref ATOMIC_ID: AtomicUsize = ATOMIC_USIZE_INIT;
 }
@@ -35,6 +37,11 @@ pub(crate) fn new_id() -> usize {
 pub(crate) type HtmlApp = Html<Context, Model>;
 
 pub(crate) struct Context {}
+
+pub(crate) struct ViewResult {
+    pub(crate) page: HtmlApp,
+    pub(crate) nav_extra: Option<HtmlApp>,
+}
 
 // http://basscss.com/
 
@@ -310,7 +317,9 @@ pub(crate) enum Msg {
     SetGraphSearch(String),
 
     /// Send an HTTP request to get the project.
-    FetchProject,
+    FetchProject {
+        reload: bool,
+    },
     /// Send an HTTP update to server with the specified edit ids.
     SendUpdate(Vec<usize>),
     /// Received an OK HTTP response with the project.
@@ -493,15 +502,18 @@ pub(crate) fn fa_icon(icon: &str) -> HtmlApp {
 /// Parse the regex. If it is invalid, return the html error
 /// message to display to the user.
 pub(crate) fn parse_regex(s: &str) -> Result<Regex, HtmlApp> {
-    Regex::new(s).map_err(|e| {
-        html![
-            <a
-             href="https://docs.rs/regex/0.2.10/regex/#syntax",
-             title="See syntax definition.",
-             class=(RED, BTN, BOLD),
-            >
-            { format!("INVALID REGEX: {}", e) }
-            </a>
-        ]
-    })
+    RegexBuilder::new(s)
+        .case_insensitive(true)
+        .build()
+        .map_err(|e| {
+            html![
+                <a
+                 href="https://docs.rs/regex/0.2.10/regex/#syntax",
+                 title="See syntax definition.",
+                 class=(RED, BTN, BOLD),
+                >
+                { format!("INVALID REGEX: {}", e) }
+                </a>
+            ]
+        })
 }

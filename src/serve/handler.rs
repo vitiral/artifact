@@ -67,11 +67,56 @@ pub fn start_api(cmd: super::Serve) {
 
 // ----- API CALLS -----
 
-fn rpc_read_project(id: jrpc::Id) -> jrpc::Response<json::Value> {
+fn rpc_read_project(id: jrpc::Id, params: Option<json::Value>) -> jrpc::Response<json::Value> {
     info!("ReadProject");
-    let locked = super::LOCKED.lock().unwrap();
-    let locked = locked.as_ref().unwrap();
+    let mut locked = super::LOCKED.lock().unwrap();
+    let locked = locked.as_mut().unwrap();
+
+    if let Some(params) = params {
+        if let Err(res) = handle_read_project_params(&id, locked, params) {
+            return res;
+        }
+    }
+
     jrpc::Response::success(id, json::to_value(locked).expect("serde"))
+}
+
+fn handle_read_project_params(
+    id: &jrpc::Id,
+    project: &mut ProjectResult,
+    params: json::Value,
+) -> ::std::result::Result<(), jrpc::Response<json::Value>> {
+    let params: ParamsReadProject = match json::from_value(params) {
+        Ok(o) => o,
+        Err(err) => {
+            return Err(jrpc::Response::error(
+                id.clone(),
+                jrpc::ErrorCode::InvalidParams,
+                err.to_string(),
+                None,
+            ));
+        }
+    };
+
+    if params.reload {
+        let (lints, new_project) = match read_project(&project.project.paths.base) {
+            Ok(v) => v,
+            Err(err) => {
+                return Err(jrpc::Response::error(
+                    id.clone(),
+                    jrpc::ErrorCode::ServerError(-32000),
+                    ModifyErrorKind::InvalidFromLoad.to_string(),
+                    Some(json::to_value(&err).unwrap()),
+                ));
+            }
+        };
+        *project = ProjectResult {
+            project: new_project,
+            lints: lints,
+        };
+    }
+
+    Ok(())
 }
 
 fn rpc_modify_project(id: jrpc::Id, params: Option<json::Value>) -> jrpc::Response<json::Value> {
@@ -146,7 +191,7 @@ fn handle_rpc<'a>(req: &mut Request, mut res: Response<'a>) -> MiddlewareResult<
     let id = request.id.to_id().clone().unwrap_or(jrpc::Id::Null);
 
     let response = match request.method {
-        Method::ReadProject => rpc_read_project(id),
+        Method::ReadProject => rpc_read_project(id, request.params),
         Method::ModifyProject => rpc_modify_project(id, request.params),
     };
     let out = res.send(json::to_string(&response).unwrap());

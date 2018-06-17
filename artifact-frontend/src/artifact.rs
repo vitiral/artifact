@@ -18,16 +18,21 @@ use dev_prelude::*;
 use graph;
 use view;
 
-pub(crate) fn view_artifact(model: &Model, name: &Name) -> HtmlApp {
-    match model.shared.artifacts.get(name) {
+pub(crate) fn view_artifact(model: &Model, name: &Name) -> ViewResult {
+    let page = match model.shared.artifacts.get(name) {
         Some(ref art) => view_existing_artifact(model, art),
         None => {
-            return html![
-            <div><h3 class=H3,>
-                {format!("Artifact with name {:?} not found", name)}
-            </h3></div>
-        ]
+            html![
+                <div><h3 class=H3,>
+                    {format!("Artifact with name {:?} not found", name)}
+                </h3></div>
+            ]
         }
+    };
+
+    ViewResult {
+        page,
+        nav_extra: None,
     }
 }
 
@@ -35,16 +40,13 @@ fn view_existing_artifact(model: &Model, art: &ArtifactSer) -> HtmlApp {
     let router = model.router.clone();
     html! [
         <div>
+            // TODO: do something special if artifact already exists
             <button class=(BTN, ACE_WHITE, ACE_BG_BLACK), id="edit",
              onclick=|_| {
                  let id = new_id();
                  Msg::Batch(vec![
-                    // TODO: for some reason this wouldn't let me
-                    // move the artifact value in... but I CAN
-                    // move the router in?
                     Msg::StartEdit(id, StartEditType::Current),
                     router.push_hash(Some(&hash_edit(id))),
-                    // Msg::SetView(View::Edit(id)),
                  ])
              },
              title="Edit this artifact.",
@@ -52,7 +54,6 @@ fn view_existing_artifact(model: &Model, art: &ArtifactSer) -> HtmlApp {
                 { fa_icon(FA_EDIT) }
                 <span class=ML1,>{ "Edit" }</span>
             </button>
-            // TODO: do something special if artifact already exists
         </div>
         <div><h1 class=H1,>{ &art.name }</h1></div>
         { graph::artifact_part_html(model, art) }
@@ -68,6 +69,11 @@ fn view_existing_artifact(model: &Model, art: &ArtifactSer) -> HtmlApp {
                 { art.completed.tst_html() }
             </div>
         </div>
+        <div>
+            <span class=(MR1, BOLD),>{ "file" }</span>
+            { &art.file }
+        </div>
+
         { art.impl_.html() }
         { view::markdown_html(model, art.name.as_str(), &art.text) }
     ]

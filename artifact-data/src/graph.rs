@@ -109,12 +109,16 @@ pub fn determine_completed(
     let mut tested: IndexMap<GraphId, f64> = IndexMap::with_capacity(impls.len());
 
     for id in sorted_graph.iter().rev() {
-        // sec is secondary value/count
+        let name = expect!(graphs.lookup_name.get(id));
+        let sub = match subnames.get(name) {
+            Some(s) => s,
+            None => continue, // Will cause warning lint error.
+        };
+        let impl_ = expect!(impls.get(id));
         let (mut count_spc, mut value_spc, mut count_tst, mut value_tst) =
-            impls[id].to_statistics(&subnames[&graphs.lookup_name[id]]);
+            impl_.to_statistics(sub);
 
         if matches!(graphs.lookup_name[id].ty, Type::TST) {
-            // For TST, tst == spc and we can ignore "secondary"
             for part_id in graphs.full.neighbors(*id) {
                 value_spc += implemented[&part_id];
                 count_spc += 1;

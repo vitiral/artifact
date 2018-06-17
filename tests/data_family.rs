@@ -1,10 +1,15 @@
+//! Unit/Fuzz Tests:
+//! - #TST-unit.family
+//! - #TST-fuzz.family
+//!
+//! This also inclused auto partofs as well as collapsing/expanding partof.
+
 extern crate artifact_test;
 use artifact_test::family::*;
 use artifact_test::name::arb_name;
 use artifact_test::*;
 
 #[test]
-/// #TST-read-family.parent
 fn sanity_parent() {
     fn parent(name: &Name) -> StrResult<Name> {
         match name.parent() {
@@ -29,7 +34,6 @@ fn sanity_parent() {
 }
 
 #[test]
-/// #TST-read-family.auto_partof
 fn sanity_auto_partof() {
     fn auto_partof(name: &Name) -> StrResult<Name> {
         match name.auto_partof() {
@@ -54,7 +58,6 @@ fn sanity_auto_partof() {
 }
 
 #[test]
-/// #TST-read-family.collapse
 fn sanity_collapse_name() {
     let values = &[
         ("REQ-foo", None, indexset!["REQ-foo"]),
@@ -80,7 +83,6 @@ fn sanity_collapse_name() {
 }
 
 #[test]
-/// #TST-read-family.collapse_invalid
 fn sanity_collapse_name_invalid() {
     let values = &[
         "REQ",                       // invalid name
@@ -147,7 +149,6 @@ fn sanity_strip_auto_partofs() {
 
 proptest! {
     #[test]
-    /// #TST-read-family.fuzz_parent
     fn fuzz_name_parent(ref name in arb_name()) {
         // Basically do the same thing as the code but in a slightly different way
         let mut items = name.raw.split('-').map(|s| s.to_string()).collect::<Vec<_>>();
@@ -164,7 +165,6 @@ proptest! {
     }
 
     #[test]
-    /// #TST-read-family.fuzz_auto_partof
     fn fuzz_name_auto_partof(ref name in arb_name()) {
         let ty = match name.ty {
             Type::REQ => {
@@ -184,7 +184,6 @@ proptest! {
     }
 
     #[test]
-    /// #TST-read-family.fuzz_collapse
     fn fuzz_collapse_name_roundtrip(ref names in arb_names(25)) {
         let collapsed = collapse_names(names);
         let expanded = expand_names(&collapsed).expect("failed expanding names");
@@ -192,7 +191,6 @@ proptest! {
     }
 
     #[test]
-    /// #TST-read-family.fuzz_serde
     /// This actually creates expected json by first sorting the names
     fn fuzz_names_serde(ref names in arb_names(25)) {
         // construct expected json by sorting and formatting

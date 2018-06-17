@@ -1,3 +1,5 @@
+//! Interop Tests:
+//! - #TST-read-artifact
 #[macro_use]
 extern crate expect_macro;
 extern crate artifact_data;
@@ -54,19 +56,21 @@ fn modify_project_shim(
 }
 
 #[test]
+/// #TST-read-artifact.empty
+fn data_interop_project_empty() {
+    run_interop_tests(INTEROP_TESTS_PATH.join("empty"));
+}
+
+#[test]
+/// #TST-read-artifact.source_only
 fn data_interop_source_only() {
     run_interop_tests(INTEROP_TESTS_PATH.join("source_only"));
 }
 
 #[test]
+/// #TST-read-artifact.source_invalid
 fn data_interop_source_invalid() {
     run_interop_tests(INTEROP_TESTS_PATH.join("source_invalid"));
-}
-
-#[test]
-/// #TST-read-artifact.empty
-fn data_interop_project_empty() {
-    run_interop_tests(INTEROP_TESTS_PATH.join("empty"));
 }
 
 #[test]
@@ -83,6 +87,11 @@ fn data_interop_basic() {
 
 #[test]
 /// #TST-read-artifact.lints
-fn data_interop_lints() {
+fn data_interop_lints_error1() {
     run_interop_tests(INTEROP_TESTS_PATH.join("lints"));
+}
+
+#[test]
+fn data_interop_lints_error2() {
+    run_interop_tests(INTEROP_TESTS_PATH.join("lints2"));
 }

@@ -1,4 +1,4 @@
-//! #SPC-cli-serve
+//! #SPC-cli.serve
 use std::io;
 
 use artifact_data::*;
@@ -9,7 +9,6 @@ mod handler;
 #[derive(Debug, Default, Clone, StructOpt)]
 #[structopt(name = "serve", about = "Serve the web-ui via http.")]
 #[cfg_attr(rustfmt, rustfmt_skip)]
-// #SPC-cli-serve.args
 pub struct Serve {
     #[structopt(long = "verbose", short = "v", parse(from_occurrences))]
     /// Pass many times for more log output.

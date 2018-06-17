@@ -180,10 +180,7 @@ fn check_overlap(lints: &mut lint::Categorized, operations: &mut Vec<ArtifactOp>
         }}}
 
         if pieces.new_id == pieces.orig_id {
-            lints.error.push(lint::Lint::update_noop(format!(
-                "Attempt to update '{}' with identical data",
-                pieces.name,
-            )));
+            // They are already identical, NOOP
             continue;
         }
 

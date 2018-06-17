@@ -31,8 +31,6 @@ pub trait ProjectExt {
 }
 
 impl ProjectExt for Project {
-    /// #SPC-read-lint
-    ///
     /// TODO WARN:
     /// - references in text that do not exist
     /// - (optional?) poorly formed references in text
@@ -179,7 +177,7 @@ pub fn read_project<P: AsRef<Path>>(
     Ok((lints, project))
 }
 
-/// #REQ-family.lint_partof_exists
+/// #SPC-family.lint_partof_exists
 /// Lint against partofs that do not exist but should (ERROR)
 pub(crate) fn lint_partof_dne(lints: &Sender<lint::Lint>, project: &Project) {
     for (name, art) in project.artifacts.iter() {
@@ -199,7 +197,7 @@ pub(crate) fn lint_partof_dne(lints: &Sender<lint::Lint>, project: &Project) {
     }
 }
 
-/// #REQ-family.lint_types
+/// #SPC-family.lint_types
 /// Lint against partof's that have invalid types.
 pub(crate) fn lint_partof_types(lints: &Sender<lint::Lint>, project: &Project) {
     use artifact_lib::Type::{REQ, SPC, TST};

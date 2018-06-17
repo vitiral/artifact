@@ -1,0 +1,34 @@
+# Basic project
+#
+# This contains a "sunny day" project with no errors for basic testing of
+# - loading artifact
+# - linking artifacts to source code
+
+paths:
+    code_paths:
+    - src
+
+    exclude_code_paths: []
+
+    artifact_paths:
+    - design
+
+    exclude_artifact_paths: []
+
+code_impls: {}
+artifacts:
+    SPC-partof_dne:
+        name: SPC-partof_dne
+        file: design/purpose.md
+        partof:
+            - SPC-dne
+        parts: []
+        completed:
+            spc: 0
+            tst: 0
+        text: |
+
+            This specification's partof does not exist.
+
+        impl_: null
+        subnames: []

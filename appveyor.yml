@@ -53,29 +53,29 @@ test_script:
       cargo test --target %TARGET% --release
     )
 
-before_deploy:
-  # theoretically this is how you link statically... doesn't work anymore
-  # - cargo rustc --target %TARGET% --release --bin art -- -Z unstable-options -C lto -C target-feature=+crt-static
-  - cargo rustc --target %TARGET% --release --bin art -- -C lto
-  - ps: ci\before_deploy.ps1
+# before_deploy:
+#   # theoretically this is how you link statically... doesn't work anymore
+#   # - cargo rustc --target %TARGET% --release --bin art -- -Z unstable-options -C lto -C target-feature=+crt-static
+#   - cargo rustc --target %TARGET% --release --bin art -- -C lto
+#   - ps: ci\before_deploy.ps1
 
-deploy:
-  artifact: /.*\.zip/
-  # `auth_token.secure`
-  # - Create a `public_repo` GitHub token. Go to: https://github.com/settings/tokens/new
-  # - Encrypt it. Go to https://ci.appveyor.com/tools/encrypt
-  # - Paste the output down here
-  auth_token:
-    secure: e2pyiI8N9p6VD2W2ZdetwUTm7FsBBQ7E7dsHpR3b5GzH+qE2JgjS9XYRjo72SwwF
-  description: ''
-  on:
-    # Pick which targets will generate binary releases
-    # In this example, there are some targets that are tested using the stable
-    # and nightly channels. This condition makes sure there is only one release
-    # for such targets and that's generated using the stable channel
-    #RUST_VERSION: stable
-    appveyor_repo_tag: true
-  provider: GitHub
+# deploy:
+#   artifact: /.*\.zip/
+#   # `auth_token.secure`
+#   # - Create a `public_repo` GitHub token. Go to: https://github.com/settings/tokens/new
+#   # - Encrypt it. Go to https://ci.appveyor.com/tools/encrypt
+#   # - Paste the output down here
+#   auth_token:
+#     secure: e2pyiI8N9p6VD2W2ZdetwUTm7FsBBQ7E7dsHpR3b5GzH+qE2JgjS9XYRjo72SwwF
+#   description: ''
+#   on:
+#     # Pick which targets will generate binary releases
+#     # In this example, there are some targets that are tested using the stable
+#     # and nightly channels. This condition makes sure there is only one release
+#     # for such targets and that's generated using the stable channel
+#     #RUST_VERSION: stable
+#     appveyor_repo_tag: true
+#   provider: GitHub
 
 cache:
   - C:\Users\appveyor\.cargo\registry

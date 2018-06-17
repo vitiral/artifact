@@ -34,21 +34,33 @@ pub(crate) fn artifact_part_html(model: &Model, art: &ArtifactSer) -> HtmlApp {
         dot.push_str(&name_dot(model, part, false));
     }
     push_connections(&mut dot, art);
-    dot_html(&wrap_dot(&model.window, &dot, false))
+    dot_html(&wrap_dot(&model.window, &dot, true))
 }
 
-pub(crate) fn graph_html(model: &Model) -> HtmlApp {
-    let page = html![<div class=(SM_COL, SM_COL_6, MD_COL_4, LG_COL_2, MR1),>
-        <input
-         id="search-graph",
-         value=model.graph.search.clone(),
-         oninput=|e| Msg::SetGraphSearch(e.value),
-         class=INPUT,
-         ></input>
-         { graph_html_results(model) }
-    </div>];
+pub(crate) fn graph_html(model: &Model) -> ViewResult {
+    let page = html![
+        <div class=(SM_COL, SM_COL_6, MD_COL_4, LG_COL_2, MR1),>
+             { graph_html_results(model) }
+        </div>
+    ];
 
-    page
+    let nav_extra = Some(html![
+        <span>
+            <span class=(MR1, FIELD),>{ "| Filter:" }</span>
+            <input id="graph-nav-filter",
+             type="text",
+             class=(FIELD),
+             value=model.graph.search.clone(),
+             oninput=|e| Msg::SetGraphSearch(e.value),
+            >
+            </input>
+        </span>
+    ]);
+
+    ViewResult {
+        page,
+        nav_extra,
+    }
 }
 
 /// Get the dot html for untrusted dot.
@@ -129,7 +141,7 @@ fn graph_html_results(model: &Model) -> HtmlApp {
         dot.push_str(&connect_names_dot(from, to));
     }
 
-    dot_html(&wrap_dot(&model.window, &dot, true))
+    dot_html(&wrap_dot(&model.window, &dot, false))
 }
 
 fn connect_names_dot(from: &Name, to: &Name) -> String {
@@ -146,17 +158,12 @@ fn push_connections(out: &mut String, art: &ArtifactSer) {
 }
 
 /// Put a bunch of dot stuff into the standard graph format.
-fn wrap_dot(window: &Window, dot: &str, big: bool) -> String {
-    let attrs = if big {
-        format!(
-            // This is scaling for 1920x1080. I'm not sure how graphviz is measuring an "inch"
-            // (how is it getting it?)
-            "autosize=false; size=\"{width},{height}!\";",
-            width = window.inner_width() / 96,
-            height = window.inner_height() / 96,
-        )
+fn wrap_dot(window: &Window, dot: &str, lr: bool) -> String {
+    let attrs = if lr {
+        // FIXME: randir isn't working anymore
+        "randir=LR;"
     } else {
-        "randir=LR;".to_string()
+        ""
     };
 
     format!(
@@ -191,26 +198,29 @@ pub(crate) fn subname_dot(model: &Model, name: &str, sub: &SubName) -> String {
         Ok(n) => n,
         Err(_) => return subname_raw(sub, None),
     };
-    if model
+
+    let color = if model
         .shared
         .get_impl(name.as_str(), Some(sub.as_str()))
-        .is_err()
+        .is_ok()
     {
-        return subname_raw(sub, None);
-    }
+        BLUE
+    } else {
+        RED
+    };
 
-    subname_raw(sub, Some(&format!("style=filled; fillcolor=\"{}\"", BLUE)))
+    subname_raw(sub, Some(&format!("penwidth=1.5; fontcolor=\"{}\"", color)))
 }
 
 fn subname_raw(sub: &SubName, attrs: Option<&str>) -> String {
-    let attrs = attrs.unwrap_or("penwidth=1.5");
+    let attrs = attrs.unwrap_or("style=filled; fillcolor=\"#DCDEE2\"");
     format!(
         r##"
         {{
             "{sub_key}" [
                 label="{sub}";
-                fontsize=12; margin=0.01;
-                shape=box;
+                fontsize=12; margin=0.15;
+                shape=cds;
                 {attrs};
             ]
         }}

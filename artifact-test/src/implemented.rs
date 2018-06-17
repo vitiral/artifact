@@ -14,7 +14,6 @@
  * You should have received a copy of the Lesser GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-/// #TST-read-impl
 /// Test the "implemented" (i.e. source code parsing) module.
 
 use regex_generate;

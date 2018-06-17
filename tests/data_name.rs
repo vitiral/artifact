@@ -1,9 +1,11 @@
+//! Unit/Fuzz Tests:
+//! - #TST-unit.name
+//! - #TST-fuzz.name
 extern crate artifact_test;
 use artifact_test::name::*;
 use artifact_test::*;
 
 #[test]
-/// #TST-name.sanity_valid
 fn sanity_names_valid() {
     assert_names_valid(&[
         "REQ-a",
@@ -26,7 +28,6 @@ fn sanity_names_valid() {
 }
 
 #[test]
-/// #TST-name.sanity_invalid
 fn sanity_names_invalid() {
     assert_names_invalid(&[
         "RSK-foo",
@@ -103,7 +104,6 @@ subname: [[.subname]].
 }
 
 #[test]
-/// #TST-name.sanity_serde
 fn sanity_serde_name() {
     let json = r#"["REQ-foo","REQ-FOO","REQ-bar","SPC-foo-bar","tst-foo-BAR"]"#;
     let expected = &[
@@ -121,7 +121,6 @@ fn sanity_serde_name() {
 
 proptest! {
     #[test]
-    /// #TST-name.sanity_auto_partof
     fn fuzz_name_key(ref name in arb_name()) {
         let repr = name.key_str();
         let from_repr = Name::from_str(&repr).unwrap();

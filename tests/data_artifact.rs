@@ -14,9 +14,9 @@
  * You should have received a copy of the Lesser GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-//! #TST-read-artifact
-//!
-//! This module defines tests for the "full" artifact type itself.
+//! Unit/Fuzz Tests:
+//! - #TST-unit.artifact
+//! - #TST-fuzz.artifact
 extern crate artifact_data;
 extern crate artifact_test;
 extern crate ergo;
@@ -25,7 +25,6 @@ use artifact_data::artifact;
 use artifact_test::dev_prelude::*;
 
 #[test]
-/// #TST-read-artifact.partofs
 fn sanity_determine_partofs() {
     fn with_partof(mut partof: Vec<Name>) -> ArtifactIm {
         partof.sort();

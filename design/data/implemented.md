@@ -10,6 +10,7 @@ Implementing artifacts is fairly straight forward:
   of its subnames through `#ART-name` or `#ART-name.sub` respectively.
 -
 
+
 # SPC-read-impl
 partof: SPC-impl
 ###
@@ -54,20 +55,3 @@ steps to construct the full `Artifact` object. We do this by:
 
 > Note: we do not worry about whether such `Name` or `SubName`s actually exist.
 > That is the job of a later linting step.
-
-# TST-read-impl
-Only the parsing will be fuzz tested. Joining is covered well enough by a
-simple sanity test
-
-- [[.join]]: a simple sanity test suffices. Make sure it covers the following
-  cases:
-  - name without duplicates
-  - name with duplicate in single file
-  - name with duplicate in multiple files
-  - at least one without primary
-  - at least one primary + secondary
-  - at least one with multiple secondaries
-- [[.parse]]: the sanity test is to simply parse names, both valid and not.
-  Expect valid names to be included and invalid names to not be included.
-- [[.parse_fuzz]]: there shall be a fuzz test for locations. This is part
-  of the larger infrastructure for randomized projects.

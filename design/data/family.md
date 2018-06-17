@@ -47,8 +47,8 @@ In essense:
 ## Lints
 Lints are required to make sure the above is upheld
 
-- [[TODO.lint_partof_exists]]: Make sure any partof references actually exist.
-- [[TODO.lint_types]]: Make sure that `partof` links are only made between valid types.
+- [[.lint_partof_exists]]: Make sure any partof references actually exist.
+- [[.lint_types]]: Make sure that `partof` links are only made between valid types.
 
 ## [[.auto]]: Auto Relationships
 The second graph shows the "automatic relationships" of nodes to their
@@ -68,13 +68,14 @@ A node can always be partof another node of the same type. In addition, the foll
 
 ```
 
+
 # SPC-read-family
 The method of determining family is fairly straightforward, as is
 detailed in the graph below:
 
 ```dot
 digraph G {
-    ".parent" -> { "if" [label="if elem-len > 1"; shape=diamond] };
+    [[.parent]] -> { "if" [label="if elem-len > 1"; shape=diamond] };
     "if" -> "return None" [label = "no"];
     "if" -> {"clone raw string" [
         shape=box;
@@ -82,7 +83,7 @@ digraph G {
         shape=box;
     ]} -> "return new name";
 
-    ".auto_partof" -> { if_req [label="type is REQ"; shape=diamond] };
+    [[.auto_partof]] -> { if_req [label="type is REQ"; shape=diamond] };
     if_req -> "return None" [label="yes"];
     if_req -> {"get higher-order type" [
         shape=box;
@@ -94,9 +95,6 @@ digraph G {
 }
 ```
 
-- [[.parent]]: defined above (TODO: remove this)
-- [[.auto_partof]]: defined above (TODO: remove this)
-
 # [[.auto]]
 Once family is created and the artifacts are loaded, the artifacts have
 to be automatically linked to their parent+auto_partof. This is easy
@@ -106,25 +104,3 @@ Note: make sure to ONLY link to artifacts that exists!
 
 # [[.deauto]]
 In order to reserialize the artifacts, their "auto" partof has to be unlinked
-
-# TST-read-family
-partof: TST-fuzz
-###
-Very low level, so no interop testing.
-
-### Sanity Tests
-- [[.parent]]: basic checks that `Name::parent()` works as expected.
-- [[.auto_partof]]: basic checks that `Name::auto_partof()` works as expected.
-- [[.collapse]]: sanity test for collapsing names.
-- [[.collapse_invalid]]: sanity test invalid collapsing strings.
-
-### Fuzz Tests
-- [[.fuzz_parent]]: use the fuzzed name to determine the parent in a different
-  way than the code and validate that they are identical
-- [[.fuzz_auto_partof]]: use the fuzzed name to determine the auto_partof
-  in a different way than the code and validate that they are identical
-- [[.fuzz_auto_partof]]: use the fuzzed name to determine the auto_partof
-  in a different way than the code and validate that they are identical
-- [[.fuzz_collapse]]: fuzz that the names can be expaneded and
-  collapsed.
-- [[.fuzz_serde]]: fuzz that names can be serialized/deserialized.

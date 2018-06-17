@@ -45,7 +45,7 @@ use siphasher::sip128::{Hasher128, SipHasher};
 use dev_prelude::*;
 
 #[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
-/// #SPC-read-structs.artifact
+/// #SPC-structs.artifact
 /// The primary data structure of this library which encapsulates a majority of the useful
 /// end product of a user's project.
 pub struct Artifact {

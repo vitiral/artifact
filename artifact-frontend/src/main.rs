@@ -70,7 +70,7 @@ impl Component<Context> for Model {
         };
         model.nav.search.on = true;
         model.nav.editing.on = true;
-        fetch::handle_fetch_project(&mut model, context);
+        fetch::handle_fetch_project(&mut model, context, false);
         model
     }
 
@@ -100,7 +100,7 @@ fn update_model(model: &mut Model, msg: Msg, context: &mut Env<Context, Model>) 
 
         Msg::SetGraphSearch(v) => model.graph.search = v,
 
-        Msg::FetchProject => return fetch::handle_fetch_project(model, context),
+        Msg::FetchProject { reload } => return fetch::handle_fetch_project(model, context, reload),
         Msg::SendUpdate(ids) => return fetch::handle_send_update(model, context, ids),
         Msg::RecvProject(jid, project) => fetch::handle_recv_project(model, &jid, project),
         Msg::RecvError(logs) => {
@@ -132,18 +132,24 @@ fn clear_logs(model: &mut Model, clear: ClearLogs) {
 
 impl Renderable<Context, Model> for Model {
     fn view(&self) -> HtmlApp {
-        let out = match self.view {
+        let view = match self.view {
             View::Graph => graph::graph_html(self),
             View::Artifact(ref name) => artifact::view_artifact(self, name),
             View::Edit(id) => edit::view_edit(self, id),
-            View::NotFound => html![
-                <div class=BOLD,>
-                    { "Page not found" }
-                </div>
-            ],
+            View::NotFound => {
+                let page = html![
+                    <div class=BOLD,>
+                        { "Page not found" }
+                    </div>
+                ];
+                ViewResult {
+                    page,
+                    nav_extra: None,
+                }
+            }
         };
 
-        nav::view_nav(self, out)
+        nav::view_nav(self, view)
     }
 }
 

@@ -15,14 +15,14 @@ mind.
 - `subnames` is a simple iterative regexp search of `text`
 - `partofs` simply has to concatenate any auto-partof values from the `family`
   module (see [[SPC-read-family.auto]]).
-- Create a graph using `parofs` and use it to calculate `parts`. We need the
+- Create a graph from `partofs` and use it to calculate `parts`. We need the
   graph later anyway.
 
 # [[.build]]: build the artifact from its parts
 After we have successfully loaded and finalized the artifact pieces, we need
 to combine them with the implementations and calculate completeness.
 
-This mostly just has to make use of the functions defined in
+This mostly just has to make use of the functions defined in FIXME
 
 ## [[.graph]]: construction of the graph
 The construction of the graph takes a map of each artifact to its given+auto
@@ -31,10 +31,8 @@ The construction of the graph takes a map of each artifact to its given+auto
 We requre three graphs:
 - `full`: this is primarily used to compute the `parts` field and to later lint
   that there are no cycles in the graph.
-- `tst`: graph containing `(TST, TST)` edges ONLY. Because TST can only be
-  a `partof` other TST artifacts, we know that the dependencies of this graph
-  is always independently solvable.
-- `req_spc`: graph containing non `(TST, TST)` edges.
+- `lookup_name`: map of `id => name`
+- `lookup_id`: map of `name => id`
 
 ## [[.completed]]: compute the `Completed` objects.
 When computing completeness we are basically trying to solve for dependencies.
@@ -63,22 +61,18 @@ Other than that, we simply:
 - [[.lint_text_refs]]: ensure that soft references (`[[ART-name(.sub)]]`)
   all point to real things.
 
+
 # TST-read-artifact
 Although the different pieces are separated out, most of the "construction" of
 the artifact objects themselves will not be tested explicitly. Instead
-we will rely on the framework to quickly test user scenarios and the already
-existing fuzz framework for more end-to-end tests.
-
-Sanity tests can be added as-needed for each component.
-
-The following sanity tests shall exist:
-- [[.partofs]]: sanity test making sure `partofs` are properly determined.
-- [[.completed]]: sanity test computing the `Completed` fields.
+we will rely on the framework to quickly test user scenarios.
 
 The major testing will be done using the interop framework. The following
 test cases should be implemented:
 - [[.empty]]: `empty` project that contains only empty artifact files.
   and no source code.
+- [[.source_only]]: a project containing only source code (no design docs).
+- [[.source_invalid]]: a project containing invalid source code (invalid links).
 - [[.design_only]]: a project containing only design documents (none of the
   artifacts implemented).
   - This is mostly to test that artifact parsing works and linking works
@@ -96,7 +90,7 @@ test cases should be implemented:
   - At least one artifact only partially implemented (no subnames and not implemented)
   - At least one artifact only partially implemented (no primary + single secondary)
 
-- [[.lint]]: a basic project to test lints
+- [[.lints]]: a basic project to test lints
   - Expected lint errors:
     - referenes to names+subnames that don't exist
     - partof values that don't exist

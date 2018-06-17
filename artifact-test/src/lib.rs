@@ -16,6 +16,10 @@
  * */
 //! This subcrate is to provide a common testing framework/functions
 //! for testing artifact.
+//!
+//! Related:
+//! - #TST-unit
+//! - #TST-fuzz
 #![allow(unused_imports)]
 #![allow(dead_code)]
 #![allow(unused_macros)]
@@ -55,6 +59,7 @@ extern crate regex_generate;
 extern crate tempdir;
 extern crate unicode_segmentation;
 
+pub mod artifact;
 pub mod dev_prelude;
 pub mod name;
 pub mod family;
@@ -70,8 +75,3 @@ pub use framework::{assert_stuff_data, run_generic_interop_test, run_generic_int
 pub use artifact_data::*; // for macros
 pub use proptest::*;
 pub use dev_prelude::*;
-
-// pub use dev_prelude::assert_generic;
-// pub use family::arb_names;
-// pub use name::{arb_name, arb_name_string, names_raw};
-// pub use raw_names::arb_names_raw;

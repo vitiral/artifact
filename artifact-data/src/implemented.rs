@@ -28,12 +28,16 @@ lazy_static!{
     /// Name reference that can exist in source code
     static ref SRC_NAME_RE: Regex = Regex::new(
         &format!(r#"(?xi)
+        (?:                 # start std section
         \#(                 # start main section
         (?:REQ|SPC|TST)     # all types are supported
         -(?:[{0}]+-)*       # any number of first elements
         (?:[{0}]+)          # required end element
         )                   # end main section
         (\.[{0}]+)?         # (optional) sub section
+        )                   # end std section
+        |(?P<skip>\#ART-SKIP)
+        |(?P<done>\#ART-DONE)
         "#, NAME_VALID_CHARS!())).unwrap();
 }
 
@@ -66,9 +70,21 @@ pub fn parse_locations<R: Read>(
     file: &PathFile,
     stream: R,
 ) -> ::std::io::Result<()> {
+    let mut skipping = false;
     for (line_num, line_maybe) in BufReader::new(stream).lines().enumerate() {
         let line = line_maybe?;
         for captures in SRC_NAME_RE.captures_iter(&line) {
+            if captures.name("skip").is_some() {
+                skipping = true;
+                continue;
+            } else if captures.name("done").is_some() {
+                skipping = false;
+                continue;
+            }
+            if skipping {
+                continue;
+            }
+
             let name_mat = expect!(captures.get(1), "group 1");
             let name = expect!(Name::from_str(name_mat.as_str()), "name pre-validated");
             // subname is optional

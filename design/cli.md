@@ -15,6 +15,7 @@ includes:
 - [[.fmt]]: auto format the project.
   - `--type` flag to change the filetype.
 - [[SPC-cli-ls]]: listing/searching for artifacts, see the full specification.
+- [[.serve]]: the command to start the web backend.
 
 
 All subcommands should include the following flags:

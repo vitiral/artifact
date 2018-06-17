@@ -14,7 +14,6 @@
  * You should have received a copy of the Lesser GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-//! #TST-read-family
 //! These are tests and helpers for testing family relations,
 //! such as parts/partof.
 

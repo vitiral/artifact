@@ -1,4 +1,9 @@
+//! Unit/Fuzz Tests:
+//! - #TST-unit.read_impl
+//! - #TST-fuzz.read_impl
 extern crate artifact_test;
+#[macro_use]
+extern crate pretty_assertions;
 use artifact_test::artifact_data::implemented::{join_locations, parse_locations};
 use artifact_test::implemented::*;
 use artifact_test::*;
@@ -6,7 +11,6 @@ use artifact_test::*;
 // SANITY
 
 #[test]
-/// #TST-read-impl.parse
 fn sanity_parse_locations() {
     let example = r#"
 This is some kind of text file.
@@ -23,11 +27,16 @@ Also not valid: %SPC--.foo
 Also not valid: %SPC
 Also not valid: %TST
 
+This section is skipped
+%ART-skip %SPC-nofind  %SPC-not-here
+  %ART-done
+
 Some are legitamate subnames:
 %SPC-sub.name
 
 And to the right:
     %SPC-right.sub
+
 "#;
     let file = PathFile::mock("/fake/file.c");
     let mut expected: Vec<_> = vec![
@@ -42,8 +51,8 @@ And to the right:
         (8, name!("SPC-repeat"), None),
         (8, name!("SPC-repeat"), None),
         (9, name!("REQ-valid"), None),
-        (16, name!("SPC-sub"), Some(subname!(".name"))),
-        (19, name!("SPC-right"), Some(subname!(".sub"))),
+        (20, name!("SPC-sub"), Some(subname!(".name"))),
+        (23, name!("SPC-right"), Some(subname!(".sub"))),
     ];
     let expected: Vec<_> = expected
         .drain(0..)
@@ -58,7 +67,6 @@ And to the right:
 }
 
 #[test]
-/// #TST-read-impl.join
 fn sanity_join_locations() {
     let (send_lints, lints) = ch::unbounded();
 
@@ -176,7 +184,6 @@ fn sanity_join_locations() {
 
 proptest! {
     #[test]
-    /// #TST-read-impl.parse_fuzz
     fn fuzz_locations((ref _names, ref expected_locations, ref code_text) in arb_source_code(10)) {
         println!("## Code Text:\n{}", code_text);
         let file = PathFile::mock("/fake");

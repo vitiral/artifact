@@ -14,7 +14,6 @@
  * You should have received a copy of the Lesser GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-//! #SPC-structs.artifact_im
 use std::fmt;
 use base64;
 use siphasher::sip128::{Hasher128, SipHasher};

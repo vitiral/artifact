@@ -25,6 +25,7 @@ fn sanity_filetype() {
 
 #[test]
 fn sanity_from_markdown() {
+    // #ART-SKIP
     let raw_1 = r#"
 # REQ-foo
 
@@ -45,6 +46,8 @@ partof:
 
 
 "#.to_string();
+    // #ART-DONE
+
     let exp_raw_1 = r#"# REQ-bar
 partof: SPC-baz
 ###
@@ -66,6 +69,7 @@ partof:
 - REQ-baz
 - SPC-bar
 ###"#.to_string();
+
     let mut exp_1 = indexmap! {
         name!("REQ-foo") => ArtifactRaw {
             done: None,

@@ -14,7 +14,7 @@
  * You should have received a copy of the Lesser GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-//! #SPC-read-name
+//! #SPC-name
 //!
 //! This is the name module, the module for representing artifact names
 //! and subnames
@@ -72,7 +72,6 @@ pub enum NameError {
 
 
 #[derive(Clone, Eq, PartialEq, Hash, Ord, PartialOrd)]
-/// #SPC-name
 /// The atomically reference counted name, the primary one used by
 /// this module.
 ///
