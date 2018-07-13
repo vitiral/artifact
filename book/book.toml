@@ -1,0 +1,5 @@
+[book]
+authors = ["Garrett Berg"]
+multilingual = false
+src = "src"
+title = "Simple Quality with Artifact"

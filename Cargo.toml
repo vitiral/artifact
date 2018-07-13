@@ -25,7 +25,7 @@ build = "build.rs"
 
 [dependencies]
 difference = "2.0.0"
-ergo = "0.0.4"
+ergo = "0.0.*"
 self_update = "0.4.3"
 serde = "1.0.66"
 serde_derive = "1.0.66"
@@ -48,8 +48,6 @@ assert_cli = "0.6.1"
 reqwest = "0.8.6"
 pretty_assertions = "0.5.1"
 artifact_test = { path = "artifact-test" }
-fantoccini = { git = "https://github.com/jonhoo/fantoccini" }
-futures = "0.2.1"
 
 [build-dependencies]
-ergo = "0.0.4"
+ergo = "0.0.*"
