@@ -79,21 +79,17 @@ pub(crate) fn view_nav(model: &Model, view: ViewResult) -> HtmlApp {
                 <span class=ML1,>{ "Graph" }</span>
             </button>
 
-            <button class=(BTN, REGULAR), id="TEST",
-             onclick=|_| {
-                Msg::PushLogs(vec![
-                    Log::error(format!(
-                        "<span>Created error at: {}</span>",
-                        ::stdweb::web::Date::now(),
-                    )),
-                ])
-             },
-             title="TESTING",
+            <a class=(BTN, REGULAR), id="docs",
+             title="View Docs",
+             href="docs/index.html",
              >
-                <span>{ "TEST" }</span>
-            </button>
+                { fa_icon(FA_BOOK) }
+                <span class=ML1,>{ "Docs" }</span>
+            </a>
 
-            { view.nav_extra.unwrap_or_else(|| html![<>{ "|" }</>]) }
+            <span class=(BORDER, MR1),></span>
+
+            { view.nav_extra.unwrap_or_else(|| html![<></>]) }
 
         </div>
 

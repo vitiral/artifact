@@ -1,23 +1,60 @@
 use dev_prelude::*;
 use http;
 use jrpc;
+use stdweb::Value;
 
 macro_rules! create_fetch_task {
     [$ctx:ident, $jreq:ident] => {{
         let callback = $ctx.send_back(handle_response);
+        let body = json::to_string(&$jreq).expect("request-ser");
         let request = http::Request::post("/json-rpc")
-            .body(json::to_string(&$jreq).expect("request-ser"))
+            .body(Value::String(body))
             .expect("create request");
         FetchTask::new(request, callback)
     }}
 }
 
+pub(crate) fn start_fetch_initial(
+    model: &mut Model,
+    context: &mut Env<Context, Model>,
+) -> bool {
+    if model.fetch_task.is_some() {
+        panic!("This should only be called first.")
+    }
+
+    let callback = context.send_back(handle_response_initial);
+    let request = http::Request::get("initial.json")
+        .body(Value::Null)
+        .expect("initial request");
+    model.fetch_task = Some(FetchTask::new(request, callback));
+    false
+}
+
+/// Handle response of fetch
+fn handle_response_initial(response: http::Response<String>) -> Msg {
+    let response = match handle_status(response) {
+        Ok(r) => r,
+        Err(msg) => return msg,
+    };
+
+    let body = response.into_body();
+    let init: ProjectInitialSer =
+        expect!(json::from_str(&body), "response-serde");
+
+    Msg::RecvInitial(init)
+}
+
 /// Send a request to fetch the project.
-pub(crate) fn handle_fetch_project(
+pub(crate) fn start_fetch_project(
     model: &mut Model,
     context: &mut Env<Context, Model>,
     reload: bool,
 ) -> bool {
+    if model.web_type == WebType::Static {
+        push_logs_fetch_invalid(model);
+        return false;
+    }
+
     if model.fetch_task.is_some() {
         push_logs_fetch_in_progress(model);
         false
@@ -33,7 +70,7 @@ pub(crate) fn handle_fetch_project(
 }
 
 /// Send a request to alter/update the project and get the results.
-pub(crate) fn handle_send_update(
+pub(crate) fn start_send_update(
     model: &mut Model,
     context: &mut Env<Context, Model>,
     ids: Vec<usize>,
@@ -83,22 +120,24 @@ fn push_logs_fetch_in_progress(model: &mut Model) {
     )]);
 }
 
+fn push_logs_fetch_invalid(model: &mut Model) {
+    model.push_logs(vec![Log::error(
+        "<div>Internal Error: a fetch was invalid and \
+        should not have been possible</div>".to_string(),
+    )]);
+}
+
+
 fn new_rpc_id() -> jrpc::Id {
     jrpc::Id::Int(new_id() as i64)
 }
 
 /// Handle response of fetch
 fn handle_response(response: http::Response<String>) -> Msg {
-    let status = response.status();
-    if !status.is_success() {
-        let html = format!(
-            "<div>Received {} from server: {}</div>",
-            status,
-            response.into_body(),
-        );
-
-        return Msg::RecvError(vec![Log::error(html)]);
-    }
+    let response = match handle_status(response) {
+        Ok(r) => r,
+        Err(msg) => return msg,
+    };
 
     let body = response.into_body();
     let response: jrpc::Response<ProjectResultSer> =
@@ -115,4 +154,19 @@ fn handle_response(response: http::Response<String>) -> Msg {
     };
 
     Msg::RecvProject(result.id, Arc::new(result.result.project))
+}
+
+fn handle_status(response: http::Response<String>) -> Result<http::Response<String>, Msg> {
+    let status = response.status();
+    if !status.is_success() {
+        let html = format!(
+            "<div>Received {} from server: {}</div>",
+            status,
+            response.into_body(),
+        );
+
+        Err(Msg::RecvError(vec![Log::error(html)]))
+    } else {
+        Ok(response)
+    }
 }

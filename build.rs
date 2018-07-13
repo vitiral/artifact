@@ -14,7 +14,6 @@ fn main() {
 lazy_static! {
     static ref FRONTEND: PathDir = PathDir::new("artifact-frontend").unwrap();
     static ref BOOK: PathDir = PathDir::new("book").unwrap();
-
     static ref FRONTEND_TARGET: PathDir = PathDir::new(FRONTEND.join("target")).unwrap();
     static ref FRONTEND_DEPLOY: PathDir = PathDir::new(FRONTEND_TARGET.join("deploy")).unwrap();
 }
@@ -23,9 +22,7 @@ fn build_mdbook() {
     println!("Building the book");
     let status = Command::new("mdbook")
         .current_dir(BOOK.as_path())
-        .args(&[
-            "build",
-        ])
+        .args(&["build"])
         .status()
         .unwrap();
 }
@@ -75,14 +72,18 @@ fn tar_frontend() -> ::std::io::Result<PathFile> {
     Ok(archive_path)
 }
 
-fn tar_dir<W: ::std::io::Write>(prefix: &PathDir, from: &PathDir, builder: &mut tar::Builder<W>) -> ::std::io::Result<()> {
+fn tar_dir<W: ::std::io::Write>(
+    prefix: &PathDir,
+    from: &PathDir,
+    builder: &mut tar::Builder<W>,
+) -> ::std::io::Result<()> {
     for entry in from.list()? {
         let file = match entry.unwrap() {
             PathType::File(f) => f,
             PathType::Dir(d) => {
                 tar_dir(prefix, &d, builder);
                 continue;
-            },
+            }
         };
         let mut header = tar::Header::new_old();
         header.set_metadata_in_mode(&file.metadata()?, tar::HeaderMode::Deterministic);
@@ -93,4 +94,3 @@ fn tar_dir<W: ::std::io::Write>(prefix: &PathDir, from: &PathDir, builder: &mut 
     }
     Ok(())
 }
-

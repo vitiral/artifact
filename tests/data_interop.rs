@@ -7,8 +7,9 @@ extern crate artifact_lib;
 extern crate artifact_test;
 extern crate ergo;
 use artifact_lib::*;
-use artifact_test::{assert_stuff_data, run_generic_interop_test, run_generic_interop_tests,
-                    INTEROP_TESTS_PATH};
+use artifact_test::{
+    assert_stuff_data, run_generic_interop_test, run_generic_interop_tests, INTEROP_TESTS_PATH,
+};
 use ergo::*;
 
 /// This runs the interop tests for artifact-data.

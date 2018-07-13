@@ -48,8 +48,8 @@ mod family;
 mod expand_names;
 
 pub use name::{parse_subnames, InternalSubName, Name, SubName, Type, NAME_VALID_STR};
-pub use ser::{ArtifactImSer, ArtifactOpSer, ArtifactSer, CodeLocSer, ImplCodeSer, ImplSer, ProjectPathsSer,
-              ProjectSer, ProjectResultSer};
+pub use ser::{ArtifactImSer, ArtifactOpSer, ArtifactSer, CodeLocSer, ImplCodeSer, ImplSer,
+ProjectInitialSer, ProjectPathsSer, ProjectSer, ProjectResultSer, WebType};
 pub use family::{auto_partofs, Names};
 pub use expand_names::expand_names;
 pub use lint::Categorized;

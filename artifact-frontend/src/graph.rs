@@ -46,7 +46,7 @@ pub(crate) fn graph_html(model: &Model) -> ViewResult {
 
     let nav_extra = Some(html![
         <span>
-            <span class=(MR1, FIELD),>{ "| Filter:" }</span>
+            <span class=(MR1, FIELD),>{ "Filter:" }</span>
             <input id="graph-nav-filter",
              type="text",
              class=(FIELD),

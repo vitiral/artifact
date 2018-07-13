@@ -1,8 +1,9 @@
 //! Handle RPC Requests
-use ergo::json;
+use ergo::*;
 use nickel::status::StatusCode;
-use nickel::{HttpRouter, MediaType, MiddlewareResult, Nickel, Request, Response,
-             StaticFilesHandler};
+use nickel::{
+    HttpRouter, MediaType, MiddlewareResult, Nickel, Request, Response, StaticFilesHandler,
+};
 use tar::Archive;
 use tempdir::TempDir;
 // use jsonrpc_core::{Error as RpcError, ErrorCode, IoHandler, Params, RpcMethodSync};
@@ -10,22 +11,11 @@ use jrpc;
 use std::mem;
 use std::result;
 
-// use api::crud;
+use frontend;
 use serve;
 
 use artifact_data::*;
 use dev_prelude::*;
-
-const WEB_FRONTEND_TAR: &'static [u8] =
-    include_bytes!("../../artifact-frontend/target/frontend.tar");
-const REPLACE_FLAGS: &str = "{/* REPLACE WITH FLAGS */}";
-
-#[derive(Debug, Serialize, Deserialize)]
-struct Flags {
-    readonly: bool,
-    /// TODO: rename src_url
-    path_url: String,
-}
 
 // ----- SERVER -----
 
@@ -203,41 +193,14 @@ fn handle_rpc<'a>(req: &mut Request, mut res: Response<'a>) -> MiddlewareResult<
 /// static files are being held. It is important that this tempdir
 /// always be owned, ortherwise the files will be deleted!
 fn host_frontend(server: &mut Nickel, cmd: &serve::Serve) -> TempDir {
-    // it is important that tmp_dir never goes out of scope
-    // or the webapp will be deleted!
-    let tmp_dir = TempDir::new("artifact-web-ui").expect("unable to create temporary directory");
-    let dir = tmp_dir.path().to_path_buf(); // we have to clone this because *borrow*
-    info!("Unpacking frontend at: {}", dir.display());
+    let init = ProjectInitialSer {
+        project: None,
+        web_type: WebType::Editable,
+    };
+    let tmp_dir = expect!(TempDir::new("artifact-web-ui"));
+    expect!(frontend::unpack_frontend(&tmp_dir, &init));
 
-    let mut archive = Archive::new(WEB_FRONTEND_TAR);
-    archive.unpack(&dir).expect("Unable to unpack web frontend");
-
-    // TODO: this can all probably be safely removed
-    // // replace the default ip address with the real one
-    // let app_js_path = dir.join("app.js");
-    // let mut app_js = FileEdit::edit(app_js_path).unwrap();
-    // let mut text = String::new();
-    // app_js
-    //     .read_to_string(&mut text)
-    //     .expect("app.js couldn't be read");
-    // app_js.seek(SeekFrom::Start(0)).unwrap();
-    // app_js.set_len(0).unwrap(); // delete what is there
-    //                             // the elm app uses a certain address by default, replace it
-
-    // assert!(text.contains(REPLACE_FLAGS));
-    // let flags = Flags {
-    //     readonly: true,
-    //     path_url: "".into(),
-    // };
-    // app_js
-    //     .write_all(
-    //         text.replace(REPLACE_FLAGS, &json::to_string(&flags).unwrap())
-    //             .as_bytes(),
-    //     )
-    //     .unwrap();
-    // app_js.flush().unwrap();
-
-    server.utilize(StaticFilesHandler::new(&dir));
+    server.utilize(StaticFilesHandler::new(&tmp_dir.path()));
     println!("Hosting frontend at {}", cmd.port);
     tmp_dir
 }

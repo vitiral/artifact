@@ -389,6 +389,10 @@ impl Project {
             art.sort();
         }
     }
+
+    pub fn to_ser(&self) -> ProjectSer {
+        json::from_str(&json::to_string(&self).unwrap()).unwrap()
+    }
 }
 
 // ------ HELPERS ------

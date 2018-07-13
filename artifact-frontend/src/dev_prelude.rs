@@ -140,6 +140,7 @@ pub(crate) const LG_COL_12: &str = "lg-col-12";
 
 // Font Awesome
 pub(crate) const FA: &str = "fas";
+pub(crate) const FA_BOOK: &str = "fa-book";
 pub(crate) const FA_GRAPH: &str = "fa-code-branch";
 pub(crate) const FA_INFO_CIRCLE: &str = "fa-info-circle";
 pub(crate) const FA_EDIT: &str = "fa-edit";
@@ -192,6 +193,8 @@ pub(crate) enum View {
 }
 
 pub(crate) struct Model {
+    pub(crate) web_type: WebType,
+
     /// The project. TODO: rename `project`.
     pub(crate) shared: Arc<ProjectSer>,
 
@@ -316,6 +319,8 @@ pub(crate) enum Msg {
     /// Set the Graph `search` string.
     SetGraphSearch(String),
 
+    /// Received the initial project.
+    RecvInitial(ProjectInitialSer),
     /// Send an HTTP request to get the project.
     FetchProject {
         reload: bool,
