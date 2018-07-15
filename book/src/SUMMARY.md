@@ -1,14 +1,11 @@
 # Summary
 
 - [Introduction](./Introduction.md)
+  - [Instalation](./Installation.md)
+  - [Cheat Sheet](./CheatSheet.md)
+  - [Example](./ExampleFile.md)
 
-- [Instalation](./Installation.md)
-
-- [Cheat Sheet](./CheatSheet.md)
-
-- [Example](./ExampleFile.md)
-
-- [Simple Quality Leaflet](./SimpleQuality.md)
+- [Simple Quality with Artifact](./SimpleQuality.md)
   - [Starting Your Project](./StartingProject.md)
   - [Specifying Your Purpose](./Purpose.md)
   - [High Level Design](./Design.md)
@@ -17,12 +14,16 @@
   - [Artifact Intro](./ArtifactIntro.md)
   - [Detailed Design](./DetailedDesign.md)
   - [Implementation](./Implementation.md)
+  - [Cleaning Up](./CleaningUp.md)
+
+- [Finishing The Project](Finishing.md)
+  - [Running Tests](./RunningTests.md)
+  - [TODO](./TODO.md)
 
 - [Addendum](./Addendum.md)
   - [FAQ](./FAQ.md)
   - [Best Practices](./BestPractices.md)
-  - [Command Line Interface](./CliCommands.md)
-  - [Specification](./DOC-SPEC.md)
   - [Exporting Html](./ExportingHtml.md)
   - [Feedback](./Feedback.md)
+  - [Specification](./SPECIFICATION.md)
   - [License](./License.md)

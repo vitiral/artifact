@@ -34,7 +34,8 @@ mv README.md purpose.md
 > any artifacts.
 
 We now need to convert our headers into artifacts. Let's start with our purpose.
-Change the `# Purpose` line to `# REQ-purpose`. Your file should now look something like:
+Change the `# Purpose` line (from [Specifying Your Purpose](./Purpose.html)) to
+`# REQ-purpose`. Your file should now look something like:
 
 ```markdown
 # REQ-purpose
@@ -42,7 +43,8 @@ Write a flash card quizzer ...
 
 ```
 
-Do the same thing to your specifications:
+Do the same thing to your specifications from
+[High Level Design](./Design.html):
 - `# Execution Method` -> `# SPC-cli`
 - `# Final Results` -> `# SPC-report`
 - `# Question File Format` -> `# SPC-format`

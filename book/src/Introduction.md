@@ -1,4 +1,4 @@
-# Introduction
+# Artifact Introduction
 
 Welcome to the Artifact Tutorial and Simple Quality Leaflet!
 

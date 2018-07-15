@@ -18,7 +18,7 @@ dependencies = [
  "jrpc 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "stdweb 0.4.6 (registry+https://github.com/rust-lang/crates.io-index)",
  "yew 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "yew_simple 0.2.0",
+ "yew_simple 0.3.0 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
@@ -665,7 +665,8 @@ dependencies = [
 
 [[package]]
 name = "yew_simple"
-version = "0.2.0"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "expect_macro 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "http 0.1.6 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -757,3 +758,4 @@ dependencies = [
 "checksum winapi-x86_64-pc-windows-gnu 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)" = "712e227841d057c1ee1cd2fb22fa7e5a5461ae8e48fa2ca79ec42cfc1931183f"
 "checksum yaml-rust 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)" = "57ab38ee1a4a266ed033496cf9af1828d8d6e6c1cfa5f643a2809effcae4d628"
 "checksum yew 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)" = "078bc9860a9c72d3ff40b19fc7ed0a21c69234c667cd859091a72e513143cd9e"
+"checksum yew_simple 0.3.0 (registry+https://github.com/rust-lang/crates.io-index)" = "4dc12281a61c89d6a3251e9c0de3ad8d8705afde2d06c310176e54087565eb69"
