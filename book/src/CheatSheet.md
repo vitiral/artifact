@@ -30,28 +30,35 @@ Artifact tracks "artifacts", which are design documentation objects which have
 a name, some text and can be linked to other artifacts and to source code.
 
 There are three types of artifacts:
-- `REQ`: requirement, *why* your application exists. Also used for high level
-  architecture/goals as they relate to the user.
-- `SPC`: specification of how a requirement will be implemented. *How* you will
-  build your program
-- `TST`: details of what to test for a SPC or REQ.
+- `REQ`: Requirement, _why_ your application exists. Also used for high level
+  architecture/goals. Typically these relate to the user in some way.
+- `SPC`: Specification of how a requirement will be implemented. _How_ you will
+  build your program. Typically these are to document for developers how or why
+  something is implemented a certain way (from a larger architectural point of
+  view).
+- `TST`: Test. Details of what to test for a SPC or REQ.
 
 ## Artifact Format
-Artifact uses markdown to specify the design documents (artifacts). The
-complete format looks like:
-```
-# REQ-name
-partof:
-- REQ-other
-- REQ-foo
-done: This artifact is "defined as done".
-###
-The description of the artifact goes here.
+Artifacts can be speicifed in three formats: markdown (`.md`), TOML (`.toml`)
+or YaML (`.yaml`).
 
-You can do soft-links to other artifacts:
-- [[REQ-something]]: The web-ui will have a link to REQ-something and `art
-  check` will make sure it exists.
-```
+### Markdown Format
+Artifact uses markdown (by default) to specify the design documents (artifacts). The
+complete format looks like:
+
+
+    # REQ-name
+    partof:
+    - REQ-other
+    - REQ-foo
+    done: This artifact is "defined as done".
+    ###
+    The description of the artifact goes here.
+
+    You can do soft-links to other artifacts:
+    - [[REQ-something]]: The web-ui will have a link to REQ-something and `art
+      check` will make sure it exists.
+
 
 - name looks like: `# REQ-name`
 - The `partof` metadata field is how you link artifacts of any name.
@@ -72,8 +79,23 @@ Note that if no metadata is specified you can simply write:
 The description of the artifact goes here.
 ```
 
+## TOML Format
+
+Toml used to be the default format
+
+    [REQ-name]
+    partof = [
+        'REQ-other',
+        'REQ-foo',
+    ]
+    done = 'This artifact is "defined as done"'
+    text = """
+    The description of the artifact goes here.
+    """
+
+
 ## Settings
-After `art init` settings are in: `.art/settings.toml`
+After running `art init`, your settings will be in: `.art/settings.toml`
 
 Settings:
 - `artifact_paths`: paths to directories/files containing artifacts (in `.toml`
@@ -87,6 +109,8 @@ Settings:
 Writing `#SPC-name` in any valid utf-8 file (read: source code file) that is in
 a `code_paths` path will mark the artifact `SPC-name` as done.
 
+You can also mark subnames (`ART-name.subname`) as done.
+
 Example:
 ```python
 #!/usr/bin/python
@@ -94,6 +118,8 @@ def create_name(raw):
     """Documentation about the create_name function
 
     Implements #SPC-name
+
+    Also implements #SPC-name.subname
     """
     return process_name(raw);
 ```

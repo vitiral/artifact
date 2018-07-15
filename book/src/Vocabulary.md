@@ -1,3 +1,5 @@
+# Vocabulary
+
 It is time we briefly discuss design vocabulary.
 
 ## Specifying meaning

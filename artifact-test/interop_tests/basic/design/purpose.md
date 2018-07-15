@@ -23,6 +23,9 @@ partof: REQ-purpose
 ###
 This has a build file.
 
+Unit tests:
+- [[.tst-unit]]
+
 # TST-build
 partof: REQ-purpose
 ###

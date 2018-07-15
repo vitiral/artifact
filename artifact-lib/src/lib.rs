@@ -44,6 +44,10 @@ use siphasher::sip128::{Hasher128, SipHasher};
 
 use dev_prelude::*;
 
+lazy_static! {
+    static ref SUBNAME_TST_RE: Regex = Regex::new(r"(?i)^\.tst-.*$").unwrap();
+}
+
 #[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
 /// #SPC-structs.artifact
 /// The primary data structure of this library which encapsulates a majority of the useful
@@ -146,12 +150,21 @@ impl Impl {
             Impl::Code(ref impl_) => {
                 let mut count = 1;
                 let mut value = f64::from(impl_.primary.is_some() as u8);
+
+                let mut sec_count = 0;
+                let mut sec_value = 0.0;
                 for sub in subnames.iter() {
                     count += 1;
                     // add 1 if the subname is implemented, else 0
-                    value += f64::from(impl_.secondary.contains_key(sub) as u8);
+                    let contains_key = f64::from(impl_.secondary.contains_key(sub) as u8);
+                    value += contains_key;
+
+                    if SUBNAME_TST_RE.is_match(&sub.raw) {
+                        sec_count += 1;
+                        sec_value += contains_key;
+                    }
                 }
-                (count, value, 0, 0.0)
+                (count, value, sec_count, sec_value)
             }
             Impl::NotImpl => {
                 if !subnames.is_empty() {

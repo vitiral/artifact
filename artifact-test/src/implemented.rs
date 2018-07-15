@@ -34,7 +34,7 @@ pub fn random_impl_links<R: Rng + Clone>(
     names: &NamesRaw,
 ) -> IndexSet<(Name, Option<SubName>)> {
     let mut textgen =
-        regex_generate::Generator::parse(r"\.([a-zA-Z0-9_]{1,10})", rng.clone()).unwrap();
+        regex_generate::Generator::parse(r"\.((tst-)?[a-zA-Z0-9_]{1,10})", rng.clone()).unwrap();
     let mut buffer: Vec<u8> = Vec::with_capacity(10);
     let mut out = IndexSet::new();
     for name in names.iter() {

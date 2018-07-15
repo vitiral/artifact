@@ -4,9 +4,9 @@
 
 - [Instalation](./Installation.md)
 
-- [Example](./ExampleFile.md)
-
 - [Cheat Sheet](./CheatSheet.md)
+
+- [Example](./ExampleFile.md)
 
 - [Simple Quality Leaflet](./SimpleQuality.md)
   - [Starting Your Project](./StartingProject.md)
@@ -14,6 +14,9 @@
   - [High Level Design](./Design.md)
   - [Vocabulary](./Vocabulary.md)
   - [Tools](./Tools.md)
+  - [Artifact Intro](./ArtifactIntro.md)
+  - [Detailed Design](./DetailedDesign.md)
+  - [Implementation](./Implementation.md)
 
 - [Addendum](./Addendum.md)
   - [FAQ](./FAQ.md)

@@ -1,3 +1,5 @@
+# Specifying Your Purpose
+
 One of the most critical pieces of documentation is your purpose documentation.
 Without purpose documentation, it is easy to get lost and forget what your
 project was trying to accomplish.
@@ -8,8 +10,8 @@ are going to use artifact to track them.
 Open up your `README.md` in your favorite plain-text editor and write out
 something like the following:
 
-```
-## Purpose:
+```markdown
+# Purpose:
 Write a flash card quizzer from scratch and learn about
 quality best practices while doing so.
 

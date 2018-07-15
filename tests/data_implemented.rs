@@ -37,6 +37,8 @@ Some are legitamate subnames:
 And to the right:
     %SPC-right.sub
 
+Here is a special tst subname:
+    %SPC-sub.tst-foo
 "#;
     let file = PathFile::mock("/fake/file.c");
     let mut expected: Vec<_> = vec![
@@ -53,6 +55,7 @@ And to the right:
         (9, name!("REQ-valid"), None),
         (20, name!("SPC-sub"), Some(subname!(".name"))),
         (23, name!("SPC-right"), Some(subname!(".sub"))),
+        (26, name!("SPC-sub"), Some(subname!(".tst-foo"))),
     ];
     let expected: Vec<_> = expected
         .drain(0..)

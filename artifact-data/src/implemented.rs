@@ -28,14 +28,14 @@ lazy_static!{
     /// Name reference that can exist in source code
     static ref SRC_NAME_RE: Regex = Regex::new(
         &format!(r#"(?xi)
-        (?:                 # start std section
-        \#(                 # start main section
-        (?:REQ|SPC|TST)     # all types are supported
-        -(?:[{0}]+-)*       # any number of first elements
-        (?:[{0}]+)          # required end element
-        )                   # end main section
-        (\.[{0}]+)?         # (optional) sub section
-        )                   # end std section
+        (?:                     # start std section
+        \#(                     # start main section
+        (?:REQ|SPC|TST)         # all types are supported
+        -(?:[{0}]+-)*           # any number of first elements
+        (?:[{0}]+)              # required end element
+        )                       # end main section
+        (\.(?:tst-)?[{0}]+)?    # (optional) sub section
+        )                       # end std section
         |(?P<skip>\#ART-SKIP)
         |(?P<done>\#ART-DONE)
         "#, NAME_VALID_CHARS!())).unwrap();

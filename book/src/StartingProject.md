@@ -1,3 +1,5 @@
+# Starting Your Project
+
 The primary teaching method that this book will employ is "learning by doing".
 This is an approach that many developers are familiar with and is used in some
 of the most effective tutorials on software development.

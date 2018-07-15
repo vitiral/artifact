@@ -8,3 +8,4 @@
 node_modules
 *.ropeproject
 result
+*.proptest-regressions

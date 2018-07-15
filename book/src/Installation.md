@@ -38,13 +38,14 @@ Simply execute the following:
 ```bash
 git clone https://github.com/vitiral/artifact
 cd artifact
-source env  # this will take a while
 cargo build --release
 ```
 
+> Note: you may need `cargo-web` installed as well.
+
 Do a full suite of tests with:
 ```bash
-just test-all
+cargo test
 ```
 
 ## Installing with [cargo](https://github.com/rust-lang/cargo)

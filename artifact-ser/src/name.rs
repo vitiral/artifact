@@ -179,22 +179,22 @@ lazy_static!{
 
     /// Valid subname regex
     static ref VALID_SUB_NAME_RE: Regex = Regex::new(
-        &format!(r"(?i)^\.[{}]+$", NAME_VALID_CHARS!())).unwrap();
+        &format!(r"(?i)^\.(?:tst-)?[{}]+$", NAME_VALID_CHARS!())).unwrap();
 
     pub static ref TEXT_SUB_NAME_STR: String = format!(
-        r"(?i)\[\[(?P<{}>\.[{}]+)\]\]",
+        r"(?i)\[\[(?P<{}>\.(?:tst-)?[{}]+)\]\]",
         SUB_RE_KEY,
         NAME_VALID_CHARS!(),
     );
 
     pub static ref TEXT_REF_STR: String = format!(r#"(?xi)
-        \[\[(?P<{1}>            # start main section
-        (?:REQ|SPC|TST)         # all types are supported
-        -(?:[{0}]+-)*           # any number of first element
-        (?:[{0}]+)              # required end element
-        )                       # end main section
-        (?P<{2}>\.[{0}]+)?      # (optional) sub section
-        \]\]                    # close text reference
+        \[\[(?P<{1}>                # start main section
+        (?:REQ|SPC|TST)             # all types are supported
+        -(?:[{0}]+-)*               # any number of first element
+        (?:[{0}]+)                  # required end element
+        )                           # end main section
+        (?P<{2}>\.(?:tst-)?[{0}]+)? # (optional) sub section
+        \]\]                        # close text reference
         "#,
         NAME_VALID_CHARS!(),
         NAME_RE_KEY,

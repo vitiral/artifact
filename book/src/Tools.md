@@ -1,3 +1,5 @@
+# Tools
+
 Just like revision control best practices would be meaningless without a
 revision control tool like git, design best practices are meaningless without a
 tool to help you track your design documents.
@@ -79,6 +81,35 @@ book. Artifact will be the topic of the next chapter.
 At the end of the process, we will be able to host our design docs just like the
 artifact project's [design docs][8].
 
+
+## Get Started With Git
+
+Before we do anything else, let's start using git to track
+our progress. Since artifact tracks design docs which are written
+in plain text, you can (and should) use revision control to
+track the evolution of your design documents.
+
+> Note: you should have already [set up your project](StartingProject.html)
+
+```
+git add README.md
+git commit -m "add README.md"
+```
+
+This will add the progress you have made so far to git and allow
+us to track our progress.
+
+> ### Exercise 1:
+> git is a fantastic tool, but it is beyond the scope of this guide
+> to give a full tutorial on git or revision control in general.
+> Before proceeding with this guide any further, it is recommended
+> you go through the [git tutorial][9]
+>
+> You can always type `git COMMAND -h` to get help on any command.
+>
+> The rest of the tutorial will assume you have a working knowledge
+> of git commands and what their purpose is.
+
 [1]: https://git-scm.com/
 [2]: http://rosettacode.org/wiki/Documentation
 [3]: https://doc.rust-lang.org/std/
@@ -87,3 +118,4 @@ artifact project's [design docs][8].
 [6]: http://doc.pytest.org/en/latest/
 [7]: https://github.com/vitiral/artifact
 [8]: http://vitiral.github.io/artifact/#artifacts/REQ-1
+[9]: https://git-scm.com/doc

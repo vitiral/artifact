@@ -26,7 +26,10 @@ code_impls:
         primary:
             file: build.rs
             line: 0
-        secondary: {}
+        secondary:
+            .tst-unit:
+                file: build.rs
+                line: 5
     SPC-foo:
         primary:
             file: src/foo/mod.rs
@@ -67,8 +70,10 @@ artifacts:
             - SPC-build
             - TST-build
         completed:
-            spc: 0.625 # (0<req-lib> + 0.875<req-foo> + 1.0<spc-build>) / 3
-            tst: 0.473 # (0<req-lib> + 0.893<req-foo> + 0.5<spc-build> + 0.5<tst-build>) / 4
+            # (0<req-lib> + 0.875<req-foo> + 1.0<spc-build>) / 3
+            spc: 0.625
+            # (0<req-lib> + 0.893<req-foo> + 0.75<spc-build> + 0.5<tst-build>) / 4
+            tst: 0.536
         text: |
             The purpose of this project is is to test a basic
             project... that's it!
@@ -123,15 +128,17 @@ artifacts:
             - REQ-purpose
         parts:
             - TST-build
-        completed: {spc: 1.0, tst: 0.5}
-        text: |-
-            This has a build file.
+        completed: {spc: 1.0, tst: 0.75}
+        text: "This has a build file.\n\nUnit tests:\n- [[.tst-unit]]\n"
         impl_:
             primary:
                 file: build.rs
                 line: 0
-            secondary: {}
-        subnames: []
+            secondary:
+                .tst-unit:
+                    file: build.rs
+                    line: 5
+        subnames: [".tst-unit"]
     TST-build:
         name: TST-build
         file: design/purpose.md
