@@ -34,8 +34,8 @@ jargon or complex test methodologies to realize huge gains in the quality of
 your software. Some simple vocabulary, new tools and new ways of looking at
 things are all you need.
 
-> All code/documentation examples in this book are public domain. The rest of
-> the book is licensed under the [GNU GPLv3 License][3].
+> All code/documentation examples in this book are public domain. For more
+> information see the [License](./License.html)
 
 [2]: https://github.com/vitiral/simple-quality/issues
 [3]: https://www.google.com/search?q=gnu+gpl+v3&ie=utf-8&oe=utf-8

@@ -5,7 +5,7 @@ environment:
   global:
   # This is the Rust channel that build jobs will use by default but can be
   # overridden on a case by case basis down below
-    RUST_VERSION: stable
+    RUST_VERSION: nightly
     #RUST_VERSION: nightly-2017-08-31
 
     CRATE_NAME: artifact-app
@@ -42,15 +42,16 @@ install:
   - set PATH=%PATH%;C:\Users\appveyor\.cargo\bin
   - rustc -Vv
   - cargo -V
+  - cargo install cargo-web
+  - cargo install mdbook
 
 # TODO This is the "test phase", tweak it as you see fit
 test_script:
   # we don't run the "test phase" when doing deploys
   - if [%APPVEYOR_REPO_TAG%]==[false] (
-      cargo rustc --target %TARGET% --release --bin art -- -C lto &&
       cargo test --target %TARGET% &&
       cargo run --target %TARGET% -- check &&
-      cargo test --target %TARGET% --release
+      cargo rustc --target %TARGET% --release --bin art -- -C lto
     )
 
 # before_deploy:

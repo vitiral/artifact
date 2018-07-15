@@ -13,17 +13,16 @@ An example repository you can play around with is here:
 [1]: https://vitiral.gitbooks.io/simple-quality/content/vocabulary.html
 
 ## Useful commands
--  `art tutorial`: start the interactive tutorial
-- `art [subcommand] -h`: get help
+- `art help`: get help
+- `art [subcommand] -h`: get help on a subcommand.
 - `art init`: initialize repo
+- `art serve`: open an editable Web UI.
 - `art ls`: list/filter artifacts
 - `art check`: check for errors
 - `art fmt`: format artifacts
-- `art export html --path-url $GITHUB_URL/blob/$(git rev-parse HEAD)/{path}#L{line}`: export a [static webpage][10]
-- `art serve`: open an editable web-ui
-    - Has interactive help pages. Look for the `i` info symbols.
+- `art export html $DEST`: export a [static webpage](examples/part2/index.html)
 
-[10]: https://vitiral.github.io/artifact-example/#artifacts/req-1
+[10]: https://vitiral.github.io/artifact-example
 
 ## Artifact Types
 Artifact tracks "artifacts", which are design documentation objects which have
@@ -105,13 +104,26 @@ Settings:
 - `code_paths`: paths of source code containing `#ART-name` references.
 - `exclude_code_paths`: paths of directories/files to exclude from `code_paths`
 
-## Linking to source
+## Implementing artifacts and subarts
 Writing `#SPC-name` in any valid utf-8 file (read: source code file) that is in
 a `code_paths` path will mark the artifact `SPC-name` as done.
 
-You can also mark subnames (`ART-name.subname`) as done.
+You can also specify subarts (pieces of an artifact that should be implemented
+in code) by putting `[[.subart]]` anywhere in an artifact's `text` field. These
+can be linked in code like so: `#ART-name.subart`.
 
-Example:
+In addition, artifact supports specifying unit tests using a `[[.tst-name]]`
+subart. These subarts contribute to both `spc%` and `tst%`.
+
+Example Artifact:
+```markdown
+# SPC-name
+This has [[.subart]] subart.
+
+Also [[.tst-name]] unit test.
+```
+
+Example Code Implementation:
 ```python
 #!/usr/bin/python
 def create_name(raw):
@@ -119,7 +131,12 @@ def create_name(raw):
 
     Implements #SPC-name
 
-    Also implements #SPC-name.subname
+    Also implements #SPC-name.subart
     """
     return process_name(raw);
+
+
+def test_create_name():
+   """#SPC-name.tst-name"""
+   assert create_name("foo") == "FOO"
 ```

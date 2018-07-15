@@ -3,9 +3,17 @@
 
 language: rust
 rust:
-    - stable
+    # TODO: pin specific nightly
+    - nightly
 
 cache: cargo
+
+before_install:
+    - set -e
+
+install:
+    - cargo install cargo-web || echo "cargo-web already installed"
+    - cargo install mdbook || echo "mdbook already installed"
 
 notifications:
   email:

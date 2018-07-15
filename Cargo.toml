@@ -38,10 +38,11 @@ jsonrpc-core = "8.0.1"
 artifact_data = {path = "artifact-data"}
 artifact_lib = {path = "artifact-lib"}
 jrpc = "0.4.0"
+quicli = "0.3.0"
 
-[dependencies.quicli]
-path = "quicli"
-default-features = false
+# [dependencies.quicli]
+# path = "quicli"
+# default-features = false
 
 [dev-dependencies]
 assert_cli = "0.6.1"

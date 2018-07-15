@@ -42,17 +42,9 @@ don't get carried away! It's okay to specify `partof` when it makes
 your tree simpler.
 
 ### no-numbers: Use only human readable names
-Except for maybe `REQ-1` denoting your purpose and `SPC-0` denoting your
-definitions, artifact names should avoid using numbers. If you are tempted to
-call something `SPC-foo-1` just break down the different items of `foo` in a
-bullet point list in it's `text` field.
-
-Then, if you want to reference it in your source code, just say something like
-`see SPC-foo.1`.
-
-> Note: Periods (`.`) are actually invalid characters in artifact, and there
-> is a possibly that the above will actually be seen to mean something
-> special when linked in source code.
+Artifact names should avoid using numbers. If you are tempted to call something
+`SPC-foo-1` just break down the different items of `foo` in a bullet point list
+in its `text` field and use subnames.
 
 ### abbreviations: abbreviate names
 Artifact is intended to be used as a cmd line tool, so keeping names short is
@@ -60,21 +52,18 @@ very nice.
 
 This is mostly useful for larger projects.
 
-It is also good to define all your abbreviations in `SPC-0-abbreviations`
-
 ### prefix-acronyms: create acronyms for your prefixes
 Use an acronym or abbreviation for your prefixes.
 
-One of the main use cases of short names is for the categories
-of your artifacts. For instance, say your storage product had the
-following features:
+One of the main use cases of short names is for the categories of your
+artifacts. For instance, say your storage product had the following features:
 - transport
 - data availability
 - data recovery
 - remote replication
 
-It would be annoying to have artifacts like `REQ-transport-drive`
-or `REQ-remote_replication-protocol`. Instead, use an acronyms:
+It would be annoying to have artifacts like `REQ-transport-drive` or
+`REQ-remote_replication-protocol`. Instead, use an acronyms:
 
 - **TP**: transport
 - **DA**: data availability
@@ -85,5 +74,7 @@ Now your artifacts look like `REQ-TP-drive` and `REQ-RR-protocol`,
 which is much shorter and more readable when looking at a large list.
 
 ### uniformity: keep names uniform
-artifact automatically makes `SPC-foo` a partof `REQ-foo` and that is because
-they should be related. Make sure your names have meaning.
+Artifact automatically makes `SPC-foo` a partof `REQ-foo` and that is because
+they should be related. Make sure your names have meaning so this doesn't
+accidentally become a gotcha for your project.
+

@@ -21,19 +21,20 @@ partof:
 - REQ-learn
 ###
 
-Artifact files like this one are written in a slightly extended markdown format
-you can read more about it here: http://commonmark.org/help/tutorial/
+Artifact files like this one are written in a slightly extended markdown
+format. You can read more about markdown here:
+http://commonmark.org/help/tutorial/
 
 The "extended" part is that artifact treats the following syntax as special:
 ```
 # ART-name
-<optional yaml section here>
+<optional SPECIAL yaml section here>
 ###
 <regular markdown section here>
 ```
 
-Where `ART` is one of `REQ`, `SPC`, `TST` and `<optional yaml here>` is a few
-items like `partof` and `done` fields. We will get to those later.
+Where `ART` is one of `REQ`, `SPC`, `TST` and `<optional SPECIAL yaml here>` is
+a few items like `partof` and `done` fields. We will get to those later.
 
 
 # SPC-learn
@@ -41,14 +42,14 @@ partof:
 - REQ-markdown
 ###
 
-Anything starting with SPC is a design specification. Comparing them:
+Anything starting with SPC is a design specification.
 
-Requirements (REQ) should be used for
-- detailing what you want your application to do
-- what the architecture of your applicaiton should be
+Requirements (REQ) should be used for:
+- Detailing what you want your application to do.
+- What the architecture of your applicaiton should be.
 
-Specifications (SPC) should be used for
-- how you intend to write your application (lower level details).
+Specifications (SPC) should be used for:
+- How you intend to write your application (lower level details).
 
 There are also tests (TST) which we will learn about later.
 
@@ -62,38 +63,25 @@ Artifact uses the names of artifacts to automatically link them and track
 progress. This makes it easy for the user to intuitively link together
 requirements with their specification and reduces boilerplate.
 
-[[SPC-learn]] is automatically a "partof" [[REQ-learn]] because the names after
-the type are the same ("-learn").
+For instance, `[[SPC-learn]]` is automatically a "partof" `REQ-learn` because
+the names after the type are the same ("-learn").
 
 You can also explicitly link artifacts like so:
 ```
-# ART-name
+# SPC-name
 partof:
-- ART-other
+- SPC-other
 - <additional partof>
 ###
 <regular markdown section here>
 ```
 
-So far we have:
-```
-REQ-learn
-    ^
-    |
-    +-- REQ-markdown
-    |       ^
-    |       |
-    +<----- SPC-learn
-    |
-    \-- REQ-partof <-- SPC-partof
-```
-
-Here is a helpful graph of valid partof relations between artifacts:
+Here is a graph of valid partof relations between artifacts:
 ```
   REQ <-- SPC <-- TST
 ```
 
-Therefore:
+In other words:
 - A REQ can be partof a REQ only
 - A SPC an be partof a REQ or SPC
 - A TST can be partof a REQ, SPC or TST
@@ -107,10 +95,24 @@ There are only a few rules for defining artifacts:
 
 
 # TST-definition
-TST artifacts are used to document test design and are the only way that an
-artifact can be considered "tested" (besides the `done` field).
+TST artifacts (and subartifacts) are used to document test design and are the
+only way that an artifact can be considered "tested" (besides the `done`
+field).
 
 Artifact makes it easy to track the "progress" of your application because `art
 ls` (and the web-ui) gives you easy to easy to read completion and tested
 percentages for all your artifacts based on which ones are implemented in
 source code (more on that later).
+
+
+# SPC-implementing
+Artifacts are implemented by putting links anywhere your source code, i.e.
+`#SPC-name`. There are also subartifacts, i.e. `#SPC-name.sub`.
+
+Subartifacts are defined by putting `[[.subart]]` anywhere in the text. These
+artifacts are used to break down how to implement an artifact in pieces which
+should then be linked in code.
+
+Unit tests can be specified by using `[[.tst-name]]`. These kind of subarts
+contribute to an artifact's `tst%`.
+

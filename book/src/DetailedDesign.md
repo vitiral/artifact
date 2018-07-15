@@ -8,6 +8,9 @@ We already answered this to some degree in `SPC-format`. Let's expand it a bit.
 
 ```markdown
 # SPC-format
+partof:
+- REQ-purpose
+###
 The user shall be able to easily configure the quiz
 questions through a simple csv format consisting of two
 columns: the question and the answer.
@@ -41,25 +44,22 @@ There are a few things here, so let's take a look:
 
 # Define Tests
 
-Let's also define a couple of unit tests.
+Let's also define a couple of unit tests. You could do this using a new
+`TST-format` (or any other name) artifact.
 
-> Personally I like to create a single `TST-unit` which I link to all
-> lower-level items and create subarts for each of them. This is one area where
-> there could definitely be improvement in artifact (maybe .TST-subarts, i.e.
-> `SPC-name.tst-invalid` which complete testing?)
+However, artifact has what are called tst-subarts specifically for the purpose
+of defining unit test coverage that you want. Simply add the following section
+to `SPC-format`:
 
 ```markdown
-# TST-format
-
-Unit tests for testing [[SPC-format]]:
-- [[.invalid]]: At least the following unit tests **will** be implemented:
-  - Test invalid number of columns (0, 1, and 3).
-  - Test duplicate names.
-- [[.load]]: The unit tests for load shall include:
-  - Loading a raw string and validating it.
-  - Loading a valid csv file path and validating it.
-  - Try to load a csv file with 3 columns, expect error.
+## Unit Tests:
+- Invalid: make sure invalid inputs don't work
+  - [[.tst-invalid_cols]]: Test invalid number of columns (0, 1, and 3).
+  - [[.tst-duplicates]]: Test duplicate names.
+- Make sure loading works.
+  - [[.tst-basic]]: Loading a raw string and validating it.
+  - [[.tst-load]]: Loading a valid csv file path and validating it.
 ```
 
-> Note that because `TST-format` has the same postfix as `SPC-format` they are
-> automatically linked (no need to specify `partof`).
+These will allow us to implement testing for SPC-format without having to
+create new artifacts.

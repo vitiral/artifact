@@ -100,16 +100,17 @@ fn replace_markdown<'a, 't>(model: &Model, parent: &'a str, markdown: &'t str) -
 
 /// Replace the markdown for a subname declaraction.
 fn replace_markdown_sub(model: &Model, parent: &str, sub: &str) -> String {
-    // TODO: also format the link/location
-    let color = match model.shared.get_impl(parent, Some(sub)) {
-        Ok(_) => BLUE,
-        Err(_) => RED,
+    let impl_ = model.shared.get_impl(parent, Some(sub));
+    let (title, color) = match impl_ {
+        Ok(i) => (format!("{:?}", i), BLUE),
+        Err(_) => ("Not Implemented".to_string(), RED),
     };
+
     format!(
-        "<span title=\"subname\" style=\"font-weight: bold; color: {}\">\
+        "<span title=\"{}\" style=\"font-weight: bold; color: {}\">\
          {}\
          </span>",
-        color, sub,
+        title, color, sub,
     )
 }
 
