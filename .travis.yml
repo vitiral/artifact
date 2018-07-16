@@ -20,28 +20,28 @@ notifications:
   email:
     on_success: never
 
-# deploy:
-#   # update `api_key.secure`
-#   # - Create a `public_repo` GitHub token. Go to: https://github.com/settings/tokens/new
-#   # - Encrypt it: `travis encrypt YOUR_TOKEN`
-#   # - Paste the output down here
-#   api_key:
-#     secure: mup1wr3gAlbMJARUpcE/573zjVHWIM3iwdzcH/6hW8RqcSJNuNz964AF/xQcIrCC4y8aZOboOPZLtc2Spo5oDk0NmygOaSbQXlJwJWdbWJ15GXTi0FMzsC83waBCO7xwKXkewqCc+NCsuPbkVoJugcETcgx0ymDaeFP6i3NAs43uIjxdHeVv58BshAwZszp0DuQZWg73Vy4diPSWyVvDYQYtYRVs6Xl9/xlIGL1peORZnk/dFhfI0zvxajNqoOyhwIJzp8nUuwVBxomsBtJ5sKa4T7FAN5HGe4EnMFfnSwAYl5ffjVd4okyMrmDAdl6nveSgeGxcT8kmMpjrLTAEjd7JBw1Pa5mIY+7YduR/XrruLwLCCix0UJpjETppXG18J0gla+znqRCMxSil2GQ18d7TW7c8uetBSDjTn+tLHqSigfXtKExLYnkFOxEzISkHYw0jTHwAadtcxJLaKMsG2MOOFc7eeHuevIftJz7r2ONkORo9s9AX64hGEZVea9+qm27y+QJ6Cor8CZa+8cmdm/NsiWAcbXDg1YpG2MSAHeF/tmqfeVSJiloKJnCnMDE1Rcg2ZmHLd12qUfuF+CrbqpVdunjfFUN6bq0igjN1BfocIsl1285KCiOBZr5p91Wg5Mn87YNR3hihRkU5s32TTH2gETHP+Y24jXtLZQZxdPw=
-#   file_glob: true
-#   file: $CRATE_NAME-$TRAVIS_TAG-$TARGET.*
-#   on:
-#     # Here you can pick which targets will generate binary releases
-#     # In this example, there are some targets that are tested using the stable
-#     # and nightly channels. This condition makes sure there is only one release
-#     # for such targets and that's generated using the stable channel
-#     # condition: $TRAVIS_RUST_VERSION = stable
-#     tags: true
-#   provider: releases
-#   skip_cleanup: true
+deploy:
+  # update `api_key.secure`
+  # - Create a `public_repo` GitHub token. Go to: https://github.com/settings/tokens/new
+  # - Encrypt it: `travis encrypt YOUR_TOKEN`
+  # - Paste the output down here
+  api_key:
+    secure: mup1wr3gAlbMJARUpcE/573zjVHWIM3iwdzcH/6hW8RqcSJNuNz964AF/xQcIrCC4y8aZOboOPZLtc2Spo5oDk0NmygOaSbQXlJwJWdbWJ15GXTi0FMzsC83waBCO7xwKXkewqCc+NCsuPbkVoJugcETcgx0ymDaeFP6i3NAs43uIjxdHeVv58BshAwZszp0DuQZWg73Vy4diPSWyVvDYQYtYRVs6Xl9/xlIGL1peORZnk/dFhfI0zvxajNqoOyhwIJzp8nUuwVBxomsBtJ5sKa4T7FAN5HGe4EnMFfnSwAYl5ffjVd4okyMrmDAdl6nveSgeGxcT8kmMpjrLTAEjd7JBw1Pa5mIY+7YduR/XrruLwLCCix0UJpjETppXG18J0gla+znqRCMxSil2GQ18d7TW7c8uetBSDjTn+tLHqSigfXtKExLYnkFOxEzISkHYw0jTHwAadtcxJLaKMsG2MOOFc7eeHuevIftJz7r2ONkORo9s9AX64hGEZVea9+qm27y+QJ6Cor8CZa+8cmdm/NsiWAcbXDg1YpG2MSAHeF/tmqfeVSJiloKJnCnMDE1Rcg2ZmHLd12qUfuF+CrbqpVdunjfFUN6bq0igjN1BfocIsl1285KCiOBZr5p91Wg5Mn87YNR3hihRkU5s32TTH2gETHP+Y24jXtLZQZxdPw=
+  file_glob: true
+  file: $CRATE_NAME-$TRAVIS_TAG-$TARGET.*
+  on:
+    # Here you can pick which targets will generate binary releases
+    # In this example, there are some targets that are tested using the stable
+    # and nightly channels. This condition makes sure there is only one release
+    # for such targets and that's generated using the stable channel
+    # condition: $TRAVIS_RUST_VERSION = stable
+    tags: true
+  provider: releases
+  skip_cleanup: true
 
-# branches:
-#   only:
-#     # release tags
-#     - /^\d+\.\d+\.\d+.*$/
-#     - master
+branches:
+  only:
+    # release tags
+    - /^\d+\.\d+\.\d+.*$/
+    - master
 
