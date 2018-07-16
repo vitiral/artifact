@@ -8,13 +8,9 @@
    src="docs/data/artifact-thumb.png">
 </a>
 
-- **[Installation Guide](docs/Installation.md)**
-- **[Quick Start Guide](docs/QuickStart.md)**
-- **[Cheat Sheet](docs/CheatSheet.md)**
-- **[FAQ](docs/FAQ.md)**
-- **[Simple Quality Book][1]**
+- **[Tutorial][1]**
 - **[Rendered Design Documents][2]**
-- **[Issue Tracker][6]**
+- **[Leaving Feedback][7]**
 
 Artifact is the simple, linkable and trackable design documentation tool for
 everybody. It allows anyone to write and link their design documents both to
@@ -69,13 +65,14 @@ make writing design documents more fun and useful in your day to day
 development efforts.
 
 **Jump into artifact with the the [youtube commercial][4] and the
-[Quick Start Guide](docs/QuickStart.md).**
+[Tutorial](https://vitiral.github.io/artifact/docs/index.html).**
+
+[Also, view artifact's own design docs.][2]
 
 ## Support The Project
-You can support the project by :star: staring it on github and
-:green_heart: sharing it with your friends, coworkers and social media. You
-can also support it directly [on patreon][5], vote for it in the
-[2017 Hackaday Prize][7] and by leaving direct [feedback](docs/Feedback.md).
+You can support the project by :star: staring it on github and :green_heart:
+sharing it with your friends, coworkers and social media. You can also leave
+direct [feedback][7].
 
 All funds collected through any link above  will **only** go towards hiring
 student developers as interns to work on open source features within artifact.
@@ -85,60 +82,6 @@ development of proprietary software.**
 By supporting artifact, you are supporting open source tools for quality
 software development and also internship oportunities for students passionate
 about open source. Thank you!
-
-## Stability
-Artifact is 1.0 software with a strong commitment to backwards compatibility.
-The 1.0 release is the "open source" release. Artifact is ready for projects of
-any size to use it as their defacto design documentation tool, but the external
-tooling may still be lacking for enterprise customers.
-
-The 2.0 release will focus on stabilizing the library for external tooling.
-This will position artifact for integration with industry tools such as JIRA
-and external regression test tracking software. I am currently seeking
-enterprise support, please consider [supporting this project on patreon][5].
-
-The following are stable APIs that should always remain backwards compatible:
-- Artifact `.toml` files. Features may be *added*, but should not be removed.
-  This includes:
-  - Artifact types: `REQ`, `SPC`, `TST`.
-  - Artifact fields: `partof`, `text`, `done`.
-  - Text format: markdown by default with `[[ART-name]]` links.
-- Artifact relationships: explicit partof, auto linking by name, etc.
-- Artifact completeness calculated from its relationships.
-- Source code links: `#ART-name` anywhere in the source code marks
-  the artifact as done.
-- `.art/settings.toml` file
-- The command line interface, including:
-  - The name of the commands (`tutorial`, `init`, `ls`, `check`, `fmt`, etc).
-  - Existing flags for each command.
-  - The functional checks that are completed (i.e. dangling artifact names)
-  - `art serve` default port of 5373 on localhost
-
-The following should remain relatively stable but may have minor tweaks
-before 2.0:
-- The output of commands, including:
-  - The format of the output messages. I.e. you should not rely on `art ls`
-    having a specific output format.
-  - The format of artifacts as performed by `art fmt`.
-- The json format returned by `art ls --json` and through the json-rpc
-  server from `art serve`.
-- Anything not mentioned in the first section. If you are unsure, please
-  open a ticket.
-
-The following are expected to change a lot before 2.0:
-- The web ui. Hopefully the changes will be an almost uniform improvement for
-  everybody.
-- The `art serve` http interface including its API methods and data format.
-- The code and expected functions/types/etc of the library itself should be
-  considered highly unstable. Future work will involve breaking it into smaller
-  crates that are more stable.
-- Logging messages evoked with `art -v`.
-- Lots of other things that I can't think of. If you are unsure or concerned,
-  open a ticket.
-
-Artifact will continue to use a continuous-release cycle with extensive unit
-and integration tests. There will also be a beta release channel for new and
-experimental features. If you find a bug please [open a ticket][6].
 
 [![Build Status](https://travis-ci.org/vitiral/artifact.svg?branch=master)](https://travis-ci.org/vitiral/artifact)
 
@@ -163,9 +106,8 @@ https://creativecommons.org/publicdomain/
 
 The CC0 license applies to:
 - All project [docs](docs)
-- The [Artifact Design Documents](http://vitiral.github.io/artifact/#artifacts/REQ-1)
+- The [Artifact Design Documents](http://vitiral.github.io/artifact)
     (also located in `design/`)
-- The Artifact Documentation (located in `docs/`) except the logo in `docs/logo`
 - The [Artifact Wiki](https://github.com/vitiral/artifact/wiki)
 - Any file or data created by any artifact command, including:
     - documents created by `art init`
@@ -194,10 +136,8 @@ for inclusion in the work by you, as defined in the Apache-2.0 license, shall
 be dual licensed as above, without any additional terms or conditions.
 
 
-[1]: https://vitiral.gitbooks.io/simple-quality/content/
-[2]: http://vitiral.github.io/artifact/#artifacts/REQ-1
-[3]: https://github.com/vitiral/artifact/wiki/Exporting-Html
+[1]: https://vitiral.github.io/artifact/docs/index.html
+[2]: http://vitiral.github.io/artifact
 [4]: https://www.youtube.com/watch?v=kMzxKVkKLlE
-[5]: https://www.patreon.com/user?u=7618979
-[6]: http://github.com/vitiral/artifact/issues
-[7]: https://hackaday.io/project/27132-artifact
+[7]: https://github.com/vitiral/artifact/docs/Feedback.html
+[9]: https://github.com/vitiral/artifact/docs/Installation.html
