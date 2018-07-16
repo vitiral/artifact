@@ -111,7 +111,6 @@ The CC0 license applies to:
 - The [Artifact Wiki](https://github.com/vitiral/artifact/wiki)
 - Any file or data created by any artifact command, including:
     - documents created by `art init`
-    - documents created by `art tutorial`
     - compiled html/css/json files created by `art export`
 
 The artifact logo (named Tula) is licensed under Creative Commons
