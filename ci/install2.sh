@@ -11,14 +11,15 @@ mkdir -p ~/.cargo/bin
 mv cargo-web ~/.cargo/bin
 
 
-# MDBOOK
-MDBOOK_RELEASE=$(curl -L -s -H 'Accept: application/json' https://github.com/rust-lang-nursery/mdBook/releases/latest)
-MDBOOK_VERSION=$(echo $MDBOOK_RELEASE | sed -e 's/.*"tag_name":"\([^"]*\)".*/\1/')
-MDBOOK_URL="https://github.com/rust-lang-nursery/mdBook/releases/download/$MDBOOK_VERSION/mdbook-$MDBOOK_VERSION-x86_64-unknown-linux-gnu.tar.gz"
-
-echo "Downloading mdbook from: $MDBOOK_URL"
-curl -L $MDBOOK_URL | gzip -d > mdbook
-chmod +x mdbook
-
-mkdir -p ~/.cargo/bin
-mv mdbook ~/.cargo/bin
+# Doesn't work...
+# # MDBOOK
+# MDBOOK_RELEASE=$(curl -L -s -H 'Accept: application/json' https://github.com/rust-lang-nursery/mdBook/releases/latest)
+# MDBOOK_VERSION=$(echo $MDBOOK_RELEASE | sed -e 's/.*"tag_name":"\([^"]*\)".*/\1/')
+# MDBOOK_URL="https://github.com/rust-lang-nursery/mdBook/releases/download/$MDBOOK_VERSION/mdbook-$MDBOOK_VERSION-x86_64-unknown-linux-gnu.tar.gz"
+# 
+# echo "Downloading mdbook from: $MDBOOK_URL"
+# curl -L $MDBOOK_URL | gzip -d > mdbook
+# chmod +x mdbook
+# 
+# mkdir -p ~/.cargo/bin
+# mv mdbook ~/.cargo/bin

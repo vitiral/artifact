@@ -13,8 +13,8 @@ before_install:
 
 install:
     # - cargo install cargo-web || echo "cargo-web already installed"
-    # - cargo install mdbook || echo "mdbook already installed"
     - sh ci/install2.sh
+    - cargo install mdbook || echo "mdbook already installed"
 
 notifications:
   email:
