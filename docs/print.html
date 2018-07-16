@@ -1,0 +1,1460 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Simple Quality with Artifact</title>
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <base href="">
+
+        <link rel="stylesheet" href="book.css">
+        <link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
+        <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro:500" rel="stylesheet" type="text/css">
+
+        <link rel="shortcut icon" href="favicon.png">
+
+        <!-- Font Awesome -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        
+
+        
+
+    </head>
+    <body class="light">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { } 
+            if (theme === null || theme === undefined) { theme = 'light'; }
+            document.body.className = theme;
+            document.querySelector('html').className = theme + ' js';
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <ol class="chapter"><li><a href="Introduction.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li><ol class="section"><li><a href="Installation.html"><strong aria-hidden="true">1.1.</strong> Instalation</a></li><li><a href="CheatSheet.html"><strong aria-hidden="true">1.2.</strong> Cheat Sheet</a></li><li><a href="ExampleFile.html"><strong aria-hidden="true">1.3.</strong> Example</a></li></ol></li><li><a href="SimpleQuality.html"><strong aria-hidden="true">2.</strong> Simple Quality with Artifact</a></li><li><ol class="section"><li><a href="StartingProject.html"><strong aria-hidden="true">2.1.</strong> Starting Your Project</a></li><li><a href="Purpose.html"><strong aria-hidden="true">2.2.</strong> Specifying Your Purpose</a></li><li><a href="Design.html"><strong aria-hidden="true">2.3.</strong> High Level Design</a></li><li><a href="Vocabulary.html"><strong aria-hidden="true">2.4.</strong> Vocabulary</a></li><li><a href="Tools.html"><strong aria-hidden="true">2.5.</strong> Tools</a></li><li><a href="ArtifactIntro.html"><strong aria-hidden="true">2.6.</strong> Artifact Intro</a></li><li><a href="DetailedDesign.html"><strong aria-hidden="true">2.7.</strong> Detailed Design</a></li><li><a href="Implementation.html"><strong aria-hidden="true">2.8.</strong> Implementation</a></li><li><a href="CleaningUp.html"><strong aria-hidden="true">2.9.</strong> Cleaning Up</a></li></ol></li><li><a href="Finishing.html"><strong aria-hidden="true">3.</strong> Finishing The Project</a></li><li><ol class="section"><li><a href="RunningTests.html"><strong aria-hidden="true">3.1.</strong> Running Tests</a></li><li><a href="TODO.html"><strong aria-hidden="true">3.2.</strong> TODO</a></li></ol></li><li><a href="Addendum.html"><strong aria-hidden="true">4.</strong> Addendum</a></li><li><ol class="section"><li><a href="FAQ.html"><strong aria-hidden="true">4.1.</strong> FAQ</a></li><li><a href="BestPractices.html"><strong aria-hidden="true">4.2.</strong> Best Practices</a></li><li><a href="ExportingHtml.html"><strong aria-hidden="true">4.3.</strong> Exporting Html</a></li><li><a href="Feedback.html"><strong aria-hidden="true">4.4.</strong> Feedback</a></li><li><a href="SPECIFICATION.html"><strong aria-hidden="true">4.5.</strong> Specification</a></li><li><a href="License.html"><strong aria-hidden="true">4.6.</strong> License</a></li></ol></li></ol>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                
+                <div id="menu-bar" class="menu-bar">
+                    <div id="menu-bar-sticky-container">
+                        <div class="left-buttons">
+                            <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                                <i class="fa fa-bars"></i>
+                            </button>
+                            <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                                <i class="fa fa-paint-brush"></i>
+                            </button>
+                            <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                                <li role="none"><button role="menuitem" class="theme" id="light">Light <span class="default">(default)</span></button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                            </ul>
+                            
+                            <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                                <i class="fa fa-search"></i>
+                            </button>
+                            
+                        </div>
+
+                        <h1 class="menu-title">Simple Quality with Artifact</h1> 
+
+                        <div class="right-buttons">
+                            <a href="print.html" title="Print this book" aria-label="Print this book">
+                                <i id="print-button" class="fa fa-print"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" name="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <a class="header" href="print.html#artifact-introduction" id="artifact-introduction"><h1>Artifact Introduction</h1></a>
+<p>Welcome to the Artifact Tutorial and Simple Quality Leaflet!</p>
+<p>This &quot;book&quot; (it is a very small book) also serves as the tutorial for
+<a href="https://github.com/vitiral/artifact">artifact</a>, the design documentation tool made for everybody
+(including developers!). You can get this book on the project's home
+design documents (<strong>TODO: add link</strong>) and it also ships with the Web UI of
+every artifact (just follow the <strong>docs</strong> in the header).</p>
+<p>Artifact is a simple, linkable and trackable design documentation tool for
+everybody. It allows anyone to write and link their design documents both to
+each other and to source code, making it easy to know how complete their
+project is. Documents are revision controllable, can be edited in the browser
+and have a full suite of command line tools for searching, displaying,
+checking, exporting and formatting them.</p>
+<p>This book is broken into 3 main sections:</p>
+<ul>
+<li>Artifact introduction: introducing you to the syntax and basic philosophy of
+artifact.</li>
+<li>Simple Quality: an interactive guide for achieving high quality with minimal
+effort geared more towards beginner to intermediate software developers.</li>
+<li>Addendum: complete list of features, fullpage specification, etc.</li>
+</ul>
+<p>This is the installation guide. For more information see the
+<a href="../README.md">project home page</a></p>
+<a class="header" href="print.html#typical-installation" id="typical-installation"><h2>Typical Installation</h2></a>
+<p>artifact is compiled for linux, mac and windows. You can find releases on the
+<strong><a href="https://github.com/vitiral/artifact/releases">github release page</a></strong>.</p>
+<p>For Linux and Mac, simply download and unpack the tarball with
+<code>tar -zxvf &lt;release_name&gt;.tar.gz</code>. Then put it somewhere in your <a href="http://unix.stackexchange.com/questions/26047/how-to-correctly-add-a-path-to-path">PATH</a></p>
+<p>You can then update to the newest version with <code>art update</code></p>
+<a class="header" href="print.html#windows" id="windows"><h3>Windows</h3></a>
+<p>The recommended method of installation for windows is to use the <strong>scoop</strong>
+package manager.</p>
+<p>First, <a href="http://scoop.sh/">install scoop</a> from a powershell terminal:</p>
+<pre><code>iex (new-object net.webclient).downloadstring('https://get.scoop.sh')
+</code></pre>
+<p>Then install artifact:</p>
+<pre><code>scoop install artifact
+</code></pre>
+<a class="header" href="print.html#arch-linux" id="arch-linux"><h3>Arch Linux</h3></a>
+<p>In addition to the installation methods above, Artifact is maintained as a
+package on the Arch AUR by <a href="https://github.com/rubdos">@rubdos</a>:</p>
+<p>https://aur.archlinux.org/packages/artifact/</p>
+<a class="header" href="print.html#building-from-source" id="building-from-source"><h2>Building From Source</h2></a>
+<p>Simply execute the following:</p>
+<pre><code class="language-bash">git clone https://github.com/vitiral/artifact
+cd artifact
+cargo build --release
+</code></pre>
+<blockquote>
+<p>Note: you may need <code>cargo-web</code> installed as well.</p>
+</blockquote>
+<p>Do a full suite of tests with:</p>
+<pre><code class="language-bash">cargo test
+</code></pre>
+<a class="header" href="print.html#installing-with-a-hrefhttpsgithubcomrust-langcargocargoa" id="installing-with-a-hrefhttpsgithubcomrust-langcargocargoa"><h2>Installing with <a href="https://github.com/rust-lang/cargo">cargo</a></h2></a>
+<p>Install rust with <a href="https://github.com/rust-lang-nursery/rustup.rs">rustup</a> and
+type <code>cargo install artifact-app</code></p>
+<p>Note this may never be feature complete and is not the recommended method of
+installation.</p>
+<p>Here is an ultra rough overview of the tool for those already familiar with it
+or who can get up to speed quickly.</p>
+<p>An example repository you can play around with is here:
+<a href="https://github.com/vitiral/artifact-example">https://github.com/vitiral/artifact-example</a></p>
+<a class="header" href="print.html#useful-background" id="useful-background"><h2>Useful Background</h2></a>
+<ul>
+<li><a href="./Installation.html">Installation Guide</a></li>
+<li><a href="./FAQ.html">FAQ</a>: frequently asked questions about artifact</li>
+<li><a href="./BestPractices.html">Best Practices</a>: artifact best practices</li>
+<li><a href="./Vocabulary.html">Vocabulary</a>: useful vocabulary for writing design documents</li>
+</ul>
+<a class="header" href="print.html#useful-commands" id="useful-commands"><h2>Useful commands</h2></a>
+<ul>
+<li><code>art help</code>: get help</li>
+<li><code>art [subcommand] -h</code>: get help on a subcommand.</li>
+<li><code>art init</code>: initialize repo</li>
+<li><code>art serve</code>: open an editable Web UI.</li>
+<li><code>art ls</code>: list/filter artifacts</li>
+<li><code>art check</code>: check for errors</li>
+<li><code>art fmt</code>: format artifacts</li>
+<li><code>art export html $DEST</code>: export a <a href="examples/part2/index.html">static webpage</a></li>
+</ul>
+<a class="header" href="print.html#artifact-types" id="artifact-types"><h2>Artifact Types</h2></a>
+<p>Artifact tracks &quot;artifacts&quot;, which are design documentation objects which have
+a name, some text and can be linked to other artifacts and to source code.</p>
+<p>There are three types of artifacts:</p>
+<ul>
+<li><code>REQ</code>: Requirement, <em>why</em> your application exists. Also used for high level
+architecture/goals. Typically these relate to the user in some way.</li>
+<li><code>SPC</code>: Specification of how a requirement will be implemented. <em>How</em> you will
+build your program. Typically these are to document for developers how or why
+something is implemented a certain way (from a larger architectural point of
+view).</li>
+<li><code>TST</code>: Test. Details of what to test for a SPC or REQ.</li>
+</ul>
+<a class="header" href="print.html#artifact-format" id="artifact-format"><h2>Artifact Format</h2></a>
+<p>Artifacts can be speicifed in three formats: markdown (<code>.md</code>), TOML (<code>.toml</code>)
+or YaML (<code>.yaml</code>).</p>
+<a class="header" href="print.html#markdown-format" id="markdown-format"><h3>Markdown Format</h3></a>
+<p>Artifact uses markdown (by default) to specify the design documents (artifacts). The
+complete format looks like:</p>
+<pre><code># REQ-name
+partof:
+- REQ-other
+- REQ-foo
+done: This artifact is &quot;defined as done&quot;.
+###
+The description of the artifact goes here.
+
+You can do soft-links to other artifacts:
+- [[REQ-something]]: The web-ui will have a link to REQ-something and `art
+  check` will make sure it exists.
+</code></pre>
+<ul>
+<li>name looks like: <code># REQ-name</code></li>
+<li>The <code>partof</code> metadata field is how you link artifacts of any name.
+<ul>
+<li>power user feature: <code>partof: REQ-[name, other]</code> is the same as being
+partof both <code>REQ-name</code> and <code>REQ-other</code>. This can also be used as list
+items. <code>art fmt</code> will always convert it to the long
+version.</li>
+</ul>
+</li>
+<li>The <code>done</code> metadata is an arbitrary string that adds a 100% completed and tested sub-part
+(if it has no other sub-parts it will be 100% completed and tested). The
+artifact cannot be implemented in code if <code>done</code> is set.</li>
+<li><code>SPC-name</code> is automatically partof <code>REQ-name</code> (because &quot;name&quot; is the same)</li>
+<li><code>TST-name</code> is automatically partof <code>SPC-name</code> (because &quot;name&quot; is the same)</li>
+<li><code>SPC-name-foo</code> is automatically partof <code>SPC-name</code> (same prefix)</li>
+</ul>
+<p>Note that if no metadata is specified you can simply write:</p>
+<pre><code># REQ-name
+The description of the artifact goes here.
+</code></pre>
+<a class="header" href="print.html#toml-format" id="toml-format"><h2>TOML Format</h2></a>
+<p>Toml used to be the default format</p>
+<pre><code>[REQ-name]
+partof = [
+    'REQ-other',
+    'REQ-foo',
+]
+done = 'This artifact is &quot;defined as done&quot;'
+text = &quot;&quot;&quot;
+The description of the artifact goes here.
+&quot;&quot;&quot;
+</code></pre>
+<a class="header" href="print.html#settings" id="settings"><h2>Settings</h2></a>
+<p>After running <code>art init</code>, your settings will be in: <code>.art/settings.toml</code></p>
+<p>Settings:</p>
+<ul>
+<li><code>artifact_paths</code>: paths to directories/files containing artifacts (in <code>.toml</code>
+files)</li>
+<li><code>exclude_artifact_paths</code>: paths of directories/files to exclude from
+<code>artifact_paths</code>.</li>
+<li><code>code_paths</code>: paths of source code containing <code>#ART-name</code> references.</li>
+<li><code>exclude_code_paths</code>: paths of directories/files to exclude from <code>code_paths</code></li>
+</ul>
+<a class="header" href="print.html#implementing-artifacts-and-subarts" id="implementing-artifacts-and-subarts"><h2>Implementing artifacts and subarts</h2></a>
+<p>Writing <code>#SPC-name</code> in any valid utf-8 file (read: source code file) that is in
+a <code>code_paths</code> path will mark the artifact <code>SPC-name</code> as done.</p>
+<p>You can also specify subarts (pieces of an artifact that should be implemented
+in code) by putting <code>[[.subart]]</code> anywhere in an artifact's <code>text</code> field. These
+can be linked in code like so: <code>#ART-name.subart</code>.</p>
+<p>In addition, artifact supports specifying unit tests using a <code>[[.tst-name]]</code>
+subart. These subarts contribute to both <code>spc%</code> and <code>tst%</code>.</p>
+<p>Example Artifact:</p>
+<pre><code class="language-markdown"># SPC-name
+This has [[.subart]] subart.
+
+Also [[.tst-name]] unit test.
+</code></pre>
+<p>Example Code Implementation:</p>
+<pre><code class="language-python">#!/usr/bin/python
+def create_name(raw):
+    &quot;&quot;&quot;Documentation about the create_name function
+
+    Implements #SPC-name
+
+    Also implements #SPC-name.subart
+    &quot;&quot;&quot;
+    return process_name(raw);
+
+
+def test_create_name():
+   &quot;&quot;&quot;#SPC-name.tst-name&quot;&quot;&quot;
+   assert create_name(&quot;foo&quot;) == &quot;FOO&quot;
+</code></pre>
+<a class="header" href="print.html#req-learn" id="req-learn"><h1>REQ-learn</h1></a>
+<p>Welcome to the artifact tutorial! This file is written just like artifact
+markdown files are. Artifact files can be written in a range of formats, the
+currently supported ones being markdown, toml and yaml.</p>
+<p>An artifact file is simply a set of artifacts, each one written like so:</p>
+<pre><code># REQ-NAME
+&lt;regular markdown section here&gt;
+</code></pre>
+<p>Artifacts can be a requirement (REQ), design-specification (SPC)
+or test (TST)</p>
+<p>The artifact you are reading now is a requirement, therefore it begins with
+&quot;REQ&quot;.</p>
+<a class="header" href="print.html#req-markdown" id="req-markdown"><h1>REQ-markdown</h1></a>
+<p>partof:</p>
+<ul>
+<li>REQ-learn</li>
+</ul>
+<a class="header" href="print.html#" id=""><h3></h3></a>
+<p>Artifact files like this one are written in a slightly extended markdown
+format. You can read more about markdown here:
+http://commonmark.org/help/tutorial/</p>
+<p>The &quot;extended&quot; part is that artifact treats the following syntax as special:</p>
+<pre><code># ART-name
+&lt;optional SPECIAL yaml section here&gt;
+###
+&lt;regular markdown section here&gt;
+</code></pre>
+<p>Where <code>ART</code> is one of <code>REQ</code>, <code>SPC</code>, <code>TST</code> and <code>&lt;optional SPECIAL yaml here&gt;</code> is
+a few items like <code>partof</code> and <code>done</code> fields. We will get to those later.</p>
+<a class="header" href="print.html#spc-learn" id="spc-learn"><h1>SPC-learn</h1></a>
+<p>partof:</p>
+<ul>
+<li>REQ-markdown</li>
+</ul>
+<a class="header" href="print.html#-1" id="-1"><h3></h3></a>
+<p>Anything starting with SPC is a design specification.</p>
+<p>Requirements (REQ) should be used for:</p>
+<ul>
+<li>Detailing what you want your application to do.</li>
+<li>What the architecture of your applicaiton should be.</li>
+</ul>
+<p>Specifications (SPC) should be used for:</p>
+<ul>
+<li>How you intend to write your application (lower level details).</li>
+</ul>
+<p>There are also tests (TST) which we will learn about later.</p>
+<a class="header" href="print.html#spc-partof" id="spc-partof"><h1>SPC-partof</h1></a>
+<p>partof:</p>
+<ul>
+<li>REQ-learn</li>
+</ul>
+<a class="header" href="print.html#-2" id="-2"><h3></h3></a>
+<p>Artifact uses the names of artifacts to automatically link them and track
+progress. This makes it easy for the user to intuitively link together
+requirements with their specification and reduces boilerplate.</p>
+<p>For instance, <code>[[SPC-learn]]</code> is automatically a &quot;partof&quot; <code>REQ-learn</code> because
+the names after the type are the same (&quot;-learn&quot;).</p>
+<p>You can also explicitly link artifacts like so:</p>
+<pre><code># SPC-name
+partof:
+- SPC-other
+- &lt;additional partof&gt;
+###
+&lt;regular markdown section here&gt;
+</code></pre>
+<p>Here is a graph of valid partof relations between artifacts:</p>
+<pre><code>  REQ &lt;-- SPC &lt;-- TST
+</code></pre>
+<p>In other words:</p>
+<ul>
+<li>A REQ can be partof a REQ only</li>
+<li>A SPC an be partof a REQ or SPC</li>
+<li>A TST can be partof a REQ, SPC or TST</li>
+</ul>
+<a class="header" href="print.html#spc-valid" id="spc-valid"><h1>SPC-valid</h1></a>
+<p>There are only a few rules for defining artifacts:</p>
+<ul>
+<li>Case is ignored for all names.</li>
+<li>Names cannot overlap, even in different files.</li>
+<li>All names must start with either REQ, SPC or TST.</li>
+</ul>
+<a class="header" href="print.html#tst-definition" id="tst-definition"><h1>TST-definition</h1></a>
+<p>TST artifacts (and subartifacts) are used to document test design and are the
+only way that an artifact can be considered &quot;tested&quot; (besides the <code>done</code>
+field).</p>
+<p>Artifact makes it easy to track the &quot;progress&quot; of your application because <code>art ls</code> (and the web-ui) gives you easy to easy to read completion and tested
+percentages for all your artifacts based on which ones are implemented in
+source code (more on that later).</p>
+<a class="header" href="print.html#spc-implementing" id="spc-implementing"><h1>SPC-implementing</h1></a>
+<p>Artifacts are implemented by putting links anywhere your source code, i.e.
+<code>#SPC-name</code>. There are also subartifacts, i.e. <code>#SPC-name.sub</code>.</p>
+<p>Subartifacts are defined by putting <code>[[.subart]]</code> anywhere in the text. These
+artifacts are used to break down how to implement an artifact in pieces which
+should then be linked in code.</p>
+<p>Unit tests can be specified by using <code>[[.tst-name]]</code>. These kind of subarts
+contribute to an artifact's <code>tst%</code>.</p>
+<a class="header" href="print.html#simple-quality" id="simple-quality"><h1>Simple Quality</h1></a>
+<p><em>A short guide to quality best practices for developers.</em></p>
+<p>By Garrett Berg <a href="mailto:vitiral@gmail.com">vitiral@gmail.com</a></p>
+<a class="header" href="print.html#introduction" id="introduction"><h2>Introduction</h2></a>
+<p>This is a short and open-source leaflet aimed at helping software developers
+improve their software quality. It is also the primary user guide for the design
+documentation tool <a href="https://github.com/vitiral">artifact</a>. Its targeted audience are those who:</p>
+<ul>
+<li>Know at least one programming language.</li>
+<li>Know revision control. If you don't know one, learn git.</li>
+<li>Want a brief guide on how to have fewer bugs, re-designs and headaches
+in all of their projects.</li>
+</ul>
+<p>This book is shiped as part of the artifact Web UI and can also be read at
+(<strong>TODO: add link</strong>).</p>
+<p>If you have suggestions or edits, please <a href="./Feedback.html">open a ticket</a>.</p>
+<p>The goal of this book is to make developing software simpler and more fun. Think
+back to the time you first learned revision control. Think about how you were
+backing up files before then? Maybe you were copying folders to some <code>backups</code>
+folder?  Maybe you were not backing up at all?</p>
+<p>However you did (or didn't) track your changes, think about your life before and after
+revision control. Things were a lot different, and all you had to learn in order
+to use revision control were:</p>
+<ul>
+<li>Some simple vocabulary.</li>
+<li>An easy to use tool.</li>
+<li>A new way of looking at things.</li>
+</ul>
+<p>This is the central premise of this book: you don't need to understand technical
+jargon or complex test methodologies to realize huge gains in the quality of
+your software. Some simple vocabulary, new tools and new ways of looking at
+things are all you need.</p>
+<blockquote>
+<p>All code/documentation examples in this book are public domain. For more
+information see the <a href="./License.html">License</a></p>
+</blockquote>
+<a class="header" href="print.html#why-this-book-exists" id="why-this-book-exists"><h2>Why This Book Exists</h2></a>
+<p>There is a lack of good documentation unifying and extending quality best
+practices. While there have been several advancements made in how to develop
+quality software, they have largely been piecemeal and lacked the tools to
+fit them all together. Several of the recent advancements include:</p>
+<ul>
+<li>better revision control tools and best practices</li>
+<li>new emphasis on unit tests as part of the development process</li>
+<li>linters and auto-formatters to help projects have easy to read code</li>
+<li>more emphasis on documentation, including inline developer documentation</li>
+<li>the agile process and associated tools</li>
+</ul>
+<p>One of the things in common about all of these: developers tend to agree
+that their lives are <strong>better</strong> after using them. Programming is easier,
+more fun and more fulfilling. However, all of these lack the processes,
+tools and vocabulary necessary to bring them together into an organized whole.</p>
+<p>This book will give you the knowledge of how to unify and track all these quality
+best practices as well as give you an intro to artifact, the open-source documentation
+tool artifact. The tools presented in this book will not only allow you to write
+better software, but will help your day-to-day workflow in the same ways that
+good unit tests do.</p>
+<a class="header" href="print.html#starting-your-project" id="starting-your-project"><h1>Starting Your Project</h1></a>
+<p>The primary teaching method that this book will employ is &quot;learning by doing&quot;.
+This is an approach that many developers are familiar with and is used in some
+of the most effective tutorials on software development.</p>
+<p>The project we will be implementing is the <a href="http://wiki.openhatch.org/Flash_card_challenge">flash card challenge</a> created
+by Open Hatch. There are several reasons this project was chosen:</p>
+<ul>
+<li>It has a clear goal with targeted users.</li>
+<li>It is simple to define and yet can be extremely broad.</li>
+<li>The guide is written in python which largely reads like pseudo code.
+You should be able to follow along in any language.</li>
+</ul>
+<p>One of the best tutorials on C (in my opinion), <a href="https://learncodethehardway.org/c/">learn C the hard way</a> has
+this to say about itself:</p>
+<blockquote>
+<p>[This tutorial] teaches real robust C coding and defensive programming
+tactics on real hardware rather than abstract machines and pedantic theory.
+The book emphasizes breaking your code on purpose, and in the process teaches
+a plethora of important topics.</p>
+</blockquote>
+<p>There are three important aspects to the &quot;Learn The Hard Way&quot; method that
+this tutorial will use:</p>
+<ol>
+<li>It is designed for absolute beginners: you should know the basics of a
+programming language and revision control, but that's all you need.</li>
+<li>It focuses on teaching simple concepts and tools which deliver immediate
+real-world value.</li>
+<li>It uses exercises as the primary teaching method. You must
+<strong>actually do the excersies</strong> if you want to understand how the tools and
+processes you are reading about are useful.</li>
+</ol>
+<a class="header" href="print.html#before-we-start" id="before-we-start"><h2>Before we start</h2></a>
+<p>Before we start, install the following tools:</p>
+<ul>
+<li><a href="https://git-scm.com/book/en/v2/Getting-Started-Installing-Git">git</a></li>
+<li><a href="https://github.com/vitiral/artifact/blob/master/docs/Installation.md">artifact</a></li>
+</ul>
+<p>Now run the following:</p>
+<pre><code>mkdir ~/learn-art # or whatever directory you want
+cd ~/learn-art
+git init
+art init
+</code></pre>
+<p>This will set up your project as an artifact tutorial project and initialize
+git.  It is your job to know how to use git as we progress through the
+tutorial. I recommend committing the files you have now, including the <code>./art/</code>
+directory that was created.</p>
+<blockquote>
+<a class="header" href="print.html#exercise-1" id="exercise-1"><h5>Exercise 1:</h5></a>
+<p>Create a <code>README.md</code> file in this directory and take notes while you read the
+<a href="http://wiki.openhatch.org/Flash_card_challenge">flash card challenge</a> webpage. Pay close attention to:</p>
+<ul>
+<li>what is the use case (how will this software be used)?</li>
+<li>what are the inputs/outputs of the program?</li>
+</ul>
+<p>Then write a paragraph answering the question &quot;how would I develop
+this application, knowing only what I know now?&quot;</p>
+</blockquote>
+<a class="header" href="print.html#specifying-your-purpose" id="specifying-your-purpose"><h1>Specifying Your Purpose</h1></a>
+<p>One of the most critical pieces of documentation is your purpose documentation.
+Without purpose documentation, it is easy to get lost and forget what your
+project was trying to accomplish.</p>
+<p>We are going to start by writing our requirements in our <code>README.md</code>.  Later we
+are going to use artifact to track them.</p>
+<p>Open up your <code>README.md</code> in your favorite plain-text editor and write out
+something like the following:</p>
+<pre><code class="language-markdown"># Purpose:
+Write a flash card quizzer from scratch and learn about
+quality best practices while doing so.
+
+The example tutorial can be found here:
+    http://wiki.openhatch.org/Flash_card_challenge
+
+It should be easy for users to input questions to the
+quizzer in a simple and open format. Additionally, the
+quizzer should use effective memorization techniques.
+Some possible ideas include:
+- asking items in a random order
+- telling the correct answer after the user answers incorrectly
+- asking items more often if they were answered incorrectly
+- allowing users to configure time limits, so they can
+  compare results between quizzes.
+</code></pre>
+<p>Notice that we try to keep our purpose documentation as brief and simple as
+possible. This is important for all documents, but is especially important for
+high level docs. There is a basic rule: documentation that is not brief and
+clear will not be read. You want to keep your docs readable, otherwise they
+will only weigh down your project.</p>
+<blockquote>
+<a class="header" href="print.html#exercise-1-1" id="exercise-1-1"><h5>Exercise 1:</h5></a>
+<p>In your <code>README.md</code>, break down the purpose documentation above into some high
+level requirements. Then give a high level specification for how you would
+approach those requirements. What programming language would you use? What
+libraries would you use? What would be your overall approach to each problem?</p>
+</blockquote>
+<blockquote>
+<a class="header" href="print.html#exercise-2" id="exercise-2"><h5>Exercise 2:</h5></a>
+<p>Assume your program user interface would be over the command line. What kind
+of arguments and user configuration would you accept? Would you let the user
+use only one quiz file at a time, or use multiple of them? Write down your
+answers.</p>
+</blockquote>
+<blockquote>
+<a class="header" href="print.html#exercise-3" id="exercise-3"><h5>Exercise 3:</h5></a>
+<p>Skim through the <a href="https://gitbookio.gitbooks.io/markdown/content/">markdown format</a> specification. Markdown is a great
+format for keeping docs, since it allows you to write docs in plain text
+(so they can be revision controlled) but the simple formatting rules
+render beautifully on sites like github.</p>
+<p>Markdown is easy to learn, easy to read and has become the defacto standard
+for writing docs for open source projects. It is worth learning!</p>
+</blockquote>
+<a class="header" href="print.html#high-level-design" id="high-level-design"><h1>High Level Design</h1></a>
+<p>Once you know the purpose of your project, it is important for you to write
+down the approach you plan to take. This is important because:</p>
+<ul>
+<li>There may be gaps when you don't work on your project. If you go on vacation
+for a month, having a reference of your thoughts at the time you were focused
+can jumpstart your productivity.</li>
+<li>It is important to be able to reference a design doc for new contributors and
+newbie developers.</li>
+</ul>
+<p>Your high level requirements should go in your <code>README.md</code>, just below your purpose
+section:</p>
+<pre><code class="language-markdown"># Execution Method
+The minimum viable product shall be a command line utility
+that is given the path to one or more question files as
+arguments
+
+Additional arguments will include:
+- `-t`: specify the time allowed for each question
+- `-T`: specify the total time allowed for the whole quiz
+- `-r NUM`: repeat questions only a certain number of times.
+    By default there is no limit
+
+The program will ask one question at a time, recording how
+many answers the user got correct/incorrect and weighting
+future questions accordingly.
+
+When the program is complete it will report:
+- time taken, broken up by whole quiz and each question
+- the user's score
+
+
+# Final Results
+When the program is complete a report shall be printed with:
+- time taken, broken up by whole quiz and each question
+- the user's total score
+- questions ranked by ones the user had the most difficulty
+
+
+# Question File Format
+The user shall be able to easily configure the quiz
+questions through a simple csv format consisting of two
+columns: the question and the answer.
+</code></pre>
+<p>Again, just like the purpose documentation, this documentation aims to be
+brief and help you during your design process.</p>
+<blockquote>
+<a class="header" href="print.html#exercise-1-2" id="exercise-1-2"><h3>Exercise 1:</h3></a>
+<p>What are some other items that we can detail at a high level?
+Try writing them out yourself in this section.</p>
+</blockquote>
+<a class="header" href="print.html#vocabulary" id="vocabulary"><h1>Vocabulary</h1></a>
+<p>It is time we briefly discuss design vocabulary.</p>
+<a class="header" href="print.html#specifying-meaning" id="specifying-meaning"><h2>Specifying meaning</h2></a>
+<p>It is very important that your design documents have clear meaning. Without
+clear meaning, it is difficult to know your <a href="https://www.agilealliance.org/glossary/definition-of-done/">definition of done</a>.</p>
+<ul>
+<li><strong>Shall – Requirement:</strong>  Shall is used to indicate something that is
+contractually binding, meaning it must be implemented and its
+implementation verified. Don’t think of “shall” as a word, but
+rather as an icon that SCREAMS “This is a requirement.”  If a statement
+does not contain the word “shall” it is not a requirement.</li>
+<li><strong>Will - Facts or Declaration of Purpose:</strong> Will is used to indicate a
+statement of fact. Will statements are not subject to verification.
+&quot;The application <strong>will</strong> be written in python&quot; is an example.
+<strong>Will</strong> statements are meant to be notes to inform design
+or specify implementation details.</li>
+<li><strong>Should – Goals, non-mandatory provisions:</strong> Should is used to indicate a
+goal which must be addressed by the design team but is not formally
+verified. Why include <strong>should</strong> statements? Because you may have a very
+important issue that you want to communicate to the developers, but can’t
+think of a way to do so in the form of a verifiable requirement. We have
+already seen an example in our purpose statement: &quot;the flash quizzer
+<strong>should</strong> use effective memorization techniques&quot;. There is no way to
+validate that we are using the best methodologies, but we should aim for that
+goal.</li>
+</ul>
+<p><strong>Reference</strong>: these definitions are modified from an article at
+<a href="http://reqexperts.com/blog/2012/10/using-the-correct-terms-shall-will-should/">reqexperts.com</a> (October 9th, 2012. Lou Wheatcraft)</p>
+<blockquote>
+<a class="header" href="print.html#exercise-1-3" id="exercise-1-3"><h5>Exercise 1:</h5></a>
+<p>Review the documentation we've written so far. When did we use &quot;shall&quot;,
+&quot;will&quot; and &quot;should&quot;? Did we use them correctly?</p>
+</blockquote>
+<a class="header" href="print.html#testing-your-software" id="testing-your-software"><h2>Testing your software</h2></a>
+<p>There are three main categories of testing every developer should know:</p>
+<ul>
+<li><a href="https://en.wikipedia.org/wiki/Unit_testing">unit testing</a> which is testing isolated pieces of code</li>
+<li><a href="https://en.wikipedia.org/wiki/Integration_testing">integration testing</a> which is testing modules of your code integrated
+together, but not the entire application</li>
+<li><a href="https://en.wikipedia.org/wiki/System_testing">system testing</a>, also known as end-to-end testing.</li>
+</ul>
+<blockquote>
+<a class="header" href="print.html#exercise-2-1" id="exercise-2-1"><h5>Exercise 2:</h5></a>
+<p>Read at least the intro for all three wikipedia links above.</p>
+</blockquote>
+<a class="header" href="print.html#testing-methodologies" id="testing-methodologies"><h3>Testing Methodologies</h3></a>
+<p>The above specify which pieces of your software should be tested,
+these specify how to determine what tests to write.</p>
+<a class="header" href="print.html#a-hrefhttpsenwikipediaorgwikifunctional_testingfunctional-testinga" id="a-hrefhttpsenwikipediaorgwikifunctional_testingfunctional-testinga"><h4><a href="https://en.wikipedia.org/wiki/Functional_testing">Functional Testing</a></h4></a>
+<p>What is the functionality we are programming for? It is important that
+we test at least the basics. This includes the:</p>
+<ul>
+<li><a href="https://en.wikipedia.org/wiki/Boundary_testing">boundary conditions</a>: test the extreme inputs and outputs of your
+function</li>
+<li>typical use cases: test how the function or application will typically be used
+(i.e. a few values in the middle of the boundary conditions)</li>
+<li>error cases: make sure it throws an exception when invalid
+inputs are used. This should also test that your application can recover
+in case of recoverable faults.</li>
+</ul>
+<a class="header" href="print.html#a-hrefhttpsenwikipediaorgwikiwhite-box_testingwhite-box-testinga" id="a-hrefhttpsenwikipediaorgwikiwhite-box_testingwhite-box-testinga"><h4><a href="https://en.wikipedia.org/wiki/White-box_testing">White Box Testing</a></h4></a>
+<p>Look at your code. As the programmer, what kind of inputs are YOU concerned
+about? Spend some time focusing on these.</p>
+<p>You as the developer have the most insight into the internals of your
+application, so you are probably the most qualified individual for trying to
+break it. Always observe Murphy's law: <strong>what can go wrong will go wrong.</strong>
+If you can see something that might break, even if the scenario seems
+impossible for a user to hit, make sure it doesn't break anyway.</p>
+<a class="header" href="print.html#a-hrefhttpsenwikipediaorgwikirisk-based_testingrisk-based-testinga" id="a-hrefhttpsenwikipediaorgwikirisk-based_testingrisk-based-testinga"><h4><a href="https://en.wikipedia.org/wiki/Risk-based_testing">Risk Based Testing</a></h4></a>
+<p>What is the worst thing that your function/application could do. Can it
+segfault? Can it recurse infinitely? Can it delete user data? Could it crash
+the whole operating system? Can it introduce security vulnerabilities?</p>
+<p>It's important to ask what the worst case scenarios are and test for them.
+This is especially true if your program overwrites files or exposes a port
+to the internet -- data loss and security vulnerabilities are serious
+problems that can be introduced in the most simple software.</p>
+<a class="header" href="print.html#tools" id="tools"><h1>Tools</h1></a>
+<p>Just like revision control best practices would be meaningless without a
+revision control tool like git, design best practices are meaningless without a
+tool to help you track your design documents.</p>
+<p>Okay, that isn't <em>quite</em> accurate, but it's inaccuracy is the root of why design
+tools have languished so much. It is easy to think that your requirements can be
+completely captured in your README, or in code documentation, or in unit tests
+-- but in the end they get captured everywhere and nowhere. You end up either
+repeating intention or forgetting to specify it all together.</p>
+<p>Let's get this out of the way first: except for some of the simplest libraries,
+developer documents should <strong>not</strong> be your only design documents! The things
+your users are concerned about should almost never be the implementation details
+or architecture of your project, and unless your library is so simple that all
+design decisions fit in a few sentences, your code documentation won't cut it
+for preserving intent or pointing out the relationships between components.</p>
+<p>This is not to say that user (README) and developer (code) documentation are not
+critical to a project's quality: they absolutely are. But they should not
+replace your requirements, detailed-design or testing documents for any but the
+simplest projects.</p>
+<p>Keep in mind that it is always best practice to try and split your project into
+as many small libraries as possible. Simplicity should always be the number one
+goal. However, not all applications and libraries can be made so simple, and even
+in such cases you still might want an overall architecture for <em>how to achieve
+such simplicity.</em></p>
+<p>So, here are the primary tools that every developer should have under their belt
+to increase the quality of their software and their productivity.</p>
+<a class="header" href="print.html#revision-control" id="revision-control"><h3>Revision Control</h3></a>
+<p>This is probably the most essential tool to learn how to use, as it allows you
+to code fearlessly without worrying that past efforts will be lost. We will be
+using <a href="https://git-scm.com/">git</a> in this tutorial to track our progress at each stage.</p>
+<a class="header" href="print.html#inline-documentation-renderers" id="inline-documentation-renderers"><h3>Inline Documentation Renderers</h3></a>
+<p><a href="http://rosettacode.org/wiki/Documentation">Most languages</a> can take inline documentation on your functions, classes,
+etc and translate them into rendered and beautiful user docs. Some languages
+support it natively, others require a separate library.</p>
+<p>We will be writing python documentation can be natively viewed on the REPL by
+calling <code>help(obj)</code> and <em>could</em> be converted using <a href="http://www.sphinx-doc.org/en/1.5.1/">Spinx</a>.</p>
+<a class="header" href="print.html#unit-testing" id="unit-testing"><h3>Unit Testing</h3></a>
+<p>Almost every language has a unit testing framework. Get to know yours
+intimately. We will be using python's <a href="https://docs.python.org/3.6/library/unittest.html">unittest</a> package to write tests in
+this tutorial and <a href="http://doc.pytest.org/en/latest/">pytest</a> to run them.</p>
+<a class="header" href="print.html#linters-and-code-formatters" id="linters-and-code-formatters"><h3>Linters and Code Formatters</h3></a>
+<p>When all code is automatically formatted and linted, it is easier to read and
+edit. Also, arguing over whether to use tabs or spaces is probably the least
+productive thing possible. Use the default formatters and linters for your
+language, it is an easy way to make your code cleaner and simpler.</p>
+<p>We will install these in a later chapter.</p>
+<a class="header" href="print.html#custom-tooling-build-systems-and-scripting-languages" id="custom-tooling-build-systems-and-scripting-languages"><h3>Custom Tooling, Build Systems and Scripting Languages</h3></a>
+<p>Some people believe that the primary responsibility of Software Engineers in
+Test (my job title) is to design test cases. In my opinion, the primary job of
+an SET should be to develop processes, tools and frameworks that make the entire
+organization run more efficiently, more simply and with higher quality.</p>
+<p>This section will be one of the least discussed in this book, but it can be the
+most important for your future development. The problem is that it can't really
+be taught except to say: always look for ways you can automate pain points and
+increase simplicity. Develop tools that make it easy to interface with your
+product, or hook into annoying legacy test software, or develop tests in a
+simpler way. These tools can be a script, a new way of doing things or even
+just a library/module. By making everyone's life easier, you will drastically
+increase quality</p>
+<a class="header" href="print.html#a-hrefhttpsgithubcomvitiralartifactartifacta-the-design-doc-tool-made-for-developers" id="a-hrefhttpsgithubcomvitiralartifactartifacta-the-design-doc-tool-made-for-developers"><h3><a href="https://github.com/vitiral/artifact">artifact</a>: the design doc tool made for developers</h3></a>
+<p>Artifact will be our bread and butter for writing and linking our design to our
+source code and then hosting them as a webpage. This tool was designed
+specifically to facilitate the philosophy of software quality presented in this
+book. Artifact will be the topic of the next chapter.</p>
+<p>At the end of the process, we will be able to host our design docs just like the
+artifact project's <a href="http://vitiral.github.io/artifact/#artifacts/REQ-1">design docs</a>.</p>
+<a class="header" href="print.html#get-started-with-git" id="get-started-with-git"><h2>Get Started With Git</h2></a>
+<p>Before we do anything else, let's start using git to track
+our progress. Since artifact tracks design docs which are written
+in plain text, you can (and should) use revision control to
+track the evolution of your design documents.</p>
+<blockquote>
+<p>Note: you should have already <a href="StartingProject.html">set up your project</a></p>
+</blockquote>
+<pre><code>git add README.md
+git commit -m &quot;add README.md&quot;
+</code></pre>
+<p>This will add the progress you have made so far to git and allow
+us to track our progress.</p>
+<blockquote>
+<a class="header" href="print.html#exercise-1-4" id="exercise-1-4"><h3>Exercise 1:</h3></a>
+<p>git is a fantastic tool, but it is beyond the scope of this guide
+to give a full tutorial on git or revision control in general.
+Before proceeding with this guide any further, it is recommended
+you go through the <a href="https://git-scm.com/doc">git tutorial</a></p>
+<p>You can always type <code>git COMMAND -h</code> to get help on any command.</p>
+<p>The rest of the tutorial will assume you have a working knowledge
+of git commands and what their purpose is.</p>
+</blockquote>
+<a class="header" href="print.html#artifact-intro" id="artifact-intro"><h1>Artifact Intro</h1></a>
+<p>This is an introduction to how we start integrating the Artifact tool into our
+design and development workflow. It is intended to be interactive, so please
+follow along with everything installed!</p>
+<blockquote>
+<p><strong>Exercise 1: ensuring your environment works:</strong></p>
+<p>You should have at least done the <a href="./StartingProject.html">Starting Project</a>
+chapter before attempting this one.</p>
+<p>Run <code>art ls</code>, you should see something like:</p>
+<pre><code>spc% tst%  | name         | parts
+0.0  0.0   | REQ-purpose  |
+</code></pre>
+</blockquote>
+<a class="header" href="print.html#converting-our-readmemd-into-an-artifact" id="converting-our-readmemd-into-an-artifact"><h2>Converting our README.md into an artifact.</h2></a>
+<p>The first thing we want to do is use the <code>README.md</code> file we have already been writing
+as our artifact file.</p>
+<p>To do this, let's make a couple of changes:</p>
+<ul>
+<li>Move our <code>README.md</code> into <code>design/purpose.md</code></li>
+<li>Clean up the headers so they are artifacts.</li>
+</ul>
+<p>To move your README.md, simply type:</p>
+<pre><code>mv README.md purpose.md
+</code></pre>
+<blockquote>
+<p><strong>Check In:</strong> run <code>art ls</code>. It shows nothing because we have not specified
+any artifacts.</p>
+</blockquote>
+<p>We now need to convert our headers into artifacts. Let's start with our purpose.
+Change the <code># Purpose</code> line (from <a href="./Purpose.html">Specifying Your Purpose</a>) to
+<code># REQ-purpose</code>. Your file should now look something like:</p>
+<pre><code class="language-markdown"># REQ-purpose
+Write a flash card quizzer ...
+
+</code></pre>
+<p>Do the same thing to your specifications from
+<a href="./Design.html">High Level Design</a>:</p>
+<ul>
+<li><code># Execution Method</code> -&gt; <code># SPC-cli</code></li>
+<li><code># Final Results</code> -&gt; <code># SPC-report</code></li>
+<li><code># Question File Format</code> -&gt; <code># SPC-format</code></li>
+</ul>
+<p>Now <code>art ls</code> should show:</p>
+<pre><code class="language-bash">$ art ls
+spc% tst%  | name         | parts
+0.0  0.0   | REQ-purpose  |
+0.0  0.0   | SPC-cli      |
+0.0  0.0   | SPC-format   |
+0.0  0.0   | SPC-report   |
+</code></pre>
+<p>This is closer, but notice that none of them are linked. Let's fix that.</p>
+<p>For <code>SPC-cli</code> make it look like this:</p>
+<pre><code class="language-markdown"># SPC-cli
+partof:
+- REQ-purpose
+###
+The minimum viable product ...
+</code></pre>
+<p>Do the same for <code>SPC-format</code> and <code>SPC-report</code>, also making them partof
+<code>REQ-purpose</code>. You should now have:</p>
+<pre><code>$ art ls
+spc% tst%  | name         | parts
+0.0  0.0   | REQ-purpose  | SPC-cli, SPC-format, SPC-report
+0.0  0.0   | SPC-cli      |
+0.0  0.0   | SPC-format   |
+0.0  0.0   | SPC-report   |
+
+</code></pre>
+<p>Now is also a good time to run <code>art serve</code>. This will serve your project
+locally so that you can view and edit it through the Web UI.</p>
+<p><a href="examples/part1/index.html">Here is an example of the project in its current state</a></p>
+<a class="header" href="print.html#detailed-design" id="detailed-design"><h1>Detailed Design</h1></a>
+<p>Now that we have our high level design, let's start desiging how we are
+actually going to <em>build</em> our flash card application. The first thing
+we might want to design is: how does the user specify questions?</p>
+<p>We already answered this to some degree in <code>SPC-format</code>. Let's expand it a bit.</p>
+<pre><code class="language-markdown"># SPC-format
+partof:
+- REQ-purpose
+###
+The user shall be able to easily configure the quiz
+questions through a simple csv format consisting of two
+columns: the question and the answer.
+
+The format of the csv file **shall** be a csv file of the form:
+
+    City, Capitol
+
+&gt; Note: whitespace will be ignored
+
+## [[.question]]
+The `Question` class shall be the primary datatype used for questions in the
+application. Quetions shall:
+- Store the question and answer.
+- Provide a method `ask` to ask the user the question
+  and validate the answer.
+
+## [[.validate]]
+Input questions **shall** be validated to:
+- Guarantee against duplicates.
+- Guarantee that the data format is correct.
+</code></pre>
+<p>There are a few things here, so let's take a look:</p>
+<ul>
+<li>We expanded <em>how</em> the user can configure the questions (the CSV format itself)</li>
+<li>We created two subartifacts, <code>.question</code> and <code>.validate</code>.
+<ul>
+<li>Having the <code>[[.subart]]</code> anywhere within the text is enough to create
+these.</li>
+<li>We can now link these subarts in code and they are necessary for our
+artifact to be considered &quot;complete&quot;.</li>
+</ul>
+</li>
+</ul>
+<a class="header" href="print.html#define-tests" id="define-tests"><h1>Define Tests</h1></a>
+<p>Let's also define a couple of unit tests. You could do this using a new
+<code>TST-format</code> (or any other name) artifact.</p>
+<p>However, artifact has what are called tst-subarts specifically for the purpose
+of defining unit test coverage that you want. Simply add the following section
+to <code>SPC-format</code>:</p>
+<pre><code class="language-markdown">## Unit Tests:
+- Invalid: make sure invalid inputs don't work
+  - [[.tst-invalid_cols]]: Test invalid number of columns (0, 1, and 3).
+  - [[.tst-duplicates]]: Test duplicate names.
+- Make sure loading works.
+  - [[.tst-basic]]: Loading a raw string and validating it.
+  - [[.tst-load]]: Loading a valid csv file path and validating it.
+</code></pre>
+<p>These will allow us to implement testing for SPC-format without having to
+create new artifacts.</p>
+<a class="header" href="print.html#implementation" id="implementation"><h1>Implementation</h1></a>
+<p>Now that we have a basic design and test strategy, let's start writing some
+code.</p>
+<p>First make our python module:</p>
+<pre><code class="language-bash">mkdir flash/
+touch flash/__init__.py
+touch flash/load.py
+</code></pre>
+<p>This creates our python module and get's us started with some empty files.
+Let's first implement <code>SPC-format.question</code> as an object in <code>flash/load.py</code>:</p>
+<pre><code class="language-python">#!/usr/bin/python2
+'''
+csv loading module
+'''
+import csv
+
+class Question(object):
+    ''' represents a question and can be asked
+
+    partof: #SPC-format.question
+    '''
+    def __init__(self, question, answer):
+        self.question = question.strip()
+        self.answer = answer.strip().lower()
+
+    def __eq__(self, other):
+        if not isinstance(other, Question):
+            return False
+        return self.question == other.question and self.answer == other.answer
+
+    def __neq__(self, other):
+        return not self == other
+</code></pre>
+<p>Note that we do not have the <code>ask()</code> method yet though (we will do that later).</p>
+<p>Now let's implement <code>SPC-format.validate</code>:</p>
+<pre><code class="language-python">def validate_questions(questions):
+    ''' Given a list of questions, validate them according to spec
+    partof: #SPC-format.validate
+    '''
+    # check for duplicates
+    all_qs = [q.question for q in questions]
+    seen = set()
+    duplicates = []
+    for q in all_qs:
+        if q in seen:
+            duplicates.append(q)
+        seen.add(q)
+    if duplicates:
+        raise ValueError(&quot;duplicate questions found: {}&quot;.format(duplicates))
+</code></pre>
+<p>Finally, let's implement <code>SPC-format</code> itself -- the loading of the file.</p>
+<pre><code class="language-python">def load_io(f):
+    ''' load questions from a file '''
+    reader = csv.reader(f)
+    questions = []
+    for row in reader:
+        if len(row) == 0 or (len(row) == 1 and not row[0].strip()):
+            # skip if the row contains nothing but whitespace
+            continue
+        if len(row) != 2:
+            raise ValueError(&quot;row is invalid length of {}: {}&quot;.format(
+                len(row), row))
+        questions.append(Question(*row))
+    return questions
+
+
+def load_path(path):
+    ''' given a path, load a list of validated questions
+    partof: #SPC-format
+    '''
+    with open(path, 'rb') as f:
+        return load_io(f)
+</code></pre>
+<p>When we've finished with all of that, type <code>art ls</code>... and nothing is
+implemented. This is because we still need to tell Artifact where we have
+implemented stuff. Edit <code>.art/settings.toml</code> and add <code>&quot;flash/&quot;</code> to
+the <code>code_paths</code> list.</p>
+<pre><code class="language-toml">code_paths = [&quot;flash/&quot;]
+</code></pre>
+<p>Now try:</p>
+<pre><code>$ art ls                                                                                                                                                                 ~/tmp/learn-art
+spc% tst%  | name         | parts
+20.0 0.0   | REQ-purpose  | SPC-cli, SPC-format, SPC-report
+0.0  0.0   | SPC-cli      |
+60.0 0.0   | SPC-format   |
+0.0  0.0   | SPC-report   |
+</code></pre>
+<p>And notice that <code>SPC-format</code> is partially impelmented!</p>
+<a class="header" href="print.html#implementing-unit-tests" id="implementing-unit-tests"><h2>Implementing Unit Tests</h2></a>
+<p>In order for SPC-format to be completely implemented and tested we need to impelemnt
+it's <code>tst-</code> subarts</p>
+<blockquote>
+<p>Note: <code>tst-</code> subarts contribute to <em>both</em> tst% and spc%, the idea being
+that implementing your unit tests are necessary to being actually done.</p>
+</blockquote>
+<p>Let's implement some tests. First create our test files:</p>
+<pre><code class="language-bash">mkdir flash/tests
+touch flash/tests/__init__.py
+touch flash/tests/test_load.py
+</code></pre>
+<p>Then write our tests in <code>flash/tests/test_load.py</code>:</p>
+<pre><code class="language-python">import os
+import unittest
+from StringIO import StringIO
+
+from .. import load
+
+script_dir = os.path.split(__file__)[0]
+
+
+class TestLoadIo(unittest.TestCase):
+    def test_basic(self):
+        &quot;&quot;&quot;#SPC-format.tst-basic&quot;&quot;&quot;
+        text = '''\
+        one,1
+        two,2
+        three,3'''
+        result = load.load_io(StringIO(text))
+        expected = [
+            load.Question(&quot;one&quot;, &quot;1&quot;),
+            load.Question(&quot;two&quot;, &quot;2&quot;),
+            load.Question(&quot;three&quot;, &quot;3&quot;),
+        ]
+        self.assertEqual(result, expected)
+
+    def test_csv(self):
+        &quot;&quot;&quot;#SPC-format.tst-load&quot;&quot;&quot;
+        path = os.path.join(script_dir, 'example.csv')
+        result = load.load_path(path)
+        expected = [
+            load.Question(&quot;foo&quot;, &quot;bar&quot;),
+            load.Question(&quot;forest&quot;, &quot;ham&quot;),
+            load.Question(&quot;I&quot;, &quot;love&quot;),
+            load.Question(&quot;you&quot;, &quot;too&quot;),
+        ]
+        self.assertEqual(result, expected)
+
+    def test_invalid_columns(self):
+        &quot;&quot;&quot;#SPC-format.tst-invalid_cols&quot;&quot;&quot;
+        # extra ',' after 1
+        text = '''\
+        one,1,
+        two,2
+        three,3'''
+        with self.assertRaises(ValueError):
+            load.load_io(StringIO(text))
+
+    def test_duplicate(self):
+        &quot;&quot;&quot;#SPC-format.tst-duplicates&quot;&quot;&quot;
+        # note: extra ',' after 1
+        text = '''\
+        one,1,
+        two,2
+        three,3
+        two,2'''
+        with self.assertRaises(ValueError):
+            load.load_io(StringIO(text))
+
+    def test_valid_line_ending(self):
+        &quot;&quot;&quot;The last line should be able to end with '\n'.&quot;&quot;&quot;
+        text = '''\
+        one,1
+        two,2
+        three,3
+        '''
+        result = load.load_io(StringIO(text))
+        expected = [
+            load.Question(&quot;one&quot;, &quot;1&quot;),
+            load.Question(&quot;two&quot;, &quot;2&quot;),
+            load.Question(&quot;three&quot;, &quot;3&quot;),
+        ]
+        self.assertEqual(result, expected)
+</code></pre>
+<p>Notice that we also have an extra unit test. That's okay, not every test needs
+a coresponding spec in the real world either!</p>
+<a class="header" href="print.html#summary" id="summary"><h1>Summary</h1></a>
+<p>We have successfully implemented and tested one artifact (<code>SPC-format</code>), along
+with all of its subarts. We did this by implementing it in source code.</p>
+<p>View the current status using <code>art serve</code>.
+<a href="examples/part2/index.html">You can also see the example here</a>.</p>
+<p>Notice that <code>SPC-format</code> is considered both <code>spc%</code> and <code>tst%</code> complete and so
+is green. Furthermore, when you look at it you can see the lines where it is
+implemented.</p>
+<a class="header" href="print.html#cleaning-up" id="cleaning-up"><h1>Cleaning Up</h1></a>
+<p>There are two more commands that it is critical to know:</p>
+<ul>
+<li><code>art check</code>: for checking for errors and warnings.</li>
+<li><code>art fmt</code>: for formatting your arguments.</li>
+</ul>
+<p><code>art check</code> checks a whole range of things:</p>
+<ul>
+<li>All artifacts in <code>partof</code> exist.</li>
+<li>The soft references (i.e. <code>[[REQ-foo]]</code>) exist.</li>
+<li>Code references are valid and not duplicated.</li>
+</ul>
+<p><code>art fmt</code> standardizes the format of your artifacts and makes them easier to read.</p>
+<blockquote>
+<p>Note: <code>art fmt</code> is automatically run whenever you edit any artifacts via the
+Web UI.</p>
+</blockquote>
+<a class="header" href="print.html#documenting-and-hosting-your-own-project" id="documenting-and-hosting-your-own-project"><h2>Documenting and Hosting your own project</h2></a>
+<p>To start documenting your own project, run <code>art init</code> in your project and
+edit <code>.art/settings.toml</code> with the paths on where to find your
+design docs and code.</p>
+<p>Have your build system export your design documents as html for easy viewing.
+See: <a href="./ExportingHtml.html">Exporting Html</a></p>
+<a class="header" href="print.html#artifact-advice" id="artifact-advice"><h2>Artifact Advice</h2></a>
+<p>Here are a words when using artifact:</p>
+<ol>
+<li>You should always write a good README and other documentation for your users
+-- design docs SHOULD be used for bringing developers of your project up
+to speed but they aren't the best format for general users.</li>
+<li>Keep your design docs fairly high level -- don't try to design every detail
+using artifact. Using artifact does not mean that you shouldn't use code
+comments!</li>
+<li>Use <code>art ls</code> and <code>art check</code> often, and fix those error messages!</li>
+<li>Follow the <a href="./BestPractices.html">artifact best practices</a>.</li>
+<li>Don't be afraid to refactor your design docs. It is actually easier than it
+might sound, as the tool will help you find broken links and incomplete
+items in real time. Not to mention that if you use revision control
+(you should), your artifacts can be tracked with your project -- no more
+having your documentation and your code be wildly out of sync!</li>
+</ol>
+<p>This tutorial took you part of the way through developing a simple project
+using artifact. Continue onto the next section or simply try using artifact for
+one of your smaller personal projects and see the benefits that design
+documents can give -- it's your choice!</p>
+<p>Have some fun with the tool, try to break it. If you find bugs or have any
+suggestions, please open a ticket at:
+https://github.com/vitiral/artifact/issues</p>
+<p>Good luck!</p>
+<a class="header" href="print.html#finishing-the-project" id="finishing-the-project"><h1>Finishing The Project</h1></a>
+<p>This is a continuation of the last section and is still a work in progress. We
+are going to flush out the design for the rest of the flash challenge and
+implement an MVP.</p>
+<a class="header" href="print.html#running-tests" id="running-tests"><h1>Running Tests</h1></a>
+<p>If you followed along with the artifact interactive tutorial, you should feel
+pretty confident by now that our load component is well designed and <em>should</em>
+be implemented and tested. However, you haven't actually run any code yet, so
+you can't be sure! We are going to change that.</p>
+<p>The first thing you need to do is make sure you are running python2.7. Running:</p>
+<pre><code>python --version
+pip --version
+</code></pre>
+<p>Should return something like:</p>
+<pre><code>Python 2.7.13
+pip 9.0.1 from /usr/lib/python2.7/site-packages (python 2.7)
+</code></pre>
+<p>As long as they are both python2.7.X (but not python3.X), you are good to go.</p>
+<blockquote>
+<p>If not... python can be very difficult to configure.  Search on google for
+how to have both python2 and python3 installed. You will have to do a similar
+exercise for <code>pip</code>.</p>
+</blockquote>
+<blockquote>
+<p>If it is too much of a pain, you can also just use python3 (or any other
+language), it shouldn't be difficult -- you will just have to fix any errors
+that come up.</p>
+<p>If you are using another language, refer to that language's unit testing
+guide.</p>
+</blockquote>
+<p>Now install <code>py.test</code>:</p>
+<pre><code>pip install pytest
+</code></pre>
+<blockquote>
+<p>Note: it is recommended you add <code>--user</code> to the end or use a virtualenv.
+Using a virtualenv with python is out of scope of this tutorial.</p>
+</blockquote>
+<p>Now run your unit tests:</p>
+<pre><code>py.test flash/
+</code></pre>
+<p>Congratulations, you've designed, written and run unit tests!</p>
+<a class="header" href="print.html#todo" id="todo"><h1>TODO</h1></a>
+<p>The rest of these documents are not yet complete. Sorry for the inconvieneice!</p>
+<a class="header" href="print.html#addendum" id="addendum"><h1>Addendum</h1></a>
+<p>This section contains the addendum to this guide, including the spec, FAQ and
+other materials.</p>
+<a class="header" href="print.html#why-is-it-named-artifact" id="why-is-it-named-artifact"><h2>Why is it named artifact?</h2></a>
+<p>Artifact is simply named after what it does: it is a way to write and track
+your <a href="https://en.wikipedia.org/wiki/Artifact_(software_development)">artifacts</a></p>
+<a class="header" href="print.html#why-is-extended-markdown-the-default-language" id="why-is-extended-markdown-the-default-language"><h3>Why is (extended) markdown the default language?</h3></a>
+<p>Because it is human/readable and writeable. Adding the metadata block was also
+not difficult and fit within the syntax.</p>
+<a class="header" href="print.html#an-artifact-is-implemented-in-code-but-not-100-done" id="an-artifact-is-implemented-in-code-but-not-100-done"><h3>An artifact is &quot;implemented&quot; in code but not 100% done?</h3></a>
+<p>All artifacts are only as done as their parts + implementation/done.</p>
+<p>If you have:</p>
+<pre><code class="language-toml">[SPC-1]
+[SPC-1-a]
+[SPC-1-b]
+</code></pre>
+<p>And then the code:</p>
+<pre><code class="language-python">def hello():
+    &quot;&quot;&quot;partof: #SPC-1&quot;&quot;&quot;
+</code></pre>
+<p><code>SPC-1</code> will only be 1/3 &quot;done&quot; since it still has two incomplete parts.</p>
+<p>This also applies to the &quot;done&quot; field.</p>
+<p>These are a few of the (alpha) best practices when using artifact.</p>
+<a class="header" href="print.html#use-features-use-the-features-of-artifact" id="use-features-use-the-features-of-artifact"><h3>use-features: use the features of artifact</h3></a>
+<p>Artifact contains several useful features. Use them!</p>
+<ul>
+<li><code>art check</code>: makes sure your references are all valid both in code and in your
+artifacts.</li>
+<li><code>art fmt</code>: format your artifacts</li>
+</ul>
+<a class="header" href="print.html#too-many-pieces-do-not-break-into-too-many-pieces" id="too-many-pieces-do-not-break-into-too-many-pieces"><h3>too-many-pieces: Do not break into too many pieces</h3></a>
+<p>Artifact is a great tool for breaking up your design, so much so that it is
+tempting to specify every detail as it's own artifact</p>
+<p>Avoid this:</p>
+<ul>
+<li>SPC-ui-cmd</li>
+<li>SPC-ui-cmd-ls</li>
+<li>SPC-ui-cmd-fmt</li>
+<li>SPC-ui-web</li>
+<li>SPC-ui-web-list</li>
+<li>SPC-ui-web-edit</li>
+<li>SPC-ui-gui</li>
+<li>... etc...</li>
+</ul>
+<p>There is no reason to have the <code>ui</code> prefix -- each of these are almost
+completely different components and doesn't aid in understanding your
+design documents.</p>
+<p>Instead, consider having:</p>
+<ul>
+<li>REQ-ui: high level ui requirements</li>
+<li>REQ-cmd: partof=REQ-ui</li>
+<li>REQ-web: partof=REQ-ui</li>
+<li>REQ-gui: partof=REQ-ui</li>
+</ul>
+<p>This keeps the breakdown obvious but also keeps the names short.</p>
+<a class="header" href="print.html#short-names-keep-artifact-names-as-short-as-possible" id="short-names-keep-artifact-names-as-short-as-possible"><h3>short-names: Keep artifact names as short as possible</h3></a>
+<p>Nobody wants to read <code>REQ-ui-web-design-frontend-edit-text</code>. That level of
+nesting is simply not necessary. Something like <code>REQ-web-edit</code> will suffice.</p>
+<p>Try and combine such detail into a single artifact. Auto-linking is cool, but
+don't get carried away! It's okay to specify <code>partof</code> when it makes
+your tree simpler.</p>
+<a class="header" href="print.html#no-numbers-use-only-human-readable-names" id="no-numbers-use-only-human-readable-names"><h3>no-numbers: Use only human readable names</h3></a>
+<p>Artifact names should avoid using numbers. If you are tempted to call something
+<code>SPC-foo-1</code> just break down the different items of <code>foo</code> in a bullet point list
+in its <code>text</code> field and use subnames.</p>
+<a class="header" href="print.html#abbreviations-abbreviate-names" id="abbreviations-abbreviate-names"><h3>abbreviations: abbreviate names</h3></a>
+<p>Artifact is intended to be used as a cmd line tool, so keeping names short is
+very nice.</p>
+<p>This is mostly useful for larger projects.</p>
+<a class="header" href="print.html#prefix-acronyms-create-acronyms-for-your-prefixes" id="prefix-acronyms-create-acronyms-for-your-prefixes"><h3>prefix-acronyms: create acronyms for your prefixes</h3></a>
+<p>Use an acronym or abbreviation for your prefixes.</p>
+<p>One of the main use cases of short names is for the categories of your
+artifacts. For instance, say your storage product had the following features:</p>
+<ul>
+<li>transport</li>
+<li>data availability</li>
+<li>data recovery</li>
+<li>remote replication</li>
+</ul>
+<p>It would be annoying to have artifacts like <code>REQ-transport-drive</code> or
+<code>REQ-remote_replication-protocol</code>. Instead, use an acronyms:</p>
+<ul>
+<li><strong>TP</strong>: transport</li>
+<li><strong>DA</strong>: data availability</li>
+<li><strong>DR</strong>: data recovery</li>
+<li><strong>RR</strong>: remote replication</li>
+</ul>
+<p>Now your artifacts look like <code>REQ-TP-drive</code> and <code>REQ-RR-protocol</code>,
+which is much shorter and more readable when looking at a large list.</p>
+<a class="header" href="print.html#uniformity-keep-names-uniform" id="uniformity-keep-names-uniform"><h3>uniformity: keep names uniform</h3></a>
+<p>Artifact automatically makes <code>SPC-foo</code> a partof <code>REQ-foo</code> and that is because
+they should be related. Make sure your names have meaning so this doesn't
+accidentally become a gotcha for your project.</p>
+<p>The <code>art export html $DEST</code> command can be used to create a static site which
+is included on github. For an example, see
+<a href="http://vitiral.github.io/artifact/index.html">artifact's own design docs</a></p>
+<p>In order to make a github page for your site that hosts your design documents:</p>
+<ul>
+<li><a href="https://pages.github.com/">Activate github pages</a> (we will be using the
+<code>index.html</code> option)</li>
+<li>Run <code>art export html</code>, which will generate an <code>index.html</code> file among other
+necessary files and folders.</li>
+<li>Run <code>git add index.html css</code> to add the generated files.</li>
+<li>Push to master or to <code>gh-pages</code> branch.</li>
+</ul>
+<p>That's it! You should be able to navigate to
+<code>http://&lt;username&gt;.github.io/&lt;repo-name&gt;/</code> to view your page!</p>
+<a class="header" href="print.html#reporting-an-issue" id="reporting-an-issue"><h1>Reporting an Issue</h1></a>
+<p>If you have any issues with artifact, please report a bug at it's <a href="https://github.com/vitiral/artifact/issues">issue
+tracker</a>.</p>
+<a class="header" href="print.html#feedback-on-artifact" id="feedback-on-artifact"><h1>Feedback on Artifact</h1></a>
+<p>Below is feedback I have compiled on artifact so far. If you would like to
+leave feedback please <a href="https://github.com/vitiral/artifact/issues">open a ticket</a>, contact me on twitter
+<a href="https://twitter.com/vitiral">@vitiral</a> or
+<a href="https://www.reddit.com/user/vitiral">on reddit</a>.</p>
+<ul>
+<li><a href="https://www.reddit.com/r/rust/comments/6lhnbp/artifact_081_released_finalfinal_beta/djv60xp/">omniaVincitVeritas, June 2017</a>: I like this idea a lot. Our profession
+has a real problem with massively overengineered architecture tools, but
+artifact is like fresh summer rain.</li>
+</ul>
+<a class="header" href="print.html#artifact-document-specification" id="artifact-document-specification"><h1>Artifact Document Specification</h1></a>
+<p>This document outlines the specification for the Artifact data format.
+All specifications in this document are released as Creative Commons CC0
+public domain. You can read more about this license here:
+https://creativecommons.org/publicdomain/</p>
+<a class="header" href="print.html#document-type" id="document-type"><h2>Document Type</h2></a>
+<p>Artifact documents can be specified in multiple formats.</p>
+<a class="header" href="print.html#toml-format-1" id="toml-format-1"><h3>TOML Format</h3></a>
+<p>The TOML format adheres to a subset of the <a href="https://github.com/toml-lang/toml">TOML</a> format and are documents
+of the form:</p>
+<pre><code class="language-toml">[ART-baz]
+partof = &quot;ART-baa&quot;
+text = '''
+multi-line
+description
+'''
+
+[ART-foo-bar]
+partof = [
+    &quot;ART-baz&quot;,
+]
+text = '''
+multi-line
+description
+'''
+</code></pre>
+<p>Where <code>partof</code> can be either a single string or a list of strings.</p>
+<a class="header" href="print.html#markdown-format-1" id="markdown-format-1"><h3>Markdown Format</h3></a>
+<p>The markdown format uses extended Commonmark (<strong>TODO: link</strong>) format.
+It is of the form:</p>
+<pre><code># REQ-foo
+&lt;optional yaml section for metadata&gt;
+###
+&lt;markdown text&gt;
+</code></pre>
+<p>Where the yaml section is completely optional (the <code>###</code> can be skipped if it
+doesn't need it.</p>
+<a class="header" href="print.html#artifact-types-1" id="artifact-types-1"><h2>Artifact Types</h2></a>
+<p>Instead of <code>ART</code> as defined in Document Type, the user must select from
+3 artifact types:</p>
+<ul>
+<li><code>REQ</code>: specifying a requirement. <code>REQ</code> can only have <code>REQ</code> in its
+<code>partof</code> field.</li>
+<li><code>SPC</code>: specifying a design specification. <code>SPC</code> can only have
+<code>REQ</code> or <code>SPC</code> in its <code>partof</code> field.</li>
+<li><code>TST</code>: specifying a test of a <code>SPC</code>. <code>TST</code> can have any of
+<code>REQ</code>, <code>SPC</code> or <code>TST</code> in its <code>partof</code> field.</li>
+</ul>
+<a class="header" href="print.html#automatic-links" id="automatic-links"><h2>Automatic Links</h2></a>
+<p>The following will be automatically linked:</p>
+<ul>
+<li>parents: <code>REQ-foo</code> will automatically be a <code>partof</code>
+<code>REQ-foo-bar</code></li>
+<li>common-prefix for <code>REQ -&gt; SPC -&gt; TST</code> links
+<ul>
+<li><code>REQ-foo</code> will automatically be a <code>partof</code> <code>SPC-foo</code>
+<em>if <code>REQ-foo</code> exists</em></li>
+<li><code>SPC-foo</code> will automatically be a <code>partof</code> <code>TST-foo</code>
+<em>if <code>SPC-foo</code> exists</em></li>
+</ul>
+</li>
+</ul>
+<a class="header" href="print.html#linking-an-artifact-in-source-code" id="linking-an-artifact-in-source-code"><h2>Linking an artifact in source code</h2></a>
+<p>Artifacts can be linked in source code, which &quot;completes&quot; their <code>spc%</code>.</p>
+<p>The way to link to an artifact is to place <code>#ART-name</code> anywhere in the source
+code file.</p>
+<a class="header" href="print.html#sub-artifacts-subart" id="sub-artifacts-subart"><h2>Sub Artifacts (subart)</h2></a>
+<p>A sub artifact is defined by placing <code>[[.subart]]</code> anywhere in the <code>text</code> field
+of an artifact.</p>
+<p>Subarts can be linked in source code as well by placing <code>#ART-name.subart</code>
+anywhere in the source code file.</p>
+<p>A special subart is <code>[[.tst-subart]]</code> which will contribute to both <code>tst%</code> and
+<code>spc%</code>.</p>
+<a class="header" href="print.html#artifact-documentation-directory-license" id="artifact-documentation-directory-license"><h1>Artifact Documentation Directory License</h1></a>
+<p>All documents in this directory are released under the CC0 Creative Commons
+Public Domain License with the intent that you should feel free to copy, paste
+and modify any of the designs, guides or examples for any purpose. You can read
+more about CC0 here:</p>
+<p><a href="https://creativecommons.org/publicdomain/">https://creativecommons.org/publicdomain/</a></p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                        
+
+                        
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                
+
+                
+            </nav>
+
+        </div>
+
+        
+
+        
+
+        
+
+        
+        <script src="searchindex.js" type="text/javascript" charset="utf-8"></script>
+        
+        
+        <script src="elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="searcher.js" type="text/javascript" charset="utf-8"></script>
+        
+
+        <script src="clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+        
+
+        
+        
+        <script type="text/javascript">
+        window.addEventListener('load', function() {
+            window.setTimeout(window.print, 100);
+        });
+        </script>
+        
+        
+
+    </body>
+</html>

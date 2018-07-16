@@ -1,0 +1,288 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Tools - Simple Quality with Artifact</title>
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <base href="">
+
+        <link rel="stylesheet" href="book.css">
+        <link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
+        <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro:500" rel="stylesheet" type="text/css">
+
+        <link rel="shortcut icon" href="favicon.png">
+
+        <!-- Font Awesome -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        
+
+        
+
+    </head>
+    <body class="light">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { } 
+            if (theme === null || theme === undefined) { theme = 'light'; }
+            document.body.className = theme;
+            document.querySelector('html').className = theme + ' js';
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <ol class="chapter"><li><a href="Introduction.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li><ol class="section"><li><a href="Installation.html"><strong aria-hidden="true">1.1.</strong> Instalation</a></li><li><a href="CheatSheet.html"><strong aria-hidden="true">1.2.</strong> Cheat Sheet</a></li><li><a href="ExampleFile.html"><strong aria-hidden="true">1.3.</strong> Example</a></li></ol></li><li><a href="SimpleQuality.html"><strong aria-hidden="true">2.</strong> Simple Quality with Artifact</a></li><li><ol class="section"><li><a href="StartingProject.html"><strong aria-hidden="true">2.1.</strong> Starting Your Project</a></li><li><a href="Purpose.html"><strong aria-hidden="true">2.2.</strong> Specifying Your Purpose</a></li><li><a href="Design.html"><strong aria-hidden="true">2.3.</strong> High Level Design</a></li><li><a href="Vocabulary.html"><strong aria-hidden="true">2.4.</strong> Vocabulary</a></li><li><a href="Tools.html" class="active"><strong aria-hidden="true">2.5.</strong> Tools</a></li><li><a href="ArtifactIntro.html"><strong aria-hidden="true">2.6.</strong> Artifact Intro</a></li><li><a href="DetailedDesign.html"><strong aria-hidden="true">2.7.</strong> Detailed Design</a></li><li><a href="Implementation.html"><strong aria-hidden="true">2.8.</strong> Implementation</a></li><li><a href="CleaningUp.html"><strong aria-hidden="true">2.9.</strong> Cleaning Up</a></li></ol></li><li><a href="Finishing.html"><strong aria-hidden="true">3.</strong> Finishing The Project</a></li><li><ol class="section"><li><a href="RunningTests.html"><strong aria-hidden="true">3.1.</strong> Running Tests</a></li><li><a href="TODO.html"><strong aria-hidden="true">3.2.</strong> TODO</a></li></ol></li><li><a href="Addendum.html"><strong aria-hidden="true">4.</strong> Addendum</a></li><li><ol class="section"><li><a href="FAQ.html"><strong aria-hidden="true">4.1.</strong> FAQ</a></li><li><a href="BestPractices.html"><strong aria-hidden="true">4.2.</strong> Best Practices</a></li><li><a href="ExportingHtml.html"><strong aria-hidden="true">4.3.</strong> Exporting Html</a></li><li><a href="Feedback.html"><strong aria-hidden="true">4.4.</strong> Feedback</a></li><li><a href="SPECIFICATION.html"><strong aria-hidden="true">4.5.</strong> Specification</a></li><li><a href="License.html"><strong aria-hidden="true">4.6.</strong> License</a></li></ol></li></ol>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                
+                <div id="menu-bar" class="menu-bar">
+                    <div id="menu-bar-sticky-container">
+                        <div class="left-buttons">
+                            <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                                <i class="fa fa-bars"></i>
+                            </button>
+                            <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                                <i class="fa fa-paint-brush"></i>
+                            </button>
+                            <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                                <li role="none"><button role="menuitem" class="theme" id="light">Light <span class="default">(default)</span></button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                            </ul>
+                            
+                            <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                                <i class="fa fa-search"></i>
+                            </button>
+                            
+                        </div>
+
+                        <h1 class="menu-title">Simple Quality with Artifact</h1> 
+
+                        <div class="right-buttons">
+                            <a href="print.html" title="Print this book" aria-label="Print this book">
+                                <i id="print-button" class="fa fa-print"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" name="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <a class="header" href="Tools.html#tools" id="tools"><h1>Tools</h1></a>
+<p>Just like revision control best practices would be meaningless without a
+revision control tool like git, design best practices are meaningless without a
+tool to help you track your design documents.</p>
+<p>Okay, that isn't <em>quite</em> accurate, but it's inaccuracy is the root of why design
+tools have languished so much. It is easy to think that your requirements can be
+completely captured in your README, or in code documentation, or in unit tests
+-- but in the end they get captured everywhere and nowhere. You end up either
+repeating intention or forgetting to specify it all together.</p>
+<p>Let's get this out of the way first: except for some of the simplest libraries,
+developer documents should <strong>not</strong> be your only design documents! The things
+your users are concerned about should almost never be the implementation details
+or architecture of your project, and unless your library is so simple that all
+design decisions fit in a few sentences, your code documentation won't cut it
+for preserving intent or pointing out the relationships between components.</p>
+<p>This is not to say that user (README) and developer (code) documentation are not
+critical to a project's quality: they absolutely are. But they should not
+replace your requirements, detailed-design or testing documents for any but the
+simplest projects.</p>
+<p>Keep in mind that it is always best practice to try and split your project into
+as many small libraries as possible. Simplicity should always be the number one
+goal. However, not all applications and libraries can be made so simple, and even
+in such cases you still might want an overall architecture for <em>how to achieve
+such simplicity.</em></p>
+<p>So, here are the primary tools that every developer should have under their belt
+to increase the quality of their software and their productivity.</p>
+<a class="header" href="Tools.html#revision-control" id="revision-control"><h3>Revision Control</h3></a>
+<p>This is probably the most essential tool to learn how to use, as it allows you
+to code fearlessly without worrying that past efforts will be lost. We will be
+using <a href="https://git-scm.com/">git</a> in this tutorial to track our progress at each stage.</p>
+<a class="header" href="Tools.html#inline-documentation-renderers" id="inline-documentation-renderers"><h3>Inline Documentation Renderers</h3></a>
+<p><a href="http://rosettacode.org/wiki/Documentation">Most languages</a> can take inline documentation on your functions, classes,
+etc and translate them into rendered and beautiful user docs. Some languages
+support it natively, others require a separate library.</p>
+<p>We will be writing python documentation can be natively viewed on the REPL by
+calling <code>help(obj)</code> and <em>could</em> be converted using <a href="http://www.sphinx-doc.org/en/1.5.1/">Spinx</a>.</p>
+<a class="header" href="Tools.html#unit-testing" id="unit-testing"><h3>Unit Testing</h3></a>
+<p>Almost every language has a unit testing framework. Get to know yours
+intimately. We will be using python's <a href="https://docs.python.org/3.6/library/unittest.html">unittest</a> package to write tests in
+this tutorial and <a href="http://doc.pytest.org/en/latest/">pytest</a> to run them.</p>
+<a class="header" href="Tools.html#linters-and-code-formatters" id="linters-and-code-formatters"><h3>Linters and Code Formatters</h3></a>
+<p>When all code is automatically formatted and linted, it is easier to read and
+edit. Also, arguing over whether to use tabs or spaces is probably the least
+productive thing possible. Use the default formatters and linters for your
+language, it is an easy way to make your code cleaner and simpler.</p>
+<p>We will install these in a later chapter.</p>
+<a class="header" href="Tools.html#custom-tooling-build-systems-and-scripting-languages" id="custom-tooling-build-systems-and-scripting-languages"><h3>Custom Tooling, Build Systems and Scripting Languages</h3></a>
+<p>Some people believe that the primary responsibility of Software Engineers in
+Test (my job title) is to design test cases. In my opinion, the primary job of
+an SET should be to develop processes, tools and frameworks that make the entire
+organization run more efficiently, more simply and with higher quality.</p>
+<p>This section will be one of the least discussed in this book, but it can be the
+most important for your future development. The problem is that it can't really
+be taught except to say: always look for ways you can automate pain points and
+increase simplicity. Develop tools that make it easy to interface with your
+product, or hook into annoying legacy test software, or develop tests in a
+simpler way. These tools can be a script, a new way of doing things or even
+just a library/module. By making everyone's life easier, you will drastically
+increase quality</p>
+<a class="header" href="Tools.html#a-hrefhttpsgithubcomvitiralartifactartifacta-the-design-doc-tool-made-for-developers" id="a-hrefhttpsgithubcomvitiralartifactartifacta-the-design-doc-tool-made-for-developers"><h3><a href="https://github.com/vitiral/artifact">artifact</a>: the design doc tool made for developers</h3></a>
+<p>Artifact will be our bread and butter for writing and linking our design to our
+source code and then hosting them as a webpage. This tool was designed
+specifically to facilitate the philosophy of software quality presented in this
+book. Artifact will be the topic of the next chapter.</p>
+<p>At the end of the process, we will be able to host our design docs just like the
+artifact project's <a href="http://vitiral.github.io/artifact/#artifacts/REQ-1">design docs</a>.</p>
+<a class="header" href="Tools.html#get-started-with-git" id="get-started-with-git"><h2>Get Started With Git</h2></a>
+<p>Before we do anything else, let's start using git to track
+our progress. Since artifact tracks design docs which are written
+in plain text, you can (and should) use revision control to
+track the evolution of your design documents.</p>
+<blockquote>
+<p>Note: you should have already <a href="StartingProject.html">set up your project</a></p>
+</blockquote>
+<pre><code>git add README.md
+git commit -m &quot;add README.md&quot;
+</code></pre>
+<p>This will add the progress you have made so far to git and allow
+us to track our progress.</p>
+<blockquote>
+<a class="header" href="Tools.html#exercise-1" id="exercise-1"><h3>Exercise 1:</h3></a>
+<p>git is a fantastic tool, but it is beyond the scope of this guide
+to give a full tutorial on git or revision control in general.
+Before proceeding with this guide any further, it is recommended
+you go through the <a href="https://git-scm.com/doc">git tutorial</a></p>
+<p>You can always type <code>git COMMAND -h</code> to get help on any command.</p>
+<p>The rest of the tutorial will assume you have a working knowledge
+of git commands and what their purpose is.</p>
+</blockquote>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                        
+                            <a rel="prev" href="Vocabulary.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+                        
+
+                        
+                            <a rel="next" href="ArtifactIntro.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+                        
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                
+                    <a href="Vocabulary.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+                
+
+                
+                    <a href="ArtifactIntro.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+                
+            </nav>
+
+        </div>
+
+        
+
+        
+
+        
+
+        
+        <script src="searchindex.js" type="text/javascript" charset="utf-8"></script>
+        
+        
+        <script src="elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="searcher.js" type="text/javascript" charset="utf-8"></script>
+        
+
+        <script src="clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+        
+
+        
+
+    </body>
+</html>

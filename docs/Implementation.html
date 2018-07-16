@@ -1,0 +1,382 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Implementation - Simple Quality with Artifact</title>
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <base href="">
+
+        <link rel="stylesheet" href="book.css">
+        <link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
+        <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro:500" rel="stylesheet" type="text/css">
+
+        <link rel="shortcut icon" href="favicon.png">
+
+        <!-- Font Awesome -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        
+
+        
+
+    </head>
+    <body class="light">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { } 
+            if (theme === null || theme === undefined) { theme = 'light'; }
+            document.body.className = theme;
+            document.querySelector('html').className = theme + ' js';
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <ol class="chapter"><li><a href="Introduction.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li><ol class="section"><li><a href="Installation.html"><strong aria-hidden="true">1.1.</strong> Instalation</a></li><li><a href="CheatSheet.html"><strong aria-hidden="true">1.2.</strong> Cheat Sheet</a></li><li><a href="ExampleFile.html"><strong aria-hidden="true">1.3.</strong> Example</a></li></ol></li><li><a href="SimpleQuality.html"><strong aria-hidden="true">2.</strong> Simple Quality with Artifact</a></li><li><ol class="section"><li><a href="StartingProject.html"><strong aria-hidden="true">2.1.</strong> Starting Your Project</a></li><li><a href="Purpose.html"><strong aria-hidden="true">2.2.</strong> Specifying Your Purpose</a></li><li><a href="Design.html"><strong aria-hidden="true">2.3.</strong> High Level Design</a></li><li><a href="Vocabulary.html"><strong aria-hidden="true">2.4.</strong> Vocabulary</a></li><li><a href="Tools.html"><strong aria-hidden="true">2.5.</strong> Tools</a></li><li><a href="ArtifactIntro.html"><strong aria-hidden="true">2.6.</strong> Artifact Intro</a></li><li><a href="DetailedDesign.html"><strong aria-hidden="true">2.7.</strong> Detailed Design</a></li><li><a href="Implementation.html" class="active"><strong aria-hidden="true">2.8.</strong> Implementation</a></li><li><a href="CleaningUp.html"><strong aria-hidden="true">2.9.</strong> Cleaning Up</a></li></ol></li><li><a href="Finishing.html"><strong aria-hidden="true">3.</strong> Finishing The Project</a></li><li><ol class="section"><li><a href="RunningTests.html"><strong aria-hidden="true">3.1.</strong> Running Tests</a></li><li><a href="TODO.html"><strong aria-hidden="true">3.2.</strong> TODO</a></li></ol></li><li><a href="Addendum.html"><strong aria-hidden="true">4.</strong> Addendum</a></li><li><ol class="section"><li><a href="FAQ.html"><strong aria-hidden="true">4.1.</strong> FAQ</a></li><li><a href="BestPractices.html"><strong aria-hidden="true">4.2.</strong> Best Practices</a></li><li><a href="ExportingHtml.html"><strong aria-hidden="true">4.3.</strong> Exporting Html</a></li><li><a href="Feedback.html"><strong aria-hidden="true">4.4.</strong> Feedback</a></li><li><a href="SPECIFICATION.html"><strong aria-hidden="true">4.5.</strong> Specification</a></li><li><a href="License.html"><strong aria-hidden="true">4.6.</strong> License</a></li></ol></li></ol>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                
+                <div id="menu-bar" class="menu-bar">
+                    <div id="menu-bar-sticky-container">
+                        <div class="left-buttons">
+                            <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                                <i class="fa fa-bars"></i>
+                            </button>
+                            <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                                <i class="fa fa-paint-brush"></i>
+                            </button>
+                            <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                                <li role="none"><button role="menuitem" class="theme" id="light">Light <span class="default">(default)</span></button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                            </ul>
+                            
+                            <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                                <i class="fa fa-search"></i>
+                            </button>
+                            
+                        </div>
+
+                        <h1 class="menu-title">Simple Quality with Artifact</h1> 
+
+                        <div class="right-buttons">
+                            <a href="print.html" title="Print this book" aria-label="Print this book">
+                                <i id="print-button" class="fa fa-print"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" name="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <a class="header" href="Implementation.html#implementation" id="implementation"><h1>Implementation</h1></a>
+<p>Now that we have a basic design and test strategy, let's start writing some
+code.</p>
+<p>First make our python module:</p>
+<pre><code class="language-bash">mkdir flash/
+touch flash/__init__.py
+touch flash/load.py
+</code></pre>
+<p>This creates our python module and get's us started with some empty files.
+Let's first implement <code>SPC-format.question</code> as an object in <code>flash/load.py</code>:</p>
+<pre><code class="language-python">#!/usr/bin/python2
+'''
+csv loading module
+'''
+import csv
+
+class Question(object):
+    ''' represents a question and can be asked
+
+    partof: #SPC-format.question
+    '''
+    def __init__(self, question, answer):
+        self.question = question.strip()
+        self.answer = answer.strip().lower()
+
+    def __eq__(self, other):
+        if not isinstance(other, Question):
+            return False
+        return self.question == other.question and self.answer == other.answer
+
+    def __neq__(self, other):
+        return not self == other
+</code></pre>
+<p>Note that we do not have the <code>ask()</code> method yet though (we will do that later).</p>
+<p>Now let's implement <code>SPC-format.validate</code>:</p>
+<pre><code class="language-python">def validate_questions(questions):
+    ''' Given a list of questions, validate them according to spec
+    partof: #SPC-format.validate
+    '''
+    # check for duplicates
+    all_qs = [q.question for q in questions]
+    seen = set()
+    duplicates = []
+    for q in all_qs:
+        if q in seen:
+            duplicates.append(q)
+        seen.add(q)
+    if duplicates:
+        raise ValueError(&quot;duplicate questions found: {}&quot;.format(duplicates))
+</code></pre>
+<p>Finally, let's implement <code>SPC-format</code> itself -- the loading of the file.</p>
+<pre><code class="language-python">def load_io(f):
+    ''' load questions from a file '''
+    reader = csv.reader(f)
+    questions = []
+    for row in reader:
+        if len(row) == 0 or (len(row) == 1 and not row[0].strip()):
+            # skip if the row contains nothing but whitespace
+            continue
+        if len(row) != 2:
+            raise ValueError(&quot;row is invalid length of {}: {}&quot;.format(
+                len(row), row))
+        questions.append(Question(*row))
+    return questions
+
+
+def load_path(path):
+    ''' given a path, load a list of validated questions
+    partof: #SPC-format
+    '''
+    with open(path, 'rb') as f:
+        return load_io(f)
+</code></pre>
+<p>When we've finished with all of that, type <code>art ls</code>... and nothing is
+implemented. This is because we still need to tell Artifact where we have
+implemented stuff. Edit <code>.art/settings.toml</code> and add <code>&quot;flash/&quot;</code> to
+the <code>code_paths</code> list.</p>
+<pre><code class="language-toml">code_paths = [&quot;flash/&quot;]
+</code></pre>
+<p>Now try:</p>
+<pre><code>$ art ls                                                                                                                                                                 ~/tmp/learn-art
+spc% tst%  | name         | parts
+20.0 0.0   | REQ-purpose  | SPC-cli, SPC-format, SPC-report
+0.0  0.0   | SPC-cli      |
+60.0 0.0   | SPC-format   |
+0.0  0.0   | SPC-report   |
+</code></pre>
+<p>And notice that <code>SPC-format</code> is partially impelmented!</p>
+<a class="header" href="Implementation.html#implementing-unit-tests" id="implementing-unit-tests"><h2>Implementing Unit Tests</h2></a>
+<p>In order for SPC-format to be completely implemented and tested we need to impelemnt
+it's <code>tst-</code> subarts</p>
+<blockquote>
+<p>Note: <code>tst-</code> subarts contribute to <em>both</em> tst% and spc%, the idea being
+that implementing your unit tests are necessary to being actually done.</p>
+</blockquote>
+<p>Let's implement some tests. First create our test files:</p>
+<pre><code class="language-bash">mkdir flash/tests
+touch flash/tests/__init__.py
+touch flash/tests/test_load.py
+</code></pre>
+<p>Then write our tests in <code>flash/tests/test_load.py</code>:</p>
+<pre><code class="language-python">import os
+import unittest
+from StringIO import StringIO
+
+from .. import load
+
+script_dir = os.path.split(__file__)[0]
+
+
+class TestLoadIo(unittest.TestCase):
+    def test_basic(self):
+        &quot;&quot;&quot;#SPC-format.tst-basic&quot;&quot;&quot;
+        text = '''\
+        one,1
+        two,2
+        three,3'''
+        result = load.load_io(StringIO(text))
+        expected = [
+            load.Question(&quot;one&quot;, &quot;1&quot;),
+            load.Question(&quot;two&quot;, &quot;2&quot;),
+            load.Question(&quot;three&quot;, &quot;3&quot;),
+        ]
+        self.assertEqual(result, expected)
+
+    def test_csv(self):
+        &quot;&quot;&quot;#SPC-format.tst-load&quot;&quot;&quot;
+        path = os.path.join(script_dir, 'example.csv')
+        result = load.load_path(path)
+        expected = [
+            load.Question(&quot;foo&quot;, &quot;bar&quot;),
+            load.Question(&quot;forest&quot;, &quot;ham&quot;),
+            load.Question(&quot;I&quot;, &quot;love&quot;),
+            load.Question(&quot;you&quot;, &quot;too&quot;),
+        ]
+        self.assertEqual(result, expected)
+
+    def test_invalid_columns(self):
+        &quot;&quot;&quot;#SPC-format.tst-invalid_cols&quot;&quot;&quot;
+        # extra ',' after 1
+        text = '''\
+        one,1,
+        two,2
+        three,3'''
+        with self.assertRaises(ValueError):
+            load.load_io(StringIO(text))
+
+    def test_duplicate(self):
+        &quot;&quot;&quot;#SPC-format.tst-duplicates&quot;&quot;&quot;
+        # note: extra ',' after 1
+        text = '''\
+        one,1,
+        two,2
+        three,3
+        two,2'''
+        with self.assertRaises(ValueError):
+            load.load_io(StringIO(text))
+
+    def test_valid_line_ending(self):
+        &quot;&quot;&quot;The last line should be able to end with '\n'.&quot;&quot;&quot;
+        text = '''\
+        one,1
+        two,2
+        three,3
+        '''
+        result = load.load_io(StringIO(text))
+        expected = [
+            load.Question(&quot;one&quot;, &quot;1&quot;),
+            load.Question(&quot;two&quot;, &quot;2&quot;),
+            load.Question(&quot;three&quot;, &quot;3&quot;),
+        ]
+        self.assertEqual(result, expected)
+</code></pre>
+<p>Notice that we also have an extra unit test. That's okay, not every test needs
+a coresponding spec in the real world either!</p>
+<a class="header" href="Implementation.html#summary" id="summary"><h1>Summary</h1></a>
+<p>We have successfully implemented and tested one artifact (<code>SPC-format</code>), along
+with all of its subarts. We did this by implementing it in source code.</p>
+<p>View the current status using <code>art serve</code>.
+<a href="examples/part2/index.html">You can also see the example here</a>.</p>
+<p>Notice that <code>SPC-format</code> is considered both <code>spc%</code> and <code>tst%</code> complete and so
+is green. Furthermore, when you look at it you can see the lines where it is
+implemented.</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                        
+                            <a rel="prev" href="DetailedDesign.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+                        
+
+                        
+                            <a rel="next" href="CleaningUp.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+                        
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                
+                    <a href="DetailedDesign.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+                
+
+                
+                    <a href="CleaningUp.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+                
+            </nav>
+
+        </div>
+
+        
+
+        
+
+        
+
+        
+        <script src="searchindex.js" type="text/javascript" charset="utf-8"></script>
+        
+        
+        <script src="elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="searcher.js" type="text/javascript" charset="utf-8"></script>
+        
+
+        <script src="clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+        
+
+        
+
+    </body>
+</html>
