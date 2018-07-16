@@ -1,11 +1,11 @@
 # Artifact: design documentation for everybody
 
 <img width="250" align="right" alt="artifact logo"
- src="https://github.com/vitiral/artifact/blob/master/docs/logo/logo.png?raw=true">
+ src="https://github.com/vitiral/artifact/blob/master/ci/data/logo/logo.png?raw=true">
 
 <a href="https://www.youtube.com/watch?v=kMzxKVkKLlE">
   <img width="250" align="right" alt="Introducing Artifact"
-   src="docs/data/artifact-thumb.png">
+   src="ci/data/artifact-thumb.png">
 </a>
 
 - **[Tutorial][1]**
@@ -20,7 +20,7 @@ and have a full suite of command line tools for searching, displaying,
 checking, exporting and formatting them.
 
 <a href="https://twitter.com/b0rk/status/833419052194357248">
-  <img align="right" src="docs/data/attribution/b0rk-design-documents.jpg-large"
+  <img align="right" src="ci/data/attribution/b0rk-design-documents.jpg-large"
     alt="b0rk scenes from writing design docs"
   >
 </a>
