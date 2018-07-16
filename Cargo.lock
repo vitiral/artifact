@@ -34,7 +34,7 @@ dependencies = [
 
 [[package]]
 name = "artifact-app"
-version = "1.1.0-beta002"
+version = "2.0.0"
 dependencies = [
  "artifact_data 0.1.0",
  "artifact_lib 0.1.0",
