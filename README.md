@@ -65,7 +65,7 @@ make writing design documents more fun and useful in your day to day
 development efforts.
 
 **Jump into artifact with the the [youtube commercial][4] and the
-[Tutorial](https://vitiral.github.io/artifact/docs/index.html).**
+[Tutorial][1].**
 
 [Also, view artifact's own design docs.][2]
 
@@ -117,7 +117,7 @@ The CC0 license applies to:
 The artifact logo (named Tula) is licensed under Creative Commons
 Attribution-ShareAlike (`CC BY-SA`) and can be used by the artifact project for
 any purpose without needing additional attribution. The artifact logo is located
-in `docs/logo` and was originally created by
+in `ci/docs/logo` and was originally created by
 [packapotatoes](https://github.com/packapotatoes).
 
 #### Source Code License
