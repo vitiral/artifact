@@ -1,7 +1,7 @@
 # Summary
 
 - [Introduction](./Introduction.md)
-  - [Instalation](./Installation.md)
+  - [Installation](./Installation.md)
   - [Cheat Sheet](./CheatSheet.md)
   - [Example](./ExampleFile.md)
 
