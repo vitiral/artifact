@@ -5,6 +5,7 @@ use std::process::Command;
 
 fn main() {
     println!("Build Script Started");
+    check_deps();
     build_frontend();
     build_mdbook();
     cp_mdbook();
@@ -16,6 +17,44 @@ lazy_static! {
     static ref BOOK: PathDir = PathDir::new("book").unwrap();
     static ref FRONTEND_TARGET: PathDir = PathDir::new(FRONTEND.join("target")).unwrap();
     static ref FRONTEND_DEPLOY: PathDir = PathDir::new(FRONTEND_TARGET.join("deploy")).unwrap();
+}
+
+fn check_deps() {
+    println!("Checking dependencies");
+
+    let which = if cfg!(windows) {
+        "where"
+    } else {
+        "which"
+    };
+
+    let mut missing = Vec::new();
+
+    let mut check_cmd = |m: &mut Vec<_>, cmd: &'static str| {
+        let is_ok = Command::new(which)
+            .args(&[cmd])
+            .output()
+            .expect("which/where doesn't exist")
+            .status
+            .success();
+
+        if !is_ok {
+            m.push(cmd);
+        }
+    };
+
+    check_cmd(&mut missing, "mdbook");
+    check_cmd(&mut missing, "cargo-web");
+
+    if !missing.is_empty() {
+        println!("ERROR: Missing binary dependencies, they must be installed:");
+        for c in missing {
+            println!("  {}", c);
+        }
+        ::std::process::exit(1);
+    } else {
+        println!("- All dependencies found");
+    }
 }
 
 fn build_mdbook() {
