@@ -1,24 +1,42 @@
 # Based on the "trust" template v0.1.1
 # https://github.com/japaric/trust/tree/v0.1.1
 
+dist: trusty
 language: rust
-rust:
-    # TODO: pin specific nightly
-    - nightly
+services: docker
+sudo: required
+rust: nightly
 
-cache: cargo
+env:
+  global:
+    - CRATE_NAME=artifact
+
+matrix:
+  include:
+    # LINUX
+    - env: TARGET=i686-unknown-linux-gnu
+      rust: nightly
+    - env: TARGET=x86_64-unknown-linux-gnu
+
+    # OSX
+    - env: TARGET=x86_64-apple-darwin
+      os: osx
 
 before_install:
     - set -e
+    - rustup self update
 
 install:
-    # - cargo install cargo-web || echo "cargo-web already installed"
-    - sh ci/install2.sh
-    - cargo install mdbook || echo "mdbook already installed"
+  - sh ci/install.sh
+  - source ~/.cargo/env || true
 
-notifications:
-  email:
-    on_success: never
+script:
+- bash ci/script.sh
+
+after_script: set +e
+
+before_deploy:
+  - sh ci/before_deploy.sh
 
 deploy:
   # update `api_key.secure`
@@ -39,9 +57,17 @@ deploy:
   provider: releases
   skip_cleanup: true
 
+cache: cargo
+before_cache:
+  # Travis can't cache files that are not readable by "others"
+  - chmod -R a+r $HOME/.cargo
+
 branches:
   only:
     # release tags
     - /^\d+\.\d+\.\d+.*$/
     - master
 
+notifications:
+  email:
+    on_success: never
