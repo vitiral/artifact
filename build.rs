@@ -83,6 +83,7 @@ fn build_frontend() {
     let status = Command::new("cargo")
         .current_dir(FRONTEND.as_path())
         .args(&[
+            "+nightly",
             "web",
             "deploy",
             "--release",
