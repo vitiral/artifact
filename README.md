@@ -74,15 +74,6 @@ You can support the project by :star: staring it on github and :green_heart:
 sharing it with your friends, coworkers and social media. You can also leave
 direct [feedback][7].
 
-All funds collected through any link above  will **only** go towards hiring
-student developers as interns to work on open source features within artifact.
-**No money from these sources will go to myself (Garrett Berg) or to the
-development of proprietary software.**
-
-By supporting artifact, you are supporting open source tools for quality
-software development and also internship oportunities for students passionate
-about open source. Thank you!
-
 [![Build Status](https://travis-ci.org/vitiral/artifact.svg?branch=master)](https://travis-ci.org/vitiral/artifact)
 
 ## Licensing
