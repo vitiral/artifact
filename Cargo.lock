@@ -34,7 +34,7 @@ dependencies = [
 
 [[package]]
 name = "artifact-app"
-version = "2.0.0"
+version = "2.0.1"
 dependencies = [
  "artifact_data 0.1.0",
  "artifact_lib 0.1.0",
@@ -45,7 +45,7 @@ dependencies = [
  "expect_macro 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "jrpc 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "jsonrpc-core 8.0.1 (registry+https://github.com/rust-lang/crates.io-index)",
- "nickel 0.10.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "nickel 0.10.1 (git+https://github.com/nickel-org/nickel.rs)",
  "pretty_assertions 0.5.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "quicli 0.3.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "reqwest 0.8.8 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -1054,7 +1054,7 @@ dependencies = [
 [[package]]
 name = "nickel"
 version = "0.10.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
+source = "git+https://github.com/nickel-org/nickel.rs#c089f2e41bd3a1ad5997804dc43284f105ffe561"
 dependencies = [
  "groupable 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "hyper 0.10.15 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -2431,7 +2431,7 @@ dependencies = [
 "checksum mustache 0.8.2 (registry+https://github.com/rust-lang/crates.io-index)" = "ddb004e419334fc9172d0a5ff91c0770bdd6239091b0b343eb5926101f0a7d13"
 "checksum native-tls 0.1.5 (registry+https://github.com/rust-lang/crates.io-index)" = "f74dbadc8b43df7864539cedb7bc91345e532fdd913cfdc23ad94f4d2d40fbc0"
 "checksum net2 0.2.33 (registry+https://github.com/rust-lang/crates.io-index)" = "42550d9fb7b6684a6d404d9fa7250c2eb2646df731d1c06afc06dcee9e1bcf88"
-"checksum nickel 0.10.1 (registry+https://github.com/rust-lang/crates.io-index)" = "22b40e35b9f46a076dcbd8193125cea0e4130b1c015f68655038010f3e826e04"
+"checksum nickel 0.10.1 (git+https://github.com/nickel-org/nickel.rs)" = "<none>"
 "checksum nix 0.11.0 (registry+https://github.com/rust-lang/crates.io-index)" = "d37e713a259ff641624b6cb20e3b12b2952313ba36b6823c0f16e6cfd9e5de17"
 "checksum nodrop 0.1.12 (registry+https://github.com/rust-lang/crates.io-index)" = "9a2228dca57108069a5262f2ed8bd2e82496d2e074a06d1ccc7ce1687b6ae0a2"
 "checksum num-traits 0.2.6 (registry+https://github.com/rust-lang/crates.io-index)" = "0b3a5d7cc97d6d30d8b9bc8fa19bf45349ffe46241e8816f50f62f6d6aaabee1"

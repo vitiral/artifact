@@ -86,9 +86,8 @@ fn build_frontend() {
             "+nightly",
             "web",
             "deploy",
+            "--target=wasm32-unknown-unknown",
             "--release",
-            "--target",
-            "wasm32-unknown-unknown",
         ])
         .status()
         .unwrap();

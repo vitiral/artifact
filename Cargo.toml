@@ -33,7 +33,8 @@ termstyle = "0.1.2"
 unicode-segmentation = "1.2.1"
 unicode-width = "0.1.5"
 expect_macro = "0.2.1"
-nickel = "0.10.1"
+# nickel = "0.10.1"
+nickel = { git = "https://github.com/nickel-org/nickel.rs" }
 jsonrpc-core = "8.0.1"
 artifact_data = {path = "artifact-data"}
 artifact_lib = {path = "artifact-lib"}
