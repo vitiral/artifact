@@ -9,17 +9,18 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="theme-color" content="#ffffff" />
 
-        <base href="">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
 
-        <link rel="stylesheet" href="book.css">
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
         <link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
         <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro:500" rel="stylesheet" type="text/css">
 
-        <link rel="shortcut icon" href="favicon.png">
-
-        <!-- Font Awesome -->
-        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
-
+        <!-- Highlight.js Stylesheets -->
         <link rel="stylesheet" href="highlight.css">
         <link rel="stylesheet" href="tomorrow-night.css">
         <link rel="stylesheet" href="ayu-highlight.css">
@@ -28,9 +29,11 @@
         
 
         
-
     </head>
     <body class="light">
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">var path_to_root = "";</script>
+
         <!-- Work around some values being stored in localStorage wrapped in quotes -->
         <script type="text/javascript">
             try {
@@ -69,7 +72,7 @@
         </script>
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
-            <ol class="chapter"><li><a href="Introduction.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li><ol class="section"><li><a href="Installation.html"><strong aria-hidden="true">1.1.</strong> Instalation</a></li><li><a href="CheatSheet.html"><strong aria-hidden="true">1.2.</strong> Cheat Sheet</a></li><li><a href="ExampleFile.html"><strong aria-hidden="true">1.3.</strong> Example</a></li></ol></li><li><a href="SimpleQuality.html"><strong aria-hidden="true">2.</strong> Simple Quality with Artifact</a></li><li><ol class="section"><li><a href="StartingProject.html"><strong aria-hidden="true">2.1.</strong> Starting Your Project</a></li><li><a href="Purpose.html"><strong aria-hidden="true">2.2.</strong> Specifying Your Purpose</a></li><li><a href="Design.html"><strong aria-hidden="true">2.3.</strong> High Level Design</a></li><li><a href="Vocabulary.html"><strong aria-hidden="true">2.4.</strong> Vocabulary</a></li><li><a href="Tools.html" class="active"><strong aria-hidden="true">2.5.</strong> Tools</a></li><li><a href="ArtifactIntro.html"><strong aria-hidden="true">2.6.</strong> Artifact Intro</a></li><li><a href="DetailedDesign.html"><strong aria-hidden="true">2.7.</strong> Detailed Design</a></li><li><a href="Implementation.html"><strong aria-hidden="true">2.8.</strong> Implementation</a></li><li><a href="CleaningUp.html"><strong aria-hidden="true">2.9.</strong> Cleaning Up</a></li></ol></li><li><a href="Finishing.html"><strong aria-hidden="true">3.</strong> Finishing The Project</a></li><li><ol class="section"><li><a href="RunningTests.html"><strong aria-hidden="true">3.1.</strong> Running Tests</a></li><li><a href="TODO.html"><strong aria-hidden="true">3.2.</strong> TODO</a></li></ol></li><li><a href="Addendum.html"><strong aria-hidden="true">4.</strong> Addendum</a></li><li><ol class="section"><li><a href="FAQ.html"><strong aria-hidden="true">4.1.</strong> FAQ</a></li><li><a href="BestPractices.html"><strong aria-hidden="true">4.2.</strong> Best Practices</a></li><li><a href="ExportingHtml.html"><strong aria-hidden="true">4.3.</strong> Exporting Html</a></li><li><a href="Feedback.html"><strong aria-hidden="true">4.4.</strong> Feedback</a></li><li><a href="SPECIFICATION.html"><strong aria-hidden="true">4.5.</strong> Specification</a></li><li><a href="License.html"><strong aria-hidden="true">4.6.</strong> License</a></li></ol></li></ol>
+            <ol class="chapter"><li><a href="Introduction.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li><ol class="section"><li><a href="Installation.html"><strong aria-hidden="true">1.1.</strong> Installation</a></li><li><a href="CheatSheet.html"><strong aria-hidden="true">1.2.</strong> Cheat Sheet</a></li><li><a href="ExampleFile.html"><strong aria-hidden="true">1.3.</strong> Example</a></li></ol></li><li><a href="SimpleQuality.html"><strong aria-hidden="true">2.</strong> Simple Quality with Artifact</a></li><li><ol class="section"><li><a href="StartingProject.html"><strong aria-hidden="true">2.1.</strong> Starting Your Project</a></li><li><a href="Purpose.html"><strong aria-hidden="true">2.2.</strong> Specifying Your Purpose</a></li><li><a href="Design.html"><strong aria-hidden="true">2.3.</strong> High Level Design</a></li><li><a href="Vocabulary.html"><strong aria-hidden="true">2.4.</strong> Vocabulary</a></li><li><a href="Tools.html" class="active"><strong aria-hidden="true">2.5.</strong> Tools</a></li><li><a href="ArtifactIntro.html"><strong aria-hidden="true">2.6.</strong> Artifact Intro</a></li><li><a href="DetailedDesign.html"><strong aria-hidden="true">2.7.</strong> Detailed Design</a></li><li><a href="Implementation.html"><strong aria-hidden="true">2.8.</strong> Implementation</a></li><li><a href="CleaningUp.html"><strong aria-hidden="true">2.9.</strong> Cleaning Up</a></li></ol></li><li><a href="Finishing.html"><strong aria-hidden="true">3.</strong> Finishing The Project</a></li><li><ol class="section"><li><a href="RunningTests.html"><strong aria-hidden="true">3.1.</strong> Running Tests</a></li><li><a href="TODO.html"><strong aria-hidden="true">3.2.</strong> TODO</a></li></ol></li><li><a href="Addendum.html"><strong aria-hidden="true">4.</strong> Addendum</a></li><li><ol class="section"><li><a href="FAQ.html"><strong aria-hidden="true">4.1.</strong> FAQ</a></li><li><a href="BestPractices.html"><strong aria-hidden="true">4.2.</strong> Best Practices</a></li><li><a href="ExportingHtml.html"><strong aria-hidden="true">4.3.</strong> Exporting Html</a></li><li><a href="Feedback.html"><strong aria-hidden="true">4.4.</strong> Feedback</a></li><li><a href="SPECIFICATION.html"><strong aria-hidden="true">4.5.</strong> Specification</a></li><li><a href="License.html"><strong aria-hidden="true">4.6.</strong> License</a></li></ol></li></ol>
         </nav>
 
         <div id="page-wrapper" class="page-wrapper">
@@ -133,7 +136,7 @@
 
                 <div id="content" class="content">
                     <main>
-                        <a class="header" href="Tools.html#tools" id="tools"><h1>Tools</h1></a>
+                        <a class="header" href="#tools" id="tools"><h1>Tools</h1></a>
 <p>Just like revision control best practices would be meaningless without a
 revision control tool like git, design best practices are meaningless without a
 tool to help you track your design documents.</p>
@@ -159,27 +162,27 @@ in such cases you still might want an overall architecture for <em>how to achiev
 such simplicity.</em></p>
 <p>So, here are the primary tools that every developer should have under their belt
 to increase the quality of their software and their productivity.</p>
-<a class="header" href="Tools.html#revision-control" id="revision-control"><h3>Revision Control</h3></a>
+<a class="header" href="#revision-control" id="revision-control"><h3>Revision Control</h3></a>
 <p>This is probably the most essential tool to learn how to use, as it allows you
 to code fearlessly without worrying that past efforts will be lost. We will be
 using <a href="https://git-scm.com/">git</a> in this tutorial to track our progress at each stage.</p>
-<a class="header" href="Tools.html#inline-documentation-renderers" id="inline-documentation-renderers"><h3>Inline Documentation Renderers</h3></a>
+<a class="header" href="#inline-documentation-renderers" id="inline-documentation-renderers"><h3>Inline Documentation Renderers</h3></a>
 <p><a href="http://rosettacode.org/wiki/Documentation">Most languages</a> can take inline documentation on your functions, classes,
 etc and translate them into rendered and beautiful user docs. Some languages
 support it natively, others require a separate library.</p>
 <p>We will be writing python documentation can be natively viewed on the REPL by
 calling <code>help(obj)</code> and <em>could</em> be converted using <a href="http://www.sphinx-doc.org/en/1.5.1/">Spinx</a>.</p>
-<a class="header" href="Tools.html#unit-testing" id="unit-testing"><h3>Unit Testing</h3></a>
+<a class="header" href="#unit-testing" id="unit-testing"><h3>Unit Testing</h3></a>
 <p>Almost every language has a unit testing framework. Get to know yours
 intimately. We will be using python's <a href="https://docs.python.org/3.6/library/unittest.html">unittest</a> package to write tests in
 this tutorial and <a href="http://doc.pytest.org/en/latest/">pytest</a> to run them.</p>
-<a class="header" href="Tools.html#linters-and-code-formatters" id="linters-and-code-formatters"><h3>Linters and Code Formatters</h3></a>
+<a class="header" href="#linters-and-code-formatters" id="linters-and-code-formatters"><h3>Linters and Code Formatters</h3></a>
 <p>When all code is automatically formatted and linted, it is easier to read and
 edit. Also, arguing over whether to use tabs or spaces is probably the least
 productive thing possible. Use the default formatters and linters for your
 language, it is an easy way to make your code cleaner and simpler.</p>
 <p>We will install these in a later chapter.</p>
-<a class="header" href="Tools.html#custom-tooling-build-systems-and-scripting-languages" id="custom-tooling-build-systems-and-scripting-languages"><h3>Custom Tooling, Build Systems and Scripting Languages</h3></a>
+<a class="header" href="#custom-tooling-build-systems-and-scripting-languages" id="custom-tooling-build-systems-and-scripting-languages"><h3>Custom Tooling, Build Systems and Scripting Languages</h3></a>
 <p>Some people believe that the primary responsibility of Software Engineers in
 Test (my job title) is to design test cases. In my opinion, the primary job of
 an SET should be to develop processes, tools and frameworks that make the entire
@@ -192,14 +195,14 @@ product, or hook into annoying legacy test software, or develop tests in a
 simpler way. These tools can be a script, a new way of doing things or even
 just a library/module. By making everyone's life easier, you will drastically
 increase quality</p>
-<a class="header" href="Tools.html#a-hrefhttpsgithubcomvitiralartifactartifacta-the-design-doc-tool-made-for-developers" id="a-hrefhttpsgithubcomvitiralartifactartifacta-the-design-doc-tool-made-for-developers"><h3><a href="https://github.com/vitiral/artifact">artifact</a>: the design doc tool made for developers</h3></a>
+<a class="header" href="#a-hrefhttpsgithubcomvitiralartifactartifacta-the-design-doc-tool-made-for-developers" id="a-hrefhttpsgithubcomvitiralartifactartifacta-the-design-doc-tool-made-for-developers"><h3><a href="https://github.com/vitiral/artifact">artifact</a>: the design doc tool made for developers</h3></a>
 <p>Artifact will be our bread and butter for writing and linking our design to our
 source code and then hosting them as a webpage. This tool was designed
 specifically to facilitate the philosophy of software quality presented in this
 book. Artifact will be the topic of the next chapter.</p>
 <p>At the end of the process, we will be able to host our design docs just like the
 artifact project's <a href="http://vitiral.github.io/artifact/#artifacts/REQ-1">design docs</a>.</p>
-<a class="header" href="Tools.html#get-started-with-git" id="get-started-with-git"><h2>Get Started With Git</h2></a>
+<a class="header" href="#get-started-with-git" id="get-started-with-git"><h2>Get Started With Git</h2></a>
 <p>Before we do anything else, let's start using git to track
 our progress. Since artifact tracks design docs which are written
 in plain text, you can (and should) use revision control to
@@ -213,7 +216,7 @@ git commit -m &quot;add README.md&quot;
 <p>This will add the progress you have made so far to git and allow
 us to track our progress.</p>
 <blockquote>
-<a class="header" href="Tools.html#exercise-1" id="exercise-1"><h3>Exercise 1:</h3></a>
+<a class="header" href="#exercise-1" id="exercise-1"><h3>Exercise 1:</h3></a>
 <p>git is a fantastic tool, but it is beyond the scope of this guide
 to give a full tutorial on git or revision control in general.
 Before proceeding with this guide any further, it is recommended
@@ -266,9 +269,6 @@ of git commands and what their purpose is.</p>
 
         
 
-        
-        <script src="searchindex.js" type="text/javascript" charset="utf-8"></script>
-        
         
         <script src="elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
         <script src="mark.min.js" type="text/javascript" charset="utf-8"></script>

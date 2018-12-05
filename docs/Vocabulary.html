@@ -9,17 +9,18 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="theme-color" content="#ffffff" />
 
-        <base href="">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
 
-        <link rel="stylesheet" href="book.css">
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
         <link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
         <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro:500" rel="stylesheet" type="text/css">
 
-        <link rel="shortcut icon" href="favicon.png">
-
-        <!-- Font Awesome -->
-        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
-
+        <!-- Highlight.js Stylesheets -->
         <link rel="stylesheet" href="highlight.css">
         <link rel="stylesheet" href="tomorrow-night.css">
         <link rel="stylesheet" href="ayu-highlight.css">
@@ -28,9 +29,11 @@
         
 
         
-
     </head>
     <body class="light">
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">var path_to_root = "";</script>
+
         <!-- Work around some values being stored in localStorage wrapped in quotes -->
         <script type="text/javascript">
             try {
@@ -69,7 +72,7 @@
         </script>
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
-            <ol class="chapter"><li><a href="Introduction.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li><ol class="section"><li><a href="Installation.html"><strong aria-hidden="true">1.1.</strong> Instalation</a></li><li><a href="CheatSheet.html"><strong aria-hidden="true">1.2.</strong> Cheat Sheet</a></li><li><a href="ExampleFile.html"><strong aria-hidden="true">1.3.</strong> Example</a></li></ol></li><li><a href="SimpleQuality.html"><strong aria-hidden="true">2.</strong> Simple Quality with Artifact</a></li><li><ol class="section"><li><a href="StartingProject.html"><strong aria-hidden="true">2.1.</strong> Starting Your Project</a></li><li><a href="Purpose.html"><strong aria-hidden="true">2.2.</strong> Specifying Your Purpose</a></li><li><a href="Design.html"><strong aria-hidden="true">2.3.</strong> High Level Design</a></li><li><a href="Vocabulary.html" class="active"><strong aria-hidden="true">2.4.</strong> Vocabulary</a></li><li><a href="Tools.html"><strong aria-hidden="true">2.5.</strong> Tools</a></li><li><a href="ArtifactIntro.html"><strong aria-hidden="true">2.6.</strong> Artifact Intro</a></li><li><a href="DetailedDesign.html"><strong aria-hidden="true">2.7.</strong> Detailed Design</a></li><li><a href="Implementation.html"><strong aria-hidden="true">2.8.</strong> Implementation</a></li><li><a href="CleaningUp.html"><strong aria-hidden="true">2.9.</strong> Cleaning Up</a></li></ol></li><li><a href="Finishing.html"><strong aria-hidden="true">3.</strong> Finishing The Project</a></li><li><ol class="section"><li><a href="RunningTests.html"><strong aria-hidden="true">3.1.</strong> Running Tests</a></li><li><a href="TODO.html"><strong aria-hidden="true">3.2.</strong> TODO</a></li></ol></li><li><a href="Addendum.html"><strong aria-hidden="true">4.</strong> Addendum</a></li><li><ol class="section"><li><a href="FAQ.html"><strong aria-hidden="true">4.1.</strong> FAQ</a></li><li><a href="BestPractices.html"><strong aria-hidden="true">4.2.</strong> Best Practices</a></li><li><a href="ExportingHtml.html"><strong aria-hidden="true">4.3.</strong> Exporting Html</a></li><li><a href="Feedback.html"><strong aria-hidden="true">4.4.</strong> Feedback</a></li><li><a href="SPECIFICATION.html"><strong aria-hidden="true">4.5.</strong> Specification</a></li><li><a href="License.html"><strong aria-hidden="true">4.6.</strong> License</a></li></ol></li></ol>
+            <ol class="chapter"><li><a href="Introduction.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li><ol class="section"><li><a href="Installation.html"><strong aria-hidden="true">1.1.</strong> Installation</a></li><li><a href="CheatSheet.html"><strong aria-hidden="true">1.2.</strong> Cheat Sheet</a></li><li><a href="ExampleFile.html"><strong aria-hidden="true">1.3.</strong> Example</a></li></ol></li><li><a href="SimpleQuality.html"><strong aria-hidden="true">2.</strong> Simple Quality with Artifact</a></li><li><ol class="section"><li><a href="StartingProject.html"><strong aria-hidden="true">2.1.</strong> Starting Your Project</a></li><li><a href="Purpose.html"><strong aria-hidden="true">2.2.</strong> Specifying Your Purpose</a></li><li><a href="Design.html"><strong aria-hidden="true">2.3.</strong> High Level Design</a></li><li><a href="Vocabulary.html" class="active"><strong aria-hidden="true">2.4.</strong> Vocabulary</a></li><li><a href="Tools.html"><strong aria-hidden="true">2.5.</strong> Tools</a></li><li><a href="ArtifactIntro.html"><strong aria-hidden="true">2.6.</strong> Artifact Intro</a></li><li><a href="DetailedDesign.html"><strong aria-hidden="true">2.7.</strong> Detailed Design</a></li><li><a href="Implementation.html"><strong aria-hidden="true">2.8.</strong> Implementation</a></li><li><a href="CleaningUp.html"><strong aria-hidden="true">2.9.</strong> Cleaning Up</a></li></ol></li><li><a href="Finishing.html"><strong aria-hidden="true">3.</strong> Finishing The Project</a></li><li><ol class="section"><li><a href="RunningTests.html"><strong aria-hidden="true">3.1.</strong> Running Tests</a></li><li><a href="TODO.html"><strong aria-hidden="true">3.2.</strong> TODO</a></li></ol></li><li><a href="Addendum.html"><strong aria-hidden="true">4.</strong> Addendum</a></li><li><ol class="section"><li><a href="FAQ.html"><strong aria-hidden="true">4.1.</strong> FAQ</a></li><li><a href="BestPractices.html"><strong aria-hidden="true">4.2.</strong> Best Practices</a></li><li><a href="ExportingHtml.html"><strong aria-hidden="true">4.3.</strong> Exporting Html</a></li><li><a href="Feedback.html"><strong aria-hidden="true">4.4.</strong> Feedback</a></li><li><a href="SPECIFICATION.html"><strong aria-hidden="true">4.5.</strong> Specification</a></li><li><a href="License.html"><strong aria-hidden="true">4.6.</strong> License</a></li></ol></li></ol>
         </nav>
 
         <div id="page-wrapper" class="page-wrapper">
@@ -133,9 +136,9 @@
 
                 <div id="content" class="content">
                     <main>
-                        <a class="header" href="Vocabulary.html#vocabulary" id="vocabulary"><h1>Vocabulary</h1></a>
+                        <a class="header" href="#vocabulary" id="vocabulary"><h1>Vocabulary</h1></a>
 <p>It is time we briefly discuss design vocabulary.</p>
-<a class="header" href="Vocabulary.html#specifying-meaning" id="specifying-meaning"><h2>Specifying meaning</h2></a>
+<a class="header" href="#specifying-meaning" id="specifying-meaning"><h2>Specifying meaning</h2></a>
 <p>It is very important that your design documents have clear meaning. Without
 clear meaning, it is difficult to know your <a href="https://www.agilealliance.org/glossary/definition-of-done/">definition of done</a>.</p>
 <ul>
@@ -162,11 +165,11 @@ goal.</li>
 <p><strong>Reference</strong>: these definitions are modified from an article at
 <a href="http://reqexperts.com/blog/2012/10/using-the-correct-terms-shall-will-should/">reqexperts.com</a> (October 9th, 2012. Lou Wheatcraft)</p>
 <blockquote>
-<a class="header" href="Vocabulary.html#exercise-1" id="exercise-1"><h5>Exercise 1:</h5></a>
+<a class="header" href="#exercise-1" id="exercise-1"><h5>Exercise 1:</h5></a>
 <p>Review the documentation we've written so far. When did we use &quot;shall&quot;,
 &quot;will&quot; and &quot;should&quot;? Did we use them correctly?</p>
 </blockquote>
-<a class="header" href="Vocabulary.html#testing-your-software" id="testing-your-software"><h2>Testing your software</h2></a>
+<a class="header" href="#testing-your-software" id="testing-your-software"><h2>Testing your software</h2></a>
 <p>There are three main categories of testing every developer should know:</p>
 <ul>
 <li><a href="https://en.wikipedia.org/wiki/Unit_testing">unit testing</a> which is testing isolated pieces of code</li>
@@ -175,13 +178,13 @@ together, but not the entire application</li>
 <li><a href="https://en.wikipedia.org/wiki/System_testing">system testing</a>, also known as end-to-end testing.</li>
 </ul>
 <blockquote>
-<a class="header" href="Vocabulary.html#exercise-2" id="exercise-2"><h5>Exercise 2:</h5></a>
+<a class="header" href="#exercise-2" id="exercise-2"><h5>Exercise 2:</h5></a>
 <p>Read at least the intro for all three wikipedia links above.</p>
 </blockquote>
-<a class="header" href="Vocabulary.html#testing-methodologies" id="testing-methodologies"><h3>Testing Methodologies</h3></a>
+<a class="header" href="#testing-methodologies" id="testing-methodologies"><h3>Testing Methodologies</h3></a>
 <p>The above specify which pieces of your software should be tested,
 these specify how to determine what tests to write.</p>
-<a class="header" href="Vocabulary.html#a-hrefhttpsenwikipediaorgwikifunctional_testingfunctional-testinga" id="a-hrefhttpsenwikipediaorgwikifunctional_testingfunctional-testinga"><h4><a href="https://en.wikipedia.org/wiki/Functional_testing">Functional Testing</a></h4></a>
+<a class="header" href="#a-hrefhttpsenwikipediaorgwikifunctional_testingfunctional-testinga" id="a-hrefhttpsenwikipediaorgwikifunctional_testingfunctional-testinga"><h4><a href="https://en.wikipedia.org/wiki/Functional_testing">Functional Testing</a></h4></a>
 <p>What is the functionality we are programming for? It is important that
 we test at least the basics. This includes the:</p>
 <ul>
@@ -193,7 +196,7 @@ function</li>
 inputs are used. This should also test that your application can recover
 in case of recoverable faults.</li>
 </ul>
-<a class="header" href="Vocabulary.html#a-hrefhttpsenwikipediaorgwikiwhite-box_testingwhite-box-testinga" id="a-hrefhttpsenwikipediaorgwikiwhite-box_testingwhite-box-testinga"><h4><a href="https://en.wikipedia.org/wiki/White-box_testing">White Box Testing</a></h4></a>
+<a class="header" href="#a-hrefhttpsenwikipediaorgwikiwhite-box_testingwhite-box-testinga" id="a-hrefhttpsenwikipediaorgwikiwhite-box_testingwhite-box-testinga"><h4><a href="https://en.wikipedia.org/wiki/White-box_testing">White Box Testing</a></h4></a>
 <p>Look at your code. As the programmer, what kind of inputs are YOU concerned
 about? Spend some time focusing on these.</p>
 <p>You as the developer have the most insight into the internals of your
@@ -201,7 +204,7 @@ application, so you are probably the most qualified individual for trying to
 break it. Always observe Murphy's law: <strong>what can go wrong will go wrong.</strong>
 If you can see something that might break, even if the scenario seems
 impossible for a user to hit, make sure it doesn't break anyway.</p>
-<a class="header" href="Vocabulary.html#a-hrefhttpsenwikipediaorgwikirisk-based_testingrisk-based-testinga" id="a-hrefhttpsenwikipediaorgwikirisk-based_testingrisk-based-testinga"><h4><a href="https://en.wikipedia.org/wiki/Risk-based_testing">Risk Based Testing</a></h4></a>
+<a class="header" href="#a-hrefhttpsenwikipediaorgwikirisk-based_testingrisk-based-testinga" id="a-hrefhttpsenwikipediaorgwikirisk-based_testingrisk-based-testinga"><h4><a href="https://en.wikipedia.org/wiki/Risk-based_testing">Risk Based Testing</a></h4></a>
 <p>What is the worst thing that your function/application could do. Can it
 segfault? Can it recurse infinitely? Can it delete user data? Could it crash
 the whole operating system? Can it introduce security vulnerabilities?</p>
@@ -253,9 +256,6 @@ problems that can be introduced in the most simple software.</p>
 
         
 
-        
-        <script src="searchindex.js" type="text/javascript" charset="utf-8"></script>
-        
         
         <script src="elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
         <script src="mark.min.js" type="text/javascript" charset="utf-8"></script>
