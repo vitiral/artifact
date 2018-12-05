@@ -9,17 +9,18 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="theme-color" content="#ffffff" />
 
-        <base href="">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
 
-        <link rel="stylesheet" href="book.css">
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
         <link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
         <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro:500" rel="stylesheet" type="text/css">
 
-        <link rel="shortcut icon" href="favicon.png">
-
-        <!-- Font Awesome -->
-        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
-
+        <!-- Highlight.js Stylesheets -->
         <link rel="stylesheet" href="highlight.css">
         <link rel="stylesheet" href="tomorrow-night.css">
         <link rel="stylesheet" href="ayu-highlight.css">
@@ -28,9 +29,11 @@
         
 
         
-
     </head>
     <body class="light">
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">var path_to_root = "";</script>
+
         <!-- Work around some values being stored in localStorage wrapped in quotes -->
         <script type="text/javascript">
             try {
@@ -69,7 +72,7 @@
         </script>
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
-            <ol class="chapter"><li><a href="Introduction.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li><ol class="section"><li><a href="Installation.html"><strong aria-hidden="true">1.1.</strong> Instalation</a></li><li><a href="CheatSheet.html" class="active"><strong aria-hidden="true">1.2.</strong> Cheat Sheet</a></li><li><a href="ExampleFile.html"><strong aria-hidden="true">1.3.</strong> Example</a></li></ol></li><li><a href="SimpleQuality.html"><strong aria-hidden="true">2.</strong> Simple Quality with Artifact</a></li><li><ol class="section"><li><a href="StartingProject.html"><strong aria-hidden="true">2.1.</strong> Starting Your Project</a></li><li><a href="Purpose.html"><strong aria-hidden="true">2.2.</strong> Specifying Your Purpose</a></li><li><a href="Design.html"><strong aria-hidden="true">2.3.</strong> High Level Design</a></li><li><a href="Vocabulary.html"><strong aria-hidden="true">2.4.</strong> Vocabulary</a></li><li><a href="Tools.html"><strong aria-hidden="true">2.5.</strong> Tools</a></li><li><a href="ArtifactIntro.html"><strong aria-hidden="true">2.6.</strong> Artifact Intro</a></li><li><a href="DetailedDesign.html"><strong aria-hidden="true">2.7.</strong> Detailed Design</a></li><li><a href="Implementation.html"><strong aria-hidden="true">2.8.</strong> Implementation</a></li><li><a href="CleaningUp.html"><strong aria-hidden="true">2.9.</strong> Cleaning Up</a></li></ol></li><li><a href="Finishing.html"><strong aria-hidden="true">3.</strong> Finishing The Project</a></li><li><ol class="section"><li><a href="RunningTests.html"><strong aria-hidden="true">3.1.</strong> Running Tests</a></li><li><a href="TODO.html"><strong aria-hidden="true">3.2.</strong> TODO</a></li></ol></li><li><a href="Addendum.html"><strong aria-hidden="true">4.</strong> Addendum</a></li><li><ol class="section"><li><a href="FAQ.html"><strong aria-hidden="true">4.1.</strong> FAQ</a></li><li><a href="BestPractices.html"><strong aria-hidden="true">4.2.</strong> Best Practices</a></li><li><a href="ExportingHtml.html"><strong aria-hidden="true">4.3.</strong> Exporting Html</a></li><li><a href="Feedback.html"><strong aria-hidden="true">4.4.</strong> Feedback</a></li><li><a href="SPECIFICATION.html"><strong aria-hidden="true">4.5.</strong> Specification</a></li><li><a href="License.html"><strong aria-hidden="true">4.6.</strong> License</a></li></ol></li></ol>
+            <ol class="chapter"><li><a href="Introduction.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li><ol class="section"><li><a href="Installation.html"><strong aria-hidden="true">1.1.</strong> Installation</a></li><li><a href="CheatSheet.html" class="active"><strong aria-hidden="true">1.2.</strong> Cheat Sheet</a></li><li><a href="ExampleFile.html"><strong aria-hidden="true">1.3.</strong> Example</a></li></ol></li><li><a href="SimpleQuality.html"><strong aria-hidden="true">2.</strong> Simple Quality with Artifact</a></li><li><ol class="section"><li><a href="StartingProject.html"><strong aria-hidden="true">2.1.</strong> Starting Your Project</a></li><li><a href="Purpose.html"><strong aria-hidden="true">2.2.</strong> Specifying Your Purpose</a></li><li><a href="Design.html"><strong aria-hidden="true">2.3.</strong> High Level Design</a></li><li><a href="Vocabulary.html"><strong aria-hidden="true">2.4.</strong> Vocabulary</a></li><li><a href="Tools.html"><strong aria-hidden="true">2.5.</strong> Tools</a></li><li><a href="ArtifactIntro.html"><strong aria-hidden="true">2.6.</strong> Artifact Intro</a></li><li><a href="DetailedDesign.html"><strong aria-hidden="true">2.7.</strong> Detailed Design</a></li><li><a href="Implementation.html"><strong aria-hidden="true">2.8.</strong> Implementation</a></li><li><a href="CleaningUp.html"><strong aria-hidden="true">2.9.</strong> Cleaning Up</a></li></ol></li><li><a href="Finishing.html"><strong aria-hidden="true">3.</strong> Finishing The Project</a></li><li><ol class="section"><li><a href="RunningTests.html"><strong aria-hidden="true">3.1.</strong> Running Tests</a></li><li><a href="TODO.html"><strong aria-hidden="true">3.2.</strong> TODO</a></li></ol></li><li><a href="Addendum.html"><strong aria-hidden="true">4.</strong> Addendum</a></li><li><ol class="section"><li><a href="FAQ.html"><strong aria-hidden="true">4.1.</strong> FAQ</a></li><li><a href="BestPractices.html"><strong aria-hidden="true">4.2.</strong> Best Practices</a></li><li><a href="ExportingHtml.html"><strong aria-hidden="true">4.3.</strong> Exporting Html</a></li><li><a href="Feedback.html"><strong aria-hidden="true">4.4.</strong> Feedback</a></li><li><a href="SPECIFICATION.html"><strong aria-hidden="true">4.5.</strong> Specification</a></li><li><a href="License.html"><strong aria-hidden="true">4.6.</strong> License</a></li></ol></li></ol>
         </nav>
 
         <div id="page-wrapper" class="page-wrapper">
@@ -137,14 +140,14 @@
 or who can get up to speed quickly.</p>
 <p>An example repository you can play around with is here:
 <a href="https://github.com/vitiral/artifact-example">https://github.com/vitiral/artifact-example</a></p>
-<a class="header" href="CheatSheet.html#useful-background" id="useful-background"><h2>Useful Background</h2></a>
+<a class="header" href="#useful-background" id="useful-background"><h2>Useful Background</h2></a>
 <ul>
 <li><a href="./Installation.html">Installation Guide</a></li>
 <li><a href="./FAQ.html">FAQ</a>: frequently asked questions about artifact</li>
 <li><a href="./BestPractices.html">Best Practices</a>: artifact best practices</li>
 <li><a href="./Vocabulary.html">Vocabulary</a>: useful vocabulary for writing design documents</li>
 </ul>
-<a class="header" href="CheatSheet.html#useful-commands" id="useful-commands"><h2>Useful commands</h2></a>
+<a class="header" href="#useful-commands" id="useful-commands"><h2>Useful commands</h2></a>
 <ul>
 <li><code>art help</code>: get help</li>
 <li><code>art [subcommand] -h</code>: get help on a subcommand.</li>
@@ -155,7 +158,7 @@ or who can get up to speed quickly.</p>
 <li><code>art fmt</code>: format artifacts</li>
 <li><code>art export html $DEST</code>: export a <a href="examples/part2/index.html">static webpage</a></li>
 </ul>
-<a class="header" href="CheatSheet.html#artifact-types" id="artifact-types"><h2>Artifact Types</h2></a>
+<a class="header" href="#artifact-types" id="artifact-types"><h2>Artifact Types</h2></a>
 <p>Artifact tracks &quot;artifacts&quot;, which are design documentation objects which have
 a name, some text and can be linked to other artifacts and to source code.</p>
 <p>There are three types of artifacts:</p>
@@ -168,10 +171,10 @@ something is implemented a certain way (from a larger architectural point of
 view).</li>
 <li><code>TST</code>: Test. Details of what to test for a SPC or REQ.</li>
 </ul>
-<a class="header" href="CheatSheet.html#artifact-format" id="artifact-format"><h2>Artifact Format</h2></a>
+<a class="header" href="#artifact-format" id="artifact-format"><h2>Artifact Format</h2></a>
 <p>Artifacts can be speicifed in three formats: markdown (<code>.md</code>), TOML (<code>.toml</code>)
 or YaML (<code>.yaml</code>).</p>
-<a class="header" href="CheatSheet.html#markdown-format" id="markdown-format"><h3>Markdown Format</h3></a>
+<a class="header" href="#markdown-format" id="markdown-format"><h3>Markdown Format</h3></a>
 <p>Artifact uses markdown (by default) to specify the design documents (artifacts). The
 complete format looks like:</p>
 <pre><code># REQ-name
@@ -207,7 +210,7 @@ artifact cannot be implemented in code if <code>done</code> is set.</li>
 <pre><code># REQ-name
 The description of the artifact goes here.
 </code></pre>
-<a class="header" href="CheatSheet.html#toml-format" id="toml-format"><h2>TOML Format</h2></a>
+<a class="header" href="#toml-format" id="toml-format"><h2>TOML Format</h2></a>
 <p>Toml used to be the default format</p>
 <pre><code>[REQ-name]
 partof = [
@@ -219,7 +222,7 @@ text = &quot;&quot;&quot;
 The description of the artifact goes here.
 &quot;&quot;&quot;
 </code></pre>
-<a class="header" href="CheatSheet.html#settings" id="settings"><h2>Settings</h2></a>
+<a class="header" href="#settings" id="settings"><h2>Settings</h2></a>
 <p>After running <code>art init</code>, your settings will be in: <code>.art/settings.toml</code></p>
 <p>Settings:</p>
 <ul>
@@ -230,7 +233,7 @@ files)</li>
 <li><code>code_paths</code>: paths of source code containing <code>#ART-name</code> references.</li>
 <li><code>exclude_code_paths</code>: paths of directories/files to exclude from <code>code_paths</code></li>
 </ul>
-<a class="header" href="CheatSheet.html#implementing-artifacts-and-subarts" id="implementing-artifacts-and-subarts"><h2>Implementing artifacts and subarts</h2></a>
+<a class="header" href="#implementing-artifacts-and-subarts" id="implementing-artifacts-and-subarts"><h2>Implementing artifacts and subarts</h2></a>
 <p>Writing <code>#SPC-name</code> in any valid utf-8 file (read: source code file) that is in
 a <code>code_paths</code> path will mark the artifact <code>SPC-name</code> as done.</p>
 <p>You can also specify subarts (pieces of an artifact that should be implemented
@@ -304,9 +307,6 @@ def test_create_name():
 
         
 
-        
-        <script src="searchindex.js" type="text/javascript" charset="utf-8"></script>
-        
         
         <script src="elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
         <script src="mark.min.js" type="text/javascript" charset="utf-8"></script>

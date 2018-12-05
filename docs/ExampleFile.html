@@ -9,17 +9,18 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="theme-color" content="#ffffff" />
 
-        <base href="">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
 
-        <link rel="stylesheet" href="book.css">
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
         <link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
         <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro:500" rel="stylesheet" type="text/css">
 
-        <link rel="shortcut icon" href="favicon.png">
-
-        <!-- Font Awesome -->
-        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
-
+        <!-- Highlight.js Stylesheets -->
         <link rel="stylesheet" href="highlight.css">
         <link rel="stylesheet" href="tomorrow-night.css">
         <link rel="stylesheet" href="ayu-highlight.css">
@@ -28,9 +29,11 @@
         
 
         
-
     </head>
     <body class="light">
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">var path_to_root = "";</script>
+
         <!-- Work around some values being stored in localStorage wrapped in quotes -->
         <script type="text/javascript">
             try {
@@ -69,7 +72,7 @@
         </script>
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
-            <ol class="chapter"><li><a href="Introduction.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li><ol class="section"><li><a href="Installation.html"><strong aria-hidden="true">1.1.</strong> Instalation</a></li><li><a href="CheatSheet.html"><strong aria-hidden="true">1.2.</strong> Cheat Sheet</a></li><li><a href="ExampleFile.html" class="active"><strong aria-hidden="true">1.3.</strong> Example</a></li></ol></li><li><a href="SimpleQuality.html"><strong aria-hidden="true">2.</strong> Simple Quality with Artifact</a></li><li><ol class="section"><li><a href="StartingProject.html"><strong aria-hidden="true">2.1.</strong> Starting Your Project</a></li><li><a href="Purpose.html"><strong aria-hidden="true">2.2.</strong> Specifying Your Purpose</a></li><li><a href="Design.html"><strong aria-hidden="true">2.3.</strong> High Level Design</a></li><li><a href="Vocabulary.html"><strong aria-hidden="true">2.4.</strong> Vocabulary</a></li><li><a href="Tools.html"><strong aria-hidden="true">2.5.</strong> Tools</a></li><li><a href="ArtifactIntro.html"><strong aria-hidden="true">2.6.</strong> Artifact Intro</a></li><li><a href="DetailedDesign.html"><strong aria-hidden="true">2.7.</strong> Detailed Design</a></li><li><a href="Implementation.html"><strong aria-hidden="true">2.8.</strong> Implementation</a></li><li><a href="CleaningUp.html"><strong aria-hidden="true">2.9.</strong> Cleaning Up</a></li></ol></li><li><a href="Finishing.html"><strong aria-hidden="true">3.</strong> Finishing The Project</a></li><li><ol class="section"><li><a href="RunningTests.html"><strong aria-hidden="true">3.1.</strong> Running Tests</a></li><li><a href="TODO.html"><strong aria-hidden="true">3.2.</strong> TODO</a></li></ol></li><li><a href="Addendum.html"><strong aria-hidden="true">4.</strong> Addendum</a></li><li><ol class="section"><li><a href="FAQ.html"><strong aria-hidden="true">4.1.</strong> FAQ</a></li><li><a href="BestPractices.html"><strong aria-hidden="true">4.2.</strong> Best Practices</a></li><li><a href="ExportingHtml.html"><strong aria-hidden="true">4.3.</strong> Exporting Html</a></li><li><a href="Feedback.html"><strong aria-hidden="true">4.4.</strong> Feedback</a></li><li><a href="SPECIFICATION.html"><strong aria-hidden="true">4.5.</strong> Specification</a></li><li><a href="License.html"><strong aria-hidden="true">4.6.</strong> License</a></li></ol></li></ol>
+            <ol class="chapter"><li><a href="Introduction.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li><ol class="section"><li><a href="Installation.html"><strong aria-hidden="true">1.1.</strong> Installation</a></li><li><a href="CheatSheet.html"><strong aria-hidden="true">1.2.</strong> Cheat Sheet</a></li><li><a href="ExampleFile.html" class="active"><strong aria-hidden="true">1.3.</strong> Example</a></li></ol></li><li><a href="SimpleQuality.html"><strong aria-hidden="true">2.</strong> Simple Quality with Artifact</a></li><li><ol class="section"><li><a href="StartingProject.html"><strong aria-hidden="true">2.1.</strong> Starting Your Project</a></li><li><a href="Purpose.html"><strong aria-hidden="true">2.2.</strong> Specifying Your Purpose</a></li><li><a href="Design.html"><strong aria-hidden="true">2.3.</strong> High Level Design</a></li><li><a href="Vocabulary.html"><strong aria-hidden="true">2.4.</strong> Vocabulary</a></li><li><a href="Tools.html"><strong aria-hidden="true">2.5.</strong> Tools</a></li><li><a href="ArtifactIntro.html"><strong aria-hidden="true">2.6.</strong> Artifact Intro</a></li><li><a href="DetailedDesign.html"><strong aria-hidden="true">2.7.</strong> Detailed Design</a></li><li><a href="Implementation.html"><strong aria-hidden="true">2.8.</strong> Implementation</a></li><li><a href="CleaningUp.html"><strong aria-hidden="true">2.9.</strong> Cleaning Up</a></li></ol></li><li><a href="Finishing.html"><strong aria-hidden="true">3.</strong> Finishing The Project</a></li><li><ol class="section"><li><a href="RunningTests.html"><strong aria-hidden="true">3.1.</strong> Running Tests</a></li><li><a href="TODO.html"><strong aria-hidden="true">3.2.</strong> TODO</a></li></ol></li><li><a href="Addendum.html"><strong aria-hidden="true">4.</strong> Addendum</a></li><li><ol class="section"><li><a href="FAQ.html"><strong aria-hidden="true">4.1.</strong> FAQ</a></li><li><a href="BestPractices.html"><strong aria-hidden="true">4.2.</strong> Best Practices</a></li><li><a href="ExportingHtml.html"><strong aria-hidden="true">4.3.</strong> Exporting Html</a></li><li><a href="Feedback.html"><strong aria-hidden="true">4.4.</strong> Feedback</a></li><li><a href="SPECIFICATION.html"><strong aria-hidden="true">4.5.</strong> Specification</a></li><li><a href="License.html"><strong aria-hidden="true">4.6.</strong> License</a></li></ol></li></ol>
         </nav>
 
         <div id="page-wrapper" class="page-wrapper">
@@ -133,7 +136,7 @@
 
                 <div id="content" class="content">
                     <main>
-                        <a class="header" href="ExampleFile.html#req-learn" id="req-learn"><h1>REQ-learn</h1></a>
+                        <a class="header" href="#req-learn" id="req-learn"><h1>REQ-learn</h1></a>
 <p>Welcome to the artifact tutorial! This file is written just like artifact
 markdown files are. Artifact files can be written in a range of formats, the
 currently supported ones being markdown, toml and yaml.</p>
@@ -145,12 +148,12 @@ currently supported ones being markdown, toml and yaml.</p>
 or test (TST)</p>
 <p>The artifact you are reading now is a requirement, therefore it begins with
 &quot;REQ&quot;.</p>
-<a class="header" href="ExampleFile.html#req-markdown" id="req-markdown"><h1>REQ-markdown</h1></a>
+<a class="header" href="#req-markdown" id="req-markdown"><h1>REQ-markdown</h1></a>
 <p>partof:</p>
 <ul>
 <li>REQ-learn</li>
 </ul>
-<a class="header" href="ExampleFile.html#" id=""><h3></h3></a>
+<a class="header" href="#" id=""><h3></h3></a>
 <p>Artifact files like this one are written in a slightly extended markdown
 format. You can read more about markdown here:
 http://commonmark.org/help/tutorial/</p>
@@ -162,12 +165,12 @@ http://commonmark.org/help/tutorial/</p>
 </code></pre>
 <p>Where <code>ART</code> is one of <code>REQ</code>, <code>SPC</code>, <code>TST</code> and <code>&lt;optional SPECIAL yaml here&gt;</code> is
 a few items like <code>partof</code> and <code>done</code> fields. We will get to those later.</p>
-<a class="header" href="ExampleFile.html#spc-learn" id="spc-learn"><h1>SPC-learn</h1></a>
+<a class="header" href="#spc-learn" id="spc-learn"><h1>SPC-learn</h1></a>
 <p>partof:</p>
 <ul>
 <li>REQ-markdown</li>
 </ul>
-<a class="header" href="ExampleFile.html#-1" id="-1"><h3></h3></a>
+<a class="header" href="#-1" id="-1"><h3></h3></a>
 <p>Anything starting with SPC is a design specification.</p>
 <p>Requirements (REQ) should be used for:</p>
 <ul>
@@ -179,12 +182,12 @@ a few items like <code>partof</code> and <code>done</code> fields. We will get t
 <li>How you intend to write your application (lower level details).</li>
 </ul>
 <p>There are also tests (TST) which we will learn about later.</p>
-<a class="header" href="ExampleFile.html#spc-partof" id="spc-partof"><h1>SPC-partof</h1></a>
+<a class="header" href="#spc-partof" id="spc-partof"><h1>SPC-partof</h1></a>
 <p>partof:</p>
 <ul>
 <li>REQ-learn</li>
 </ul>
-<a class="header" href="ExampleFile.html#-2" id="-2"><h3></h3></a>
+<a class="header" href="#-2" id="-2"><h3></h3></a>
 <p>Artifact uses the names of artifacts to automatically link them and track
 progress. This makes it easy for the user to intuitively link together
 requirements with their specification and reduces boilerplate.</p>
@@ -207,21 +210,21 @@ partof:
 <li>A SPC an be partof a REQ or SPC</li>
 <li>A TST can be partof a REQ, SPC or TST</li>
 </ul>
-<a class="header" href="ExampleFile.html#spc-valid" id="spc-valid"><h1>SPC-valid</h1></a>
+<a class="header" href="#spc-valid" id="spc-valid"><h1>SPC-valid</h1></a>
 <p>There are only a few rules for defining artifacts:</p>
 <ul>
 <li>Case is ignored for all names.</li>
 <li>Names cannot overlap, even in different files.</li>
 <li>All names must start with either REQ, SPC or TST.</li>
 </ul>
-<a class="header" href="ExampleFile.html#tst-definition" id="tst-definition"><h1>TST-definition</h1></a>
+<a class="header" href="#tst-definition" id="tst-definition"><h1>TST-definition</h1></a>
 <p>TST artifacts (and subartifacts) are used to document test design and are the
 only way that an artifact can be considered &quot;tested&quot; (besides the <code>done</code>
 field).</p>
 <p>Artifact makes it easy to track the &quot;progress&quot; of your application because <code>art ls</code> (and the web-ui) gives you easy to easy to read completion and tested
 percentages for all your artifacts based on which ones are implemented in
 source code (more on that later).</p>
-<a class="header" href="ExampleFile.html#spc-implementing" id="spc-implementing"><h1>SPC-implementing</h1></a>
+<a class="header" href="#spc-implementing" id="spc-implementing"><h1>SPC-implementing</h1></a>
 <p>Artifacts are implemented by putting links anywhere your source code, i.e.
 <code>#SPC-name</code>. There are also subartifacts, i.e. <code>#SPC-name.sub</code>.</p>
 <p>Subartifacts are defined by putting <code>[[.subart]]</code> anywhere in the text. These
@@ -273,9 +276,6 @@ contribute to an artifact's <code>tst%</code>.</p>
 
         
 
-        
-        <script src="searchindex.js" type="text/javascript" charset="utf-8"></script>
-        
         
         <script src="elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
         <script src="mark.min.js" type="text/javascript" charset="utf-8"></script>
