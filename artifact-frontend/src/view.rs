@@ -25,7 +25,7 @@ lazy_static! {
     static ref EDIT_URL: Regex = Regex::new(r"(?i)edit/(\d+)").expect("regex");
     static ref REPLACE_TEXT_RE: Regex = Regex::new(&format!(
         r#"(?xim)
-        (?:^```dot\s*\n(?P<dot>[\s\S]+\n)```$)  # graphviz dot rendering
+        (?:^```dot\s*\n(?P<dot>[\s\S]+?\n)```$)  # graphviz dot rendering
         |({})                       # subname creation
         |({})                       # name reference
         "#,
