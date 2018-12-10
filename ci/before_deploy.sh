@@ -15,24 +15,19 @@ main() {
             ;;
     esac
 
-    unset CARGO_INCREMENTAL
-    rustup default stable
     test -f Cargo.lock || cargo generate-lockfile
 
-    # build the artifacts that matter to you
-    cross rustc --bin art --target $TARGET --release -- -C lto
+    # TODO Update this to build the artifacts that matter to you
+    cross rustc --bin hello --target $TARGET --release -- -C lto
 
-    # package the right artifacts
-    cp target/$TARGET/release/art $stage/
+    # TODO Update this to package the right artifacts
+    cp target/$TARGET/release/hello $stage/
 
     cd $stage
     tar czf $src/$CRATE_NAME-$TRAVIS_TAG-$TARGET.tar.gz *
     cd $src
 
     rm -rf $stage
-
-    # switch back
-    rustup default $RUST_VERSION
 }
 
 main

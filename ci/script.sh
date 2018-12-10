@@ -2,29 +2,20 @@
 
 set -ex
 
+# TODO This is the "test phase", tweak it as you see fit
 main() {
+    cross build --target $TARGET
+    cross build --target $TARGET --release
+
     if [ ! -z $DISABLE_TESTS ]; then
         return
     fi
 
-    if [ "$CI_BUILD" = "fast" ]; then
-        echo "Only doing fast build and test"
-        cargo test
-        return 0
-    fi
+    cross test --target $TARGET
+    cross test --target $TARGET --release
 
-    export RUST_BACKTRACE=1
-    # TODO: just lint
-    # TODO: just lint -- "--features beta"
-    cargo test
-    # TODO: cargo test --features beta
-    # same command that is used in release
-    # TODO: cross rustc --bin art --target $TARGET --release -- -C lto
-    # TODO: export TARGET_BIN="target/$TARGET/release/art"
-    # test "$(uname)" = "Darwin" && echo "TODO: selenium timeout issue on mac" || \
-    #     py.test web-ui/sel_tests
-    # TODO: just check-fmt
-    # eval "$TARGET_BIN check"
+    cross run --target $TARGET
+    cross run --target $TARGET --release
 }
 
 # we don't run the "test phase" when doing deploys
