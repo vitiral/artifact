@@ -85,13 +85,16 @@ before_install:
 install:
   - sh ci/install.sh
   - source ~/.cargo/env || true
+  - export PATH="$HOME/.cargo/bin:$PATH"
 
 script:
+  - source ~/.cargo/env || true
   - bash ci/script.sh
 
 after_script: set +e
 
 before_deploy:
+  - source ~/.cargo/env || true
   - sh ci/before_deploy.sh
 
 deploy:
