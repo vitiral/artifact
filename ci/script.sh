@@ -3,28 +3,15 @@
 set -ex
 
 main() {
+    $BTOOL build --target $TARGET
+
     if [ ! -z $DISABLE_TESTS ]; then
         return
     fi
 
-    if [ "$CI_BUILD" = "fast" ]; then
-        echo "Only doing fast build and test"
-        cargo test
-        return 0
-    fi
+    $BTOOL test --target $TARGET
 
-    export RUST_BACKTRACE=1
-    # TODO: just lint
-    # TODO: just lint -- "--features beta"
-    cargo test
-    # TODO: cargo test --features beta
-    # same command that is used in release
-    # TODO: cross rustc --bin art --target $TARGET --release -- -C lto
-    # TODO: export TARGET_BIN="target/$TARGET/release/art"
-    # test "$(uname)" = "Darwin" && echo "TODO: selenium timeout issue on mac" || \
-    #     py.test web-ui/sel_tests
-    # TODO: just check-fmt
-    # eval "$TARGET_BIN check"
+    $BTOOL run --target $TARGET -- help
 }
 
 # we don't run the "test phase" when doing deploys

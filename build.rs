@@ -43,11 +43,11 @@ fn check_deps() {
         }
     };
 
-    check_cmd(&mut missing, "mdbook");
-    check_cmd(&mut missing, "cargo-web");
+    check_cmd(&mut missing, "./target/deps/mdbook");
+    check_cmd(&mut missing, "./target/deps/cargo-web");
 
     if !missing.is_empty() {
-        println!("ERROR: Missing binary dependencies, they must be installed:");
+        println!("ERROR: Missing binary dependencies, their binaries must be put in target/deps/");
         for c in missing {
             println!("  {}", c);
         }
@@ -59,7 +59,7 @@ fn check_deps() {
 
 fn build_mdbook() {
     println!("Building the book");
-    let status = Command::new("mdbook")
+    let status = Command::new("../target/deps/mdbook")
         .current_dir(BOOK.as_path())
         .args(&["build"])
         .status()
@@ -80,11 +80,9 @@ fn cp_mdbook() {
 
 fn build_frontend() {
     println!("Building artifact-frontend");
-    let status = Command::new("cargo")
+    let status = Command::new("../target/deps/cargo-web")
         .current_dir(FRONTEND.as_path())
         .args(&[
-            "+nightly",
-            "web",
             "deploy",
             "--target=wasm32-unknown-unknown",
             "--release",
