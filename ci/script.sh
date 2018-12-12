@@ -3,6 +3,8 @@
 set -ex
 
 main() {
+    source ~/.cargo/env
+    echo "path=$PATH"
     cross build --target $TARGET
     # cross build --target $TARGET --release
 
