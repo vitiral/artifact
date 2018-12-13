@@ -80,6 +80,9 @@ matrix:
 
 before_install:
   - set -e
+  - export RELEASE_NAME="$CRATE_NAME-$TRAVIS_TAG-$TARGET"
+  - echo TARGET=$TARGET
+  - echo RELEASE_NAME=$RELEASE_NAME
   - rustup self update
 
 install:
