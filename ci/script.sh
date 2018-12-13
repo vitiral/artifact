@@ -3,20 +3,15 @@
 set -ex
 
 main() {
-    source ~/.cargo/env
-    echo "path=$PATH"
-    cross build --target $TARGET
-    # cross build --target $TARGET --release
+    cargo build --target $TARGET
 
     if [ ! -z $DISABLE_TESTS ]; then
         return
     fi
 
-    cross test --target $TARGET
-    # cross test --target $TARGET --release
+    cargo test --target $TARGET
 
-    cross run --target $TARGET -- help
-    # cross run --target $TARGET --release
+    cargo run --target $TARGET -- help
 }
 
 # we don't run the "test phase" when doing deploys
