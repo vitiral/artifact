@@ -3,15 +3,15 @@
 set -ex
 
 main() {
-    cargo build --target $TARGET
+    cross build --target $TARGET
 
     if [ ! -z $DISABLE_TESTS ]; then
         return
     fi
 
-    cargo test --target $TARGET
+    cross test --target $TARGET
 
-    cargo run --target $TARGET -- help
+    cross run --target $TARGET -- help
 }
 
 # we don't run the "test phase" when doing deploys

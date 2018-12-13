@@ -21,8 +21,8 @@ main() {
             ;;
     esac
 
-    cargo install cargo-web || echo "cargo-web already installed"
-    cargo install mdbook || echo "mdbook already installed"
+    cross install cargo-web || echo "cargo-web already installed"
+    cross install mdbook || echo "mdbook already installed"
 }
 
 main
