@@ -45,7 +45,7 @@ art init
 
 This will set up your project as an artifact tutorial project and initialize
 git.  It is your job to know how to use git as we progress through the
-tutorial. I recommend committing the files you have now, including the `./art/`
+tutorial. I recommend committing the files you have now, including the `.art/`
 directory that was created.
 
 > ##### Exercise 1:
