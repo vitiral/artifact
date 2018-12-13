@@ -32,8 +32,8 @@ main() {
     #         rustup target install $TARGET
     #         ;;
     # esac
-    rustup target install $TARGET
-    rustup target install wasm32-unknown-uknown
+    rustup target add $TARGET
+    rustup target add wasm32-unknown-unknown
 
     # # This fetches latest stable release
     # local tag=$(git ls-remote --tags --refs --exit-code https://github.com/japaric/cross \
