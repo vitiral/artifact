@@ -80,7 +80,7 @@ matrix:
 
 before_install:
   - set -e
-  - alias btool='sudo env "PATH=$PATH" cross build'
+  - export BTOOL='sudo env "PATH=$PATH" cross build'
   - export RELEASE_NAME="$CRATE_NAME-$TRAVIS_TAG-$TARGET"
   - echo TARGET=$TARGET
   - echo RELEASE_NAME=$RELEASE_NAME
