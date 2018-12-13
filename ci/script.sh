@@ -3,7 +3,7 @@
 set -ex
 
 main() {
-    cross build --target $TARGET
+    cross rustc --target $TARGET
 
     if [ ! -z $DISABLE_TESTS ]; then
         return
