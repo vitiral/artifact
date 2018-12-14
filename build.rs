@@ -80,11 +80,12 @@ fn cp_mdbook() {
 
 fn build_frontend() {
     println!("Building artifact-frontend");
-    let status = Command::new("cargo")
+    let status = Command::new("rustup")
         .current_dir(FRONTEND.as_path())
         .args(&[
-            "+nightly",
-            "web",
+            "run",
+            "nightly",
+            "cargo-web",
             "deploy",
             "--target=wasm32-unknown-unknown",
             "--release",
