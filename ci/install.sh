@@ -48,8 +48,8 @@ main() {
     #        --tag $tag \
     #        --target $target
 
-    cargo install cargo-web || echo "cargo-web already installed"
-    cargo install mdbook || echo "mdbook already installed"
+    cargo install cargo-web --debug || echo "cargo-web already installed"
+    cargo install mdbook --debug || echo "mdbook already installed"
 }
 
 main
