@@ -36,7 +36,7 @@ matrix:
     # - env: TARGET=aarch64-unknown-linux-gnu
     # - env: TARGET=arm-unknown-linux-gnueabi
     # - env: TARGET=armv7-unknown-linux-gnueabihf
-    - env: TARGET=i686-unknown-linux-gnu
+    # - env: TARGET=i686-unknown-linux-gnu
     # - env: TARGET=i686-unknown-linux-musl
     # - env: TARGET=mips-unknown-linux-gnu
     # - env: TARGET=mips64-unknown-linux-gnuabi64
@@ -50,8 +50,8 @@ matrix:
     # - env: TARGET=x86_64-unknown-linux-musl
 
     # OSX
-    - env: TARGET=i686-apple-darwin
-      os: osx
+    # - env: TARGET=i686-apple-darwin
+    #   os: osx
     - env: TARGET=x86_64-apple-darwin
       os: osx
 
@@ -61,7 +61,7 @@ matrix:
     # - env: TARGET=x86_64-unknown-netbsd DISABLE_TESTS=1
 
     # Windows
-    - env: TARGET=x86_64-pc-windows-gnu
+    # - env: TARGET=x86_64-pc-windows-gnu
 
     # Bare metal
     # These targets don't support std and as such are likely not suitable for
