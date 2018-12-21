@@ -27,13 +27,15 @@ before_install:
   - export BTOOL=cargo
   - export RELEASE_NAME="$CRATE_NAME-$TRAVIS_TAG-$TARGET"
   - echo TARGET=$TARGET
+  - export RTARGET=nightly-$TARGET
   - echo RELEASE_NAME=$RELEASE_NAME
   - export RUST_BACKTRACE=1
-  - rustup self update
 
 install:
-  - rustup target add $TARGET
+  - rustup self update
+  - rustup target add $RTARGET
   - rustup target add wasm32-unknown-unknown
+  - rustup show
 
     # debug becuase they are very slow
   - cargo install cargo-web --force --debug

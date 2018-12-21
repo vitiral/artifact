@@ -3,15 +3,15 @@
 set -ex
 
 main() {
-    $BTOOL build --target $TARGET
+    $BTOOL build --target $RTARGET
 
     if [ ! -z $DISABLE_TESTS ]; then
         return
     fi
 
-    $BTOOL test --target $TARGET
+    $BTOOL test --target $RTARGET
 
-    $BTOOL run --target $TARGET -- help
+    $BTOOL run --target $RTARGET -- help
 }
 
 # we don't run the "test phase" when doing deploys
