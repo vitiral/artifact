@@ -61,7 +61,8 @@ matrix:
     # - env: TARGET=x86_64-unknown-netbsd DISABLE_TESTS=1
 
     # Windows
-    - env: TARGET=x86_64-pc-windows-gnu
+    # TODO(rust-lang/cargo#5825): doens't compile frontend
+    # - env: TARGET=x86_64-pc-windows-gnu
 
     # Bare metal
     # These targets don't support std and as such are likely not suitable for
@@ -80,8 +81,10 @@ matrix:
 
 before_install:
   - set -e
-  # - export BTOOL='sudo env "PATH=$PATH" cross'
-  - export BTOOL=cargo
+  - export RUST_BACKTRACE=1
+
+  - export BTOOL='sudo env "PATH=$PATH" cross'
+    # - export BTOOL=cargo
   - export RELEASE_NAME="$CRATE_NAME-$TRAVIS_TAG-$TARGET"
   - echo TARGET=$TARGET
   - echo RELEASE_NAME=$RELEASE_NAME
