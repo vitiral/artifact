@@ -1,6 +1,6 @@
 set -ex
 
-main() {
+install_cross() {
     local target=
     if [ $TRAVIS_OS_NAME = linux ]; then
         target=x86_64-unknown-linux-musl
@@ -42,6 +42,10 @@ main() {
            --git japaric/cross \
            --tag $tag \
            --target $target
+}
+
+main() {
+    install_cross
 
     cargo install cargo-web || echo "cargo-web already installed"
     cargo install mdbook || echo "mdbook already installed"

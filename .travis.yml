@@ -83,8 +83,8 @@ before_install:
   - set -e
   - export RUST_BACKTRACE=1
 
-  - export BTOOL=cross
-  # - export BTOOL=cargo
+  # - export BTOOL=cross
+  - export BTOOL=cargo
   - export RELEASE_NAME="$CRATE_NAME-$TRAVIS_TAG-$TARGET"
   - echo TARGET=$TARGET
   - echo RELEASE_NAME=$RELEASE_NAME
