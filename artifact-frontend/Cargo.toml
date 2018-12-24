@@ -5,7 +5,7 @@ authors = ["Garrett Berg <googberg@gmail.com>"]
 
 [dependencies]
 yew = "0.4.0"
-stdweb = "0.4.10"
+stdweb = "0.4.12"
 artifact_ser = {path="../artifact-ser"}
 ergo_std = "0.0.3"
 ergo_config = "0.0.1"
