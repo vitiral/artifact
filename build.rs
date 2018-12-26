@@ -83,6 +83,7 @@ fn build_frontend() {
     let status = Command::new("../target/deps/cargo-web")
         .current_dir(FRONTEND.as_path())
         .args(&[
+            "web",
             "deploy",
             "--target=wasm32-unknown-unknown",
             "--release",

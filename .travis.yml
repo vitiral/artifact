@@ -3,7 +3,7 @@
 
 dist: trusty
 language: rust
-rust: nightly  # TODO: nightly-2018-10-30
+rust: stable# TODO: nightly-2018-10-30
 services: docker
 sudo: required
 
