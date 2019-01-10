@@ -62,7 +62,7 @@ matrix:
 
     # Windows
     # TODO(rust-lang/cargo#5825): doens't compile frontend
-    # - env: TARGET=x86_64-pc-windows-gnu
+    - env: TARGET=x86_64-pc-windows-gnu
 
     # Bare metal
     # These targets don't support std and as such are likely not suitable for
