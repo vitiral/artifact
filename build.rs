@@ -22,16 +22,10 @@ lazy_static! {
 fn check_deps() {
     println!("Checking dependencies");
 
-    let which = if cfg!(windows) {
-        "where"
-    } else {
-        "which"
-    };
-
     let mut missing = Vec::new();
 
     let mut check_cmd = |m: &mut Vec<_>, cmd: &'static str| {
-        let is_ok = Command::new(which)
+        let is_ok = Command::new("which")
             .args(&[cmd])
             .output()
             .expect("which/where doesn't exist")

@@ -50,8 +50,10 @@ main() {
     cargo install cargo-web || echo "cargo-web already installed"
     cargo install mdbook || echo "mdbook already installed"
     mkdir -p target/deps
+
     cp `which cargo-web` target/deps
     cp `which mdbook` target/deps
+    ls -al target/deps
 }
 
 main
