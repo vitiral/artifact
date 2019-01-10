@@ -45,13 +45,19 @@ install_cross() {
 }
 
 main() {
-    install_cross
+    # install_cross
 
-    cargo install cargo-web || echo "cargo-web already installed"
-    cargo install mdbook || echo "mdbook already installed"
-    mkdir -p target/deps
-    cp `which cargo-web` target/deps
-    cp `which mdbook` target/deps
+    # TODO: remove this
+    # give windows a place to put the book
+    mkdir -p ./book/out/book
+
+    cargo install cargo-web --debug || echo "cargo-web already installed"
+    cargo install mdbook --debug || echo "mdbook already installed"
+    # mkdir -p target/deps
+
+    # cp `which cargo-web` target/deps
+    # cp `which mdbook` target/deps
+    # ls -al target/deps
 }
 
 main
