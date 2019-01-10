@@ -5,13 +5,13 @@ authors = ["Garrett Berg <googberg@gmail.com>"]
 
 [dependencies]
 yew = "0.4.0"
-stdweb = "0.4.12"
+stdweb = "0.4.13"
 artifact_ser = {path="../artifact-ser"}
 ergo_std = "0.0.3"
 ergo_config = "0.0.1"
 yew_simple = "0.3.0"
 expect_macro = "0.2.1"
 jrpc = "0.4.0"
-http = "0.1.6"
+http = "0.1.14"
 
 [dev-dependencies]
