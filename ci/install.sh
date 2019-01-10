@@ -45,7 +45,7 @@ install_cross() {
 }
 
 main() {
-    install_cross
+    # install_cross
 
     cargo install cargo-web || echo "cargo-web already installed"
     cargo install mdbook || echo "mdbook already installed"
