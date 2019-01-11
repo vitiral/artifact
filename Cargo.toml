@@ -26,12 +26,9 @@ build = "build.rs"
 [dependencies]
 difference = "2.0.0"
 ergo = "0.0.*"
-self_update = "0.4.3"
 serde = "1.0.66"
 serde_derive = "1.0.66"
 termstyle = "0.1.2"
-unicode-segmentation = "1.2.1"
-unicode-width = "0.1.5"
 expect_macro = "0.2.1"
 # nickel = "0.10.1"
 nickel = { git = "https://github.com/nickel-org/nickel.rs" }
