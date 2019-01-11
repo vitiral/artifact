@@ -47,6 +47,10 @@ install_cross() {
 main() {
     # install_cross
 
+    # TODO: remove this
+    # give windows a place to put the book
+    mkdir -p ./book/out/book
+
     cargo install cargo-web --debug || echo "cargo-web already installed"
     cargo install mdbook --debug || echo "mdbook already installed"
     # mkdir -p target/deps

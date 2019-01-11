@@ -65,7 +65,7 @@ fn cp_mdbook() {
     let (send, mut recv) = ch::unbounded();
     deep_copy(
         send,
-        PathDir::new(BOOK.join("book")).unwrap(),
+        PathDir::new(BOOK.join("out").join("book")).unwrap(),
         FRONTEND_DEPLOY.join("docs"),
     );
     let errs: Vec<_> = recv.into_iter().collect();

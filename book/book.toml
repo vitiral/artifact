@@ -3,3 +3,6 @@ authors = ["Garrett Berg"]
 multilingual = false
 src = "src"
 title = "Simple Quality with Artifact"
+
+[build]
+build-dir = "out/book"
