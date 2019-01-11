@@ -37,6 +37,9 @@ extern crate rayon;
 extern crate siphasher;
 
 #[macro_use]
+extern crate serde_derive;
+
+#[macro_use]
 extern crate failure_derive;
 extern crate time;
 

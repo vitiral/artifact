@@ -167,23 +167,6 @@ pub(crate) fn hash_edit(id: usize) -> String {
     format!("edit/{}", id)
 }
 
-#[derive(Debug, Copy, Clone)]
-pub(crate) enum CssFont {
-    Plain,
-    Bold,
-    Italic,
-}
-
-impl CssFont {
-    pub fn as_css(&self) -> &'static str {
-        match *self {
-            CssFont::Plain => "",
-            CssFont::Bold => "font-weight: bold; ",
-            CssFont::Italic => "font-style: italic; ",
-        }
-    }
-}
-
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub(crate) enum View {
     Graph,

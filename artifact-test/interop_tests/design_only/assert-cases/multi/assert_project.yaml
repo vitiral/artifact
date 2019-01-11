@@ -1,8 +1,7 @@
 # Empty project
 #
 # This file is also used as a template
-
-paths:
+settings:
     code_paths: []
     exclude_code_paths: []
 

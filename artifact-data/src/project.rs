@@ -45,20 +45,20 @@ pub fn read_project<P: AsRef<Path>>(
     let start_load = time::get_time();
     let mut lints = lint::Categorized::default();
 
-    let paths = {
-        let (mut load_lints, paths) = settings::load_project_paths(project_path);
+    let settings = {
+        let (mut load_lints, settings) = settings::load_settings(project_path);
         lints.categorize(load_lints.drain(..));
         if !lints.error.is_empty() {
             lints.sort();
             return Err(lints);
         }
 
-        let mut paths = paths.expect("No lints but also no settings file!");
-        paths.code_paths.sort();
-        paths.exclude_code_paths.sort();
-        paths.artifact_paths.sort();
-        paths.exclude_artifact_paths.sort();
-        paths
+        let mut settings = settings.expect("No lints but also no settings file!");
+        settings.code_paths.sort();
+        settings.exclude_code_paths.sort();
+        settings.artifact_paths.sort();
+        settings.exclude_artifact_paths.sort();
+        settings
     };
 
     let (lint_handle, locs_handle, loaded_handle) = {
@@ -69,12 +69,12 @@ pub fn read_project<P: AsRef<Path>>(
         });
 
         // -------- CODE LOCATIONS --------
-        take!(=send_err as errs, =paths as cl_paths);
+        take!(=send_err as errs, =settings as cl_settings);
         let (send_code_path, recv_code_path) = ch::bounded(128);
         spawn(move || {
-            settings::walk_paths(&send_code_path, &errs, &cl_paths.code_paths, |path| {
+            settings::walk_paths(&send_code_path, &errs, &cl_settings.code_paths, |path| {
                 let abs: &PathAbs = path.as_ref();
-                !cl_paths.exclude_code_paths.contains(abs)
+                !cl_settings.exclude_code_paths.contains(abs)
             })
         });
 
@@ -95,14 +95,14 @@ pub fn read_project<P: AsRef<Path>>(
         });
 
         // -------- ARTIFACTS --------
-        take!(=send_err as errs, =paths as cl_paths);
+        take!(=send_err as errs, =settings as cl_settings);
         let (send_artifact_paths, recv_artifact_paths) = ch::bounded(128);
         spawn(move || {
             settings::walk_artifact_paths(
                 &send_artifact_paths,
                 &errs,
-                &cl_paths.artifact_paths,
-                &cl_paths.exclude_artifact_paths,
+                &cl_settings.artifact_paths,
+                &cl_settings.exclude_artifact_paths,
             )
         });
 
@@ -139,7 +139,7 @@ pub fn read_project<P: AsRef<Path>>(
     let artifacts = artifact::determine_artifacts(loaded, &code_impls, &defined);
 
     let mut project = Project {
-        paths: paths,
+        settings: settings,
         code_impls: code_impls,
         artifacts: artifacts,
     };

@@ -35,7 +35,7 @@ pub struct Export {
     #[structopt(
         name = "TYPE",
         help = "\
-                The type of value to export. Supported values: [html]\n"
+                The type of value to export. Supported values: [html, md]\n"
     )]
     pub ty: String,
 
@@ -48,15 +48,22 @@ pub struct Export {
     pub path: String,
 }
 
+fn write_markdown(cmd: &Export, project_ser: &ProjectSer) -> io::Result<()> {
+    let mut out = FileEdit::create(&cmd.path)?;
+    project_ser.to_markdown(&mut out)?;
+    out.flush()?;
+    Ok(())
+}
+
 /// SPC-cli.init
 pub fn run(cmd: Export) -> Result<i32> {
-    let mut w = io::stdout();
-
     set_log_verbosity!(cmd);
     let repo = find_repo(&work_dir!(cmd))?;
     info!("Running art-export in repo {}", repo.display());
 
     let (_, project) = read_project(repo)?;
+
+    let project_ser = project.to_ser();
 
     match cmd.ty.to_ascii_lowercase().as_str() {
         "html" => {
@@ -67,13 +74,24 @@ pub fn run(cmd: Export) -> Result<i32> {
                     return Ok(1);
                 },
             };
+
             let init = ProjectInitialSer {
-                project: Some(project.to_ser()),
+                project: Some(project_ser),
                 web_type: WebType::Static,
             };
 
             expect!(frontend::unpack_frontend(&dir, &init));
             Ok(0)
+        },
+        "md" => {
+            match write_markdown(&cmd, &project_ser) {
+                Ok(_) => Ok(0),
+                Err(e) => {
+                    eprintln!("ERROR: {}", e);
+                    return Ok(1);
+                },
+
+            }
         },
         _ => {
             eprintln!("ERROR: unexpected type {:?}", cmd.ty);

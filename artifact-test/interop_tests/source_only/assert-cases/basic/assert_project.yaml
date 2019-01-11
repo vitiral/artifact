@@ -1,8 +1,7 @@
 # Source only example project.
 #
 # This just asserts that the source files are parsed as expected.
-
-paths:
+settings:
     code_paths:
     - pylib
     - src

@@ -15,26 +15,15 @@
  * be dual licensed as above, without any additional terms or conditions.
  * */
 
-use stdweb::unstable::TryFrom;
 use stdweb::web::Node;
-use stdweb::Value;
 use yew::virtual_dom::VNode;
+use artifact_ser::md_graph;
 
 use dev_prelude::*;
-use name;
 
 /// The small graph at the top of every artifact, displaying it's `partof` and `parts`.
 pub(crate) fn artifact_part_html(model: &Model, art: &ArtifactSer) -> HtmlApp {
-    // Create node formats
-    let mut dot = name_dot(model, &art.name, true);
-    for part in &art.parts {
-        dot.push_str(&name_dot(model, part, false));
-    }
-    for part in &art.partof {
-        dot.push_str(&name_dot(model, part, false));
-    }
-    push_connections(&mut dot, art);
-    dot_html(&wrap_dot(&model.window, &dot, true))
+    dot_html(&md_graph::artifact_part_dot(&model.shared, art))
 }
 
 pub(crate) fn graph_html(model: &Model) -> ViewResult {
@@ -108,20 +97,20 @@ fn graph_html_results(model: &Model) -> HtmlApp {
         .collect();
 
     for (name, art) in &focus {
-        dot.push_str(&name_dot(model, name, true));
+        dot.push_str(&md_graph::name_dot(&model.shared, name, true));
 
         // push the parts+partof, but only if they are not also
         // in focus (if they are in focus they will be pushed
         // separately)
         for part in &art.parts {
             if !focus.contains_key(part) {
-                dot.push_str(&name_dot(model, part, false));
+                dot.push_str(&md_graph::name_dot(&model.shared, part, false));
             }
         }
 
         for part in &art.partof {
             if !focus.contains_key(part) {
-                dot.push_str(&name_dot(model, part, false));
+                dot.push_str(&md_graph::name_dot(&model.shared, part, false));
             }
         }
     }
@@ -138,171 +127,8 @@ fn graph_html_results(model: &Model) -> HtmlApp {
     }
 
     for (from, to) in connections {
-        dot.push_str(&connect_names_dot(from, to));
+        dot.push_str(&md_graph::connect_names_dot(from, to));
     }
 
-    dot_html(&wrap_dot(&model.window, &dot, false))
-}
-
-fn connect_names_dot(from: &Name, to: &Name) -> String {
-    format!("        \"{}\" -> \"{}\"\n", from.key_str(), to.key_str())
-}
-
-fn push_connections(out: &mut String, art: &ArtifactSer) {
-    for part in &art.parts {
-        out.push_str(&connect_names_dot(&art.name, part));
-    }
-    for part in &art.partof {
-        out.push_str(&connect_names_dot(part, &art.name));
-    }
-}
-
-/// Put a bunch of dot stuff into the standard graph format.
-fn wrap_dot(window: &Window, dot: &str, lr: bool) -> String {
-    let attrs = if lr {
-        // FIXME: randir isn't working anymore
-        "randir=LR;"
-    } else {
-        ""
-    };
-
-    format!(
-        r##"
-        digraph G {{
-        graph [
-            margin=0.001; label="";
-            {attrs}
-        ];
-
-        ////////////////////
-        // DOT INSERTED HERE
-
-        {dot}
-
-        ///////////////////
-        // END INSERTED DOT
-
-        }}
-        "##,
-        attrs = attrs,
-        dot = dot,
-    )
-}
-
-pub(crate) fn name_dot(model: &Model, name: &Name, is_focus: bool) -> String {
-    fullname_dot(model, name, None, is_focus)
-}
-
-pub(crate) fn subname_dot(model: &Model, name: &str, sub: &SubName) -> String {
-    let name = match Name::from_str(name) {
-        Ok(n) => n,
-        Err(_) => return subname_raw(sub, None),
-    };
-
-    let color = if model
-        .shared
-        .get_impl(name.as_str(), Some(sub.as_str()))
-        .is_ok()
-    {
-        BLUE
-    } else {
-        RED
-    };
-
-    subname_raw(sub, Some(&format!("penwidth=1.5; fontcolor=\"{}\"", color)))
-}
-
-fn subname_raw(sub: &SubName, attrs: Option<&str>) -> String {
-    let attrs = attrs.unwrap_or("style=filled; fillcolor=\"#DCDEE2\"");
-    format!(
-        r##"
-        {{
-            "{sub_key}" [
-                label="{sub}";
-                fontsize=12; margin=0.15;
-                shape=cds;
-                {attrs};
-            ]
-        }}
-        "##,
-        sub_key = sub.key_str(),
-        sub = sub.as_str(),
-        attrs = attrs,
-    )
-}
-
-pub(crate) fn fullname_dot(
-    model: &Model,
-    name: &Name,
-    sub: Option<&SubName>,
-    is_focus: bool,
-) -> String {
-    match model.shared.artifacts.get(name) {
-        Some(art) => {
-            if let Some(s) = sub {
-                if !art.subnames.contains(s) {
-                    return dne_name_dot(name, sub);
-                }
-            }
-        }
-        None => return dne_name_dot(name, sub),
-    };
-    let attrs = if is_focus {
-        "penwidth=1.5".to_string()
-    } else {
-        format!("style=filled; fillcolor=\"{}\";", GRAY)
-    };
-
-    let (sub, sub_key) = match sub {
-        Some(s) => (s.as_str(), s.key_str()),
-        None => ("", ""),
-    };
-
-    let size = if is_focus { 12 } else { 8 };
-    format!(
-        r##"
-        {{
-            "{key}{sub_key}" [
-                label="{name}{sub}";
-                href="#{name_url}";
-                fontcolor="{color}";
-                fontsize={size}; margin=0.01;
-                shape=invhouse;
-                {attrs}
-            ]
-        }}
-        "##,
-        key = name.key_str(),
-        sub_key = sub_key,
-        name = name.as_str(),
-        sub = sub,
-        name_url = name.key_str().to_ascii_lowercase(),
-        color = name::name_color(model, name),
-        size = size,
-        attrs = attrs,
-    )
-}
-
-fn dne_name_dot(name: &Name, sub: Option<&SubName>) -> String {
-    let (sub, sub_key) = match sub {
-        Some(s) => (s.as_str(), s.key_str()),
-        None => ("", ""),
-    };
-
-    format!(
-        r##"
-        {{
-            "{key}{sub_key}" [
-                label=<<b>{name}{sub}</b>>;
-                fontcolor=black; style=filled; fillcolor=pink;
-                fontsize=12; margin=0.01; shape=invhouse;
-                tooltip="Name not found";
-            ]
-        }}
-        "##,
-        key = name.key_str(),
-        sub_key = sub_key,
-        name = name,
-        sub = sub,
-    )
+    dot_html(&md_graph::wrap_dot(&dot, false))
 }

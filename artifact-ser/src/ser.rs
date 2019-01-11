@@ -21,7 +21,7 @@ use fmt;
 use dev_prelude::*;
 use name::{Name, SubName};
 use lint;
-use super::{Completed, HashIm};
+use super::{Completed, HashIm, SettingsExport};
 
 /// The initial state of the project, stored in an `initial.json` file.
 #[derive(Debug, Serialize, Deserialize)]
@@ -65,10 +65,24 @@ pub enum ArtifactOpSer {
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub struct ProjectSer {
-    pub paths: ProjectPathsSer,
+    pub settings: SettingsSer,
     pub code_impls: IndexMap<Name, ImplCodeSer>,
     pub artifacts: IndexMap<Name, ArtifactSer>,
 }
+
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+pub struct SettingsSer {
+    pub base: String,
+    pub code_paths: IndexSet<String>,
+    pub exclude_code_paths: IndexSet<String>,
+    pub artifact_paths: IndexSet<String>,
+    pub exclude_artifact_paths: IndexSet<String>,
+
+    // command specific settings
+    #[serde(default)]
+    pub export: SettingsExport,
+}
+
 
 impl ProjectSer {
     /// Get the name/subname code location if they exist.
@@ -90,15 +104,6 @@ impl ProjectSer {
             },
         }
     }
-}
-
-#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
-pub struct ProjectPathsSer {
-    pub base: String,
-    pub code_paths: IndexSet<String>,
-    pub exclude_code_paths: IndexSet<String>,
-    pub artifact_paths: IndexSet<String>,
-    pub exclude_artifact_paths: IndexSet<String>,
 }
 
 #[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]

@@ -46,15 +46,50 @@ mod ser;
 #[macro_use]
 mod family;
 mod expand_names;
+pub mod markdown;
+pub mod md_graph;
 
 pub use name::{parse_subnames, InternalSubName, Name, SubName, Type, NAME_VALID_STR};
 pub use ser::{ArtifactImSer, ArtifactOpSer, ArtifactSer, CodeLocSer, ImplCodeSer, ImplSer,
-ProjectInitialSer, ProjectPathsSer, ProjectSer, ProjectResultSer, WebType};
+ProjectInitialSer, SettingsSer, ProjectSer, ProjectResultSer, WebType};
 pub use family::{auto_partofs, Names};
 pub use expand_names::expand_names;
 pub use lint::Categorized;
 
 use dev_prelude::*;
+
+// ------ SETTINGS ------
+
+#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
+pub struct SettingsExport {
+    #[serde(default = "SettingsExport::default_md_dot_pre")]
+    pub md_dot_pre: String,
+
+    #[serde(default = "SettingsExport::default_md_dot_post")]
+    pub md_dot_post: String,
+}
+
+impl SettingsExport {
+    fn default_md_dot_pre() -> String {
+        "```dot".to_string()
+    }
+
+    fn default_md_dot_post() -> String {
+        "```".to_string()
+    }
+}
+
+impl Default for SettingsExport {
+    fn default() -> SettingsExport {
+        SettingsExport {
+            md_dot_pre: Self::default_md_dot_pre(),
+            md_dot_post: Self::default_md_dot_post(),
+        }
+    }
+}
+
+
+// ------ HASH ------
 
 /// The type used for unique hash ids
 #[derive(Copy, Clone, Eq, PartialEq, Hash)]

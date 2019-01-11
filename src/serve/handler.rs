@@ -105,7 +105,7 @@ fn handle_read_project_params(
     };
 
     if params.reload {
-        let (lints, new_project) = match read_project(&project.project.paths.base) {
+        let (lints, new_project) = match read_project(&project.project.settings.base) {
             Ok(v) => v,
             Err(err) => {
                 return Err(jrpc::Response::error(
@@ -149,7 +149,7 @@ fn rpc_modify_project(id: jrpc::Id, params: Option<json::Value>) -> jrpc::Respon
         }
     };
 
-    let (lints, project) = match modify_project(&locked.project.paths.base, ops) {
+    let (lints, project) = match modify_project(&locked.project.settings.base, ops) {
         Ok(r) => r,
         Err(err) => {
             return jrpc::Response::error(

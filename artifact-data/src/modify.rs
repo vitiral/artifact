@@ -65,7 +65,7 @@ pub fn modify_project<P: AsRef<Path>>(
     let artifacts = artifact::determine_artifacts(loaded, &original_project.code_impls, &defined);
 
     let mut project = Project {
-        paths: original_project.paths,
+        settings: original_project.settings,
         code_impls: original_project.code_impls,
         artifacts: artifacts,
     };
@@ -75,13 +75,13 @@ pub fn modify_project<P: AsRef<Path>>(
     lints.categorize(recv_errs.iter());
     check_lints!(lints, InvalidFromModify);
 
-    create_backups(&mut lints, project.paths.clone());
+    create_backups(&mut lints, project.settings.clone());
     check_lints!(lints, CreateBackups);
 
     save_project(&mut lints, &project);
     check_lints!(lints, SaveProject);
 
-    remove_backups(&mut lints, project.paths.clone());
+    remove_backups(&mut lints, project.settings.clone());
     project.sort();
 
     Ok((lints, project))
@@ -117,7 +117,7 @@ fn check_paths(lints: &mut lint::Categorized, project: &Project, operations: &[A
         }
 
         // First make sure that the path _can_ be valid
-        let artifact_paths = &project.paths.artifact_paths;
+        let artifact_paths = &project.settings.artifact_paths;
         let valid_paths: Vec<_> = artifact_paths
             .iter()
             .filter_map(|valid| {
@@ -134,7 +134,7 @@ fn check_paths(lints: &mut lint::Categorized, project: &Project, operations: &[A
         }
 
         // It COULD be valid, but it could also be excluded
-        for exclude in project.paths.exclude_artifact_paths.iter() {
+        for exclude in project.settings.exclude_artifact_paths.iter() {
             if path.starts_with(exclude) {
                 // okay, the path is inside an exclude path... is there an
                 // INCLUDE that is inside this EXCLUDE?
@@ -228,7 +228,7 @@ fn perform_operations(
 }
 
 /// #SPC-modify.backup
-fn create_backups(lints: &mut lint::Categorized, paths: ProjectPaths) {
+fn create_backups(lints: &mut lint::Categorized, paths: Settings) {
     // TODO: figure out how to just use a reference
     let paths = Arc::new(paths);
     let recv_lint = {
@@ -269,7 +269,7 @@ fn create_backups(lints: &mut lint::Categorized, paths: ProjectPaths) {
     lints.categorize(recv_lint.iter());
 }
 
-fn remove_backups(lints: &mut lint::Categorized, paths: ProjectPaths) {
+fn remove_backups(lints: &mut lint::Categorized, paths: Settings) {
     // TODO: figure out how to just use a reference
     let paths = Arc::new(paths);
     let recv_lint = {

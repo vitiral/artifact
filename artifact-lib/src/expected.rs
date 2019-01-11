@@ -48,17 +48,20 @@ pub struct ArtifactImAssert {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ProjectAssert {
-    pub paths: ProjectPathsAssert,
+    pub settings: SettingsAssert,
     pub code_impls: IndexMap<Name, ImplCodeAssert>,
     pub artifacts: IndexMap<Name, ArtifactAssert>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct ProjectPathsAssert {
+pub struct SettingsAssert {
     pub code_paths: Vec<String>,
     pub exclude_code_paths: Vec<String>,
     pub artifact_paths: Vec<String>,
     pub exclude_artifact_paths: Vec<String>,
+
+    #[serde(default)]
+    pub export: SettingsExport,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -118,7 +121,7 @@ impl ProjectAssert {
     /// Get the "expected" value based on this assertion object.
     pub fn expected(mut self, base: &PathDir) -> Project {
         let mut out = Project {
-            paths: self.paths.expected(base),
+            settings: self.settings.expected(base),
             code_impls: self.code_impls
                 .drain(..)
                 .map(|(name, impl_)| (name, impl_.expected(base)))
@@ -133,14 +136,16 @@ impl ProjectAssert {
     }
 }
 
-impl ProjectPathsAssert {
-    pub fn expected(self, base: &PathDir) -> ProjectPaths {
-        ProjectPaths {
+impl SettingsAssert {
+    pub fn expected(self, base: &PathDir) -> Settings {
+        Settings {
             base: base.clone(),
             code_paths: prefix_paths(base, &self.code_paths),
             exclude_code_paths: prefix_paths(base, &self.exclude_code_paths),
             artifact_paths: prefix_paths(base, &self.artifact_paths),
             exclude_artifact_paths: prefix_paths(base, &self.exclude_artifact_paths),
+
+            export: self.export,
         }
     }
 }

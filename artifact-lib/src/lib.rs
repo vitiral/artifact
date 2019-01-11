@@ -364,12 +364,15 @@ impl ArtifactOp {
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 /// Paths that have have be recursively loaded.
-pub struct ProjectPaths {
+pub struct Settings {
     pub base: PathDir,
     pub code_paths: IndexSet<PathAbs>,
     pub exclude_code_paths: IndexSet<PathAbs>,
     pub artifact_paths: IndexSet<PathAbs>,
     pub exclude_artifact_paths: IndexSet<PathAbs>,
+
+    // command specific settings
+    pub export: SettingsExport,
 }
 
 // ------ PROJECT ------
@@ -385,7 +388,7 @@ pub struct ProjectResult {
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub struct Project {
-    pub paths: ProjectPaths,
+    pub settings: Settings,
     pub code_impls: IndexMap<Name, ImplCode>,
     pub artifacts: IndexMap<Name, Artifact>,
 }

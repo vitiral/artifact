@@ -48,6 +48,6 @@ pub fn arb_rel_file_paths(size: usize) -> BoxedStrategy<HashSet<String>> {
 //         .boxed()
 // }
 
-// fn get_project_paths(raw: BTreeMap<Name, ArtifactRaw>) -> (ProjectPaths, BTreeMap<Name, Path>) {
+// fn get_settings(raw: BTreeMap<Name, ArtifactRaw>) -> (Settings, BTreeMap<Name, Path>) {
 //     unimplemented!();
 // }

@@ -15,7 +15,6 @@
  * be dual licensed as above, without any additional terms or conditions.
  * */
 //! This contains the logic for loading the settings of an artifact project.
-
 use ergo::toml;
 
 use std::io;
@@ -31,7 +30,11 @@ pub(crate) struct SettingsRaw {
     pub exclude_artifact_paths: Vec<String>,
     pub code_paths: Vec<String>,
     pub exclude_code_paths: Vec<String>,
+
+    #[serde(default)]
+    pub export: SettingsExport,
 }
+
 
 pub(crate) struct FoundPaths {
     pub files: Vec<PathFile>,
@@ -64,6 +67,7 @@ impl SettingsRaw {
             let text = settings_path.read_string().map_err(|e| e.to_string())?;
             toml::from_str(&text).map_err(|e| e.to_string())?
         };
+        debug!("SettingsRaw={:#?}", raw);
         Ok((project_path, raw))
     }
 }
@@ -139,9 +143,9 @@ where
 /// Load the paths to all files in the project from the root path.
 ///
 /// The settings file is required to be in `project_path/.art/settings.toml`
-pub(crate) fn load_project_paths<P: AsRef<Path>>(
+pub(crate) fn load_settings<P: AsRef<Path>>(
     project_path: P,
-) -> (Vec<lint::Lint>, Option<ProjectPaths>) {
+) -> (Vec<lint::Lint>, Option<Settings>) {
     let (project_path, raw) = match SettingsRaw::load(project_path.as_ref()) {
         Ok(s) => s,
         Err(err) => {
@@ -153,7 +157,7 @@ pub(crate) fn load_project_paths<P: AsRef<Path>>(
     };
 
     let (send_lints, recv_lints) = ::std::sync::mpsc::channel();
-    let paths = ProjectPaths {
+    let paths = Settings {
         base: project_path.clone(),
         code_paths: resolve_raw_paths(&send_lints, &project_path, &raw.code_paths),
         exclude_code_paths: resolve_raw_paths(&send_lints, &project_path, &raw.exclude_code_paths),
@@ -163,6 +167,8 @@ pub(crate) fn load_project_paths<P: AsRef<Path>>(
             &project_path,
             &raw.exclude_artifact_paths,
         ),
+
+        export: raw.export,
     };
     drop(send_lints);
     let lints = recv_lints.into_iter().collect();
