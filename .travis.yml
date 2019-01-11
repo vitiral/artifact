@@ -16,6 +16,10 @@ env:
   global:
     - CRATE_NAME=artifact
 
+matrix:
+    allow_failures:
+        - os: windows
+
       # matrix:
       #   include:
       #     # Android
