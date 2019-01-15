@@ -14,3 +14,16 @@ code_paths = [
 
 exclude_code_paths = [
 ]
+
+code_url = "https://github.com/vitiral/artifact/blob/master/{file}#L{line}"
+
+[export]
+md_header = """
+Artifact design docs, exported to markdown.
+
+See [REQ-purpose](#REQ-PURPOSE) for the top level artifact.
+
+> Note: Export docs like this with `art export md exported.md`
+>
+> Settings are in `.art/settings.toml`
+"""

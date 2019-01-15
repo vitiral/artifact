@@ -366,10 +366,12 @@ impl ArtifactOp {
 /// Paths that have have be recursively loaded.
 pub struct Settings {
     pub base: PathDir,
+    pub settings_path: PathFile,
     pub code_paths: IndexSet<PathAbs>,
     pub exclude_code_paths: IndexSet<PathAbs>,
     pub artifact_paths: IndexSet<PathAbs>,
     pub exclude_artifact_paths: IndexSet<PathAbs>,
+    pub code_url: Option<String>,
 
     // command specific settings
     pub export: SettingsExport,

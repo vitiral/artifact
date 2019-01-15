@@ -82,7 +82,7 @@ pub(crate) fn determine_artifacts(
 
     macro_rules! remove {
         [$map:expr, $name:expr] => {
-            $map.remove($name).unwrap()
+            expect!($map.remove($name))
         };
     }
 

@@ -84,7 +84,7 @@ pub enum NameError {
 /// # fn main() {
 /// let name = name!("REQ-example");    // macro instantiation
 /// let name2 = name.clone();           // cloning is cheap.
-/// assert_eq!(name, Name::from_str("REQ-example").unwrap());
+/// assert_eq!(name, name!("REQ-example"));
 /// assert_eq!(name.ty, Type::REQ);
 ///
 /// // case is ignored for equality/hashing
@@ -119,7 +119,7 @@ pub enum Type {
 /// let sub2 = sub.clone();          // cloning is NOT cheap.
 ///
 /// // case is ignored for equality/hashing
-/// assert_eq!(sub, SubName::from_str(".SuB_NaMe").unwrap());
+/// assert_eq!(sub, subname!(".SuB_NaMe"));
 ///
 /// // Helper to get the full name
 /// assert_eq!(name!("REQ-foo").full(Some(&sub)), "REQ-foo.sub_name");
@@ -174,12 +174,14 @@ pub const NAME_SUB_RE_KEY: &str = "name_sub";
 
 lazy_static!{
     /// Valid name regular expression
-    static ref NAME_VALID_RE: Regex = Regex::new(
-        &format!(r"(?i)^{}$", NAME_VALID_STR)).unwrap();
+    static ref NAME_VALID_RE: Regex = expect!(
+        Regex::new(&format!(r"(?i)^{}$", NAME_VALID_STR))
+    );
 
     /// Valid subname regex
-    static ref VALID_SUB_NAME_RE: Regex = Regex::new(
-        &format!(r"(?i)^\.(?:tst-)?[{}]+$", NAME_VALID_CHARS!())).unwrap();
+    static ref VALID_SUB_NAME_RE: Regex = expect!(
+        Regex::new(&format!(r"(?i)^\.(?:tst-)?[{}]+$", NAME_VALID_CHARS!()))
+    );
 
     pub static ref TEXT_SUB_NAME_STR: String = format!(
         r"(?i)\[\[(?P<{}>\.(?:tst-)?[{}]+)\]\]",
@@ -202,10 +204,10 @@ lazy_static!{
     );
 
     /// Parse subname from text regex
-    pub static ref TEXT_SUB_NAME_RE: Regex = Regex::new(&TEXT_SUB_NAME_STR).unwrap();
+    pub static ref TEXT_SUB_NAME_RE: Regex = expect!(Regex::new(&TEXT_SUB_NAME_STR));
 
     /// Name reference that can exist in source code
-    pub static ref TEXT_REF_RE: Regex = Regex::new(&TEXT_REF_STR).unwrap();
+    pub static ref TEXT_REF_RE: Regex = expect!(Regex::new(&TEXT_REF_STR));
 }
 
 // #SPC-name.attrs
@@ -327,7 +329,10 @@ impl FromStr for Name {
 pub fn parse_subnames(text: &str) -> IndexSet<SubName> {
     TEXT_SUB_NAME_RE
         .captures_iter(text)
-        .map(|cap| SubName::new_unchecked(cap.name(SUB_RE_KEY).unwrap().as_str()))
+        .map(|cap| {
+            let name = expect!(cap.name(SUB_RE_KEY)).as_str();
+            SubName::new_unchecked(name)
+        })
         .collect()
 }
 

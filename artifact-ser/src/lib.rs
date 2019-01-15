@@ -30,6 +30,8 @@ extern crate ergo_std;
 extern crate ergo_config;
 #[macro_use]
 extern crate derive_error;
+extern crate strfmt;
+
 // TODO: move to path_abs
 pub use std::string::ToString;
 pub use std::str::FromStr;
@@ -60,32 +62,34 @@ use dev_prelude::*;
 
 // ------ SETTINGS ------
 
-#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub struct SettingsExport {
-    #[serde(default = "SettingsExport::default_md_dot_pre")]
-    pub md_dot_pre: String,
+    #[serde(default)]
+    /// User definable header to include in the exported markdown
+    pub md_header: Option<String>,
 
-    #[serde(default = "SettingsExport::default_md_dot_post")]
-    pub md_dot_post: String,
+    #[serde(default = "return_true")]
+    /// Whether to include a table of contents
+    pub md_toc: bool,
+
+    #[serde(default)]
+    /// Settings related to rendering the "family" (graph, list, etc)
+    pub md_family: SettingsExportFamily,
 }
 
-impl SettingsExport {
-    fn default_md_dot_pre() -> String {
-        "```dot".to_string()
-    }
+fn return_true() -> bool { true }
 
-    fn default_md_dot_post() -> String {
-        "```".to_string()
-    }
+
+// TODO: rename SettingsMdFamily
+#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase", tag = "type")]
+pub enum SettingsExportFamily {
+    List,
+    Dot,
 }
 
-impl Default for SettingsExport {
-    fn default() -> SettingsExport {
-        SettingsExport {
-            md_dot_pre: Self::default_md_dot_pre(),
-            md_dot_post: Self::default_md_dot_post(),
-        }
-    }
+impl Default for SettingsExportFamily {
+    fn default() -> Self { SettingsExportFamily::List }
 }
 
 
@@ -327,7 +331,7 @@ pub fn strip_auto_partofs(name: &Name, names: &mut IndexSet<Name>) {
 /// Particularily useful for creating `*Ser` types from their corresponding type.
 macro_rules! round_ser {
     [$to:ty, $from:expr] => {
-        json::from_str::<$to>(&json::to_string(&$from).unwrap())
+        json::from_str::<$to>(&expect!(json::to_string(&$from)))
     }
 }
 

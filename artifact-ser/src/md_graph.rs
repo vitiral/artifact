@@ -18,15 +18,15 @@
 use dev_prelude::*;
 use name::*;
 use ser::*;
-use markdown::{GRAY, BLUE, RED, name_color};
+use markdown::{GRAY, BLUE, RED, SerMarkdown, name_color};
 
-pub fn artifact_part_dot(project: &ProjectSer, art: &ArtifactSer) -> String {
-    let mut dot = name_dot(project, &art.name, true);
+pub fn artifact_part_dot(md: &SerMarkdown, art: &ArtifactSer) -> String {
+    let mut dot = name_dot(md, &art.name, true);
     for part in &art.parts {
-        dot.push_str(&name_dot(project, part, false));
+        dot.push_str(&name_dot(md, part, false));
     }
     for part in &art.partof {
-        dot.push_str(&name_dot(project, part, false));
+        dot.push_str(&name_dot(md, part, false));
     }
     push_connections(&mut dot, art);
     wrap_dot(&dot, true)
@@ -77,17 +77,17 @@ pub fn wrap_dot(dot: &str, lr: bool) -> String {
     )
 }
 
-pub fn name_dot(project: &ProjectSer, name: &Name, is_focus: bool) -> String {
-    fullname_dot(project, name, None, is_focus)
+pub fn name_dot(md: &SerMarkdown, name: &Name, is_focus: bool) -> String {
+    fullname_dot(md, name, None, is_focus)
 }
 
-pub fn subname_dot(project: &ProjectSer, name: &str, sub: &SubName) -> String {
+pub fn subname_dot(md: &SerMarkdown, name: &str, sub: &SubName) -> String {
     let name = match Name::from_str(name) {
         Ok(n) => n,
         Err(_) => return subname_raw(sub, None),
     };
 
-    let color = if project
+    let color = if md.project
         .get_impl(name.as_str(), Some(sub.as_str()))
         .is_ok()
     {
@@ -119,12 +119,12 @@ fn subname_raw(sub: &SubName, attrs: Option<&str>) -> String {
 }
 
 pub fn fullname_dot(
-    project: &ProjectSer,
+    md: &SerMarkdown,
     name: &Name,
     sub: Option<&SubName>,
     is_focus: bool,
 ) -> String {
-    match project.artifacts.get(name) {
+    match md.project.artifacts.get(name) {
         Some(art) => {
             if let Some(s) = sub {
                 if !art.subnames.contains(s) {
@@ -164,7 +164,7 @@ pub fn fullname_dot(
         name = name.as_str(),
         sub = sub,
         name_url = name.key_str().to_ascii_lowercase(),
-        color = name_color(project, name),
+        color = name_color(&md.project, name),
         size = size,
         attrs = attrs,
     )

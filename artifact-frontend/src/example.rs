@@ -15,7 +15,7 @@
  * be dual licensed as above, without any additional terms or conditions.
  * */
 pub const YAML: &str = r###"
-paths:
+settings:
     base: "/fake"
     code_paths: []
     exclude_code_paths: []

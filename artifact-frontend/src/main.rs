@@ -28,6 +28,7 @@ extern crate http;
 extern crate jrpc;
 #[macro_use]
 extern crate stdweb;
+extern crate strfmt;
 #[macro_use]
 extern crate yew;
 extern crate yew_simple;
@@ -51,7 +52,7 @@ impl Component<Context> for Model {
     type Properties = ();
 
     fn create(_: Self::Properties, context: &mut Env<Context, Self>) -> Self {
-        let project: ProjectSer = yaml::from_str(example::YAML).unwrap();
+        let project: ProjectSer = expect!(yaml::from_str(example::YAML));
         let router = yew_simple::RouterTask::new(context, &view::router_fn);
         let url = router.current_url();
 

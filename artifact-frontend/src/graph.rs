@@ -20,10 +20,13 @@ use yew::virtual_dom::VNode;
 use artifact_ser::md_graph;
 
 use dev_prelude::*;
+use view::ser_markdown;
 
 /// The small graph at the top of every artifact, displaying it's `partof` and `parts`.
 pub(crate) fn artifact_part_html(model: &Model, art: &ArtifactSer) -> HtmlApp {
-    dot_html(&md_graph::artifact_part_dot(&model.shared, art))
+    let md = ser_markdown(model);
+    let dot = md_graph::artifact_part_dot(&md, art);
+    dot_html(&dot)
 }
 
 pub(crate) fn graph_html(model: &Model) -> ViewResult {
@@ -83,6 +86,8 @@ pub(crate) fn dot_html(dot: &str) -> HtmlApp {
 
 /// The "search graph".
 fn graph_html_results(model: &Model) -> HtmlApp {
+    let md = ser_markdown(model);
+
     let re = match parse_regex(&model.graph.search) {
         Ok(r) => r,
         Err(e) => return e,
@@ -97,20 +102,20 @@ fn graph_html_results(model: &Model) -> HtmlApp {
         .collect();
 
     for (name, art) in &focus {
-        dot.push_str(&md_graph::name_dot(&model.shared, name, true));
+        dot.push_str(&md_graph::name_dot(&md, name, true));
 
         // push the parts+partof, but only if they are not also
         // in focus (if they are in focus they will be pushed
         // separately)
         for part in &art.parts {
             if !focus.contains_key(part) {
-                dot.push_str(&md_graph::name_dot(&model.shared, part, false));
+                dot.push_str(&md_graph::name_dot(&md, part, false));
             }
         }
 
         for part in &art.partof {
             if !focus.contains_key(part) {
-                dot.push_str(&md_graph::name_dot(&model.shared, part, false));
+                dot.push_str(&md_graph::name_dot(&md, part, false));
             }
         }
     }

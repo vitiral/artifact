@@ -30,6 +30,7 @@ pub(crate) struct SettingsRaw {
     pub exclude_artifact_paths: Vec<String>,
     pub code_paths: Vec<String>,
     pub exclude_code_paths: Vec<String>,
+    pub code_url: Option<String>,
 
     #[serde(default)]
     pub export: SettingsExport,
@@ -53,7 +54,7 @@ impl FoundPaths {
 impl SettingsRaw {
     fn load<P: AsRef<Path>>(
         project_path: P,
-    ) -> ::std::result::Result<(PathDir, SettingsRaw), String> {
+    ) -> ::std::result::Result<(PathDir, PathFile, SettingsRaw), String> {
         let project_path = PathDir::new(project_path.as_ref()).map_err(|e| {
             format!(
                 "folder does not exist at {}, got {}",
@@ -61,14 +62,16 @@ impl SettingsRaw {
                 e
             )
         })?;
+        let expected = project_path.join(ART_DIR).join(SETTINGS_FILE);
+        let settings_path = PathFile::new(&expected).map_err(|e| e.to_string())?;
+
         let raw: SettingsRaw = {
-            let expected = project_path.join(ART_DIR).join(SETTINGS_FILE);
-            let settings_path = PathFile::new(&expected).map_err(|e| e.to_string())?;
             let text = settings_path.read_string().map_err(|e| e.to_string())?;
             toml::from_str(&text).map_err(|e| e.to_string())?
         };
+
         debug!("SettingsRaw={:#?}", raw);
-        Ok((project_path, raw))
+        Ok((project_path, settings_path, raw))
     }
 }
 
@@ -146,7 +149,7 @@ where
 pub(crate) fn load_settings<P: AsRef<Path>>(
     project_path: P,
 ) -> (Vec<lint::Lint>, Option<Settings>) {
-    let (project_path, raw) = match SettingsRaw::load(project_path.as_ref()) {
+    let (project_path, settings_path, raw) = match SettingsRaw::load(project_path.as_ref()) {
         Ok(s) => s,
         Err(err) => {
             let lints = vec![
@@ -159,6 +162,7 @@ pub(crate) fn load_settings<P: AsRef<Path>>(
     let (send_lints, recv_lints) = ::std::sync::mpsc::channel();
     let paths = Settings {
         base: project_path.clone(),
+        settings_path: settings_path,
         code_paths: resolve_raw_paths(&send_lints, &project_path, &raw.code_paths),
         exclude_code_paths: resolve_raw_paths(&send_lints, &project_path, &raw.exclude_code_paths),
         artifact_paths: resolve_raw_paths(&send_lints, &project_path, &raw.artifact_paths),
@@ -167,6 +171,7 @@ pub(crate) fn load_settings<P: AsRef<Path>>(
             &project_path,
             &raw.exclude_artifact_paths,
         ),
+        code_url: raw.code_url,
 
         export: raw.export,
     };

@@ -45,6 +45,7 @@ extern crate time;
 
 #[macro_use]
 extern crate artifact_lib;
+extern crate artifact_ser;
 #[macro_use]
 extern crate log;
 

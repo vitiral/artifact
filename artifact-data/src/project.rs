@@ -35,6 +35,7 @@ impl ProjectExt for Project {
     fn lint_other(&self, send: &Sender<lint::Lint>) {
         lint_artifact_text_refs(send, self);
         lint_code_impls(send, self);
+        lint_settings(send, self);
     }
 }
 
@@ -298,6 +299,23 @@ pub(crate) fn lint_code_impls(lints: &Sender<lint::Lint>, project: &Project) {
     }
 }
 
+pub(crate) fn lint_settings(lints: &Sender<lint::Lint>, project: &Project) {
+    if let Some(ref url_fmt) = project.settings.code_url {
+        // Just make sure it can serialize a fake location.
+        let result = ::artifact_ser::markdown::format_code_url(url_fmt, &CodeLocSer::fake());
+        if let Err(e) = result {
+            let lint = lint::Lint {
+                level: lint::Level::Error,
+                path: Some(project.settings.settings_path.to_string()),
+                line: None,
+                category: lint::Category::Settings,
+                msg: e.to_string(),
+            };
+            ch!(lints <- lint);
+        }
+    }
+}
+
 /// #SPC-read-artifact.lint_text
 /// Lint against artifact text being structured incorrectly.
 pub(crate) fn lint_artifact_text(lints: &Sender<lint::Lint>, project: &Project) {
@@ -353,10 +371,10 @@ pub(crate) fn lint_artifact_text_refs(lints: &Sender<lint::Lint>, project: &Proj
     };
     for (name, art) in project.artifacts.iter() {
         for captures in name::TEXT_REF_RE.captures_iter(&art.text) {
-            // unwrap: group "name" always exists in regex
-            let name_mat = captures.name(name::NAME_RE_KEY).unwrap();
-            // unwrap: pre-validated by regex
-            let ref_name = Name::from_str(name_mat.as_str()).unwrap();
+            // expect: group "name" always exists in regex
+            let name_mat = expect!(captures.name(name::NAME_RE_KEY));
+            // expect: pre-validated by regex
+            let ref_name = expect!(Name::from_str(name_mat.as_str()));
             // "name_sub" is optional
             let ref_sub = match captures.name(name::NAME_SUB_RE_KEY) {
                 Some(sub_mat) => Some(SubName::new_unchecked(sub_mat.as_str())),

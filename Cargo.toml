@@ -35,6 +35,7 @@ nickel = { git = "https://github.com/nickel-org/nickel.rs" }
 jsonrpc-core = "8.0.1"
 artifact_data = {path = "artifact-data"}
 artifact_lib = {path = "artifact-lib"}
+artifact_ser = {path = "artifact-ser"}
 jrpc = "0.4.0"
 quicli = "0.3.0"
 

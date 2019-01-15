@@ -26,7 +26,7 @@ use dev_prelude::*;
 
 lazy_static!{
     /// Name reference that can exist in source code
-    static ref SRC_NAME_RE: Regex = Regex::new(
+    static ref SRC_NAME_RE: Regex = expect!(Regex::new(
         &format!(r#"(?xi)
         (?:                     # start std section
         \#(                     # start main section
@@ -38,7 +38,7 @@ lazy_static!{
         )                       # end std section
         |(?P<skip>\#ART-SKIP)
         |(?P<done>\#ART-DONE)
-        "#, NAME_VALID_CHARS!())).unwrap();
+        "#, NAME_VALID_CHARS!())));
 }
 
 /// Parse the locations from a set of files in parallel

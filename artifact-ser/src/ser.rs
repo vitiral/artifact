@@ -70,22 +70,9 @@ pub struct ProjectSer {
     pub artifacts: IndexMap<Name, ArtifactSer>,
 }
 
-#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
-pub struct SettingsSer {
-    pub base: String,
-    pub code_paths: IndexSet<String>,
-    pub exclude_code_paths: IndexSet<String>,
-    pub artifact_paths: IndexSet<String>,
-    pub exclude_artifact_paths: IndexSet<String>,
-
-    // command specific settings
-    #[serde(default)]
-    pub export: SettingsExport,
-}
-
-
 impl ProjectSer {
     /// Get the name/subname code location if they exist.
+    /// FIXME: rename get_codeloc
     pub fn get_impl(&self, name: &str, sub: Option<&str>) -> Result<&CodeLocSer, String> {
         let name = Name::from_str(name).map_err(|e| e.to_string())?;
         let code = self.code_impls.get(&name)
@@ -102,6 +89,39 @@ impl ProjectSer {
                 code.secondary.get(&sub)
                     .ok_or_else(|| format!("{}.{} not implemented", name, sub))
             },
+        }
+    }
+}
+
+
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+pub struct SettingsSer {
+    pub base: String,
+    pub settings_path: String,
+    pub code_paths: IndexSet<String>,
+    pub exclude_code_paths: IndexSet<String>,
+    pub artifact_paths: IndexSet<String>,
+    pub exclude_artifact_paths: IndexSet<String>,
+    pub code_url: Option<String>,
+
+    // command specific settings
+    #[serde(default)]
+    pub export: SettingsExport,
+}
+
+impl SettingsSer {
+    /// Helper method to trim the base string off of string paths.
+    pub fn trim_base<'a>(&self, path: &'a str) -> &'a str {
+        if path.starts_with(&self.base) {
+            let path = path.split_at(self.base.len()).1;
+            if path.starts_with('/') {
+                // get rid of leading '/'
+                path.split_at(1).1
+            } else {
+                path
+            }
+        } else {
+            path
         }
     }
 }
@@ -170,12 +190,6 @@ impl fmt::Display for ImplCodeSer {
     }
 }
 
-impl fmt::Debug for CodeLocSer {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}[{}]", self.file, self.line)
-    }
-}
-
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ImplCodeSer {
     pub primary: Option<CodeLocSer>,
@@ -187,6 +201,22 @@ pub struct CodeLocSer {
     pub file: String,
     pub line: u64,
 }
+
+impl CodeLocSer {
+    pub fn fake() -> Self {
+        CodeLocSer {
+            file: "/fake".to_string(),
+            line: 0,
+        }
+    }
+}
+
+impl fmt::Debug for CodeLocSer {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}[{}]", self.file, self.line)
+    }
+}
+
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ArtifactImSer {

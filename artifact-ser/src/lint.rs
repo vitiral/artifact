@@ -58,6 +58,7 @@ pub enum Category {
     ParseArtifactFiles,
     AutoPartof,
     Artifact,
+    Settings,
     ImplCode,
     ModifyPathInvalid,
     CreateExists,

@@ -197,13 +197,13 @@ pub fn from_markdown<R: Read>(stream: R) -> Result<IndexMap<Name, ArtifactRaw>> 
             debug_assert!(name.is_none());
             debug_assert!(attrs.is_none());
             other.clear();
-            name = Some(Name::from_str(mat.get(1).unwrap().as_str())?);
+            name = Some(Name::from_str(expect!(mat.get(1)).as_str())?);
             continue;
         } else if ATTRS_END_RE.is_match(&line) {
             // the `other` lines we have been collecting are attrs!
             if name.is_some() && attrs.is_some() {
                 let e = LoadError::MarkdownError {
-                    msg: format!("`###+\\s+` exists twice under {}", name.unwrap()),
+                    msg: format!("`###+\\s+` exists twice under {}", expect!(name)),
                 };
                 return Err(e.into());
             }
@@ -281,14 +281,14 @@ pub fn to_markdown(raw_artifacts: &IndexMap<Name, ArtifactRaw>) -> String {
 }
 
 fn to_yaml<S: Serialize>(value: &S) -> String {
-    let mut s = yaml::to_string(value).unwrap();
+    let mut s = expect!(yaml::to_string(value));
     s.drain(0..4); // remove the ---\n
     s
 }
 
 /// Push a single artifact onto the document
 fn push_artifact_md(out: &mut String, name: &Name, raw: &ArtifactRaw) {
-    write!(out, "# {}\n", name).unwrap();
+    expect!(write!(out, "# {}\n", name));
 
     // push attrs if they exist
     if raw.done.is_some() || raw.partof.is_some() {
@@ -307,22 +307,22 @@ fn push_artifact_md(out: &mut String, name: &Name, raw: &ArtifactRaw) {
 
 fn push_attrs(out: &mut String, raw: &ArtifactRaw) {
     if let Some(ref done) = raw.done {
-        write!(out, "{}\n\n", to_yaml(&hashmap!{"done" => done})).unwrap();
+        expect!(write!(out, "{}\n\n", to_yaml(&hashmap!{"done" => done})));
     }
     if let Some(ref partof) = raw.partof {
         // do `partof` special so it looks prettier
-        write!(out, "partof:").unwrap();
+        expect!(write!(out, "partof:"));
         if partof.is_empty() {
             panic!("partof is not None but has no length");
         } else if partof.len() == 1 {
-            let n = partof.iter().next().unwrap();
-            write!(out, " {}", n).unwrap();
+            let n = expect!(partof.iter().next());
+            expect!(write!(out, " {}", n));
         } else {
-            write!(out, "\n").unwrap();
+            expect!(write!(out, "\n"));
             let mut partof = partof.iter().cloned().collect::<Vec<_>>();
             partof.sort();
             for n in &partof {
-                write!(out, "- {}\n", n).unwrap();
+                expect!(write!(out, "- {}\n", n));
             }
         }
     }

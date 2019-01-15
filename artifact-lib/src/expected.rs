@@ -55,14 +55,19 @@ pub struct ProjectAssert {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct SettingsAssert {
+    #[serde(default = "default_settings")]
+    pub settings_path: String,
     pub code_paths: Vec<String>,
     pub exclude_code_paths: Vec<String>,
     pub artifact_paths: Vec<String>,
     pub exclude_artifact_paths: Vec<String>,
+    pub code_url: Option<String>,
 
     #[serde(default)]
     pub export: SettingsExport,
 }
+
+fn default_settings() -> String { ".art/settings.toml".to_string() }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ArtifactAssert {
@@ -138,12 +143,15 @@ impl ProjectAssert {
 
 impl SettingsAssert {
     pub fn expected(self, base: &PathDir) -> Settings {
+        let settings_path = PathAbs::mock(base.join(self.settings_path));
         Settings {
             base: base.clone(),
+            settings_path: PathFile::from_abs_unchecked(settings_path),
             code_paths: prefix_paths(base, &self.code_paths),
             exclude_code_paths: prefix_paths(base, &self.exclude_code_paths),
             artifact_paths: prefix_paths(base, &self.artifact_paths),
             exclude_artifact_paths: prefix_paths(base, &self.exclude_artifact_paths),
+            code_url: self.code_url,
 
             export: self.export,
         }

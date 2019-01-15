@@ -483,7 +483,7 @@ pub enum FieldOp {
 /// the extra `<span>...</span>`
 pub(crate) fn fa_icon(icon: &str) -> HtmlApp {
     let icon = format!(r#"<span><i class="{} {}"></i></span>"#, FA, icon);
-    let icon = Node::from_html(icon.trim()).expect("fa-icon");
+    let icon = expect!(Node::from_html(icon.trim()));
     VNode::VRef(icon)
 }
 

@@ -22,7 +22,20 @@ use std::io;
 use frontend;
 
 #[derive(Debug, StructOpt)]
-#[structopt(name = "export", about = "Export artifacts in some format.")]
+#[structopt(name = "export", about = "\
+Export artifacts in some format.
+
+## Settings (.art/settings.toml)
+The following can be added to control export's behavior
+
+### md_family
+Controls how the family is exported.
+
+md_family = {
+    type = \"list|dot\",
+}
+"
+)]
 pub struct Export {
     #[structopt(long = "verbose", short = "v", default_value = "0")]
     /// Pass many times for more log output.
@@ -48,9 +61,26 @@ pub struct Export {
     pub path: String,
 }
 
-fn write_markdown(cmd: &Export, project_ser: &ProjectSer) -> io::Result<()> {
+fn export_html(cmd: &Export, project_ser: ProjectSer) -> io::Result<()> {
+    let dir = PathDir::create(&cmd.path)?;
+    let init = ProjectInitialSer {
+        project: Some(project_ser),
+        web_type: WebType::Static,
+    };
+    frontend::unpack_frontend(&dir, &init)?;
+    Ok(())
+}
+
+fn export_markdown(cmd: &Export, project_ser: ProjectSer) -> io::Result<()> {
+    use artifact_ser::markdown::*;
+    let settings = SerMarkdownSettings {
+        code_url: project_ser.settings.code_url.clone(),
+        family: project_ser.settings.export.md_family.clone(),
+    };
+    let md = SerMarkdown::with_settings(&project_ser, settings);
+
     let mut out = FileEdit::create(&cmd.path)?;
-    project_ser.to_markdown(&mut out)?;
+    md.to_markdown(&mut out)?;
     out.flush()?;
     Ok(())
 }
@@ -62,40 +92,22 @@ pub fn run(cmd: Export) -> Result<i32> {
     info!("Running art-export in repo {}", repo.display());
 
     let (_, project) = read_project(repo)?;
-
     let project_ser = project.to_ser();
 
-    match cmd.ty.to_ascii_lowercase().as_str() {
-        "html" => {
-            let dir = match PathDir::create(&cmd.path) {
-                Ok(d) => d,
-                Err(e) => {
-                    eprintln!("ERROR: {}", e);
-                    return Ok(1);
-                },
-            };
-
-            let init = ProjectInitialSer {
-                project: Some(project_ser),
-                web_type: WebType::Static,
-            };
-
-            expect!(frontend::unpack_frontend(&dir, &init));
-            Ok(0)
-        },
-        "md" => {
-            match write_markdown(&cmd, &project_ser) {
-                Ok(_) => Ok(0),
-                Err(e) => {
-                    eprintln!("ERROR: {}", e);
-                    return Ok(1);
-                },
-
-            }
-        },
+    let result = match cmd.ty.to_ascii_lowercase().as_str() {
+        "html" => export_html(&cmd, project_ser),
+        "md" => export_markdown(&cmd, project_ser),
         _ => {
             eprintln!("ERROR: unexpected type {:?}", cmd.ty);
-            Ok(1)
+            return Ok(1);
         }
+    };
+
+    match result {
+        Ok(_) => Ok(0),
+        Err(e) => {
+            eprintln!("ERROR: {}", e);
+            return Ok(1);
+        },
     }
 }

@@ -89,7 +89,7 @@ impl Serialize for NamesRaw {
             panic!("attempted to serialize an empty names field");
         } else if self.0.len() == 1 {
             // serialize just the string
-            self.0.iter().next().unwrap().serialize(serializer)
+            expect!(self.0.iter().next()).serialize(serializer)
         } else {
             // serialize the sorted names
             let mut names: Vec<_> = self.0.iter().collect();

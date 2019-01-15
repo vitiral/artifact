@@ -73,8 +73,8 @@ where
                     return Err(NameError::InvalidCollapsed { msg: msg.into() }.into());
                 }
                 for p in try!(parse_collapsed(raw, true)) {
-                    strout.write_str(&current).unwrap();
-                    strout.write_str(&p).unwrap();
+                    strout.push_str(&current);
+                    strout.push_str(&p);
                     strout.push(',');
                 }
                 current.clear();

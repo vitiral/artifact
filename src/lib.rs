@@ -24,6 +24,7 @@ extern crate artifact_data;
 
 #[macro_use]
 extern crate artifact_lib;
+extern crate artifact_ser;
 
 #[allow(unused_imports)]
 #[macro_use]
