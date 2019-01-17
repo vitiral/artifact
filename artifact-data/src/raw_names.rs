@@ -17,20 +17,20 @@
 //! Define the serialization rules for raw names
 
 use dev_prelude::*;
-use std::fmt;
 use ergo::serde;
 use ergo::serde::de::{Deserialize, Deserializer, SeqAccess, Visitor};
 use ergo::serde::ser::{Serialize, Serializer};
+use std::fmt;
 
 #[macro_export]
 /// Macro to get 'raw' names with no error checking
 macro_rules! names_raw {
-    ($raw:expr) => (
+    ($raw:expr) => {
         match NamesRaw::from_str(&$raw) {
             Ok(n) => n,
             Err(e) => panic!("invalid names!({}): {}", $raw, e),
         }
-    );
+    };
 }
 
 /// Collection of `NamesRaw`.

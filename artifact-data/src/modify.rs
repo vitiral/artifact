@@ -3,10 +3,10 @@
 use std::error;
 use std::fmt;
 
-use dev_prelude::*;
 use artifact;
-use project::{read_project, ProjectExt};
+use dev_prelude::*;
 use intermediate::ArtifactImExt;
+use project::{read_project, ProjectExt};
 use raw;
 use settings;
 
@@ -100,17 +100,19 @@ fn check_paths(lints: &mut lint::Categorized, project: &Project, operations: &[A
             ArtifactOp::Delete { .. } => continue,
         };
 
-        macro_rules! not_valid { ($msg:expr) => {{
-            let l = lint::Lint {
-                level: lint::Level::Error,
-                path: Some(path.to_string()),
-                line: None,
-                category: lint::Category::ModifyPathInvalid,
-                msg: $msg.to_string(),
-            };
-            lints.error.push(l);
-            continue;
-        }}}
+        macro_rules! not_valid {
+            ($msg:expr) => {{
+                let l = lint::Lint {
+                    level: lint::Level::Error,
+                    path: Some(path.to_string()),
+                    line: None,
+                    category: lint::Category::ModifyPathInvalid,
+                    msg: $msg.to_string(),
+                };
+                lints.error.push(l);
+                continue;
+            }};
+        }
 
         if raw::ArtFileType::from_path(&path).is_none() {
             not_valid!("Not one of the valid extensions [.toml, .md, .json]")

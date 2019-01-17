@@ -27,7 +27,6 @@ digraph G {
         "SPC-root" -> "TST-root" [label="is auto-partof"];
     }
 }
-}
 ```
 
 ## Allowed Partof

@@ -33,12 +33,12 @@ extern crate derive_error;
 extern crate strfmt;
 
 // TODO: move to path_abs
-pub use std::string::ToString;
 pub use std::str::FromStr;
+pub use std::string::ToString;
 
+use std::error;
 use std::fmt;
 use std::result;
-use std::error;
 
 #[macro_use]
 pub mod name;
@@ -51,14 +51,17 @@ mod expand_names;
 pub mod markdown;
 pub mod md_graph;
 
-pub use name::{parse_subnames, InternalSubName, Name, SubName, Type, NAME_VALID_STR};
-pub use ser::{ArtifactImSer, ArtifactOpSer, ArtifactSer, CodeLocSer, ImplCodeSer, ImplSer,
-ProjectInitialSer, SettingsSer, ProjectSer, ProjectResultSer, WebType};
-pub use family::{auto_partofs, Names};
 pub use expand_names::expand_names;
+pub use family::{auto_partofs, Names};
 pub use lint::Categorized;
+pub use name::{parse_subnames, InternalSubName, Name, SubName, Type, NAME_VALID_STR};
+pub use ser::{
+    ArtifactImSer, ArtifactOpSer, ArtifactSer, CodeLocSer, ImplCodeSer, ImplSer, ProjectInitialSer,
+    ProjectResultSer, ProjectSer, SettingsSer, WebType,
+};
 
 use dev_prelude::*;
+
 
 // ------ SETTINGS ------
 
@@ -74,22 +77,51 @@ pub struct SettingsExport {
 
     #[serde(default)]
     /// Settings related to rendering the "family" (graph, list, etc)
-    pub md_family: SettingsExportFamily,
+    pub md_family: SettingsMdFamily,
+
+    /// How to handle formatting dot
+    #[serde(default)]
+    pub md_dot: SettingsMdDot,
 }
 
-fn return_true() -> bool { true }
+fn return_true() -> bool {
+    true
+}
 
-
-// TODO: rename SettingsMdFamily
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase", tag = "type")]
-pub enum SettingsExportFamily {
+pub enum SettingsMdFamily {
     List,
     Dot,
 }
 
-impl Default for SettingsExportFamily {
-    fn default() -> Self { SettingsExportFamily::List }
+impl Default for SettingsMdFamily {
+    fn default() -> Self {
+        SettingsMdFamily::List
+    }
+}
+
+
+#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case", tag = "type")]
+pub enum SettingsMdDot {
+    /// Do nothing special (leave as-is)
+    Ignore,
+
+    /// Remove the braces, will be handled by another processor
+    RemoveBraces,
+
+    /// Replace the outer braces
+    ReplaceBraces {
+        pre: String,
+        post: String,
+    }
+}
+
+impl Default for SettingsMdDot {
+    fn default() -> Self {
+        SettingsMdDot::Ignore
+    }
 }
 
 
@@ -139,7 +171,6 @@ impl<'de> Deserialize<'de> for HashIm {
         Ok(HashIm(hash))
     }
 }
-
 
 // ------ COMPLETED ------
 
@@ -261,7 +292,6 @@ impl fmt::Display for ModifyErrorKind {
     }
 }
 
-
 // ------ API OBJECTS ------
 
 #[derive(Copy, Clone, Eq, PartialEq, Debug, Serialize, Deserialize)]
@@ -295,7 +325,6 @@ pub struct ParamsReadProject {
     /// Force the backend to reread/reload the artifacts.
     pub reload: bool,
 }
-
 
 // ------ HELPERS ------
 
@@ -334,4 +363,3 @@ macro_rules! round_ser {
         json::from_str::<$to>(&expect!(json::to_string(&$from)))
     }
 }
-

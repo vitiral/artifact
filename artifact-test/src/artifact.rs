@@ -17,9 +17,9 @@
 //! This module is for testing fully realized artifacts.
 
 use super::dev_prelude::*;
-use artifact_lib::*;
-use super::raw::arb_raw_artifacts;
 use super::implemented::random_impl_links;
+use super::raw::arb_raw_artifacts;
+use artifact_lib::*;
 
 const GEN_REL_FILE_PATH_RE: &str = r#"(?x)
 ([a-zA-Z0-9_]{1,7}/){0,3}          # an optional number of subdirs
@@ -27,16 +27,14 @@ const GEN_REL_FILE_PATH_RE: &str = r#"(?x)
 "#;
 
 pub fn arb_rel_file_path() -> BoxedStrategy<String> {
-    GEN_REL_FILE_PATH_RE.prop_map(|s| s.to_string())
-        .boxed()
+    GEN_REL_FILE_PATH_RE.prop_map(|s| s.to_string()).boxed()
 }
 
 /// Arbitrary _relative_ file paths.
 ///
 /// Always generates at least 1. size must be `> 0`
 pub fn arb_rel_file_paths(size: usize) -> BoxedStrategy<HashSet<String>> {
-    prop::collection::hash_set(arb_rel_file_path(), 1..size)
-        .boxed()
+    prop::collection::hash_set(arb_rel_file_path(), 1..size).boxed()
 }
 
 // TODO: use the file paths above to construct the artifacts.

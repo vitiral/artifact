@@ -18,10 +18,10 @@
 
 use fmt;
 
-use dev_prelude::*;
-use name::{Name, SubName};
-use lint;
 use super::{Completed, HashIm, SettingsExport};
+use dev_prelude::*;
+use lint;
+use name::{Name, SubName};
 
 /// The initial state of the project, stored in an `initial.json` file.
 #[derive(Debug, Serialize, Deserialize)]
@@ -75,24 +75,24 @@ impl ProjectSer {
     /// FIXME: rename get_codeloc
     pub fn get_impl(&self, name: &str, sub: Option<&str>) -> Result<&CodeLocSer, String> {
         let name = Name::from_str(name).map_err(|e| e.to_string())?;
-        let code = self.code_impls.get(&name)
+        let code = self
+            .code_impls
+            .get(&name)
             .ok_or_else(|| format!("{} not implemented", name))?;
         match sub {
-            None => {
-                match code.primary {
-                    Some(ref c) => Ok(c),
-                    None => Err("not implemented".into()),
-                }
-            }
+            None => match code.primary {
+                Some(ref c) => Ok(c),
+                None => Err("not implemented".into()),
+            },
             Some(sub) => {
                 let sub = SubName::from_str(sub).map_err(|e| e.to_string())?;
-                code.secondary.get(&sub)
+                code.secondary
+                    .get(&sub)
                     .ok_or_else(|| format!("{}.{} not implemented", name, sub))
-            },
+            }
         }
     }
 }
-
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub struct SettingsSer {
@@ -203,6 +203,13 @@ pub struct CodeLocSer {
 }
 
 impl CodeLocSer {
+    pub fn with_file(file: String) -> Self {
+        CodeLocSer {
+            file: file,
+            line: 0,
+        }
+    }
+
     pub fn fake() -> Self {
         CodeLocSer {
             file: "/fake".to_string(),
@@ -217,7 +224,6 @@ impl fmt::Debug for CodeLocSer {
     }
 }
 
-
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ArtifactImSer {
     pub name: Name,
@@ -226,4 +232,3 @@ pub struct ArtifactImSer {
     pub done: Option<String>,
     pub text: String,
 }
-

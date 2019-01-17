@@ -53,10 +53,10 @@ extern crate log;
 
 pub mod artifact;
 mod dev_prelude;
-mod modify;
 pub mod graph;
 pub mod implemented;
 mod intermediate;
+mod modify;
 mod project;
 pub mod raw;
 #[macro_use]
@@ -84,5 +84,5 @@ extern crate tempdir;
 extern crate unicode_segmentation;
 
 pub use modify::modify_project;
-pub use settings::{ART_DIR, SETTINGS_FILE};
 pub use project::read_project;
+pub use settings::{ART_DIR, SETTINGS_FILE};

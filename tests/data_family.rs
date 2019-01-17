@@ -125,7 +125,7 @@ fn sanity_auto_partofs() {
 
     let file = PathAbs::mock("/fake");
 
-    let names = indexmap!{
+    let names = indexmap! {
         req_foo.clone() => file.clone(),
         req_foo_bar.clone() => file.clone(),
         spc_foo.clone() => file.clone(),
@@ -135,7 +135,7 @@ fn sanity_auto_partofs() {
         tst_a_b.clone() => file.clone(),
     };
 
-    let expected = indexmap!{
+    let expected = indexmap! {
         req_foo.clone() => indexset![],
         req_foo_bar.clone() => indexset![req_foo.clone()],
         spc_foo.clone() => indexset![req_foo.clone()],

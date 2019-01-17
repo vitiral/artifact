@@ -115,8 +115,7 @@ pub fn determine_completed(
             None => continue, // Will cause warning lint error.
         };
         let impl_ = expect!(impls.get(id));
-        let (mut count_spc, mut value_spc, mut count_tst, mut value_tst) =
-            impl_.to_statistics(sub);
+        let (mut count_spc, mut value_spc, mut count_tst, mut value_tst) = impl_.to_statistics(sub);
 
         if matches!(graphs.lookup_name[id].ty, Type::TST) {
             for part_id in graphs.full.neighbors(*id) {

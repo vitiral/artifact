@@ -14,13 +14,13 @@
  * for inclusion in the work by you, as defined in the Apache-2.0 license, shall
  * be dual licensed as above, without any additional terms or conditions.
  * */
+use std::error;
+use std::fmt;
 /// #SPC-lint
 /// Artifact lint types.
 ///
 /// This is the primary error type for all "non fatal" errors and warnings.
 use std::sync::mpsc::Sender;
-use std::error;
-use std::fmt;
 
 use dev_prelude::*;
 

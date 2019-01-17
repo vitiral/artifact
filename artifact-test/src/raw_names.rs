@@ -19,9 +19,9 @@
 
 use ergo::{json, toml, yaml};
 
-use artifact_data::raw_names::NamesRaw;
 use super::dev_prelude::*;
 use super::name::arb_name;
+use artifact_data::raw_names::NamesRaw;
 
 pub fn arb_names_raw(size: usize) -> BoxedStrategy<NamesRaw> {
     prop::collection::hash_set(arb_name(), 0..size)

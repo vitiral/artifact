@@ -51,14 +51,17 @@ pub fn names_raw(names: &[Name]) -> Vec<String> {
 
 /// Assert that the name is valid
 pub fn assert_names_valid(raw: &[&str]) {
-    let errors = raw.iter()
+    let errors = raw
+        .iter()
         .map(|r| (*r, Name::from_str(r)))
         .filter_map(|(raw, result)| match result {
-            Ok(name) => if raw == name.raw {
-                None
-            } else {
-                panic!("raw was different: {} => {}", raw, name.raw);
-            },
+            Ok(name) => {
+                if raw == name.raw {
+                    None
+                } else {
+                    panic!("raw was different: {} => {}", raw, name.raw);
+                }
+            }
             Err(_) => Some(raw),
         })
         .collect::<Vec<_>>();
@@ -69,7 +72,8 @@ pub fn assert_names_valid(raw: &[&str]) {
 
 /// Assert that the name is valid
 pub fn assert_names_invalid(raw: &[&str]) {
-    let errors = raw.iter()
+    let errors = raw
+        .iter()
         .map(|r| (r, Name::from_str(r)))
         .filter_map(|(raw, result)| match result {
             Ok(_) => Some(raw),

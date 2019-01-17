@@ -14,10 +14,10 @@
  * for inclusion in the work by you, as defined in the Apache-2.0 license, shall
  * be dual licensed as above, without any additional terms or conditions.
  * */
-use std::fmt;
 use base64;
-use siphasher::sip128::{Hasher128, SipHasher};
 use ergo::serde::{self, Deserialize, Deserializer, Serialize, Serializer};
+use siphasher::sip128::{Hasher128, SipHasher};
+use std::fmt;
 
 use dev_prelude::*;
 use raw::{self, ArtifactRaw, TextRaw};
@@ -32,7 +32,8 @@ pub trait ArtifactImExt {
 
 impl ArtifactImExt for ArtifactIm {
     fn from_raw(name: Name, file: PathFile, raw: ArtifactRaw) -> ArtifactIm {
-        let mut partof = raw.partof
+        let mut partof = raw
+            .partof
             .map(|mut p| {
                 strip_auto_partofs(&name, &mut p.0);
                 p.drain(..).collect()

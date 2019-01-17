@@ -76,11 +76,7 @@ fn build_frontend() {
     println!("Building artifact-frontend");
     let status = Command::new("cargo-web")
         .current_dir(FRONTEND.as_path())
-        .args(&[
-            "deploy",
-            "--target=wasm32-unknown-unknown",
-            "--release",
-        ])
+        .args(&["deploy", "--target=wasm32-unknown-unknown", "--release"])
         .status()
         .unwrap();
 

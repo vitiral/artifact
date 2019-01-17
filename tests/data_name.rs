@@ -111,7 +111,7 @@ subname: [[.subname]].
 [[REQ-foo.not-subname]]
 "#;
     let subnames = parse_subnames(text);
-    let expected = indexset!{
+    let expected = indexset! {
         subname!(".subname"),
         subname!(".a"),
         subname!(".a_b"),

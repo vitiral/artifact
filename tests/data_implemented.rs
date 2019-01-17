@@ -148,7 +148,7 @@ fn sanity_join_locations() {
         (CodeLoc::new(&file3, 20), tst_baz.clone(), None),
     ];
 
-    let expected = indexmap!{
+    let expected = indexmap! {
         req_foo.clone() => ImplCode {
             primary: Some(CodeLoc::new(&file1, 1)),
             secondary: indexmap!{

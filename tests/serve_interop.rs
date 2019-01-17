@@ -51,12 +51,10 @@ fn run_server_test(project_path: PathDir) {
     ];
 
     println!("Running: cargo with {:?}", args);
-    let mut server = expect!(
-        Command::new("cargo")
-            .args(args)
-            .stdout(Stdio::piped())
-            .spawn()
-    );
+    let mut server = expect!(Command::new("cargo")
+        .args(args)
+        .stdout(Stdio::piped())
+        .spawn());
 
     {
         let rawout = expect!(server.stdout.as_mut());

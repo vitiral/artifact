@@ -28,7 +28,6 @@ extern crate http;
 extern crate jrpc;
 #[macro_use]
 extern crate stdweb;
-extern crate strfmt;
 #[macro_use]
 extern crate yew;
 extern crate yew_simple;
@@ -102,7 +101,7 @@ fn update_model(model: &mut Model, msg: Msg, context: &mut Env<Context, Model>) 
 
         Msg::SetGraphSearch(v) => model.graph.search = v,
 
-        Msg::RecvInitial ( init ) => {
+        Msg::RecvInitial(init) => {
             if let Some(project) = init.project {
                 model.shared = Arc::new(project);
             }
@@ -112,7 +111,7 @@ fn update_model(model: &mut Model, msg: Msg, context: &mut Env<Context, Model>) 
             if model.web_type != WebType::Static {
                 fetch::start_fetch_project(model, context, false);
             }
-        },
+        }
         Msg::FetchProject { reload } => return fetch::start_fetch_project(model, context, reload),
         Msg::SendUpdate(ids) => return fetch::start_send_update(model, context, ids),
         Msg::RecvProject(jid, project) => fetch::handle_recv_project(model, &jid, project),
@@ -134,9 +133,11 @@ fn update_model(model: &mut Model, msg: Msg, context: &mut Env<Context, Model>) 
 
 fn clear_logs(model: &mut Model, clear: ClearLogs) {
     match clear {
-        ClearLogs::Error(mut ids) => for id in ids.drain(..) {
-            model.logs.error.remove(&id);
-        },
+        ClearLogs::Error(mut ids) => {
+            for id in ids.drain(..) {
+                model.logs.error.remove(&id);
+            }
+        }
         ClearLogs::ErrorAll => {
             model.logs.error.clear();
         }

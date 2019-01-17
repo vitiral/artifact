@@ -38,7 +38,7 @@ fn test_completed_fmt() {
 fn sanity_determine_parts() {
     let (_, graphs) = simple_graph();
     let mut parts = graph::determine_parts(&graphs);
-    let mut expected = indexmap!{
+    let mut expected = indexmap! {
         name!("REQ-aaa") => indexset!{name!("REQ-bbb")},
         name!("REQ-bbb") => indexset!{name!("REQ-ccc"), name!("SPC-bbb")},
         name!("REQ-ccc") => indexset!{},
@@ -56,7 +56,7 @@ fn sanity_determine_parts() {
 
 #[test]
 fn sanity_determine_graphs() {
-    let partofs = indexmap!{
+    let partofs = indexmap! {
         name!("REQ-a") => indexset!{},
         name!("TST-a") => indexset!{},
     };
@@ -71,7 +71,7 @@ fn sanity_determine_completed() {
     let (_, graphs) = simple_graph();
 
     let loc = CodeLoc::new(&PathFile::mock("/fake"), 1);
-    let impls = indexmap!{
+    let impls = indexmap! {
         name!("REQ-aaa") => Impl::NotImpl,
         name!("REQ-bbb") => Impl::NotImpl,
         name!("REQ-ccc") => Impl::Done("foo".into()),
@@ -95,7 +95,7 @@ fn sanity_determine_completed() {
             secondary: indexmap!{},
         }),
     };
-    let subnames = indexmap!{
+    let subnames = indexmap! {
         name!("REQ-aaa") => indexset!{},
         name!("REQ-bbb") => indexset!{subname!(".notdone")},
         name!("REQ-ccc") => indexset!{},
@@ -127,7 +127,7 @@ fn sanity_determine_completed() {
     let tr_spc_bbb = tr_tst_aaa_a / 3.;
     let tr_req_bbb = (tr_spc_bbb + 1./*req-ccc*/) / 2.;
 
-    let mut expected = indexmap!{
+    let mut expected = indexmap! {
         name!("REQ-aaa") => C {tst: round_ratio(tr_req_bbb), spc: round_ratio(req_bbb)},
         name!("REQ-bbb") => C {tst: round_ratio(tr_req_bbb), spc: round_ratio(req_bbb)},
         name!("REQ-ccc") => C {tst: 1.0, spc: 1.},

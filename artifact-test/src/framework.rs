@@ -19,13 +19,13 @@
 //! This module defines the interop "framework" that is leveraged for
 //! a variety of integration/interop testing.
 
-use time;
 use ergo::yaml;
+use time;
 
 use super::dev_prelude::*;
+use artifact_data;
 use artifact_lib::expected::*;
 use artifact_lib::*;
-use artifact_data;
 
 /// Run the generic interop tests.
 ///
@@ -104,8 +104,11 @@ pub fn run_generic_interop_test<P, STATE, READ, MODIFY, ASSERT>(
 ) where
     P: AsRef<Path>,
     READ: Fn(PathDir, STATE) -> result::Result<(lint::Categorized, Project), lint::Categorized>,
-    MODIFY: Fn(PathDir, Vec<ArtifactOp>, STATE)
-        -> result::Result<(lint::Categorized, Project), ModifyError>,
+    MODIFY: Fn(
+        PathDir,
+        Vec<ArtifactOp>,
+        STATE,
+    ) -> result::Result<(lint::Categorized, Project), ModifyError>,
     ASSERT: Fn(PathDir, STATE, Categorized, Option<Project>, ExpectStuff),
     STATE: Debug + Clone,
 {

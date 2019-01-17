@@ -21,13 +21,11 @@ use view;
 pub(crate) fn view_artifact(model: &Model, name: &Name) -> ViewResult {
     let page = match model.shared.artifacts.get(name) {
         Some(ref art) => view_existing_artifact(model, art),
-        None => {
-            html![
-                <div><h3 class=H3,>
-                    {format!("Artifact with name {:?} not found", name)}
-                </h3></div>
-            ]
-        }
+        None => html![
+            <div><h3 class=H3,>
+                {format!("Artifact with name {:?} not found", name)}
+            </h3></div>
+        ],
     };
 
     ViewResult {
@@ -128,11 +126,11 @@ impl ImplSerExt for ImplSer {
     fn html(&self) -> HtmlApp {
         match *self {
             ImplSer::Done(ref d) => html![
-                    <div>
-                        <span class=(BOLD, MR1),>{ "Defined as done:" }</span>
-                        <span>{ d }</span>
-                    </div>
-                ],
+                <div>
+                    <span class=(BOLD, MR1),>{ "Defined as done:" }</span>
+                    <span>{ d }</span>
+                </div>
+            ],
             ImplSer::Code(ref code) => primary_html(&code.primary),
             ImplSer::NotImpl => html![<span></span>],
         }

@@ -289,8 +289,9 @@ lazy_static! {
         [
             "N", "F", "S", "P", "O", "I", "T", "A", "name", "file", "subnames", "parts", "partof",
             "impl", "text", "all",
-        ].iter()
-            .map(|s| *s)
+        ]
+        .iter()
+        .map(|s| *s)
     );
     pub static ref ANY_UPPERCASE: Regex = Regex::new("[A-Z]").unwrap();
 }
@@ -655,15 +656,15 @@ fn test_style() {
         id: HashIm::default(),
         name: name!("REQ-foo"),
         file: PathArc::new("/fake"),
-        partof: indexset!{},
-        parts: indexset!{},
+        partof: indexset! {},
+        parts: indexset! {},
         completed: Completed {
             spc: 1.0,
             tst: 0.003343,
         },
         text: "some text".into(),
         impl_: Impl::NotImpl,
-        subnames: indexset!{},
+        subnames: indexset! {},
     };
     let artifacts = indexmap![
         name!("REQ-foo") => art.clone(),
