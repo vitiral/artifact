@@ -20,13 +20,13 @@
 
 use dev_prelude::*;
 
-use std::result;
-use std::fmt;
 use ergo::serde::{Deserialize, Deserializer, Serialize, Serializer};
 use ergo::{json, toml, yaml};
+use std::fmt;
+use std::result;
 
-use raw_names::NamesRaw;
 use intermediate::ArtifactImExt;
+use raw_names::NamesRaw;
 
 // TYPES
 
@@ -167,10 +167,9 @@ pub(crate) fn load_file(lints: &Sender<lint::Lint>, send: &Sender<ArtifactIm>, f
 
 // READ MARKDOWN
 
-lazy_static!{
-    pub static ref NAME_LINE_RE: Regex = Regex::new(
-        &format!(r"(?i)^#\s*({})\s*$", NAME_VALID_STR)).unwrap();
-
+lazy_static! {
+    pub static ref NAME_LINE_RE: Regex =
+        Regex::new(&format!(r"(?i)^#\s*({})\s*$", NAME_VALID_STR)).unwrap();
     pub static ref ATTRS_END_RE: Regex = Regex::new(r"^###+\s*$").unwrap();
 }
 
@@ -307,7 +306,7 @@ fn push_artifact_md(out: &mut String, name: &Name, raw: &ArtifactRaw) {
 
 fn push_attrs(out: &mut String, raw: &ArtifactRaw) {
     if let Some(ref done) = raw.done {
-        expect!(write!(out, "{}\n\n", to_yaml(&hashmap!{"done" => done})));
+        expect!(write!(out, "{}\n\n", to_yaml(&hashmap! {"done" => done})));
     }
     if let Some(ref partof) = raw.partof {
         // do `partof` special so it looks prettier

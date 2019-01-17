@@ -15,6 +15,5 @@
  * be dual licensed as above, without any additional terms or conditions.
  * */
 
-pub use ergo_std::*;
 pub use ergo_config::*;
-
+pub use ergo_std::*;

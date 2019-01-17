@@ -18,10 +18,10 @@
 //! This implements the types related to discovering the "family"
 //! of any artifact.
 
-use std::fmt;
 use ergo_std::serde;
 use ergo_std::serde::de::{Deserialize, Deserializer, SeqAccess, Visitor};
 use ergo_std::serde::ser::{Serialize, Serializer};
+use std::fmt;
 
 use dev_prelude::*;
 use name::{Name, NameError, Type, TYPE_SPLIT_LOC};

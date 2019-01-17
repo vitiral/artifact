@@ -15,24 +15,24 @@
  * be dual licensed as above, without any additional terms or conditions.
  * */
 
+pub use artifact_data;
+pub use artifact_lib;
+pub use artifact_lib::*;
 pub use ergo::*;
 #[allow(unused_imports)]
 pub use expect_macro::*;
-use std::io;
 use std::fs;
-pub use artifact_lib::*;
-pub use artifact_lib;
-pub use artifact_data;
+use std::io;
 
-pub use std::result;
 pub use failure::Error;
+pub use std::result;
 
 pub type Result<V> = result::Result<V, Error>;
 
 // FROM DATA.TEST
-pub use proptest::prelude::*;
-pub use pretty_assertions::Comparison;
 pub use ergo::rand::{self, Rng};
+pub use pretty_assertions::Comparison;
+pub use proptest::prelude::*;
 
 pub use super::raw::ArtifactRawExt;
 
@@ -48,7 +48,7 @@ pub const RNG_LINE_PAT: &str = r#"(?x)
     [-.\ \\/\(\)\[\]!@\#$%^&*A-Za-z0-9]{1,32}
 "#;
 
-lazy_static!{
+lazy_static! {
     pub static ref ARTIFACT_TEST_PATH: PathAbs = PathAbs::new(
             PathAbs::new(file!())
                 .unwrap() // crate/src/dev_prelude.rs
@@ -88,7 +88,6 @@ impl UsePort {
         ch!(send <- port);
     }
 }
-
 
 /// Given list of `(input, expected)`, assert `method(input) == expected
 pub fn assert_generic<F, I, E>(method: F, values: &[(I, Option<E>)])

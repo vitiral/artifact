@@ -20,13 +20,13 @@
 //! locations where artifacts are implemented in source code.
 #![allow(dead_code)]
 
-use std::fmt;
-use ergo::indexmap::map::Entry;
 use dev_prelude::*;
+use ergo::indexmap::map::Entry;
+use std::fmt;
 
-lazy_static!{
-    /// Name reference that can exist in source code
-    static ref SRC_NAME_RE: Regex = expect!(Regex::new(
+lazy_static! {
+/// Name reference that can exist in source code
+static ref SRC_NAME_RE: Regex = expect!(Regex::new(
         &format!(r#"(?xi)
         (?:                     # start std section
         \#(                     # start main section
@@ -168,7 +168,7 @@ fn insert_secondary(
             }
         }
         Entry::Vacant(entry) => {
-            entry.insert(indexmap!{sub.clone() => loc});
+            entry.insert(indexmap! {sub.clone() => loc});
         }
     }
 }

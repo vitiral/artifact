@@ -22,7 +22,7 @@ use artifact_data::graph::{self, round_ratio};
 
 /// create the `partof`s and the graphs
 pub fn simple_graph() -> (IndexMap<Name, IndexSet<Name>>, graph::Graphs) {
-    let partofs = indexmap!{
+    let partofs = indexmap! {
         name!("REQ-aaa") => indexset!{},
         name!("REQ-bbb") => indexset!{name!("REQ-aaa")},
         name!("REQ-ccc") => indexset!{name!("REQ-bbb")},

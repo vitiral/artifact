@@ -19,11 +19,11 @@
 //! This is the name module, the module for representing artifact names
 //! and subnames
 
-use std::cmp::Ordering;
-use std::hash::{Hash, Hasher};
-use std::fmt;
-use std::result;
 use serde::{self, Deserialize, Deserializer, Serialize, Serializer};
+use std::cmp::Ordering;
+use std::fmt;
+use std::hash::{Hash, Hasher};
+use std::result;
 
 use dev_prelude::*;
 
@@ -69,7 +69,6 @@ pub enum NameError {
     /// SubName is not valid.
     InvalidSubName { msg: String },
 }
-
 
 #[derive(Clone, Eq, PartialEq, Hash, Ord, PartialOrd)]
 /// The atomically reference counted name, the primary one used by
@@ -172,7 +171,7 @@ pub const SUB_RE_KEY: &str = "sub";
 pub const NAME_RE_KEY: &str = "name";
 pub const NAME_SUB_RE_KEY: &str = "name_sub";
 
-lazy_static!{
+lazy_static! {
     /// Valid name regular expression
     static ref NAME_VALID_RE: Regex = expect!(
         Regex::new(&format!(r"(?i)^{}$", NAME_VALID_STR))
@@ -483,7 +482,8 @@ impl FromStr for SubName {
         if !VALID_SUB_NAME_RE.is_match(raw) {
             Err(NameError::InvalidSubName {
                 msg: format!("{} is not a valid subname", raw),
-            }.into())
+            }
+            .into())
         } else {
             Ok(SubName::new_unchecked(raw))
         }

@@ -19,10 +19,10 @@
 
 use ergo::json;
 
-use artifact_data::raw_names::NamesRaw;
 use super::dev_prelude::*;
 use super::name::arb_name;
 use super::raw_names::arb_names_raw;
+use artifact_data::raw_names::NamesRaw;
 
 // ------------------------------
 // -- FUZZ METHODS
@@ -200,7 +200,8 @@ pub fn assert_collapsed_valid(values: &[(&str, Option<&str>, IndexSet<&str>)]) {
 }
 
 pub fn assert_collapsed_invalid(raw: &[&str]) {
-    let errors = raw.iter()
+    let errors = raw
+        .iter()
         .filter_map(|r| {
             if let Ok(_) = expand_names(r) {
                 Some(r)

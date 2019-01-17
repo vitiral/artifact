@@ -17,9 +17,9 @@
 //! This contains the logic for loading the settings of an artifact project.
 use ergo::toml;
 
-use std::io;
 use dev_prelude::*;
 use raw;
+use std::io;
 
 pub const ART_DIR: &str = ".art";
 pub const SETTINGS_FILE: &str = "settings.toml";
@@ -35,7 +35,6 @@ pub(crate) struct SettingsRaw {
     #[serde(default)]
     pub export: SettingsExport,
 }
-
 
 pub(crate) struct FoundPaths {
     pub files: Vec<PathFile>,
@@ -152,9 +151,10 @@ pub(crate) fn load_settings<P: AsRef<Path>>(
     let (project_path, settings_path, raw) = match SettingsRaw::load(project_path.as_ref()) {
         Ok(s) => s,
         Err(err) => {
-            let lints = vec![
-                lint::Lint::load_error(project_path.as_ref().to_string_lossy(), &err.to_string()),
-            ];
+            let lints = vec![lint::Lint::load_error(
+                project_path.as_ref().to_string_lossy(),
+                &err.to_string(),
+            )];
             return (lints, None);
         }
     };

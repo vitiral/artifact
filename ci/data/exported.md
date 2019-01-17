@@ -49,8 +49,8 @@ See [REQ-purpose](#REQ-PURPOSE) for the top level artifact.
 <li><a style="font-weight: bold; color: #0074D9" title="SPC-READ" href="#SPC-READ">SPC-read</a></li>
 <li><a style="font-weight: bold; color: #FF851B" title="SPC-STRUCTS" href="#SPC-STRUCTS">SPC-structs</a></li>
 <li><a style="font-weight: bold; color: #FF4136" title="SPC-TEST" href="#SPC-TEST">SPC-test</a></li>
-<b>file:</b> /home/rett/open/artifact/design/data/purpose.md<br>
-<b>impl:</b> not directly implemented<br>
+<b>file:</b> <a href="https://github.com/vitiral/artifact/blob/master/design/data/purpose.md#L0">/home/rett/open/artifact/design/data/purpose.md</a><br>
+<b>impl:</b> <i>not implemented</i><br>
 <b>spc:</b>60.00&nbsp;&nbsp;<b>tst:</b>34.70<br>
 <hr>
 </details>
@@ -93,14 +93,14 @@ The following test helpers are exported under feature flag `test-helpers`:
 # REQ-purpose
 <details>
 <summary><b>metadata</b></summary>
-<b>partof:</b><br>
+<b>partof:</b> <i>none</i></a><br>
 <b>parts:</b><br>
 <li><a style="font-weight: bold; color: #FF851B" title="REQ-DATA" href="#REQ-DATA">REQ-data</a></li>
 <li><a style="font-weight: bold; color: #FF4136" title="REQ-WEB" href="#REQ-WEB">REQ-web</a></li>
 <li><a style="font-weight: bold; color: #FF851B" title="SPC-CLI" href="#SPC-CLI">SPC-cli</a></li>
 <li><a style="font-weight: bold; color: #3DA03D" title="TST-FRAMEWORK" href="#TST-FRAMEWORK">TST-framework</a></li>
-<b>file:</b> /home/rett/open/artifact/design/purpose.md<br>
-<b>impl:</b> not directly implemented<br>
+<b>file:</b> <a href="https://github.com/vitiral/artifact/blob/master/design/purpose.md#L0">/home/rett/open/artifact/design/purpose.md</a><br>
+<b>impl:</b> <i>not implemented</i><br>
 <b>spc:</b>45.70&nbsp;&nbsp;<b>tst:</b>33.70<br>
 <hr>
 </details>
@@ -178,8 +178,8 @@ The design of artifact is split into several sub-modules
 <li><a style="font-weight: bold; color: #FF851B" title="REQ-PURPOSE" href="#REQ-PURPOSE">REQ-purpose</a></li>
 <b>parts:</b><br>
 <li><a style="font-weight: bold; color: #FF4136" title="SPC-FRONTEND" href="#SPC-FRONTEND">SPC-frontend</a></li>
-<b>file:</b> /home/rett/open/artifact/design/purpose.md<br>
-<b>impl:</b> not directly implemented<br>
+<b>file:</b> <a href="https://github.com/vitiral/artifact/blob/master/design/purpose.md#L0">/home/rett/open/artifact/design/purpose.md</a><br>
+<b>impl:</b> <i>not implemented</i><br>
 <b>spc:</b>0.00&nbsp;&nbsp;<b>tst:</b>0.00<br>
 <hr>
 </details>
@@ -190,15 +190,15 @@ interface can.
 
 Main attributes:
 - Works directly on the file system. Any database introduced should only be used for improving performance (invisible to the user).
-- <span title="Not Implemented" style="font-weight: bold; color: #FF4136">.secure</span>: this is definitely TODO, not sure how it will be accomplished ATM. Probably just require non-local host hosting to require a password and use HTTPS (nothing crazy).
+- <span title="Not Implemented" style="color: #FF4136"><b><i>.secure</i></b></span>: this is definitely TODO, not sure how it will be accomplished ATM. Probably just require non-local host hosting to require a password and use HTTPS (nothing crazy).
 - Fast for _single users and small groups_. Explicitly not designed as a whole org editing portal, users are encouraged to make small changes and use existing code review tools for changing design docs.
 
 # Architecture
 The basic architecture of the web UI is split into two components:
-- <span title="Not Implemented" style="font-weight: bold; color: #FF4136">.backend</span>: this will be a simple json-rpc server which uses the <a style="font-weight: bold; color: #FF851B" title="REQ-DATA" href="#REQ-DATA">REQ-data</a> crate
+- <span title="Not Implemented" style="color: #FF4136"><b><i>.backend</i></b></span>: this will be a simple json-rpc server which uses the <a style="font-weight: bold; color: #FF851B" title="REQ-DATA" href="#REQ-DATA">REQ-data</a> crate
   to do all of it's heavy lifting. <a style="font-weight: bold; color: #FF851B" title="REQ-DATA" href="#REQ-DATA">REQ-data</a> will ensure data consistency and error
   handling.
-- <span title="Not Implemented" style="font-weight: bold; color: #FF4136">.frontend</span>: the frontend will be a single page application which
+- <span title="Not Implemented" style="color: #FF4136"><b><i>.frontend</i></b></span>: the frontend will be a single page application which
   accomplishes a majority of the goals of artifact, including real-time
   feedback, graphing and visualization of requirements. It and the CLI are the
   two major "user facing" components of artifact.
@@ -211,8 +211,8 @@ The basic architecture of the web UI is split into two components:
 <li><a style="font-weight: bold; color: #FF851B" title="REQ-PURPOSE" href="#REQ-PURPOSE">REQ-purpose</a></li>
 <b>parts:</b><br>
 <li><a style="font-weight: bold; color: #FF851B" title="SPC-CLI-LS" href="#SPC-CLI-LS">SPC-cli-ls</a></li>
-<b>file:</b> /home/rett/open/artifact/design/cli.md<br>
-<b>impl:</b> /home/rett/open/artifact/src/lib.rs[59]Secondary{".check": /home/rett/open/artifact/src/check.rs[34], ".fmt": /home/rett/open/artifact/src/fmt.rs[38], ".serve": /home/rett/open/artifact/src/serve/mod.rs[16]}<br>
+<b>file:</b> <a href="https://github.com/vitiral/artifact/blob/master/design/cli.md#L0">/home/rett/open/artifact/design/cli.md</a><br>
+<b>impl:</b> <a href="https://github.com/vitiral/artifact/blob/master/src/lib.rs#L60">/home/rett/open/artifact/src/lib.rs[60]</a><br>
 <b>spc:</b>77.10&nbsp;&nbsp;<b>tst:</b>0.00<br>
 <hr>
 </details>
@@ -224,14 +224,14 @@ tools that every developer is used to in a typical development tool. This
 includes:
 
 
-- <span title="Not Implemented" style="font-weight: bold; color: #FF4136">.init</span>: Initialize a project for using artifact. This is pretty basic, just need
+- <span title="Not Implemented" style="color: #FF4136"><b><i>.init</i></b></span>: Initialize a project for using artifact. This is pretty basic, just need
   a `.art` folder with a `settings.toml` and an initial `design/` folder.
-- <span title="/home/rett/open/artifact/src/check.rs[34]" style="font-weight: bold; color: #0074D9">.check</span>: checking for errors AND warnings with a return code if there is an error.
+- <a title="/home/rett/open/artifact/src/check.rs[34]" style="color: #0074D9" href="https://github.com/vitiral/artifact/blob/master/src/check.rs#L34"><b>.check</b></a>: checking for errors AND warnings with a return code if there is an error.
     - If there are only warnings the return code == 2. Otherwise it == 1.
-- <span title="/home/rett/open/artifact/src/fmt.rs[38]" style="font-weight: bold; color: #0074D9">.fmt</span>: auto format the project.
+- <a title="/home/rett/open/artifact/src/fmt.rs[38]" style="color: #0074D9" href="https://github.com/vitiral/artifact/blob/master/src/fmt.rs#L38"><b>.fmt</b></a>: auto format the project.
   - `--type` flag to change the filetype.
 - <a style="font-weight: bold; color: #FF851B" title="SPC-CLI-LS" href="#SPC-CLI-LS">SPC-cli-ls</a>: listing/searching for artifacts, see the full specification.
-- <span title="/home/rett/open/artifact/src/serve/mod.rs[16]" style="font-weight: bold; color: #0074D9">.serve</span>: the command to start the web backend.
+- <a title="/home/rett/open/artifact/src/serve/mod.rs[16]" style="color: #0074D9" href="https://github.com/vitiral/artifact/blob/master/src/serve/mod.rs#L16"><b>.serve</b></a>: the command to start the web backend.
 
 
 All subcommands should include the following flags:
@@ -244,9 +244,9 @@ All subcommands should include the following flags:
 <summary><b>metadata</b></summary>
 <b>partof:</b><br>
 <li><a style="font-weight: bold; color: #FF851B" title="SPC-CLI" href="#SPC-CLI">SPC-cli</a></li>
-<b>parts:</b><br>
-<b>file:</b> /home/rett/open/artifact/design/cli.md<br>
-<b>impl:</b> /home/rett/open/artifact/src/ls.rs[16]Secondary{".args": /home/rett/open/artifact/src/ls.rs[31], ".color_name": /home/rett/open/artifact/src/ls.rs[597], ".color_spc": /home/rett/open/artifact/src/ls.rs[574], ".color_tst": /home/rett/open/artifact/src/ls.rs[586]}<br>
+<b>parts:</b> <i>none</i></a><br>
+<b>file:</b> <a href="https://github.com/vitiral/artifact/blob/master/design/cli.md#L0">/home/rett/open/artifact/design/cli.md</a><br>
+<b>impl:</b> <a href="https://github.com/vitiral/artifact/blob/master/src/ls.rs#L16">/home/rett/open/artifact/src/ls.rs[16]</a><br>
 <b>spc:</b>62.50&nbsp;&nbsp;<b>tst:</b>0.00<br>
 <hr>
 </details>
@@ -257,7 +257,7 @@ project.
 `ls` is the primary window into a user's artifacts, creating a simple interface
 to glimpse large amounts of information.
 
-## <span title="/home/rett/open/artifact/src/ls.rs[31]" style="font-weight: bold; color: #0074D9">.args</span>: Arguments
+## <a title="/home/rett/open/artifact/src/ls.rs[31]" style="color: #0074D9" href="https://github.com/vitiral/artifact/blob/master/src/ls.rs#L31"><b>.args</b></a>: Arguments
 `art ls` with no commands will simply print all artifacts with standard
 settings, each on a single line.
 
@@ -271,10 +271,10 @@ The args are as follows:
   should be searched.
 - `completed/tested`: flags which control what percentage completed/tested to
   display
-- <span title="Not Implemented" style="font-weight: bold; color: #FF4136">.long</span>: the `-l` flag prints the artifact in "long" form. Without it it
-  is printed in <span title="Not Implemented" style="font-weight: bold; color: #FF4136">.table</span> form.
+- <span title="Not Implemented" style="color: #FF4136"><b><i>.long</i></b></span>: the `-l` flag prints the artifact in "long" form. Without it it
+  is printed in <span title="Not Implemented" style="color: #FF4136"><b><i>.table</i></b></span> form.
 
-## <span title="Not Implemented" style="font-weight: bold; color: #FF4136">.color</span>: Color
+## <span title="Not Implemented" style="color: #FF4136"><b><i>.color</i></b></span>: Color
 In order to make viewing of information via cmdline easier, artifact **shall**
 colorize it's output to make it clear which items are done or not done or in
 error.
@@ -286,17 +286,17 @@ The following are the general rules:
 - Names that are very litle or not complete will be `red`.
 - Names that are in ERROR will be `bold red`.
 
-For <span title="/home/rett/open/artifact/src/ls.rs[574]" style="font-weight: bold; color: #0074D9">.color_spc</span>, the levels are:
+For <a title="/home/rett/open/artifact/src/ls.rs[575]" style="color: #0074D9" href="https://github.com/vitiral/artifact/blob/master/src/ls.rs#L575"><b>.color_spc</b></a>, the levels are:
 - `( 100%,  70%,    40%,  0%)`: percentage spc
 - `(    3,    2,      1,   0)`: points
 - `(green, blue, yellow, red)`: colors
 
-For <span title="/home/rett/open/artifact/src/ls.rs[586]" style="font-weight: bold; color: #0074D9">.color_tst</span>, the levels are:
+For <a title="/home/rett/open/artifact/src/ls.rs[587]" style="color: #0074D9" href="https://github.com/vitiral/artifact/blob/master/src/ls.rs#L587"><b>.color_tst</b></a>, the levels are:
 - `( 100%,    50%,  0%)`: percentage tst
 - `(    2,      1,   0)`: points
 - `(green, yellow, red)`: colors for tst
 
-For <span title="/home/rett/open/artifact/src/ls.rs[597]" style="font-weight: bold; color: #0074D9">.color_name</span> you add the two points together:
+For <a title="/home/rett/open/artifact/src/ls.rs[598]" style="color: #0074D9" href="https://github.com/vitiral/artifact/blob/master/src/ls.rs#L598"><b>.color_name</b></a> you add the two points together:
 - 5: Name is Green
 - 3-4: name is blue
 - 1-2: name is yellow
@@ -308,9 +308,9 @@ For <span title="/home/rett/open/artifact/src/ls.rs[597]" style="font-weight: bo
 <summary><b>metadata</b></summary>
 <b>partof:</b><br>
 <li><a style="font-weight: bold; color: #FF851B" title="REQ-DATA" href="#REQ-DATA">REQ-data</a></li>
-<b>parts:</b><br>
-<b>file:</b> /home/rett/open/artifact/design/data/family.md<br>
-<b>impl:</b> Secondary{".lint_partof_exists": /home/rett/open/artifact/artifact-data/src/project.rs[163], ".lint_types": /home/rett/open/artifact/artifact-data/src/project.rs[183]}<br>
+<b>parts:</b> <i>none</i></a><br>
+<b>file:</b> <a href="https://github.com/vitiral/artifact/blob/master/design/data/family.md#L0">/home/rett/open/artifact/design/data/family.md</a><br>
+<b>impl:</b> <i>not implemented</i><br>
 <b>spc:</b>50.00&nbsp;&nbsp;<b>tst:</b>0.00<br>
 <hr>
 </details>
@@ -341,7 +341,7 @@ digraph G {
         "SPC-root" -> "TST-root" [label="is auto-partof"];
     }
 }
-}
+
 ```
 
 ## Allowed Partof
@@ -361,10 +361,10 @@ In essense:
 ## Lints
 Lints are required to make sure the above is upheld
 
-- <span title="/home/rett/open/artifact/artifact-data/src/project.rs[163]" style="font-weight: bold; color: #0074D9">.lint_partof_exists</span>: Make sure any partof references actually exist.
-- <span title="/home/rett/open/artifact/artifact-data/src/project.rs[183]" style="font-weight: bold; color: #0074D9">.lint_types</span>: Make sure that `partof` links are only made between valid types.
+- <a title="/home/rett/open/artifact/artifact-data/src/project.rs[164]" style="color: #0074D9" href="https://github.com/vitiral/artifact/blob/master/artifact-data/src/project.rs#L164"><b>.lint_partof_exists</b></a>: Make sure any partof references actually exist.
+- <a title="/home/rett/open/artifact/artifact-data/src/project.rs[183]" style="color: #0074D9" href="https://github.com/vitiral/artifact/blob/master/artifact-data/src/project.rs#L183"><b>.lint_types</b></a>: Make sure that `partof` links are only made between valid types.
 
-## <span title="Not Implemented" style="font-weight: bold; color: #FF4136">.auto</span>: Auto Relationships
+## <span title="Not Implemented" style="color: #FF4136"><b><i>.auto</i></b></span>: Auto Relationships
 The second graph shows the "automatic relationships" of nodes to their
 parents.
 
@@ -388,9 +388,9 @@ A node can always be partof another node of the same type. In addition, the foll
 <summary><b>metadata</b></summary>
 <b>partof:</b><br>
 <li><a style="font-weight: bold; color: #FF4136" title="REQ-WEB" href="#REQ-WEB">REQ-web</a></li>
-<b>parts:</b><br>
-<b>file:</b> /home/rett/open/artifact/design/data/purpose.md<br>
-<b>impl:</b> not directly implemented<br>
+<b>parts:</b> <i>none</i></a><br>
+<b>file:</b> <a href="https://github.com/vitiral/artifact/blob/master/design/data/purpose.md#L0">/home/rett/open/artifact/design/data/purpose.md</a><br>
+<b>impl:</b> <i>not implemented</i><br>
 <b>spc:</b>0.00&nbsp;&nbsp;<b>tst:</b>0.00<br>
 <hr>
 </details>
@@ -400,9 +400,9 @@ a pleasant user experience.
 
 The frontend shall be presented as a single page application with the following
 major components:
-- <span title="Not Implemented" style="font-weight: bold; color: #FF4136">.view</span>: the user should be able to view an artifact and its relationship to other artifacts.
-- <span title="Not Implemented" style="font-weight: bold; color: #FF4136">.edit</span>: the user should be able to create, modify and delete artifacts.
-- <span title="Not Implemented" style="font-weight: bold; color: #FF4136">.search</span>: the user should be able to search artifacts and easily see how all artifacts
+- <span title="Not Implemented" style="color: #FF4136"><b><i>.view</i></b></span>: the user should be able to view an artifact and its relationship to other artifacts.
+- <span title="Not Implemented" style="color: #FF4136"><b><i>.edit</i></b></span>: the user should be able to create, modify and delete artifacts.
+- <span title="Not Implemented" style="color: #FF4136"><b><i>.search</i></b></span>: the user should be able to search artifacts and easily see how all artifacts
   relate to each other.
 
 
@@ -413,16 +413,16 @@ major components:
 <li><a style="font-weight: bold; color: #FF851B" title="REQ-DATA" href="#REQ-DATA">REQ-data</a></li>
 <b>parts:</b><br>
 <li><a style="font-weight: bold; color: #0074D9" title="SPC-READ-IMPL" href="#SPC-READ-IMPL">SPC-read-impl</a></li>
-<b>file:</b> /home/rett/open/artifact/design/data/implemented.md<br>
-<b>impl:</b> not directly implemented<br>
+<b>file:</b> <a href="https://github.com/vitiral/artifact/blob/master/design/data/implemented.md#L0">/home/rett/open/artifact/design/data/implemented.md</a><br>
+<b>impl:</b> <i>not implemented</i><br>
 <b>spc:</b>25.00&nbsp;&nbsp;<b>tst:</b>70.80<br>
 <hr>
 </details>
 
 Implementing artifacts is fairly straight forward:
-- <span title="Not Implemented" style="font-weight: bold; color: #FF4136">.done</span>: the artifact can define itself as done. If it does this, it must
+- <span title="Not Implemented" style="color: #FF4136"><b><i>.done</i></b></span>: the artifact can define itself as done. If it does this, it must
   not have any subnames and must not be implemented (linked) in source.
-- <span title="Not Implemented" style="font-weight: bold; color: #FF4136">.subnames</span>: subnames can be defined in the `text` field of the artifact
+- <span title="Not Implemented" style="color: #FF4136"><b><i>.subnames</i></b></span>: subnames can be defined in the `text` field of the artifact
   (see the beginning of this line for an example!)
 - <a style="font-weight: bold; color: #0074D9" title="SPC-READ-IMPL" href="#SPC-READ-IMPL">SPC-read-impl</a>: source code can link to either the artifact itself or one
   of its subnames through `#ART-name` or `#ART-name.sub` respectively.
@@ -434,9 +434,9 @@ Implementing artifacts is fairly straight forward:
 <summary><b>metadata</b></summary>
 <b>partof:</b><br>
 <li><a style="font-weight: bold; color: #FF851B" title="REQ-DATA" href="#REQ-DATA">REQ-data</a></li>
-<b>parts:</b><br>
-<b>file:</b> /home/rett/open/artifact/design/data/purpose.md<br>
-<b>impl:</b> /home/rett/open/artifact/artifact-ser/src/lint.rs[16]<br>
+<b>parts:</b> <i>none</i></a><br>
+<b>file:</b> <a href="https://github.com/vitiral/artifact/blob/master/design/data/purpose.md#L0">/home/rett/open/artifact/design/data/purpose.md</a><br>
+<b>impl:</b> <a href="https://github.com/vitiral/artifact/blob/master/artifact-ser/src/lint.rs#L18">/home/rett/open/artifact/artifact-ser/src/lint.rs[18]</a><br>
 <b>spc:</b>100.00&nbsp;&nbsp;<b>tst:</b>0.00<br>
 <hr>
 </details>
@@ -500,8 +500,8 @@ line.
 <li><a style="font-weight: bold; color: #0074D9" title="SPC-MODIFY-UPDATE" href="#SPC-MODIFY-UPDATE">SPC-modify-update</a></li>
 <li><a style="font-weight: bold; color: #FF851B" title="TST-FUZZ" href="#TST-FUZZ">TST-fuzz</a></li>
 <li><a style="font-weight: bold; color: #0074D9" title="TST-UNIT" href="#TST-UNIT">TST-unit</a></li>
-<b>file:</b> /home/rett/open/artifact/design/data/modify.md<br>
-<b>impl:</b> /home/rett/open/artifact/artifact-data/src/modify.rs[0]Secondary{".backup": /home/rett/open/artifact/artifact-data/src/modify.rs[229]}<br>
+<b>file:</b> <a href="https://github.com/vitiral/artifact/blob/master/design/data/modify.md#L0">/home/rett/open/artifact/design/data/modify.md</a><br>
+<b>impl:</b> <a href="https://github.com/vitiral/artifact/blob/master/artifact-data/src/modify.rs#L0">/home/rett/open/artifact/artifact-data/src/modify.rs[0]</a><br>
 <b>spc:</b>75.00&nbsp;&nbsp;<b>tst:</b>70.80<br>
 <hr>
 </details>
@@ -553,14 +553,15 @@ digraph G {
     {rank=same {read2, restore}};
     {rank=same {clean, read2_err}};
 }
+
 ```
 
 Overall this is *relatively simple*. The only new stuff is:
-- <span title="Not Implemented" style="font-weight: bold; color: #FF4136">.compare_id</span>: compare the `orig_hash` of the requested changes to the hashes
+- <span title="Not Implemented" style="color: #FF4136"><b><i>.compare_id</i></b></span>: compare the `orig_hash` of the requested changes to the hashes
   of the loaded values. If they don't match it means that the person requesting changes
   did so *with an out of date version of the artifact*. This is a no-no!
 - <a style="font-weight: bold; color: #0074D9" title="SPC-MODIFY-UPDATE" href="#SPC-MODIFY-UPDATE">SPC-modify-update</a>: update the loaded project with the requested changes.
-- <span title="/home/rett/open/artifact/artifact-data/src/modify.rs[229]" style="font-weight: bold; color: #0074D9">.backup</span>: backup files by moving them to (for example) `path/to/file.md` ->
+- <a title="/home/rett/open/artifact/artifact-data/src/modify.rs[231]" style="color: #0074D9" href="https://github.com/vitiral/artifact/blob/master/artifact-data/src/modify.rs#L231"><b>.backup</b></a>: backup files by moving them to (for example) `path/to/file.md` ->
   `path/to/file.md.art_bk`. Restoring is just moving them back to their
   original place. Cleaning is just deleting them.
 
@@ -578,8 +579,8 @@ Overall this is *relatively simple*. The only new stuff is:
 <b>parts:</b><br>
 <li><a style="font-weight: bold; color: #FF851B" title="TST-FUZZ" href="#TST-FUZZ">TST-fuzz</a></li>
 <li><a style="font-weight: bold; color: #0074D9" title="TST-UNIT" href="#TST-UNIT">TST-unit</a></li>
-<b>file:</b> /home/rett/open/artifact/design/data/modify.md<br>
-<b>impl:</b> /home/rett/open/artifact/artifact-data/src/modify.rs[184]<br>
+<b>file:</b> <a href="https://github.com/vitiral/artifact/blob/master/design/data/modify.md#L0">/home/rett/open/artifact/design/data/modify.md</a><br>
+<b>impl:</b> <a href="https://github.com/vitiral/artifact/blob/master/artifact-data/src/modify.rs#L186">/home/rett/open/artifact/artifact-data/src/modify.rs[186]</a><br>
 <b>spc:</b>100.00&nbsp;&nbsp;<b>tst:</b>70.80<br>
 <hr>
 </details>
@@ -611,8 +612,8 @@ The basic process is:
 <b>parts:</b><br>
 <li><a style="font-weight: bold; color: #FF851B" title="TST-FUZZ" href="#TST-FUZZ">TST-fuzz</a></li>
 <li><a style="font-weight: bold; color: #0074D9" title="TST-UNIT" href="#TST-UNIT">TST-unit</a></li>
-<b>file:</b> /home/rett/open/artifact/design/data/name.md<br>
-<b>impl:</b> /home/rett/open/artifact/artifact-ser/src/name.rs[16]Secondary{".attrs": /home/rett/open/artifact/artifact-ser/src/name.rs[210], ".type": /home/rett/open/artifact/artifact-ser/src/name.rs[98]}<br>
+<b>file:</b> <a href="https://github.com/vitiral/artifact/blob/master/design/data/name.md#L0">/home/rett/open/artifact/design/data/name.md</a><br>
+<b>impl:</b> <a href="https://github.com/vitiral/artifact/blob/master/artifact-ser/src/name.rs#L16">/home/rett/open/artifact/artifact-ser/src/name.rs[16]</a><br>
 <b>spc:</b>100.00&nbsp;&nbsp;<b>tst:</b>70.80<br>
 <hr>
 </details>
@@ -627,7 +628,7 @@ The following attributes must be definable by the user:
 - `text`: the description of the artifact which can contain "soft links" to
   other artifacts as well as to code implementations.
 
-## <span title="/home/rett/open/artifact/artifact-ser/src/name.rs[98]" style="font-weight: bold; color: #0074D9">.type</span>:  Artifact Type
+## <a title="/home/rett/open/artifact/artifact-ser/src/name.rs[97]" style="color: #0074D9" href="https://github.com/vitiral/artifact/blob/master/artifact-ser/src/name.rs#L97"><b>.type</b></a>:  Artifact Type
 The type of an artifact is simply its prefix, which must be one of:
 - `REQ`: requirement
 - `SPC`: design specification
@@ -642,11 +643,12 @@ digraph G {
     graph [rankdir=LR; splines=ortho]
     REQ -> SPC -> TST
 }
+
 ```
 
 See <a style="font-weight: bold; color: #FF851B" title="SPC-FAMILY" href="#SPC-FAMILY">SPC-family</a> for how these are related.
 
-## <span title="/home/rett/open/artifact/artifact-ser/src/name.rs[210]" style="font-weight: bold; color: #0074D9">.attrs</span>: Attributes/Getters
+## <a title="/home/rett/open/artifact/artifact-ser/src/name.rs[211]" style="color: #0074D9" href="https://github.com/vitiral/artifact/blob/master/artifact-ser/src/name.rs#L211"><b>.attrs</b></a>: Attributes/Getters
 
 The `Name` type shall be the exported "key" of artifacts.  Internally it is
 reference counted, externally it exposes itself with the following methods:
@@ -672,8 +674,8 @@ that cloning it is extremely cheap.
 <li><a style="font-weight: bold; color: #0074D9" title="SPC-READ-IMPL" href="#SPC-READ-IMPL">SPC-read-impl</a></li>
 <li><a style="font-weight: bold; color: #3DA03D" title="SPC-READ-RAW" href="#SPC-READ-RAW">SPC-read-raw</a></li>
 <li><a style="font-weight: bold; color: #FF851B" title="TST-FUZZ" href="#TST-FUZZ">TST-fuzz</a></li>
-<b>file:</b> /home/rett/open/artifact/design/data/purpose.md<br>
-<b>impl:</b> not directly implemented<br>
+<b>file:</b> <a href="https://github.com/vitiral/artifact/blob/master/design/data/purpose.md#L0">/home/rett/open/artifact/design/data/purpose.md</a><br>
+<b>impl:</b> <i>not implemented</i><br>
 <b>spc:</b>80.00&nbsp;&nbsp;<b>tst:</b>64.80<br>
 <hr>
 </details>
@@ -690,22 +692,78 @@ digraph G {
      }
     subgraph cluster_src {
         label=<<b>parse src code links</b>>;
-        start -> <a style="font-weight: bold; color: #0074D9" title="SPC-READ-IMPL" href="#SPC-READ-IMPL">SPC-read-impl</a>;
+        start -> 
+        {
+            "SPC-READ-IMPL" [
+                label="SPC-read-impl";
+                href="#spc-read-impl";
+                fontcolor="#0074D9";
+                fontsize=12; margin=0.01;
+                shape=invhouse;
+                penwidth=1.5
+            ]
+        }
+        ;
     }
     subgraph cluster_artifacts {
         label=<<b>parse artifacts</b>>;
-        start -> <a style="font-weight: bold; color: #3DA03D" title="SPC-READ-RAW" href="#SPC-READ-RAW">SPC-read-raw</a>
-            -> <a style="font-weight: bold; color: #0074D9" title="SPC-READ-FAMILY" href="#SPC-READ-FAMILY">SPC-read-family</a>;
+        start -> 
+        {
+            "SPC-READ-RAW" [
+                label="SPC-read-raw";
+                href="#spc-read-raw";
+                fontcolor="#3DA03D";
+                fontsize=12; margin=0.01;
+                shape=invhouse;
+                penwidth=1.5
+            ]
+        }
+        
+            -> 
+        {
+            "SPC-READ-FAMILY" [
+                label="SPC-read-family";
+                href="#spc-read-family";
+                fontcolor="#0074D9";
+                fontsize=12; margin=0.01;
+                shape=invhouse;
+                penwidth=1.5
+            ]
+        }
+        ;
         "SPC-DATA-RAW";
     }
 
 
     // join main and branch
-    "SPC-DATA-SRC" -> <a style="font-weight: bold; color: #0074D9" title="SPC-READ-ARTIFACT" href="#SPC-READ-ARTIFACT">SPC-read-artifact</a>;
+    "SPC-DATA-SRC" -> 
+        {
+            "SPC-READ-ARTIFACT" [
+                label="SPC-read-artifact";
+                href="#spc-read-artifact";
+                fontcolor="#0074D9";
+                fontsize=12; margin=0.01;
+                shape=invhouse;
+                penwidth=1.5
+            ]
+        }
+        ;
     "SPC-DATA-FAMILY" -> "SPC-DATA-ARTIFACT"
-      -> <a style="font-weight: bold; color: #0074D9" title="SPC-LINT" href="#SPC-LINT">SPC-lint</a>
+      -> 
+        {
+            "SPC-LINT" [
+                label="SPC-lint";
+                href="#spc-lint";
+                fontcolor="#0074D9";
+                fontsize=12; margin=0.01;
+                shape=invhouse;
+                penwidth=1.5
+            ]
+        }
+        
       -> {done [shape=oval]};
 }
+
 ```
 
 The following are major design choices:
@@ -731,8 +789,8 @@ There are the following subparts, which are also linked in the graph above:
 <li><a style="font-weight: bold; color: #FF851B" title="TST-FUZZ" href="#TST-FUZZ">TST-fuzz</a></li>
 <li><a style="font-weight: bold; color: #3DA03D" title="TST-READ-ARTIFACT" href="#TST-READ-ARTIFACT">TST-read-artifact</a></li>
 <li><a style="font-weight: bold; color: #0074D9" title="TST-UNIT" href="#TST-UNIT">TST-unit</a></li>
-<b>file:</b> /home/rett/open/artifact/design/data/artifact.md<br>
-<b>impl:</b> /home/rett/open/artifact/artifact-data/src/artifact.rs[17]Secondary{".build": /home/rett/open/artifact/artifact-data/src/artifact.rs[57], ".completed": /home/rett/open/artifact/artifact-data/src/graph.rs[71], ".graph": /home/rett/open/artifact/artifact-data/src/graph.rs[33], ".lint_done": /home/rett/open/artifact/artifact-data/src/project.rs[214], ".lint_text": /home/rett/open/artifact/artifact-data/src/project.rs[300], ".lint_text_refs": /home/rett/open/artifact/artifact-data/src/project.rs[335], ".load": /home/rett/open/artifact/artifact-data/src/artifact.rs[33]}<br>
+<b>file:</b> <a href="https://github.com/vitiral/artifact/blob/master/design/data/artifact.md#L0">/home/rett/open/artifact/design/data/artifact.md</a><br>
+<b>impl:</b> <a href="https://github.com/vitiral/artifact/blob/master/artifact-data/src/artifact.rs#L17">/home/rett/open/artifact/artifact-data/src/artifact.rs[17]</a><br>
 <b>spc:</b>100.00&nbsp;&nbsp;<b>tst:</b>80.60<br>
 <hr>
 </details>
@@ -744,7 +802,7 @@ The design up until this point has been to create mappings of
 the artifact. That design will continue here to allow for reduced
 complexity and easier testability (where needed).
 
-# <span title="/home/rett/open/artifact/artifact-data/src/artifact.rs[33]" style="font-weight: bold; color: #0074D9">.load</span>: calculate pieces from ArtifactRaw only
+# <a title="/home/rett/open/artifact/artifact-data/src/artifact.rs[33]" style="color: #0074D9" href="https://github.com/vitiral/artifact/blob/master/artifact-data/src/artifact.rs#L33"><b>.load</b></a>: calculate pieces from ArtifactRaw only
 After we have successfully loaded all of the artifacts we still want
 to calculate all of the pieces such as `partof`, `parts` and `subnames`.
 
@@ -756,13 +814,13 @@ mind.
 - Create a graph from `partofs` and use it to calculate `parts`. We need the
   graph later anyway.
 
-# <span title="/home/rett/open/artifact/artifact-data/src/artifact.rs[57]" style="font-weight: bold; color: #0074D9">.build</span>: build the artifact from its parts
+# <a title="/home/rett/open/artifact/artifact-data/src/artifact.rs[57]" style="color: #0074D9" href="https://github.com/vitiral/artifact/blob/master/artifact-data/src/artifact.rs#L57"><b>.build</b></a>: build the artifact from its parts
 After we have successfully loaded and finalized the artifact pieces, we need
 to combine them with the implementations and calculate completeness.
 
 This mostly just has to make use of the functions defined in FIXME
 
-## <span title="/home/rett/open/artifact/artifact-data/src/graph.rs[33]" style="font-weight: bold; color: #0074D9">.graph</span>: construction of the graph
+## <a title="/home/rett/open/artifact/artifact-data/src/graph.rs[33]" style="color: #0074D9" href="https://github.com/vitiral/artifact/blob/master/artifact-data/src/graph.rs#L33"><b>.graph</b></a>: construction of the graph
 The construction of the graph takes a map of each artifact to its given+auto
 `partof` field, which defines the reverse directed edges of the graph.
 
@@ -772,7 +830,7 @@ We requre three graphs:
 - `lookup_name`: map of `id => name`
 - `lookup_id`: map of `name => id`
 
-## <span title="/home/rett/open/artifact/artifact-data/src/graph.rs[71]" style="font-weight: bold; color: #0074D9">.completed</span>: compute the `Completed` objects.
+## <a title="/home/rett/open/artifact/artifact-data/src/graph.rs[71]" style="color: #0074D9" href="https://github.com/vitiral/artifact/blob/master/artifact-data/src/graph.rs#L71"><b>.completed</b></a>: compute the `Completed` objects.
 When computing completeness we are basically trying to solve for dependencies.
 A graph can help significantly in this by giving us the topological sort.
 The toplological sort guarantees that any item can be calculated if its
@@ -792,11 +850,11 @@ Other than that, we simply:
   A later lint will handle that issue.
 
 ## Lints
-- <span title="/home/rett/open/artifact/artifact-data/src/project.rs[300]" style="font-weight: bold; color: #0074D9">.lint_text</span>: ensure that the artifat's text is valid in all of the
+- <a title="/home/rett/open/artifact/artifact-data/src/project.rs[315]" style="color: #0074D9" href="https://github.com/vitiral/artifact/blob/master/artifact-data/src/project.rs#L315"><b>.lint_text</b></a>: ensure that the artifat's text is valid in all of the
   formats. For markdown, this means ensuring that nothing would be parsed
   as "a new artifact" or the "end of metadata" blocks.
-- <span title="/home/rett/open/artifact/artifact-data/src/project.rs[214]" style="font-weight: bold; color: #0074D9">.lint_done</span>: ensure that done and subnames are not both defined.
-- <span title="/home/rett/open/artifact/artifact-data/src/project.rs[335]" style="font-weight: bold; color: #0074D9">.lint_text_refs</span>: ensure that soft references (`[[ART-name(.sub)]]`)
+- <a title="/home/rett/open/artifact/artifact-data/src/project.rs[214]" style="color: #0074D9" href="https://github.com/vitiral/artifact/blob/master/artifact-data/src/project.rs#L214"><b>.lint_done</b></a>: ensure that done and subnames are not both defined.
+- <a title="/home/rett/open/artifact/artifact-data/src/project.rs[349]" style="color: #0074D9" href="https://github.com/vitiral/artifact/blob/master/artifact-data/src/project.rs#L349"><b>.lint_text_refs</b></a>: ensure that soft references (`[[ART-name(.sub)]]`)
   all point to real things.
 
 
@@ -805,9 +863,9 @@ Other than that, we simply:
 <summary><b>metadata</b></summary>
 <b>partof:</b><br>
 <li><a style="font-weight: bold; color: #0074D9" title="SPC-READ" href="#SPC-READ">SPC-read</a></li>
-<b>parts:</b><br>
-<b>file:</b> /home/rett/open/artifact/design/data/cache.md<br>
-<b>impl:</b> not directly implemented<br>
+<b>parts:</b> <i>none</i></a><br>
+<b>file:</b> <a href="https://github.com/vitiral/artifact/blob/master/design/data/cache.md#L0">/home/rett/open/artifact/design/data/cache.md</a><br>
+<b>impl:</b> <i>not implemented</i><br>
 <b>spc:</b>0.00&nbsp;&nbsp;<b>tst:</b>0.00<br>
 <hr>
 </details>
@@ -831,8 +889,8 @@ don't know about windows) you can get the timestamp when any file was modified.
 <b>parts:</b><br>
 <li><a style="font-weight: bold; color: #FF851B" title="TST-FUZZ" href="#TST-FUZZ">TST-fuzz</a></li>
 <li><a style="font-weight: bold; color: #0074D9" title="TST-UNIT" href="#TST-UNIT">TST-unit</a></li>
-<b>file:</b> /home/rett/open/artifact/design/data/family.md<br>
-<b>impl:</b> /home/rett/open/artifact/artifact-ser/src/family.rs[16]Secondary{".auto": /home/rett/open/artifact/artifact-ser/src/family.rs[159], ".auto_partof": /home/rett/open/artifact/artifact-ser/src/family.rs[97], ".deauto": /home/rett/open/artifact/artifact-ser/src/lib.rs[313], ".parent": /home/rett/open/artifact/artifact-ser/src/family.rs[85]}<br>
+<b>file:</b> <a href="https://github.com/vitiral/artifact/blob/master/design/data/family.md#L0">/home/rett/open/artifact/design/data/family.md</a><br>
+<b>impl:</b> <a href="https://github.com/vitiral/artifact/blob/master/artifact-ser/src/family.rs#L16">/home/rett/open/artifact/artifact-ser/src/family.rs[16]</a><br>
 <b>spc:</b>100.00&nbsp;&nbsp;<b>tst:</b>70.80<br>
 <hr>
 </details>
@@ -842,7 +900,16 @@ detailed in the graph below:
 
 ```dot
 digraph G {
-    <span title="/home/rett/open/artifact/artifact-ser/src/family.rs[85]" style="font-weight: bold; color: #0074D9">.parent</span> -> { "if" [label="if elem-len > 1"; shape=diamond] };
+    
+        {
+            ".PARENT" [
+                label=".parent";
+                fontsize=12; margin=0.15;
+                shape=cds;
+                penwidth=1.5; fontcolor="#0074D9";
+            ]
+        }
+         -> { "if" [label="if elem-len > 1"; shape=diamond] };
     "if" -> "return None" [label = "no"];
     "if" -> {"clone raw string" [
         shape=box;
@@ -850,7 +917,16 @@ digraph G {
         shape=box;
     ]} -> "return new name";
 
-    <span title="/home/rett/open/artifact/artifact-ser/src/family.rs[97]" style="font-weight: bold; color: #0074D9">.auto_partof</span> -> { if_req [label="type is REQ"; shape=diamond] };
+    
+        {
+            ".AUTO_PARTOF" [
+                label=".auto_partof";
+                fontsize=12; margin=0.15;
+                shape=cds;
+                penwidth=1.5; fontcolor="#0074D9";
+            ]
+        }
+         -> { if_req [label="type is REQ"; shape=diamond] };
     if_req -> "return None" [label="yes"];
     if_req -> {"get higher-order type" [
         shape=box;
@@ -860,16 +936,17 @@ digraph G {
         shape=box;
     ]} -> "return new Name";
 }
+
 ```
 
-# <span title="/home/rett/open/artifact/artifact-ser/src/family.rs[159]" style="font-weight: bold; color: #0074D9">.auto</span>
+# <a title="/home/rett/open/artifact/artifact-ser/src/family.rs[159]" style="color: #0074D9" href="https://github.com/vitiral/artifact/blob/master/artifact-ser/src/family.rs#L159"><b>.auto</b></a>
 Once family is created and the artifacts are loaded, the artifacts have
 to be automatically linked to their parent+auto_partof. This is easy
 to determine given the artifacts that exist.
 
 Note: make sure to ONLY link to artifacts that exists!
 
-# <span title="/home/rett/open/artifact/artifact-ser/src/lib.rs[313]" style="font-weight: bold; color: #0074D9">.deauto</span>
+# <a title="/home/rett/open/artifact/artifact-ser/src/lib.rs[346]" style="color: #0074D9" href="https://github.com/vitiral/artifact/blob/master/artifact-ser/src/lib.rs#L346"><b>.deauto</b></a>
 In order to reserialize the artifacts, their "auto" partof has to be unlinked
 
 
@@ -882,15 +959,15 @@ In order to reserialize the artifacts, their "auto" partof has to be unlinked
 <b>parts:</b><br>
 <li><a style="font-weight: bold; color: #FF851B" title="TST-FUZZ" href="#TST-FUZZ">TST-fuzz</a></li>
 <li><a style="font-weight: bold; color: #0074D9" title="TST-UNIT" href="#TST-UNIT">TST-unit</a></li>
-<b>file:</b> /home/rett/open/artifact/design/data/implemented.md<br>
-<b>impl:</b> /home/rett/open/artifact/artifact-data/src/implemented.rs[16]Secondary{".join": /home/rett/open/artifact/artifact-data/src/implemented.rs[100], ".lint_done": /home/rett/open/artifact/artifact-data/src/project.rs[252], ".lint_exists": /home/rett/open/artifact/artifact-data/src/project.rs[264], ".lint_subname_exists": /home/rett/open/artifact/artifact-data/src/project.rs[278], ".load": /home/rett/open/artifact/artifact-data/src/implemented.rs[65]}<br>
+<b>file:</b> <a href="https://github.com/vitiral/artifact/blob/master/design/data/implemented.md#L0">/home/rett/open/artifact/design/data/implemented.md</a><br>
+<b>impl:</b> <a href="https://github.com/vitiral/artifact/blob/master/artifact-data/src/implemented.rs#L16">/home/rett/open/artifact/artifact-data/src/implemented.rs[16]</a><br>
 <b>spc:</b>100.00&nbsp;&nbsp;<b>tst:</b>70.80<br>
 <hr>
 </details>
 
 ## Loading source code (implementation) links
 
-### <span title="/home/rett/open/artifact/artifact-data/src/implemented.rs[65]" style="font-weight: bold; color: #0074D9">.load</span>: Loading Locations
+### <a title="/home/rett/open/artifact/artifact-data/src/implemented.rs[65]" style="color: #0074D9" href="https://github.com/vitiral/artifact/blob/master/artifact-data/src/implemented.rs#L65"><b>.load</b></a>: Loading Locations
 The process for loading implementation locations is fairly straightforward:
 - Define the regular expression of valid names. Valid names inclue:
   - `SRC` and `TST` types ONLY.
@@ -906,14 +983,14 @@ This results in two maps for each file:
 ## Lints
 All lints related to source code are only WARNINGS
 
-- <span title="/home/rett/open/artifact/artifact-data/src/project.rs[252]" style="font-weight: bold; color: #0074D9">.lint_done</span>: an artifact with its `done` field set is also linked
+- <a title="/home/rett/open/artifact/artifact-data/src/project.rs[250]" style="color: #0074D9" href="https://github.com/vitiral/artifact/blob/master/artifact-data/src/project.rs#L250"><b>.lint_done</b></a>: an artifact with its `done` field set is also linked
   in code.
-- <span title="/home/rett/open/artifact/artifact-data/src/project.rs[264]" style="font-weight: bold; color: #0074D9">.lint_exists</span>: the artifact name does not exists but it does not specify the
+- <a title="/home/rett/open/artifact/artifact-data/src/project.rs[262]" style="color: #0074D9" href="https://github.com/vitiral/artifact/blob/master/artifact-data/src/project.rs#L262"><b>.lint_exists</b></a>: the artifact name does not exists but it does not specify the
   linked
-- <span title="/home/rett/open/artifact/artifact-data/src/project.rs[278]" style="font-weight: bold; color: #0074D9">.lint_subname_exists</span>: the artifact name exists but the artifact does not specify
+- <a title="/home/rett/open/artifact/artifact-data/src/project.rs[276]" style="color: #0074D9" href="https://github.com/vitiral/artifact/blob/master/artifact-data/src/project.rs#L276"><b>.lint_subname_exists</b></a>: the artifact name exists but the artifact does not specify
   the linked subname.
 
-### <span title="/home/rett/open/artifact/artifact-data/src/implemented.rs[100]" style="font-weight: bold; color: #0074D9">.join</span>: Joining Locations
+### <a title="/home/rett/open/artifact/artifact-data/src/implemented.rs[100]" style="color: #0074D9" href="https://github.com/vitiral/artifact/blob/master/artifact-data/src/implemented.rs#L100"><b>.join</b></a>: Joining Locations
 The `Name` and `SubName` maps from each file are joined into two large maps
 respectively (with any collisions put in the linting vectors which are also
 joined).
@@ -939,8 +1016,8 @@ steps to construct the full `Artifact` object. We do this by:
 <b>parts:</b><br>
 <li><a style="font-weight: bold; color: #3DA03D" title="SPC-READ-RAW-MARKDOWN" href="#SPC-READ-RAW-MARKDOWN">SPC-read-raw-markdown</a></li>
 <li><a style="font-weight: bold; color: #3DA03D" title="TST-READ-RAW" href="#TST-READ-RAW">TST-read-raw</a></li>
-<b>file:</b> /home/rett/open/artifact/design/data/raw.md<br>
-<b>impl:</b> not directly implemented<br>
+<b>file:</b> <a href="https://github.com/vitiral/artifact/blob/master/design/data/raw.md#L0">/home/rett/open/artifact/design/data/raw.md</a><br>
+<b>impl:</b> <i>not implemented</i><br>
 <b>spc:</b>100.00&nbsp;&nbsp;<b>tst:</b>100.00<br>
 <hr>
 </details>
@@ -965,6 +1042,7 @@ digraph G {
     iter -> {"out.insert(fpath, load(fdata))" [shape=box]}
       -> iter;
 }
+
 ```
 
 
@@ -975,8 +1053,8 @@ digraph G {
 <li><a style="font-weight: bold; color: #3DA03D" title="SPC-READ-RAW" href="#SPC-READ-RAW">SPC-read-raw</a></li>
 <b>parts:</b><br>
 <li><a style="font-weight: bold; color: #3DA03D" title="TST-READ-RAW" href="#TST-READ-RAW">TST-read-raw</a></li>
-<b>file:</b> /home/rett/open/artifact/design/data/raw.md<br>
-<b>impl:</b> /home/rett/open/artifact/artifact-data/src/raw.rs[176]<br>
+<b>file:</b> <a href="https://github.com/vitiral/artifact/blob/master/design/data/raw.md#L0">/home/rett/open/artifact/design/data/raw.md</a><br>
+<b>impl:</b> <a href="https://github.com/vitiral/artifact/blob/master/artifact-data/src/raw.rs#L175">/home/rett/open/artifact/artifact-data/src/raw.rs[175]</a><br>
 <b>spc:</b>100.00&nbsp;&nbsp;<b>tst:</b>100.00<br>
 <hr>
 </details>
@@ -1040,9 +1118,9 @@ The process for loading markdown will be:
 <summary><b>metadata</b></summary>
 <b>partof:</b><br>
 <li><a style="font-weight: bold; color: #FF851B" title="REQ-DATA" href="#REQ-DATA">REQ-data</a></li>
-<b>parts:</b><br>
-<b>file:</b> /home/rett/open/artifact/design/data/structs.md<br>
-<b>impl:</b> Secondary{".artifact": /home/rett/open/artifact/artifact-lib/src/lib.rs[51], ".artifact_im": /home/rett/open/artifact/artifact-lib/src/lib.rs[231], ".artifact_op": /home/rett/open/artifact/artifact-lib/src/lib.rs[301]}<br>
+<b>parts:</b> <i>none</i></a><br>
+<b>file:</b> <a href="https://github.com/vitiral/artifact/blob/master/design/data/structs.md#L0">/home/rett/open/artifact/design/data/structs.md</a><br>
+<b>impl:</b> <i>not implemented</i><br>
 <b>spc:</b>50.00&nbsp;&nbsp;<b>tst:</b>0.00<br>
 <hr>
 </details>
@@ -1075,18 +1153,19 @@ digraph G {
         \l}"
     ]
 }
+
 ```
 
 ### Raw Data Types
 These types define the "raw data" format of artifact and are only used
 for de/serializing.
 
-#### <span title="Not Implemented" style="font-weight: bold; color: #FF4136">.artifact_raw</span>: ArtifactRaw: (stored with key of `Name`)
+#### <span title="Not Implemented" style="color: #FF4136"><b><i>.artifact_raw</i></b></span>: ArtifactRaw: (stored with key of `Name`)
 - done: `Option[String]`
 - partof: `Option[HashSet[Name]]`
 - text: `Option[TextRaw]`
 
-#### <span title="Not Implemented" style="font-weight: bold; color: #FF4136">.text_raw</span>: TextRaw: just a newtype with some serialization guarantees
+#### <span title="Not Implemented" style="color: #FF4136"><b><i>.text_raw</i></b></span>: TextRaw: just a newtype with some serialization guarantees
 to make it prettier and ensure serialization is possible between
 all of the supported formats.
 
@@ -1095,7 +1174,7 @@ Intermediate "stripped down" forms of the artifact. These types are used for:
 - linting after reading the project
 - inteacting with the CRUD interface.
 
-#### <span title="/home/rett/open/artifact/artifact-lib/src/lib.rs[301]" style="font-weight: bold; color: #0074D9">.artifact_op</span>: ArtifactOp:
+#### <a title="/home/rett/open/artifact/artifact-lib/src/lib.rs[300]" style="color: #0074D9" href="https://github.com/vitiral/artifact/blob/master/artifact-lib/src/lib.rs#L300"><b>.artifact_op</b></a>: ArtifactOp:
 - `Create(ArtifactIm)`: create an artifact, it must not already exist.
 - `Update(HashIm, ArtifactIm)`: update the artifact with the specified hash.
 - `Delete(HashIm)`: delete the artifact with the specifed hash.
@@ -1103,7 +1182,7 @@ Intermediate "stripped down" forms of the artifact. These types are used for:
 This is the "operation" command used by <a style="font-weight: bold; color: #0074D9" title="SPC-MODIFY" href="#SPC-MODIFY">SPC-modify</a> for modifying artifacts.
 `Read` is ommitted as it is covered by <a style="font-weight: bold; color: #0074D9" title="SPC-READ" href="#SPC-READ">SPC-read</a>.
 
-#### <span title="/home/rett/open/artifact/artifact-lib/src/lib.rs[231]" style="font-weight: bold; color: #0074D9">.artifact_im</span>: ArtifactIm:
+#### <a title="/home/rett/open/artifact/artifact-lib/src/lib.rs[231]" style="color: #0074D9" href="https://github.com/vitiral/artifact/blob/master/artifact-lib/src/lib.rs#L231"><b>.artifact_im</b></a>: ArtifactIm:
 - name: `Name`
 - file: `PathAbs`
 - partof: `Set<Name>` (auto-partofs are stripped)
@@ -1123,7 +1202,7 @@ This is simply a 128 bit SipHash created by the [`siphasher` crate][1].
 
 ## Type Details
 
-**Artifact**: (<span title="/home/rett/open/artifact/artifact-lib/src/lib.rs[51]" style="font-weight: bold; color: #0074D9">.artifact</span>) the artifact is the primary exported type. It contains:
+**Artifact**: (<a title="/home/rett/open/artifact/artifact-lib/src/lib.rs[51]" style="color: #0074D9" href="https://github.com/vitiral/artifact/blob/master/artifact-lib/src/lib.rs#L51"><b>.artifact</b></a>) the artifact is the primary exported type. It contains:
   - `name`: the unique identifier of the artifact.
   - `file`: the file where the artifact is defined.
   - `partof` and `parts`: automatic and user-defined relationship to other
@@ -1156,9 +1235,9 @@ This is simply a 128 bit SipHash created by the [`siphasher` crate][1].
 <summary><b>metadata</b></summary>
 <b>partof:</b><br>
 <li><a style="font-weight: bold; color: #FF851B" title="REQ-DATA" href="#REQ-DATA">REQ-data</a></li>
-<b>parts:</b><br>
-<b>file:</b> /home/rett/open/artifact/design/data/purpose.md<br>
-<b>impl:</b> not directly implemented<br>
+<b>parts:</b> <i>none</i></a><br>
+<b>file:</b> <a href="https://github.com/vitiral/artifact/blob/master/design/data/purpose.md#L0">/home/rett/open/artifact/design/data/purpose.md</a><br>
+<b>impl:</b> <i>not implemented</i><br>
 <b>spc:</b>0.00&nbsp;&nbsp;<b>tst:</b>0.00<br>
 <hr>
 </details>
@@ -1180,9 +1259,9 @@ There are three pieces of this requirement:
 <summary><b>metadata</b></summary>
 <b>partof:</b><br>
 <li><a style="font-weight: bold; color: #FF851B" title="REQ-PURPOSE" href="#REQ-PURPOSE">REQ-purpose</a></li>
-<b>parts:</b><br>
-<b>file:</b> /home/rett/open/artifact/design/data/purpose.md<br>
-<b>impl:</b> /home/rett/open/artifact/artifact-test/src/framework.rs[16]<br>
+<b>parts:</b> <i>none</i></a><br>
+<b>file:</b> <a href="https://github.com/vitiral/artifact/blob/master/design/data/purpose.md#L0">/home/rett/open/artifact/design/data/purpose.md</a><br>
+<b>impl:</b> <a href="https://github.com/vitiral/artifact/blob/master/artifact-test/src/framework.rs#L16">/home/rett/open/artifact/artifact-test/src/framework.rs[16]</a><br>
 <b>spc:</b>100.00&nbsp;&nbsp;<b>tst:</b>100.00<br>
 <hr>
 </details>
@@ -1215,9 +1294,9 @@ The basic design is:
 <li><a style="font-weight: bold; color: #0074D9" title="SPC-READ-ARTIFACT" href="#SPC-READ-ARTIFACT">SPC-read-artifact</a></li>
 <li><a style="font-weight: bold; color: #0074D9" title="SPC-READ-FAMILY" href="#SPC-READ-FAMILY">SPC-read-family</a></li>
 <li><a style="font-weight: bold; color: #0074D9" title="SPC-READ-IMPL" href="#SPC-READ-IMPL">SPC-read-impl</a></li>
-<b>parts:</b><br>
-<b>file:</b> /home/rett/open/artifact/design/purpose.md<br>
-<b>impl:</b> /home/rett/open/artifact/artifact-test/src/lib.rs[21]Secondary{".artifact": /home/rett/open/artifact/tests/data_artifact.rs[18], ".family": /home/rett/open/artifact/tests/data_family.rs[18], ".name": /home/rett/open/artifact/tests/data_name.rs[18], ".raw_name": /home/rett/open/artifact/tests/data_raw_names.rs[18], ".read_impl": /home/rett/open/artifact/tests/data_implemented.rs[18]}<br>
+<b>parts:</b> <i>none</i></a><br>
+<b>file:</b> <a href="https://github.com/vitiral/artifact/blob/master/design/purpose.md#L0">/home/rett/open/artifact/design/purpose.md</a><br>
+<b>impl:</b> <a href="https://github.com/vitiral/artifact/blob/master/artifact-test/src/lib.rs#L21">/home/rett/open/artifact/artifact-test/src/lib.rs[21]</a><br>
 <b>spc:</b>66.70&nbsp;&nbsp;<b>tst:</b>66.70<br>
 <hr>
 </details>
@@ -1251,14 +1330,14 @@ Fuzz testing will then involve the following:
 [1]: https://docs.rs/quickcheck/0.4.2/quickcheck/
 
 # Implementations
-- <span title="/home/rett/open/artifact/tests/data_raw_names.rs[18]" style="font-weight: bold; color: #0074D9">.raw_name</span>
-- <span title="/home/rett/open/artifact/tests/data_name.rs[18]" style="font-weight: bold; color: #0074D9">.name</span>
-- <span title="/home/rett/open/artifact/tests/data_family.rs[18]" style="font-weight: bold; color: #0074D9">.family</span>
-- <span title="/home/rett/open/artifact/tests/data_implemented.rs[18]" style="font-weight: bold; color: #0074D9">.read_impl</span>
-- <span title="/home/rett/open/artifact/tests/data_artifact.rs[18]" style="font-weight: bold; color: #0074D9">.artifact</span>
-- <span title="Not Implemented" style="font-weight: bold; color: #FF4136">.read</span>
-- <span title="Not Implemented" style="font-weight: bold; color: #FF4136">.modify</span>
-- <span title="Not Implemented" style="font-weight: bold; color: #FF4136">.modify_update</span>
+- <a title="/home/rett/open/artifact/tests/data_raw_names.rs[18]" style="color: #0074D9" href="https://github.com/vitiral/artifact/blob/master/tests/data_raw_names.rs#L18"><b>.raw_name</b></a>
+- <a title="/home/rett/open/artifact/tests/data_name.rs[18]" style="color: #0074D9" href="https://github.com/vitiral/artifact/blob/master/tests/data_name.rs#L18"><b>.name</b></a>
+- <a title="/home/rett/open/artifact/tests/data_family.rs[18]" style="color: #0074D9" href="https://github.com/vitiral/artifact/blob/master/tests/data_family.rs#L18"><b>.family</b></a>
+- <a title="/home/rett/open/artifact/tests/data_implemented.rs[18]" style="color: #0074D9" href="https://github.com/vitiral/artifact/blob/master/tests/data_implemented.rs#L18"><b>.read_impl</b></a>
+- <a title="/home/rett/open/artifact/tests/data_artifact.rs[18]" style="color: #0074D9" href="https://github.com/vitiral/artifact/blob/master/tests/data_artifact.rs#L18"><b>.artifact</b></a>
+- <span title="Not Implemented" style="color: #FF4136"><b><i>.read</i></b></span>
+- <span title="Not Implemented" style="color: #FF4136"><b><i>.modify</i></b></span>
+- <span title="Not Implemented" style="color: #FF4136"><b><i>.modify_update</i></b></span>
 
 
 # TST-read-artifact
@@ -1266,9 +1345,9 @@ Fuzz testing will then involve the following:
 <summary><b>metadata</b></summary>
 <b>partof:</b><br>
 <li><a style="font-weight: bold; color: #0074D9" title="SPC-READ-ARTIFACT" href="#SPC-READ-ARTIFACT">SPC-read-artifact</a></li>
-<b>parts:</b><br>
-<b>file:</b> /home/rett/open/artifact/design/data/artifact.md<br>
-<b>impl:</b> /home/rett/open/artifact/tests/data_interop.rs[17]Secondary{".basic": /home/rett/open/artifact/tests/data_interop.rs[99], ".design_only": /home/rett/open/artifact/tests/data_interop.rs[93], ".empty": /home/rett/open/artifact/tests/data_interop.rs[75], ".lints": /home/rett/open/artifact/tests/data_interop.rs[105], ".source_invalid": /home/rett/open/artifact/tests/data_interop.rs[87], ".source_only": /home/rett/open/artifact/tests/data_interop.rs[81]}<br>
+<b>parts:</b> <i>none</i></a><br>
+<b>file:</b> <a href="https://github.com/vitiral/artifact/blob/master/design/data/artifact.md#L0">/home/rett/open/artifact/design/data/artifact.md</a><br>
+<b>impl:</b> <a href="https://github.com/vitiral/artifact/blob/master/tests/data_interop.rs#L17">/home/rett/open/artifact/tests/data_interop.rs[17]</a><br>
 <b>spc:</b>100.00&nbsp;&nbsp;<b>tst:</b>100.00<br>
 <hr>
 </details>
@@ -1279,11 +1358,11 @@ we will rely on the framework to quickly test user scenarios.
 
 The major testing will be done using the interop framework. The following
 test cases should be implemented:
-- <span title="/home/rett/open/artifact/tests/data_interop.rs[75]" style="font-weight: bold; color: #0074D9">.empty</span>: `empty` project that contains only empty artifact files.
+- <a title="/home/rett/open/artifact/tests/data_interop.rs[75]" style="color: #0074D9" href="https://github.com/vitiral/artifact/blob/master/tests/data_interop.rs#L75"><b>.empty</b></a>: `empty` project that contains only empty artifact files.
   and no source code.
-- <span title="/home/rett/open/artifact/tests/data_interop.rs[81]" style="font-weight: bold; color: #0074D9">.source_only</span>: a project containing only source code (no design docs).
-- <span title="/home/rett/open/artifact/tests/data_interop.rs[87]" style="font-weight: bold; color: #0074D9">.source_invalid</span>: a project containing invalid source code (invalid links).
-- <span title="/home/rett/open/artifact/tests/data_interop.rs[93]" style="font-weight: bold; color: #0074D9">.design_only</span>: a project containing only design documents (none of the
+- <a title="/home/rett/open/artifact/tests/data_interop.rs[81]" style="color: #0074D9" href="https://github.com/vitiral/artifact/blob/master/tests/data_interop.rs#L81"><b>.source_only</b></a>: a project containing only source code (no design docs).
+- <a title="/home/rett/open/artifact/tests/data_interop.rs[87]" style="color: #0074D9" href="https://github.com/vitiral/artifact/blob/master/tests/data_interop.rs#L87"><b>.source_invalid</b></a>: a project containing invalid source code (invalid links).
+- <a title="/home/rett/open/artifact/tests/data_interop.rs[93]" style="color: #0074D9" href="https://github.com/vitiral/artifact/blob/master/tests/data_interop.rs#L93"><b>.design_only</b></a>: a project containing only design documents (none of the
   artifacts implemented).
   - This is mostly to test that artifact parsing works and linking works
   - A few artifacts should be "defined as done" to get some basic "completion"
@@ -1291,7 +1370,7 @@ test cases should be implemented:
   - Artifacts should be split into lots of deep folders, to push parsing to
     a higher limit.
   - Some artifact folders should be excluded.
-- <span title="/home/rett/open/artifact/tests/data_interop.rs[99]" style="font-weight: bold; color: #0074D9">.basic</span>: a basic project with minimal artifacts, some implemented in
+- <a title="/home/rett/open/artifact/tests/data_interop.rs[99]" style="color: #0074D9" href="https://github.com/vitiral/artifact/blob/master/tests/data_interop.rs#L99"><b>.basic</b></a>: a basic project with minimal artifacts, some implemented in
   source code.
   - This is mostly a "sanity" project
   - At least one artifact implemented in source
@@ -1300,7 +1379,7 @@ test cases should be implemented:
   - At least one artifact only partially implemented (no subnames and not implemented)
   - At least one artifact only partially implemented (no primary + single secondary)
 
-- <span title="/home/rett/open/artifact/tests/data_interop.rs[105]" style="font-weight: bold; color: #0074D9">.lints</span>: a basic project to test lints
+- <a title="/home/rett/open/artifact/tests/data_interop.rs[105]" style="color: #0074D9" href="https://github.com/vitiral/artifact/blob/master/tests/data_interop.rs#L105"><b>.lints</b></a>: a basic project to test lints
   - Expected lint errors:
     - referenes to names+subnames that don't exist
     - partof values that don't exist
@@ -1314,9 +1393,9 @@ test cases should be implemented:
 <b>partof:</b><br>
 <li><a style="font-weight: bold; color: #3DA03D" title="SPC-READ-RAW" href="#SPC-READ-RAW">SPC-read-raw</a></li>
 <li><a style="font-weight: bold; color: #3DA03D" title="SPC-READ-RAW-MARKDOWN" href="#SPC-READ-RAW-MARKDOWN">SPC-read-raw-markdown</a></li>
-<b>parts:</b><br>
-<b>file:</b> /home/rett/open/artifact/design/data/raw.md<br>
-<b>impl:</b> /home/rett/open/artifact/artifact-test/src/raw.rs[16]<br>
+<b>parts:</b> <i>none</i></a><br>
+<b>file:</b> <a href="https://github.com/vitiral/artifact/blob/master/design/data/raw.md#L0">/home/rett/open/artifact/design/data/raw.md</a><br>
+<b>impl:</b> <a href="https://github.com/vitiral/artifact/blob/master/artifact-test/src/raw.rs#L16">/home/rett/open/artifact/artifact-test/src/raw.rs[16]</a><br>
 <b>spc:</b>100.00&nbsp;&nbsp;<b>tst:</b>100.00<br>
 <hr>
 </details>
@@ -1392,9 +1471,9 @@ Look into the following:
 <li><a style="font-weight: bold; color: #0074D9" title="SPC-READ-ARTIFACT" href="#SPC-READ-ARTIFACT">SPC-read-artifact</a></li>
 <li><a style="font-weight: bold; color: #0074D9" title="SPC-READ-FAMILY" href="#SPC-READ-FAMILY">SPC-read-family</a></li>
 <li><a style="font-weight: bold; color: #0074D9" title="SPC-READ-IMPL" href="#SPC-READ-IMPL">SPC-read-impl</a></li>
-<b>parts:</b><br>
-<b>file:</b> /home/rett/open/artifact/design/purpose.md<br>
-<b>impl:</b> /home/rett/open/artifact/artifact-test/src/lib.rs[20]Secondary{".artifact": /home/rett/open/artifact/tests/data_artifact.rs[17], ".family": /home/rett/open/artifact/tests/data_family.rs[17], ".name": /home/rett/open/artifact/tests/data_name.rs[17], ".raw_name": /home/rett/open/artifact/tests/data_raw_names.rs[17], ".read_impl": /home/rett/open/artifact/tests/data_implemented.rs[17]}<br>
+<b>parts:</b> <i>none</i></a><br>
+<b>file:</b> <a href="https://github.com/vitiral/artifact/blob/master/design/purpose.md#L0">/home/rett/open/artifact/design/purpose.md</a><br>
+<b>impl:</b> <a href="https://github.com/vitiral/artifact/blob/master/artifact-test/src/lib.rs#L20">/home/rett/open/artifact/artifact-test/src/lib.rs[20]</a><br>
 <b>spc:</b>75.00&nbsp;&nbsp;<b>tst:</b>75.00<br>
 <hr>
 </details>
@@ -1410,13 +1489,13 @@ In order for an item to consider itself "unit tested" it must:
 
 
 # Implementations
-- <span title="/home/rett/open/artifact/tests/data_raw_names.rs[17]" style="font-weight: bold; color: #0074D9">.raw_name</span>
-- <span title="/home/rett/open/artifact/tests/data_name.rs[17]" style="font-weight: bold; color: #0074D9">.name</span>
-- <span title="/home/rett/open/artifact/tests/data_family.rs[17]" style="font-weight: bold; color: #0074D9">.family</span>: this also inclused auto partofs as well as collapsing/expanding
+- <a title="/home/rett/open/artifact/tests/data_raw_names.rs[17]" style="color: #0074D9" href="https://github.com/vitiral/artifact/blob/master/tests/data_raw_names.rs#L17"><b>.raw_name</b></a>
+- <a title="/home/rett/open/artifact/tests/data_name.rs[17]" style="color: #0074D9" href="https://github.com/vitiral/artifact/blob/master/tests/data_name.rs#L17"><b>.name</b></a>
+- <a title="/home/rett/open/artifact/tests/data_family.rs[17]" style="color: #0074D9" href="https://github.com/vitiral/artifact/blob/master/tests/data_family.rs#L17"><b>.family</b></a>: this also inclused auto partofs as well as collapsing/expanding
   partof.
-- <span title="/home/rett/open/artifact/tests/data_implemented.rs[17]" style="font-weight: bold; color: #0074D9">.read_impl</span>
-- <span title="/home/rett/open/artifact/tests/data_artifact.rs[17]" style="font-weight: bold; color: #0074D9">.artifact</span>
-- <span title="Not Implemented" style="font-weight: bold; color: #FF4136">.modify</span>
-- <span title="Not Implemented" style="font-weight: bold; color: #FF4136">.modify_update</span>
+- <a title="/home/rett/open/artifact/tests/data_implemented.rs[17]" style="color: #0074D9" href="https://github.com/vitiral/artifact/blob/master/tests/data_implemented.rs#L17"><b>.read_impl</b></a>
+- <a title="/home/rett/open/artifact/tests/data_artifact.rs[17]" style="color: #0074D9" href="https://github.com/vitiral/artifact/blob/master/tests/data_artifact.rs#L17"><b>.artifact</b></a>
+- <span title="Not Implemented" style="color: #FF4136"><b><i>.modify</i></b></span>
+- <span title="Not Implemented" style="color: #FF4136"><b><i>.modify_update</i></b></span>
 
 

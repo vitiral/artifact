@@ -14,10 +14,10 @@
  * for inclusion in the work by you, as defined in the Apache-2.0 license, shall
  * be dual licensed as above, without any additional terms or conditions.
  * */
-pub use std::result;
-pub use ergo_std::*;
 pub use ergo_config::*;
-pub use path_abs::*;
-pub use failure::*;
+pub use ergo_std::*;
 pub use expect_macro::*;
 pub use failure::Error;
+pub use failure::*;
+pub use path_abs::*;
+pub use std::result;

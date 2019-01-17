@@ -14,17 +14,17 @@
  * for inclusion in the work by you, as defined in the Apache-2.0 license, shall
  * be dual licensed as above, without any additional terms or conditions.
  * */
+pub(crate) use artifact_lib;
+pub(crate) use artifact_lib::*;
 pub(crate) use ergo::*;
 #[allow(unused_imports)]
 pub(crate) use expect_macro::*;
 pub(crate) use std::ffi::OsStr;
-use std::io;
 use std::fs;
-pub(crate) use artifact_lib::*;
-pub(crate) use artifact_lib;
+use std::io;
 
-pub(crate) use std::result;
 pub(crate) use failure::Error;
+pub(crate) use std::result;
 
 pub(crate) type Result<V> = result::Result<V, Error>;
 

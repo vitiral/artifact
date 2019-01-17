@@ -16,9 +16,9 @@
  * */
 
 use dev_prelude::*;
+use markdown::{name_color, SerMarkdown, BLUE, GRAY, RED};
 use name::*;
 use ser::*;
-use markdown::{GRAY, BLUE, RED, SerMarkdown, name_color};
 
 pub fn artifact_part_dot(md: &SerMarkdown, art: &ArtifactSer) -> String {
     let mut dot = name_dot(md, &art.name, true);
@@ -87,7 +87,8 @@ pub fn subname_dot(md: &SerMarkdown, name: &str, sub: &SubName) -> String {
         Err(_) => return subname_raw(sub, None),
     };
 
-    let color = if md.project
+    let color = if md
+        .project
         .get_impl(name.as_str(), Some(sub.as_str()))
         .is_ok()
     {
@@ -193,4 +194,3 @@ fn dne_name_dot(name: &Name, sub: Option<&SubName>) -> String {
         sub = sub,
     )
 }
-

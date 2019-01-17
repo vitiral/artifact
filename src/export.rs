@@ -22,7 +22,9 @@ use std::io;
 use frontend;
 
 #[derive(Debug, StructOpt)]
-#[structopt(name = "export", about = "\
+#[structopt(
+    name = "export",
+    about = "\
 Export artifacts in some format.
 
 ## Settings (.art/settings.toml)
@@ -76,6 +78,7 @@ fn export_markdown(cmd: &Export, project_ser: ProjectSer) -> io::Result<()> {
     let settings = SerMarkdownSettings {
         code_url: project_ser.settings.code_url.clone(),
         family: project_ser.settings.export.md_family.clone(),
+        dot: project_ser.settings.export.md_dot.clone(),
     };
     let md = SerMarkdown::with_settings(&project_ser, settings);
 
@@ -84,6 +87,30 @@ fn export_markdown(cmd: &Export, project_ser: ProjectSer) -> io::Result<()> {
     out.flush()?;
     Ok(())
 }
+
+lazy_static! {
+    static ref REPLACE_TEXT_RE: Regex = expect!(Regex::new(
+        r#"(?xim)
+        (?:^```dot\s*\n(?P<dot>[\s\S]+?\n)```$)  # graphviz dot rendering
+        "#,
+    ));
+}
+
+// fn replace_markdown<'t>(markdown: &'t str) -> Cow<'t, str> {
+//     let replacer = |cap: &::ergo_std::regex::Captures| -> String {
+//         if let Some(dot) = cap.name("dot") {
+//             replace_markdown_dot(dot.as_str())
+//         } else {
+//             panic!("Got unknown match in md: {:?}", cap);
+//         }
+//     };
+//     REPLACE_TEXT_RE.replace_all(markdown, replacer)
+// }
+//
+// fn replace_markdown_dot(dot: &str) -> String {
+//     let html = graph::dot_html_string(dot);
+//     format!("\n<html>\n{0}\n</html>\n", html)
+// }
 
 /// SPC-cli.init
 pub fn run(cmd: Export) -> Result<i32> {
@@ -108,6 +135,6 @@ pub fn run(cmd: Export) -> Result<i32> {
         Err(e) => {
             eprintln!("ERROR: {}", e);
             return Ok(1);
-        },
+        }
     }
 }

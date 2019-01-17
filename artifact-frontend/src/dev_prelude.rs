@@ -425,7 +425,8 @@ impl ArtifactEdit {
             name: art.name.to_string(),
             file: art.file.clone(),
             partof: art.partof.iter().map(|n| n.to_string()).collect(),
-            done: art.impl_
+            done: art
+                .impl_
                 .as_done()
                 .map(String::from)
                 .unwrap_or_else(String::new),

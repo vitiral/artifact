@@ -15,9 +15,9 @@
  * be dual licensed as above, without any additional terms or conditions.
  * */
 
+use artifact_ser::md_graph;
 use stdweb::web::Node;
 use yew::virtual_dom::VNode;
-use artifact_ser::md_graph;
 
 use dev_prelude::*;
 use view::ser_markdown;
@@ -49,15 +49,12 @@ pub(crate) fn graph_html(model: &Model) -> ViewResult {
         </span>
     ]);
 
-    ViewResult {
-        page,
-        nav_extra,
-    }
+    ViewResult { page, nav_extra }
 }
 
 /// Get the dot html for untrusted dot.
 pub(crate) fn dot_html_string(dot: &str) -> String {
-    let html = js!{
+    let html = js! {
         try {
             var svg = Viz(@{dot});
             return svg;

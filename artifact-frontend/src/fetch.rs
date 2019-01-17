@@ -30,10 +30,7 @@ macro_rules! create_fetch_task {
     }}
 }
 
-pub(crate) fn start_fetch_initial(
-    model: &mut Model,
-    context: &mut Env<Context, Model>,
-) -> bool {
+pub(crate) fn start_fetch_initial(model: &mut Model, context: &mut Env<Context, Model>) -> bool {
     if model.fetch_task.is_some() {
         panic!("This should only be called first.")
     }
@@ -54,8 +51,7 @@ fn handle_response_initial(response: http::Response<String>) -> Msg {
     };
 
     let body = response.into_body();
-    let init: ProjectInitialSer =
-        expect!(json::from_str(&body), "response-serde");
+    let init: ProjectInitialSer = expect!(json::from_str(&body), "response-serde");
 
     Msg::RecvInitial(init)
 }
@@ -96,7 +92,8 @@ pub(crate) fn start_send_update(
         return false;
     }
 
-    let params: Vec<_> = ids.iter()
+    let params: Vec<_> = ids
+        .iter()
         .map(|edit_id| {
             let edit = expect!(model.editing.get(edit_id), "FIXME: log msg if dne");
             if let Some(orig_id) = edit.original_id {
@@ -139,10 +136,10 @@ fn push_logs_fetch_in_progress(model: &mut Model) {
 fn push_logs_fetch_invalid(model: &mut Model) {
     model.push_logs(vec![Log::error(
         "<div>Internal Error: a fetch was invalid and \
-        should not have been possible</div>".to_string(),
+         should not have been possible</div>"
+            .to_string(),
     )]);
 }
-
 
 fn new_rpc_id() -> jrpc::Id {
     jrpc::Id::Int(new_id() as i64)

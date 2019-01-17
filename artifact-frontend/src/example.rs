@@ -24,6 +24,8 @@ settings:
     - /fake/design
     exclude_artifact_paths: []
 
+    settings_path: "/fake/.art/settings.toml"
+
 code_impls: {}
 
 artifacts:

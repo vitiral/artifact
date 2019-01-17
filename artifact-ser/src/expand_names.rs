@@ -57,7 +57,8 @@ where
                 if in_brackets {
                     return Err(NameError::InvalidCollapsed {
                         msg: "brackets are not closed".into(),
-                    }.into());
+                    }
+                    .into());
                 }
                 break;
             }
@@ -79,14 +80,16 @@ where
                 }
                 current.clear();
             }
-            ']' => if !in_brackets {
-                let err = NameError::InvalidCollapsed {
-                    msg: "`]` character wasn't opened".into(),
-                };
-                return Err(err.into());
-            } else {
-                break;
-            },
+            ']' => {
+                if !in_brackets {
+                    let err = NameError::InvalidCollapsed {
+                        msg: "`]` character wasn't opened".into(),
+                    };
+                    return Err(err.into());
+                } else {
+                    break;
+                }
+            }
             ',' => {
                 strout.write_str(&current).unwrap();
                 strout.push(',');

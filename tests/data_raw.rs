@@ -61,7 +61,8 @@ partof:
 ###
 
 
-"#.to_string();
+"#
+    .to_string();
     // #ART-DONE
 
     let exp_raw_1 = r#"# REQ-bar
@@ -84,7 +85,8 @@ done: yes this is done
 partof:
 - REQ-baz
 - SPC-bar
-###"#.to_string();
+###"#
+        .to_string();
 
     let mut exp_1 = indexmap! {
         name!("REQ-foo") => ArtifactRaw {
@@ -119,7 +121,8 @@ partof:
             from_markdown_str,
             ::artifact_data::raw::to_markdown,
             &out,
-        ).unwrap();
+        )
+        .unwrap();
         println!("### Original Raw:\n{}<END>", raw);
         println!("### New Raw:\n{}<END>", new_raw);
         Ok(out)

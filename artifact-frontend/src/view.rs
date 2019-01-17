@@ -16,14 +16,15 @@
  * */
 use yew_simple;
 
+use artifact_ser;
 use dev_prelude::*;
 use graph;
-use artifact_ser;
 
 lazy_static! {
-    static ref NAME_URL: Regex = expect!(
-        Regex::new(&format!(r"(?i)(?:artifacts/)?({})", NAME_VALID_STR))
-    );
+    static ref NAME_URL: Regex = expect!(Regex::new(&format!(
+        r"(?i)(?:artifacts/)?({})",
+        NAME_VALID_STR
+    )));
     static ref EDIT_URL: Regex = expect!(Regex::new(r"(?i)edit/(\d+)"));
     static ref REPLACE_TEXT_RE: Regex = expect!(Regex::new(
         r#"(?xim)
@@ -59,7 +60,6 @@ impl View {
     }
 }
 
-
 /// Render the markdown correctly.
 ///
 /// `parent` is the parent's name, which may or may not exist/be-valid.
@@ -67,7 +67,7 @@ pub(crate) fn markdown_html(model: &Model, parent: &str, markdown: &str) -> Html
     let md = ser_markdown(model);
     let markdown = md.replace_markdown(parent, markdown);
     let markdown = replace_markdown(&markdown).to_string();
-    let value = js!{
+    let value = js! {
         var reader = new commonmark.Parser();
         var writer = new commonmark.HtmlRenderer();
         var parsed = reader.parse(@{markdown});
@@ -87,6 +87,7 @@ pub(crate) fn ser_markdown(model: &Model) -> artifact_ser::markdown::SerMarkdown
     let settings = SerMarkdownSettings {
         code_url: model.shared.settings.code_url.clone(),
         family: SettingsExportFamily::Dot,
+        dot: SettingsMdDot::Ignore,
     };
 
     SerMarkdown::with_settings(&model.shared, settings)
@@ -107,4 +108,3 @@ fn replace_markdown_dot(dot: &str) -> String {
     let html = graph::dot_html_string(dot);
     format!("\n<html>\n{0}\n</html>\n", html)
 }
-

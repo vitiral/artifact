@@ -48,7 +48,8 @@ pub fn start_api(cmd: super::Serve) {
     let r = running.clone();
     ctrlc::set_handler(move || {
         r.store(false, AtomicOrdering::SeqCst);
-    }).expect("Error setting Ctrl-C handler");
+    })
+    .expect("Error setting Ctrl-C handler");
 
     // host the frontend files using a static file handler
     // and own the tmpdir for as long as needed

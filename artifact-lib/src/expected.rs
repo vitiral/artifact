@@ -15,8 +15,8 @@
  * be dual licensed as above, without any additional terms or conditions.
  * */
 //! Created "expected" types for assertions and test frameworks
-use dev_prelude::*;
 use super::*;
+use dev_prelude::*;
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(tag = "op", rename_all = "lowercase")]
@@ -67,7 +67,9 @@ pub struct SettingsAssert {
     pub export: SettingsExport,
 }
 
-fn default_settings() -> String { ".art/settings.toml".to_string() }
+fn default_settings() -> String {
+    ".art/settings.toml".to_string()
+}
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ArtifactAssert {
@@ -127,11 +129,13 @@ impl ProjectAssert {
     pub fn expected(mut self, base: &PathDir) -> Project {
         let mut out = Project {
             settings: self.settings.expected(base),
-            code_impls: self.code_impls
+            code_impls: self
+                .code_impls
                 .drain(..)
                 .map(|(name, impl_)| (name, impl_.expected(base)))
                 .collect(),
-            artifacts: self.artifacts
+            artifacts: self
+                .artifacts
                 .drain(..)
                 .map(|(name, art)| (name, art.expected(base)))
                 .collect(),
@@ -191,7 +195,8 @@ impl ImplCodeAssert {
     pub fn expected(mut self, base: &PathAbs) -> ImplCode {
         ImplCode {
             primary: self.primary.map(|c| c.expected(base)),
-            secondary: self.secondary
+            secondary: self
+                .secondary
                 .drain(..)
                 .map(|(s, c)| (subname!(s), c.expected(base)))
                 .collect(),
@@ -207,7 +212,6 @@ impl CodeLocAssert {
         }
     }
 }
-
 
 pub trait LintExp {
     /// just mutate the lint to be correct

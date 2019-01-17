@@ -37,7 +37,7 @@ fn sanity_determine_partofs() {
         }
     }
 
-    let arts = indexmap!{
+    let arts = indexmap! {
         name!("REQ-aaa") => with_partof(vec![]),
         // test auto-parent
         name!("REQ-aaa-a") => with_partof(vec![]),
@@ -51,7 +51,7 @@ fn sanity_determine_partofs() {
     };
 
     let mut partofs = artifact::determine_partofs(&arts);
-    let mut expected = indexmap!{
+    let mut expected = indexmap! {
         name!("REQ-aaa") => indexset![],
         name!("REQ-aaa-a") => indexset![name!("REQ-aaa")],
         name!("SPC-aaa-a") => indexset![name!("REQ-aaa-a")],

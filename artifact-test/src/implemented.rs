@@ -15,13 +15,12 @@
  * be dual licensed as above, without any additional terms or conditions.
  * */
 /// Test the "implemented" (i.e. source code parsing) module.
-
 use regex_generate;
 
 use super::dev_prelude::*;
 use super::raw_names::arb_names_raw;
-use artifact_data::raw_names::NamesRaw;
 use artifact_data::implemented::{join_locations, parse_locations};
+use artifact_data::raw_names::NamesRaw;
 
 // ------------------------------
 // -- FUZZ METHODS

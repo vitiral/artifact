@@ -2,9 +2,9 @@ use dev_prelude::*;
 use ser::*;
 use std::io;
 
-use name::*;
-use super::{Completed, SettingsExportFamily};
+use super::{Completed, SettingsExportFamily, SettingsMdDot};
 use md_graph;
+use name::*;
 
 pub const GRAY: &str = "#DCDEE2";
 pub const OLIVE: &str = "#3DA03D";
@@ -13,7 +13,21 @@ pub const ORANGE: &str = "#FF851B";
 pub const RED: &str = "#FF4136";
 pub const PURPLE: &str = "#B10DC9";
 
+pub const DOT_RE_KEY: &str = "dot";
+pub const DOT_PRE_RE_KEY: &str = "dot_pre";
+pub const DOT_POST_RE_KEY: &str = "dot_post";
+
 lazy_static! {
+    // TODO: make this instead to allow for extra tags
+    // (?:^```dot [\s\S]*?\n(?P<{}>[\s\S]+?\n)```$)
+    pub static ref TEXT_DOT_STR: String = format!(r#"
+        (?:^(?P<{}>```dot\s*)\n(?P<{}>[\s\S]+?\n)(?P<{}>```)$)
+        "#,
+        DOT_PRE_RE_KEY,
+        DOT_RE_KEY,
+        DOT_POST_RE_KEY,
+    );
+
     static ref NAME_URL: Regex =
         Regex::new(&format!(r"(?i)(?:artifacts/)?({})", NAME_VALID_STR)).expect("regex");
     static ref EDIT_URL: Regex = Regex::new(r"(?i)edit/(\d+)").expect("regex");
@@ -21,10 +35,13 @@ lazy_static! {
         r#"(?xim)
         |({})                       # subname creation
         |({})                       # name reference
+        |({})                     # dot replacement
         "#,
         TEXT_SUB_NAME_STR.as_str(),
         TEXT_REF_STR.as_str(),
-    )).unwrap();
+        TEXT_DOT_STR.as_str()
+    ))
+    .unwrap();
 }
 
 #[derive(Debug, PartialEq)]
@@ -37,6 +54,7 @@ pub struct SerMarkdown<'a> {
 pub struct SerMarkdownSettings {
     pub code_url: Option<String>,
     pub family: SettingsExportFamily,
+    pub dot: SettingsMdDot,
 }
 
 impl<'a> SerMarkdown<'a> {
@@ -49,7 +67,6 @@ impl<'a> SerMarkdown<'a> {
             project: project,
             settings: settings,
         }
-
     }
 
     /// Export the whole project as markdown.
@@ -80,45 +97,73 @@ impl<'a> SerMarkdown<'a> {
     }
 
     pub fn art_to_markdown(&self, w: &mut io::Write, artifact: &ArtifactSer) -> io::Result<()> {
-        macro_rules! write_html_line{ ($section:expr, $content:expr) => {{
-            write!(w, "<b>{}:</b> {}<br>\n", $section, $content)?;
-        }}}
+        macro_rules! write_html_line {
+            ($section:expr, $content:expr) => {{
+                write!(w, "<b>{}:</b> {}<br>\n", $section, $content)?;
+            }};
+        }
 
         write!(w, "# {0}\n", artifact.name)?;
         tag_details_begin(w, "metadata")?;
         self.art_to_markdown_family(w, artifact)?;
-        write_html_line!("file", artifact.file);
-        write_html_line!("impl", artifact.impl_);
+        write_html_line!("file", self.html_file_url(&artifact.file));
+
+        let impl_ = match artifact.impl_ {
+            ImplSer::Done(ref d) => d.clone(),
+            ImplSer::Code(ImplCodeSer {
+                primary: Some(ref c),
+                ..
+            }) => self.html_code_url(c),
+            _ => "<i>not implemented</i>".to_string(),
+        };
+        write_html_line!("impl", impl_);
+
         write!(
-            w, "<b>spc:</b>{:.2}&nbsp;&nbsp;<b>tst:</b>{:.2}<br>\n",
-            artifact.completed.spc * 100.0, artifact.completed.tst * 100.0
+            w,
+            "<b>spc:</b>{:.2}&nbsp;&nbsp;<b>tst:</b>{:.2}<br>\n",
+            artifact.completed.spc * 100.0,
+            artifact.completed.tst * 100.0
         )?;
         write!(w, "<hr>\n")?;
         tag_details_end(w)?;
-        write!(w, "{}\n\n", self.replace_markdown(artifact.name.as_str(), &artifact.text))?;
+        write!(
+            w,
+            "{}\n\n",
+            self.replace_markdown(artifact.name.as_str(), &artifact.text)
+        )?;
         Ok(())
     }
 
     fn art_to_markdown_family(&self, w: &mut io::Write, artifact: &ArtifactSer) -> io::Result<()> {
         match self.settings.family {
             SettingsExportFamily::List => {
-                macro_rules! write_section{ ($section:ident) => {{
-                    write!(w, "<b>{}:</b><br>\n", stringify!($section))?;
-                    for name in &artifact.$section {
-                        write!(w, "<li>{}</li>\n", self.name_markdown(&name, None))?;
-                    }
-                }}}
+                macro_rules! write_section {
+                    ($section:ident) => {{
+                        if artifact.$section.is_empty() {
+                            write!(w, "<b>{}:</b> <i>none</i></a><br>\n", stringify!($section))?;
+                        } else {
+                            write!(w, "<b>{}:</b><br>\n", stringify!($section))?;
+                            for name in &artifact.$section {
+                                write!(w, "<li>{}</li>\n", self.name_markdown(&name, None))?;
+                            }
+                        }
+                    }};
+                }
                 write_section!(partof);
                 write_section!(parts);
-            },
+            }
             SettingsExportFamily::Dot => {
                 tag_details_begin(w, "dot-graph")?;
+                let (dot_pre, dot_post) = match self.settings.dot {
+                    SettingsMdDot::ReplaceBraces {ref pre, ref post} => (pre.as_str(), post.as_str()),
+                    _ => ("```dot", "```"),
+                };
                 write!(
                     w,
                     "{pre}\n{dot}\n{post}\n",
-                    pre="```dot",
-                    dot=md_graph::artifact_part_dot(self, artifact),
-                    post="```",
+                    pre = dot_pre,
+                    dot = md_graph::artifact_part_dot(self, artifact),
+                    post = dot_post,
                 )?;
                 tag_details_end(w)?;
             }
@@ -132,17 +177,20 @@ impl<'a> SerMarkdown<'a> {
     pub fn replace_markdown<'p, 'm>(&'a self, parent: &'p str, markdown: &'m str) -> Cow<'m, str> {
         let replacer = |cap: &::ergo_std::regex::Captures| -> String {
             if let Some(sub) = cap.name(SUB_RE_KEY) {
+                eprintln!(" - REPlACE SUB: {}", sub.as_str());
                 self.replace_markdown_sub(parent, sub.as_str())
             } else if let Some(name) = cap.name(NAME_RE_KEY) {
-                let sub = cap.name(NAME_SUB_RE_KEY)
-                    .map(|s| subname!(s.as_str()));
+                eprintln!(" - REPlACE NAME: {}", name.as_str());
+                let sub = cap.name(NAME_SUB_RE_KEY).map(|s| subname!(s.as_str()));
                 self.name_markdown(&name!(name.as_str()), sub.as_ref())
-            } else if let Some(dot) = cap.name("dot") {
-                self.replace_markdown_dot(parent, dot.as_str())
+            } else if let Some(dot) = cap.name(DOT_RE_KEY) {
+                eprintln!("## REPLACE DOT:\n{}\n", dot.as_str());
+                self.replace_markdown_dot(parent, &cap)
             } else {
                 panic!("Got unknown match in md: {:?}", cap);
             }
         };
+        eprintln!("running self.replace_markdown parent={}", parent);
         REPLACE_TEXT_RE.replace_all(markdown, replacer)
     }
 
@@ -150,51 +198,59 @@ impl<'a> SerMarkdown<'a> {
     fn replace_markdown_sub(&'a self, parent: &str, sub: &str) -> String {
         let (title, color, href): (String, &'static str, Option<String>) =
             match self.project.get_impl(parent, Some(sub)) {
-            Ok(c) => {
-                let href = match self.settings.code_url {
-                    Some(ref ufmt) => {
-                        Some(expect!(format_code_url(ufmt, c)))
-                    }
-                    None => None,
-                };
-
-                (format!("{:?}", c), BLUE, href)
-            }
-            Err(_) => ("Not Implemented".to_string(), RED, None),
-        };
+                Ok(c) => {
+                    let href = self.format_code_url_maybe(c);
+                    (format!("{:?}", c), BLUE, href)
+                }
+                Err(_) => ("Not Implemented".to_string(), RED, None),
+            };
 
         match href {
             Some(href) => format!(
-                "<a title=\"{}\" style=\"font-weight: bold; color: {}\" \
+                "<a title=\"{}\" style=\"color: {}\" \
                  href=\"{}\">\
-                 {}\
+                 <b>{}</b>\
                  </a>",
                 title, color, href, sub,
             ),
             None => format!(
-                "<span title=\"{}\" style=\"font-weight: bold; color: {}\">\
-                 {}\
+                "<span title=\"{}\" style=\"color: {}\">\
+                 <b><i>{}</i></b>\
                  </span>",
                 title, color, sub,
             ),
         }
     }
 
-    fn replace_markdown_dot<'p, 'd>(&'a self, parent: &'p str, dot: &'d str) -> String {
+    fn replace_markdown_dot<'p, 'd>(&'a self, parent: &'p str, cap: &::ergo_std::regex::Captures) -> String {
         let replacer = |cap: &::ergo_std::regex::Captures| -> String {
             if let Some(sub) = cap.name(SUB_RE_KEY) {
                 md_graph::subname_dot(self, parent, &subname!(sub.as_str()))
             } else if let Some(name) = cap.name(NAME_RE_KEY) {
-                let sub = cap.name(NAME_SUB_RE_KEY)
-                    .map(|s| subname!(s.as_str()));
+                let sub = cap.name(NAME_SUB_RE_KEY).map(|s| subname!(s.as_str()));
                 md_graph::fullname_dot(self, &name!(name.as_str()), sub.as_ref(), true)
-            } else if cap.name("dot").is_some() {
+            } else if cap.name(DOT_RE_KEY).is_some() {
                 "**RENDER ERROR: cannot put dot within dot**".into()
             } else {
                 panic!("Got unknown match in md: {:?}", cap);
             }
         };
-        return REPLACE_TEXT_RE.replace_all(dot, replacer).to_string();
+        let dot_pre = expect!(cap.name(DOT_PRE_RE_KEY)).as_str();
+        let dot_post = expect!(cap.name(DOT_POST_RE_KEY)).as_str();
+        let dot = expect!(cap.name(DOT_RE_KEY)).as_str();
+        let dot = REPLACE_TEXT_RE.replace_all(dot, replacer).to_string();
+
+        let (dot_pre, dot_post) = match self.settings.dot {
+            SettingsMdDot::Ignore => (dot_pre, dot_post),
+            SettingsMdDot::RemoveBraces => ("", ""),
+            SettingsMdDot::ReplaceBraces {ref pre, ref post} => (pre.as_str(), post.as_str()),
+        };
+        format!(
+            "{pre}\n{dot}\n{post}",
+            pre=dot_pre,
+            post=dot_post,
+            dot=dot,
+        )
     }
 
     /// Used for inserting into markdown, etc.
@@ -245,6 +301,48 @@ impl<'a> SerMarkdown<'a> {
             )
         }
     }
+
+    /// Always get correct markdown for a file.
+    pub fn html_file_url(&self, file: &str) -> String {
+        let file_codeloc = CodeLocSer::with_file(file.to_string());
+        match self.format_code_url_maybe(&file_codeloc) {
+            Some(url) => format!("<a href=\"{}\">{}</a>", url, file),
+            None => file.to_string(),
+        }
+    }
+
+    /// Always get correct markdown for a CodeLoc.
+    pub fn html_code_url(&self, code: &CodeLocSer) -> String {
+        match self.format_code_url_maybe(code) {
+            Some(url) => format!("<a href=\"{}\">{:?}</a>", url, code),
+            None => format!("{:?}", code),
+        }
+    }
+
+    /// Format the url, depending on whether there is a url_fmt available.
+    ///
+    /// This expects that if url_fmt exists that it MUST be valid.
+    pub fn format_code_url_maybe(&self, code: &CodeLocSer) -> Option<String> {
+        match self.settings.code_url {
+            Some(ref ufmt) => Some(expect!(self.format_code_url(ufmt, code))),
+            None => None,
+        }
+    }
+
+    pub fn format_code_url(&self, url_fmt: &str, code: &CodeLocSer) -> Result<String, String> {
+        let file = self.project.settings.trim_base(&code.file);
+        strfmt_code_url(url_fmt, file, code.line)
+    }
+}
+
+pub fn strfmt_code_url(url_fmt: &str, file: &str, line: u64) -> Result<String, String> {
+    let l = line.to_string();
+    let vars = hashmap! {
+        "file".to_string() => file,
+        "line".to_string() => &l,
+    };
+    ::strfmt::strfmt(url_fmt, &vars)
+        .map_err(|e| format!("error formatting url={} error={}", url_fmt, e.to_string()))
 }
 
 pub fn name_color(project: &ProjectSer, name: &Name) -> &'static str {
@@ -252,17 +350,6 @@ pub fn name_color(project: &ProjectSer, name: &Name) -> &'static str {
         Some(art) => completed_color(&art.completed),
         None => GRAY,
     }
-}
-
-pub fn format_code_url(url_fmt: &str, code: &CodeLocSer) -> Result<String, String> {
-    let l = code.line.to_string();
-    let vars = hashmap! {
-        "file".to_string() => &code.file,
-        "line".to_string() => &l,
-    };
-    println!("url_fmt={}", url_fmt);
-    ::strfmt::strfmt(url_fmt, &vars).map_err(|e| format!(
-        "error formatting url={} error={}", url_fmt, e.to_string()))
 }
 
 
@@ -330,4 +417,3 @@ fn tag_details_end(w: &mut io::Write) -> io::Result<()> {
     write!(w, "</details>\n\n")?;
     Ok(())
 }
-

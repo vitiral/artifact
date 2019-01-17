@@ -28,9 +28,9 @@ extern crate expect_macro;
 extern crate failure;
 #[macro_use]
 extern crate failure_derive;
+extern crate artifact_ser;
 extern crate path_abs;
 extern crate siphasher;
-extern crate artifact_ser;
 
 pub use artifact_ser::*;
 
@@ -38,9 +38,9 @@ mod dev_prelude;
 #[macro_use]
 pub mod expected;
 
+use siphasher::sip128::{Hasher128, SipHasher};
 use std::error;
 use std::fmt;
-use siphasher::sip128::{Hasher128, SipHasher};
 
 use dev_prelude::*;
 
@@ -295,7 +295,6 @@ impl Hash for ArtifactIm {
     }
 }
 
-
 // ------ OPERATIONS -----
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
@@ -386,7 +385,6 @@ pub struct ProjectResult {
     pub project: Project,
     pub lints: Categorized,
 }
-
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub struct Project {

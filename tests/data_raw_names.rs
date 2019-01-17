@@ -18,12 +18,12 @@
 //! - #TST-unit.raw_name
 //! - #TST-fuzz.raw_name
 
-extern crate ergo;
 extern crate artifact_test;
-use ergo::*;
+extern crate ergo;
 use artifact_test::artifact_data::raw_names::NamesRaw;
 use artifact_test::raw_names::*;
 use artifact_test::*;
+use ergo::*;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 struct PartofSingle<'a> {

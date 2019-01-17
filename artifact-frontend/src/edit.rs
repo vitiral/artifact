@@ -24,7 +24,6 @@ pub(crate) fn view_edit(model: &Model, id: usize) -> ViewResult {
     }
 }
 
-
 pub(crate) fn handle_edit_artifact(model: &mut Model, id: usize, field: Field) {
     let artifact = match model.editing.get_mut(&id) {
         Some(a) => a,
@@ -70,7 +69,7 @@ fn view_edit_page(model: &Model, id: usize) -> HtmlApp {
         None => {
             return html![
                 <div>{ "Editing artifact not found"}</div>
-            ]
+            ];
         }
     };
 
@@ -174,30 +173,30 @@ fn view_partof(_: &Model, id: usize, artifact: &ArtifactEdit) -> HtmlApp {
     let view_part = |(index, name): (usize, &String)| {
         let id_str = format!("edit-partof-{}", index);
         html![
-        <div>
-            <button
-                id=format!("rm-partof-{}", index),
-                class=(BTN),
-                onclick=|_| Msg::EditArtifact(
-                   id, Field::Partof(index, FieldOp::Delete)
-                ),
-                title="remove",
-            >
-                { fa_icon(FA_TIMES) }
-            </button>
+            <div>
+                <button
+                    id=format!("rm-partof-{}", index),
+                    class=(BTN),
+                    onclick=|_| Msg::EditArtifact(
+                       id, Field::Partof(index, FieldOp::Delete)
+                    ),
+                    title="remove",
+                >
+                    { fa_icon(FA_TIMES) }
+                </button>
 
-            <input id=id_str.to_owned(),
-                name=id_str,
-                type="text",
-                class=(FIELD),
-                value=name.to_owned(),
-                oninput=|e| Msg::EditArtifact(
-                    id, Field::Partof(index, FieldOp::Update(e.value))
-                ),
-            >
-            </input>
-        </div>
-    ]
+                <input id=id_str.to_owned(),
+                    name=id_str,
+                    type="text",
+                    class=(FIELD),
+                    value=name.to_owned(),
+                    oninput=|e| Msg::EditArtifact(
+                        id, Field::Partof(index, FieldOp::Update(e.value))
+                    ),
+                >
+                </input>
+            </div>
+        ]
     };
     html![<div>
             { for artifact.partof.iter().enumerate().map(view_part) }

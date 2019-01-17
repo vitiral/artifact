@@ -61,17 +61,18 @@ extern crate unicode_segmentation;
 
 pub mod artifact;
 pub mod dev_prelude;
-pub mod name;
 pub mod family;
 pub mod graph;
 pub mod implemented;
+pub mod name;
 pub mod raw;
 #[macro_use]
 pub mod raw_names;
 pub mod framework;
 
-pub use framework::{assert_stuff_data, run_generic_interop_test, run_generic_interop_tests,
-                    ExpectStuff};
 pub use artifact_data::*; // for macros
-pub use proptest::*;
 pub use dev_prelude::*;
+pub use framework::{
+    assert_stuff_data, run_generic_interop_test, run_generic_interop_tests, ExpectStuff,
+};
+pub use proptest::*;
