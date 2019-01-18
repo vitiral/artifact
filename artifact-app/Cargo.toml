@@ -1,0 +1,53 @@
+[package]
+authors = ["Garrett Berg <vitiral@gmail.com>"]
+description = """
+Artifact is a design doc tool made for developers. It allows anyone to
+easily write and link their design docs both to each other and to source code,
+making it easy to track how complete their project is.
+Documents are revision controllable, can be rendered as a static
+web page and have a full suite of command line tools for searching,
+formatting and displaying them.
+"""
+documentation = "http://vitiral.github.io/artifact/"
+keywords = [
+    "cmdline",
+    "tool",
+    "requirements",
+    "documentation",
+    "testing",
+]
+license = "MIT OR Apache-2.0"
+name = "artifact-app"
+readme = "README.md"
+repository = "https://github.com/vitiral/artifact"
+version = "2.0.1"
+build = "build.rs"
+
+[dependencies]
+difference = "2.0.0"
+ergo = "0.0.*"
+serde = "1.0.66"
+serde_derive = "1.0.66"
+termstyle = "0.1.2"
+expect_macro = "0.2.1"
+# nickel = "0.10.1"
+nickel = { git = "https://github.com/nickel-org/nickel.rs" }
+jsonrpc-core = "8.0.1"
+artifact_data = {path = "artifact-data"}
+artifact_lib = {path = "artifact-lib"}
+artifact_ser = {path = "artifact-ser"}
+jrpc = "0.4.0"
+quicli = "0.3.0"
+
+# [dependencies.quicli]
+# path = "quicli"
+# default-features = false
+
+[dev-dependencies]
+assert_cli = "0.6.1"
+reqwest = "0.8.6"
+pretty_assertions = "0.5.1"
+artifact_test = { path = "artifact-test" }
+
+[build-dependencies]
+ergo = "0.0.*"
