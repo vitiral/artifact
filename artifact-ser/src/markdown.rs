@@ -186,20 +186,16 @@ impl<'a> SerMarkdown<'a> {
     pub fn replace_markdown<'p, 'm>(&'a self, parent: &'p str, markdown: &'m str) -> Cow<'m, str> {
         let replacer = |cap: &::ergo_std::regex::Captures<'_>| -> String {
             if let Some(sub) = cap.name(SUB_RE_KEY) {
-                eprintln!(" - REPlACE SUB: {}", sub.as_str());
                 self.replace_markdown_sub(parent, sub.as_str())
             } else if let Some(name) = cap.name(NAME_RE_KEY) {
-                eprintln!(" - REPlACE NAME: {}", name.as_str());
                 let sub = cap.name(NAME_SUB_RE_KEY).map(|s| subname!(s.as_str()));
                 self.name_markdown(&name!(name.as_str()), sub.as_ref())
             } else if let Some(dot) = cap.name(DOT_RE_KEY) {
-                eprintln!("## REPLACE DOT:\n{}\n", dot.as_str());
                 self.replace_markdown_dot(parent, &cap)
             } else {
                 panic!("Got unknown match in md: {:?}", cap);
             }
         };
-        eprintln!("running self.replace_markdown parent={}", parent);
         REPLACE_TEXT_RE.replace_all(markdown, replacer)
     }
 
@@ -318,17 +314,21 @@ impl<'a> SerMarkdown<'a> {
     /// Always get correct markdown for a file.
     pub fn html_file_url(&self, file: &str) -> String {
         let file_codeloc = CodeLocSer::with_file(file.to_string());
+        let trimmed_file = self.project.settings.trim_base(file);
         match self.format_code_url_maybe(&file_codeloc) {
-            Some(url) => format!("<a href=\"{}\">{}</a>", url, file),
-            None => file.to_string(),
+            Some(url) => format!("<a href=\"{}\">{}</a>", url, trimmed_file),
+            None => trimmed_file.to_string(),
         }
     }
 
     /// Always get correct markdown for a CodeLoc.
     pub fn html_code_url(&self, code: &CodeLocSer) -> String {
+        let trimmed_file = self.project.settings.trim_base(&code.file);
+        let code_fmt = format!("{}[{}]", trimmed_file, code.line);
+
         match self.format_code_url_maybe(code) {
-            Some(url) => format!("<a href=\"{}\">{:?}</a>", url, code),
-            None => format!("{:?}", code),
+            Some(url) => format!("<a href=\"{}\">{}</a>", url, code_fmt),
+            None => format!("{}", code_fmt),
         }
     }
 
@@ -349,7 +349,7 @@ impl<'a> SerMarkdown<'a> {
 }
 
 pub fn strfmt_code_url(url_fmt: &str, file: &str, line: u64) -> Result<String, String> {
-    let l = line.to_string();
+    let l = (line + 1).to_string();
     let vars = hashmap! {
         "file".to_string() => file,
         "line".to_string() => &l,
