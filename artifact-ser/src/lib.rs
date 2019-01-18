@@ -25,7 +25,6 @@
 use base64;
 #[macro_use]
 extern crate expect_macro;
-#[macro_use]
 extern crate ergo_std;
 
 #[macro_use]

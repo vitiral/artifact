@@ -14,13 +14,10 @@
  * for inclusion in the work by you, as defined in the Apache-2.0 license, shall
  * be dual licensed as above, without any additional terms or conditions.
  * */
-#[macro_use]
 extern crate artifact_test;
 
-#[macro_use]
 extern crate expect_macro;
 use jrpc;
-#[macro_use]
 extern crate pretty_assertions;
 use reqwest;
 
@@ -29,8 +26,6 @@ use std::process::{Command, Stdio};
 use std::result;
 
 use artifact_test::*;
-use expect_macro::*;
-use reqwest::header::*;
 
 fn run_interop_tests<P: AsRef<Path>>(test_base: P) {
     run_generic_interop_tests(test_base, run_server_test);

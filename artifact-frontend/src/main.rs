@@ -17,15 +17,11 @@
 #![recursion_limit = "256"]
 #![allow(unknown_lints)]
 
-#[macro_use]
 extern crate artifact_ser;
 
-#[macro_use]
 extern crate ergo_std;
 #[macro_use]
 extern crate expect_macro;
-use http;
-use jrpc;
 #[macro_use]
 extern crate stdweb;
 #[macro_use]
