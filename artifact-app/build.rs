@@ -13,10 +13,10 @@ fn main() {
 }
 
 lazy_static! {
-    static ref FRONTEND: PathDir = PathDir::new("artifact-frontend").unwrap();
-    static ref BOOK: PathDir = PathDir::new("book").unwrap();
-    static ref FRONTEND_TARGET: PathDir = PathDir::new(FRONTEND.join("target")).unwrap();
-    static ref FRONTEND_DEPLOY: PathDir = PathDir::new(FRONTEND_TARGET.join("deploy")).unwrap();
+    static ref FRONTEND: PathDir = PathDir::new("../artifact-frontend").unwrap();
+    static ref BOOK: PathDir = PathDir::new("../book").unwrap();
+    static ref FRONTEND_TARGET: PathDir = PathDir::create_all(FRONTEND.join("target")).unwrap();
+    static ref FRONTEND_DEPLOY: PathDir = PathDir::create_all(FRONTEND_TARGET.join("deploy")).unwrap();
 }
 
 fn check_deps() {
@@ -63,10 +63,12 @@ fn build_mdbook() {
 fn cp_mdbook() {
     println!("Copying mdbook to deploy");
     let (send, mut recv) = ch::unbounded();
+    let deploy = PathDir::new(FRONTEND_DEPLOY.join("docs")).unwrap();
+    deploy.clone().remove_all().unwrap();
     deep_copy(
         send,
         PathDir::new(BOOK.join("out").join("book")).unwrap(),
-        FRONTEND_DEPLOY.join("docs"),
+        deploy,
     );
     let errs: Vec<_> = recv.into_iter().collect();
     assert!(errs.is_empty(), "{:?}", errs);

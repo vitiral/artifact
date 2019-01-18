@@ -33,9 +33,9 @@ expect_macro = "0.2.1"
 # nickel = "0.10.1"
 nickel = { git = "https://github.com/nickel-org/nickel.rs" }
 jsonrpc-core = "8.0.1"
-artifact_data = {path = "artifact-data"}
-artifact_lib = {path = "artifact-lib"}
-artifact_ser = {path = "artifact-ser"}
+artifact_data = {path = "../artifact-data"}
+artifact_lib = {path = "../artifact-lib"}
+artifact_ser = {path = "../artifact-ser"}
 jrpc = "0.4.0"
 quicli = "0.3.0"
 
@@ -47,7 +47,7 @@ quicli = "0.3.0"
 assert_cli = "0.6.1"
 reqwest = "0.8.6"
 pretty_assertions = "0.5.1"
-artifact_test = { path = "artifact-test" }
+artifact_test = { path = "../artifact-test" }
 
 [build-dependencies]
 ergo = "0.0.*"
