@@ -6,7 +6,7 @@ use std::process::Command;
 fn main() {
     println!("Build Script Started");
     check_deps();
-    build_frontend();
+    // build_frontend();
     build_mdbook();
     cp_mdbook();
     tar_frontend().expect("tarring frontend failed");
@@ -39,7 +39,6 @@ fn check_deps() {
     };
 
     check_cmd(&mut missing, "mdbook");
-    check_cmd(&mut missing, "cargo-web");
 
     if !missing.is_empty() {
         println!("ERROR: Missing binary dependencies, their binaries must be put in target/deps/");
@@ -75,26 +74,29 @@ fn cp_mdbook() {
     assert!(errs.is_empty(), "{:?}", errs);
 }
 
-fn build_frontend() {
-    println!("Building artifact-frontend");
-    let status = Command::new("cargo-web")
-        .current_dir(WORKSPACE.as_path())
-        .args(&[
-            "deploy",
-            "-p",
-            "artifact-frontend",
-            "--target=wasm32-unknown-unknown",
-            "--release",
-        ])
-        .status()
-        .unwrap();
-
-    assert!(status.success(), "artifact-frontend failed to build");
-}
+// fn build_frontend() {
+//     println!("Building artifact-frontend");
+//     let status = Command::new("cargo-web")
+//         .current_dir(WORKSPACE.as_path())
+//         .args(&[
+//             "deploy",
+//             "-p",
+//             "artifact-frontend",
+//             "--target=wasm32-unknown-unknown",
+//             "--release",
+//         ])
+//         .status()
+//         .unwrap();
+//
+//     assert!(status.success(), "artifact-frontend failed to build");
+// }
 
 fn tar_frontend() -> ::std::io::Result<PathFile> {
     let target = PathDir::new(WORKSPACE.join("target"))?;
-    let deploy = PathDir::new(target.join("deploy"))?;
+    let deploy = match PathDir::new(target.join("deploy")) {
+        Ok(d) => d,
+        Err(e) => panic!("target/deploy doesn't exist. justfile::build-frontend defines how."),
+    };
     let archive_path = PathFile::create(target.join("frontend.tar"))?;
 
     println!("Taring frontend {:?} into {:?}", deploy, archive_path);

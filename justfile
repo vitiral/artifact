@@ -4,6 +4,8 @@ build-frontend:
 build: build-frontend
 	cargo build -p artifact-app
 
+build-release: build-frontend
+	cargo build -p artifact-app --release
 
-
-
+test: build-frontend
+	cargo test -p artifact-app

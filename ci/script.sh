@@ -3,6 +3,8 @@
 set -ex
 
 main() {
+    # must be done first
+    cargo-web deploy -p artifact-frontend --release --target=wasm32-unknown-unknown
     $BTOOL build -p artifact-app --target $TARGET
 
     if [ ! -z $DISABLE_TESTS ]; then
