@@ -22,6 +22,7 @@ readme = "README.md"
 repository = "https://github.com/vitiral/artifact"
 version = "2.0.1"
 build = "build.rs"
+edition = "2018"
 
 [dependencies]
 difference = "2.0.0"
