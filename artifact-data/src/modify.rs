@@ -151,7 +151,7 @@ fn check_paths(lints: &mut lint::Categorized, project: &Project, operations: &[A
 fn check_overlap(lints: &mut lint::Categorized, operations: &mut Vec<ArtifactOp>) {
     let mut ids = IndexSet::new();
 
-    for mut op in operations {
+    for op in operations {
         op.clean();
 
         let pieces = op.id_pieces();
