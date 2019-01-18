@@ -20,7 +20,7 @@ use dev_prelude::*;
 use tar::Archive;
 use tempdir::TempDir;
 
-const WEB_FRONTEND_TAR: &'static [u8] = include_bytes!("../../artifact-frontend/target/frontend.tar");
+const WEB_FRONTEND_TAR: &'static [u8] = include_bytes!("../../target/frontend.tar");
 
 /// Unpack the web frontend, overriding the initial project settings.
 pub(crate) fn unpack_frontend<P: AsRef<Path>>(
