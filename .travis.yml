@@ -40,9 +40,12 @@ deploy:
   provider: releases
   api_key:
     secure: JtkWm1okExxwWghT6GijjEYD2ORjWb3hlvfLxH6VNt00r22G8yo/XxYdwKrFEsRv1sg0BajUl3/RzXmTYxXtRDVwoyFi7+pAEsuJ17Z+/zZtEZwoomZLJVmJUgMNOOg0zW01qPGSYmgi2gtuXgNBWjasGlVzrNu/xoyr0Y+J0U6bVawbvr++ZnzeY8tbB7XZvonDPCcXjShTZuA7hCaqUKvj+GxrO1kCejJTW4R4pq1jQNsmavlHQi6w797dasX0ag18lIAvKMEMP+d+9AJ4qXA/pwFUwDw1pQe/ZeU9Cuv/bJoAtz27Fq4T18dFHpST4pwq3JmpgSE/zo87s3Kj53fu9Uobew4VzMjti0HH/0sIyoWpWV//feIrBAbPrRq6oIABXRTaiCTlGJqwt718aQM0v2jAGl1q2SeKOtgX3AMrP2a2MHMEiGuvFQJilqcwofzTjJJJp2C8asax1hVJpcB5NhPZ7xayzmDBA0x7zOD3h1v6uprfuyYmWKoiASWYiULlDbVme8n+worXhPcFkpCr7l97D/1CREKDvXTQF+7CcB5XRADKwifzqU+XYWA+vrQ+H+/TzwbCAIYIdkp5DBFPl7PdePD1QFIaJ7YDLpwzy7oyz7pGblu9tNqjLjnZxvbgO/mHpWTNTOq9D3O9ecxqjXfmY3cjp6RTf7IEtfs=
-  file: ''
+  file: $CRATE_NAME-$TRAVIS_TAG-$TARGET.*
   on:
     repo: vitiral/artifact
+    condition: $TRAVIS_RUST_VERSION = stable
+    tags: true
+  skip_cleanup: true
 
 cache: cargo
 before_cache:
