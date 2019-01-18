@@ -18,8 +18,6 @@
 //! - #TST-unit.raw_name
 //! - #TST-fuzz.raw_name
 
-
-
 use artifact_test::artifact_data::raw_names::NamesRaw;
 use artifact_test::raw_names::*;
 use artifact_test::*;

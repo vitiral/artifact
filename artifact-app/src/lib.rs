@@ -25,7 +25,6 @@ extern crate artifact_data;
 #[macro_use]
 extern crate artifact_lib;
 
-
 #[allow(unused_imports)]
 #[macro_use]
 extern crate ergo;
@@ -39,7 +38,6 @@ extern crate expect_macro;
 use termstyle;
 
 use jrpc;
-
 
 #[allow(unused_imports)]
 use ergo::*;

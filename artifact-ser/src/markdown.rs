@@ -2,7 +2,7 @@ use crate::dev_prelude::*;
 use crate::ser::*;
 use std::io;
 
-use super::{Completed, SettingsMdFamily, SettingsMdDot};
+use super::{Completed, SettingsMdDot, SettingsMdFamily};
 use crate::md_graph;
 use crate::name::*;
 
@@ -62,7 +62,10 @@ impl<'a> SerMarkdown<'a> {
         Self::with_settings(project, SerMarkdownSettings::default())
     }
 
-    pub fn with_settings(project: &'a ProjectSer, settings: SerMarkdownSettings) -> SerMarkdown<'_> {
+    pub fn with_settings(
+        project: &'a ProjectSer,
+        settings: SerMarkdownSettings,
+    ) -> SerMarkdown<'_> {
         SerMarkdown {
             project: project,
             settings: settings,
@@ -134,7 +137,11 @@ impl<'a> SerMarkdown<'a> {
         Ok(())
     }
 
-    fn art_to_markdown_family(&self, w: &mut dyn io::Write, artifact: &ArtifactSer) -> io::Result<()> {
+    fn art_to_markdown_family(
+        &self,
+        w: &mut dyn io::Write,
+        artifact: &ArtifactSer,
+    ) -> io::Result<()> {
         match self.settings.family {
             SettingsMdFamily::List => {
                 macro_rules! write_section {
@@ -155,7 +162,9 @@ impl<'a> SerMarkdown<'a> {
             SettingsMdFamily::Dot => {
                 tag_details_begin(w, "dot-graph")?;
                 let (dot_pre, dot_post) = match self.settings.dot {
-                    SettingsMdDot::ReplaceBraces {ref pre, ref post} => (pre.as_str(), post.as_str()),
+                    SettingsMdDot::ReplaceBraces { ref pre, ref post } => {
+                        (pre.as_str(), post.as_str())
+                    }
                     _ => ("```dot", "```"),
                 };
                 write!(
@@ -222,7 +231,11 @@ impl<'a> SerMarkdown<'a> {
         }
     }
 
-    fn replace_markdown_dot<'p, 'd>(&'a self, parent: &'p str, cap: &::ergo_std::regex::Captures<'_>) -> String {
+    fn replace_markdown_dot<'p, 'd>(
+        &'a self,
+        parent: &'p str,
+        cap: &::ergo_std::regex::Captures<'_>,
+    ) -> String {
         let replacer = |cap: &::ergo_std::regex::Captures<'_>| -> String {
             if let Some(sub) = cap.name(SUB_RE_KEY) {
                 md_graph::subname_dot(self, parent, &subname!(sub.as_str()))
@@ -243,13 +256,13 @@ impl<'a> SerMarkdown<'a> {
         let (dot_pre, dot_post) = match self.settings.dot {
             SettingsMdDot::Ignore => (dot_pre, dot_post),
             SettingsMdDot::RemoveBraces => ("", ""),
-            SettingsMdDot::ReplaceBraces {ref pre, ref post} => (pre.as_str(), post.as_str()),
+            SettingsMdDot::ReplaceBraces { ref pre, ref post } => (pre.as_str(), post.as_str()),
         };
         format!(
             "{pre}\n{dot}\n{post}",
-            pre=dot_pre,
-            post=dot_post,
-            dot=dot,
+            pre = dot_pre,
+            post = dot_post,
+            dot = dot,
         )
     }
 
@@ -351,7 +364,6 @@ pub fn name_color(project: &ProjectSer, name: &Name) -> &'static str {
         None => GRAY,
     }
 }
-
 
 fn name_html_raw(
     name: &str,

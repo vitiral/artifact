@@ -31,7 +31,6 @@ extern crate ergo_std;
 #[macro_use]
 extern crate derive_error;
 
-
 // TODO: move to path_abs
 pub use std::str::FromStr;
 pub use std::string::ToString;
@@ -61,7 +60,6 @@ pub use crate::ser::{
 };
 
 use crate::dev_prelude::*;
-
 
 // ------ SETTINGS ------
 
@@ -101,7 +99,6 @@ impl Default for SettingsMdFamily {
     }
 }
 
-
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case", tag = "type")]
 pub enum SettingsMdDot {
@@ -112,10 +109,7 @@ pub enum SettingsMdDot {
     RemoveBraces,
 
     /// Replace the outer braces
-    ReplaceBraces {
-        pre: String,
-        post: String,
-    }
+    ReplaceBraces { pre: String, post: String },
 }
 
 impl Default for SettingsMdDot {
@@ -123,7 +117,6 @@ impl Default for SettingsMdDot {
         SettingsMdDot::Ignore
     }
 }
-
 
 // ------ HASH ------
 

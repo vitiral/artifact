@@ -16,9 +16,9 @@
  * */
 use yew_simple;
 
-use artifact_ser;
 use crate::dev_prelude::*;
 use crate::graph;
+use artifact_ser;
 
 lazy_static! {
     static ref NAME_URL: Regex = expect!(Regex::new(&format!(

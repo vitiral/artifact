@@ -89,7 +89,11 @@ impl Component<Context> for Model {
     }
 }
 
-fn update_model(model: &mut Model, msg: Msg, context: &mut Env<'_, Context, Model>) -> ShouldRender {
+fn update_model(
+    model: &mut Model,
+    msg: Msg,
+    context: &mut Env<'_, Context, Model>,
+) -> ShouldRender {
     match msg {
         Msg::SetView(view) => model.view = view,
         Msg::Ignore => return false,

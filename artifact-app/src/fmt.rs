@@ -16,8 +16,8 @@
  * */
 //! Format the project
 
-use artifact_data::*;
 use crate::dev_prelude::*;
+use artifact_data::*;
 
 #[derive(Debug, StructOpt)]
 #[structopt(name = "fmt")]

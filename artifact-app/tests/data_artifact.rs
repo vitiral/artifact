@@ -18,9 +18,6 @@
 //! - #TST-unit.artifact
 //! - #TST-fuzz.artifact
 
-
-
-
 use artifact_data::artifact;
 use artifact_test::dev_prelude::*;
 

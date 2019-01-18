@@ -57,8 +57,6 @@ extern crate pretty_assertions;
 
 use regex_generate;
 
-
-
 pub mod artifact;
 pub mod dev_prelude;
 pub mod family;
@@ -70,9 +68,9 @@ pub mod raw;
 pub mod raw_names;
 pub mod framework;
 
-pub use artifact_data::*; // for macros
 pub use crate::dev_prelude::*;
 pub use crate::framework::{
     assert_stuff_data, run_generic_interop_test, run_generic_interop_tests, ExpectStuff,
 };
+pub use artifact_data::*; // for macros
 pub use proptest::*;

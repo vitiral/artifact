@@ -17,8 +17,8 @@
 //! #SPC-cli-ls
 use std::io;
 
-use artifact_data::*;
 use crate::dev_prelude::*;
+use artifact_data::*;
 use termstyle::Color::*;
 use termstyle::{self, Color, El, Table, Text};
 

@@ -25,8 +25,6 @@
 #![allow(unknown_lints)]
 #![allow(doc_markdown)]
 
-
-
 #[macro_use]
 extern crate expect_macro;
 use failure;
@@ -34,7 +32,6 @@ use failure;
 extern crate matches;
 use petgraph;
 use rayon;
-
 
 #[macro_use]
 extern crate serde_derive;
@@ -73,12 +70,6 @@ extern crate pretty_assertions;
 
 // #[cfg(test)]
 // extern crate rand;
-
-
-
-
-
-
 
 pub use crate::modify::modify_project;
 pub use crate::project::read_project;

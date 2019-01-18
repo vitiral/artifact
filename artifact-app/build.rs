@@ -79,7 +79,13 @@ fn build_frontend() {
     println!("Building artifact-frontend");
     let status = Command::new("cargo-web")
         .current_dir(WORKSPACE.as_path())
-        .args(&["deploy", "-p", "artifact-frontend", "--target=wasm32-unknown-unknown", "--release"])
+        .args(&[
+            "deploy",
+            "-p",
+            "artifact-frontend",
+            "--target=wasm32-unknown-unknown",
+            "--release",
+        ])
         .status()
         .unwrap();
 

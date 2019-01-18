@@ -15,8 +15,8 @@
  * be dual licensed as above, without any additional terms or conditions.
  * */
 
-use artifact_data::*;
 use crate::dev_prelude::*;
+use artifact_data::*;
 use std::io;
 
 use crate::frontend;

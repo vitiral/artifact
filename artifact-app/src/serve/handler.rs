@@ -15,13 +15,13 @@
  * be dual licensed as above, without any additional terms or conditions.
  * */
 //! Handle RPC Requests
+use crate::tar::Archive;
+use crate::tempdir::TempDir;
 use ergo::*;
 use nickel::status::StatusCode;
 use nickel::{
     HttpRouter, MediaType, MiddlewareResult, Nickel, Request, Response, StaticFilesHandler,
 };
-use crate::tar::Archive;
-use crate::tempdir::TempDir;
 // use jsonrpc_core::{Error as RpcError, ErrorCode, IoHandler, Params, RpcMethodSync};
 use jrpc;
 use std::mem;
@@ -30,8 +30,8 @@ use std::result;
 use crate::frontend;
 use crate::serve;
 
-use artifact_data::*;
 use crate::dev_prelude::*;
+use artifact_data::*;
 
 // ----- SERVER -----
 

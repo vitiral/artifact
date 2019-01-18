@@ -30,7 +30,10 @@ macro_rules! create_fetch_task {
     }}
 }
 
-pub(crate) fn start_fetch_initial(model: &mut Model, context: &mut Env<'_, Context, Model>) -> bool {
+pub(crate) fn start_fetch_initial(
+    model: &mut Model,
+    context: &mut Env<'_, Context, Model>,
+) -> bool {
     if model.fetch_task.is_some() {
         panic!("This should only be called first.")
     }
