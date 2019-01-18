@@ -1,138 +1,57 @@
-# Based on the "trust" template v0.1.2
-# https://github.com/japaric/trust/tree/v0.1.2
-
 dist: trusty
 language: rust
 rust: stable
 services: docker
 sudo: required
-
 os:
-    - linux
-    - osx
-    - windows
+- linux
+- osx
+- windows
 
 env:
   global:
-    - CRATE_NAME=artifact
-
+  - CRATE_NAME=artifact
 matrix:
-    allow_failures:
-        - os: windows
-
-      # matrix:
-      #   include:
-      #     # Android
-      #     # - env: TARGET=aarch64-linux-android DISABLE_TESTS=1
-      #     # - env: TARGET=arm-linux-androideabi DISABLE_TESTS=1
-      #     # - env: TARGET=armv7-linux-androideabi DISABLE_TESTS=1
-      #     # - env: TARGET=i686-linux-android DISABLE_TESTS=1
-      #     # - env: TARGET=x86_64-linux-android DISABLE_TESTS=1
-      # 
-      #     # iOS
-      #     # - env: TARGET=aarch64-apple-ios DISABLE_TESTS=1
-      #     #   os: osx
-      #     # - env: TARGET=armv7-apple-ios DISABLE_TESTS=1
-      #     #   os: osx
-      #     # - env: TARGET=armv7s-apple-ios DISABLE_TESTS=1
-      #     #   os: osx
-      #     # - env: TARGET=i386-apple-ios DISABLE_TESTS=1
-      #     #   os: osx
-      #     # - env: TARGET=x86_64-apple-ios DISABLE_TESTS=1
-      #     #   os: osx
-      # 
-      #     # Linux
-      #     # - env: TARGET=aarch64-unknown-linux-gnu
-      #     # - env: TARGET=arm-unknown-linux-gnueabi
-      #     # - env: TARGET=armv7-unknown-linux-gnueabihf
-      #     # - env: TARGET=i686-unknown-linux-gnu
-      #     # - env: TARGET=i686-unknown-linux-musl
-      #     # - env: TARGET=mips-unknown-linux-gnu
-      #     # - env: TARGET=mips64-unknown-linux-gnuabi64
-      #     # - env: TARGET=mips64el-unknown-linux-gnuabi64
-      #     # - env: TARGET=mipsel-unknown-linux-gnu
-      #     # - env: TARGET=powerpc-unknown-linux-gnu
-      #     # - env: TARGET=powerpc64-unknown-linux-gnu
-      #     # - env: TARGET=powerpc64le-unknown-linux-gnu
-      #     # - env: TARGET=s390x-unknown-linux-gnu DISABLE_TESTS=1
-      #     - env: TARGET=x86_64-unknown-linux-gnu
-      #     # - env: TARGET=x86_64-unknown-linux-musl
-      # 
-      #     # OSX
-      #     # - env: TARGET=i686-apple-darwin
-      #     #   os: osx
-      #     - env: TARGET=x86_64-apple-darwin
-      #       os: osx
-      # 
-      #     # *BSD
-      #     # - env: TARGET=i686-unknown-freebsd DISABLE_TESTS=1
-      #     # - env: TARGET=x86_64-unknown-freebsd DISABLE_TESTS=1
-      #     # - env: TARGET=x86_64-unknown-netbsd DISABLE_TESTS=1
-      # 
-      #     # Windows
-      #     # TODO(rust-lang/cargo#5825): doens't compile frontend
-      #     - env: TARGET=x86_64-pc-windows-gnu
-      # 
-      #     # Bare metal
-      #     # These targets don't support std and as such are likely not suitable for
-      #     # most crates.
-      #     # - env: TARGET=thumbv6m-none-eabi
-      #     # - env: TARGET=thumbv7em-none-eabi
-      #     # - env: TARGET=thumbv7em-none-eabihf
-      #     # - env: TARGET=thumbv7m-none-eabi
-      # 
-      #     # Testing other channels
-      #     # - env: TARGET=x86_64-unknown-linux-gnu
-      #     #   rust: nightly
-      #     # - env: TARGET=x86_64-apple-darwin
-      #     #   os: osx
-      #     #   rust: nightly
+  allow_failures:
+  - os: windows
 
 before_install:
-  - set -e
-  - export RUST_BACKTRACE=1
-  - export TARGET=$(rustup target list | grep '(default)' | awk '{print $1}')
-
-  # - export BTOOL=cross
-  - export BTOOL=cargo
-  - export RELEASE_NAME="$CRATE_NAME-$TRAVIS_TAG-$TARGET"
-  - echo TARGET=$TARGET
-  - echo RELEASE_NAME=$RELEASE_NAME
-  - rustup self update
+- set -e
+- export RUST_BACKTRACE=1
+- export TARGET=$(rustup target list | grep '(default)' | awk '{print $1}')
+- export BTOOL=cargo
+- export RELEASE_NAME="$CRATE_NAME-$TRAVIS_TAG-$TARGET"
+- echo TARGET=$TARGET
+- echo RELEASE_NAME=$RELEASE_NAME
+- rustup self update
 
 install:
-  - sh ci/install.sh
-  - source ~/.cargo/env || true
+- sh ci/install.sh
+- source ~/.cargo/env || true
 
 script:
-  - bash ci/script.sh
+- bash ci/script.sh
 
 after_script: set +e
-
 before_deploy:
-  - sh ci/before_deploy.sh
+- sh ci/before_deploy.sh
 
 deploy:
-  api_key:
-    secure: mup1wr3gAlbMJARUpcE/573zjVHWIM3iwdzcH/6hW8RqcSJNuNz964AF/xQcIrCC4y8aZOboOPZLtc2Spo5oDk0NmygOaSbQXlJwJWdbWJ15GXTi0FMzsC83waBCO7xwKXkewqCc+NCsuPbkVoJugcETcgx0ymDaeFP6i3NAs43uIjxdHeVv58BshAwZszp0DuQZWg73Vy4diPSWyVvDYQYtYRVs6Xl9/xlIGL1peORZnk/dFhfI0zvxajNqoOyhwIJzp8nUuwVBxomsBtJ5sKa4T7FAN5HGe4EnMFfnSwAYl5ffjVd4okyMrmDAdl6nveSgeGxcT8kmMpjrLTAEjd7JBw1Pa5mIY+7YduR/XrruLwLCCix0UJpjETppXG18J0gla+znqRCMxSil2GQ18d7TW7c8uetBSDjTn+tLHqSigfXtKExLYnkFOxEzISkHYw0jTHwAadtcxJLaKMsG2MOOFc7eeHuevIftJz7r2ONkORo9s9AX64hGEZVea9+qm27y+QJ6Cor8CZa+8cmdm/NsiWAcbXDg1YpG2MSAHeF/tmqfeVSJiloKJnCnMDE1Rcg2ZmHLd12qUfuF+CrbqpVdunjfFUN6bq0igjN1BfocIsl1285KCiOBZr5p91Wg5Mn87YNR3hihRkU5s32TTH2gETHP+Y24jXtLZQZxdPw=
-  file_glob: true
-  file: $CRATE_NAME-$TRAVIS_TAG-$TARGET.*
-  on:
-    # condition: $TRAVIS_RUST_VERSION = stable
-    tags: true
   provider: releases
-  skip_cleanup: true
+  api_key:
+    secure: JtkWm1okExxwWghT6GijjEYD2ORjWb3hlvfLxH6VNt00r22G8yo/XxYdwKrFEsRv1sg0BajUl3/RzXmTYxXtRDVwoyFi7+pAEsuJ17Z+/zZtEZwoomZLJVmJUgMNOOg0zW01qPGSYmgi2gtuXgNBWjasGlVzrNu/xoyr0Y+J0U6bVawbvr++ZnzeY8tbB7XZvonDPCcXjShTZuA7hCaqUKvj+GxrO1kCejJTW4R4pq1jQNsmavlHQi6w797dasX0ag18lIAvKMEMP+d+9AJ4qXA/pwFUwDw1pQe/ZeU9Cuv/bJoAtz27Fq4T18dFHpST4pwq3JmpgSE/zo87s3Kj53fu9Uobew4VzMjti0HH/0sIyoWpWV//feIrBAbPrRq6oIABXRTaiCTlGJqwt718aQM0v2jAGl1q2SeKOtgX3AMrP2a2MHMEiGuvFQJilqcwofzTjJJJp2C8asax1hVJpcB5NhPZ7xayzmDBA0x7zOD3h1v6uprfuyYmWKoiASWYiULlDbVme8n+worXhPcFkpCr7l97D/1CREKDvXTQF+7CcB5XRADKwifzqU+XYWA+vrQ+H+/TzwbCAIYIdkp5DBFPl7PdePD1QFIaJ7YDLpwzy7oyz7pGblu9tNqjLjnZxvbgO/mHpWTNTOq9D3O9ecxqjXfmY3cjp6RTf7IEtfs=
+  file: ''
+  on:
+    repo: vitiral/artifact
 
 cache: cargo
 before_cache:
-  # Travis can't cache files that are not readable by "others"
-  - chmod -R a+r $HOME/.cargo
+- chmod -R a+r $HOME/.cargo
 
 branches:
   only:
-    # release tags
-    - /^v\d+\.\d+\.\d+.*$/
-    - master
+  - "/^v\\d+\\.\\d+\\.\\d+.*$/"
+  - master
 
 notifications:
   email:
