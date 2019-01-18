@@ -25,6 +25,7 @@ main() {
     cd $stage
     tar czf $src/${RELEASE_NAME}.tar.gz *
     cd $src
+    ls -al
 
     rm -rf $stage
 }
