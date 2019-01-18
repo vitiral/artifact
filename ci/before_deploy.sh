@@ -17,7 +17,8 @@ main() {
 
     test -f Cargo.lock || cargo generate-lockfile
 
-    $BTOOL rustc --bin art --target $TARGET --release -- -C lto
+    # $BTOOL rustc --bin art --target $TARGET --release -- -C lto
+    $BTOOL build -p artifact-app --target $TARGET --release
 
     cp target/$TARGET/release/art $stage/
 
