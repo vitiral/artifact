@@ -17,9 +17,9 @@
 #![recursion_limit = "256"]
 #![allow(unknown_lints)]
 
-extern crate artifact_ser;
+use artifact_ser;
 
-extern crate ergo_std;
+
 #[macro_use]
 extern crate expect_macro;
 #[macro_use]
