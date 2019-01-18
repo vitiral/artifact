@@ -14,11 +14,11 @@
  * for inclusion in the work by you, as defined in the Apache-2.0 license, shall
  * be dual licensed as above, without any additional terms or conditions.
  * */
-extern crate artifact_test;
+
 use artifact_test::*;
 
-use artifact_data::raw::{from_markdown, to_markdown, ArtFileType, ArtifactRaw, TextRaw};
-use artifact_data::raw_names::NamesRaw;
+use crate::artifact_data::raw::{from_markdown, to_markdown, ArtFileType, ArtifactRaw, TextRaw};
+use crate::artifact_data::raw_names::NamesRaw;
 use artifact_test::raw::{arb_raw_artifacts, arts_from_json_str, arts_from_toml_str};
 
 #[test]
@@ -119,7 +119,7 @@ partof:
         let new_raw = serde_roundtrip(
             "markdown",
             from_markdown_str,
-            ::artifact_data::raw::to_markdown,
+            crate::artifact_data::raw::to_markdown,
             &out,
         )
         .unwrap();
@@ -142,7 +142,7 @@ proptest! {
         for (n, a) in orig.iter() {
             artifacts.insert(n.clone(), a.clone());
         }
-        serde_roundtrip("markdown", from_markdown_str, ::artifact_data::raw::to_markdown, &artifacts).expect("md");
+        serde_roundtrip("markdown", from_markdown_str, crate::artifact_data::raw::to_markdown, &artifacts).expect("md");
         serde_roundtrip("toml", arts_from_toml_str, to_toml_string, &artifacts).expect("toml");
         serde_roundtrip("json", arts_from_json_str, to_json_string, &artifacts).expect("json");
     }

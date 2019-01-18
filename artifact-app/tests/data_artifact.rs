@@ -17,9 +17,6 @@
 //! Unit/Fuzz Tests:
 //! - #TST-unit.artifact
 //! - #TST-fuzz.artifact
-extern crate artifact_data;
-extern crate artifact_test;
-extern crate ergo;
 
 use artifact_data::artifact;
 use artifact_test::dev_prelude::*;

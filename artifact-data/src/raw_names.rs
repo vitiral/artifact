@@ -16,7 +16,7 @@
  * */
 //! Define the serialization rules for raw names
 
-use dev_prelude::*;
+use crate::dev_prelude::*;
 use ergo::serde;
 use ergo::serde::de::{Deserialize, Deserializer, SeqAccess, Visitor};
 use ergo::serde::ser::{Serialize, Serializer};
@@ -41,7 +41,7 @@ macro_rules! names_raw {
 pub struct NamesRaw(pub(crate) IndexSet<Name>);
 
 impl fmt::Debug for NamesRaw {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{:?}", self.0)
     }
 }
@@ -113,7 +113,7 @@ struct NamesRawVisitor;
 impl<'de> Visitor<'de> for NamesRawVisitor {
     type Value = NamesRaw;
 
-    fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+    fn expecting(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
         formatter.write_str("an artifact or list of artifacts that can be in collapsed form")
     }
 

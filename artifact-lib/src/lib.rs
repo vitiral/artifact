@@ -19,18 +19,14 @@
 //! This library of artifact types is intended to be usable both natively and via wasm.
 
 #![allow(unused_imports)]
-extern crate base64;
-extern crate ergo_config;
+
 #[macro_use]
 extern crate ergo_std;
 #[macro_use]
 extern crate expect_macro;
-extern crate failure;
+
 #[macro_use]
 extern crate failure_derive;
-extern crate artifact_ser;
-extern crate path_abs;
-extern crate siphasher;
 
 pub use artifact_ser::*;
 
@@ -42,7 +38,7 @@ use siphasher::sip128::{Hasher128, SipHasher};
 use std::error;
 use std::fmt;
 
-use dev_prelude::*;
+use crate::dev_prelude::*;
 
 lazy_static! {
     static ref SUBNAME_TST_RE: Regex = Regex::new(r"(?i)^\.tst-.*$").unwrap();
@@ -89,7 +85,7 @@ impl Artifact {
 }
 
 impl fmt::Display for Artifact {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(
             f,
             "Artifact<name={}, {}>",
@@ -199,7 +195,7 @@ impl Impl {
 }
 
 impl fmt::Display for Impl {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match *self {
             Impl::Done(ref s) => write!(f, "{}", s),
             Impl::Code(ref c) => write!(f, "{}", c),
@@ -209,7 +205,7 @@ impl fmt::Display for Impl {
 }
 
 impl fmt::Display for ImplCode {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         if let Some(ref loc) = self.primary {
             write!(f, "{:?}", loc)?;
         }
@@ -221,7 +217,7 @@ impl fmt::Display for ImplCode {
 }
 
 impl fmt::Debug for CodeLoc {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}[{}]", self.file.display(), self.line)
     }
 }

@@ -22,7 +22,7 @@ use std::fmt;
 /// This is the primary error type for all "non fatal" errors and warnings.
 use std::sync::mpsc::Sender;
 
-use dev_prelude::*;
+use crate::dev_prelude::*;
 
 #[derive(Debug, Clone, Hash, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 /// An artifact lint error or warning
@@ -105,7 +105,7 @@ impl error::Error for Categorized {
 }
 
 impl fmt::Display for Categorized {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(
             f,
             "  ----- ERRORS -----:\n{}\n\n",

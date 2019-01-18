@@ -19,9 +19,9 @@ use ergo::serde::{self, Deserialize, Deserializer, Serialize, Serializer};
 use siphasher::sip128::{Hasher128, SipHasher};
 use std::fmt;
 
-use dev_prelude::*;
-use raw::{self, ArtifactRaw, TextRaw};
-use raw_names::NamesRaw;
+use crate::dev_prelude::*;
+use crate::raw::{self, ArtifactRaw, TextRaw};
+use crate::raw_names::NamesRaw;
 
 pub trait ArtifactImExt {
     /// Get an `ArtifactIm` from an `ArtifactRaw`.

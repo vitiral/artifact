@@ -16,9 +16,9 @@
  * */
 use yew_simple;
 
+use crate::dev_prelude::*;
+use crate::graph;
 use artifact_ser;
-use dev_prelude::*;
-use graph;
 
 lazy_static! {
     static ref NAME_URL: Regex = expect!(Regex::new(&format!(
@@ -82,7 +82,7 @@ pub(crate) fn markdown_html(model: &Model, parent: &str, markdown: &str) -> Html
 }
 
 /// Return the default SerMarkdown object for the frontend.
-pub(crate) fn ser_markdown(model: &Model) -> artifact_ser::markdown::SerMarkdown {
+pub(crate) fn ser_markdown(model: &Model) -> artifact_ser::markdown::SerMarkdown<'_> {
     use artifact_ser::markdown::*;
     let settings = SerMarkdownSettings {
         code_url: model.shared.settings.code_url.clone(),
@@ -94,7 +94,7 @@ pub(crate) fn ser_markdown(model: &Model) -> artifact_ser::markdown::SerMarkdown
 }
 
 fn replace_markdown<'t>(markdown: &'t str) -> Cow<'t, str> {
-    let replacer = |cap: &::ergo_std::regex::Captures| -> String {
+    let replacer = |cap: &::ergo_std::regex::Captures<'_>| -> String {
         if let Some(dot) = cap.name("dot") {
             replace_markdown_dot(dot.as_str())
         } else {

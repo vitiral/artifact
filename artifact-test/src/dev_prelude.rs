@@ -56,6 +56,11 @@ lazy_static! {
                 .unwrap() // crate/src
                 .parent()
                 .unwrap() // crate/
+                .parent()
+                .unwrap() // ../        ??
+                .parent()
+                .unwrap() // ../../     ??
+                .join("artifact-test")
             ).unwrap();
     pub static ref INTEROP_TESTS_PATH: PathAbs = PathAbs::new(
         ARTIFACT_TEST_PATH.join("interop_tests")).unwrap();

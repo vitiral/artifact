@@ -15,8 +15,8 @@
  * be dual licensed as above, without any additional terms or conditions.
  * */
 
+use crate::dev_prelude::*;
 use artifact_data::*;
-use dev_prelude::*;
 use termstyle::Color::*;
 use termstyle::{self, Color, El, Table, Text};
 

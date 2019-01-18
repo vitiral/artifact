@@ -15,11 +15,11 @@
  * be dual licensed as above, without any additional terms or conditions.
  * */
 
+use crate::dev_prelude::*;
 use artifact_data::*;
-use dev_prelude::*;
 use std::io;
 
-use frontend;
+use crate::frontend;
 
 #[derive(Debug, StructOpt)]
 #[structopt(

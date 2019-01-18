@@ -22,15 +22,12 @@
 //!
 //! Used mostly in the frontend or in places where path deserialization is not needed.
 
-extern crate base64;
+use base64;
 #[macro_use]
 extern crate expect_macro;
-#[macro_use]
-extern crate ergo_std;
-extern crate ergo_config;
+
 #[macro_use]
 extern crate derive_error;
-extern crate strfmt;
 
 // TODO: move to path_abs
 pub use std::str::FromStr;
@@ -51,17 +48,16 @@ mod expand_names;
 pub mod markdown;
 pub mod md_graph;
 
-pub use expand_names::expand_names;
-pub use family::{auto_partofs, Names};
-pub use lint::Categorized;
-pub use name::{parse_subnames, InternalSubName, Name, SubName, Type, NAME_VALID_STR};
-pub use ser::{
+pub use crate::expand_names::expand_names;
+pub use crate::family::{auto_partofs, Names};
+pub use crate::lint::Categorized;
+pub use crate::name::{parse_subnames, InternalSubName, Name, SubName, Type, NAME_VALID_STR};
+pub use crate::ser::{
     ArtifactImSer, ArtifactOpSer, ArtifactSer, CodeLocSer, ImplCodeSer, ImplSer, ProjectInitialSer,
     ProjectResultSer, ProjectSer, SettingsSer, WebType,
 };
 
-use dev_prelude::*;
-
+use crate::dev_prelude::*;
 
 // ------ SETTINGS ------
 
@@ -101,7 +97,6 @@ impl Default for SettingsMdFamily {
     }
 }
 
-
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case", tag = "type")]
 pub enum SettingsMdDot {
@@ -112,10 +107,7 @@ pub enum SettingsMdDot {
     RemoveBraces,
 
     /// Replace the outer braces
-    ReplaceBraces {
-        pre: String,
-        post: String,
-    }
+    ReplaceBraces { pre: String, post: String },
 }
 
 impl Default for SettingsMdDot {
@@ -124,7 +116,6 @@ impl Default for SettingsMdDot {
     }
 }
 
-
 // ------ HASH ------
 
 /// The type used for unique hash ids
@@ -132,13 +123,13 @@ impl Default for SettingsMdDot {
 pub struct HashIm(pub [u8; 16]);
 
 impl fmt::Display for HashIm {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", expect!(json::to_string(&self)))
     }
 }
 
 impl fmt::Debug for HashIm {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self)
     }
 }
@@ -183,7 +174,7 @@ pub struct Completed {
 }
 
 impl fmt::Display for Completed {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "spc={:.2}, tst={:.2}", self.spc, self.tst)
     }
 }
@@ -233,7 +224,7 @@ impl error::Error for ModifyError {
 }
 
 impl fmt::Display for ModifyError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "ModifyErrorKind: {:?}\n", self.kind)?;
         write!(f, "{}", self.lints)
     }
@@ -287,7 +278,7 @@ impl ModifyErrorKind {
 }
 
 impl fmt::Display for ModifyErrorKind {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.as_str())
     }
 }

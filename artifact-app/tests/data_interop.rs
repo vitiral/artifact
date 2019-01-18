@@ -18,10 +18,8 @@
 //! - #TST-read-artifact
 #[macro_use]
 extern crate expect_macro;
-extern crate artifact_data;
-extern crate artifact_lib;
-extern crate artifact_test;
-extern crate ergo;
+use artifact_data;
+
 use artifact_lib::*;
 use artifact_test::{
     assert_stuff_data, run_generic_interop_test, run_generic_interop_tests, INTEROP_TESTS_PATH,
@@ -67,7 +65,7 @@ fn modify_project_shim(
 
     // Do round trip through `*Ser` types
     let operations_ser = expect!(round_ser!(Vec<ArtifactOpSer>, operations));
-    let result = expect!(round_ser!(Vec<ArtifactOp>, operations_ser));
+    let _result = expect!(round_ser!(Vec<ArtifactOp>, operations_ser));
 
     artifact_data::modify_project(project_path, operations)
 }

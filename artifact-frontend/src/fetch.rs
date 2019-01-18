@@ -14,7 +14,7 @@
  * for inclusion in the work by you, as defined in the Apache-2.0 license, shall
  * be dual licensed as above, without any additional terms or conditions.
  * */
-use dev_prelude::*;
+use crate::dev_prelude::*;
 use http;
 use jrpc;
 use stdweb::Value;
@@ -30,7 +30,10 @@ macro_rules! create_fetch_task {
     }}
 }
 
-pub(crate) fn start_fetch_initial(model: &mut Model, context: &mut Env<Context, Model>) -> bool {
+pub(crate) fn start_fetch_initial(
+    model: &mut Model,
+    context: &mut Env<'_, Context, Model>,
+) -> bool {
     if model.fetch_task.is_some() {
         panic!("This should only be called first.")
     }
@@ -59,7 +62,7 @@ fn handle_response_initial(response: http::Response<String>) -> Msg {
 /// Send a request to fetch the project.
 pub(crate) fn start_fetch_project(
     model: &mut Model,
-    context: &mut Env<Context, Model>,
+    context: &mut Env<'_, Context, Model>,
     reload: bool,
 ) -> bool {
     if model.web_type == WebType::Static {
@@ -84,7 +87,7 @@ pub(crate) fn start_fetch_project(
 /// Send a request to alter/update the project and get the results.
 pub(crate) fn start_send_update(
     model: &mut Model,
-    context: &mut Env<Context, Model>,
+    context: &mut Env<'_, Context, Model>,
     ids: Vec<usize>,
 ) -> bool {
     if model.fetch_task.is_some() {

@@ -1,10 +1,10 @@
-use dev_prelude::*;
-use ser::*;
+use crate::dev_prelude::*;
+use crate::ser::*;
 use std::io;
 
-use super::{Completed, SettingsMdFamily, SettingsMdDot};
-use md_graph;
-use name::*;
+use super::{Completed, SettingsMdDot, SettingsMdFamily};
+use crate::md_graph;
+use crate::name::*;
 
 pub const GRAY: &str = "#DCDEE2";
 pub const OLIVE: &str = "#3DA03D";
@@ -58,11 +58,14 @@ pub struct SerMarkdownSettings {
 }
 
 impl<'a> SerMarkdown<'a> {
-    pub fn new(project: &'a ProjectSer) -> SerMarkdown {
+    pub fn new(project: &'a ProjectSer) -> SerMarkdown<'_> {
         Self::with_settings(project, SerMarkdownSettings::default())
     }
 
-    pub fn with_settings(project: &'a ProjectSer, settings: SerMarkdownSettings) -> SerMarkdown {
+    pub fn with_settings(
+        project: &'a ProjectSer,
+        settings: SerMarkdownSettings,
+    ) -> SerMarkdown<'_> {
         SerMarkdown {
             project: project,
             settings: settings,
@@ -70,7 +73,7 @@ impl<'a> SerMarkdown<'a> {
     }
 
     /// Export the whole project as markdown.
-    pub fn to_markdown(&'a self, w: &mut io::Write) -> io::Result<()> {
+    pub fn to_markdown(&'a self, w: &mut dyn io::Write) -> io::Result<()> {
         let export = &self.project.settings.export;
 
         if let Some(ref header) = export.md_header {
@@ -87,7 +90,7 @@ impl<'a> SerMarkdown<'a> {
         Ok(())
     }
 
-    fn to_markdown_toc(&self, w: &mut io::Write) -> io::Result<()> {
+    fn to_markdown_toc(&self, w: &mut dyn io::Write) -> io::Result<()> {
         write!(w, "# Table Of Contents\n")?;
         for name in self.project.artifacts.keys() {
             write!(w, "- {}\n", self.name_markdown(name, None))?;
@@ -96,7 +99,7 @@ impl<'a> SerMarkdown<'a> {
         Ok(())
     }
 
-    pub fn art_to_markdown(&self, w: &mut io::Write, artifact: &ArtifactSer) -> io::Result<()> {
+    pub fn art_to_markdown(&self, w: &mut dyn io::Write, artifact: &ArtifactSer) -> io::Result<()> {
         macro_rules! write_html_line {
             ($section:expr, $content:expr) => {{
                 write!(w, "<b>{}:</b> {}<br>\n", $section, $content)?;
@@ -134,7 +137,11 @@ impl<'a> SerMarkdown<'a> {
         Ok(())
     }
 
-    fn art_to_markdown_family(&self, w: &mut io::Write, artifact: &ArtifactSer) -> io::Result<()> {
+    fn art_to_markdown_family(
+        &self,
+        w: &mut dyn io::Write,
+        artifact: &ArtifactSer,
+    ) -> io::Result<()> {
         match self.settings.family {
             SettingsMdFamily::List => {
                 macro_rules! write_section {
@@ -155,7 +162,9 @@ impl<'a> SerMarkdown<'a> {
             SettingsMdFamily::Dot => {
                 tag_details_begin(w, "dot-graph")?;
                 let (dot_pre, dot_post) = match self.settings.dot {
-                    SettingsMdDot::ReplaceBraces {ref pre, ref post} => (pre.as_str(), post.as_str()),
+                    SettingsMdDot::ReplaceBraces { ref pre, ref post } => {
+                        (pre.as_str(), post.as_str())
+                    }
                     _ => ("```dot", "```"),
                 };
                 write!(
@@ -175,7 +184,7 @@ impl<'a> SerMarkdown<'a> {
     ///
     /// `parent` is the parent's name, which may or may not exist/be-valid.
     pub fn replace_markdown<'p, 'm>(&'a self, parent: &'p str, markdown: &'m str) -> Cow<'m, str> {
-        let replacer = |cap: &::ergo_std::regex::Captures| -> String {
+        let replacer = |cap: &::ergo_std::regex::Captures<'_>| -> String {
             if let Some(sub) = cap.name(SUB_RE_KEY) {
                 eprintln!(" - REPlACE SUB: {}", sub.as_str());
                 self.replace_markdown_sub(parent, sub.as_str())
@@ -222,8 +231,12 @@ impl<'a> SerMarkdown<'a> {
         }
     }
 
-    fn replace_markdown_dot<'p, 'd>(&'a self, parent: &'p str, cap: &::ergo_std::regex::Captures) -> String {
-        let replacer = |cap: &::ergo_std::regex::Captures| -> String {
+    fn replace_markdown_dot<'p, 'd>(
+        &'a self,
+        parent: &'p str,
+        cap: &::ergo_std::regex::Captures<'_>,
+    ) -> String {
+        let replacer = |cap: &::ergo_std::regex::Captures<'_>| -> String {
             if let Some(sub) = cap.name(SUB_RE_KEY) {
                 md_graph::subname_dot(self, parent, &subname!(sub.as_str()))
             } else if let Some(name) = cap.name(NAME_RE_KEY) {
@@ -243,13 +256,13 @@ impl<'a> SerMarkdown<'a> {
         let (dot_pre, dot_post) = match self.settings.dot {
             SettingsMdDot::Ignore => (dot_pre, dot_post),
             SettingsMdDot::RemoveBraces => ("", ""),
-            SettingsMdDot::ReplaceBraces {ref pre, ref post} => (pre.as_str(), post.as_str()),
+            SettingsMdDot::ReplaceBraces { ref pre, ref post } => (pre.as_str(), post.as_str()),
         };
         format!(
             "{pre}\n{dot}\n{post}",
-            pre=dot_pre,
-            post=dot_post,
-            dot=dot,
+            pre = dot_pre,
+            post = dot_post,
+            dot = dot,
         )
     }
 
@@ -352,7 +365,6 @@ pub fn name_color(project: &ProjectSer, name: &Name) -> &'static str {
     }
 }
 
-
 fn name_html_raw(
     name: &str,
     sub: Option<&str>,
@@ -408,12 +420,12 @@ fn completed_color(c: &Completed) -> &'static str {
     }
 }
 
-fn tag_details_begin(w: &mut io::Write, summary: &str) -> io::Result<()> {
+fn tag_details_begin(w: &mut dyn io::Write, summary: &str) -> io::Result<()> {
     write!(w, "<details>\n<summary><b>{}</b></summary>\n", summary)?;
     Ok(())
 }
 
-fn tag_details_end(w: &mut io::Write) -> io::Result<()> {
+fn tag_details_end(w: &mut dyn io::Write) -> io::Result<()> {
     write!(w, "</details>\n\n")?;
     Ok(())
 }

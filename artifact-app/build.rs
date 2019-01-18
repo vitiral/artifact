@@ -13,10 +13,11 @@ fn main() {
 }
 
 lazy_static! {
-    static ref FRONTEND: PathDir = PathDir::new("artifact-frontend").unwrap();
-    static ref BOOK: PathDir = PathDir::new("book").unwrap();
-    static ref FRONTEND_TARGET: PathDir = PathDir::new(FRONTEND.join("target")).unwrap();
-    static ref FRONTEND_DEPLOY: PathDir = PathDir::new(FRONTEND_TARGET.join("deploy")).unwrap();
+    static ref WORKSPACE: PathDir = PathDir::new("..").unwrap();
+    static ref FRONTEND: PathDir = PathDir::new("../artifact-frontend").unwrap();
+    static ref BOOK: PathDir = PathDir::new("../book").unwrap();
+    static ref TARGET: PathDir = PathDir::create_all(WORKSPACE.join("target")).unwrap();
+    static ref FRONTEND_DEPLOY: PathDir = PathDir::create_all(TARGET.join("deploy")).unwrap();
 }
 
 fn check_deps() {
@@ -24,7 +25,7 @@ fn check_deps() {
 
     let mut missing = Vec::new();
 
-    let mut check_cmd = |m: &mut Vec<_>, cmd: &'static str| {
+    let check_cmd = |m: &mut Vec<_>, cmd: &'static str| {
         let is_ok = Command::new("which")
             .args(&[cmd])
             .output()
@@ -53,7 +54,7 @@ fn check_deps() {
 
 fn build_mdbook() {
     println!("Building the book");
-    let status = Command::new("mdbook")
+    let _status = Command::new("mdbook")
         .current_dir(BOOK.as_path())
         .args(&["build"])
         .status()
@@ -62,11 +63,13 @@ fn build_mdbook() {
 
 fn cp_mdbook() {
     println!("Copying mdbook to deploy");
-    let (send, mut recv) = ch::unbounded();
+    let (send, recv) = ch::unbounded();
+    let deploy = PathDir::create_all(FRONTEND_DEPLOY.join("docs")).unwrap();
+    deploy.clone().remove_all().unwrap();
     deep_copy(
         send,
         PathDir::new(BOOK.join("out").join("book")).unwrap(),
-        FRONTEND_DEPLOY.join("docs"),
+        deploy,
     );
     let errs: Vec<_> = recv.into_iter().collect();
     assert!(errs.is_empty(), "{:?}", errs);
@@ -75,8 +78,14 @@ fn cp_mdbook() {
 fn build_frontend() {
     println!("Building artifact-frontend");
     let status = Command::new("cargo-web")
-        .current_dir(FRONTEND.as_path())
-        .args(&["deploy", "--target=wasm32-unknown-unknown", "--release"])
+        .current_dir(WORKSPACE.as_path())
+        .args(&[
+            "deploy",
+            "-p",
+            "artifact-frontend",
+            "--target=wasm32-unknown-unknown",
+            "--release",
+        ])
         .status()
         .unwrap();
 
@@ -84,7 +93,7 @@ fn build_frontend() {
 }
 
 fn tar_frontend() -> ::std::io::Result<PathFile> {
-    let target = PathDir::new(FRONTEND.join("target"))?;
+    let target = PathDir::new(WORKSPACE.join("target"))?;
     let deploy = PathDir::new(target.join("deploy"))?;
     let archive_path = PathFile::create(target.join("frontend.tar"))?;
 

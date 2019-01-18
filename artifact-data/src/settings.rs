@@ -17,8 +17,8 @@
 //! This contains the logic for loading the settings of an artifact project.
 use ergo::toml;
 
-use dev_prelude::*;
-use raw;
+use crate::dev_prelude::*;
+use crate::raw;
 use std::io;
 
 pub const ART_DIR: &str = ".art";

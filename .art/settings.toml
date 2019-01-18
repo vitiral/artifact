@@ -3,13 +3,13 @@ artifact_paths = ["{repo}/design"]
 exclude_artifact_paths = []
 
 code_paths = [
-    "/src",
+    "/artifact-app/src",
+    "/artifact-app/tests",
     "/artifact-lib/src",
     "/artifact-ser/src",
     "/artifact-data/src",
     "/artifact-test/src",
     "/artifact-frontend/src",
-    "/tests",
 ]
 
 exclude_code_paths = [

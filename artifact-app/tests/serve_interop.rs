@@ -14,23 +14,16 @@
  * for inclusion in the work by you, as defined in the Apache-2.0 license, shall
  * be dual licensed as above, without any additional terms or conditions.
  * */
-#[macro_use]
-extern crate artifact_test;
-extern crate assert_cli;
-#[macro_use]
-extern crate expect_macro;
-extern crate jrpc;
-#[macro_use]
-extern crate pretty_assertions;
-extern crate reqwest;
+
+use jrpc;
+
+use reqwest;
 
 use std::panic;
 use std::process::{Command, Stdio};
 use std::result;
 
 use artifact_test::*;
-use expect_macro::*;
-use reqwest::header::*;
 
 fn run_interop_tests<P: AsRef<Path>>(test_base: P) {
     run_generic_interop_tests(test_base, run_server_test);
@@ -73,7 +66,7 @@ fn run_server_test(project_path: PathDir) {
         let client = reqwest::Client::new();
         let req = jrpc::Request::new(jrpc::Id::from("1"), Method::ReadProject);
         let url = format!("http://127.0.0.1:{}/json-rpc", port);
-        let mut res = expect!(
+        let res = expect!(
             client.post(&url).json(&req).send(),
             "client not even online"
         );
@@ -103,7 +96,7 @@ struct State {
 }
 
 fn read_project_shim(
-    project_path: PathDir,
+    _project_path: PathDir,
     state: Arc<State>,
 ) -> result::Result<(lint::Categorized, Project), lint::Categorized> {
     println!("Modifying project via server");
@@ -132,7 +125,7 @@ fn read_project_shim(
 ///
 /// Used to satisfy the type requirements of `Fn` (cannot accept `AsRef`)
 fn modify_project_shim(
-    project_path: PathDir,
+    _project_path: PathDir,
     operations: Vec<ArtifactOp>,
     state: Arc<State>,
 ) -> result::Result<(lint::Categorized, Project), ModifyError> {

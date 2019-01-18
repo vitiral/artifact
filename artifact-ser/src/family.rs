@@ -23,8 +23,8 @@ use ergo_std::serde::de::{Deserialize, Deserializer, SeqAccess, Visitor};
 use ergo_std::serde::ser::{Serialize, Serializer};
 use std::fmt;
 
-use dev_prelude::*;
-use name::{Name, NameError, Type, TYPE_SPLIT_LOC};
+use crate::dev_prelude::*;
+use crate::name::{Name, NameError, Type, TYPE_SPLIT_LOC};
 
 #[macro_export]
 /// Macro to get a name with no error checking.
@@ -42,7 +42,7 @@ macro_rules! names {
 pub struct Names(pub(crate) IndexSet<Name>);
 
 impl fmt::Debug for Names {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{:?}", self.0)
     }
 }
@@ -77,7 +77,7 @@ impl FromStr for Names {
     type Err = NameError;
     /// Parse a collapsed set of names to create them
     fn from_str(collapsed: &str) -> Result<Names, NameError> {
-        let inner = ::expand_names::expand_names(collapsed)?;
+        let inner = crate::expand_names::expand_names(collapsed)?;
         Ok(Names(inner))
     }
 }
@@ -140,7 +140,7 @@ struct NamesVisitor;
 impl<'de> Visitor<'de> for NamesVisitor {
     type Value = Names;
 
-    fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+    fn expecting(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
         formatter.write_str("a list of names")
     }
 

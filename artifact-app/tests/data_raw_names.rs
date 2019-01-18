@@ -18,8 +18,6 @@
 //! - #TST-unit.raw_name
 //! - #TST-fuzz.raw_name
 
-extern crate artifact_test;
-extern crate ergo;
 use artifact_test::artifact_data::raw_names::NamesRaw;
 use artifact_test::raw_names::*;
 use artifact_test::*;
@@ -40,7 +38,7 @@ struct PartofNames {
     partof: NamesRaw,
 }
 
-static SINGLE_PARTOFS: &[PartofSingle] = &[
+static SINGLE_PARTOFS: &[PartofSingle<'_>] = &[
     PartofSingle { partof: "REQ-foo" },
     PartofSingle {
         partof: "REQ-foo, SPC-bar",

@@ -15,23 +15,23 @@
  * be dual licensed as above, without any additional terms or conditions.
  * */
 //! Handle RPC Requests
+use crate::tar::Archive;
+use crate::tempdir::TempDir;
 use ergo::*;
 use nickel::status::StatusCode;
 use nickel::{
     HttpRouter, MediaType, MiddlewareResult, Nickel, Request, Response, StaticFilesHandler,
 };
-use tar::Archive;
-use tempdir::TempDir;
 // use jsonrpc_core::{Error as RpcError, ErrorCode, IoHandler, Params, RpcMethodSync};
 use jrpc;
 use std::mem;
 use std::result;
 
-use frontend;
-use serve;
+use crate::frontend;
+use crate::serve;
 
+use crate::dev_prelude::*;
 use artifact_data::*;
-use dev_prelude::*;
 
 // ----- SERVER -----
 
@@ -172,7 +172,7 @@ fn rpc_modify_project(id: jrpc::Id, params: Option<json::Value>) -> jrpc::Respon
 // ----- HANDLE ENDPOINTS -----
 
 /// Handle the `/artifacts` endpoint.
-fn handle_rpc<'a>(req: &mut Request, mut res: Response<'a>) -> MiddlewareResult<'a> {
+fn handle_rpc<'a>(req: &mut Request<'_, '_>, mut res: Response<'a>) -> MiddlewareResult<'a> {
     setup_headers(&mut res);
     debug!("handling json-rpc request");
 
@@ -225,7 +225,7 @@ fn host_frontend(server: &mut Nickel, cmd: &serve::Serve) -> TempDir {
 // ----- HEADER HELPERS -----
 
 /// Setup the response headers
-fn setup_headers(res: &mut Response) {
+fn setup_headers(res: &mut Response<'_>) {
     let head = res.headers_mut();
     let bv = |s: &str| Vec::from(s.as_bytes());
     head.set_raw("Access-Control-Allow-Origin", vec![bv("*")]);
@@ -240,12 +240,12 @@ fn setup_headers(res: &mut Response) {
 }
 
 /// Config response for returning JSON
-fn config_json_res(res: &mut Response) {
+fn config_json_res(res: &mut Response<'_>) {
     res.set(MediaType::Json);
     res.set(StatusCode::Ok);
 }
 
-fn handle_options<'a>(_: &mut Request, mut res: Response<'a>) -> MiddlewareResult<'a> {
+fn handle_options<'a>(_: &mut Request<'_, '_>, mut res: Response<'a>) -> MiddlewareResult<'a> {
     setup_headers(&mut res);
     res.set(StatusCode::Ok);
     res.send("ok")

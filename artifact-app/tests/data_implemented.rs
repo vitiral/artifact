@@ -17,7 +17,7 @@
 //! Unit/Fuzz Tests:
 //! - #TST-unit.read_impl
 //! - #TST-fuzz.read_impl
-extern crate artifact_test;
+
 #[macro_use]
 extern crate pretty_assertions;
 use artifact_test::artifact_data::implemented::{join_locations, parse_locations};

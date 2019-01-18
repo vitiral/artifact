@@ -19,8 +19,8 @@ use artifact_ser::md_graph;
 use stdweb::web::Node;
 use yew::virtual_dom::VNode;
 
-use dev_prelude::*;
-use view::ser_markdown;
+use crate::dev_prelude::*;
+use crate::view::ser_markdown;
 
 /// The small graph at the top of every artifact, displaying it's `partof` and `parts`.
 pub(crate) fn artifact_part_html(model: &Model, art: &ArtifactSer) -> HtmlApp {

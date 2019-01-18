@@ -14,9 +14,9 @@
  * for inclusion in the work by you, as defined in the Apache-2.0 license, shall
  * be dual licensed as above, without any additional terms or conditions.
  * */
-use dev_prelude::*;
-use graph;
-use view;
+use crate::dev_prelude::*;
+use crate::graph;
+use crate::view;
 
 pub(crate) fn view_artifact(model: &Model, name: &Name) -> ViewResult {
     let page = match model.shared.artifacts.get(name) {

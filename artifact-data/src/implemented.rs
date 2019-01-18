@@ -20,7 +20,7 @@
 //! locations where artifacts are implemented in source code.
 #![allow(dead_code)]
 
-use dev_prelude::*;
+use crate::dev_prelude::*;
 use ergo::indexmap::map::Entry;
 use std::fmt;
 

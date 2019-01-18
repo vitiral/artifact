@@ -25,27 +25,24 @@
 #![allow(unknown_lints)]
 #![allow(doc_markdown)]
 
-extern crate base64;
-extern crate ergo;
 #[macro_use]
 extern crate expect_macro;
-extern crate failure;
+use failure;
 #[macro_use]
 extern crate matches;
-extern crate petgraph;
-extern crate rayon;
-extern crate siphasher;
+use petgraph;
+use rayon;
 
 #[macro_use]
 extern crate serde_derive;
 
 #[macro_use]
 extern crate failure_derive;
-extern crate time;
+use time;
 
 #[macro_use]
 extern crate artifact_lib;
-extern crate artifact_ser;
+
 #[macro_use]
 extern crate log;
 
@@ -74,15 +71,6 @@ extern crate pretty_assertions;
 // #[cfg(test)]
 // extern crate rand;
 
-#[cfg(test)]
-extern crate regex_generate;
-
-#[cfg(test)]
-extern crate tempdir;
-
-#[cfg(test)]
-extern crate unicode_segmentation;
-
-pub use modify::modify_project;
-pub use project::read_project;
-pub use settings::{ART_DIR, SETTINGS_FILE};
+pub use crate::modify::modify_project;
+pub use crate::project::read_project;
+pub use crate::settings::{ART_DIR, SETTINGS_FILE};

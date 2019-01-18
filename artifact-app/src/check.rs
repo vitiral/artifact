@@ -14,15 +14,15 @@
  * for inclusion in the work by you, as defined in the Apache-2.0 license, shall
  * be dual licensed as above, without any additional terms or conditions.
  * */
-//! Format the project
+//! Check for errors
 
+use crate::dev_prelude::*;
 use artifact_data::*;
-use dev_prelude::*;
 
 #[derive(Debug, StructOpt)]
-#[structopt(name = "fmt")]
-/// Format the project and change the filetype.
-pub struct Fmt {
+#[structopt(name = "check")]
+/// Check your project for errors and warnings.
+pub struct Check {
     #[structopt(long = "verbose", short = "v", default_value = "0")]
     /// Pass many times for more log output.
     pub verbosity: u64,
@@ -30,17 +30,20 @@ pub struct Fmt {
     #[structopt(long = "work-dir")]
     /// Use a different working directory [default: $CWD]
     pub work_dir: Option<String>,
-
-    #[structopt(long = "type")]
-    /// Set the type of all files
-    pub ty_: Option<String>,
 }
 
-/// #SPC-cli.fmt
-pub fn run(cmd: Fmt) -> Result<i32> {
+/// #SPC-cli.check
+pub fn run(cmd: Check) -> Result<i32> {
     set_log_verbosity!(cmd);
     let repo = find_repo(&work_dir!(cmd))?;
-    info!("Running art-fmt in repo {}", repo.display());
-    modify_project(&repo, Vec::new())?;
-    Ok(0)
+    info!("Running art-check in repo {}", repo.display());
+    let (lints, _) = read_project(repo)?;
+    if !lints.error.is_empty() {
+        Err(lints.into())
+    } else if !lints.is_empty() {
+        eprintln!("{}", lints);
+        Ok(2) // rc=2 if only warnings
+    } else {
+        Ok(0)
+    }
 }

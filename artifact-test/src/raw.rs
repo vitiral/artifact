@@ -88,7 +88,7 @@ pub fn arb_raw_artifacts(size: usize) -> BoxedStrategy<BTreeMap<Name, ArtifactRa
                     subnames.insert(name.clone(), indexset![]);
                 }
                 if let Some(ref s) = *sub {
-                    let mut subs = subnames.get_mut(name).unwrap();
+                    let subs = subnames.get_mut(name).unwrap();
                     subs.insert(s.clone());
                 }
             }

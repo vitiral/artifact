@@ -16,12 +16,12 @@
  * */
 //! These are purely copies of their more "full" types with the paths, etc removed.
 
-use fmt;
+use crate::fmt;
 
 use super::{Completed, HashIm, SettingsExport};
-use dev_prelude::*;
-use lint;
-use name::{Name, SubName};
+use crate::dev_prelude::*;
+use crate::lint;
+use crate::name::{Name, SubName};
 
 /// The initial state of the project, stored in an `initial.json` file.
 #[derive(Debug, Serialize, Deserialize)]
@@ -169,7 +169,7 @@ impl ImplSer {
 }
 
 impl fmt::Display for ImplSer {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match *self {
             ImplSer::Done(ref s) => write!(f, "{}", s),
             ImplSer::Code(ref c) => write!(f, "{}", c),
@@ -179,7 +179,7 @@ impl fmt::Display for ImplSer {
 }
 
 impl fmt::Display for ImplCodeSer {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         if let Some(ref loc) = self.primary {
             write!(f, "{:?}", loc)?;
         }
@@ -219,7 +219,7 @@ impl CodeLocSer {
 }
 
 impl fmt::Debug for CodeLocSer {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}[{}]", self.file, self.line)
     }
 }

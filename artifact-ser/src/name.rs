@@ -19,13 +19,13 @@
 //! This is the name module, the module for representing artifact names
 //! and subnames
 
-use serde::{self, Deserialize, Deserializer, Serialize, Serializer};
+use crate::serde::{self, Deserialize, Deserializer, Serialize, Serializer};
 use std::cmp::Ordering;
 use std::fmt;
 use std::hash::{Hash, Hasher};
 use std::result;
 
-use dev_prelude::*;
+use crate::dev_prelude::*;
 
 // use ergo_std::*;
 // use ergo_config::*;
@@ -76,8 +76,8 @@ pub enum NameError {
 ///
 /// # Examples
 /// ```rust
-/// #[macro_use] extern crate artifact_lib;
-/// use artifact_lib::{Name, SubName, Type};
+/// #[macro_use] extern crate artifact_ser;
+/// use artifact_ser::{Name, SubName, Type};
 /// use std::str::FromStr;
 ///
 /// # fn main() {
@@ -109,8 +109,8 @@ pub enum Type {
 ///
 /// # Examples
 /// ```rust
-/// #[macro_use] extern crate artifact_lib;
-/// use artifact_lib::{Name, SubName, Type};
+/// #[macro_use] extern crate artifact_ser;
+/// use artifact_ser::{Name, SubName, Type};
 /// use std::str::FromStr;
 ///
 /// # fn main() {
@@ -216,8 +216,8 @@ impl Name {
     ///
     /// # Examples
     /// ```rust
-    /// #[macro_use] extern crate artifact_lib;
-    /// use artifact_lib::Name;
+    /// #[macro_use] extern crate artifact_ser;
+    /// use artifact_ser::Name;
     /// use std::str::FromStr;
     ///
     /// # fn main() {
@@ -236,8 +236,8 @@ impl Name {
     ///
     /// # Examples
     /// ```rust
-    /// #[macro_use] extern crate artifact_lib;
-    /// use artifact_lib::Name;
+    /// #[macro_use] extern crate artifact_ser;
+    /// use artifact_ser::Name;
     /// use std::str::FromStr;
     ///
     /// # fn main() {
@@ -256,8 +256,8 @@ impl Name {
     ///
     /// # Examples
     /// ```rust
-    /// #[macro_use] extern crate artifact_lib;
-    /// use artifact_lib::{Name, SubName};
+    /// #[macro_use] extern crate artifact_ser;
+    /// use artifact_ser::{Name, SubName};
     /// use std::str::FromStr;
     ///
     /// # fn main() {
@@ -277,7 +277,7 @@ impl Name {
 }
 
 impl fmt::Display for Name {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.as_str())
     }
 }
@@ -302,7 +302,7 @@ impl<'de> Deserialize<'de> for Name {
 }
 
 impl fmt::Debug for Name {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.0.raw)
     }
 }
@@ -393,7 +393,7 @@ impl PartialOrd for InternalName {
 // SUBNAME METHODS
 
 impl fmt::Display for SubName {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.as_str())
     }
 }
@@ -439,8 +439,8 @@ impl SubName {
     ///
     /// # Examples
     /// ```rust
-    /// #[macro_use] extern crate artifact_lib;
-    /// use artifact_lib::SubName;
+    /// #[macro_use] extern crate artifact_ser;
+    /// use artifact_ser::SubName;
     /// use std::str::FromStr;
     ///
     /// # fn main() {
@@ -458,8 +458,8 @@ impl SubName {
     ///
     /// # Examples
     /// ```rust
-    /// #[macro_use] extern crate artifact_lib;
-    /// use artifact_lib::SubName;
+    /// #[macro_use] extern crate artifact_ser;
+    /// use artifact_ser::SubName;
     /// use std::str::FromStr;
     ///
     /// # fn main() {
@@ -491,7 +491,7 @@ impl FromStr for SubName {
 }
 
 impl fmt::Debug for SubName {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{:?}", self.0.raw)
     }
 }
@@ -535,7 +535,7 @@ impl Type {
 }
 
 impl fmt::Display for Type {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.as_str())
     }
 }

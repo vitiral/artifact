@@ -2,11 +2,11 @@
 
 use time;
 
-use artifact;
-use dev_prelude::*;
-use implemented;
-use raw;
-use settings;
+use crate::artifact;
+use crate::dev_prelude::*;
+use crate::implemented;
+use crate::raw;
+use crate::settings;
 
 pub trait ProjectExt {
     fn lint(&self, send: &Sender<lint::Lint>);

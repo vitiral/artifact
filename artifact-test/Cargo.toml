@@ -2,6 +2,7 @@
 name = "artifact_test"
 version = "0.1.0"
 authors = ["Garrett Berg <vitiral@gmail.com>"]
+edition = "2018"
 
 [dependencies]
 artifact_data = { path = "../artifact-data" }
