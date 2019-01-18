@@ -20,7 +20,7 @@
 //!
 //! This also inclused auto partofs as well as collapsing/expanding partof.
 
-extern crate artifact_test;
+
 use artifact_test::family::*;
 use artifact_test::name::arb_name;
 use artifact_test::*;

@@ -105,7 +105,7 @@ impl error::Error for Categorized {
 }
 
 impl fmt::Display for Categorized {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(
             f,
             "  ----- ERRORS -----:\n{}\n\n",

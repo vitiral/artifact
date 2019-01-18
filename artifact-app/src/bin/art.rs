@@ -1,4 +1,4 @@
-extern crate artifact_app;
+use artifact_app;
 use std::process::exit;
 
 fn main() {

@@ -22,15 +22,15 @@
 //!
 //! Used mostly in the frontend or in places where path deserialization is not needed.
 
-extern crate base64;
+use base64;
 #[macro_use]
 extern crate expect_macro;
 #[macro_use]
 extern crate ergo_std;
-extern crate ergo_config;
+
 #[macro_use]
 extern crate derive_error;
-extern crate strfmt;
+
 
 // TODO: move to path_abs
 pub use std::str::FromStr;
@@ -132,13 +132,13 @@ impl Default for SettingsMdDot {
 pub struct HashIm(pub [u8; 16]);
 
 impl fmt::Display for HashIm {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", expect!(json::to_string(&self)))
     }
 }
 
 impl fmt::Debug for HashIm {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self)
     }
 }
@@ -183,7 +183,7 @@ pub struct Completed {
 }
 
 impl fmt::Display for Completed {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "spc={:.2}, tst={:.2}", self.spc, self.tst)
     }
 }
@@ -233,7 +233,7 @@ impl error::Error for ModifyError {
 }
 
 impl fmt::Display for ModifyError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "ModifyErrorKind: {:?}\n", self.kind)?;
         write!(f, "{}", self.lints)
     }
@@ -287,7 +287,7 @@ impl ModifyErrorKind {
 }
 
 impl fmt::Display for ModifyErrorKind {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.as_str())
     }
 }

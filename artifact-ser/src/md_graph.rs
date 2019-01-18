@@ -20,7 +20,7 @@ use crate::markdown::{name_color, SerMarkdown, BLUE, GRAY, RED};
 use crate::name::*;
 use crate::ser::*;
 
-pub fn artifact_part_dot(md: &SerMarkdown, art: &ArtifactSer) -> String {
+pub fn artifact_part_dot(md: &SerMarkdown<'_>, art: &ArtifactSer) -> String {
     let mut dot = name_dot(md, &art.name, true);
     for part in &art.parts {
         dot.push_str(&name_dot(md, part, false));
@@ -77,11 +77,11 @@ pub fn wrap_dot(dot: &str, lr: bool) -> String {
     )
 }
 
-pub fn name_dot(md: &SerMarkdown, name: &Name, is_focus: bool) -> String {
+pub fn name_dot(md: &SerMarkdown<'_>, name: &Name, is_focus: bool) -> String {
     fullname_dot(md, name, None, is_focus)
 }
 
-pub fn subname_dot(md: &SerMarkdown, name: &str, sub: &SubName) -> String {
+pub fn subname_dot(md: &SerMarkdown<'_>, name: &str, sub: &SubName) -> String {
     let name = match Name::from_str(name) {
         Ok(n) => n,
         Err(_) => return subname_raw(sub, None),
@@ -120,7 +120,7 @@ fn subname_raw(sub: &SubName, attrs: Option<&str>) -> String {
 }
 
 pub fn fullname_dot(
-    md: &SerMarkdown,
+    md: &SerMarkdown<'_>,
     name: &Name,
     sub: Option<&SubName>,
     is_focus: bool,

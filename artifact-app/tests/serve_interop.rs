@@ -16,13 +16,13 @@
  * */
 #[macro_use]
 extern crate artifact_test;
-extern crate assert_cli;
+
 #[macro_use]
 extern crate expect_macro;
-extern crate jrpc;
+use jrpc;
 #[macro_use]
 extern crate pretty_assertions;
-extern crate reqwest;
+use reqwest;
 
 use std::panic;
 use std::process::{Command, Stdio};

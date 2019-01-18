@@ -48,7 +48,7 @@ pub struct ArtifactRaw {
 pub struct TextRaw(pub String);
 
 impl fmt::Debug for TextRaw {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{:?}", self.0)
     }
 }

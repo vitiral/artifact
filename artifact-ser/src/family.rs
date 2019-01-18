@@ -42,7 +42,7 @@ macro_rules! names {
 pub struct Names(pub(crate) IndexSet<Name>);
 
 impl fmt::Debug for Names {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{:?}", self.0)
     }
 }
@@ -140,7 +140,7 @@ struct NamesVisitor;
 impl<'de> Visitor<'de> for NamesVisitor {
     type Value = Names;
 
-    fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+    fn expecting(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
         formatter.write_str("a list of names")
     }
 

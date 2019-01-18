@@ -17,7 +17,7 @@
 //! Unit/Fuzz Tests:
 //! - #TST-unit.name
 //! - #TST-fuzz.name
-extern crate artifact_test;
+
 use artifact_test::name::*;
 use artifact_test::*;
 

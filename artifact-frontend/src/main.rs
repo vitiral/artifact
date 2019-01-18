@@ -19,18 +19,18 @@
 
 #[macro_use]
 extern crate artifact_ser;
-extern crate ergo_config;
+
 #[macro_use]
 extern crate ergo_std;
 #[macro_use]
 extern crate expect_macro;
-extern crate http;
-extern crate jrpc;
+use http;
+use jrpc;
 #[macro_use]
 extern crate stdweb;
 #[macro_use]
 extern crate yew;
-extern crate yew_simple;
+use yew_simple;
 
 use yew::prelude::*;
 
@@ -50,7 +50,7 @@ impl Component<Context> for Model {
     type Message = Msg;
     type Properties = ();
 
-    fn create(_: Self::Properties, context: &mut Env<Context, Self>) -> Self {
+    fn create(_: Self::Properties, context: &mut Env<'_, Context, Self>) -> Self {
         let project: ProjectSer = expect!(yaml::from_str(example::YAML));
         let router = yew_simple::RouterTask::new(context, &view::router_fn);
         let url = router.current_url();
@@ -75,7 +75,7 @@ impl Component<Context> for Model {
         model
     }
 
-    fn update(&mut self, msg: Self::Message, context: &mut Env<Context, Self>) -> ShouldRender {
+    fn update(&mut self, msg: Self::Message, context: &mut Env<'_, Context, Self>) -> ShouldRender {
         match msg {
             Msg::Batch(mut batch) => {
                 let count: usize = batch
@@ -89,7 +89,7 @@ impl Component<Context> for Model {
     }
 }
 
-fn update_model(model: &mut Model, msg: Msg, context: &mut Env<Context, Model>) -> ShouldRender {
+fn update_model(model: &mut Model, msg: Msg, context: &mut Env<'_, Context, Model>) -> ShouldRender {
     match msg {
         Msg::SetView(view) => model.view = view,
         Msg::Ignore => return false,

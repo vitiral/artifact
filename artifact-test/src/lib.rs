@@ -24,20 +24,20 @@
 #![allow(dead_code)]
 #![allow(unused_macros)]
 
-pub extern crate base64;
-pub extern crate ergo;
+pub use base64;
+pub use ergo;
 #[macro_use]
 pub extern crate expect_macro;
-pub extern crate failure;
+pub use failure;
 #[macro_use]
 pub extern crate matches;
-pub extern crate petgraph;
-pub extern crate rayon;
-pub extern crate siphasher;
+pub use petgraph;
+pub use rayon;
+pub use siphasher;
 
 #[macro_use]
 pub extern crate failure_derive;
-pub extern crate time;
+pub use time;
 
 #[macro_use]
 pub extern crate artifact_data;
@@ -55,9 +55,9 @@ extern crate pretty_assertions;
 // #[cfg(test)]
 // extern crate rand;
 
-extern crate regex_generate;
-extern crate tempdir;
-extern crate unicode_segmentation;
+use regex_generate;
+
+
 
 pub mod artifact;
 pub mod dev_prelude;

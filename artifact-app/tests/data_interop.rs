@@ -18,10 +18,10 @@
 //! - #TST-read-artifact
 #[macro_use]
 extern crate expect_macro;
-extern crate artifact_data;
-extern crate artifact_lib;
-extern crate artifact_test;
-extern crate ergo;
+use artifact_data;
+
+
+
 use artifact_lib::*;
 use artifact_test::{
     assert_stuff_data, run_generic_interop_test, run_generic_interop_tests, INTEROP_TESTS_PATH,
