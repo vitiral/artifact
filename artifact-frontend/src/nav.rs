@@ -15,8 +15,8 @@
  * be dual licensed as above, without any additional terms or conditions.
  * */
 
-use dev_prelude::*;
-use name;
+use crate::dev_prelude::*;
+use crate::name;
 
 pub(crate) fn view_nav(model: &Model, view: ViewResult) -> HtmlApp {
     let search = &model.nav.search;

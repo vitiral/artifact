@@ -207,7 +207,7 @@ pub struct ExpectStuff {
 /// These are generally useful, but other suites probably want to build on them.
 pub fn assert_stuff_data(
     _project_path: PathDir,
-    state: (),
+    _state: (),
     load_lints: Categorized,
     project: Option<Project>,
     expect: ExpectStuff,

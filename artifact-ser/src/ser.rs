@@ -16,12 +16,12 @@
  * */
 //! These are purely copies of their more "full" types with the paths, etc removed.
 
-use fmt;
+use crate::fmt;
 
 use super::{Completed, HashIm, SettingsExport};
-use dev_prelude::*;
-use lint;
-use name::{Name, SubName};
+use crate::dev_prelude::*;
+use crate::lint;
+use crate::name::{Name, SubName};
 
 /// The initial state of the project, stored in an `initial.json` file.
 #[derive(Debug, Serialize, Deserialize)]

@@ -23,8 +23,8 @@ use ergo_std::serde::de::{Deserialize, Deserializer, SeqAccess, Visitor};
 use ergo_std::serde::ser::{Serialize, Serializer};
 use std::fmt;
 
-use dev_prelude::*;
-use name::{Name, NameError, Type, TYPE_SPLIT_LOC};
+use crate::dev_prelude::*;
+use crate::name::{Name, NameError, Type, TYPE_SPLIT_LOC};
 
 #[macro_export]
 /// Macro to get a name with no error checking.
@@ -77,7 +77,7 @@ impl FromStr for Names {
     type Err = NameError;
     /// Parse a collapsed set of names to create them
     fn from_str(collapsed: &str) -> Result<Names, NameError> {
-        let inner = ::expand_names::expand_names(collapsed)?;
+        let inner = crate::expand_names::expand_names(collapsed)?;
         Ok(Names(inner))
     }
 }

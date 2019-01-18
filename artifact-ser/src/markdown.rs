@@ -1,10 +1,10 @@
-use dev_prelude::*;
-use ser::*;
+use crate::dev_prelude::*;
+use crate::ser::*;
 use std::io;
 
 use super::{Completed, SettingsMdFamily, SettingsMdDot};
-use md_graph;
-use name::*;
+use crate::md_graph;
+use crate::name::*;
 
 pub const GRAY: &str = "#DCDEE2";
 pub const OLIVE: &str = "#3DA03D";

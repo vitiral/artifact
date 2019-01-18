@@ -25,7 +25,7 @@ fn check_deps() {
 
     let mut missing = Vec::new();
 
-    let mut check_cmd = |m: &mut Vec<_>, cmd: &'static str| {
+    let check_cmd = |m: &mut Vec<_>, cmd: &'static str| {
         let is_ok = Command::new("which")
             .args(&[cmd])
             .output()
@@ -54,7 +54,7 @@ fn check_deps() {
 
 fn build_mdbook() {
     println!("Building the book");
-    let status = Command::new("mdbook")
+    let _status = Command::new("mdbook")
         .current_dir(BOOK.as_path())
         .args(&["build"])
         .status()

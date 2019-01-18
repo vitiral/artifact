@@ -15,10 +15,10 @@
  * be dual licensed as above, without any additional terms or conditions.
  * */
 //! Helper methods for managing the frontend.
-use dev_prelude::*;
+use crate::dev_prelude::*;
 
-use tar::Archive;
-use tempdir::TempDir;
+use crate::tar::Archive;
+use crate::tempdir::TempDir;
 
 const WEB_FRONTEND_TAR: &'static [u8] = include_bytes!("../../target/frontend.tar");
 

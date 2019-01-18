@@ -18,7 +18,7 @@
 use std::io;
 
 use artifact_data::*;
-use dev_prelude::*;
+use crate::dev_prelude::*;
 
 mod handler;
 

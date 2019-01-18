@@ -19,8 +19,8 @@
 
 use rayon;
 
-use dev_prelude::*;
-use graph;
+use crate::dev_prelude::*;
+use crate::graph;
 
 /// Loaded and somewhat processed artifacts, independent of source implementations.
 pub(crate) struct ArtifactsLoaded {

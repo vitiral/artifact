@@ -22,7 +22,7 @@ use std::fmt;
 /// This is the primary error type for all "non fatal" errors and warnings.
 use std::sync::mpsc::Sender;
 
-use dev_prelude::*;
+use crate::dev_prelude::*;
 
 #[derive(Debug, Clone, Hash, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 /// An artifact lint error or warning

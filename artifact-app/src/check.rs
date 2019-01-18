@@ -17,7 +17,7 @@
 //! Check for errors
 
 use artifact_data::*;
-use dev_prelude::*;
+use crate::dev_prelude::*;
 
 #[derive(Debug, StructOpt)]
 #[structopt(name = "check")]

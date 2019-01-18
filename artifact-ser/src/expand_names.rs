@@ -26,8 +26,8 @@
 //!
 //! Notes: this is tested in `test_family.rs`
 
-use dev_prelude::*;
-use name::{Name, NameError};
+use crate::dev_prelude::*;
+use crate::name::{Name, NameError};
 
 /// Expand a string of names into multiple names.
 ///
@@ -73,7 +73,7 @@ where
                                or at start of string";
                     return Err(NameError::InvalidCollapsed { msg: msg.into() }.into());
                 }
-                for p in try!(parse_collapsed(raw, true)) {
+                for p in r#try!(parse_collapsed(raw, true)) {
                     strout.push_str(&current);
                     strout.push_str(&p);
                     strout.push(',');

@@ -15,10 +15,10 @@
  * be dual licensed as above, without any additional terms or conditions.
  * */
 
-use dev_prelude::*;
-use markdown::{name_color, SerMarkdown, BLUE, GRAY, RED};
-use name::*;
-use ser::*;
+use crate::dev_prelude::*;
+use crate::markdown::{name_color, SerMarkdown, BLUE, GRAY, RED};
+use crate::name::*;
+use crate::ser::*;
 
 pub fn artifact_part_dot(md: &SerMarkdown, art: &ArtifactSer) -> String {
     let mut dot = name_dot(md, &art.name, true);

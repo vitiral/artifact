@@ -1,5 +1,5 @@
 pub(crate) use artifact_ser::markdown::name_color;
-use dev_prelude::*;
+use crate::dev_prelude::*;
 
 pub(crate) fn name_html(model: &Model, name: &Name) -> HtmlApp {
     let color = match model.shared.artifacts.get(name) {

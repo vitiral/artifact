@@ -67,7 +67,7 @@ fn modify_project_shim(
 
     // Do round trip through `*Ser` types
     let operations_ser = expect!(round_ser!(Vec<ArtifactOpSer>, operations));
-    let result = expect!(round_ser!(Vec<ArtifactOp>, operations_ser));
+    let _result = expect!(round_ser!(Vec<ArtifactOp>, operations_ser));
 
     artifact_data::modify_project(project_path, operations)
 }

@@ -16,7 +16,7 @@
  * */
 
 use artifact_data::*;
-use dev_prelude::*;
+use crate::dev_prelude::*;
 use termstyle::Color::*;
 use termstyle::{self, Color, El, Table, Text};
 

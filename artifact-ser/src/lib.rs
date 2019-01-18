@@ -51,16 +51,16 @@ mod expand_names;
 pub mod markdown;
 pub mod md_graph;
 
-pub use expand_names::expand_names;
-pub use family::{auto_partofs, Names};
-pub use lint::Categorized;
-pub use name::{parse_subnames, InternalSubName, Name, SubName, Type, NAME_VALID_STR};
-pub use ser::{
+pub use crate::expand_names::expand_names;
+pub use crate::family::{auto_partofs, Names};
+pub use crate::lint::Categorized;
+pub use crate::name::{parse_subnames, InternalSubName, Name, SubName, Type, NAME_VALID_STR};
+pub use crate::ser::{
     ArtifactImSer, ArtifactOpSer, ArtifactSer, CodeLocSer, ImplCodeSer, ImplSer, ProjectInitialSer,
     ProjectResultSer, ProjectSer, SettingsSer, WebType,
 };
 
-use dev_prelude::*;
+use crate::dev_prelude::*;
 
 
 // ------ SETTINGS ------

@@ -18,7 +18,7 @@
 use petgraph;
 use petgraph::graphmap::DiGraphMap;
 
-use dev_prelude::*;
+use crate::dev_prelude::*;
 
 pub type GraphId = u32;
 

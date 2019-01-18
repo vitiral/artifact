@@ -73,7 +73,7 @@ fn run_server_test(project_path: PathDir) {
         let client = reqwest::Client::new();
         let req = jrpc::Request::new(jrpc::Id::from("1"), Method::ReadProject);
         let url = format!("http://127.0.0.1:{}/json-rpc", port);
-        let mut res = expect!(
+        let res = expect!(
             client.post(&url).json(&req).send(),
             "client not even online"
         );
@@ -103,7 +103,7 @@ struct State {
 }
 
 fn read_project_shim(
-    project_path: PathDir,
+    _project_path: PathDir,
     state: Arc<State>,
 ) -> result::Result<(lint::Categorized, Project), lint::Categorized> {
     println!("Modifying project via server");
@@ -132,7 +132,7 @@ fn read_project_shim(
 ///
 /// Used to satisfy the type requirements of `Fn` (cannot accept `AsRef`)
 fn modify_project_shim(
-    project_path: PathDir,
+    _project_path: PathDir,
     operations: Vec<ArtifactOp>,
     state: Arc<State>,
 ) -> result::Result<(lint::Categorized, Project), ModifyError> {

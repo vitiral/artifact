@@ -19,13 +19,13 @@
 //! This is the name module, the module for representing artifact names
 //! and subnames
 
-use serde::{self, Deserialize, Deserializer, Serialize, Serializer};
+use crate::serde::{self, Deserialize, Deserializer, Serialize, Serializer};
 use std::cmp::Ordering;
 use std::fmt;
 use std::hash::{Hash, Hasher};
 use std::result;
 
-use dev_prelude::*;
+use crate::dev_prelude::*;
 
 // use ergo_std::*;
 // use ergo_config::*;

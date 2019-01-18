@@ -44,7 +44,7 @@ mod name;
 mod nav;
 mod view;
 
-use dev_prelude::*;
+use crate::dev_prelude::*;
 
 impl Component<Context> for Model {
     type Message = Msg;

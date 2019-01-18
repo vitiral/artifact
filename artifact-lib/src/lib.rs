@@ -42,7 +42,7 @@ use siphasher::sip128::{Hasher128, SipHasher};
 use std::error;
 use std::fmt;
 
-use dev_prelude::*;
+use crate::dev_prelude::*;
 
 lazy_static! {
     static ref SUBNAME_TST_RE: Regex = Regex::new(r"(?i)^\.tst-.*$").unwrap();

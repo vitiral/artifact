@@ -71,8 +71,8 @@ pub mod raw_names;
 pub mod framework;
 
 pub use artifact_data::*; // for macros
-pub use dev_prelude::*;
-pub use framework::{
+pub use crate::dev_prelude::*;
+pub use crate::framework::{
     assert_stuff_data, run_generic_interop_test, run_generic_interop_tests, ExpectStuff,
 };
 pub use proptest::*;

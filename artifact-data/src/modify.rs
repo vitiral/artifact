@@ -3,12 +3,12 @@
 use std::error;
 use std::fmt;
 
-use artifact;
-use dev_prelude::*;
-use intermediate::ArtifactImExt;
-use project::{read_project, ProjectExt};
-use raw;
-use settings;
+use crate::artifact;
+use crate::dev_prelude::*;
+use crate::intermediate::ArtifactImExt;
+use crate::project::{read_project, ProjectExt};
+use crate::raw;
+use crate::settings;
 
 static ART_BK_EXT: &str = "artbk";
 

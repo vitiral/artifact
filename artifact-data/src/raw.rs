@@ -18,15 +18,15 @@
 
 //! The `ArtifactRaw` type and methods for loading it from files.
 
-use dev_prelude::*;
+use crate::dev_prelude::*;
 
 use ergo::serde::{Deserialize, Deserializer, Serialize, Serializer};
 use ergo::{json, toml, yaml};
 use std::fmt;
 use std::result;
 
-use intermediate::ArtifactImExt;
-use raw_names::NamesRaw;
+use crate::intermediate::ArtifactImExt;
+use crate::raw_names::NamesRaw;
 
 // TYPES
 

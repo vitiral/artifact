@@ -19,8 +19,8 @@ use artifact_ser::md_graph;
 use stdweb::web::Node;
 use yew::virtual_dom::VNode;
 
-use dev_prelude::*;
-use view::ser_markdown;
+use crate::dev_prelude::*;
+use crate::view::ser_markdown;
 
 /// The small graph at the top of every artifact, displaying it's `partof` and `parts`.
 pub(crate) fn artifact_part_html(model: &Model, art: &ArtifactSer) -> HtmlApp {
@@ -55,7 +55,7 @@ pub(crate) fn graph_html(model: &Model) -> ViewResult {
 /// Get the dot html for untrusted dot.
 pub(crate) fn dot_html_string(dot: &str) -> String {
     let html = js! {
-        try {
+        r#try {
             var svg = Viz(@{dot});
             return svg;
         } catch ( error ) {

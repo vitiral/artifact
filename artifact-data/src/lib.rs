@@ -83,6 +83,6 @@ extern crate tempdir;
 #[cfg(test)]
 extern crate unicode_segmentation;
 
-pub use modify::modify_project;
-pub use project::read_project;
-pub use settings::{ART_DIR, SETTINGS_FILE};
+pub use crate::modify::modify_project;
+pub use crate::project::read_project;
+pub use crate::settings::{ART_DIR, SETTINGS_FILE};
