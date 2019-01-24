@@ -17,7 +17,7 @@
 
 use artifact_test::*;
 
-use crate::artifact_data::raw::{from_markdown, to_markdown, ArtFileType, ArtifactRaw, TextRaw};
+use crate::artifact_data::raw::{Formatter, ArtFileType, ArtifactRaw, Parser, TextRaw};
 use crate::artifact_data::raw_names::NamesRaw;
 use artifact_test::raw::{arb_raw_artifacts, arts_from_json_str, arts_from_toml_str};
 
@@ -110,16 +110,19 @@ partof:
 
     /// Redefined to have correct signature
     fn from_md(raw: &String) -> StrResult<IndexMap<Name, ArtifactRaw>> {
-        let out = match from_markdown(raw.as_bytes()) {
+        let parser = Parser::new();
+        let out = match parser.from_markdown(raw.as_bytes()) {
             Ok(arts) => arts,
             Err(e) => return Err(e.to_string()),
         };
+
+        let formatter = Formatter::default();
 
         // throw in a check that the roundtrip works
         let new_raw = serde_roundtrip(
             "markdown",
             from_markdown_str,
-            crate::artifact_data::raw::to_markdown,
+            |r| formatter.to_markdown(r),
             &out,
         )
         .unwrap();
@@ -132,7 +135,8 @@ partof:
     assert_generic(from_md, values);
 
     // sanity: assert one of the examples has exact markdown
-    assert_eq!(exp_raw_1, to_markdown(&exp_1));
+    let formatter = Formatter::default();
+    assert_eq!(exp_raw_1, formatter.to_markdown(&exp_1));
 }
 
 proptest! {
@@ -142,7 +146,8 @@ proptest! {
         for (n, a) in orig.iter() {
             artifacts.insert(n.clone(), a.clone());
         }
-        serde_roundtrip("markdown", from_markdown_str, crate::artifact_data::raw::to_markdown, &artifacts).expect("md");
+        let formatter = Formatter::default();
+        serde_roundtrip("markdown", from_markdown_str, |r| formatter.to_markdown(r), &artifacts).expect("md");
         serde_roundtrip("toml", arts_from_toml_str, to_toml_string, &artifacts).expect("toml");
         serde_roundtrip("json", arts_from_json_str, to_json_string, &artifacts).expect("json");
     }

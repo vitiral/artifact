@@ -1,0 +1,253 @@
+# Basic project
+#
+# This contains a "sunny day" project with no errors for basic testing of
+# - loading artifact
+# - linking artifacts to source code
+settings:
+    code_paths:
+    - build.rs
+    - src
+
+    exclude_code_paths: []
+
+    artifact_paths:
+    - design
+
+    exclude_artifact_paths: []
+
+    parse:
+        md_name:
+            type: "prefix"
+            value: "#"
+
+    format:
+        md_attrs:
+            type: "code"
+            prefix: "yaml"
+
+
+    export:
+        md_name:
+            type: "prefix"
+            value: "#"
+
+code_impls:
+    REQ-baz:
+        primary:
+            file: src/baz.rs
+            line: 0
+        secondary: {}
+    SPC-build:
+        primary:
+            file: build.rs
+            line: 0
+        secondary:
+            .tst-unit:
+                file: build.rs
+                line: 5
+    SPC-foo:
+        primary:
+            file: src/foo/mod.rs
+            line: 0
+        secondary:
+            .yes:
+                file: src/foo/fab.rs
+                line: 3
+    TST-build:
+        primary:
+            file: build.rs
+            line: 4
+        secondary: {}
+    TST-foo:
+        primary: null
+        secondary:
+            .yes1:
+                file: src/foo/test.rs
+                line: 4
+            .yes2:
+                file: src/foo/test.rs
+                line: 6
+            .yes3:
+                file: src/foo/test.rs
+                line: 7
+            .yes4:
+                file: src/foo/fab.rs
+                line: 9
+
+artifacts:
+    REQ-purpose:
+        name: REQ-purpose
+        file: design/purpose.md
+        partof: []
+        parts:
+            - REQ-lib
+            - REQ-foo
+            - SPC-build
+            - TST-build
+        completed:
+            # (0<req-lib> + 0.875<req-foo> + 1.0<spc-build>) / 3
+            spc: 0.625
+            # (0<req-lib> + 0.893<req-foo> + 0.75<spc-build> + 0.5<tst-build>) / 4
+            tst: 0.536
+        text: |
+            The purpose of this project is is to test a basic
+            project... that's it!
+        impl_: null
+        subnames: []
+    REQ-lib:
+        name: REQ-lib
+        file: design/purpose.md
+        partof:
+            - REQ-purpose
+        parts: []
+        completed: {spc: 0.0, tst: 0.0}
+        text: |-
+            Lib is definitely a library
+        impl_: null
+        subnames: []
+    REQ-foo:
+        name: REQ-foo
+        file: design/purpose.md
+        partof:
+            - REQ-purpose
+        parts:
+            - SPC-foo
+            - SPC-foo_done
+        completed:
+            spc: 0.875 # (1.0<foo_done> + 0.75) / 2
+            tst: 0.893 # (1.0<foo_done> + 0.786) / 2
+        text: |-
+            foo needs to do the foo thing
+        impl_: null
+        subnames: []
+    REQ-baz:
+        name: REQ-baz
+        file: design/purpose.md
+        partof: []
+        parts: []
+        completed: {spc: 1.0, tst: 0.0}
+        text: |
+            implemented directly in source!
+
+            Not a partof anything...
+        impl_:
+            primary:
+                file: src/baz.rs
+                line: 0
+            secondary: {}
+        subnames: []
+    SPC-build:
+        name: SPC-build
+        file: design/purpose.md
+        partof:
+            - REQ-purpose
+        parts:
+            - TST-build
+        completed: {spc: 1.0, tst: 0.75}
+        text: "This has a build file.\n\nUnit tests:\n- [[.tst-unit]]\n"
+        impl_:
+            primary:
+                file: build.rs
+                line: 0
+            secondary:
+                .tst-unit:
+                    file: build.rs
+                    line: 5
+        subnames: [".tst-unit"]
+    TST-build:
+        name: TST-build
+        file: design/purpose.md
+        partof:
+            - REQ-purpose
+            - SPC-build
+        parts: []
+        completed: {spc: 0.5, tst: 0.5}
+        text: |
+            direct link to REQ-purpose
+
+            - [[.no]]
+        impl_:
+            primary:
+                file: build.rs
+                line: 4
+            secondary: {}
+        subnames:
+            - .no
+    SPC-foo:
+        name: SPC-foo
+        file: design/foo.md
+        partof:
+            - REQ-foo
+        parts:
+            - SPC-foo_done
+            - TST-foo
+        completed:
+            spc: 0.75 # (1.0<foo_done> + 1.0<self> + 1.0<self.yes>) / 4
+            tst: 0.786 # (1.0<foo_done> + 0.571<TST-foo>) / 2
+        text: |
+            This is the spec for foo, it does lots of foo.
+
+            It is some foo subparts:
+            - [[.no]]: not done
+            - [[.yes]]: done
+        impl_:
+            primary:
+                file: src/foo/mod.rs
+                line: 0
+            secondary:
+                .yes:
+                    file: src/foo/fab.rs
+                    line: 3
+        subnames:
+            - .no
+            - .yes
+    SPC-foo_done:
+        name: SPC-foo_done
+        file: design/foo.md
+        partof:
+            - REQ-foo
+            - SPC-foo
+        parts: []
+        completed: {spc: 1.0, tst: 1.0}
+        text: |-
+            This is done and is weird?
+        impl_: this is done
+        subnames: []
+    TST-foo:
+        name: TST-foo
+        file: design/foo.md
+        partof:
+            - SPC-foo
+        parts: []
+        completed: {spc: 0.571, tst: 0.571} # 4<done> / (1<self> + 4<yes> + 2<no>)
+        text: |
+            Partially done foo test with some subparts
+
+            - [[.no1]]
+            - [[.no2]]
+            - [[.yes1]]
+            - [[.yes2]]
+            - [[.yes3]]
+            - [[.yes4]]
+        impl_:
+            primary: null
+            secondary:
+                .yes1:
+                    file: src/foo/test.rs
+                    line: 4
+                .yes2:
+                    file: src/foo/test.rs
+                    line: 6
+                .yes3:
+                    file: src/foo/test.rs
+                    line: 7
+                .yes4:
+                    file: src/foo/fab.rs
+                    line: 9
+        subnames:
+            - .no1
+            - .no2
+            - .yes1
+            - .yes2
+            - .yes3
+            - .yes4

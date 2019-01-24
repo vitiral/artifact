@@ -18,7 +18,7 @@
 
 use crate::fmt;
 
-use super::{Completed, HashIm, SettingsExport};
+use super::{Completed, HashIm, SettingsExport, SettingsParse, SettingsFormat};
 use crate::dev_prelude::*;
 use crate::lint;
 use crate::name::{Name, SubName};
@@ -105,6 +105,10 @@ pub struct SettingsSer {
     pub code_url: Option<String>,
 
     // command specific settings
+    #[serde(default)]
+    pub parse: SettingsParse,
+    #[serde(default)]
+    pub format: SettingsFormat,
     #[serde(default)]
     pub export: SettingsExport,
 }

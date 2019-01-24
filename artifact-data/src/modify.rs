@@ -325,12 +325,14 @@ fn save_project(lints: &mut lint::Categorized, project: &Project) {
         entry.insert(name, raw);
     }
 
+    let formatter = Arc::new(raw::Formatter::from_settings(&project.settings));
+
     let recv_lint = {
         let (send_lint, recv_lint) = ch::bounded(128);
         let (send_arts, recv_arts) = ch::bounded(128);
 
         for _ in 0..num_cpus::get() {
-            take!(=send_lint, =recv_arts);
+            take!(=send_lint, =recv_arts, =formatter);
             spawn(move || {
                 for (path, arts) in recv_arts {
                     let path: PathArc = path;
@@ -358,7 +360,7 @@ fn save_project(lints: &mut lint::Categorized, project: &Project) {
                     arts.sort_keys();
                     let text = match raw::ArtFileType::from_path(&file) {
                         Some(raw::ArtFileType::Toml) => expect!(toml::to_string(&arts)),
-                        Some(raw::ArtFileType::Md) => raw::to_markdown(&arts),
+                        Some(raw::ArtFileType::Md) => formatter.to_markdown(&arts),
                         Some(raw::ArtFileType::Json) => expect!(json::to_string(&arts)),
                         None => unreachable!(),
                     };

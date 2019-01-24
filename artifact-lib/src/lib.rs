@@ -369,6 +369,11 @@ pub struct Settings {
     pub code_url: Option<String>,
 
     // command specific settings
+    #[serde(default)]
+    pub parse: SettingsParse,
+    #[serde(default)]
+    pub format: SettingsFormat,
+    #[serde(default)]
     pub export: SettingsExport,
 }
 

@@ -146,7 +146,10 @@ pub fn to_json_string<T: Serialize>(value: &T) -> String {
 }
 
 pub fn from_markdown_str(s: &str) -> StrResult<IndexMap<Name, artifact_data::raw::ArtifactRaw>> {
-    artifact_data::raw::from_markdown(s.as_bytes()).map_err(|e| e.to_string())
+    let parser = artifact_data::raw::Parser::new();
+    parser
+        .from_markdown(s.as_bytes())
+        .map_err(|e| e.to_string())
 }
 
 /// Do a serialization/deserialization roundtrip assertion.
