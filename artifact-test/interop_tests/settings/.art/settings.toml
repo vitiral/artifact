@@ -1,0 +1,24 @@
+# artifact project settings
+
+# directories containing artifact toml files
+artifact_paths = ["{repo}/design"]
+
+# artifact paths to exclude. This is how you can avoid trying
+# to load .git/.hg/etc directories (or anything else you don't
+# want to include
+exclude_artifact_paths = []
+
+# directories containing code that has artifact links
+code_paths = ["/src", "/build.rs"]
+
+# directories to exclude when searching through code
+exclude_code_paths = []
+
+[parse]
+md_name = { type = "prefix", value = "#" }
+
+[format]
+md_attrs = {type = "code", prefix = "yaml"}
+
+[export]
+md_name = { type = "prefix", value = "#" }

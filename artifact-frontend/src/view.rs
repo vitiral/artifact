@@ -88,6 +88,7 @@ pub(crate) fn ser_markdown(model: &Model) -> artifact_ser::markdown::SerMarkdown
         code_url: model.shared.settings.code_url.clone(),
         family: SettingsMdFamily::Dot,
         dot: SettingsMdDot::Ignore,
+        name_prefix: "".to_string(),
     };
 
     SerMarkdown::with_settings(&model.shared, settings)

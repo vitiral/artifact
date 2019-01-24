@@ -101,6 +101,11 @@ fn data_interop_basic() {
 }
 
 #[test]
+fn data_interop_settings() {
+    run_interop_tests(INTEROP_TESTS_PATH.join("settings"));
+}
+
+#[test]
 /// #TST-read-artifact.lints
 fn data_interop_lints_error1() {
     run_interop_tests(INTEROP_TESTS_PATH.join("lints"));
