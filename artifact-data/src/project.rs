@@ -46,8 +46,27 @@ pub fn read_project<P: AsRef<Path>>(
     let start_load = time::get_time();
     let mut lints = lint::Categorized::default();
 
-    let settings = {
+    let (settings, parser) = {
         let (mut load_lints, settings) = settings::load_settings(project_path);
+
+        let parser = match settings {
+            Some(ref s) => match raw::Parser::from_settings(s) {
+                Ok(p) => Some(p),
+                Err(e) => {
+                    let l = lint::Lint {
+                        level: lint::Level::Error,
+                        path: Some(s.settings_path.to_string()),
+                        line: None,
+                        category: lint::Category::Settings,
+                        msg: e,
+                    };
+                    load_lints.push(l);
+                    None
+                }
+            },
+            None => None,
+        };
+
         lints.categorize(load_lints.drain(..));
         if !lints.error.is_empty() {
             lints.sort();
@@ -59,7 +78,7 @@ pub fn read_project<P: AsRef<Path>>(
         settings.exclude_code_paths.sort();
         settings.artifact_paths.sort();
         settings.exclude_artifact_paths.sort();
-        settings
+        (settings, Arc::new(expect!(parser)))
     };
 
     let (lint_handle, locs_handle, loaded_handle) = {
@@ -109,10 +128,10 @@ pub fn read_project<P: AsRef<Path>>(
 
         let (send_artifact_im, recv_artifact_im) = ch::bounded(128);
         for _ in 0..num_cpus::get() {
-            take!(=recv_artifact_paths, =send_artifact_im, =send_err);
+            take!(=recv_artifact_paths, =send_artifact_im, =send_err, =parser);
             spawn(move || {
                 for file in recv_artifact_paths {
-                    raw::load_file(&send_err, &send_artifact_im, &file);
+                    parser.load_file(&send_err, &send_artifact_im, &file);
                 }
             });
         }
@@ -326,9 +345,10 @@ pub(crate) fn lint_artifact_text(lints: &Sender<lint::Lint>, project: &Project) 
         };
         ch!(lints <- lint);
     };
+    let parser = expect!(raw::Parser::from_settings(&project.settings));
     for (name, art) in project.artifacts.iter() {
         for line in art.text.lines() {
-            if raw::NAME_LINE_RE.is_match(line) {
+            if parser.md_name_line_re.is_match(line) {
                 send_lint(
                     name,
                     &art.file,

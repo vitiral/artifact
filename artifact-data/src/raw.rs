@@ -126,39 +126,77 @@ pub(crate) fn join_artifacts_raw(
     (files, artifacts)
 }
 
-/// Load artifacts from a file.
+/// Parser object for parsing text into artifacts.
 ///
-/// Any Errors are converted into lints.
-pub(crate) fn load_file(lints: &Sender<lint::Lint>, send: &Sender<ArtifactIm>, file: &PathFile) {
-    let ty = match ArtFileType::from_path(file.as_path()) {
-        Some(t) => t,
-        None => panic!("An invalid filetype reached this code: {}", file.display()),
-    };
+/// Currently only parses markdown
+pub struct Parser {
+    pub md_name_line_re: Regex,
+}
 
-    let text = match file.read_string() {
-        Ok(t) => t,
-        Err(err) => {
-            ch!(lints <- lint::Lint::load_error(file.to_string(), &err.to_string()));
-            return;
+impl Parser {
+    /// Get a parser with the "default" settings.
+    ///
+    /// Used mostly in tests.
+    pub fn new() -> Self {
+        Parser {
+            md_name_line_re: expect!(Self::get_re(&SettingsMdName::default())),
         }
-    };
+    }
 
-    let r: ::std::result::Result<IndexMap<Name, ArtifactRaw>, String> = match ty {
-        ArtFileType::Toml => toml::from_str(&text).map_err(|e| e.to_string()),
-        ArtFileType::Md => from_markdown(text.as_bytes()).map_err(|e| e.to_string()),
-        ArtFileType::Json => json::from_str(&text).map_err(|e| e.to_string()),
-    };
+    pub fn from_settings(settings: &Settings) -> std::result::Result<Parser, String> {
+        Ok(Parser {
+            md_name_line_re: Self::get_re(&settings.parse.md_name)?,
+        })
+    }
 
-    let mut raw_artifacts = match r {
-        Ok(raw) => raw,
-        Err(err) => {
-            ch!(lints <- lint::Lint::load_error(file.to_string(), &err.to_string()));
-            return;
+    fn get_re(set_name: &SettingsMdName) -> std::result::Result<Regex, String> {
+        let prefix = ergo_std::regex::escape(&set_name.to_prefix_string());
+
+        let pat = format!(r"(?i)^{}#\s*({})\s*$", prefix, NAME_VALID_STR);
+        Regex::new(&pat).map_err(|e| format!("name pattern did not work with settings: {}", e))
+    }
+
+    /// Load artifacts from a file.
+    ///
+    /// Any Errors are converted into lints.
+    pub(crate) fn load_file(
+        &self,
+        lints: &Sender<lint::Lint>,
+        send: &Sender<ArtifactIm>,
+        file: &PathFile,
+    ) {
+        let ty = match ArtFileType::from_path(file.as_path()) {
+            Some(t) => t,
+            None => panic!("An invalid filetype reached this code: {}", file.display()),
+        };
+
+        let text = match file.read_string() {
+            Ok(t) => t,
+            Err(err) => {
+                ch!(lints <- lint::Lint::load_error(file.to_string(), &err.to_string()));
+                return;
+            }
+        };
+
+        let r: ::std::result::Result<IndexMap<Name, ArtifactRaw>, String> = match ty {
+            ArtFileType::Toml => toml::from_str(&text).map_err(|e| e.to_string()),
+            ArtFileType::Md => self
+                .from_markdown(text.as_bytes())
+                .map_err(|e| e.to_string()),
+            ArtFileType::Json => json::from_str(&text).map_err(|e| e.to_string()),
+        };
+
+        let mut raw_artifacts = match r {
+            Ok(raw) => raw,
+            Err(err) => {
+                ch!(lints <- lint::Lint::load_error(file.to_string(), &err.to_string()));
+                return;
+            }
+        };
+        for (name, raw) in raw_artifacts.drain(..) {
+            let art = ArtifactIm::from_raw(name, file.clone(), raw);
+            send.send(art).expect("send raw artifact");
         }
-    };
-    for (name, raw) in raw_artifacts.drain(..) {
-        let art = ArtifactIm::from_raw(name, file.clone(), raw);
-        send.send(art).expect("send raw artifact");
     }
 }
 
@@ -168,55 +206,81 @@ pub(crate) fn load_file(lints: &Sender<lint::Lint>, send: &Sender<ArtifactIm>, f
 // READ MARKDOWN
 
 lazy_static! {
-    pub static ref NAME_LINE_RE: Regex =
-        Regex::new(&format!(r"(?i)^#\s*({})\s*$", NAME_VALID_STR)).unwrap();
     pub static ref ATTRS_END_RE: Regex = Regex::new(r"^###+\s*$").unwrap();
+    pub static ref ATTRS_CODE_RE: Regex = Regex::new(r"^```((\s*)|(.*?\s+))art+\s*$").unwrap();
+    pub static ref CODE_END_RE: Regex = Regex::new(r"^```+\s*$").unwrap();
 }
 
-/// #SPC-read-raw-markdown
-/// Load raw artifacts from a markdown stream
-pub fn from_markdown<R: Read>(stream: R) -> Result<IndexMap<Name, ArtifactRaw>> {
-    let mut out: IndexMap<Name, ArtifactRaw> = IndexMap::new();
-    let mut name: Option<Name> = None;
-    let mut attrs: Option<String> = None;
-    let mut other: Vec<String> = Vec::new();
+impl Parser {
+    /// #SPC-read-raw-markdown
+    /// Load raw artifacts from a markdown stream
+    pub fn from_markdown<R: Read>(&self, stream: R) -> Result<IndexMap<Name, ArtifactRaw>> {
+        let mut out: IndexMap<Name, ArtifactRaw> = IndexMap::new();
+        let mut name: Option<Name> = None;
+        let mut attrs: Option<String> = None;
+        let mut other: Vec<String> = Vec::new();
+        let mut line_stream = BufReader::new(stream).lines();
 
-    for line_maybe in BufReader::new(stream).lines() {
-        let line = line_maybe?;
-        if let Some(mat) = NAME_LINE_RE.captures(&line) {
-            // We found a new name, `other` is clearly text (if it exists at all
-            if let Some(n) = name.take() {
-                // Put a new artifact.
-                // Use `take()` for name and attrs so that they end up empty
-                insert_from_parts(&mut out, &n, attrs.take(), &other)?;
-            } else {
-                // Ignore text above the first artifact
-                attrs = None;
-            }
-            debug_assert!(name.is_none());
-            debug_assert!(attrs.is_none());
-            other.clear();
-            name = Some(Name::from_str(expect!(mat.get(1)).as_str())?);
-            continue;
-        } else if ATTRS_END_RE.is_match(&line) {
-            // the `other` lines we have been collecting are attrs!
+        macro_rules! check_attrs_empty{ () => {{
             if name.is_some() && attrs.is_some() {
                 let e = LoadError::MarkdownError {
-                    msg: format!("`###+\\s+` exists twice under {}", expect!(name)),
+                    msg: format!("attributes are specified exists twice under {}", expect!(name)),
                 };
                 return Err(e.into());
             }
-            attrs = Some(other.join("\n"));
-            other.clear();
-            continue;
+        }}}
+        macro_rules! next_line{ () => {{
+            match line_stream.next() {
+                Some(l) => l?,
+                None => break,
+            }
+        }}}
+
+        'outer: loop {
+            let line = next_line!();
+            if let Some(mat) = self.md_name_line_re.captures(&line) {
+                // We found a new name, `other` is clearly text (if it exists at all
+                if let Some(n) = name.take() {
+                    // Put a new artifact.
+                    // Use `take()` for name and attrs so that they end up empty
+                    insert_from_parts(&mut out, &n, attrs.take(), &other)?;
+                } else {
+                    // Ignore text above the first artifact
+                    attrs = None;
+                }
+                debug_assert!(name.is_none());
+                debug_assert!(attrs.is_none());
+                other.clear();
+                name = Some(Name::from_str(expect!(mat.get(1)).as_str())?);
+                continue;
+            } else if ATTRS_END_RE.is_match(&line) {
+                // the `other` lines we have been collecting are attrs!
+                check_attrs_empty!();
+                attrs = Some(other.join("\n"));
+                other.clear();
+                continue;
+            } else if ATTRS_CODE_RE.is_match(&line) {
+                // we are in a code block of attrs, this is allowed to exist
+                // anywhere in the artifact (top is recommended).
+                check_attrs_empty!();
+                let mut attr_lines = Vec::new();
+                loop {
+                    let line = next_line!();
+                    if CODE_END_RE.is_match(&line) {
+                        attrs = Some(attr_lines.join("\n"));
+                        continue 'outer;
+                    }
+                    attr_lines.push(line);
+                }
+            }
+            // Note: the below should be in an `else` block but the borrow checker is bad at this...
+            other.push(line)
         }
-        // Note: the below should be in an`else` block but the borrow checker is bad at this...
-        other.push(line)
+        if let Some(name) = name {
+            insert_from_parts(&mut out, &name, attrs, &other)?;
+        }
+        Ok(out)
     }
-    if let Some(name) = name {
-        insert_from_parts(&mut out, &name, attrs, &other)?;
-    }
-    Ok(out)
 }
 
 #[derive(Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
@@ -268,65 +332,91 @@ fn insert_from_parts(
 
 // WRITE MARKDOWN
 
-/// Convert the artifacts to markdown
-pub fn to_markdown(raw_artifacts: &IndexMap<Name, ArtifactRaw>) -> String {
-    let mut out = String::new();
-    for (name, raw) in raw_artifacts {
-        push_artifact_md(&mut out, name, raw);
+#[derive(Default)]
+pub struct Formatter {
+    md_name_prefix: String,
+    md_attrs: SettingsMdAttrs,
+}
+
+impl Formatter {
+    pub fn from_settings(settings: &Settings) -> Self {
+        Formatter {
+            md_name_prefix: settings.parse.md_name.to_prefix_string(),
+            md_attrs: settings.format.md_attrs.clone(),
+        }
     }
-    // No newlines at end of file.
-    string_trim_right(&mut out);
-    out
+
+    /// Convert the artifacts to markdown
+    pub fn to_markdown(&self, raw_artifacts: &IndexMap<Name, ArtifactRaw>) -> String {
+        let mut out = String::new();
+        for (name, raw) in raw_artifacts {
+            self.push_artifact_md(&mut out, name, raw);
+        }
+        // No newlines at end of file.
+        string_trim_right(&mut out);
+        out
+    }
+
+    /// Push a single artifact onto the document
+    fn push_artifact_md(&self, out: &mut String, name: &Name, raw: &ArtifactRaw) {
+        expect!(write!(out, "{}# {}\n", self.md_name_prefix, name));
+
+        // push attrs if they exist
+        if raw.done.is_some() || raw.partof.is_some() {
+            self.push_attrs(out, raw);
+        }
+
+        // push text if it exists
+        if let Some(ref text) = raw.text {
+            out.push_str(text);
+        }
+
+        // The end of an artifact is always EXACTLY two blank lines
+        string_trim_right(out);
+        out.push_str("\n\n\n")
+    }
+
+    fn push_attrs(&self, out: &mut String, raw: &ArtifactRaw) {
+        if let SettingsMdAttrs::Code { ref prefix } = self.md_attrs {
+            let prefix = match prefix {
+                Some(p) => format!("{} ", p),
+                None => "".to_string(),
+            };
+            expect!(write!(out, "```{}art\n", prefix));
+        }
+        if let Some(ref done) = raw.done {
+            expect!(write!(out, "{}\n\n", to_yaml(&hashmap! {"done" => done})));
+        }
+        if let Some(ref partof) = raw.partof {
+            // do `partof` special so it looks prettier
+            expect!(write!(out, "partof:"));
+            if partof.is_empty() {
+                panic!("partof is not None but has no length");
+            } else if partof.len() == 1 {
+                let n = expect!(partof.iter().next());
+                expect!(write!(out, " {}", n));
+            } else {
+                expect!(write!(out, "\n"));
+                let mut partof = partof.iter().cloned().collect::<Vec<_>>();
+                partof.sort();
+                for n in &partof {
+                    expect!(write!(out, "- {}\n", n));
+                }
+            }
+        }
+        string_trim_right(out);
+
+        match self.md_attrs {
+            SettingsMdAttrs::Hashes => out.push_str("\n###\n"),
+            SettingsMdAttrs::Code{..} => out.push_str("\n```\n"),
+        }
+    }
 }
 
 fn to_yaml<S: Serialize>(value: &S) -> String {
     let mut s = expect!(yaml::to_string(value));
     s.drain(0..4); // remove the ---\n
     s
-}
-
-/// Push a single artifact onto the document
-fn push_artifact_md(out: &mut String, name: &Name, raw: &ArtifactRaw) {
-    expect!(write!(out, "# {}\n", name));
-
-    // push attrs if they exist
-    if raw.done.is_some() || raw.partof.is_some() {
-        push_attrs(out, raw);
-    }
-
-    // push text if it exists
-    if let Some(ref text) = raw.text {
-        out.push_str(text);
-    }
-
-    // The end of an artifact is always EXACTLY two blank lines
-    string_trim_right(out);
-    out.push_str("\n\n\n")
-}
-
-fn push_attrs(out: &mut String, raw: &ArtifactRaw) {
-    if let Some(ref done) = raw.done {
-        expect!(write!(out, "{}\n\n", to_yaml(&hashmap! {"done" => done})));
-    }
-    if let Some(ref partof) = raw.partof {
-        // do `partof` special so it looks prettier
-        expect!(write!(out, "partof:"));
-        if partof.is_empty() {
-            panic!("partof is not None but has no length");
-        } else if partof.len() == 1 {
-            let n = expect!(partof.iter().next());
-            expect!(write!(out, " {}", n));
-        } else {
-            expect!(write!(out, "\n"));
-            let mut partof = partof.iter().cloned().collect::<Vec<_>>();
-            partof.sort();
-            for n in &partof {
-                expect!(write!(out, "- {}\n", n));
-            }
-        }
-    }
-    string_trim_right(out);
-    out.push_str("\n###\n");
 }
 
 // ------------------------------

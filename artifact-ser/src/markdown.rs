@@ -55,6 +55,7 @@ pub struct SerMarkdownSettings {
     pub code_url: Option<String>,
     pub family: SettingsMdFamily,
     pub dot: SettingsMdDot,
+    pub name_prefix: String,
 }
 
 impl<'a> SerMarkdown<'a> {
@@ -91,7 +92,7 @@ impl<'a> SerMarkdown<'a> {
     }
 
     fn to_markdown_toc(&self, w: &mut dyn io::Write) -> io::Result<()> {
-        write!(w, "# Table Of Contents\n")?;
+        write!(w, "{}# Table Of Contents\n", self.settings.name_prefix)?;
         for name in self.project.artifacts.keys() {
             write!(w, "- {}\n", self.name_markdown(name, None))?;
         }
@@ -106,7 +107,7 @@ impl<'a> SerMarkdown<'a> {
             }};
         }
 
-        write!(w, "# {0}\n", artifact.name)?;
+        write!(w, "{}# {}\n", self.settings.name_prefix, artifact.name)?;
         tag_details_begin(w, "metadata")?;
         self.art_to_markdown_family(w, artifact)?;
         write_html_line!("file", self.html_file_url(&artifact.file));
@@ -190,7 +191,7 @@ impl<'a> SerMarkdown<'a> {
             } else if let Some(name) = cap.name(NAME_RE_KEY) {
                 let sub = cap.name(NAME_SUB_RE_KEY).map(|s| subname!(s.as_str()));
                 self.name_markdown(&name!(name.as_str()), sub.as_ref())
-            } else if let Some(dot) = cap.name(DOT_RE_KEY) {
+            } else if cap.name(DOT_RE_KEY).is_some() {
                 self.replace_markdown_dot(parent, &cap)
             } else {
                 panic!("Got unknown match in md: {:?}", cap);

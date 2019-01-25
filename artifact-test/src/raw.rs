@@ -21,9 +21,7 @@
 use super::dev_prelude::*;
 use super::family::{arb_topologically_sorted_names, rand_select_partof};
 use super::implemented::random_impl_links;
-use artifact_data::raw::{
-    from_markdown, to_markdown, ArtifactRaw, TextRaw, ATTRS_END_RE, NAME_LINE_RE,
-};
+use artifact_data::raw::{Formatter, ArtifactRaw, Parser, TextRaw, ATTRS_END_RE};
 use artifact_data::raw_names::NamesRaw;
 
 // ------------------------------
@@ -50,11 +48,12 @@ pub fn lines_to_text_raw<R: Rng + Clone>(
         );
     }
 
+    let parser = Parser::new();
     // TODO: add link references
     let mut text: String = lines
         .iter()
         .map(|l| l.join(" "))
-        .filter(|l| !(NAME_LINE_RE.is_match(l) || ATTRS_END_RE.is_match(l)))
+        .filter(|l| !(parser.md_name_line_re.is_match(l) || ATTRS_END_RE.is_match(l)))
         .join("\n");
 
     string_trim_right(&mut text);

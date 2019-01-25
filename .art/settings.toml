@@ -17,7 +17,11 @@ exclude_code_paths = [
 
 code_url = "https://github.com/vitiral/artifact/blob/master/{file}#L{line}"
 
+[parse]
+md_name_start = "#"
+
 [export]
+md_name_start = "#"
 md_header = """
 Artifact design docs, exported to markdown.
 

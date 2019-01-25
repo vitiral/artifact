@@ -61,6 +61,23 @@ use crate::dev_prelude::*;
 
 // ------ SETTINGS ------
 
+/// Settings related to parsing artifacts.
+#[derive(Debug, Default, Clone, Eq, PartialEq, Serialize, Deserialize)]
+pub struct SettingsParse {
+    /// How to parse the name in markdown
+    #[serde(default)]
+    pub md_name: SettingsMdName,
+}
+
+/// Settings related to formatting artifacts.
+#[derive(Debug, Default, Clone, Eq, PartialEq, Serialize, Deserialize)]
+pub struct SettingsFormat {
+    /// How to write attributes.
+    #[serde(default)]
+    pub md_attrs: SettingsMdAttrs,
+}
+
+/// Settings related to exporting a project.
 #[derive(Debug, Default, Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub struct SettingsExport {
     #[serde(default)]
@@ -78,6 +95,11 @@ pub struct SettingsExport {
     /// How to handle formatting dot
     #[serde(default)]
     pub md_dot: SettingsMdDot,
+
+    /// How to write names
+    #[serde(default)]
+    pub md_name: SettingsMdName,
+
 }
 
 fn return_true() -> bool {
@@ -115,6 +137,65 @@ impl Default for SettingsMdDot {
         SettingsMdDot::Ignore
     }
 }
+
+/// Behavior when writing th ename markdown
+#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase", tag = "type")]
+pub enum SettingsMdName {
+    /// No special behavior
+    Default,
+
+    /// Prefix a value onto the name line.
+    ///
+    /// # Example
+    /// `value="#"` will write `## REQ-foo` instead of `# REQ-foo`
+    Prefix { value: String },
+}
+
+impl SettingsMdName {
+    pub fn to_prefix_string(&self) -> String {
+        match *self {
+            SettingsMdName::Default => "".to_string(),
+            SettingsMdName::Prefix { ref value } => value.clone(),
+        }
+    }
+}
+
+impl Default for SettingsMdName {
+    fn default() -> Self {
+        SettingsMdName::Default
+    }
+}
+
+/// Behavior when writing th ename markdown
+#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase", tag = "type")]
+pub enum SettingsMdAttrs {
+    /// Use hashes (default)
+    ///
+    /// # Example
+    ///
+    ///     # REQ-foo
+    ///     partof: something
+    ///     ###
+    Hashes,
+
+    /// Use a code block. It will always end in `art`.
+    ///
+    /// {Code: { prefix: Some("yaml") } would give:
+    ///
+    ///     ```yaml art
+    ///     partof: something
+    ///     ```
+    Code { prefix: Option<String> },
+}
+
+impl Default for SettingsMdAttrs {
+    fn default() -> Self {
+        SettingsMdAttrs::Hashes
+    }
+}
+
 
 // ------ HASH ------
 

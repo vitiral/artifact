@@ -79,6 +79,7 @@ fn export_markdown(cmd: &Export, project_ser: ProjectSer) -> io::Result<()> {
         code_url: project_ser.settings.code_url.clone(),
         family: project_ser.settings.export.md_family.clone(),
         dot: project_ser.settings.export.md_dot.clone(),
+        name_prefix: project_ser.settings.export.md_name.to_prefix_string(),
     };
     let md = SerMarkdown::with_settings(&project_ser, settings);
 

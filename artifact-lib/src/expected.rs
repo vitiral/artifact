@@ -64,6 +64,10 @@ pub struct SettingsAssert {
     pub code_url: Option<String>,
 
     #[serde(default)]
+    pub parse: SettingsParse,
+    #[serde(default)]
+    pub format: SettingsFormat,
+    #[serde(default)]
     pub export: SettingsExport,
 }
 
@@ -157,6 +161,8 @@ impl SettingsAssert {
             exclude_artifact_paths: prefix_paths(base, &self.exclude_artifact_paths),
             code_url: self.code_url,
 
+            parse: self.parse,
+            format: self.format,
             export: self.export,
         }
     }

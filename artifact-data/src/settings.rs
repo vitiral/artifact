@@ -33,6 +33,10 @@ pub(crate) struct SettingsRaw {
     pub code_url: Option<String>,
 
     #[serde(default)]
+    pub parse: SettingsParse,
+    #[serde(default)]
+    pub format: SettingsFormat,
+    #[serde(default)]
     pub export: SettingsExport,
 }
 
@@ -158,7 +162,7 @@ pub(crate) fn load_settings<P: AsRef<Path>>(
     };
 
     let (send_lints, recv_lints) = ::std::sync::mpsc::channel();
-    let paths = Settings {
+    let settings = Settings {
         base: project_path.clone(),
         settings_path: settings_path,
         code_paths: resolve_raw_paths(&send_lints, &project_path, &raw.code_paths),
@@ -171,11 +175,14 @@ pub(crate) fn load_settings<P: AsRef<Path>>(
         ),
         code_url: raw.code_url,
 
+        parse: raw.parse,
+        format: raw.format,
         export: raw.export,
     };
+
     drop(send_lints);
     let lints = recv_lints.into_iter().collect();
-    (lints, Some(paths))
+    (lints, Some(settings))
 }
 
 /// Load a list of string paths using the `project_path` as the base path (i.e. from a settings file)
