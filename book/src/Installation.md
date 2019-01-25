@@ -10,8 +10,6 @@ For Linux and Mac, simply download and unpack the tarball with
 
 [10]: http://unix.stackexchange.com/questions/26047/how-to-correctly-add-a-path-to-path
 
-You can then update to the newest version with `art update`
-
 ### Windows
 
 The recommended method of installation for windows is to use the **scoop**
