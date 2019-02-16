@@ -80,6 +80,14 @@ pub struct SettingsFormat {
 /// Settings related to exporting a project.
 #[derive(Debug, Default, Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub struct SettingsExport {
+    // #[serde(default)]
+    // /// Whether to try and make all markdown plain
+    // pub md_plain: bool,
+
+    // #[serde(default)]
+    // /// How to handle the `details` tag.
+    // pub md_details: SettingsMdDetails,
+
     #[serde(default)]
     /// User definable header to include in the exported markdown
     pub md_header: Option<String>,
@@ -138,7 +146,7 @@ impl Default for SettingsMdDot {
     }
 }
 
-/// Behavior when writing th ename markdown
+/// Behavior when writing the name markdown
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase", tag = "type")]
 pub enum SettingsMdName {
@@ -167,26 +175,46 @@ impl Default for SettingsMdName {
     }
 }
 
+/// Behavior when writing details (dropdown) tags
+#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase", tag = "type")]
+pub enum SettingsMdDetails {
+    /// No special behavior
+    Default,
+
+    /// Always use the `<details>` tag.
+    Details,
+
+    /// Use custom top and bottom tags. `{summary}` will be replaced with the summary.
+    Custom { top: String , bottom: String},
+}
+
+impl Default for SettingsMdDetails {
+    fn default() -> Self {
+        SettingsMdDetails::Default
+    }
+}
+
 /// Behavior when writing th ename markdown
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase", tag = "type")]
 pub enum SettingsMdAttrs {
     /// Use hashes (default)
-    ///
-    /// # Example
-    ///
-    ///     # REQ-foo
-    ///     partof: something
-    ///     ###
+    //
+    // # Example
+    //
+    //     # REQ-foo
+    //     partof: something
+    //     ###
     Hashes,
 
     /// Use a code block. It will always end in `art`.
-    ///
-    /// {Code: { prefix: Some("yaml") } would give:
-    ///
-    ///     ```yaml art
-    ///     partof: something
-    ///     ```
+    //
+    // {Code: { prefix: Some("yaml") } would give:
+    //
+    //     ```yaml art
+    //     partof: something
+    //     ```
     Code { prefix: Option<String> },
 }
 

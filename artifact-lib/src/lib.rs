@@ -58,7 +58,7 @@ pub struct Artifact {
     /// the mapping cannot be broken.
     pub name: Name,
     /// The file the artifact is defined in.
-    pub file: PathArc,
+    pub file: PathSer,
     /// The user defined and calculated `partof` the artifact.
     pub partof: IndexSet<Name>,
     /// The (calculated) parts of the artifact (opposite of partof)
@@ -228,7 +228,7 @@ impl fmt::Debug for CodeLoc {
 /// #SPC-structs.artifact_im
 pub struct ArtifactIm {
     pub name: Name,
-    pub file: PathArc,
+    pub file: PathSer,
     pub partof: IndexSet<Name>,
     pub done: Option<String>,
     pub text: String,
@@ -416,9 +416,10 @@ impl Project {
 
 /// Join a path to an absolute path. Panic if it doesn't exist.
 pub fn join_abs<P: AsRef<Path>>(path: &PathAbs, end: P) -> PathFile {
-    PathFile::new(path.join(&end)).expect(&format!(
+    expect!(
+        PathFile::new(expect!(path.concat(&end))),
         "{} + {}",
         path.display(),
         end.as_ref().display()
-    ))
+    )
 }

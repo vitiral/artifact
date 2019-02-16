@@ -61,7 +61,7 @@ pub(crate) fn finalize_load_artifact(artifact_ims: IndexMap<Name, ArtifactIm>) -
 pub(crate) fn determine_artifacts(
     mut loaded: ArtifactsLoaded,
     code_impls: &IndexMap<Name, ImplCode>,
-    defined: &IndexMap<Name, PathArc>,
+    defined: &IndexMap<Name, PathSer>,
 ) -> IndexMap<Name, Artifact> {
     // TODO: paralize this
 

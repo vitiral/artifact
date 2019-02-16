@@ -122,7 +122,7 @@ fn sanity_auto_partofs() {
     let spc_a_b = name!("SPC-a-b");
     let tst_a_b = name!("TST-a-b");
 
-    let file = PathAbs::mock("/fake");
+    let file = PathAbs::new_unchecked(PathBuf::from("/fake"));
 
     let names = indexmap! {
         req_foo.clone() => file.clone(),

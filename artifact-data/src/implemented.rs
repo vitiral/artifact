@@ -50,7 +50,7 @@ pub(crate) fn load_locations(
     send_locs: &Sender<(CodeLoc, Name, Option<SubName>)>,
 ) {
     if let Err(err) = parse_file(send_locs, file) {
-        ch!(send_lints <- lint::Lint::load_error(file.to_string(), &err.to_string()));
+        ch!(send_lints <- lint::Lint::load_error(file.to_stfu8(), &err.to_string()));
     }
 }
 
@@ -179,7 +179,7 @@ fn duplicate_detected(send_lints: &Sender<lint::Lint>, path: &PathFile, line: u6
         .send(lint::Lint {
             level: lint::Level::Error,
             category: lint::Category::ParseCodeImplementations,
-            path: Some(path.to_string()),
+            path: Some(path.to_stfu8()),
             line: Some(line),
             msg: format!("duplicate detected: {}", msg),
         })

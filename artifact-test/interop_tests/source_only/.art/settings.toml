@@ -15,4 +15,4 @@ exclude_artifact_paths = []
 code_paths = ["src", "pylib/"]
 
 # directories to exclude when searching through code
-exclude_code_paths = ["pylib/noinclude.py", "pylib/noinclude"]
+exclude_code_paths = ["pylib/noinclude", "pylib/noinclude.py"]

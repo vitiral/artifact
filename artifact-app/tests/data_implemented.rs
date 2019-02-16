@@ -23,6 +23,7 @@ extern crate pretty_assertions;
 use artifact_test::artifact_data::implemented::{join_locations, parse_locations};
 use artifact_test::implemented::*;
 use artifact_test::*;
+use ergo::path_abs::ser::ToStfu8;
 
 // SANITY
 
@@ -56,7 +57,7 @@ And to the right:
 Here is a special tst subname:
     %SPC-sub.tst-foo
 "#;
-    let file = PathFile::mock("/fake/file.c");
+    let file = PathFile::new_unchecked(PathBuf::from("/fake/file.c"));
     let mut expected: Vec<_> = vec![
         (3, name!("SPC-example"), None),
         (3, name!("TST-example"), None),
@@ -89,9 +90,9 @@ Here is a special tst subname:
 fn sanity_join_locations() {
     let (send_lints, lints) = ch::unbounded();
 
-    let file1 = PathFile::mock("/fake/foo.py");
-    let file2 = PathFile::mock("/fake/bar.py");
-    let file3 = PathFile::mock("/fake/long/foo.py");
+    let file1 = PathFile::new_unchecked(PathBuf::from("/fake/foo.py"));
+    let file2 = PathFile::new_unchecked(PathBuf::from("/fake/bar.py"));
+    let file3 = PathFile::new_unchecked(PathBuf::from("/fake/long/foo.py"));
 
     let req_foo = name!("req-foo");
     let spc_bar = name!("spc-bar");
@@ -181,7 +182,7 @@ fn sanity_join_locations() {
     let create_lint = |path: &PathFile, line, msg: &str| lint::Lint {
         level: lint::Level::Error,
         category: lint::Category::ParseCodeImplementations,
-        path: Some(path.to_string()),
+        path: Some(path.to_stfu8()),
         line: Some(line),
         msg: format!("duplicate detected: {}", msg),
     };
@@ -205,7 +206,7 @@ proptest! {
     #[test]
     fn fuzz_locations((ref _names, ref expected_locations, ref code_text) in arb_source_code(10)) {
         println!("## Code Text:\n{}", code_text);
-        let file = PathFile::mock("/fake");
+        let file = PathFile::new_unchecked(PathBuf::from("/fake"));
         let locations = {
             let (send, locations) = ch::unbounded();
             parse_locations(&send, &file, code_text.as_bytes())

@@ -91,8 +91,8 @@ impl<'de> Deserialize<'de> for TextRaw {
 pub(crate) fn join_artifacts_raw(
     lints: &Sender<lint::Lint>,
     mut art_ims: Vec<ArtifactIm>,
-) -> (IndexMap<Name, PathArc>, IndexMap<Name, ArtifactIm>) {
-    let mut files: IndexMap<Name, PathArc> = IndexMap::with_capacity(art_ims.len());
+) -> (IndexMap<Name, PathSer>, IndexMap<Name, ArtifactIm>) {
+    let mut files: IndexMap<Name, PathSer> = IndexMap::with_capacity(art_ims.len());
     let mut artifacts = IndexMap::with_capacity(art_ims.len());
     for mut art in art_ims.drain(..) {
         if let Some(dup) = files.insert(art.name.clone(), art.file.clone()) {
@@ -100,7 +100,7 @@ pub(crate) fn join_artifacts_raw(
                 .send(lint::Lint {
                     level: lint::Level::Error,
                     category: lint::Category::ParseArtifactFiles,
-                    path: Some(dup.to_string()),
+                    path: Some(dup.to_stfu8()),
                     line: None,
                     msg: format!("duplicate name detected: {} in {}", art.name, dup.display()),
                 })
@@ -109,7 +109,7 @@ pub(crate) fn join_artifacts_raw(
                 .send(lint::Lint {
                     level: lint::Level::Error,
                     category: lint::Category::ParseArtifactFiles,
-                    path: Some(art.file.to_string()),
+                    path: Some(art.file.to_stfu8()),
                     line: None,
                     msg: format!(
                         "duplicate name detected: {} in {}",
@@ -173,7 +173,7 @@ impl Parser {
         let text = match file.read_string() {
             Ok(t) => t,
             Err(err) => {
-                ch!(lints <- lint::Lint::load_error(file.to_string(), &err.to_string()));
+                ch!(lints <- lint::Lint::load_error(file.to_stfu8(), &err.to_string()));
                 return;
             }
         };
@@ -189,7 +189,7 @@ impl Parser {
         let mut raw_artifacts = match r {
             Ok(raw) => raw,
             Err(err) => {
-                ch!(lints <- lint::Lint::load_error(file.to_string(), &err.to_string()));
+                ch!(lints <- lint::Lint::load_error(file.to_stfu8(), &err.to_string()));
                 return;
             }
         };

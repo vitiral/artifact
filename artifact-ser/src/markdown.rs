@@ -2,7 +2,7 @@ use crate::dev_prelude::*;
 use crate::ser::*;
 use std::io;
 
-use super::{Completed, SettingsMdDot, SettingsMdFamily};
+use super::{Completed, SettingsMdDetails, SettingsMdDot, SettingsMdFamily};
 use crate::md_graph;
 use crate::name::*;
 
@@ -56,6 +56,8 @@ pub struct SerMarkdownSettings {
     pub family: SettingsMdFamily,
     pub dot: SettingsMdDot,
     pub name_prefix: String,
+    // pub md_plain: bool,
+    // pub md_details: SettingsMdDetails,
 }
 
 impl<'a> SerMarkdown<'a> {
@@ -108,7 +110,7 @@ impl<'a> SerMarkdown<'a> {
         }
 
         write!(w, "{}# {}\n", self.settings.name_prefix, artifact.name)?;
-        tag_details_begin(w, "metadata")?;
+        self.tag_details_begin(w, "metadata")?;
         self.art_to_markdown_family(w, artifact)?;
         write_html_line!("file", self.html_file_url(&artifact.file));
 
@@ -129,7 +131,7 @@ impl<'a> SerMarkdown<'a> {
             artifact.completed.tst * 100.0
         )?;
         write!(w, "<hr>\n")?;
-        tag_details_end(w)?;
+        self.tag_details_end(w)?;
         write!(
             w,
             "{}\n\n",
@@ -161,7 +163,7 @@ impl<'a> SerMarkdown<'a> {
                 write_section!(parts);
             }
             SettingsMdFamily::Dot => {
-                tag_details_begin(w, "dot-graph")?;
+                self.tag_details_begin(w, "dot-graph")?;
                 let (dot_pre, dot_post) = match self.settings.dot {
                     SettingsMdDot::ReplaceBraces { ref pre, ref post } => {
                         (pre.as_str(), post.as_str())
@@ -175,7 +177,7 @@ impl<'a> SerMarkdown<'a> {
                     dot = md_graph::artifact_part_dot(self, artifact),
                     post = dot_post,
                 )?;
-                tag_details_end(w)?;
+                self.tag_details_end(w)?;
             }
         }
         Ok(())
@@ -347,6 +349,16 @@ impl<'a> SerMarkdown<'a> {
         let file = self.project.settings.trim_base(&code.file);
         strfmt_code_url(url_fmt, file, code.line)
     }
+
+    fn tag_details_begin(&self, w: &mut dyn io::Write, summary: &str) -> io::Result<()> {
+        write!(w, "<details>\n<summary><b>{}</b></summary>\n\n", summary)?;
+        Ok(())
+    }
+
+    fn tag_details_end(&self, w: &mut dyn io::Write) -> io::Result<()> {
+        write!(w, "</details>\n\n")?;
+        Ok(())
+    }
 }
 
 pub fn strfmt_code_url(url_fmt: &str, file: &str, line: u64) -> Result<String, String> {
@@ -421,12 +433,3 @@ fn completed_color(c: &Completed) -> &'static str {
     }
 }
 
-fn tag_details_begin(w: &mut dyn io::Write, summary: &str) -> io::Result<()> {
-    write!(w, "<details>\n<summary><b>{}</b></summary>\n", summary)?;
-    Ok(())
-}
-
-fn tag_details_end(w: &mut dyn io::Write) -> io::Result<()> {
-    write!(w, "</details>\n\n")?;
-    Ok(())
-}

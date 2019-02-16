@@ -17,6 +17,7 @@
 pub(crate) use artifact_lib;
 pub(crate) use artifact_lib::*;
 pub(crate) use ergo::*;
+pub(crate) use ergo::path_abs::ser::ToStfu8;
 #[allow(unused_imports)]
 pub(crate) use expect_macro::*;
 pub(crate) use std::ffi::OsStr;
@@ -39,8 +40,8 @@ pub(crate) fn touch<P: AsRef<Path>>(path: P) -> ::std::io::Result<()> {
 }
 
 fn create_dir_maybe<P: AsRef<Path>>(path: P) -> path_abs::Result<PathDir> {
-    let arc = PathArc::new(path);
-    fs::create_dir(&arc).map_err(|err| path_abs::Error::new(err, "creating dir", arc.clone()))?;
+    let arc = PathSer::from(path.as_ref());
+    fs::create_dir(&arc).map_err(|err| path_abs::Error::new(err, "creating dir", arc.clone().into()))?;
     PathDir::new(arc)
 }
 
@@ -67,7 +68,7 @@ pub fn deep_copy<P: AsRef<Path>>(send_err: Sender<io::Error>, from: PathDir, to:
             for (from, to_postfix) in recv_file {
                 ch_try!(
                     send_err,
-                    from.copy(to.join(to_postfix)).map_err(|err| err.into()),
+                    from.copy(expect!(to.concat(to_postfix))).map_err(|err| err.into()),
                     continue
                 );
             }
@@ -109,7 +110,7 @@ fn walk_and_create_dirs(
         match handle_err!(PathType::new(entry.path())) {
             PathType::Dir(_) => {
                 // Create it immediately
-                if let Err(err) = PathDir::create(to.join(to_postfix)) {
+                if let Err(err) = PathDir::create(expect!(to.concat(to_postfix))) {
                     ch!(send_err <- err.into());
                     // We couldn't create the directory so it needs to be skipped.
                     it.skip_current_dir();

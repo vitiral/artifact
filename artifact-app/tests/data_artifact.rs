@@ -27,7 +27,7 @@ fn sanity_determine_partofs() {
         partof.sort();
         ArtifactIm {
             name: name!("TST-fake"),
-            file: PathArc::new("/fake"),
+            file: PathSer::from("/fake"),
             partof: partof.drain(..).collect(),
             done: None,
             text: "".into(),

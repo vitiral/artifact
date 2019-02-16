@@ -655,7 +655,7 @@ fn test_style() {
     let art = Artifact {
         id: HashIm::default(),
         name: name!("REQ-foo"),
-        file: PathArc::new("/fake"),
+        file: PathSer::from("/fake"),
         partof: indexset! {},
         parts: indexset! {},
         completed: Completed {

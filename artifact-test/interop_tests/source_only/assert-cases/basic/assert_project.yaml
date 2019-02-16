@@ -6,8 +6,8 @@ settings:
     - pylib
     - src
     exclude_code_paths:
-    - pylib/noinclude.py
     - pylib/noinclude
+    - pylib/noinclude.py
     artifact_paths: []
     exclude_artifact_paths: []
 code_impls:

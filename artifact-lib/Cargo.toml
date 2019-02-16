@@ -6,13 +6,13 @@ edition = "2018"
 
 [dependencies]
 base64 = "0.9.2"
-path_abs = "0.4.1"
+path_abs = {git="https://github.com/vitiral/path_abs"}
 serde = "1.0.66"
 serde_derive = "1.0.66"
 failure = "0.1.1"
 failure_derive = "0.1.1"
 expect_macro = "0.2.1"
-ergo_std = "0.0.3"
-ergo_config = "0.0.1"
+ergo_std = {git="https://github.com/rust-crates/ergo", branch="path_abs-4.0"}
+ergo_config = {git="https://github.com/rust-crates/ergo", branch="path_abs-4.0"}
 siphasher = "0.2.2"
 artifact_ser = { path = "../artifact-ser" }

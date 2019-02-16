@@ -101,7 +101,7 @@ pub(crate) fn walk_paths<F>(
     for path in paths.iter() {
         let res = walk_path(send_paths, path.clone(), &filter);
         if let Err(err) = res {
-            ch!(send_err <- lint::Lint::load_error(path.to_string(), &err.to_string()));
+            ch!(send_err <- lint::Lint::load_error(path.to_stfu8(), &err.to_string()));
         }
     }
 }
@@ -114,7 +114,7 @@ fn walk_path<F>(send_paths: &Sender<PathFile>, path: PathAbs, filter: &F) -> io:
 where
     F: Fn(&PathType) -> bool,
 {
-    let dir = match PathType::from_abs(path)? {
+    let dir = match PathType::new(path)? {
         PathType::File(f) => {
             ch!(send_paths <- f);
             return Ok(());
@@ -188,7 +188,7 @@ pub(crate) fn load_settings<P: AsRef<Path>>(
 /// Load a list of string paths using the `project_path` as the base path (i.e. from a settings file)
 fn resolve_raw_paths(
     lints: &::std::sync::mpsc::Sender<lint::Lint>,
-    project_path: &PathAbs,
+    project_path: &PathDir,
     raw_paths: &[String],
 ) -> IndexSet<PathAbs> {
     raw_paths
@@ -199,11 +199,11 @@ fn resolve_raw_paths(
             // Also just allow `/something`... Path.join will just IGNORE joining
             // something with the other being "/something"
             let p = p.trim_left_matches('/');
-            let path = project_path.join(p);
+            let path = expect!(project_path.concat(p));
             match PathAbs::new(&path) {
                 Ok(p) => Some(p),
                 Err(err) => {
-                    lint::io_error(lints, path.to_string(), &err.to_string());
+                    lint::io_error(lints, path.to_stfu8(), &err.to_string());
                     None
                 }
             }
@@ -253,7 +253,7 @@ where
             if !filter(&abs) {
                 continue;
             }
-            found.files.push(abs.into_file()?);
+            found.files.push(PathFile::try_from(abs)?);
         }
     }
     Ok(found)

@@ -68,7 +68,7 @@ pub fn set_log_verbosity(pkg: &str, verbosity: u64) -> Result<()> {
 pub fn find_repo(initial: &PathDir) -> Result<PathDir> {
     let mut dir = initial.clone();
     loop {
-        if dir.join(ART_DIR).exists() {
+        if dir.concat(ART_DIR)?.exists() {
             return Ok(dir);
         }
         dir = match dir.parent_dir() {

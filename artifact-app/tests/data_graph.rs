@@ -70,7 +70,7 @@ fn sanity_determine_graphs() {
 fn sanity_determine_completed() {
     let (_, graphs) = simple_graph();
 
-    let loc = CodeLoc::new(&PathFile::mock("/fake"), 1);
+    let loc = CodeLoc::new(&PathFile::new_unchecked(PathBuf::from("/fake")), 1);
     let impls = indexmap! {
         name!("REQ-aaa") => Impl::NotImpl,
         name!("REQ-bbb") => Impl::NotImpl,

@@ -55,7 +55,7 @@ pub fn read_project<P: AsRef<Path>>(
                 Err(e) => {
                     let l = lint::Lint {
                         level: lint::Level::Error,
-                        path: Some(s.settings_path.to_string()),
+                        path: Some(s.settings_path.to_stfu8()),
                         line: None,
                         category: lint::Category::Settings,
                         msg: e,
@@ -189,7 +189,7 @@ pub(crate) fn lint_partof_dne(lints: &Sender<lint::Lint>, project: &Project) {
             if !project.artifacts.contains_key(pof) {
                 let lint = lint::Lint {
                     level: lint::Level::Error,
-                    path: Some(art.file.to_string()),
+                    path: Some(art.file.to_stfu8()),
                     line: None,
                     category: lint::Category::Artifact,
                     msg: format!("{} defines partof={} which does not exist", name, pof),
@@ -220,7 +220,7 @@ pub(crate) fn lint_partof_types(lints: &Sender<lint::Lint>, project: &Project) {
                 lints
                     .send(lint::Lint {
                         level: lint::Level::Error,
-                        path: Some(art.file.to_string()),
+                        path: Some(art.file.to_stfu8()),
                         line: None,
                         category: lint::Category::Artifact,
                         msg: format!("{} cannot have `partof` {}: invalid types.", name, pof,),
@@ -238,7 +238,7 @@ pub(crate) fn lint_artifact_done_subnames(lints: &Sender<lint::Lint>, project: &
         if art.impl_.is_done() && !art.subnames.is_empty() {
             let lint = lint::Lint {
                 level: lint::Level::Error,
-                path: Some(art.file.to_string()),
+                path: Some(art.file.to_stfu8()),
                 line: None,
                 category: lint::Category::Artifact,
                 msg: format!(
@@ -256,7 +256,7 @@ pub(crate) fn lint_code_impls(lints: &Sender<lint::Lint>, project: &Project) {
     let send_lint = |name: &Name, sub: Option<&SubName>, loc: &CodeLoc, msg: &str| {
         let lint = lint::Lint {
             level: lint::Level::Warn,
-            path: Some(loc.file.to_string()),
+            path: Some(loc.file.to_stfu8()),
             line: Some(loc.line),
             category: lint::Category::ImplCode,
             msg: format!("Invalid code impl #{}. {}", name.full(sub), msg),
@@ -322,7 +322,7 @@ pub(crate) fn lint_settings(lints: &Sender<lint::Lint>, project: &Project) {
         if let Err(e) = result {
             let lint = lint::Lint {
                 level: lint::Level::Error,
-                path: Some(project.settings.settings_path.to_string()),
+                path: Some(project.settings.settings_path.to_stfu8()),
                 line: None,
                 category: lint::Category::Settings,
                 msg: e.to_string(),
@@ -335,10 +335,10 @@ pub(crate) fn lint_settings(lints: &Sender<lint::Lint>, project: &Project) {
 /// #SPC-read-artifact.lint_text
 /// Lint against artifact text being structured incorrectly.
 pub(crate) fn lint_artifact_text(lints: &Sender<lint::Lint>, project: &Project) {
-    let send_lint = |name: &Name, file: &PathArc, msg: &str| {
+    let send_lint = |name: &Name, file: &PathSer, msg: &str| {
         let lint = lint::Lint {
             level: lint::Level::Error,
-            path: Some(file.to_string()),
+            path: Some(file.to_stfu8()),
             line: None,
             category: lint::Category::Artifact,
             msg: format!("{} text is invalid: {}", name, msg),
@@ -370,10 +370,10 @@ pub(crate) fn lint_artifact_text(lints: &Sender<lint::Lint>, project: &Project) 
 /// #SPC-read-artifact.lint_text_refs
 /// Lint warnings against invalid references in the artifact text.
 pub(crate) fn lint_artifact_text_refs(lints: &Sender<lint::Lint>, project: &Project) {
-    let send_lint = |name: &Name, ref_name: &Name, ref_sub: Option<&SubName>, file: &PathArc| {
+    let send_lint = |name: &Name, ref_name: &Name, ref_sub: Option<&SubName>, file: &PathSer| {
         let lint = lint::Lint {
             level: lint::Level::Warn,
-            path: Some(file.to_string()),
+            path: Some(file.to_stfu8()),
             line: None,
             category: lint::Category::Artifact,
             msg: format!(

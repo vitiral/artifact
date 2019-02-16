@@ -104,7 +104,7 @@ fn check_paths(lints: &mut lint::Categorized, project: &Project, operations: &[A
             ($msg:expr) => {{
                 let l = lint::Lint {
                     level: lint::Level::Error,
-                    path: Some(path.to_string()),
+                    path: Some(path.to_stfu8()),
                     line: None,
                     category: lint::Category::ModifyPathInvalid,
                     msg: $msg.to_string(),
@@ -254,7 +254,7 @@ fn create_backups(lints: &mut lint::Categorized, paths: Settings) {
                     if let Err(err) = path.clone().rename(bk) {
                         let l = lint::Lint {
                             level: lint::Level::Error,
-                            path: Some(path.to_string()),
+                            path: Some(path.to_stfu8()),
                             line: None,
                             category: lint::Category::CreateBackups,
                             msg: err.to_string(),
@@ -297,7 +297,7 @@ fn remove_backups(lints: &mut lint::Categorized, paths: Settings) {
                     if let Err(err) = path.clone().remove() {
                         let l = lint::Lint {
                             level: lint::Level::Warn,
-                            path: Some(path.to_string()),
+                            path: Some(path.to_stfu8()),
                             line: None,
                             category: lint::Category::RemoveBackups,
                             msg: err.to_string(),
@@ -317,7 +317,7 @@ fn remove_backups(lints: &mut lint::Categorized, paths: Settings) {
 /// Save the project to disk, recording any lints along the way
 fn save_project(lints: &mut lint::Categorized, project: &Project) {
     // split up the artifacts into their relevant files
-    let mut files: IndexMap<PathArc, IndexMap<Name, raw::ArtifactRaw>> = IndexMap::new();
+    let mut files: IndexMap<PathSer, IndexMap<Name, raw::ArtifactRaw>> = IndexMap::new();
     for art in project.artifacts.values() {
         let art = ArtifactIm::from(art.clone());
         let (file, name, raw) = art.into_raw();
@@ -335,7 +335,7 @@ fn save_project(lints: &mut lint::Categorized, project: &Project) {
             take!(=send_lint, =recv_arts, =formatter);
             spawn(move || {
                 for (path, arts) in recv_arts {
-                    let path: PathArc = path;
+                    let path: PathSer = path;
                     macro_rules! handle_err {
                         [$result:expr] => {
                             match $result {
@@ -343,7 +343,7 @@ fn save_project(lints: &mut lint::Categorized, project: &Project) {
                                 Err(err) => {
                                     let l = lint::Lint {
                                         level: lint::Level::Error,
-                                        path: Some(path.to_string()),
+                                        path: Some(path.to_stfu8()),
                                         line: None,
                                         category: lint::Category::SaveProject,
                                         msg: err.to_string(),

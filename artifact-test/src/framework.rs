@@ -308,7 +308,7 @@ fn load_lints(base: &PathDir, fname: &str) -> Option<Categorized> {
     match PathFile::new(base.join(fname)) {
         Ok(p) => {
             let out: CategorizedAssert = yaml::from_str(&p.read_string().unwrap()).unwrap();
-            let mut out = out.expected(base);
+            let mut out = out.expected(&base.clone().into());
             out.sort();
             Some(out)
         }

@@ -17,6 +17,7 @@
 //! Created "expected" types for assertions and test frameworks
 use super::*;
 use crate::dev_prelude::*;
+use path_abs::ser::ToStfu8;
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(tag = "op", rename_all = "lowercase")]
@@ -118,7 +119,7 @@ impl ArtifactImAssert {
     pub fn expected(self, base: &PathDir) -> ArtifactIm {
         let mut out = ArtifactIm {
             name: self.name,
-            file: PathArc::new(base.join(self.file)),
+            file: expect!(base.concat(self.file)).into(),
             partof: self.partof,
             done: self.done,
             text: self.text,
@@ -136,12 +137,12 @@ impl ProjectAssert {
             code_impls: self
                 .code_impls
                 .drain(..)
-                .map(|(name, impl_)| (name, impl_.expected(base)))
+                .map(|(name, impl_)| (name, impl_.expected(base.as_ref())))
                 .collect(),
             artifacts: self
                 .artifacts
                 .drain(..)
-                .map(|(name, art)| (name, art.expected(base)))
+                .map(|(name, art)| (name, art.expected(base.as_ref())))
                 .collect(),
         };
         out.sort();
@@ -151,14 +152,14 @@ impl ProjectAssert {
 
 impl SettingsAssert {
     pub fn expected(self, base: &PathDir) -> Settings {
-        let settings_path = PathAbs::mock(base.join(self.settings_path));
+        let settings_path = PathAbs::new_unchecked(expect!(base.concat(self.settings_path)));
         Settings {
             base: base.clone(),
-            settings_path: PathFile::from_abs_unchecked(settings_path),
-            code_paths: prefix_paths(base, &self.code_paths),
-            exclude_code_paths: prefix_paths(base, &self.exclude_code_paths),
-            artifact_paths: prefix_paths(base, &self.artifact_paths),
-            exclude_artifact_paths: prefix_paths(base, &self.exclude_artifact_paths),
+            settings_path: PathFile::new_unchecked(settings_path),
+            code_paths: prefix_paths(base.as_ref(), &self.code_paths),
+            exclude_code_paths: prefix_paths(base.as_ref(), &self.exclude_code_paths),
+            artifact_paths: prefix_paths(base.as_ref(), &self.artifact_paths),
+            exclude_artifact_paths: prefix_paths(base.as_ref(), &self.exclude_artifact_paths),
             code_url: self.code_url,
 
             parse: self.parse,
@@ -173,7 +174,7 @@ impl ArtifactAssert {
         let mut art = Artifact {
             id: HashIm([0; 16]),
             name: self.name,
-            file: PathArc::new(base.join(&self.file)),
+            file: expect!(base.concat(&self.file)).into(),
             partof: self.partof,
             parts: self.parts,
             completed: self.completed,
@@ -227,7 +228,7 @@ pub trait LintExp {
 impl LintExp for lint::Lint {
     fn make_expected(&mut self, base: &PathAbs) {
         if let Some(ref mut p) = self.path {
-            *p = PathArc::new(base.join(&p)).to_string();
+            *p = expect!(base.concat(&p)).to_stfu8();
         }
     }
 }
@@ -256,7 +257,7 @@ impl CategorizedAssert {
 /// Add the path prefix to a list of strings
 fn prefix_paths(base: &PathAbs, ends: &[String]) -> IndexSet<PathAbs> {
     ends.iter()
-        .map(|e| match PathAbs::new(base.join(e)) {
+        .map(|e| match PathAbs::new(expect!(base.concat(e))) {
             Ok(p) => p,
             Err(e) => panic!("{}", e),
         })

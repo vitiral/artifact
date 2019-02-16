@@ -14,7 +14,7 @@ tempdir = "0.3.7"
 unicode-segmentation = "1.2.1"
 
 base64 = "0.9.2"
-ergo = "0.0.*"
+ergo = {git="https://github.com/rust-crates/ergo", branch="path_abs-4.0"}
 expect_macro = "0.2.1"
 matches = "0.1.6"
 petgraph = "0.4.12"

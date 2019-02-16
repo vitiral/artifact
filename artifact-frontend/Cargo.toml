@@ -8,8 +8,8 @@ edition = "2018"
 yew = "0.4.0"
 stdweb = "0.4.13"
 artifact_ser = {path="../artifact-ser"}
-ergo_std = "0.0.3"
-ergo_config = "0.0.1"
+ergo_std = {git="https://github.com/rust-crates/ergo", branch="path_abs-4.0"}
+ergo_config = {git="https://github.com/rust-crates/ergo", branch="path_abs-4.0"}
 yew_simple = "0.3.0"
 expect_macro = "0.2.1"
 jrpc = "0.4.0"

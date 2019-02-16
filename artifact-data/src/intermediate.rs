@@ -27,7 +27,7 @@ pub trait ArtifactImExt {
     /// Get an `ArtifactIm` from an `ArtifactRaw`.
     fn from_raw(name: Name, file: PathFile, raw: ArtifactRaw) -> ArtifactIm;
 
-    fn into_raw(self) -> (PathArc, Name, ArtifactRaw);
+    fn into_raw(self) -> (PathSer, Name, ArtifactRaw);
 }
 
 impl ArtifactImExt for ArtifactIm {
@@ -50,7 +50,7 @@ impl ArtifactImExt for ArtifactIm {
         }
     }
 
-    fn into_raw(self) -> (PathArc, Name, ArtifactRaw) {
+    fn into_raw(self) -> (PathSer, Name, ArtifactRaw) {
         let partof = if self.partof.is_empty() {
             None
         } else {

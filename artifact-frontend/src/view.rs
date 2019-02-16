@@ -89,6 +89,8 @@ pub(crate) fn ser_markdown(model: &Model) -> artifact_ser::markdown::SerMarkdown
         family: SettingsMdFamily::Dot,
         dot: SettingsMdDot::Ignore,
         name_prefix: "".to_string(),
+        // md_plain: false,
+        // md_details: SettingsMdDetails::default(),
     };
 
     SerMarkdown::with_settings(&model.shared, settings)

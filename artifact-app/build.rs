@@ -127,7 +127,7 @@ fn tar_dir<W: ::std::io::Write>(
         header.set_metadata_in_mode(&file.metadata()?, tar::HeaderMode::Deterministic);
         header.set_path(&file.strip_prefix(prefix).unwrap())?;
         header.set_cksum();
-        let mut r = file.read()?;
+        let mut r = file.open_read()?;
         builder.append(&header, &mut r)?;
     }
     Ok(())
