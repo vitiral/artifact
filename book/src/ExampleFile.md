@@ -46,7 +46,7 @@ Anything starting with SPC is a design specification.
 
 Requirements (REQ) should be used for:
 - Detailing what you want your application to do.
-- What the architecture of your applicaiton should be.
+- What the architecture of your application should be.
 
 Specifications (SPC) should be used for:
 - How you intend to write your application (lower level details).
