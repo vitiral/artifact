@@ -1,4 +1,3 @@
-#[macro_use]
 extern crate ergo;
 use ergo::*;
 use std::process::Command;
@@ -95,7 +94,7 @@ fn tar_frontend() -> ::std::io::Result<PathFile> {
     let target = PathDir::new(WORKSPACE.join("target"))?;
     let deploy = match PathDir::new(target.join("deploy")) {
         Ok(d) => d,
-        Err(e) => panic!("target/deploy doesn't exist. justfile::build-frontend defines how."),
+        Err(_e) => panic!("target/deploy doesn't exist. justfile::build-frontend defines how."),
     };
     let archive_path = PathFile::create(target.join("frontend.tar"))?;
 
@@ -119,7 +118,7 @@ fn tar_dir<W: ::std::io::Write>(
         let file = match entry.unwrap() {
             PathType::File(f) => f,
             PathType::Dir(d) => {
-                tar_dir(prefix, &d, builder);
+                tar_dir(prefix, &d, builder)?;
                 continue;
             }
         };

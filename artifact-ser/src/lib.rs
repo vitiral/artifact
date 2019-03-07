@@ -402,7 +402,7 @@ pub struct ParamsReadProject {
 
 /// Inplace trim is annoyingly not in the stdlib
 pub fn string_trim_right(s: &mut String) {
-    let end = s.trim_right().len();
+    let end = s.trim_end().len();
     s.truncate(end);
 }
 

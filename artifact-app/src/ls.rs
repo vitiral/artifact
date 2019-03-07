@@ -511,7 +511,7 @@ impl ArtifactExt for Artifact {
             extend_names!("Partof", self.partof);
         }
         if flags.text {
-            line![t!(self.text.trim_right().to_string())]
+            line![t!(self.text.trim_end().to_string())]
         }
 
         line![t!("\n\n")];

@@ -17,8 +17,6 @@
 #![recursion_limit = "256"]
 #![allow(unknown_lints)]
 
-use artifact_ser;
-
 #[macro_use]
 extern crate expect_macro;
 #[macro_use]

@@ -67,7 +67,7 @@ impl Serialize for TextRaw {
         S: Serializer,
     {
         // TODO: error check for invalid markdown lines
-        let mut trimmed = self.0.trim_right().to_string();
+        let mut trimmed = self.0.trim_end().to_string();
         clean_text(&mut trimmed);
         serializer.serialize_str(&trimmed)
     }
