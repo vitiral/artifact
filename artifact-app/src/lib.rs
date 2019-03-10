@@ -79,6 +79,18 @@ pub fn run() -> Result<i32> {
         ("ls", Some(args)) => ls::run(ls::Ls::from_clap(&args)),
         ("serve", Some(args)) => serve::run(serve::Serve::from_clap(&args)),
         ("export", Some(args)) => export::run(export::Export::from_clap(&args)),
-        (sub, _) => unimplemented!("sub: {}", sub),
+        ("", _) => {
+            eprintln!(
+                "Error: must specify a subcommand. Use `art help` for a list of subcommands."
+            );
+            Ok(1)
+        }
+        (sub, _) => {
+            eprintln!(
+                "Error: subcommand '{}' is not valid. Use `art help` for a list of subcommands.",
+                sub
+            );
+            Ok(1)
+        }
     }
 }
