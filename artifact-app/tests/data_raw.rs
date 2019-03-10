@@ -17,7 +17,7 @@
 
 use artifact_test::*;
 
-use crate::artifact_data::raw::{Formatter, ArtFileType, ArtifactRaw, Parser, TextRaw};
+use crate::artifact_data::raw::{ArtFileType, ArtifactRaw, Formatter, Parser, TextRaw};
 use crate::artifact_data::raw_names::NamesRaw;
 use artifact_test::raw::{arb_raw_artifacts, arts_from_json_str, arts_from_toml_str};
 

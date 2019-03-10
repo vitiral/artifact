@@ -221,20 +221,27 @@ impl Parser {
         let mut other: Vec<String> = Vec::new();
         let mut line_stream = BufReader::new(stream).lines();
 
-        macro_rules! check_attrs_empty{ () => {{
-            if name.is_some() && attrs.is_some() {
-                let e = LoadError::MarkdownError {
-                    msg: format!("attributes are specified exists twice under {}", expect!(name)),
-                };
-                return Err(e.into());
-            }
-        }}}
-        macro_rules! next_line{ () => {{
-            match line_stream.next() {
-                Some(l) => l?,
-                None => break,
-            }
-        }}}
+        macro_rules! check_attrs_empty {
+            () => {{
+                if name.is_some() && attrs.is_some() {
+                    let e = LoadError::MarkdownError {
+                        msg: format!(
+                            "attributes are specified exists twice under {}",
+                            expect!(name)
+                        ),
+                    };
+                    return Err(e.into());
+                }
+            }};
+        }
+        macro_rules! next_line {
+            () => {{
+                match line_stream.next() {
+                    Some(l) => l?,
+                    None => break,
+                }
+            }};
+        }
 
         'outer: loop {
             let line = next_line!();
@@ -408,7 +415,7 @@ impl Formatter {
 
         match self.md_attrs {
             SettingsMdAttrs::Hashes => out.push_str("\n###\n"),
-            SettingsMdAttrs::Code{..} => out.push_str("\n```\n"),
+            SettingsMdAttrs::Code { .. } => out.push_str("\n```\n"),
         }
     }
 }

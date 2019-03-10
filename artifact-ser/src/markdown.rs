@@ -432,4 +432,3 @@ fn completed_color(c: &Completed) -> &'static str {
         _ => panic!("invalid name points"),
     }
 }
-

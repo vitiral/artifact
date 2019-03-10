@@ -21,7 +21,7 @@
 use super::dev_prelude::*;
 use super::family::{arb_topologically_sorted_names, rand_select_partof};
 use super::implemented::random_impl_links;
-use artifact_data::raw::{Formatter, ArtifactRaw, Parser, TextRaw, ATTRS_END_RE};
+use artifact_data::raw::{ArtifactRaw, Formatter, Parser, TextRaw, ATTRS_END_RE};
 use artifact_data::raw_names::NamesRaw;
 
 // ------------------------------

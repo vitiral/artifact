@@ -18,7 +18,7 @@
 
 use crate::fmt;
 
-use super::{Completed, HashIm, SettingsExport, SettingsParse, SettingsFormat};
+use super::{Completed, HashIm, SettingsExport, SettingsFormat, SettingsParse};
 use crate::dev_prelude::*;
 use crate::lint;
 use crate::name::{Name, SubName};

@@ -87,7 +87,6 @@ pub struct SettingsExport {
     // #[serde(default)]
     // /// How to handle the `details` tag.
     // pub md_details: SettingsMdDetails,
-
     #[serde(default)]
     /// User definable header to include in the exported markdown
     pub md_header: Option<String>,
@@ -107,7 +106,6 @@ pub struct SettingsExport {
     /// How to write names
     #[serde(default)]
     pub md_name: SettingsMdName,
-
 }
 
 fn return_true() -> bool {
@@ -186,7 +184,7 @@ pub enum SettingsMdDetails {
     Details,
 
     /// Use custom top and bottom tags. `{summary}` will be replaced with the summary.
-    Custom { top: String , bottom: String},
+    Custom { top: String, bottom: String },
 }
 
 impl Default for SettingsMdDetails {
@@ -223,7 +221,6 @@ impl Default for SettingsMdAttrs {
         SettingsMdAttrs::Hashes
     }
 }
-
 
 // ------ HASH ------
 
