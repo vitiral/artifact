@@ -2,7 +2,7 @@ use crate::dev_prelude::*;
 use crate::ser::*;
 use std::io;
 
-use super::{Completed, SettingsMdDetails, SettingsMdDot, SettingsMdFamily};
+use super::{Completed, SettingsMdDot, SettingsMdFamily};
 use crate::md_graph;
 use crate::name::*;
 
