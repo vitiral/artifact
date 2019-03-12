@@ -34,7 +34,7 @@ lazy_static! {
 }
 
 /// The function used for routing urls.
-#[allow(needless_pass_by_value)]
+#[allow(clippy::needless_pass_by_value)]
 pub(crate) fn router_fn(info: yew_simple::RouteInfo) -> Msg {
     let hash = info.url.fragment().unwrap_or_default();
     let view = View::from_hash(hash);

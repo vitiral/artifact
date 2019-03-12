@@ -195,10 +195,10 @@ fn resolve_raw_paths(
         .iter()
         .filter_map(|p| {
             // backwards compatibility: just ignore front `{repo}/`
-            let p = p.trim_left_matches("{repo}");
+            let p = p.trim_start_matches("{repo}");
             // Also just allow `/something`... Path.join will just IGNORE joining
             // something with the other being "/something"
-            let p = p.trim_left_matches('/');
+            let p = p.trim_start_matches('/');
             let path = expect!(project_path.concat(p));
             match PathAbs::new(&path) {
                 Ok(p) => Some(p),
