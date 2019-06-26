@@ -64,7 +64,7 @@ In this way, artifact aims to unify other quality best practices while also
 make writing design documents more fun and useful in your day to day
 development efforts.
 
-**Jump into artifact with the the [youtube commercial][4] and the
+**Jump into artifact with the [youtube commercial][4] and the
 [Tutorial][1].**
 
 [Also, view artifact's own design docs.][2]
