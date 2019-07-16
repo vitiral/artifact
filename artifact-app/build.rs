@@ -72,7 +72,7 @@ fn build_mdbook() {
     let _status = Command::new("mdbook")
         .current_dir(mdbook_dir)
         .args(&["build"])
-        .output()
+        .status()
         .unwrap();
 }
 
