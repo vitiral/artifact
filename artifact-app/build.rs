@@ -23,10 +23,12 @@ lazy_static! {
 fn check_deps() {
     println!("Checking dependencies");
 
+	let path_finding_cmd = if cfg!(windows) {"where"} else {"which"};
+
     let mut missing = Vec::new();
 
     let check_cmd = |m: &mut Vec<_>, cmd: &'static str| {
-        let is_ok = Command::new("which")
+        let is_ok = Command::new(path_finding_cmd)
             .args(&[cmd])
             .output()
             .expect("which/where doesn't exist")
@@ -53,10 +55,24 @@ fn check_deps() {
 
 fn build_mdbook() {
     println!("Building the book");
+
+	let mdbook_dir = if cfg!(windows) {
+
+		let regex = Regex::new("[a-zA-Z].+").unwrap();
+		let shortened = regex.find(BOOK.as_path().to_str().expect("Invalid book dir"))
+			.unwrap();
+		&BOOK.as_path()
+			.to_str()
+			.expect("Invalid book dir")[shortened.start() .. shortened.end()]
+	} else {
+
+		BOOK.as_path().to_str().expect("Invalid book dir")
+	};
+
     let _status = Command::new("mdbook")
-        .current_dir(BOOK.as_path())
+        .current_dir(mdbook_dir)
         .args(&["build"])
-        .status()
+        .output()
         .unwrap();
 }
 
@@ -64,7 +80,7 @@ fn cp_mdbook() {
     println!("Copying mdbook to deploy");
     let (send, recv) = ch::unbounded();
     let deploy = PathDir::create_all(FRONTEND_DEPLOY.join("docs")).unwrap();
-    deploy.clone().remove_all().unwrap();
+	deploy.clone().remove_all().unwrap();
     deep_copy(
         send,
         PathDir::new(BOOK.join("out").join("book")).unwrap(),
