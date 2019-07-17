@@ -59,11 +59,10 @@ fn build_mdbook() {
     let mdbook_dir = if cfg!(windows) {
 
         let regex = Regex::new("[a-zA-Z].+").unwrap();
-        let shortened = regex.find(BOOK.as_path().to_str().expect("Invalid book dir"))
-            .unwrap();
-        &BOOK.as_path()
-            .to_str()
-            .expect("Invalid book dir")[shortened.start() .. shortened.end()]
+        let dir_as_str = BOOK.as_path().to_str().expect("Invalid book dir");
+        let shortened = regex.find(dir_as_str).unwrap();
+
+        &dir_as_str[shortened.start() .. shortened.end()]
     } else {
 
         BOOK.as_path().to_str().expect("Invalid book dir")
