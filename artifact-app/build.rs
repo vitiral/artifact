@@ -56,16 +56,14 @@ fn check_deps() {
 fn build_mdbook() {
     println!("Building the book");
 
+    let dir_as_str = BOOK.as_path().to_str().expect("Invalid book dir");
     let mdbook_dir = if cfg!(windows) {
 
-        let regex = Regex::new("[a-zA-Z].+").unwrap();
-        let dir_as_str = BOOK.as_path().to_str().expect("Invalid book dir");
-        let shortened = regex.find(dir_as_str).unwrap();
-
-        &dir_as_str[shortened.start() .. shortened.end()]
+        let windows_path_regex = Regex::new("[a-zA-Z]:.+").unwrap();
+        windows_path_regex.find(dir_as_str).unwrap().as_str()
     } else {
 
-        BOOK.as_path().to_str().expect("Invalid book dir")
+        dir_as_str
     };
 
     let _status = Command::new("mdbook")
