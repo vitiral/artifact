@@ -1,0 +1,5 @@
+py2/
+py3/
+pycheck/
+dist/
+anchor_txt.egg-info/
