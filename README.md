@@ -1,3 +1,5 @@
+> Heads up: reimagining artifact 3.0, check it out at [artifact_py](https://github.com/vitiral/artifact_py)
+
 # Artifact: design documentation for everybody
 
 <img width="250" align="right" alt="artifact logo"
