@@ -1,3 +1,5 @@
+> Heads up: reimagining artifact 3.0, check it out at [artifact_py](https://github.com/vitiral/artifact_py)
+
 # Artifact: design documentation for everybody
 
 **Note: this project, and the python re-write, should now be considered
@@ -67,7 +69,7 @@ In this way, artifact aims to unify other quality best practices while also
 make writing design documents more fun and useful in your day to day
 development efforts.
 
-**Jump into artifact with the the [youtube commercial][4] and the
+**Jump into artifact with the [youtube commercial][4] and the
 [Tutorial][1].**
 
 [Also, view artifact's own design docs.][2]

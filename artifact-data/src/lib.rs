@@ -23,7 +23,7 @@
 #![allow(dead_code)]
 #![allow(unused_imports)]
 #![allow(unknown_lints)]
-#![allow(doc_markdown)]
+#![allow(clippy::doc_markdown)]
 
 #[macro_use]
 extern crate expect_macro;
