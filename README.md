@@ -1,5 +1,8 @@
 # Artifact: design documentation for everybody
 
+**Note: this project, and the python re-write, should now be considered
+abandoned. Please use it as you see fit.**
+
 <img width="250" align="right" alt="artifact logo"
  src="https://github.com/vitiral/artifact/blob/master/ci/data/logo/logo.png?raw=true">
 
