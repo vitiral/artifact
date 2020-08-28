@@ -23,10 +23,12 @@ lazy_static! {
 fn check_deps() {
     println!("Checking dependencies");
 
+    let path_finding_cmd = if cfg!(windows) {"where"} else {"which"};
+
     let mut missing = Vec::new();
 
     let check_cmd = |m: &mut Vec<_>, cmd: &'static str| {
-        let is_ok = Command::new("which")
+        let is_ok = Command::new(path_finding_cmd)
             .args(&[cmd])
             .output()
             .expect("which/where doesn't exist")
@@ -53,8 +55,19 @@ fn check_deps() {
 
 fn build_mdbook() {
     println!("Building the book");
+
+    let dir_as_str = BOOK.as_path().to_str().expect("Invalid book dir");
+    let mdbook_dir = if cfg!(windows) {
+
+        let windows_path_regex = Regex::new("[a-zA-Z]:.+").unwrap();
+        windows_path_regex.find(dir_as_str).unwrap().as_str()
+    } else {
+
+        dir_as_str
+    };
+
     let _status = Command::new("mdbook")
-        .current_dir(BOOK.as_path())
+        .current_dir(mdbook_dir)
         .args(&["build"])
         .status()
         .unwrap();
